@@ -1,0 +1,323 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/registry/v1";
+option java_multiple_files = true;
+option java_package = "dev.chainguard.sdk.platform.registry.v1";
+option java_outer_classname = "PlatformRegistryProto";
+
+package chainguard.platform.registry;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "annotations/auth.proto";
+import "annotations/events.proto";
+import "platform/common/v1/uidp.platform.proto";
+
+service Registry {
+  rpc CreateRepo(CreateRepoRequest) returns (Repo) {
+    option (google.api.http) = {
+      post: "/registry/v1/repos/{parent_id=**}"
+      body: "repo"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_CREATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.platform.registry.repo.created.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  rpc UpdateRepo(Repo) returns (Repo) {
+    option (google.api.http) = {
+      put: "/registry/v1/repos/{id=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_UPDATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.platform.registry.repo.updated.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  rpc ListRepos(RepoFilter) returns (RepoList) {
+    option (google.api.http) = {
+      get: "/registry/v1/repos"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST]
+        unscoped: true
+      }
+    };
+  }
+
+  rpc DeleteRepo(DeleteRepoRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/registry/v1/repos/{id=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_DELETE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.platform.registry.repo.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  rpc CreateTag(CreateTagRequest) returns (Tag) {
+    option (google.api.http) = {
+      post: "/registry/v1/tags/{repo_id=**}"
+      body: "tag"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TAG_CREATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.platform.registry.tag.created.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  rpc UpdateTag(Tag) returns (Tag) {
+    option (google.api.http) = {
+      put: "/registry/v1/tags/{id=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TAG_UPDATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.platform.registry.tag.updated.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  rpc DeleteTag(DeleteTagRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/registry/v1/tags/{id=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TAG_DELETE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.platform.registry.tag.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  rpc ListTags(TagFilter) returns (TagList) {
+    option (google.api.http) = {
+      get: "/registry/v1/tags"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TAG_LIST]
+        unscoped: true
+      }
+    };
+  }
+
+  rpc ListTagHistory(TagHistoryFilter) returns (TagHistoryList) {
+    option (google.api.http) = {
+      get: "/registry/v1/tags/{parent_id=**}/history"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TAG_LIST]
+      }
+    };
+  }
+}
+
+message Repo {
+  // id is the identifier of this specific repository.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // name is the human-readable name of the repository.
+  string name = 2;
+
+  // catalog_tier is the catalog tier this repository belongs to.
+  CatalogTier catalog_tier = 3;
+
+  // bundles is a list of tags/labels that allow us to group repositories to each other for sales purposes.
+  repeated string bundles = 4;
+}
+
+enum CatalogTier {
+  UNKNOWN  = 0;
+  FREE     = 1;
+  STANDARD = 2;
+  PREMIUM  = 3;
+}
+
+message CreateRepoRequest {
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+  Repo repo = 2;
+}
+
+message DeleteRepoRequest {
+  // ID, UID of the record.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message RepoList {
+  repeated Repo items = 1;
+}
+
+message RepoFilter {
+  // uidp filters records based on their position in the group hierarchy.
+  chainguard.platform.common.UIDPFilter uidp = 1;
+
+  // name is the exact name of the record.
+  string name = 2;
+
+  // id is the identifier of this specific repository.
+  string id = 3;
+}
+
+message CreateTagRequest {
+  string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
+  Tag tag = 2;
+}
+
+message DeleteTagRequest {
+  // ID, UID of the record.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message Tag {
+  // id, identifier of this Tag, a UIDP under a Repo.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // name, the unique name of the Tag.
+  string name = 2;
+
+  // digest, the digest of the manifest with this tag.
+  string digest = 3;
+
+  // last time this tag was updated.
+  google.protobuf.Timestamp last_updated = 4;
+
+  // deprecated, true if the tag is deprecated.
+  bool deprecated = 5;
+
+  // bundles is a list of tags/labels for sales purposes.
+  repeated string bundles = 6;
+}
+
+message TagFilter {
+  // uidp filters records based on their position in the group hierarchy.
+  chainguard.platform.common.UIDPFilter uidp = 1;
+
+  // The unique name of the Tag to list.
+  string name = 2;
+
+  // The timestamp after which returned records were updated.
+  google.protobuf.Timestamp updated_since = 3;
+
+  // Exclude tags of the form "sha256-*".
+  bool exclude_referrers = 6;
+
+  // Exclude tags of the form "*-20yymmdd".
+  bool exclude_dates = 7;
+
+  // Exclude tags of the form "*-r[0-9]+".
+  bool exclude_epochs = 8;
+
+  string id = 9;
+}
+
+message TagList {
+  repeated Tag items = 1;
+}
+
+message TagHistoryFilter {
+  // tag UIDP to list history for.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  google.protobuf.Timestamp start = 2;
+  google.protobuf.Timestamp end = 3;
+}
+
+message TagHistoryList {
+  repeated TagHistory items = 1;
+}
+
+message TagHistory {
+  google.protobuf.Timestamp update_timestamp = 1;
+  string digest = 2;
+}
+
+message ImageDiff {
+  PackagesDiff packages = 1;
+  VulnerabilitiesDiff vulnerabilities = 2;
+  FilesDiff files = 3;
+}
+
+message PackagesDiff {
+  repeated PackageReference added = 1;
+  repeated PackageReference removed = 2;
+
+  message ChangedPackageReference {
+    string name = 1;
+    VersionReference current = 2;
+    VersionReference previous = 3;
+  }
+
+  repeated ChangedPackageReference changed = 3;
+}
+
+message FilesDiff {
+  repeated FileReference added = 1;
+  repeated FileReference removed = 2;
+}
+
+message FileReference {
+  string name = 1;
+}
+
+message VersionReference {
+  string version = 1;
+  string reference = 2;
+}
+
+// PackageReference is a reference to a package, containing minimal information to identify it.
+message PackageReference {
+  string name = 1;
+  string version = 2;
+  string reference = 3;
+}
+
+message VulnerabilitiesDiff {
+  repeated VulnerabilityReference added = 1;
+  repeated VulnerabilityReference removed = 2;
+}
+
+// VulnerabilityReference is a reference to a vulnerability, containing minimal information to identify it.
+message VulnerabilityReference {
+  string id = 1;
+  string reference = 2;
+  string severity = 3;
+}

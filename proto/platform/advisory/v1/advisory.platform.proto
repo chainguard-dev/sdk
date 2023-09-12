@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/advisory/v1";
+option java_multiple_files = true;
+option java_package = "dev.chainguard.sdk.platform.advisory.v1";
+option java_outer_classname = "PlatformAdvisoryProto";
+
+package chainguard.platform.advisory;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "annotations/auth.proto";
+
+service SecurityAdvisory {
+  rpc ListPackages(PackageFilter) returns (PackageList) {
+    option (google.api.http) = {
+      get: "/advisory/v1/packages"
+    };
+    option (chainguard.annotations.iam) = {
+      // This method doesn't require authentication.
+      disabled: {}
+    };
+  }
+}
+
+message Advisory {
+  // id is the identifier of this specific advisory.
+  string id = 1;
+
+  repeated Event events = 2;
+}
+
+message Package {
+  string id = 1;
+
+  repeated Advisory advisories = 2;
+}
+
+message Event {
+  Type type = 1;
+
+  google.protobuf.Timestamp timestamp = 2;
+
+  enum Type {
+    // The "unset" value.
+    EVENT_TYPE_UNSPECIFIED = 0;
+
+    // The vulnerability is a true positive.
+    TRUE_POSITIVE_DETERMINATION = 1;
+
+    // The vulnerability is a false positive.
+    FALSE_POSITIVE_DETERMINATION = 2;
+
+    // The vulnerability has been addressed.
+    FIXED = 3;
+  }
+}
+
+
+message PackageFilter {
+  // id is the id of a package.
+  string id = 1;
+
+  repeated string cves = 2;
+}
+
+message PackageList {
+  repeated Package items = 1;
+}

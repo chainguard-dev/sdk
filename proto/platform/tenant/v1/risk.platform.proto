@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/tenant/v1";
+option java_multiple_files = true;
+option java_package = "dev.chainguard.sdk.platform.tenant.v1";
+option java_outer_classname = "PlatformRiskProto";
+
+package chainguard.platform.tenant;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "annotations/auth.proto";
+import "platform/common/v1/uidp.platform.proto";
+
+service Risks {
+    rpc List(RiskFilter) returns (RiskList) {
+        option (google.api.http) = {
+          get: "/tenant/v1/risks"
+        };
+        option (chainguard.annotations.iam) = {
+          enabled: {
+            capabilities: [CAP_TENANT_RISKS_LIST]
+            unscoped: true
+          }
+        };
+      }
+}
+
+message RiskFilter{
+    // id is the exact UID of the record.
+    string id = 1;
+
+    chainguard.platform.common.UIDPFilter uidp = 2;
+}
+
+message RiskList{
+    repeated Risk items = 1;
+}
+
+message Risk {
+    // Risk ID (UIDP resource + unique ID)
+    string id = 1;
+
+    // Grouping identifier to associate Risks in the same UIDP
+    // to each other.
+    string group_id = 2;
+
+    // List of UIDPs that were used to determine this Risk.
+    repeated string inputs = 3;
+
+    // What kind of risk is this? Lack of signatures, vulnerability, SBOM quality, etc.
+    Details details = 4;
+
+    message Details {
+        oneof data {
+            MissingData missing_data = 1;
+        }
+    }
+
+    message MissingData {
+        // What kind of data is missing (e.g. signature, sbom, policy, etc.)
+        Type type = 1;
+
+        enum Type {
+            UNKNOWN = 0;
+            SIGNATURE = 1;
+            SBOM = 2;
+            POLICY = 3;
+        }
+    }
+
+    message Vulnerability {
+        Severity severity = 5;
+
+        enum Severity {
+            UNKNOWN = 0;
+            LOW = 1;
+            MEDIUM = 2;
+            HIGH = 3;
+            CRITICAL = 4;
+        }
+
+        // External identifier of the source of the vuln - e.g. CVE ID.
+        string source = 7;
+    }
+
+    // Output only. Free form text describing this Risk.
+    string description = 5;
+    // Output only. Chainguard EDU link for more details on this Risk.
+    string documentation_url = 6;
+
+    // Optional. Chainguard's recommendation(s) for how to resolve this Risk.
+    repeated Recommendation recommendations = 7;
+
+    // Output only. When Enforce last saw this Risk.
+    google.protobuf.Timestamp last_seen = 8;
+}
+
+message Recommendation {
+    // Classification of what kind of remediation this is, e.g.:
+    // upgrade, replace, etc.
+    oneof action {
+        ReplaceArtifact replace = 1;
+    }
+
+    message ReplaceArtifact {
+        string from = 1;
+        // Target artifact that may be able to resolve this Risk.
+        string to = 2;
+    }
+
+    // Output only. Free form text describing how this can be resolved.
+    string description = 3;
+    // Output only. Chainguard EDU link for more details on this Recommendation.
+    string documentation_url = 4;
+}
