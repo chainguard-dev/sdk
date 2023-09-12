@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/iam/v1";
+option java_multiple_files = true;
+option java_package = "dev.chainguard.sdk.platform.iam.v1";
+option java_outer_classname = "PlatformIAMRoleProto";
+
+package chainguard.platform.iam;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "annotations/auth.proto";
+import "platform/common/v1/uidp.platform.proto";
+
+service Roles {
+  rpc Create(CreateRoleRequest) returns (Role) {
+    option (google.api.http) = {
+      post: "/iam/v1/roles/{parent_id=**}"
+      body: "role"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_ROLES_CREATE]
+      }
+    };
+  }
+
+  rpc Update(Role) returns (Role) {
+    option (google.api.http) = {
+      put: "/iam/v1/roles/{id=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_ROLES_UPDATE]
+      }
+    };
+  }
+
+  rpc List(RoleFilter) returns (RoleList) {
+    option (google.api.http) = {
+      get: "/iam/v1/roles"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_ROLES_LIST]
+        unscoped: true
+      }
+    };
+  }
+
+  rpc Delete(DeleteRoleRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/iam/v1/roles/{id=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_ROLES_DELETE]
+      }
+    };
+  }
+}
+
+message Role {
+  // id, The Group path under which this Role resides.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+  // name, human readable name of group.
+  string name = 2;
+  // description, human readable description of group.
+  string description = 3;
+  // capabilities, human readable list of capabilities supported by the group.
+  repeated string capabilities = 4;
+}
+
+message RoleList {
+    repeated Role items = 1;
+}
+
+message RoleFilter {
+  // id is the exact UIDP of the record.
+  string id = 1;
+  // name is the exact name of the record
+  string name = 2;
+  // parent is the exact UIDP of the parent, or / for root
+  string parent = 3;
+  // uidp filters records based on their position in the group hierarchy.
+  chainguard.platform.common.UIDPFilter uidp = 4;
+}
+
+message CreateRoleRequest {
+  // parent_id, The Group UIDP path under which the new Role resides.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+  // Role to create.
+  Role role = 2;
+}
+
+message DeleteRoleRequest {
+  // id is the exact UIDP of the record.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+}

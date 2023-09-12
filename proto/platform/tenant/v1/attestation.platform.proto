@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/tenant/v1";
+option java_multiple_files = true;
+option java_package = "dev.chainguard.sdk.platform.tenant.v1";
+option java_outer_classname = "PlatformTenantAttestationProto";
+
+package chainguard.platform.tenant;
+
+import "google/protobuf/timestamp.proto";
+import "annotations/auth.proto";
+import "platform/common/v1/uidp.platform.proto";
+
+service Attestations {
+    rpc List(AttestationFilter) returns (AttestationList) {
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TENANT_ATTESTATIONS_LIST]
+        unscoped: true
+      }
+    };
+    }
+  }
+
+// Attestation represents a normalized Attestation that we have ingested into our datastore.
+// They are linked to Signatures via ID, as in they are 'children' of Signatures
+// There can be multiple of these that we keep.
+message Attestation {
+  // id, The Attestation UIDP at which this Attestation resides in the hierarchy.
+  string id = 1;
+  // raw_attestation is a free form typr to stub in any attesations so we don't end up a
+  // adding new tables for all the new type of attesations , initial goal is to add image configs a
+  // and anything which comes up after that
+
+  bytes raw_attestation = 2;
+
+  // format holds whether the Document format type
+  string format = 3;
+  // generated_at holds when the Attestation was generated.
+  google.protobuf.Timestamp generated_at = 4;
+
+  // Name of the Attestation.
+  string name = 5;
+
+  // Short description of the Attesation
+  string description = 6;
+
+  // digest of the Attestation when ingested
+  optional string digest = 7;
+}
+
+message AttestationList {
+  repeated Attestation items = 1;
+}
+
+message AttestationFilter {
+  // id is the exact UID of the record.
+  string id = 1;
+
+  chainguard.platform.common.UIDPFilter uidp = 2;
+
+}

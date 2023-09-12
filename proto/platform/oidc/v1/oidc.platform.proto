@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/oidc/v1";
+option java_multiple_files = true;
+option java_package = "dev.chainguard.sdk.platform.oidc.v1";
+option java_outer_classname = "PlatformOIDCProto";
+
+package chainguard.platform.oidc;
+
+import "google/api/annotations.proto";
+import "google/api/resource.proto";
+
+service SecurityTokenService {
+  rpc Exchange(ExchangeRequest) returns (RawToken) {
+    option (google.api.http) = {
+      post: "/sts/exchange"
+      additional_bindings {
+        get: "/sts/exchange"
+      }
+    };
+  }
+}
+
+message ExchangeRequest {
+  repeated string aud = 1;
+  string scope = 2;
+  string cluster = 3;
+  string identity = 4;
+
+  // List of capabilities to request for the token.
+  repeated string cap = 5 [(google.api.resource_reference) = {
+    type: "chainguard.capabilities/Capability"
+  }];
+
+  // Whether or not to include the upstream token in the response
+  bool include_upstream_token = 6;
+}
+
+message RawToken {
+  string token = 1;
+}
