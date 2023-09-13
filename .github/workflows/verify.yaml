@@ -44,6 +44,28 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
+      #- name: Install protoc
+      #  uses: arduino/setup-protoc@v1.1.2
+      # arduino/setup-protoc@v1.1.2 can't install latest releases of protoc due
+      # to protoc changing their version naming scheme:
+      # https://github.com/arduino/setup-protoc/issues/33
+      - name: Install Protoc
+        run: |
+          cd "$(mktemp -d)"
+          wget -O protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v21.12/protoc-21.12-linux-x86_64.zip
+          unzip protoc.zip -d .
+          chmod +x ./bin/protoc
+          echo "$(pwd)/bin" >> "$GITHUB_PATH"
+
+      - name: Install Dependencies
+        run: |
+          cd $(mktemp -d)
+          go install github.com/google/go-licenses@ceb292363ec84358c9a276ef23aa0de893e59b84
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
+          go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.10.0
+          go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.10.0
+
       - name: Update Codegen
         shell: bash
         working-directory: ./src/github.com/${{ github.repository }}
