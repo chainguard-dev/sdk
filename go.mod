@@ -9,7 +9,7 @@ require (
 	github.com/bits-and-blooms/bitset v1.8.0
 	github.com/cloudevents/sdk-go/v2 v2.14.0
 	github.com/google/go-cmp v0.5.9
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.17.0
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.0
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
 	github.com/sigstore/policy-controller v0.8.2
 	go.uber.org/zap v1.26.0
