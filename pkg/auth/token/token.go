@@ -11,6 +11,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -106,6 +107,12 @@ func DeleteAll() error {
 // Path is the filepath of the token for the given audience.
 func Path(audience string) (string, error) {
 	a := strings.ReplaceAll(audience, "/", "-")
+	// Windows does not allow : as a valid character for directory names.
+	// For backwards compatibility, keep : in directory names for non-Windows systems.
+	// Ref: https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file
+	if runtime.GOOS == "windows" {
+		a = strings.ReplaceAll(a, ":", "-")
+	}
 	fp := filepath.Join(a, filename)
 	return cacheFilePath(fp)
 }

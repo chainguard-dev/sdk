@@ -33,9 +33,10 @@ type AuthOnValidate struct {
 }
 
 type AuthOnRegister struct {
-	Given   *auth.RegistrationRequest
-	Created *auth.Session
-	Error   error
+	Given        *auth.RegistrationRequest
+	Created      *auth.Session
+	CheckContext FromContextFn
+	Error        error
 }
 
 func (m MockAuthClient) Validate(ctx context.Context, _ *emptypb.Empty, _ ...grpc.CallOption) (*auth.WhoAmI, error) {
@@ -47,10 +48,12 @@ func (m MockAuthClient) Validate(ctx context.Context, _ *emptypb.Empty, _ ...grp
 	return nil, fmt.Errorf("mock not found for context: %v", ctx)
 }
 
-func (m MockAuthClient) Register(_ context.Context, given *auth.RegistrationRequest, _ ...grpc.CallOption) (*auth.Session, error) {
+func (m MockAuthClient) Register(ctx context.Context, given *auth.RegistrationRequest, _ ...grpc.CallOption) (*auth.Session, error) {
 	for _, o := range m.OnRegister {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
-			return o.Created, o.Error
+			if o.CheckContext == nil || o.CheckContext(ctx) {
+				return o.Created, o.Error
+			}
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)

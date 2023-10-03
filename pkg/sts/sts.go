@@ -8,6 +8,7 @@ package sts
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
@@ -201,7 +202,17 @@ func (i *HTTP1DowngradeExchanger) Exchange(ctx context.Context, token string, op
 		}
 	}
 
-	client := oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token}))
+	// Explicitly disable HTTP/2 support by setting the
+	// client Transport's TLSNextProto to an empty map.
+	// ref: https://pkg.go.dev/net/http#hdr-HTTP_2
+	client := &http.Client{
+		Transport: &oauth2.Transport{
+			Base: &http.Transport{
+				TLSNextProto: map[string]func(string, *tls.Conn) http.RoundTripper{},
+			},
+			Source: oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token}),
+		},
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
