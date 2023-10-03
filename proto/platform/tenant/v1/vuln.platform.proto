@@ -14,6 +14,9 @@ import "sbom.platform.proto";
 
 service VulnReports {
   rpc List(VulnReportFilter) returns (VulnReportList) {
+    option (google.api.http) = {
+      get: "/tenant/v1/vulnreports"
+    };
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [CAP_TENANT_VULN_REPORTS_LIST]
