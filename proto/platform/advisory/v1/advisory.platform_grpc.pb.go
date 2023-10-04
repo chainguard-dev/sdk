@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	SecurityAdvisory_ListPackages_FullMethodName = "/chainguard.platform.advisory.SecurityAdvisory/ListPackages"
+	SecurityAdvisory_ListDocuments_FullMethodName = "/chainguard.platform.advisory.SecurityAdvisory/ListDocuments"
 )
 
 // SecurityAdvisoryClient is the client API for SecurityAdvisory service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SecurityAdvisoryClient interface {
-	ListPackages(ctx context.Context, in *PackageFilter, opts ...grpc.CallOption) (*PackageList, error)
+	ListDocuments(ctx context.Context, in *DocumentFilter, opts ...grpc.CallOption) (*DocumentList, error)
 }
 
 type securityAdvisoryClient struct {
@@ -37,9 +37,9 @@ func NewSecurityAdvisoryClient(cc grpc.ClientConnInterface) SecurityAdvisoryClie
 	return &securityAdvisoryClient{cc}
 }
 
-func (c *securityAdvisoryClient) ListPackages(ctx context.Context, in *PackageFilter, opts ...grpc.CallOption) (*PackageList, error) {
-	out := new(PackageList)
-	err := c.cc.Invoke(ctx, SecurityAdvisory_ListPackages_FullMethodName, in, out, opts...)
+func (c *securityAdvisoryClient) ListDocuments(ctx context.Context, in *DocumentFilter, opts ...grpc.CallOption) (*DocumentList, error) {
+	out := new(DocumentList)
+	err := c.cc.Invoke(ctx, SecurityAdvisory_ListDocuments_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (c *securityAdvisoryClient) ListPackages(ctx context.Context, in *PackageFi
 // All implementations must embed UnimplementedSecurityAdvisoryServer
 // for forward compatibility
 type SecurityAdvisoryServer interface {
-	ListPackages(context.Context, *PackageFilter) (*PackageList, error)
+	ListDocuments(context.Context, *DocumentFilter) (*DocumentList, error)
 	mustEmbedUnimplementedSecurityAdvisoryServer()
 }
 
@@ -58,8 +58,8 @@ type SecurityAdvisoryServer interface {
 type UnimplementedSecurityAdvisoryServer struct {
 }
 
-func (UnimplementedSecurityAdvisoryServer) ListPackages(context.Context, *PackageFilter) (*PackageList, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListPackages not implemented")
+func (UnimplementedSecurityAdvisoryServer) ListDocuments(context.Context, *DocumentFilter) (*DocumentList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListDocuments not implemented")
 }
 func (UnimplementedSecurityAdvisoryServer) mustEmbedUnimplementedSecurityAdvisoryServer() {}
 
@@ -74,20 +74,20 @@ func RegisterSecurityAdvisoryServer(s grpc.ServiceRegistrar, srv SecurityAdvisor
 	s.RegisterService(&SecurityAdvisory_ServiceDesc, srv)
 }
 
-func _SecurityAdvisory_ListPackages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PackageFilter)
+func _SecurityAdvisory_ListDocuments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DocumentFilter)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityAdvisoryServer).ListPackages(ctx, in)
+		return srv.(SecurityAdvisoryServer).ListDocuments(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityAdvisory_ListPackages_FullMethodName,
+		FullMethod: SecurityAdvisory_ListDocuments_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityAdvisoryServer).ListPackages(ctx, req.(*PackageFilter))
+		return srv.(SecurityAdvisoryServer).ListDocuments(ctx, req.(*DocumentFilter))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -100,8 +100,8 @@ var SecurityAdvisory_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*SecurityAdvisoryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListPackages",
-			Handler:    _SecurityAdvisory_ListPackages_Handler,
+			MethodName: "ListDocuments",
+			Handler:    _SecurityAdvisory_ListDocuments_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

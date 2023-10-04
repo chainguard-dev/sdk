@@ -35,17 +35,17 @@ func (m MockSecurityAdvisoryClients) Close() error {
 var _ advisory.SecurityAdvisoryClient = (*MockSecurityAdvisoryClient)(nil)
 
 type MockSecurityAdvisoryClient struct {
-	OnListAdvisories []AdvisoriesOnList
+	OnListDocuments []DocumentsOnList
 }
 
-type AdvisoriesOnList struct {
-	Given *advisory.PackageFilter
-	List  *advisory.PackageList
+type DocumentsOnList struct {
+	Given *advisory.DocumentFilter
+	List  *advisory.DocumentList
 	Error error
 }
 
-func (m MockSecurityAdvisoryClient) ListPackages(_ context.Context, given *advisory.PackageFilter, _ ...grpc.CallOption) (*advisory.PackageList, error) { //nolint: revive
-	for _, o := range m.OnListAdvisories {
+func (m MockSecurityAdvisoryClient) ListDocuments(_ context.Context, given *advisory.DocumentFilter, _ ...grpc.CallOption) (*advisory.DocumentList, error) { //nolint: revive
+	for _, o := range m.OnListDocuments {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.List, o.Error
 		}
