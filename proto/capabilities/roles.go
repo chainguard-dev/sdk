@@ -37,8 +37,6 @@ var (
 		Capability_CAP_TENANT_VULN_REPORTS_LIST,
 		Capability_CAP_TENANT_WORKLOADS_LIST,
 
-		Capability_CAP_TENANT_VULN_REPORTS_LIST,
-
 		Capability_CAP_SIGSTORE_LIST,
 	},
 		// Viewers can also list repos and tags, and pull images.
@@ -92,6 +90,10 @@ var (
 		Capability_CAP_IAM_ROLES_CREATE,
 		Capability_CAP_IAM_ROLES_DELETE,
 		Capability_CAP_IAM_ROLES_UPDATE,
+
+		// Add gulfstream capability to owner so owners can rolebind
+		// identities to the gulfstream role.
+		Capability_CAP_GULFSTREAM,
 	}, append(EditorCaps,
 		// Owners can also push and delete images, subject to the identity allowlist.
 		RegistryPushCaps...)...))
@@ -102,6 +104,10 @@ var (
 		Capability_CAP_REPO_LIST,
 		Capability_CAP_MANIFEST_LIST,
 		Capability_CAP_TAG_LIST,
+
+		Capability_CAP_TENANT_RECORD_SIGNATURES_LIST,
+		Capability_CAP_TENANT_SBOMS_LIST,
+		Capability_CAP_TENANT_VULN_REPORTS_LIST,
 	})
 
 	RegistryPushCaps = sortCaps(append([]Capability{
@@ -116,6 +122,14 @@ var (
 		Capability_CAP_TAG_CREATE,
 		Capability_CAP_TAG_UPDATE,
 		Capability_CAP_TAG_DELETE,
+	}, RegistryPullCaps...))
+
+	RegistryPullTokenCreatorCaps = sortCaps(append([]Capability{
+		// Minimal set of capabilities to create a registry pull token.
+		Capability_CAP_IAM_ROLE_BINDINGS_CREATE,
+		Capability_CAP_IAM_IDENTITY_CREATE,
+
+		Capability_CAP_IAM_ROLES_LIST,
 	}, RegistryPullCaps...))
 
 	SigningViewerCaps = sortCaps([]Capability{

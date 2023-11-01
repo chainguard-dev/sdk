@@ -103,6 +103,10 @@ message RoleBindingList {
     chainguard.platform.iam.Role role = 4;
     // email of the bound identity.
     string email = 5;
+    // ClaimMatch issuer of the bound identity.
+    string claim_match_issuer = 6;
+    // ClaimMatch subject of the bound identity.
+    string claim_match_subject = 7;
   }
   repeated Binding items = 1;
 }

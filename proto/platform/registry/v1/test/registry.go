@@ -35,6 +35,8 @@ func (m MockRegistryClients) Close() error {
 var _ registry.RegistryClient = (*MockRegistryClient)(nil)
 
 type MockRegistryClient struct {
+	registry.RegistryClient
+
 	OnCreateRepos    []ReposOnCreate
 	OnDeleteRepos    []ReposOnDelete
 	OnListRepos      []ReposOnList

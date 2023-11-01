@@ -58,6 +58,31 @@ func NormalizeIssuer(issuer string) string {
 	return issuer
 }
 
+type Actor struct {
+	Audience string `json:"aud"`
+	Issuer   string `json:"iss"`
+	Subject  string `json:"sub"`
+}
+
+func ExtractActor(token string) (*Actor, error) {
+	parts := strings.Split(token, ".")
+	if len(parts) < 2 {
+		return nil, fmt.Errorf("oidc: malformed jwt, expected 3 parts got %d", len(parts))
+	}
+	raw, err := base64.RawURLEncoding.DecodeString(parts[1])
+	if err != nil {
+		return nil, fmt.Errorf("oidc: malformed jwt payload: %w", err)
+	}
+
+	var payload struct {
+		Actor Actor `json:"act"`
+	}
+	if err := json.Unmarshal(raw, &payload); err != nil {
+		return nil, fmt.Errorf("oidc: failed to unmarshal actor: %w", err)
+	}
+	return &payload.Actor, nil
+}
+
 func ExtractIssuer(token string) (string, error) {
 	iss, _, err := ExtractIssuerAndSubject(token)
 	return iss, err
