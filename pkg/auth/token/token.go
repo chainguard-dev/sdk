@@ -80,11 +80,9 @@ func DeleteAll() error {
 	//
 	//  $ tree ~/Library/Caches/chainguard
 	// /Users/foo/Library/Caches/chainguard
-	// ├── https:--console-api.chainops.dev
-	// │   └── oidc-token
 	// ├── https:--console-api.enforce.dev
 	// │   └── oidc-token
-	// ├── https:--console-api.test-env.dev
+	// ├── https:--cgr.dev
 	//    └── oidc-token
 	for _, file := range files {
 		if !file.IsDir() {

@@ -470,7 +470,7 @@ func (x *RecordContext_Workload) GetRemoteId() string {
 // Ancestry relationships are added to records when a "base image"
 // relationship has been uncovered.  This context is added to BOTH
 // records with their respective roles.  The base image will get
-// the Role BASE, and the derivative image will get the Rile DERIVED.
+// the Role BASE, and the derivative image will get the Role DERIVED.
 type RecordContext_Ancestry struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -536,7 +536,7 @@ func (x *RecordContext_Ancestry) GetImageId() string {
 // index.  The INDEX will typically contain N contexts carrying the Role
 // INDEX, the id of the VARIANT's record, and the version information
 // that discriminates that VARIANT from other VARIANTs.  The VARIANT
-// will typically (but not always!) contain 1 context varrying the Role
+// will typically (but not always!) contain 1 context carrying the Role
 // VARIANT, the id of the INDEX's record, and the version information
 // that discriminates it among the other VARIANTs in the INDEX.
 type RecordContext_Variant struct {
