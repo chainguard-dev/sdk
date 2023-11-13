@@ -19,9 +19,9 @@ const (
 )
 
 var (
-	// Valid webhook label selection options for a managed cluster
+	// ValidNamespaceEnforcementModeOpts are valid webhook label selection options for a managed cluster
 	ValidNamespaceEnforcementModeOpts = sets.NewString(NamespaceEnforcementModeOptIn, NamespaceEnforcementModeOptOut)
 
-	// Valid enforcer options available field names
+	// ValidEnforcerOptions are valid field names of enforcer options available
 	ValidEnforcerOptions = sets.NewString(EnforcerOptionWebhookFailOpen, EnforcerOptionEnableCIPCache, EnforcerOptionNamespaceEnforcementMode)
 )

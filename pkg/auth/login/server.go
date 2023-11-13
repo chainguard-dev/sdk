@@ -54,7 +54,7 @@ func newServer(ctx context.Context) (*server, error) {
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/":
-		fmt.Fprint(w, HTMLAuthSucessful)
+		fmt.Fprint(w, HTMLAuthSuccessful)
 		close(s.token)
 		return
 

@@ -32,15 +32,18 @@ type Attestation struct {
 	unknownFields protoimpl.UnknownFields
 
 	// id, The Attestation UIDP at which this Attestation resides in the hierarchy.
-	Id             string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// raw_attestation is a free form type to stub in any attestations so we don't end up a
+	// adding new tables for all the new type of attestations, initial goal is to add image configs
+	// and anything which comes up after that
 	RawAttestation []byte `protobuf:"bytes,2,opt,name=raw_attestation,json=rawAttestation,proto3" json:"raw_attestation,omitempty"`
-	// format holds whether the Document format type
+	// format holds the Document format type
 	Format string `protobuf:"bytes,3,opt,name=format,proto3" json:"format,omitempty"`
 	// generated_at holds when the Attestation was generated.
 	GeneratedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=generated_at,json=generatedAt,proto3" json:"generated_at,omitempty"`
 	// Name of the Attestation.
 	Name string `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`
-	// Short description of the Attesation
+	// Short description of the Attestation
 	Description string `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`
 	// digest of the Attestation when ingested
 	Digest *string `protobuf:"bytes,7,opt,name=digest,proto3,oneof" json:"digest,omitempty"`

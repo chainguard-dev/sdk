@@ -5,8 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 
 package login
 
-const (
-	HTMLAuthSucessful = `<!DOCTYPE html>
+var (
+	HTMLAuthSuccessful = `<!DOCTYPE html>
 <html>
 	<head>
 		<title>Chainguard Authentication</title>
@@ -51,8 +51,8 @@ const (
 		</a>
 		<div class="container">
 			<div class="title">
-				<span class="chainctl">chainctl </span>
-				<span>authentication successful!</span>
+				<span class="logo">Chainguard</span>
+				<span> authentication successful!</span>
 			</div>
 			<div class="content">
 				<span>You may now close </span>
@@ -61,7 +61,7 @@ const (
 			</div>
 			<div class="links if-online">
 				<a href="https://console.enforce.dev" class="link login"><span class="logo">Chainguard Console</span></a>
-				<a href="https://go.chainguard.dev/chainctl-docs" class="link"><span class="chainctl">chainctl</span> documentation</a>
+				<a href="https://edu.chainguard.dev" class="link"><span class="logo">Chainguard Academy</span></a>
 				<a href="https://www.chainguard.dev/unchained" class="link"><span class="logo">Chainguard Blog</span></a>
 			</div>
 		</div>

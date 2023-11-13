@@ -28,21 +28,22 @@ service Attestations {
 message Attestation {
   // id, The Attestation UIDP at which this Attestation resides in the hierarchy.
   string id = 1;
-  // raw_attestation is a free form typr to stub in any attesations so we don't end up a
-  // adding new tables for all the new type of attesations , initial goal is to add image configs a
-  // and anything which comes up after that
 
+  // raw_attestation is a free form type to stub in any attestations so we don't end up a
+  // adding new tables for all the new type of attestations, initial goal is to add image configs
+  // and anything which comes up after that
   bytes raw_attestation = 2;
 
-  // format holds whether the Document format type
+  // format holds the Document format type
   string format = 3;
+
   // generated_at holds when the Attestation was generated.
   google.protobuf.Timestamp generated_at = 4;
 
   // Name of the Attestation.
   string name = 5;
 
-  // Short description of the Attesation
+  // Short description of the Attestation
   string description = 6;
 
   // digest of the Attestation when ingested

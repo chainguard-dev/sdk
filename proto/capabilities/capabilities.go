@@ -12,7 +12,7 @@ import (
 	"io"
 	"sort"
 	"strings"
-	sync "sync"
+	"sync"
 
 	"github.com/bits-and-blooms/bitset"
 	"go.uber.org/zap"
