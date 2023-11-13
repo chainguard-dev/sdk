@@ -43,7 +43,7 @@ type Attestation struct {
 	GeneratedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=generated_at,json=generatedAt,proto3" json:"generated_at,omitempty"`
 	// Name of the Attestation.
 	Name string `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`
-	// Short description of the Attention
+	// Short description of the Attestation
 	Description string `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`
 	// digest of the Attestation when ingested
 	Digest *string `protobuf:"bytes,7,opt,name=digest,proto3,oneof" json:"digest,omitempty"`
