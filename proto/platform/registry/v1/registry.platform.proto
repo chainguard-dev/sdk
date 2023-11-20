@@ -285,6 +285,60 @@ message ImageDiff {
   PackagesDiff packages = 1;
   VulnerabilitiesDiff vulnerabilities = 2;
   FilesDiff files = 3;
+  ImageConfigDiff config = 4;
+}
+
+message ImageConfigDiff {
+  ChangedImageConfig changed = 1;
+}
+
+message ChangedImageConfig {
+  message ChangedUser {
+    string current = 1;
+    string previous = 2;
+  }
+  ChangedUser changedUser = 1;
+
+  message ChangedWorkingDir {
+    string current = 1;
+    string previous = 2;
+  }
+
+  ChangedWorkingDir changedWorkingDir = 2;
+
+  message EntrypointDiff {
+    repeated string added = 1;
+    repeated string removed = 2;
+  }
+
+  EntrypointDiff entrypoints = 3;
+
+  message EnvDiff {
+    repeated string added = 1;
+    repeated string removed = 2;
+  }
+
+  EnvDiff envs = 4;
+
+  message CmdDiff {
+    repeated string added = 1;
+    repeated string removed = 2;
+  }
+
+  CmdDiff cmds = 5;
+
+  message ChangedStopSignal {
+    string current = 1;
+    string previous = 2;
+  }
+  ChangedStopSignal changedStopSignal = 6;
+
+  message Volume {}
+  message VolumeDiff {
+    map<string, Volume> added = 1;
+    map<string, Volume> removed = 2;
+  }
+  VolumeDiff volumes = 7;
 }
 
 message PackagesDiff {
