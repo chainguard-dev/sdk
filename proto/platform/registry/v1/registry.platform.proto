@@ -149,6 +149,17 @@ service Registry {
       }
     };
   }
+
+  rpc DiffImage(DiffImageRequest) returns (ImageDiff) {
+    option (google.api.http) = {
+      get: "/registry/v1/repos/{repo_id=**}/diff"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST, CAP_TENANT_VULN_REPORTS_LIST, CAP_TENANT_SBOMS_LIST]
+      }
+    };
+  }
 }
 
 message Repo {
@@ -320,4 +331,13 @@ message VulnerabilityReference {
   string id = 1;
   string reference = 2;
   string severity = 3;
+}
+
+// DiffImageRequests are used to request a diff between two images.
+message DiffImageRequest {
+  // The UIDP of the image repo to diff against.
+  string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  string from_digest = 2;
+  string to_digest = 3;
 }

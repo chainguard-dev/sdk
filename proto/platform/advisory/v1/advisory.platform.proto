@@ -28,6 +28,8 @@ message Advisory {
   string id = 1;
 
   repeated Event events = 2;
+
+  repeated string aliases = 3;
 }
 
 message Document {
@@ -37,25 +39,92 @@ message Document {
 }
 
 message Event {
-  Type type = 1;
+  google.protobuf.Timestamp timestamp = 1;
 
-  google.protobuf.Timestamp timestamp = 2;
+  oneof data {
+    TruePositiveDetermination true_positive_determination = 10;
 
-  enum Type {
-    // The "unset" value.
-    EVENT_TYPE_UNSPECIFIED = 0;
+    FalsePositiveDetermination false_positive_determination = 11;
 
-    // The vulnerability is a true positive.
-    TRUE_POSITIVE_DETERMINATION = 1;
+    Fixed fixed = 12;
 
-    // The vulnerability is a false positive.
-    FALSE_POSITIVE_DETERMINATION = 2;
+    Detection detection = 13;
 
-    // The vulnerability has been addressed.
-    FIXED = 3;
+    AnalysisNotPlanned analysis_not_planned = 14;
+
+    FixNotPlanned fix_not_planned = 15;
+
+    PendingUpstreamFix pending_upstream_fix = 16;
   }
 }
 
+message TruePositiveDetermination {
+  string note = 1;
+}
+
+message FalsePositiveDetermination {
+  Type type = 1;
+
+  string note = 2;
+
+  enum Type {
+    // The "unset" value.
+    FPT_TYPE_UNSPECIFIED = 0;
+
+    // VEX: vulnerable_code_not_present.
+    FPT_TYPE_VULNERABILITY_RECORD_ANALYSIS_CONTESTED = 1;
+
+    // VEX: component_not_present.
+    FPT_TYPE_COMPONENT_VULNERABILITY_MISMATCH = 2;
+
+    // VEX: vulnerable_code_not_present.
+    FPT_TYPE_VULNERABLE_CODE_VERSION_NOT_USED = 3;
+
+    // VEX: vulnerable_code_not_present.
+    FPT_TYPE_VULNERABLE_CODE_NOT_INCLUDED_IN_PACKAGE = 4;
+
+    // VEX: vulnerable_code_not_in_execute_path.
+    FPT_TYPE_VULNERABLE_CODE_NOT_IN_EXECUTION_PATH = 5;
+
+    // VEX: vulnerable_code_cannot_be_controlled_by_adversary.
+    FPT_TYPE_VULNERABLE_CODE_CANNOT_BE_CONTROLLED_BY_ADVERSARY = 6;
+
+    // VEX: inline_mitigations_already_exist.
+    FPT_TYPE_INLINE_MITIGATIONS_EXIST = 7;
+  }
+}
+
+message Fixed {
+  string fixed_version = 1;
+}
+
+message Detection {
+  oneof type {
+    DetectionTypeNVDAPI nvdapi = 1;
+
+    DetectionTypeManual manual = 2;
+  }
+
+  message DetectionTypeNVDAPI {
+    string cpe_searched = 1;
+
+    string cpe_found = 2;
+  }
+
+  message DetectionTypeManual {}
+}
+
+message AnalysisNotPlanned {
+  string note = 1;
+}
+
+message FixNotPlanned {
+  string note = 1;
+}
+
+message PendingUpstreamFix {
+  string note = 1;
+}
 
 message DocumentFilter {
   // id is the id of a package.

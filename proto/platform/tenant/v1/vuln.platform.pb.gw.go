@@ -31,15 +31,18 @@ var _ = runtime.String
 var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
+var (
+	filter_VulnReports_List_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
+
 func request_VulnReports_List_0(ctx context.Context, marshaler runtime.Marshaler, client VulnReportsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq VulnReportFilter
 	var metadata runtime.ServerMetadata
 
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_VulnReports_List_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -52,11 +55,10 @@ func local_request_VulnReports_List_0(ctx context.Context, marshaler runtime.Mar
 	var protoReq VulnReportFilter
 	var metadata runtime.ServerMetadata
 
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_VulnReports_List_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -71,14 +73,14 @@ func local_request_VulnReports_List_0(ctx context.Context, marshaler runtime.Mar
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterVulnReportsHandlerFromEndpoint instead.
 func RegisterVulnReportsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server VulnReportsServer) error {
 
-	mux.Handle("POST", pattern_VulnReports_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_VulnReports_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.tenant.VulnReports/List", runtime.WithHTTPPathPattern("/chainguard.platform.tenant.VulnReports/List"))
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.tenant.VulnReports/List", runtime.WithHTTPPathPattern("/tenant/v1/vulnreports"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -136,12 +138,12 @@ func RegisterVulnReportsHandler(ctx context.Context, mux *runtime.ServeMux, conn
 // "VulnReportsClient" to call the correct interceptors.
 func RegisterVulnReportsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client VulnReportsClient) error {
 
-	mux.Handle("POST", pattern_VulnReports_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_VulnReports_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.tenant.VulnReports/List", runtime.WithHTTPPathPattern("/chainguard.platform.tenant.VulnReports/List"))
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.tenant.VulnReports/List", runtime.WithHTTPPathPattern("/tenant/v1/vulnreports"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -161,7 +163,7 @@ func RegisterVulnReportsHandlerClient(ctx context.Context, mux *runtime.ServeMux
 }
 
 var (
-	pattern_VulnReports_List_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"chainguard.platform.tenant.VulnReports", "List"}, ""))
+	pattern_VulnReports_List_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"tenant", "v1", "vulnreports"}, ""))
 )
 
 var (

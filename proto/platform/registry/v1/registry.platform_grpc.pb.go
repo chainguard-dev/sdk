@@ -29,6 +29,7 @@ const (
 	Registry_DeleteTag_FullMethodName      = "/chainguard.platform.registry.Registry/DeleteTag"
 	Registry_ListTags_FullMethodName       = "/chainguard.platform.registry.Registry/ListTags"
 	Registry_ListTagHistory_FullMethodName = "/chainguard.platform.registry.Registry/ListTagHistory"
+	Registry_DiffImage_FullMethodName      = "/chainguard.platform.registry.Registry/DiffImage"
 )
 
 // RegistryClient is the client API for Registry service.
@@ -44,6 +45,7 @@ type RegistryClient interface {
 	DeleteTag(ctx context.Context, in *DeleteTagRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ListTags(ctx context.Context, in *TagFilter, opts ...grpc.CallOption) (*TagList, error)
 	ListTagHistory(ctx context.Context, in *TagHistoryFilter, opts ...grpc.CallOption) (*TagHistoryList, error)
+	DiffImage(ctx context.Context, in *DiffImageRequest, opts ...grpc.CallOption) (*ImageDiff, error)
 }
 
 type registryClient struct {
@@ -135,6 +137,15 @@ func (c *registryClient) ListTagHistory(ctx context.Context, in *TagHistoryFilte
 	return out, nil
 }
 
+func (c *registryClient) DiffImage(ctx context.Context, in *DiffImageRequest, opts ...grpc.CallOption) (*ImageDiff, error) {
+	out := new(ImageDiff)
+	err := c.cc.Invoke(ctx, Registry_DiffImage_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RegistryServer is the server API for Registry service.
 // All implementations must embed UnimplementedRegistryServer
 // for forward compatibility
@@ -148,6 +159,7 @@ type RegistryServer interface {
 	DeleteTag(context.Context, *DeleteTagRequest) (*emptypb.Empty, error)
 	ListTags(context.Context, *TagFilter) (*TagList, error)
 	ListTagHistory(context.Context, *TagHistoryFilter) (*TagHistoryList, error)
+	DiffImage(context.Context, *DiffImageRequest) (*ImageDiff, error)
 	mustEmbedUnimplementedRegistryServer()
 }
 
@@ -181,6 +193,9 @@ func (UnimplementedRegistryServer) ListTags(context.Context, *TagFilter) (*TagLi
 }
 func (UnimplementedRegistryServer) ListTagHistory(context.Context, *TagHistoryFilter) (*TagHistoryList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListTagHistory not implemented")
+}
+func (UnimplementedRegistryServer) DiffImage(context.Context, *DiffImageRequest) (*ImageDiff, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DiffImage not implemented")
 }
 func (UnimplementedRegistryServer) mustEmbedUnimplementedRegistryServer() {}
 
@@ -357,6 +372,24 @@ func _Registry_ListTagHistory_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Registry_DiffImage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DiffImageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).DiffImage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_DiffImage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).DiffImage(ctx, req.(*DiffImageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Registry_ServiceDesc is the grpc.ServiceDesc for Registry service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -399,6 +432,10 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListTagHistory",
 			Handler:    _Registry_ListTagHistory_Handler,
+		},
+		{
+			MethodName: "DiffImage",
+			Handler:    _Registry_DiffImage_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
