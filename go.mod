@@ -8,6 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.23.0
 	github.com/bits-and-blooms/bitset v1.11.0
 	github.com/cloudevents/sdk-go/v2 v2.14.0
+	github.com/coreos/go-oidc/v3 v3.7.0
 	github.com/google/go-cmp v0.6.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.1
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
