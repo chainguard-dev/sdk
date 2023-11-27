@@ -104,6 +104,10 @@ message Identity {
   string name = 2;
   // description, human readable of identity.
   string description = 3;
+  // created_at is the timestamp for when the identity was created.
+  google.protobuf.Timestamp created_at = 4;
+  // updated_at is the timestamp for when the identity was last updated.
+  google.protobuf.Timestamp updated_at = 5;
 
   // relationship is used to describe how this identity relates to
   // identities coming from 3rd party Identity Providers (IdPs)
