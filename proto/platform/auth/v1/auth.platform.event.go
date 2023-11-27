@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 
 package v1
 
-// CloudEventsExtension implements chainguard.dev/sdk/pkg/events/Extendable.CloudEventsExtension
+// CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension
 func (x *Session) CloudEventsExtension(key string) (string, bool) {
 	switch key {
 	case "group":
@@ -15,7 +15,7 @@ func (x *Session) CloudEventsExtension(key string) (string, bool) {
 	}
 }
 
-// CloudEventsSubject implements chainguard.dev/sdk/pkg/events/Eventable.CloudEventsSubject.
+// CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
 func (x *Session) CloudEventsSubject() string {
 	return ""
 }

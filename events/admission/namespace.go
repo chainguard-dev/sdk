@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 package admission
 
 import (
-	"chainguard.dev/sdk/pkg/uidp"
+	"chainguard.dev/sdk/uidp"
 )
 
 // NamespaceEventType is the cloudevents event type when a namespace's scope

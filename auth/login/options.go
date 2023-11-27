@@ -9,7 +9,7 @@ import (
 	"errors"
 	"fmt"
 
-	"chainguard.dev/sdk/pkg/uidp"
+	"chainguard.dev/sdk/uidp"
 )
 
 type config struct {

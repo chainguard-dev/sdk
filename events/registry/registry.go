@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 
 package registry
 
-import "chainguard.dev/sdk/pkg/civil"
+import "chainguard.dev/sdk/civil"
 
 const (
 	// PulledEventType is the cloudevents event type for registry pulls

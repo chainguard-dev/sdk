@@ -6,10 +6,10 @@ SPDX-License-Identifier: Apache-2.0
 package v1
 
 import (
-	"chainguard.dev/sdk/pkg/uidp"
+	"chainguard.dev/sdk/uidp"
 )
 
-// CloudEventsExtension implements chainguard.dev/sdk/pkg/events/Extendable.CloudEventsExtension
+// CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension
 func (x *GroupInvite) CloudEventsExtension(key string) (string, bool) {
 	switch key {
 	case "group":
@@ -19,12 +19,12 @@ func (x *GroupInvite) CloudEventsExtension(key string) (string, bool) {
 	}
 }
 
-// CloudEventsSubject implements chainguard.dev/sdk/pkg/events/Eventable.CloudEventsSubject.
+// CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
 func (x *GroupInvite) CloudEventsSubject() string {
 	return x.GetId()
 }
 
-// CloudEventsRedact implements chainguard.dev/sdk/pkg/events/Redactable.CloudEventsRedact.
+// CloudEventsRedact implements chainguard.dev/sdk/events/Redactable.CloudEventsRedact.
 func (x *GroupInvite) CloudEventsRedact() interface{} {
 	return &GroupInvite{
 		Id:         x.Id,
@@ -32,7 +32,7 @@ func (x *GroupInvite) CloudEventsRedact() interface{} {
 	}
 }
 
-// CloudEventsExtension implements chainguard.dev/sdk/pkg/events/Extendable.CloudEventsExtension
+// CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension
 func (x *DeleteGroupInviteRequest) CloudEventsExtension(key string) (string, bool) {
 	switch key {
 	case "group":
@@ -42,7 +42,7 @@ func (x *DeleteGroupInviteRequest) CloudEventsExtension(key string) (string, boo
 	}
 }
 
-// CloudEventsSubject implements chainguard.dev/sdk/pkg/events/Eventable.CloudEventsSubject.
+// CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
 func (x *DeleteGroupInviteRequest) CloudEventsSubject() string {
 	return x.GetId()
 }

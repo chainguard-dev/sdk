@@ -6,10 +6,10 @@ SPDX-License-Identifier: Apache-2.0
 package v1
 
 import (
-	"chainguard.dev/sdk/pkg/uidp"
+	"chainguard.dev/sdk/uidp"
 )
 
-// CloudEventsExtension implements chainguard.dev/sdk/pkg/events/Extendable.CloudEventsExtension
+// CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension
 func (x *IdentityProvider) CloudEventsExtension(key string) (string, bool) {
 	switch key {
 	case "group":
@@ -19,12 +19,12 @@ func (x *IdentityProvider) CloudEventsExtension(key string) (string, bool) {
 	}
 }
 
-// CloudEventsSubject implements chainguard.dev/sdk/pkg/events/Eventable.CloudEventsSubject.
+// CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
 func (x *IdentityProvider) CloudEventsSubject() string {
 	return x.GetId()
 }
 
-// CloudEventsExtension implements chainguard.dev/sdk/pkg/events/Extendable.CloudEventsExtension
+// CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension
 func (x *DeleteIdentityProviderRequest) CloudEventsExtension(key string) (string, bool) {
 	switch key {
 	case "group":
@@ -34,7 +34,7 @@ func (x *DeleteIdentityProviderRequest) CloudEventsExtension(key string) (string
 	}
 }
 
-// CloudEventsSubject implements chainguard.dev/sdk/pkg/events/Eventable.CloudEventsSubject.
+// CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
 func (x *DeleteIdentityProviderRequest) CloudEventsSubject() string {
 	return x.GetId()
 }
