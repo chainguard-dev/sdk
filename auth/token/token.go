@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"chainguard.dev/sdk/pkg/auth"
+	"chainguard.dev/sdk/auth"
 )
 
 var (

@@ -15,7 +15,7 @@ import (
 	"google.golang.org/grpc"
 	"knative.dev/pkg/logging"
 
-	"chainguard.dev/sdk/pkg/auth"
+	"chainguard.dev/sdk/auth"
 	events "chainguard.dev/sdk/proto/platform/events/v1"
 )
 

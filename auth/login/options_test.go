@@ -9,7 +9,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"chainguard.dev/sdk/pkg/uidp"
+	"chainguard.dev/sdk/uidp"
 	"github.com/google/go-cmp/cmp"
 )
 

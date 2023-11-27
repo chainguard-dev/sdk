@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 
 package v1
 
-// CloudEventsExtension implements chainguard.dev/sdk/pkg/events/Extendable.CloudEventsExtension
+// CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension
 func (x *AccountAssociations) CloudEventsExtension(key string) (string, bool) {
 	switch key {
 	case "group":
@@ -15,12 +15,12 @@ func (x *AccountAssociations) CloudEventsExtension(key string) (string, bool) {
 	}
 }
 
-// CloudEventsSubject implements chainguard.dev/sdk/pkg/events/Eventable.CloudEventsSubject.
+// CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
 func (x *AccountAssociations) CloudEventsSubject() string {
 	return x.Group
 }
 
-// CloudEventsExtension implements chainguard.dev/sdk/pkg/events/Extendable.CloudEventsExtension
+// CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension
 func (x *DeleteAccountAssociationsRequest) CloudEventsExtension(key string) (string, bool) {
 	switch key {
 	case "group":
@@ -30,12 +30,12 @@ func (x *DeleteAccountAssociationsRequest) CloudEventsExtension(key string) (str
 	}
 }
 
-// CloudEventsSubject implements chainguard.dev/sdk/pkg/events/Eventable.CloudEventsSubject.
+// CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
 func (x *DeleteAccountAssociationsRequest) CloudEventsSubject() string {
 	return x.Group
 }
 
-// CloudEventsRedact implements chainguard.dev/sdk/pkg/events/Redactable.Redact.
+// CloudEventsRedact implements chainguard.dev/sdk/events/Redactable.Redact.
 func (x *DeleteAccountAssociationsRequest) CloudEventsRedact() interface{} {
 	return nil
 }
