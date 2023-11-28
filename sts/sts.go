@@ -47,6 +47,25 @@ func New(issuer, audience string, opts ...ExchangerOption) Exchanger {
 	return i
 }
 
+// Exchange performs an OIDC token exchange with the correct Exchanger based on the provided options.
+func Exchange(ctx context.Context, issuer, audience, idToken string, exchangerOptions ...ExchangerOption) (string, error) {
+	opts := options{
+		issuer:   issuer,
+		audience: audience,
+	}
+	for _, eo := range exchangerOptions {
+		eo(&opts)
+	}
+
+	var e Exchanger
+	if opts.http1Downgrade {
+		e = &HTTP1DowngradeExchanger{opts: opts}
+	} else {
+		e = &impl{opts: opts}
+	}
+	return e.Exchange(ctx, idToken, exchangerOptions...)
+}
+
 type impl struct {
 	opts options
 }
@@ -60,6 +79,7 @@ type options struct {
 	capabilities         []string
 	identity             string
 	includeUpstreamToken bool
+	http1Downgrade       bool
 }
 
 var _ Exchanger = (*impl)(nil)
@@ -143,6 +163,13 @@ func WithIdentity(uid string) ExchangerOption {
 func WithIncludeUpstreamToken() ExchangerOption {
 	return func(i *options) {
 		i.includeUpstreamToken = true
+	}
+}
+
+// WithHTTP1Downgrade signals Exchange to use HTTP1DowngradeExchanger in the STS exchange.
+func WithHTTP1Downgrade() ExchangerOption {
+	return func(i *options) {
+		i.http1Downgrade = true
 	}
 }
 
