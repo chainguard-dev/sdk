@@ -286,6 +286,11 @@ message ImageDiff {
   VulnerabilitiesDiff vulnerabilities = 2;
   FilesDiff files = 3;
   ImageConfigDiff config = 4;
+
+  // warnings is a list of warning messages to return to the requesting client.
+  // Warning messages describe a problem the client making the DiffImageRequest should correct or be aware of.
+  // Warnings over 256 characters and large numbers of warnings may be truncated.
+  repeated string warnings = 5;
 }
 
 message ImageConfigDiff {
