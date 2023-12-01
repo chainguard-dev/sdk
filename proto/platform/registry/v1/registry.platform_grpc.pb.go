@@ -45,7 +45,7 @@ type RegistryClient interface {
 	DeleteTag(ctx context.Context, in *DeleteTagRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ListTags(ctx context.Context, in *TagFilter, opts ...grpc.CallOption) (*TagList, error)
 	ListTagHistory(ctx context.Context, in *TagHistoryFilter, opts ...grpc.CallOption) (*TagHistoryList, error)
-	DiffImage(ctx context.Context, in *DiffImageRequest, opts ...grpc.CallOption) (*ImageDiff, error)
+	DiffImage(ctx context.Context, in *DiffImageRequest, opts ...grpc.CallOption) (*DiffImageResponse, error)
 }
 
 type registryClient struct {
@@ -137,8 +137,8 @@ func (c *registryClient) ListTagHistory(ctx context.Context, in *TagHistoryFilte
 	return out, nil
 }
 
-func (c *registryClient) DiffImage(ctx context.Context, in *DiffImageRequest, opts ...grpc.CallOption) (*ImageDiff, error) {
-	out := new(ImageDiff)
+func (c *registryClient) DiffImage(ctx context.Context, in *DiffImageRequest, opts ...grpc.CallOption) (*DiffImageResponse, error) {
+	out := new(DiffImageResponse)
 	err := c.cc.Invoke(ctx, Registry_DiffImage_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -159,7 +159,7 @@ type RegistryServer interface {
 	DeleteTag(context.Context, *DeleteTagRequest) (*emptypb.Empty, error)
 	ListTags(context.Context, *TagFilter) (*TagList, error)
 	ListTagHistory(context.Context, *TagHistoryFilter) (*TagHistoryList, error)
-	DiffImage(context.Context, *DiffImageRequest) (*ImageDiff, error)
+	DiffImage(context.Context, *DiffImageRequest) (*DiffImageResponse, error)
 	mustEmbedUnimplementedRegistryServer()
 }
 
@@ -194,7 +194,7 @@ func (UnimplementedRegistryServer) ListTags(context.Context, *TagFilter) (*TagLi
 func (UnimplementedRegistryServer) ListTagHistory(context.Context, *TagHistoryFilter) (*TagHistoryList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListTagHistory not implemented")
 }
-func (UnimplementedRegistryServer) DiffImage(context.Context, *DiffImageRequest) (*ImageDiff, error) {
+func (UnimplementedRegistryServer) DiffImage(context.Context, *DiffImageRequest) (*DiffImageResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DiffImage not implemented")
 }
 func (UnimplementedRegistryServer) mustEmbedUnimplementedRegistryServer() {}

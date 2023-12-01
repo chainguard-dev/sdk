@@ -150,7 +150,7 @@ service Registry {
     };
   }
 
-  rpc DiffImage(DiffImageRequest) returns (ImageDiff) {
+  rpc DiffImage(DiffImageRequest) returns (DiffImageResponse) {
     option (google.api.http) = {
       get: "/registry/v1/repos/{repo_id=**}/diff"
     };
@@ -281,10 +281,13 @@ message TagHistory {
   string digest = 2;
 }
 
-message ImageDiff {
+message DiffImageResponse {
   PackagesDiff packages = 1;
   VulnerabilitiesDiff vulnerabilities = 2;
-  FilesDiff files = 3;
+
+  // This field referred to the FilesDiff mesage and is no longer in use.
+  reserved 3;
+
   ImageConfigDiff config = 4;
 
   // warnings is a list of warning messages to return to the requesting client.
@@ -357,15 +360,6 @@ message PackagesDiff {
   }
 
   repeated ChangedPackageReference changed = 3;
-}
-
-message FilesDiff {
-  repeated FileReference added = 1;
-  repeated FileReference removed = 2;
-}
-
-message FileReference {
-  string name = 1;
 }
 
 message VersionReference {
