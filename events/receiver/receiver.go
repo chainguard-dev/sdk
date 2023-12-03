@@ -7,10 +7,12 @@ package receiver
 
 import (
 	"context"
+	"crypto/sha256"
 	"fmt"
 	"net/http"
 	"strings"
 
+	"chainguard.dev/sdk/events"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	cehttp "github.com/cloudevents/sdk-go/v2/protocol/http"
 	"github.com/coreos/go-oidc/v3/oidc"
@@ -39,6 +41,8 @@ func New(ctx context.Context, issuer, group string, fn Handler) (Handler, error)
 			return cloudevents.NewHTTPResult(http.StatusUnauthorized, "Unauthorized")
 		}
 
+		claims := events.WebhookCustomClaims{}
+
 		// Verify that the token is well-formed, and in fact intended for us!
 		if tok, err := verifier.Verify(ctx, auth); err != nil {
 			return cloudevents.NewHTTPResult(http.StatusForbidden, "unable to verify token: %w", err)
@@ -46,6 +50,15 @@ func New(ctx context.Context, issuer, group string, fn Handler) (Handler, error)
 			return cloudevents.NewHTTPResult(http.StatusForbidden, "subject should be from the Chainguard webhook component, got: %s", tok.Subject)
 		} else if got := strings.TrimPrefix(tok.Subject, "webhook:"); got != group {
 			return cloudevents.NewHTTPResult(http.StatusForbidden, "this token is intended for %s, wanted one for %s", got, group)
+		} else if err := tok.Claims(&claims); err != nil {
+			return cloudevents.NewHTTPResult(http.StatusForbidden, "this token does not contain the Chainguard custom webhook claims: %v", err)
+		} else {
+			h := sha256.New()
+			h.Write(event.Data())
+			bs := h.Sum(nil)
+			if got, want := fmt.Sprintf("sha256:%x", bs), claims.Webhook.Digest; got != want {
+				return cloudevents.NewHTTPResult(http.StatusForbidden, "this token is intended for a message with digest %s, got message with digest %s", want, got)
+			}
 		}
 		return fn(ctx, event)
 	}, nil
