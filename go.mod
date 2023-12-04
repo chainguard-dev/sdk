@@ -5,7 +5,7 @@ go 1.21
 require (
 	chainguard.dev/go-grpc-kit v0.17.2
 	chainguard.dev/go-oidctest v0.2.0
-	github.com/aws/aws-sdk-go-v2 v1.23.4
+	github.com/aws/aws-sdk-go-v2 v1.23.5
 	github.com/bits-and-blooms/bitset v1.11.0
 	github.com/cloudevents/sdk-go/v2 v2.14.0
 	github.com/coreos/go-oidc/v3 v3.8.0
