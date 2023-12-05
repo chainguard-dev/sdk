@@ -15,6 +15,8 @@ import (
 	iamtest "chainguard.dev/sdk/proto/platform/iam/v1/test"
 	oidc "chainguard.dev/sdk/proto/platform/oidc/v1"
 	oidctest "chainguard.dev/sdk/proto/platform/oidc/v1/test"
+	ping "chainguard.dev/sdk/proto/platform/ping/v1"
+	pingtest "chainguard.dev/sdk/proto/platform/ping/v1/test"
 	registry "chainguard.dev/sdk/proto/platform/registry/v1"
 	registrytest "chainguard.dev/sdk/proto/platform/registry/v1/test"
 	tenant "chainguard.dev/sdk/proto/platform/tenant/v1"
@@ -30,6 +32,7 @@ type MockPlatformClients struct {
 	TenantClient   tenanttest.MockTenantClient
 	RegistryClient registrytest.MockRegistryClients
 	AdvisoryClient advisorytest.MockSecurityAdvisoryClients
+	PingClient     pingtest.MockPingServiceClients
 }
 
 func (m MockPlatformClients) Close() error {
@@ -50,6 +53,10 @@ func (m MockPlatformClients) Registry() registry.Clients {
 
 func (m MockPlatformClients) Advisory() advisory.Clients {
 	return m.AdvisoryClient
+}
+
+func (m MockPlatformClients) Ping() ping.Clients {
+	return m.PingClient
 }
 
 var _ platform.OIDCClients = (*MockOIDCClients)(nil)

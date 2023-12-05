@@ -16,6 +16,7 @@ import (
 	platformauth "chainguard.dev/sdk/proto/platform/auth/v1"
 	iam "chainguard.dev/sdk/proto/platform/iam/v1"
 	platformoidc "chainguard.dev/sdk/proto/platform/oidc/v1"
+	ping "chainguard.dev/sdk/proto/platform/ping/v1"
 	registry "chainguard.dev/sdk/proto/platform/registry/v1"
 	tenant "chainguard.dev/sdk/proto/platform/tenant/v1"
 	"google.golang.org/grpc"
@@ -30,6 +31,7 @@ type Clients interface {
 	Tenant() tenant.Clients
 	Registry() registry.Clients
 	Advisory() advisory.Clients
+	Ping() ping.Clients
 
 	Close() error
 }
@@ -68,6 +70,7 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 		tenant:   tenant.NewClientsFromConnection(conn),
 		registry: registry.NewClientsFromConnection(conn),
 		advisory: advisory.NewClientsFromConnection(conn),
+		ping:     ping.NewClientsFromConnection(conn),
 		conn:     conn,
 	}, nil
 }
@@ -77,6 +80,7 @@ type clients struct {
 	tenant   tenant.Clients
 	registry registry.Clients
 	advisory advisory.Clients
+	ping     ping.Clients
 
 	conn *grpc.ClientConn
 }
@@ -95,6 +99,10 @@ func (c *clients) Registry() registry.Clients {
 
 func (c *clients) Advisory() advisory.Clients {
 	return c.advisory
+}
+
+func (c *clients) Ping() ping.Clients {
+	return c.ping
 }
 
 func (c *clients) Close() error {
