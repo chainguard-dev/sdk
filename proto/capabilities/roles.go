@@ -145,6 +145,14 @@ var (
 		Capability_CAP_SIGSTORE_DELETE,
 		Capability_CAP_SIGSTORE_UPDATE,
 	}, SigningCertRequesterCaps...))
+
+	RolePullPrivateImagesAPIProber = sortCaps(append([]Capability{
+		// Minimal set of capabilities to create a binding and pull private images from the registry.
+		Capability_CAP_IAM_ROLE_BINDINGS_CREATE,
+		Capability_CAP_IAM_IDENTITY_CREATE,
+
+		Capability_CAP_IAM_ROLES_LIST,
+	}, ViewerCaps...))
 )
 
 func sortCaps(caps []Capability) []Capability {
