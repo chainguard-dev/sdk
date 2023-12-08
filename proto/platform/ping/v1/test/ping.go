@@ -46,7 +46,7 @@ type Ping struct {
 
 func (m MockPingServiceClient) Ping(_ context.Context, _ *ping.PingRequest, _ ...grpc.CallOption) (*ping.Response, error) {
 	if m.OnPing.Given == nil {
-		return nil, fmt.Errorf("mock not found for %v", m.OnPing.Given)
+		return nil, fmt.Errorf("OnPing.Given defined to be %v", m.OnPing.Given)
 	}
 	return &ping.Response{}, nil
 }
