@@ -112,6 +112,7 @@ func (c *clients) Close() error {
 type OIDCClients interface {
 	Auth() platformauth.AuthClient
 	OIDC() platformoidc.Clients
+	OIDCPing() ping.Clients
 
 	Close() error
 }
@@ -147,6 +148,7 @@ func NewOIDCClients(ctx context.Context, issuerURL string, cred credentials.PerR
 	return &oidcClients{
 		auth: platformauth.NewAuthClient(conn),
 		oidc: platformoidc.NewClientsFromConnection(conn),
+		ping: ping.NewClientsFromConnection(conn),
 		conn: conn,
 	}, nil
 }
@@ -154,6 +156,7 @@ func NewOIDCClients(ctx context.Context, issuerURL string, cred credentials.PerR
 type oidcClients struct {
 	auth platformauth.AuthClient
 	oidc platformoidc.Clients
+	ping ping.Clients
 
 	conn *grpc.ClientConn
 }
@@ -164,6 +167,10 @@ func (c *oidcClients) Auth() platformauth.AuthClient {
 
 func (c *oidcClients) OIDC() platformoidc.Clients {
 	return c.oidc
+}
+
+func (c *oidcClients) OIDCPing() ping.Clients {
+	return c.ping
 }
 
 func (c *oidcClients) Close() error {
