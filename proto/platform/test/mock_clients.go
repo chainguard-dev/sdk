@@ -66,6 +66,7 @@ type MockOIDCClients struct {
 
 	AuthClient authtest.MockAuthClient
 	OIDCClient oidctest.MockOIDCClient
+	PingClient pingtest.MockPingServiceClients
 }
 
 func (m MockOIDCClients) Close() error {
@@ -78,4 +79,8 @@ func (m MockOIDCClients) Auth() auth.AuthClient {
 
 func (m MockOIDCClients) OIDC() oidc.Clients {
 	return m.OIDCClient
+}
+
+func (m MockOIDCClients) OIDCPing() ping.Clients {
+	return m.PingClient
 }
