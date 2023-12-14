@@ -164,7 +164,7 @@ service Registry {
 
   rpc GetSbom(SbomRequest) returns (chainguard.platform.tenant.Sbom2) {
     option (google.api.http) = {
-      get: "/registry/v1/repos/{repo_id=**}/digests/{digest=**}/sbom"
+      get: "/registry/v1/repos/{repo_id=**}/digests/{digest=*}/sbom"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
