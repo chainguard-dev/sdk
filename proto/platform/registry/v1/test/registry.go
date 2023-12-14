@@ -10,6 +10,7 @@ import (
 	"fmt"
 
 	registry "chainguard.dev/sdk/proto/platform/registry/v1"
+	tenant "chainguard.dev/sdk/proto/platform/tenant/v1"
 	"github.com/google/go-cmp/cmp"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/testing/protocmp"
@@ -46,6 +47,7 @@ type MockRegistryClient struct {
 	OnListTags       []TagsOnList
 	OnUpdateRepo     []RepoOnUpdate
 	OnListTagHistory []TagHistoryOnList
+	OnGetSbom        []SbomOnGet
 }
 
 type ReposOnCreate struct {
@@ -97,6 +99,12 @@ type RepoOnUpdate struct {
 type TagHistoryOnList struct {
 	Given *registry.TagHistoryFilter
 	List  *registry.TagHistoryList
+	Error error
+}
+
+type SbomOnGet struct {
+	Given *registry.SbomRequest
+	Get   *tenant.Sbom2
 	Error error
 }
 
@@ -176,6 +184,15 @@ func (m MockRegistryClient) ListTagHistory(_ context.Context, given *registry.Ta
 	for _, o := range m.OnListTagHistory {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.List, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockRegistryClient) GetSbom(_ context.Context, given *registry.SbomRequest, _ ...grpc.CallOption) (*tenant.Sbom2, error) { //nolint: revive
+	for _, o := range m.OnGetSbom {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Get, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)
