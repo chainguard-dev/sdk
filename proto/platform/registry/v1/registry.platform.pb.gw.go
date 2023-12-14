@@ -944,7 +944,7 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetSbom", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=**}/sbom"))
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetSbom", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/sbom"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1217,7 +1217,7 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetSbom", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=**}/sbom"))
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetSbom", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/sbom"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1257,7 +1257,7 @@ var (
 
 	pattern_Registry_DiffImage_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4}, []string{"registry", "v1", "repos", "repo_id", "diff"}, ""))
 
-	pattern_Registry_GetSbom_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4, 3, 0, 4, 1, 5, 5, 2, 6}, []string{"registry", "v1", "repos", "repo_id", "digests", "digest", "sbom"}, ""))
+	pattern_Registry_GetSbom_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"registry", "v1", "repos", "repo_id", "digests", "digest", "sbom"}, ""))
 )
 
 var (
