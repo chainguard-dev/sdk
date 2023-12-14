@@ -13,6 +13,7 @@ import "google/protobuf/timestamp.proto";
 import "annotations/auth.proto";
 import "annotations/events.proto";
 import "platform/common/v1/uidp.platform.proto";
+import "platform/tenant/v1/sbom.platform.proto";
 
 service Registry {
   rpc CreateRepo(CreateRepoRequest) returns (Repo) {
@@ -157,6 +158,17 @@ service Registry {
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [CAP_REPO_LIST, CAP_TENANT_VULN_REPORTS_LIST, CAP_TENANT_SBOMS_LIST]
+      }
+    };
+  }
+
+  rpc GetSbom(SbomRequest) returns (chainguard.platform.tenant.Sbom2) {
+    option (google.api.http) = {
+      get: "/registry/v1/repos/{repo_id=**}/digests/{digest=**}/sbom"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST, CAP_TENANT_SBOMS_LIST]
       }
     };
   }
@@ -393,4 +405,11 @@ message DiffImageRequest {
 
   string from_digest = 2;
   string to_digest = 3;
+}
+
+message SbomRequest {
+  // The UIDP of the image repo to get an SBOM for.
+  string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
+  // The digest of the image to get an SBOM for.
+  string digest = 2;
 }
