@@ -48,6 +48,9 @@ type config struct {
 	// IncludeUpstreamToken tells the issuer to include the encrypted upstream token
 	// in the Chainguard token
 	IncludeUpstreamToken bool
+
+	// CreateRefreshToken tells the issuer to create a refresh token
+	CreateRefreshToken bool
 }
 
 const defaultIssuer = `https://issuer.enforce.dev`
@@ -168,5 +171,11 @@ func WithSkipRegistration() Option {
 func WithIncludeUpstreamToken() Option {
 	return func(c *config) {
 		c.IncludeUpstreamToken = true
+	}
+}
+
+func WithCreateRefreshToken() Option {
+	return func(c *config) {
+		c.CreateRefreshToken = true
 	}
 }

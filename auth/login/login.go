@@ -17,16 +17,16 @@ import (
 	"github.com/pkg/browser"
 )
 
-func Login(ctx context.Context, opts ...Option) (token string, err error) {
+func Login(ctx context.Context, opts ...Option) (token string, refreshToken string, err error) {
 	conf, err := newConfigFromOptions(opts...)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	// Start new token server on a random available localhost port
 	s, err := newServer(ctx)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	defer s.Close()
 
@@ -61,13 +61,20 @@ func Login(ctx context.Context, opts ...Option) (token string, err error) {
 	if conf.IncludeUpstreamToken {
 		params.Set("include_upstream_token", "true")
 	}
-
+	if conf.CreateRefreshToken {
+		params.Set("create_refresh_token", "true")
+	}
 	u := fmt.Sprintf("%s/oauth?%s", conf.Issuer, params.Encode())
 	fmt.Fprintf(os.Stderr, "Opening browser to %s\n", u)
 	err = browser.OpenURL(u)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return s.Token()
+	token, err = s.Token()
+	if err != nil {
+		return "", "", err
+	}
+	refreshToken = s.RefreshToken()
+	return token, refreshToken, nil
 }
