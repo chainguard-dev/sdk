@@ -23,6 +23,8 @@ type server struct {
 
 	token chan string
 
+	refreshToken string
+
 	l net.Listener
 }
 
@@ -65,6 +67,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			close(s.token)
 			return
 		}
+		s.refreshToken = r.URL.Query().Get("refresh_token")
 		s.token <- token
 		// We redirect to `/` to print a "successful auth" message and strip
 		// the token out of the URI
@@ -95,6 +98,11 @@ func (s *server) Token() (string, error) {
 		<-s.token
 		return t, nil
 	}
+}
+
+// RefreshToken is called after Token(), so we don't need any blocking here.
+func (s *server) RefreshToken() string {
+	return s.refreshToken
 }
 
 func (s *server) Close() error {
