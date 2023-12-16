@@ -18,14 +18,24 @@ import (
 	"chainguard.dev/sdk/auth"
 )
 
+type Kind string
+
+const (
+	KindAccess  Kind = "oidc-token"
+	KindRefresh Kind = "refresh-token"
+)
+
 var (
-	filename  = "oidc-token"
+	AllKinds = []Kind{KindAccess, KindRefresh}
+)
+
+var (
 	parentDir = "chainguard"
 )
 
 // Save saves the given token to cache/audience
-func Save(token []byte, audience string) error {
-	path, err := Path(audience)
+func Save(token []byte, kind Kind, audience string) error {
+	path, err := Path(kind, audience)
 	if err != nil {
 		return err
 	}
@@ -38,8 +48,8 @@ func Save(token []byte, audience string) error {
 
 // Load returns the token for the given audience if it exists,
 // or an error if it doesn't.
-func Load(audience string) ([]byte, error) {
-	path, err := Path(audience)
+func Load(kind Kind, audience string) ([]byte, error) {
+	path, err := Path(kind, audience)
 	if err != nil {
 		return nil, err
 	}
@@ -53,8 +63,8 @@ func Load(audience string) ([]byte, error) {
 
 // Delete removes the token for the given audience, if it exists.
 // No error is returned if the token doesn't exist.
-func Delete(audience string) error {
-	path, err := Path(audience)
+func Delete(kind Kind, audience string) error {
+	path, err := Path(kind, audience)
 	if err != nil {
 		return err
 	}
@@ -89,10 +99,12 @@ func DeleteAll() error {
 			// Encountered a file in the directory. Skip.
 			continue
 		}
-		// Try to remove a token, ignore file not exist errors
-		tokenFile := filepath.Join(base, file.Name(), filename)
-		if err := os.Remove(tokenFile); err != nil && !errors.Is(err, fs.ErrNotExist) {
-			return fmt.Errorf("failed to remove %s: %w", tokenFile, err)
+		for _, kind := range AllKinds {
+			// Try to remove a token, ignore file not exist errors
+			tokenFile := filepath.Join(base, file.Name(), string(kind))
+			if err := os.Remove(tokenFile); err != nil && !errors.Is(err, fs.ErrNotExist) {
+				return fmt.Errorf("failed to remove %s: %w", tokenFile, err)
+			}
 		}
 		// Remove the (hopefully empty) audience directory.
 		// Ignore failures since other tools may have stored files in this cache.
@@ -103,7 +115,7 @@ func DeleteAll() error {
 }
 
 // Path is the filepath of the token for the given audience.
-func Path(audience string) (string, error) {
+func Path(kind Kind, audience string) (string, error) {
 	a := strings.ReplaceAll(audience, "/", "-")
 	// Windows does not allow : as a valid character for directory names.
 	// For backwards compatibility, keep : in directory names for non-Windows systems.
@@ -111,14 +123,14 @@ func Path(audience string) (string, error) {
 	if runtime.GOOS == "windows" {
 		a = strings.ReplaceAll(a, ":", "-")
 	}
-	fp := filepath.Join(a, filename)
+	fp := filepath.Join(a, string(kind))
 	return cacheFilePath(fp)
 }
 
 // RemainingLife returns the amount of time remaining before the token for
 // the given audience expires. Returns 0 for expired and non-existent tokens.
-func RemainingLife(audience string, less time.Duration) time.Duration {
-	tok, err := Load(audience)
+func RemainingLife(kind Kind, audience string, less time.Duration) time.Duration {
+	tok, err := Load(kind, audience)
 	if err != nil {
 		// Not a big deal, life is zero.
 		return 0
