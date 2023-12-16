@@ -33,7 +33,7 @@ service SecurityTokenService {
 message GetAccessTokenRequest {
   repeated string aud = 1;
   string scope = 2;
-  string refreshToken = 3;
+  string refresh_token = 3;
 
   // List of capabilities to request for the token.
   repeated string cap = 4 [(google.api.resource_reference) = {
@@ -64,5 +64,5 @@ message RawToken {
 // refresh token to also be rotated.
 message TokenPair {
   string token = 1;
-  string refreshToken = 2;
+  string refresh_token = 2;
 }
