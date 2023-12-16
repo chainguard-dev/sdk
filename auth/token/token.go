@@ -29,8 +29,6 @@ var (
 	AllKinds = []Kind{KindAccess, KindRefresh}
 )
 
-// DefaultKind is the default token kind to use when no kind is specified.
-
 var (
 	parentDir = "chainguard"
 )
