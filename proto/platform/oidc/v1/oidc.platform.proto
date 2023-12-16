@@ -19,6 +19,26 @@ service SecurityTokenService {
       }
     };
   }
+
+  rpc GetAccessToken(GetAccessTokenRequest) returns (TokenPair) {
+    option (google.api.http) = {
+      post: "/sts/access_token"
+      additional_bindings {
+        get: "/sts/access_token"
+      }
+    };
+  }
+}
+
+message GetAccessTokenRequest {
+  repeated string aud = 1;
+  string scope = 2;
+  string refreshToken = 3;
+
+  // List of capabilities to request for the token.
+  repeated string cap = 4 [(google.api.resource_reference) = {
+    type: "chainguard.capabilities/Capability"
+  }];
 }
 
 message ExchangeRequest {
@@ -38,4 +58,11 @@ message ExchangeRequest {
 
 message RawToken {
   string token = 1;
+}
+
+// GetAccessToken returns a pair of token, in order to allow
+// refresh token to also be rotated.
+message TokenPair {
+  string token = 1;
+  string refreshToken = 2;
 }
