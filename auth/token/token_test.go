@@ -47,27 +47,31 @@ func TestSave(t *testing.T) {
 
 	tests := []struct {
 		name     string
+		kind     Kind
 		audience string
 		wantPath string
 	}{{
 		name:     "sans audience",
+		kind:     KindAccess,
 		audience: "", // Intentionally blank.
-		wantPath: filepath.Join(cacheDir, parentDir, filename),
+		wantPath: filepath.Join(cacheDir, parentDir, string(KindAccess)),
 	}, {
 		name:     "with audience (sans replacement)",
+		kind:     KindAccess,
 		audience: "audience",
-		wantPath: filepath.Join(cacheDir, parentDir, "audience", filename),
+		wantPath: filepath.Join(cacheDir, parentDir, "audience", string(KindAccess)),
 	}, {
 		name:     "with audience (with replacement)",
+		kind:     KindRefresh,
 		audience: "https://audience.unit.test",
-		wantPath: filepath.Join(cacheDir, parentDir, "https:--audience.unit.test", filename),
+		wantPath: filepath.Join(cacheDir, parentDir, "https:--audience.unit.test", string(KindRefresh)),
 	}}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			// Save a token
 			tokenContents := []byte("mytoken")
-			if err := Save(tokenContents, test.audience); err != nil {
+			if err := Save(tokenContents, test.kind, test.audience); err != nil {
 				t.Fatalf("Save() unexpected error=%v", err)
 			}
 
@@ -98,15 +102,19 @@ func TestLoad(t *testing.T) {
 
 	tests := []struct {
 		name     string
+		kind     Kind
 		audience string
 	}{{
 		name:     "sans audience",
+		kind:     KindAccess,
 		audience: "", // Intentionally blank.
 	}, {
 		name:     "with audience (sans replacement)",
+		kind:     KindAccess,
 		audience: "audience",
 	}, {
 		name:     "with audience (with replacement)",
+		kind:     KindRefresh,
 		audience: "https://audience.unit.test",
 	}}
 
@@ -119,12 +127,12 @@ func TestLoad(t *testing.T) {
 			if err := os.MkdirAll(path, 0777); err != nil {
 				t.Fatalf("Unexpected error creating temp dir: %v", err)
 			}
-			if err := os.WriteFile(filepath.Join(path, filename), tokenContents, 0600); err != nil {
+			if err := os.WriteFile(filepath.Join(path, string(test.kind)), tokenContents, 0600); err != nil {
 				t.Fatalf("Unexpected error writing test token: %v", err)
 			}
 
 			// Load the token, check its contents
-			got, err := Load(test.audience)
+			got, err := Load(test.kind, test.audience)
 			if err != nil {
 				t.Fatalf("Load() unexpected error=%v", err)
 			}
@@ -145,21 +153,25 @@ func TestDelete(t *testing.T) {
 	tests := []struct {
 		name     string
 		audience string
+		kind     Kind
 		exists   bool
 		wantErr  bool
 	}{{
 		name:     "no audience ",
 		audience: "", // Intentionally blank.
+		kind:     KindRefresh,
 		wantErr:  false,
 	}, {
 		name:     "token doesn't exist",
 		audience: "audience",
 		exists:   false,
+		kind:     KindAccess,
 		wantErr:  false,
 	}, {
 		name:     "token does exist",
 		audience: "audience",
 		exists:   true,
+		kind:     KindAccess,
 		wantErr:  false,
 	}}
 
@@ -172,13 +184,13 @@ func TestDelete(t *testing.T) {
 				if err := os.MkdirAll(path, 0777); err != nil {
 					t.Fatalf("Unexpected error creating temp dir: %v", err)
 				}
-				if err := os.WriteFile(filepath.Join(path, filename), tokenContents, 0600); err != nil {
+				if err := os.WriteFile(filepath.Join(path, string(test.kind)), tokenContents, 0600); err != nil {
 					t.Fatalf("Unexpected error writing test token: %v", err)
 				}
 			}
 
 			// Attempt to delete the token.
-			err := Delete(test.audience)
+			err := Delete(test.kind, test.audience)
 			if (err != nil) != test.wantErr {
 				t.Fatalf("Delete() error return mismatch, want=%t got=%v", test.wantErr, err)
 			}
@@ -253,9 +265,11 @@ func TestDeleteAll(t *testing.T) {
 			}
 			// Populate "token" files
 			for _, aud := range test.audsWithTokens {
-				tok := filepath.Join(cacheDir, aud, filename)
-				if _, err := os.Create(tok); err != nil {
-					t.Fatalf("failed to create fake token %s: %s", tok, err.Error())
+				for _, kind := range AllKinds {
+					tok := filepath.Join(cacheDir, aud, string(kind))
+					if _, err := os.Create(tok); err != nil {
+						t.Fatalf("failed to create fake token %s: %s", tok, err.Error())
+					}
 				}
 			}
 			// Create extra files
@@ -311,16 +325,18 @@ func TestSaveLoadToken(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.description, func(t *testing.T) {
-			tokenContents := []byte("mytoken")
-			if err := Save(tokenContents, test.audience); err != nil {
-				t.Fatal(err)
-			}
-			contents, err := Load(test.audience)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if string(contents) != string(tokenContents) {
-				t.Fatalf("expected %s got %s", string(tokenContents), string(contents))
+			for _, kind := range AllKinds {
+				tokenContents := []byte("mytoken")
+				if err := Save(tokenContents, kind, test.audience); err != nil {
+					t.Fatal(err)
+				}
+				contents, err := Load(kind, test.audience)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if string(contents) != string(tokenContents) {
+					t.Fatalf("expected %s got %s", string(tokenContents), string(contents))
+				}
 			}
 		})
 	}
@@ -343,6 +359,7 @@ func TestRemainingLife(t *testing.T) {
 	tests := []struct {
 		name     string
 		token    ts
+		kind     Kind
 		audience string
 		less     time.Duration
 		want     time.Duration
@@ -353,6 +370,7 @@ func TestRemainingLife(t *testing.T) {
 			subject:  "subject",
 			duration: 30 * time.Minute,
 		},
+		kind:     KindAccess,
 		audience: "audience",
 		less:     0,
 		want:     30 * time.Minute,
@@ -363,6 +381,7 @@ func TestRemainingLife(t *testing.T) {
 			subject:  "subject",
 			duration: 30 * time.Minute,
 		},
+		kind:     KindRefresh,
 		audience: "audience",
 		less:     10 * time.Minute,
 		want:     20 * time.Minute,
@@ -373,6 +392,7 @@ func TestRemainingLife(t *testing.T) {
 			subject:  "subject",
 			duration: 30 * time.Minute,
 		},
+		kind:     KindAccess,
 		audience: "audience",
 		less:     30 * time.Minute,
 		want:     0,
@@ -383,6 +403,7 @@ func TestRemainingLife(t *testing.T) {
 			subject:  "subject",
 			duration: 30 * time.Minute,
 		},
+		kind:     KindAccess,
 		audience: "audience",
 		less:     40 * time.Minute,
 		want:     0,
@@ -393,6 +414,7 @@ func TestRemainingLife(t *testing.T) {
 			subject:  "subject",
 			duration: 30 * time.Minute,
 		},
+		kind:     KindAccess,
 		audience: "different",
 		less:     0,
 		want:     0,
@@ -401,11 +423,11 @@ func TestRemainingLife(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			tok := testToken(t, test.token.audience, test.token.subject, now, test.token.duration)
-			if err := Save([]byte(tok), test.token.audience); err != nil {
+			if err := Save([]byte(tok), test.kind, test.token.audience); err != nil {
 				t.Fatalf("Save() unexpected error=%v", err)
 			}
 
-			got := RemainingLife(test.audience, test.less)
+			got := RemainingLife(test.kind, test.audience, test.less)
 
 			if got != test.want {
 				t.Fatalf("RemainingLife() mismatch, want=%v, got=%v", test.want, got)
@@ -423,26 +445,30 @@ func TestPath(t *testing.T) {
 	}
 
 	tests := map[string]struct {
+		kind         Kind
 		audience     string
 		expectedPath string
 	}{
 		"no audience": {
 			audience:     "",
-			expectedPath: filepath.Join(cacheDir, parentDir, filename),
+			kind:         KindAccess,
+			expectedPath: filepath.Join(cacheDir, parentDir, string(KindAccess)),
 		},
 		"audience sans replacement": {
 			audience:     "console.example.com",
-			expectedPath: filepath.Join(cacheDir, parentDir, "console.example.com", filename),
+			kind:         KindAccess,
+			expectedPath: filepath.Join(cacheDir, parentDir, "console.example.com", string(KindAccess)),
 		},
 		"audience with replacement": {
 			audience:     "https://console.example.com",
-			expectedPath: filepath.Join(cacheDir, parentDir, "https:--console.example.com", filename),
+			kind:         KindRefresh,
+			expectedPath: filepath.Join(cacheDir, parentDir, "https:--console.example.com", string(KindRefresh)),
 		},
 	}
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			got, err := Path(test.audience)
+			got, err := Path(test.kind, test.audience)
 			if err != nil {
 				t.Fatal(err)
 			}
