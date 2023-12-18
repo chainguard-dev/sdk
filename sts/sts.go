@@ -131,7 +131,7 @@ func (i *impl) Refresh(ctx context.Context, token string, opts ...ExchangerOptio
 	}
 	defer c.Close()
 
-	resp, err := c.STS().GetAccessToken(ctx, &oidc.GetAccessTokenRequest{
+	resp, err := c.STS().ExchangeAccessToken(ctx, &oidc.ExchangeAccessTokenRequest{
 		Aud:   []string{o.audience},
 		Scope: o.scope,
 		Cap:   o.capabilities,
@@ -139,7 +139,7 @@ func (i *impl) Refresh(ctx context.Context, token string, opts ...ExchangerOptio
 	if err != nil {
 		return "", "", err
 	}
-	return resp.Token, resp.RefreshToken, err
+	return resp.GetToken().GetToken(), resp.GetRefreshToken().GetToken(), err
 }
 
 // ExchangerOption is a way of customizing the behavior of the Exchanger
@@ -299,7 +299,7 @@ func (i *HTTP1DowngradeExchanger) Refresh(ctx context.Context, token string, opt
 		opt(&o)
 	}
 
-	in := &oidc.GetAccessTokenRequest{
+	in := &oidc.ExchangeAccessTokenRequest{
 		Aud:   []string{o.audience},
 		Scope: o.scope,
 		Cap:   o.capabilities,
@@ -310,5 +310,5 @@ func (i *HTTP1DowngradeExchanger) Refresh(ctx context.Context, token string, opt
 		return "", "", err
 	}
 
-	return out.Token, out.RefreshToken, nil
+	return out.GetToken().Token, out.GetRefreshToken().Token, nil
 }
