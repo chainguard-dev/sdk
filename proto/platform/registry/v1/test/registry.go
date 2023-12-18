@@ -48,6 +48,13 @@ type MockRegistryClient struct {
 	OnUpdateRepo     []RepoOnUpdate
 	OnListTagHistory []TagHistoryOnList
 	OnGetSbom        []SbomOnGet
+	OnDiffImage      []DiffImage
+}
+
+type DiffImage struct {
+	Given *registry.DiffImageRequest
+	Diff  *registry.DiffImageResponse
+	Error error
 }
 
 type ReposOnCreate struct {
@@ -193,6 +200,15 @@ func (m MockRegistryClient) GetSbom(_ context.Context, given *registry.SbomReque
 	for _, o := range m.OnGetSbom {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Get, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockRegistryClient) DiffImage(_ context.Context, given *registry.DiffImageRequest, _ ...grpc.CallOption) (*registry.DiffImageResponse, error) {
+	for _, o := range m.OnDiffImage {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Diff, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)
