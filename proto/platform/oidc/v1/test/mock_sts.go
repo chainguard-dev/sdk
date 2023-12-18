@@ -31,7 +31,7 @@ func (m MockSTSClient) Exchange(_ context.Context, given *oidc.ExchangeRequest, 
 	return nil, fmt.Errorf("mock not found for %v", given)
 }
 
-func (m MockSTSClient) ExchangeAccessToken(_ context.Context, given *oidc.ExchangeAccessTokenRequest, _ ...grpc.CallOption) (*oidc.TokenPair, error) {
+func (m MockSTSClient) ExchangeRefreshToken(_ context.Context, given *oidc.ExchangeRefreshTokenRequest, _ ...grpc.CallOption) (*oidc.TokenPair, error) {
 	for _, o := range m.OnGetAccessToken {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Exchanged, o.Error
@@ -47,7 +47,7 @@ type STSOnExchange struct {
 }
 
 type STSOnGetAccessToken struct {
-	Given     *oidc.ExchangeAccessTokenRequest
+	Given     *oidc.ExchangeRefreshTokenRequest
 	Exchanged *oidc.TokenPair
 	Error     error
 }

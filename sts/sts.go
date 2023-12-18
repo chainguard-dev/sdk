@@ -131,7 +131,7 @@ func (i *impl) Refresh(ctx context.Context, token string, opts ...ExchangerOptio
 	}
 	defer c.Close()
 
-	resp, err := c.STS().ExchangeAccessToken(ctx, &oidc.ExchangeAccessTokenRequest{
+	resp, err := c.STS().ExchangeRefreshToken(ctx, &oidc.ExchangeRefreshTokenRequest{
 		Aud:   []string{o.audience},
 		Scope: o.scope,
 		Cap:   o.capabilities,
@@ -299,7 +299,7 @@ func (i *HTTP1DowngradeExchanger) Refresh(ctx context.Context, token string, opt
 		opt(&o)
 	}
 
-	in := &oidc.ExchangeAccessTokenRequest{
+	in := &oidc.ExchangeRefreshTokenRequest{
 		Aud:   []string{o.audience},
 		Scope: o.scope,
 		Cap:   o.capabilities,

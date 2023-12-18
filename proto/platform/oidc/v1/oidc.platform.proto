@@ -20,14 +20,14 @@ service SecurityTokenService {
     };
   }
 
-  rpc ExchangeAccessToken(ExchangeAccessTokenRequest) returns (TokenPair) {
+  rpc ExchangeRefreshToken(ExchangeRefreshTokenRequest) returns (TokenPair) {
     option (google.api.http) = {
-      post: "/sts/exchange_access_token"
+      post: "/sts/exchange_refresh_token"
     };
   }
 }
 
-message ExchangeAccessTokenRequest {
+message ExchangeRefreshTokenRequest {
   repeated string aud = 1;
   string scope = 2;
 
@@ -56,7 +56,7 @@ message RawToken {
   string token = 1;
 }
 
-// ExchangeAccessToken returns a pair of token, in order to allow
+// ExchangeRefreshToken returns a pair of token, in order to allow
 // refresh token to also be rotated.
 message TokenPair {
   RawToken token = 1;
