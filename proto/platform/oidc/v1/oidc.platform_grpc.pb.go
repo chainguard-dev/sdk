@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	SecurityTokenService_Exchange_FullMethodName            = "/chainguard.platform.oidc.SecurityTokenService/Exchange"
-	SecurityTokenService_ExchangeAccessToken_FullMethodName = "/chainguard.platform.oidc.SecurityTokenService/ExchangeAccessToken"
+	SecurityTokenService_Exchange_FullMethodName             = "/chainguard.platform.oidc.SecurityTokenService/Exchange"
+	SecurityTokenService_ExchangeRefreshToken_FullMethodName = "/chainguard.platform.oidc.SecurityTokenService/ExchangeRefreshToken"
 )
 
 // SecurityTokenServiceClient is the client API for SecurityTokenService service.
@@ -28,7 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SecurityTokenServiceClient interface {
 	Exchange(ctx context.Context, in *ExchangeRequest, opts ...grpc.CallOption) (*RawToken, error)
-	ExchangeAccessToken(ctx context.Context, in *ExchangeAccessTokenRequest, opts ...grpc.CallOption) (*TokenPair, error)
+	ExchangeRefreshToken(ctx context.Context, in *ExchangeRefreshTokenRequest, opts ...grpc.CallOption) (*TokenPair, error)
 }
 
 type securityTokenServiceClient struct {
@@ -48,9 +48,9 @@ func (c *securityTokenServiceClient) Exchange(ctx context.Context, in *ExchangeR
 	return out, nil
 }
 
-func (c *securityTokenServiceClient) ExchangeAccessToken(ctx context.Context, in *ExchangeAccessTokenRequest, opts ...grpc.CallOption) (*TokenPair, error) {
+func (c *securityTokenServiceClient) ExchangeRefreshToken(ctx context.Context, in *ExchangeRefreshTokenRequest, opts ...grpc.CallOption) (*TokenPair, error) {
 	out := new(TokenPair)
-	err := c.cc.Invoke(ctx, SecurityTokenService_ExchangeAccessToken_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, SecurityTokenService_ExchangeRefreshToken_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func (c *securityTokenServiceClient) ExchangeAccessToken(ctx context.Context, in
 // for forward compatibility
 type SecurityTokenServiceServer interface {
 	Exchange(context.Context, *ExchangeRequest) (*RawToken, error)
-	ExchangeAccessToken(context.Context, *ExchangeAccessTokenRequest) (*TokenPair, error)
+	ExchangeRefreshToken(context.Context, *ExchangeRefreshTokenRequest) (*TokenPair, error)
 	mustEmbedUnimplementedSecurityTokenServiceServer()
 }
 
@@ -73,8 +73,8 @@ type UnimplementedSecurityTokenServiceServer struct {
 func (UnimplementedSecurityTokenServiceServer) Exchange(context.Context, *ExchangeRequest) (*RawToken, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Exchange not implemented")
 }
-func (UnimplementedSecurityTokenServiceServer) ExchangeAccessToken(context.Context, *ExchangeAccessTokenRequest) (*TokenPair, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ExchangeAccessToken not implemented")
+func (UnimplementedSecurityTokenServiceServer) ExchangeRefreshToken(context.Context, *ExchangeRefreshTokenRequest) (*TokenPair, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ExchangeRefreshToken not implemented")
 }
 func (UnimplementedSecurityTokenServiceServer) mustEmbedUnimplementedSecurityTokenServiceServer() {}
 
@@ -107,20 +107,20 @@ func _SecurityTokenService_Exchange_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityTokenService_ExchangeAccessToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ExchangeAccessTokenRequest)
+func _SecurityTokenService_ExchangeRefreshToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExchangeRefreshTokenRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityTokenServiceServer).ExchangeAccessToken(ctx, in)
+		return srv.(SecurityTokenServiceServer).ExchangeRefreshToken(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SecurityTokenService_ExchangeAccessToken_FullMethodName,
+		FullMethod: SecurityTokenService_ExchangeRefreshToken_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityTokenServiceServer).ExchangeAccessToken(ctx, req.(*ExchangeAccessTokenRequest))
+		return srv.(SecurityTokenServiceServer).ExchangeRefreshToken(ctx, req.(*ExchangeRefreshTokenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -137,8 +137,8 @@ var SecurityTokenService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SecurityTokenService_Exchange_Handler,
 		},
 		{
-			MethodName: "ExchangeAccessToken",
-			Handler:    _SecurityTokenService_ExchangeAccessToken_Handler,
+			MethodName: "ExchangeRefreshToken",
+			Handler:    _SecurityTokenService_ExchangeRefreshToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

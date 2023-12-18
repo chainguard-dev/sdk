@@ -32,7 +32,7 @@ func TestRefresh(t *testing.T) {
 			clientMock: MockOIDCClient{
 				STSClient: MockSTSClient{
 					OnGetAccessToken: []STSOnGetAccessToken{{
-						Given: &oidc.ExchangeAccessTokenRequest{
+						Given: &oidc.ExchangeRefreshTokenRequest{
 							Aud: []string{"baz"},
 						},
 						Exchanged: &oidc.TokenPair{
@@ -51,7 +51,7 @@ func TestRefresh(t *testing.T) {
 			clientMock: MockOIDCClient{
 				STSClient: MockSTSClient{
 					OnGetAccessToken: []STSOnGetAccessToken{{
-						Given: &oidc.ExchangeAccessTokenRequest{
+						Given: &oidc.ExchangeRefreshTokenRequest{
 							Aud: []string{"baz"},
 						},
 						Error: errors.New("unexpected EOF"),
@@ -70,7 +70,7 @@ func TestRefresh(t *testing.T) {
 			clientMock: MockOIDCClient{
 				STSClient: MockSTSClient{
 					OnGetAccessToken: []STSOnGetAccessToken{{
-						Given: &oidc.ExchangeAccessTokenRequest{
+						Given: &oidc.ExchangeRefreshTokenRequest{
 							Aud:   []string{"baz"},
 							Cap:   []string{"registry.push"},
 							Scope: "derp",
