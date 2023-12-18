@@ -15,6 +15,92 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+func TestRefresh(t *testing.T) {
+	tests := map[string]struct {
+		issuer           string
+		audience         string
+		newOpts          []ExchangerOption
+		exchangeOpts     []ExchangerOption
+		wantToken        string
+		wantRefreshToken string
+		wantErr          bool
+		clientMock       MockOIDCClient
+	}{
+		"zero options": {
+			issuer:   "bar",
+			audience: "baz",
+			clientMock: MockOIDCClient{
+				STSClient: MockSTSClient{
+					OnGetAccessToken: []STSOnGetAccessToken{{
+						Given: &oidc.GetAccessTokenRequest{
+							Aud: []string{"baz"},
+						},
+						Exchanged: &oidc.TokenPair{Token: "token!", RefreshToken: "refresh token!"},
+					}},
+				},
+			},
+			wantToken:        "token!",
+			wantRefreshToken: "refresh token!",
+		},
+		"basic error plumbing": {
+			issuer:   "bar",
+			audience: "baz",
+			clientMock: MockOIDCClient{
+				STSClient: MockSTSClient{
+					OnGetAccessToken: []STSOnGetAccessToken{{
+						Given: &oidc.GetAccessTokenRequest{
+							Aud: []string{"baz"},
+						},
+						Error: errors.New("unexpected EOF"),
+					}},
+				},
+			},
+			wantErr: true,
+		},
+		"capabilities and scope": {
+			issuer:   "bar",
+			audience: "baz",
+			exchangeOpts: []ExchangerOption{
+				WithCapabilities("registry.push"),
+				WithScope("derp"),
+			},
+			clientMock: MockOIDCClient{
+				STSClient: MockSTSClient{
+					OnGetAccessToken: []STSOnGetAccessToken{{
+						Given: &oidc.GetAccessTokenRequest{
+							Aud:   []string{"baz"},
+							Cap:   []string{"registry.push"},
+							Scope: "derp",
+						},
+						Exchanged: &oidc.TokenPair{Token: "token!", RefreshToken: "refresh token"},
+					}},
+				},
+			},
+			wantToken:        "token!",
+			wantRefreshToken: "refresh token",
+		},
+	}
+
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			oidcNewClients = func(_ context.Context, issuer string, token string, opts ...oidc.ClientOption) (oidc.Clients, error) {
+				return test.clientMock, nil
+			}
+
+			exch := New(test.issuer, test.audience, test.newOpts...)
+			token, refreshToken, gotErr := exch.Refresh(context.Background(), "foo", test.exchangeOpts...)
+			if gotErr != nil && !test.wantErr {
+				t.Error("got err: ", gotErr, "and expected no error")
+			}
+			if diff := cmp.Diff(token, test.wantToken); diff != "" {
+				t.Error("Got unexpected diff in token: ", diff)
+			}
+			if diff := cmp.Diff(refreshToken, test.wantRefreshToken); diff != "" {
+				t.Error("Got unexpected diff in refresh token: ", diff)
+			}
+		})
+	}
+}
 func TestImplExchange(t *testing.T) {
 	tests := map[string]struct {
 		issuer       string

@@ -23,9 +23,6 @@ service SecurityTokenService {
   rpc GetAccessToken(GetAccessTokenRequest) returns (TokenPair) {
     option (google.api.http) = {
       post: "/sts/access_token"
-      additional_bindings {
-        get: "/sts/access_token"
-      }
     };
   }
 }
@@ -33,10 +30,9 @@ service SecurityTokenService {
 message GetAccessTokenRequest {
   repeated string aud = 1;
   string scope = 2;
-  string refresh_token = 3;
 
   // List of capabilities to request for the token.
-  repeated string cap = 4 [(google.api.resource_reference) = {
+  repeated string cap = 3 [(google.api.resource_reference) = {
     type: "chainguard.capabilities/Capability"
   }];
 }
