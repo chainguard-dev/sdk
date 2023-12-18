@@ -6,7 +6,7 @@ require (
 	chainguard.dev/go-grpc-kit v0.17.2
 	chainguard.dev/go-oidctest v0.2.0
 	github.com/aws/aws-sdk-go-v2 v1.21.0
-	github.com/bits-and-blooms/bitset v1.11.0
+	github.com/bits-and-blooms/bitset v1.12.0
 	github.com/cloudevents/sdk-go/v2 v2.14.0
 	github.com/coreos/go-oidc/v3 v3.8.0
 	github.com/google/go-cmp v0.6.0
