@@ -270,10 +270,7 @@ func (i *HTTP1DowngradeExchanger) doHTTP1(ctx context.Context,
 		return err
 	}
 	defer resp.Body.Close()
-	if err := protojson.Unmarshal(b, out); err != nil {
-		return err
-	}
-	return nil
+	return protojson.Unmarshal(b, out)
 }
 
 func (i *HTTP1DowngradeExchanger) Exchange(ctx context.Context, token string, opts ...ExchangerOption) (string, error) {
