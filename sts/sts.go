@@ -18,6 +18,7 @@ import (
 	"golang.org/x/oauth2"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 )
 
 const GulfstreamAudience = "gulfstream"
@@ -28,6 +29,9 @@ type Exchanger interface {
 	// Exchange performs the actual token exchange, sending "token" to the
 	// Chainguard issuer's STS interface, and receiving bytes or an error.
 	Exchange(ctx context.Context, token string, opts ...ExchangerOption) (string, error)
+
+	// Refresh exchanges a refresh token for a new access token and refresh token.
+	Refresh(ctx context.Context, token string, opts ...ExchangerOption) (accessToken string, refreshToken string, err error)
 }
 
 // New creates a new Exchanger that works against the provided issuer's STS
@@ -114,6 +118,30 @@ func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOpti
 	return resp.Token, nil
 }
 
+// Refresh implements Exchanger
+func (i *impl) Refresh(ctx context.Context, token string, opts ...ExchangerOption) (string, string, error) {
+	o := i.opts
+	for _, opt := range opts {
+		opt(&o)
+	}
+
+	c, err := oidcNewClients(ctx, o.issuer, fmt.Sprintf("Bearer %s", token), oidc.WithUserAgent(o.userAgent))
+	if err != nil {
+		return "", "", err
+	}
+	defer c.Close()
+
+	resp, err := c.STS().ExchangeAccessToken(ctx, &oidc.ExchangeAccessTokenRequest{
+		Aud:   []string{o.audience},
+		Scope: o.scope,
+		Cap:   o.capabilities,
+	})
+	if err != nil {
+		return "", "", err
+	}
+	return resp.GetToken().GetToken(), resp.GetRefreshToken().GetToken(), err
+}
+
 // ExchangerOption is a way of customizing the behavior of the Exchanger
 // constructed via New()
 type ExchangerOption func(*options)
@@ -190,35 +218,24 @@ func NewHTTP1DowngradeExchanger(issuer, audience string, opts ...ExchangerOption
 	return i
 }
 
-func (i *HTTP1DowngradeExchanger) Exchange(ctx context.Context, token string, opts ...ExchangerOption) (string, error) {
-	o := i.opts
-	for _, opt := range opts {
-		opt(&o)
-	}
-
-	in := &oidc.ExchangeRequest{
-		Aud:                  []string{o.audience},
-		Scope:                o.scope,
-		Cluster:              o.cluster,
-		Identity:             o.identity,
-		IncludeUpstreamToken: o.includeUpstreamToken,
-		Cap:                  o.capabilities,
-	}
+func (i *HTTP1DowngradeExchanger) doHTTP1(ctx context.Context,
+	auth string,
+	path string, in proto.Message, out proto.Message, opts options) error {
 	body, err := protojson.Marshal(in)
 	if err != nil {
-		return "", err
+		return err
 	}
-	u, err := url.JoinPath(i.opts.issuer, "/sts/exchange")
+	u, err := url.JoinPath(i.opts.issuer, path)
 	if err != nil {
-		return "", err
+		return err
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, u, bytes.NewReader(body))
 	if err != nil {
-		return "", err
+		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	if o.userAgent != "" {
-		req.Header.Set("User-Agent", o.userAgent)
+	if opts.userAgent != "" {
+		req.Header.Set("User-Agent", opts.userAgent)
 	}
 
 	if md, ok := metadata.FromOutgoingContext(ctx); ok {
@@ -237,27 +254,61 @@ func (i *HTTP1DowngradeExchanger) Exchange(ctx context.Context, token string, op
 			Base: &http.Transport{
 				TLSNextProto: map[string]func(string, *tls.Conn) http.RoundTripper{},
 			},
-			Source: oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token}),
+			Source: oauth2.StaticTokenSource(&oauth2.Token{AccessToken: auth}),
 		},
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("%s", resp.Status)
+		return fmt.Errorf("%s", resp.Status)
 	}
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return err
 	}
 	defer resp.Body.Close()
+	return protojson.Unmarshal(b, out)
+}
 
+func (i *HTTP1DowngradeExchanger) Exchange(ctx context.Context, token string, opts ...ExchangerOption) (string, error) {
+	o := i.opts
+	for _, opt := range opts {
+		opt(&o)
+	}
+	in := &oidc.ExchangeRequest{
+		Aud:                  []string{o.audience},
+		Scope:                o.scope,
+		Cluster:              o.cluster,
+		Identity:             o.identity,
+		IncludeUpstreamToken: o.includeUpstreamToken,
+		Cap:                  o.capabilities,
+	}
 	out := new(oidc.RawToken)
-	if err := protojson.Unmarshal(b, out); err != nil {
+	if err := i.doHTTP1(ctx, token, "/sts/exchange", in, out, o); err != nil {
 		return "", err
 	}
-
 	return out.Token, nil
+}
+
+func (i *HTTP1DowngradeExchanger) Refresh(ctx context.Context, token string, opts ...ExchangerOption) (string, string, error) {
+	o := i.opts
+	for _, opt := range opts {
+		opt(&o)
+	}
+
+	in := &oidc.ExchangeAccessTokenRequest{
+		Aud:   []string{o.audience},
+		Scope: o.scope,
+		Cap:   o.capabilities,
+	}
+
+	out := new(oidc.TokenPair)
+	if err := i.doHTTP1(ctx, token, "sts/access_token", in, out, o); err != nil {
+		return "", "", err
+	}
+
+	return out.GetToken().Token, out.GetRefreshToken().Token, nil
 }
