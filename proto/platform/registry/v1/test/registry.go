@@ -48,6 +48,7 @@ type MockRegistryClient struct {
 	OnUpdateRepo     []RepoOnUpdate
 	OnListTagHistory []TagHistoryOnList
 	OnGetSbom        []SbomOnGet
+	OnGetVulnReport  []VulnReportOnGet
 	OnDiffImage      []DiffImage
 }
 
@@ -112,6 +113,12 @@ type TagHistoryOnList struct {
 type SbomOnGet struct {
 	Given *registry.SbomRequest
 	Get   *tenant.Sbom2
+	Error error
+}
+
+type VulnReportOnGet struct {
+	Given *registry.VulnReportRequest
+	Get   *tenant.VulnReport
 	Error error
 }
 
@@ -198,6 +205,15 @@ func (m MockRegistryClient) ListTagHistory(_ context.Context, given *registry.Ta
 
 func (m MockRegistryClient) GetSbom(_ context.Context, given *registry.SbomRequest, _ ...grpc.CallOption) (*tenant.Sbom2, error) { //nolint: revive
 	for _, o := range m.OnGetSbom {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Get, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockRegistryClient) GetVulnReport(_ context.Context, given *registry.VulnReportRequest, _ ...grpc.CallOption) (*tenant.VulnReport, error) { //nolint: revive
+	for _, o := range m.OnGetVulnReport {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Get, o.Error
 		}
