@@ -1,34 +1,22 @@
 # SDK
 
-This repository contains the public [gRPC](https://grpc.io/) protos supporting
-our services and packages to ease integration with the Chainguard platform.
+### The SDK has moved to a public repo at [github.com/chainguard-dev/sdk](https://github.com/chainguard-dev/sdk)!
 
-## Updating `*.proto` files
+For guidance working with the SDK, post questions to
+[#eng-squad-experience](https://chainguard-dev.slack.com/archives/C03JLFATBST) in Slack.
 
-After updating a `*.proto` you'll need to update the corresponding generated go
-code.
+## Recommended workflow for making SDK changes
 
-```shell
-./hack/update-codegen.sh
-```
+The workflow will be different since changes to SDK are not immediately available in `mono`. This recommended workflow
+is still a work in progress and subject to change as we discover new pain points in the process.
 
-### Prerequisites
-
-Install `protoc`: https://grpc.io/docs/protoc-installation/
-
-Example for MacOS:
-
-```shell
-brew install protobuf
-```
-
-We currently require `protoc` v5.26.1.
-
-Install `protoc` codegen dependencies:
-
-```shell
-go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.33.0
-go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
-go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.10.0
-go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.10.0
-```
+1. Determine if your change is appropriate for `chainguard.dev/sdk` (i.e. is it okay to be public), or would
+`mono/api-internal` be a better fit?
+2. Make changes to your local copy of `chainguard.dev/sdk`. If you are developing something in `mono` that relies
+on those changes, it may be helpful to add a temporary `replace chainguard.dev/sdk => [path to your local SDK repo]`
+in the relevant `go.mod` for faster iteration.
+3. Push `chainguard.dev/sdk` changes and open a PR in [github.com/chainguard-dev/sdk](https://github.com/chainguard-dev/sdk)
+and post in [#eng-squad-experience](https://chainguard-dev.slack.com/archives/C03JLFATBST).
+or tag relevant reviewers.
+4. Cut a new release, update necessary `go.mod` of dependencies. The release cadence for SDK is still TBD, at the moment
+ad hoc releases as necessary are fine. If you're unsure, ask in [#eng-squad-experience](https://chainguard-dev.slack.com/archives/C03JLFATBST).
