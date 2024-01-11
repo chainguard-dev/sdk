@@ -198,6 +198,9 @@ message Repo {
 
   // bundles is a list of tags/labels that allow us to group repositories to each other for sales purposes.
   repeated string bundles = 4;
+
+  // readme is raw Markdown file contents describing the repo.
+  string readme = 5;
 }
 
 enum CatalogTier {
