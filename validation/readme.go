@@ -31,7 +31,7 @@ func ValidateReadme(readme string) (string, error) {
 	// After converting the Markdown to HTML,
 	// make sure there is no diff after sanitizing it.
 	// Unescape any encoded HTML tags for proper comparison.
-	if diff := cmp.Diff(unscapeHTML(unsafe), unscapeHTML(safe)); diff != "" {
+	if diff := cmp.Diff(unescapeHTML(unsafe), unescapeHTML(safe)); diff != "" {
 		return diff, ErrUnsafeReadme
 	}
 	return "", nil
@@ -61,6 +61,6 @@ func sanitizeHTML(unsafeHTML string) string {
 	return bluemondayPolicy.Sanitize(unsafeHTML)
 }
 
-func unscapeHTML(safeHTML string) string {
+func unescapeHTML(safeHTML string) string {
 	return html.UnescapeString(safeHTML)
 }
