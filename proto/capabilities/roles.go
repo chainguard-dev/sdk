@@ -122,6 +122,9 @@ var (
 		Capability_CAP_TAG_CREATE,
 		Capability_CAP_TAG_UPDATE,
 		Capability_CAP_TAG_DELETE,
+
+		// To create nested groups as needed on push.
+		Capability_CAP_IAM_GROUPS_CREATE,
 	}, RegistryPullCaps...))
 
 	RegistryPullTokenCreatorCaps = sortCaps(append([]Capability{
