@@ -19,7 +19,7 @@ require (
 	golang.org/x/exp v0.0.0-20231108232855-2478ac86f678
 	golang.org/x/oauth2 v0.16.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240102182953-50ed04b92917
-	google.golang.org/grpc v1.60.1
+	google.golang.org/grpc v1.61.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
 	google.golang.org/protobuf v1.32.0
 	gopkg.in/square/go-jose.v2 v2.6.0
