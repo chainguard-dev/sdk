@@ -40,13 +40,6 @@ message VulnReport {
     // scanner contains some information about the scanner used to generate the report.
     Scanner scanner = 4;
 
-    message Scanner {
-      // name contains the vendor name of the scanner.
-      string name = 1;
-      // version holds the version of the used scanner to generate the report.
-      string version = 2;
-    }
-
     // report_generation tracks the timestamp at which this report was generated.
     google.protobuf.Timestamp report_generation = 5;
 
@@ -56,6 +49,13 @@ message VulnReport {
 
     // last_seen tracks the timestamp at which this vuln report was last seen.
     google.protobuf.Timestamp last_seen = 7;
+}
+
+message Scanner {
+  // name contains the vendor name of the scanner.
+  string name = 1;
+  // version holds the version of the used scanner to generate the report.
+  string version = 2;
 }
 
 message VulnerabilityMatch {
