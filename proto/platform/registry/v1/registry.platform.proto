@@ -404,6 +404,9 @@ message PackageReference {
 message VulnerabilitiesDiff {
   repeated VulnerabilityReference added = 1;
   repeated VulnerabilityReference removed = 2;
+  chainguard.platform.tenant.Scanner scanner = 3;
+  // vulnerability_db_last_build_time holds the time when the vulnerability database was built last time.
+  google.protobuf.Timestamp vulnerability_db_last_build_time = 4;
 }
 
 // VulnerabilityReference is a reference to a vulnerability, containing minimal information to identify it.
