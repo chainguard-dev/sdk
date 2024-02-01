@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/chainguard-dev/clog"
 	"google.golang.org/grpc/credentials"
-	"knative.dev/pkg/logging"
 )
 
 type fileAuth struct {
@@ -38,7 +38,7 @@ func (fa *fileAuth) GetRequestMetadata(ctx context.Context, uri ...string) (map[
 	// expiration before it is refreshed is 2 minutes.  Use 1 minute to give
 	// us wiggle room, but we should have 2 minutes to validate the token.
 	if time.Since(fa.lastUpdated) < time.Minute {
-		logging.FromContext(ctx).Infof("Using cached token, last refreshed %v", fa.lastUpdated)
+		clog.FromContext(ctx).Infof("Using cached token, last refreshed %v", fa.lastUpdated)
 		return map[string]string{
 			"Authorization": string(fa.cache),
 		}, nil
@@ -50,7 +50,7 @@ func (fa *fileAuth) GetRequestMetadata(ctx context.Context, uri ...string) (map[
 	}
 	fa.cache = b
 	fa.lastUpdated = time.Now()
-	logging.FromContext(ctx).Info("Using fresh token.")
+	clog.FromContext(ctx).Info("Using fresh token.")
 	return map[string]string{
 		"Authorization": string(b),
 	}, nil

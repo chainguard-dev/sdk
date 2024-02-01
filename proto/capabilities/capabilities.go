@@ -15,12 +15,12 @@ import (
 	"sync"
 
 	"github.com/bits-and-blooms/bitset"
+	"github.com/chainguard-dev/clog"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/descriptorpb"
-	"knative.dev/pkg/logging"
 )
 
 var (
@@ -84,7 +84,7 @@ func Parse(name string) (Capability, error) {
 			if perror == nil {
 				nameCapabilityMap[scap] = Capability(cap)
 			} else {
-				logging.FromContext(context.Background()).Errorf("Failed to stringify capability %d, error: %v",
+				clog.FromContext(context.Background()).Errorf("Failed to stringify capability %d, error: %v",
 					cap, zap.Error(perror))
 			}
 		}

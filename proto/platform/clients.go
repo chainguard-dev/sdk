@@ -19,9 +19,9 @@ import (
 	ping "chainguard.dev/sdk/proto/platform/ping/v1"
 	registry "chainguard.dev/sdk/proto/platform/registry/v1"
 	tenant "chainguard.dev/sdk/proto/platform/tenant/v1"
+	"github.com/chainguard-dev/clog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"knative.dev/pkg/logging"
 )
 
 type userAgentString struct{}
@@ -48,7 +48,7 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 	if cred != nil {
 		opts = append(opts, grpc.WithPerRPCCredentials(cred))
 	} else {
-		logging.FromContext(ctx).Warn("No authentication provided, this may end badly.")
+		clog.FromContext(ctx).Warn("No authentication provided, this may end badly.")
 	}
 	if ua := GetUserAgent(ctx); ua != "" {
 		opts = append(opts, grpc.WithUserAgent(ua))
@@ -129,7 +129,7 @@ func NewOIDCClients(ctx context.Context, issuerURL string, cred credentials.PerR
 	if cred != nil {
 		opts = append(opts, grpc.WithPerRPCCredentials(cred))
 	} else {
-		logging.FromContext(ctx).Warn("No authentication provided, this may end badly.")
+		clog.FromContext(ctx).Warn("No authentication provided, this may end badly.")
 	}
 	if ua := GetUserAgent(ctx); ua != "" {
 		opts = append(opts, grpc.WithUserAgent(ua))
