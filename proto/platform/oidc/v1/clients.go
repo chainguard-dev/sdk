@@ -12,8 +12,8 @@ import (
 	"time"
 
 	delegate "chainguard.dev/go-grpc-kit/pkg/options"
+	"github.com/chainguard-dev/clog"
 	"google.golang.org/grpc"
-	"knative.dev/pkg/logging"
 
 	"chainguard.dev/sdk/auth"
 )
@@ -52,7 +52,7 @@ func NewClients(ctx context.Context, addr string, token string, opts ...ClientOp
 	if cred := auth.NewFromToken(ctx, token, false); cred != nil {
 		rpcOpts = append(rpcOpts, grpc.WithPerRPCCredentials(cred))
 	} else {
-		logging.FromContext(ctx).Warn("No authentication provided, this may end badly.")
+		clog.FromContext(ctx).Warn("No authentication provided, this may end badly.")
 	}
 
 	if conf.userAgent != "" {

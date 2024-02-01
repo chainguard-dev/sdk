@@ -14,15 +14,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/chainguard-dev/clog"
 	"google.golang.org/grpc/credentials"
-	"knative.dev/pkg/logging"
 )
 
 // NewFromFile attempts to create a new credentials.PerRPCCredentials based on the provided file.
 // Returns nil if not found.
 func NewFromFile(ctx context.Context, path string, requireTransportSecurity bool) credentials.PerRPCCredentials {
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
-		logging.FromContext(ctx).Infof("Using OIDC token from %s to authenticate requests.", path)
+		clog.FromContext(ctx).Infof("Using OIDC token from %s to authenticate requests.", path)
 		return &fileAuth{
 			file:   path,
 			secure: requireTransportSecurity,
