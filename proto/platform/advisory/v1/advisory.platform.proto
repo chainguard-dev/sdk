@@ -21,6 +21,41 @@ service SecurityAdvisory {
       disabled: {}
     };
   }
+
+  rpc ListVulnerabilityMetadata(VulnerabilityMetadataFilter) returns (VulnerabilityMetadataList) {
+    option (google.api.http) = {
+      get: "/advisory/v1/metadata"
+    };
+    option (chainguard.annotations.iam) = {
+      // This method doesn't require authentication.
+      disabled: {}
+    };
+  }
+}
+
+message VulnerabilityMetadata {
+  // id is the identifier of this specific vuln.
+  string id = 1;
+
+  string summary = 2;
+
+  string details = 3;
+
+  repeated Reference references = 4;
+
+  repeated Severity severity = 5;
+}
+
+message Reference {
+  string type = 1;
+
+  string url = 2;
+}
+
+message Severity {
+  string type = 1;
+
+  string score = 2;
 }
 
 message Advisory {
@@ -135,4 +170,13 @@ message DocumentFilter {
 
 message DocumentList {
   repeated Document items = 1;
+}
+
+message VulnerabilityMetadataFilter {
+  // id is the id of a vuln.
+  string id = 1;
+}
+
+message VulnerabilityMetadataList {
+  repeated VulnerabilityMetadata items = 1;
 }
