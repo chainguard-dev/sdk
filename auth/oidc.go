@@ -64,7 +64,7 @@ type Actor struct {
 	Subject  string `json:"sub"`
 }
 
-func ExtractActor(token string) (*Actor, error) {
+func decodeToken(token string) ([]byte, error) {
 	parts := strings.Split(token, ".")
 	if len(parts) < 2 {
 		return nil, fmt.Errorf("oidc: malformed jwt, expected 3 parts got %d", len(parts))
@@ -72,6 +72,14 @@ func ExtractActor(token string) (*Actor, error) {
 	raw, err := base64.RawURLEncoding.DecodeString(parts[1])
 	if err != nil {
 		return nil, fmt.Errorf("oidc: malformed jwt payload: %w", err)
+	}
+	return raw, nil
+}
+
+func ExtractActor(token string) (*Actor, error) {
+	raw, err := decodeToken(token)
+	if err != nil {
+		return nil, err
 	}
 
 	var payload struct {
@@ -83,20 +91,34 @@ func ExtractActor(token string) (*Actor, error) {
 	return &payload.Actor, nil
 }
 
+func ExtractEmail(token string) (email string, verified bool, err error) {
+	raw, err := decodeToken(token)
+	if err != nil {
+		return "", false, err
+	}
+
+	var payload struct {
+		Email         string `json:"email"`
+		EmailVerified bool   `json:"email_verified"`
+	}
+	if err := json.Unmarshal(raw, &payload); err != nil {
+		return "", false, fmt.Errorf("oidc: failed to unmarshal claims: %w", err)
+	}
+
+	return payload.Email, payload.EmailVerified, nil
+}
+
 func ExtractIssuer(token string) (string, error) {
 	iss, _, err := ExtractIssuerAndSubject(token)
 	return iss, err
 }
 
 func ExtractIssuerAndSubject(token string) (string, string, error) {
-	parts := strings.Split(token, ".")
-	if len(parts) < 2 {
-		return "", "", fmt.Errorf("oidc: malformed jwt, expected 3 parts got %d", len(parts))
-	}
-	raw, err := base64.RawURLEncoding.DecodeString(parts[1])
+	raw, err := decodeToken(token)
 	if err != nil {
-		return "", "", fmt.Errorf("oidc: malformed jwt payload: %w", err)
+		return "", "", err
 	}
+
 	var payload struct {
 		Issuer  string `json:"iss"`
 		Subject string `json:"sub"`
@@ -109,14 +131,11 @@ func ExtractIssuerAndSubject(token string) (string, string, error) {
 }
 
 func ExtractExpiry(token string) (time.Time, error) {
-	parts := strings.Split(token, ".")
-	if len(parts) < 2 {
-		return time.Time{}, fmt.Errorf("oidc: malformed jwt, expected 3 parts got %d", len(parts))
-	}
-	raw, err := base64.RawURLEncoding.DecodeString(parts[1])
+	raw, err := decodeToken(token)
 	if err != nil {
-		return time.Time{}, fmt.Errorf("oidc: malformed jwt payload: %w", err)
+		return time.Time{}, err
 	}
+
 	var payload struct {
 		Expiry int64 `json:"exp"`
 	}
