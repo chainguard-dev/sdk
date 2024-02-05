@@ -53,8 +53,10 @@ message Reference {
 }
 
 message Severity {
+  // CVSS version standard.
   string type = 1;
 
+  // Vector string representing CVSS score based on type.
   string score = 2;
 }
 
