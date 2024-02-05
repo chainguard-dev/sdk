@@ -235,7 +235,9 @@ type Severity struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Type  string `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	// CVSS version standard.
+	Type string `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	// Vector string representing CVSS score based on type.
 	Score string `protobuf:"bytes,2,opt,name=score,proto3" json:"score,omitempty"`
 }
 
