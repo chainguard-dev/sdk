@@ -411,6 +411,7 @@ message ScannerMetadata {
   string digest = 1;
   chainguard.platform.tenant.Scanner scanner = 2;
   google.protobuf.Timestamp vulnerability_db_last_build_time = 3;
+  string vulnerability_db_schema_version = 4;
 }
 
 // VulnerabilityReference is a reference to a vulnerability, containing minimal information to identify it.
