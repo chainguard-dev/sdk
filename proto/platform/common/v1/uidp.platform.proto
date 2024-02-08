@@ -14,4 +14,6 @@ message UIDPFilter {
 	string descendants_of = 2;
 	// children_of are groups reachable by directly proceeding from parent to children.
 	string children_of = 3;
+	// in_root resticts responses to root level resources (organizations, user identities)
+	bool in_root = 4;
 }
