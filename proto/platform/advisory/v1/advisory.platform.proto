@@ -47,17 +47,66 @@ message VulnerabilityMetadata {
 }
 
 message Reference {
-  string type = 1;
+  Type type = 1;
 
   string url = 2;
+
+  enum Type {
+    // The "unset" value.
+    UNSPECIFIED = 0;
+
+    // Published security advisory for the vulnerability.
+    ADVISORY = 1;
+
+    // Article or blog post describing the vulnerability.
+    ARTICLE = 2;
+
+    // Scanner or tool that allows detection in prod environments.
+    DETECTION = 3;
+
+    // Social media discussion about vuln.
+    DISCUSSION = 4;
+
+    // Report on vuln.
+    REPORT = 5;
+
+    // Source code browser link to fix.
+    FIX = 6;
+
+    // Source code browser link to introduction of vuln.
+    INTRODUCED = 7;
+
+    // Home web page for package.
+    PACKAGE = 8;
+
+    // Demonstration of validity of vuln claim.
+    EVIDENCE = 9;
+
+    // Web page of unspecified kind.
+    WEB = 10;
+  }
 }
 
 message Severity {
   // CVSS version standard.
-  string type = 1;
+  Type type = 1;
 
   // Vector string representing CVSS score based on type.
   string score = 2;
+
+  enum Type {
+    // The "unset" value.
+    UNSPECIFIED = 0;
+
+    // CVSS v2
+    CVSS_V2 = 1;
+
+    // CVSS >= 3.0 and < 4.0
+    CVSS_V3 = 2;
+
+    // CVSS >= 4.0 and < 5.0
+    CVSS_V4	= 3;
+  }
 }
 
 message Advisory {
