@@ -201,6 +201,10 @@ message Repo {
 
   // readme is raw Markdown file contents describing the repo.
   string readme = 5;
+
+  // (optional) Repository sync configuration. If enabled, images are synced from the source to this repo.
+  // NOTE: This property can only be set by Chainguard.
+  SyncConfig sync_config = 6;
 }
 
 enum CatalogTier {
@@ -208,6 +212,14 @@ enum CatalogTier {
   FREE     = 1;
   STANDARD = 2;
   PREMIUM  = 3;
+}
+
+message SyncConfig {
+  // Repo ID to sync from.
+  string source = 1;
+
+  // Controls whether exported tags will be uniquely labeled.
+  bool unique_tags = 2;
 }
 
 message CreateRepoRequest {
