@@ -1,0 +1,192 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/iam/v1";
+option java_multiple_files = true;
+option java_package = "dev.chainguard.sdk.platform.iam.v1";
+option java_outer_classname = "PlatformIAMAccountAssociationsProto";
+
+package chainguard.platform.iam;
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "annotations/auth.proto";
+import "annotations/events.proto";
+
+service GroupAccountAssociations {
+  rpc Create(AccountAssociations) returns (AccountAssociations) {
+    option (google.api.http) = {
+      post: "/iam/v1/account_associations/{group=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_ACCOUNT_ASSOCIATIONS_CREATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.account_associations.created.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  rpc Update(AccountAssociations) returns (AccountAssociations) {
+    option (google.api.http) = {
+      put: "/iam/v1/account_associations/{group=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_ACCOUNT_ASSOCIATIONS_UPDATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.account_associations.updated.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  rpc List(AccountAssociationsFilter) returns (AccountAssociationsList) {
+    option (google.api.http) = {
+      get: "/iam/v1/account_associations"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_ACCOUNT_ASSOCIATIONS_LIST]
+        unscoped: true
+      }
+    };
+  }
+
+  rpc Delete(DeleteAccountAssociationsRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/iam/v1/account_associations/{group=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_ACCOUNT_ASSOCIATIONS_DELETE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.account_associations.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  rpc Check(AccountAssociationsCheckRequest) returns (AccountAssociationsStatus) {
+    option (google.api.http) = {
+      post: "/iam/v1/account_associations/{group=**}:check"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_ACCOUNT_ASSOCIATIONS_LIST]
+      }
+    };
+  }
+}
+
+message AccountAssociations {
+  // group is the group with which this account information is associated.
+  string group = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // amazon holds information associating an Amazon account with the group.
+  Amazon amazon = 2;
+
+  // google holds information associating a Google project with the group.
+  Google google = 3;
+
+  // github holds information associating a GitHub installation with the group.
+  // Note: this AccountAssociation type is EXPERIMENTAL.
+  GitHubInstallation github = 6;
+
+  Chainguard chainguard = 7;
+
+  // name of the association.
+  string name = 4;
+
+  // a short description of this association.
+  string description = 5;
+
+  // TODO(#617): Azure
+
+  message Amazon {
+      string account = 1;
+  }
+
+  message Google {
+    string project_id = 1;
+    string project_number = 2;
+  }
+
+  message GitHubInstallation {
+    // GitHub hostname app is associated with. Output only.
+    string host = 1;
+
+    // GitHub App ID. Output only.
+    int64 app_id = 2;
+
+    // GitHub App Installation ID. Takes precedence over name.
+    int64 installation_id = 3;
+
+    // GitHub user/org name the installation is installed on.
+    string name = 4;
+  }
+
+  message Chainguard {
+    // service_bindings map from the Chainguard service principal to the
+    // UIDP of the identity that service should assume. Constraints:
+    // - The identity must live directly under "group",
+    // - The identity must be a service_principal,
+    // - The service_principal of the identity must match the key of this map.
+    // Note that the key space of this must match the ServicePrincipal enum,
+    // but the enum type itself cannot be used here because of:
+    // https://groups.google.com/g/protobuf/c/ikeldBe60eI
+    map<string, string> service_bindings = 1;
+  }
+
+  // next id: 8
+}
+
+message AccountAssociationsList {
+  repeated AccountAssociations items = 1;
+}
+
+message AccountAssociationsFilter {
+  // group is the exact UIDP of the group whose associations we want to list.
+  string group = 1;
+  // name is the exact name of the association.
+  string name = 2;
+}
+
+message DeleteAccountAssociationsRequest {
+  // group is the exact UIDP of the group whose associations we want to delete.
+  string group = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message AccountAssociationsStatus {
+	enum State {
+		UNKNOWN = 0;
+		Ready = 1;
+		NotReady = 2;
+	}
+
+	State ready = 1;
+	string reason = 2;
+	string message = 3;
+}
+
+message AccountAssociationsCheckRequest {
+  // group is the exact UIDP of the group whose associations we want to check
+  string group = 1  [(chainguard.annotations.iam_scope) = true];
+
+	AccountType account_type = 2;
+
+	enum AccountType {
+		UNKNOWN = 0;
+		GOOGLE = 1;
+		AMAZON = 2;
+	}
+}
