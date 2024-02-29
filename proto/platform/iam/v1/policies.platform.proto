@@ -1,0 +1,208 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/iam/v1";
+option java_multiple_files = true;
+option java_package = "dev.chainguard.sdk.platform.iam.v1";
+option java_outer_classname = "PlatformIAMPoliciesProto";
+
+package chainguard.platform.iam;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "annotations/auth.proto";
+import "annotations/events.proto";
+import "platform/common/v1/uidp.platform.proto";
+
+service Policies {
+  rpc Create(CreatePolicyRequest) returns (Policy) {
+    option (google.api.http) = {
+      post: "/iam/v1/policies/{parent_id=**}"
+      body: "policy"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_POLICY_CREATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.policy.created.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  rpc List(PolicyFilter) returns (PolicyList) {
+    option (google.api.http) = {
+      get: "/iam/v1/policies"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_POLICY_LIST]
+        unscoped: true
+      }
+    };
+  }
+
+  rpc Delete(DeletePolicyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/iam/v1/policies/{id=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_POLICY_DELETE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.policy.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  rpc Update(Policy) returns (Policy) {
+    option (google.api.http) = {
+      put: "/iam/v1/policies/{id=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_POLICY_UPDATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.policy.updated.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  rpc ListVersions(ListVersionsRequest) returns (PolicyVersionList) {
+    option (google.api.http) = {
+      get: "/iam/v1/policyVersions/{policy_id=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_POLICY_LIST]
+      }
+    };
+  }
+
+  rpc ActivateVersion(ActivateVersionRequest) returns (Policy) {
+    option (google.api.http) = {
+      post: "/iam/v1/policyVersions/{version_id=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_POLICY_UPDATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.policy.version.activated.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+}
+
+message CreatePolicyRequest {
+  // parent_id, The Group UIDP path under which the new policy is associated.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // Policy is the policy to create;
+  Policy policy = 2;
+}
+
+message Policy {
+  // id is identifier of this specific policy.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // name, human readable name of policy.
+  // This field is populated from the document and any existing value will be ignored for Create/Update.
+  string name = 2;
+
+  // description, human readable description of policy.
+  string description = 3;
+
+  // document, YAML encoded policy document.
+  string document = 4;
+
+  // created_at is the timestamp for when the policy was created.
+  google.protobuf.Timestamp created_at = 5;
+
+  // updated_at is the timestamp when the current version of the policy was last updated.
+  google.protobuf.Timestamp updated_at = 6;
+
+  // enforced_version contains information about the enforced version of this policy.
+  // When used as a return value, Policy.name, Policy.description, and Policy.document are all copies of
+  // the respective fields in enforced_version for backwards compatibility. enforced_version may be empty for
+  // legacy policies without versions.
+  // When used for Create or Update, set enforced_version.label to set an optional version label.
+  PolicyVersion enforced_version = 7;
+}
+
+message PolicyAuthor {
+  // id is the UID of the author identity.
+  string id = 1;
+
+  // email is the email address of the author, if known.
+  string email = 2;
+}
+
+message PolicyList {
+  repeated Policy items = 1;
+}
+
+message PolicyFilter {
+  // id is the exact UIDP of the record.
+  string id = 1;
+
+  // uidp filers records based on their position in the group hierarchy.
+  chainguard.platform.common.UIDPFilter uidp = 2;
+
+  // name is the exact name of the record.
+  string name = 3;
+}
+
+message DeletePolicyRequest {
+  // id is the exact UIDP of the record.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message PolicyVersion {
+  // id is the identifier of this specific policy version.
+  string id = 1;
+
+  // name, human-readable name of policy.
+  string name = 2;
+
+  // description, human-readable description of policy.
+  string description = 3;
+
+  // document, YAML encoded policy document.
+  string document = 4;
+
+  // author is information about the identity that created/updated this version of the policy, if known.
+  PolicyAuthor author =  5;
+
+  // created_at is the timestamp from when this version was created.
+  google.protobuf.Timestamp created_at = 6;
+
+  // label is a human-readable identifier for this version of the policy.
+  string label = 7;
+}
+
+message ActivateVersionRequest {
+  // version_id is the identifier of the policy version to enforce.
+  string version_id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message ListVersionsRequest {
+  // policy_id is the identifier of the policy to list versions of.
+  string policy_id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message PolicyVersionList {
+  repeated PolicyVersion items = 1;
+}
+
