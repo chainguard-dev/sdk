@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/tenant/v1";
+option java_multiple_files = true;
+option java_package = "dev.chainguard.sdk.platform.tenant.v1";
+option java_outer_classname = "PlatformTenantWorkloadProto";
+
+package chainguard.platform.tenant;
+
+import "google/protobuf/timestamp.proto";
+import "annotations/auth.proto";
+import "platform/common/v1/uidp.platform.proto";
+
+service Workloads {
+  rpc List(WorkloadFilter) returns (WorkloadList) {
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TENANT_WORKLOADS_LIST]
+        unscoped: true
+      }
+    };
+  }
+}
+
+message Workload {
+    // id, The Workload UIDP at which this Workload resides.
+    string id = 1;
+
+    // name of the Workload.
+    string name = 2;
+
+    // a short description of this Workload.
+    string description = 3;
+
+    // remote_id is the remote ID of this Workload.
+    string remote_id = 4;
+
+    string labels = 5;
+
+    string api_version = 6;
+    string kind = 7;
+
+    // last_seen tracks the timestamp at which this workload was last seen.
+    google.protobuf.Timestamp last_seen = 8;
+
+    // owner_id is the remote_id of the Workload that is referenced via a
+    // "controller" owner reference by this workload.
+    string owner_id = 9;
+}
+
+message WorkloadList {
+    repeated Workload items = 1;
+}
+
+message WorkloadFilter {
+    // remote_id is the remote ID of this Workload.
+    string remote_id = 2;
+
+    // active_since is the timestamp after which returned workloads
+    // should have been active (last seen).
+    google.protobuf.Timestamp active_since = 3;
+
+    // name filters on the resource name.
+    string name = 4;
+
+    // Return only the workloads owned by a particular remote_id.
+    string owner_id = 5;
+
+
+    chainguard.platform.common.UIDPFilter uidp = 100;
+}
