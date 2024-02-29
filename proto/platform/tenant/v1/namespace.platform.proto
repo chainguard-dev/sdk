@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/tenant/v1";
+option java_multiple_files = true;
+option java_package = "dev.chainguard.sdk.platform.tenant.v1";
+option java_outer_classname = "PlatformTenantNamespaceProto";
+
+package chainguard.platform.tenant;
+
+import "google/protobuf/timestamp.proto";
+import "annotations/auth.proto";
+import "platform/common/v1/uidp.platform.proto";
+
+service Namespaces {
+  rpc List(NamespaceFilter) returns (NamespaceList) {
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TENANT_NAMESPACES_LIST]
+        unscoped: true
+      }
+    };
+  }
+}
+
+message Namespace {
+    // id, The Namespace UIDP at which this Namespace resides.
+    string id = 1;
+
+    // name of the Namespace.
+    string name = 2;
+
+    // a short description of this Namespace.
+    string description = 3;
+
+    // remote_id is the remote ID of this Namespace.
+    string remote_id = 4;
+
+    string labels = 5;
+
+    // last_seen tracks the timestamp at which this namespace was last seen.
+    google.protobuf.Timestamp last_seen = 6;
+}
+
+message NamespaceList {
+    repeated Namespace items = 1;
+}
+
+message NamespaceFilter {
+    // remote_id is the remote ID of this Namespace.
+    string remote_id = 2;
+
+    // active_since is the timestamp after which returned namespaces
+    // should have been active (last seen).
+    google.protobuf.Timestamp active_since = 3;
+
+    // name filters on the resource name.
+    string name = 4;
+
+
+    chainguard.platform.common.UIDPFilter uidp = 100;
+}
