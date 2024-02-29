@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/common/v1";
+option java_multiple_files = true;
+option java_package = "dev.chainguard.sdk.platform.common.v1";
+option java_outer_classname = "PlatformCommonUIDPProto";
+
+package chainguard.platform.common;
+
+message UIDPFilter {
+	// ancestors_of are groups reachable by repeated proceeding from child to parent.
+	string ancestors_of = 1;
+	// descendants_of are groups reachable by repeated proceeding from parent to child.
+	string descendants_of = 2;
+	// children_of are groups reachable by directly proceeding from parent to children.
+	string children_of = 3;
+	// in_root resticts responses to root level resources (organizations, user identities)
+	bool in_root = 4;
+}

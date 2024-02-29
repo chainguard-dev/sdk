@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/annotations";
+option java_multiple_files = true;
+option java_package = "dev.chainguard.sdk.annotations";
+option java_outer_classname = "AnnotationsProto";
+
+package chainguard.annotations;
+
+import "google/protobuf/descriptor.proto";
+import "google/protobuf/empty.proto";
+import "capabilities/capabilities.proto";
+
+extend google.protobuf.MethodOptions {
+  IAM iam = 189350641; // randomly chosen
+}
+
+message IAM {
+  oneof mode {
+    google.protobuf.Empty disabled = 1;
+    Rules enabled = 2;
+  }
+
+  message Rules {
+    // A list of capabilities required by a particular API.
+    // This field is either scoped or unscoped, as determined
+    // by the field below.
+    //  * When it is "scoped", this field is combined with the
+    //    field designated by "(iam_scope) = true" (see below)
+    //    on the request message to indicate what capabilities
+    //    the caller needs at what scope in order to authorize
+    //    the action they are performing.
+    //  * When is it "unscoped", this field is used to determine
+    //    the set of scopes the caller has the appropriate access
+    //    to so that the RPC itself can scope down the results
+    //    it returns.
+    repeated chainguard.capabilities.Capability capabilities = 1;
+
+    // Unscoped is set on APIs where the request itself doesn't
+    // carry a field with "iam_scope", and instead scopes itself
+    // to the set of groups to which the caller has access
+    // according to their OIDC token.
+    bool unscoped = 2;
+  }
+}
+
+extend google.protobuf.FieldOptions {
+  bool iam_scope = 189350642; // one more than above
+}
