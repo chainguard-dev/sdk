@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/ping/v1";
+option java_multiple_files = true;
+option java_package = "dev.chainguard.sdk.platform.ping.v1";
+option java_outer_classname = "PlatformPingProto";
+
+package chainguard.platform.ping;
+
+import "google/api/annotations.proto";
+import "annotations/auth.proto";
+
+service PingService {
+  rpc Ping(PingRequest) returns (Response) {
+    option (google.api.http) = {
+      get: "/ping/v1/ping"
+    };
+    option (chainguard.annotations.iam) = {
+      // This method doesn't require authentication.
+      disabled: {}
+    };
+  }
+}
+
+message PingRequest {}
+
+message Response {
+  string response = 1;
+}
