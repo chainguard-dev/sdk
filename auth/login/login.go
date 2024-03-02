@@ -17,6 +17,15 @@ import (
 	"github.com/pkg/browser"
 )
 
+// OpenBrowserError wraps the error returned from browser.OpenURL,
+// since this can take a few different forms depending on the OS.
+type OpenBrowserError struct {
+	err error
+}
+
+func (e *OpenBrowserError) Error() string { return "failed to open browser: " + e.err.Error() }
+func (e *OpenBrowserError) Unwrap() error { return e.err }
+
 func Login(ctx context.Context, opts ...Option) (token string, refreshToken string, err error) {
 	conf, err := newConfigFromOptions(opts...)
 	if err != nil {
@@ -68,7 +77,7 @@ func Login(ctx context.Context, opts ...Option) (token string, refreshToken stri
 	fmt.Fprintf(os.Stderr, "Opening browser to %s\n", u)
 	err = browser.OpenURL(u)
 	if err != nil {
-		return "", "", err
+		return "", "", &OpenBrowserError{err}
 	}
 
 	token, err = s.Token()
