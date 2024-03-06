@@ -10,7 +10,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.24.1
 	github.com/bits-and-blooms/bitset v1.13.0
 	github.com/chainguard-dev/clog v1.3.1
-	github.com/cloudevents/sdk-go/v2 v2.15.0
+	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/coreos/go-oidc/v3 v3.9.0
 	github.com/google/go-cmp v0.6.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.1
