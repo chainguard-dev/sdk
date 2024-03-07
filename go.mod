@@ -26,8 +26,8 @@ require (
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
 	google.golang.org/protobuf v1.33.0
 	gopkg.in/square/go-jose.v2 v2.6.0
-	k8s.io/api v0.29.1
-	k8s.io/apimachinery v0.29.1
+	k8s.io/api v0.29.2
+	k8s.io/apimachinery v0.29.2
 	knative.dev/pkg v0.0.0-20231101193506-b09d4f2a2845
 	sigs.k8s.io/yaml v1.4.0
 )
