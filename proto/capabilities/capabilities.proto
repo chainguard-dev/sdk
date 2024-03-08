@@ -116,6 +116,8 @@ enum Capability {
   CAP_TAG_LIST   = 1613 [(name) = "tag.list",   (bit) = 66];
   CAP_TAG_DELETE = 1614 [(name) = "tag.delete", (bit) = 67];
 
+  CAP_MANIFEST_METADATA_LIST = 1615 [(name) = "manifest.metadata.list", (bit) = 72];
+
   // Sigstore-aas
 
   CAP_SIGSTORE_CREATE   = 1701 [(name) = "sigstore.create", (bit) = 42];
@@ -133,5 +135,5 @@ enum Capability {
   // capability?
   CAP_GULFSTREAM = 10000 [(name) = "gulfstream", (bit) = 47];
 
-  // next bit: 70
+  // next bit: 72
 }
