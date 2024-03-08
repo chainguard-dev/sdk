@@ -184,6 +184,17 @@ service Registry {
       }
     };
   }
+
+  rpc ListManifestMetadata(ManifestMetadataFilter) returns (ManifestMetadataList) {
+    option (google.api.http) = {
+      get: "/registry/v1/repos/{repo_id=**}/manifestmetdata"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_MANIFEST_METADATA_LIST]
+      }
+    };
+  };
 }
 
 message Repo {
@@ -454,4 +465,52 @@ message VulnReportRequest {
   string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
   // The digest of the image to get a VulnReport for.
   string digest = 2;
+}
+
+message ManifestMetadataIndexFilter {
+  // The tag/index digest to fetch metadata for.
+  string digest = 1;
+  // The architecture to fetch metadata for.
+  string arch = 2;
+}
+
+message ManifestMetadataFilterEntry {
+  oneof filter {
+    // For fetching metadata for an image digest
+    string image_digest = 1;
+    // For fetching metadata for an index digest
+    ManifestMetadataIndexFilter index_filter = 2;
+  }
+}
+
+message ManifestMetadataFilter {
+  // The UIDP of the image repo that the digests belongs to.
+  string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
+  // List of image digests or index digest to fetch package metadata for.
+  // All entries specified would be retrieved.
+  repeated ManifestMetadataFilterEntry items = 2;
+}
+
+message PkgMetadata {
+  // purl of package or subpackage; spec https://github.com/package-url/purl-spec
+  string purl = 1;
+  // if differ from purl, it means it is a subpackage
+  string origin_purl = 2;
+  // date when EOL, date 0-0-0 when not eol
+  google.protobuf.Timestamp eol_date = 3;
+  // timestamp when package was built, date 0-0-0 when build timestamp not available
+  google.protobuf.Timestamp build_timestamp = 4;
+  // license of package, empty if unknown
+  string license = 5;
+}
+
+message ManifestMetadata {
+  // Digest of image that packages are associated with.
+  string digest = 1;
+  // List of packages that are part of image.
+  repeated PkgMetadata pkg_metadata = 2;
+}
+
+message ManifestMetadataList {
+  repeated ManifestMetadata items = 1;
 }
