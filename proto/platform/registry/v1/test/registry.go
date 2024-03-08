@@ -38,18 +38,19 @@ var _ registry.RegistryClient = (*MockRegistryClient)(nil)
 type MockRegistryClient struct {
 	registry.RegistryClient
 
-	OnCreateRepos    []ReposOnCreate
-	OnDeleteRepos    []ReposOnDelete
-	OnListRepos      []ReposOnList
-	OnCreateTags     []TagsOnCreate
-	OnDeleteTags     []TagsOnDelete
-	OnUpdateTag      []TagOnUpdate
-	OnListTags       []TagsOnList
-	OnUpdateRepo     []RepoOnUpdate
-	OnListTagHistory []TagHistoryOnList
-	OnGetSbom        []SbomOnGet
-	OnGetVulnReport  []VulnReportOnGet
-	OnDiffImage      []DiffImage
+	OnCreateRepos          []ReposOnCreate
+	OnDeleteRepos          []ReposOnDelete
+	OnListRepos            []ReposOnList
+	OnCreateTags           []TagsOnCreate
+	OnDeleteTags           []TagsOnDelete
+	OnUpdateTag            []TagOnUpdate
+	OnListTags             []TagsOnList
+	OnUpdateRepo           []RepoOnUpdate
+	OnListTagHistory       []TagHistoryOnList
+	OnGetSbom              []SbomOnGet
+	OnGetVulnReport        []VulnReportOnGet
+	OnDiffImage            []DiffImage
+	OnListManifestMetadata []ManifestMetadataOnList
 }
 
 type DiffImage struct {
@@ -119,6 +120,12 @@ type SbomOnGet struct {
 type VulnReportOnGet struct {
 	Given *registry.VulnReportRequest
 	Get   *tenant.VulnReport
+	Error error
+}
+
+type ManifestMetadataOnList struct {
+	Given *registry.ManifestMetadataFilter
+	List  *registry.ManifestMetadataList
 	Error error
 }
 
@@ -225,6 +232,15 @@ func (m MockRegistryClient) DiffImage(_ context.Context, given *registry.DiffIma
 	for _, o := range m.OnDiffImage {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Diff, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockRegistryClient) ListManifestMetadata(_ context.Context, given *registry.ManifestMetadataFilter, _ ...grpc.CallOption) (*registry.ManifestMetadataList, error) {
+	for _, o := range m.OnListManifestMetadata {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.List, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)
