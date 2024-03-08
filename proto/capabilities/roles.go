@@ -104,6 +104,7 @@ var (
 		Capability_CAP_REPO_LIST,
 		Capability_CAP_MANIFEST_LIST,
 		Capability_CAP_TAG_LIST,
+		Capability_CAP_MANIFEST_METADATA_LIST,
 
 		Capability_CAP_TENANT_RECORD_SIGNATURES_LIST,
 		Capability_CAP_TENANT_SBOMS_LIST,
