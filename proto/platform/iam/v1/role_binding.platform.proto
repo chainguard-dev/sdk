@@ -9,6 +9,7 @@ package chainguard.platform.iam;
 
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 import "annotations/auth.proto";
 import "annotations/events.proto";
 import "platform/common/v1/uidp.platform.proto";
@@ -107,6 +108,8 @@ message RoleBindingList {
     string claim_match_issuer = 6;
     // ClaimMatch subject of the bound identity.
     string claim_match_subject = 7;
+    // created_at is the timestamp for when the role binding was created.
+    google.protobuf.Timestamp created_at = 8;
   }
   repeated Binding items = 1;
 }
