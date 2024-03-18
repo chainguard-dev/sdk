@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code onto GOPATH
-        uses: actions/checkout@v4.1.1 # v4.0.0
+        uses: actions/checkout@v4.1.2 # v4.0.0
 
       # https://github.com/mvdan/github-actions-golang#how-do-i-set-up-caching-between-builds
       - uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
