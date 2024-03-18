@@ -6,6 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 package token
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,7 +25,6 @@ func testToken(t *testing.T, audience, subject string, issuedAt time.Time, valid
 
 	signer, iss := oidctest.NewIssuer(t)
 
-	// Create an OIDC token using this issuer's signer.
 	tok, err := jwt.Signed(signer).Claims(jwt.Claims{
 		Issuer:   iss,
 		IssuedAt: jwt.NewNumericDate(issuedAt),
@@ -36,6 +37,23 @@ func testToken(t *testing.T, audience, subject string, issuedAt time.Time, valid
 	}
 
 	return tok
+}
+
+func testRefreshToken(t *testing.T, issuer, audience, subject string, issuedAt time.Time, validDur time.Duration) string {
+	t.Helper()
+
+	msg := jwt.Claims{
+		Issuer:   issuer,
+		Subject:  subject,
+		Audience: jwt.Audience{audience},
+		IssuedAt: jwt.NewNumericDate(issuedAt),
+		Expiry:   jwt.NewNumericDate(issuedAt.Add(validDur)),
+	}
+
+	bs, _ := json.Marshal(msg)
+	code := base64.StdEncoding.EncodeToString(bs)
+
+	return code
 }
 
 func TestSave(t *testing.T) {
@@ -397,6 +415,17 @@ func TestRemainingLife(t *testing.T) {
 		less:     30 * time.Minute,
 		want:     0,
 	}, {
+		name: "exists less 30m, 0s remain (refresh)",
+		token: ts{
+			audience: "audience",
+			subject:  "subject",
+			duration: 30 * time.Minute,
+		},
+		kind:     KindRefresh,
+		audience: "audience",
+		less:     30 * time.Minute,
+		want:     0,
+	}, {
 		name: "exists less 40m, 0s remain",
 		token: ts{
 			audience: "audience",
@@ -422,7 +451,12 @@ func TestRemainingLife(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			tok := testToken(t, test.token.audience, test.token.subject, now, test.token.duration)
+			var tok string
+			if test.kind == KindAccess {
+				tok = testToken(t, test.token.audience, test.token.subject, now, test.token.duration)
+			} else {
+				tok = testRefreshToken(t, "https://issuer.unit-test.com", test.token.audience, test.token.subject, now, test.token.duration)
+			}
 			if err := Save([]byte(tok), test.kind, test.token.audience); err != nil {
 				t.Fatalf("Save() unexpected error=%v", err)
 			}
