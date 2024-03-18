@@ -130,19 +130,30 @@ func ExtractIssuerAndSubject(token string) (string, string, error) {
 	return NormalizeIssuer(payload.Issuer), payload.Subject, nil
 }
 
+func extractExpiry(rawToken []byte) (time.Time, error) {
+	var payload struct {
+		Expiry int64 `json:"exp"`
+	}
+
+	if err := json.Unmarshal(rawToken, &payload); err != nil {
+		return time.Time{}, fmt.Errorf("oidc: failed to unmarshal claims: %w", err)
+	}
+
+	return time.Unix(payload.Expiry, 0), nil
+}
+
 func ExtractExpiry(token string) (time.Time, error) {
 	raw, err := decodeToken(token)
 	if err != nil {
 		return time.Time{}, err
 	}
+	return extractExpiry(raw)
+}
 
-	var payload struct {
-		Expiry int64 `json:"exp"`
+func ExtractRefreshExpiry(token string) (time.Time, error) {
+	raw, err := base64.StdEncoding.DecodeString(token)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("refresh: malformed jwt payload: %w", err)
 	}
-
-	if err := json.Unmarshal(raw, &payload); err != nil {
-		return time.Time{}, fmt.Errorf("oidc: failed to unmarshal claims: %w", err)
-	}
-
-	return time.Unix(payload.Expiry, 0), nil
+	return extractExpiry(raw)
 }
