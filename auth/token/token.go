@@ -135,8 +135,15 @@ func RemainingLife(kind Kind, audience string, less time.Duration) time.Duration
 		// Not a big deal, life is zero.
 		return 0
 	}
-	expiry, err := auth.ExtractExpiry(string(tok))
+	var expiry time.Time
+	switch kind {
+	case KindRefresh:
+		expiry, err = auth.ExtractRefreshExpiry(string(tok))
+	default:
+		expiry, err = auth.ExtractExpiry(string(tok))
+	}
 	if err != nil {
+		fmt.Printf("failed to extract expiry: %v\n", err)
 		// Not a big deal, life is zero.
 		return 0
 	}
