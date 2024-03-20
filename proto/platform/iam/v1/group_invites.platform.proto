@@ -136,6 +136,8 @@ message StoredGroupInvite {
   // email is the email address that is allowed to accept this invite code. If blank,
   // anyone with the invite code an accept.
   string email = 5;
+  // created_at is the timestamp for when the invite was created.
+  google.protobuf.Timestamp created_at = 6;
 }
 
 message GroupInviteList {
