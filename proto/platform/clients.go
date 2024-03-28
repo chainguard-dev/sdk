@@ -62,7 +62,7 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 	}
 	conn, err := grpc.DialContext(ctx, target, opts...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to the iam server: %w", err)
+		return nil, fmt.Errorf("NewPlatformClients: failed to connect to the iam server: %w", err)
 	}
 
 	return &clients{
@@ -142,7 +142,7 @@ func NewOIDCClients(ctx context.Context, issuerURL string, cred credentials.PerR
 	}
 	conn, err := grpc.DialContext(ctx, target, opts...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to the OIDC issuer: %w", err)
+		return nil, fmt.Errorf("NewOIDCClients: failed to connect to the OIDC issuer: %w", err)
 	}
 
 	return &oidcClients{
