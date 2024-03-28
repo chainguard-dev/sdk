@@ -62,7 +62,7 @@ func NewClients(ctx context.Context, iamURL string, token string) (Clients, erro
 	}
 	conn, err := grpc.DialContext(ctx, target, opts...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to the iam server: %w", err)
+		return nil, fmt.Errorf("iam.NewClients: failed to connect to the iam server: %w", err)
 	}
 
 	return &clients{
