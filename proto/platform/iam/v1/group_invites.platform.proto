@@ -136,6 +136,10 @@ message StoredGroupInvite {
   // email is the email address that is allowed to accept this invite code. If blank,
   // anyone with the invite code an accept.
   string email = 5;
+  // created_at is the timestamp for when the invite was created.
+  google.protobuf.Timestamp created_at = 6;
+  // single_use indicates whether or not the invite will be deleted after a user joins the group.
+  bool single_use = 7;
 }
 
 message GroupInviteList {
@@ -151,6 +155,8 @@ message GroupInviteRequest {
   string role = 3;
   // email is the exact email address that may accept this invite code, if specified.
   string email = 4;
+  // if single_use is set to true, then the invite will be deleted after a user joins the group.
+  bool single_use = 5;
 }
 
 message DeleteGroupInviteRequest {
