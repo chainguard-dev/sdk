@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-jose/go-jose/v3/jwt"
 	"github.com/google/go-cmp/cmp"
-	"gopkg.in/square/go-jose.v2/jwt"
 
 	"chainguard.dev/go-oidctest/pkg/oidctest"
 )
