@@ -35,8 +35,6 @@ type Clients interface {
 
 	Policies() PoliciesClient
 
-	Sigstore() SigstoreServiceClient
-
 	Close() error
 }
 
@@ -80,8 +78,6 @@ func NewClients(ctx context.Context, iamURL string, token string) (Clients, erro
 
 		policy: NewPoliciesClient(conn),
 
-		sigstore: NewSigstoreServiceClient(conn),
-
 		conn: conn,
 	}, nil
 }
@@ -100,8 +96,7 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 
 		subscription: events.NewSubscriptionsClient(conn),
 
-		policy:   NewPoliciesClient(conn),
-		sigstore: NewSigstoreServiceClient(conn),
+		policy: NewPoliciesClient(conn),
 
 		// conn is not set, this client struct does not own closing it.
 	}
@@ -121,8 +116,6 @@ type clients struct {
 	subscription events.SubscriptionsClient
 
 	policy PoliciesClient
-
-	sigstore SigstoreServiceClient
 
 	conn *grpc.ClientConn
 }
@@ -165,10 +158,6 @@ func (c *clients) Subscriptions() events.SubscriptionsClient {
 
 func (c *clients) Policies() PoliciesClient {
 	return c.policy
-}
-
-func (c *clients) Sigstore() SigstoreServiceClient {
-	return c.sigstore
 }
 
 func (c *clients) Close() error {
