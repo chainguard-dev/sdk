@@ -12,22 +12,16 @@ import (
 type MockTenantClient struct {
 	OnClose error
 
-	ClustersClient       MockClustersClient
 	RecordsClient        MockRecordsClient
 	RecordContextsClient MockRecordContextsClient
 	SbomsClient          MockSbomsClient
 	SignaturesClient     MockSignaturesClient
 	PolicyResultsClient  MockPolicyResultsClient
-	RisksClient          MockRisksClient
 	VulnReportsClient    MockVulnReportsClient
 	AttestationClient    MockAttestationsClientt
 }
 
 var _ tenant.Clients = (*MockTenantClient)(nil)
-
-func (m MockTenantClient) Clusters() tenant.ClustersClient {
-	return &m.ClustersClient
-}
 
 func (m MockTenantClient) Records() tenant.RecordsClient {
 	return &m.RecordsClient
@@ -39,10 +33,6 @@ func (m MockTenantClient) RecordContexts() tenant.RecordContextsClient {
 
 func (m MockTenantClient) Sboms() tenant.SbomsClient {
 	return &m.SbomsClient
-}
-
-func (m MockTenantClient) Risks() tenant.RisksClient {
-	return &m.RisksClient
 }
 
 func (m MockTenantClient) Signatures() tenant.SignaturesClient {
