@@ -28,10 +28,6 @@ type Clients interface {
 	PolicyResults() PolicyResultsClient
 	VulnReports() VulnReportsClient
 
-	Nodes() NodesClient
-	Namespaces() NamespacesClient
-	Workloads() WorkloadsClient
-
 	Close() error
 }
 
@@ -68,9 +64,6 @@ func NewClients(ctx context.Context, addr string, token string) (Clients, error)
 		vulnReports:    NewVulnReportsClient(conn),
 		risks:          NewRisksClient(conn),
 		signatures:     NewSignaturesClient(conn),
-		nodes:          NewNodesClient(conn),
-		namespaces:     NewNamespacesClient(conn),
-		workloads:      NewWorkloadsClient(conn),
 		policyResults:  NewPolicyResultsClient(conn),
 
 		conn: conn,
@@ -87,9 +80,6 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 		risks:          NewRisksClient(conn),
 		signatures:     NewSignaturesClient(conn),
 		policyResults:  NewPolicyResultsClient(conn),
-		nodes:          NewNodesClient(conn),
-		namespaces:     NewNamespacesClient(conn),
-		workloads:      NewWorkloadsClient(conn),
 		// conn is not set, this client struct does not own closing it.
 	}
 }
@@ -104,10 +94,6 @@ type clients struct {
 	signatures     SignaturesClient
 	policyResults  PolicyResultsClient
 	vulnReports    VulnReportsClient
-
-	nodes      NodesClient
-	namespaces NamespacesClient
-	workloads  WorkloadsClient
 
 	conn *grpc.ClientConn
 }
@@ -138,18 +124,6 @@ func (c *clients) Signatures() SignaturesClient {
 
 func (c *clients) PolicyResults() PolicyResultsClient {
 	return c.policyResults
-}
-
-func (c *clients) Nodes() NodesClient {
-	return c.nodes
-}
-
-func (c *clients) Namespaces() NamespacesClient {
-	return c.namespaces
-}
-
-func (c *clients) Workloads() WorkloadsClient {
-	return c.workloads
 }
 
 func (c *clients) VulnReports() VulnReportsClient {
