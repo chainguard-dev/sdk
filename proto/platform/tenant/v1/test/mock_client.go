@@ -18,10 +18,7 @@ type MockTenantClient struct {
 	SbomsClient          MockSbomsClient
 	SignaturesClient     MockSignaturesClient
 	PolicyResultsClient  MockPolicyResultsClient
-	NodesClient          MockNodesClient
-	NamespacesClient     MockNamespacesClient
 	RisksClient          MockRisksClient
-	WorkloadsClient      MockWorkloadsClient
 	VulnReportsClient    MockVulnReportsClient
 	AttestationClient    MockAttestationsClientt
 }
@@ -54,18 +51,6 @@ func (m MockTenantClient) Signatures() tenant.SignaturesClient {
 
 func (m MockTenantClient) PolicyResults() tenant.PolicyResultsClient {
 	return &m.PolicyResultsClient
-}
-
-func (m MockTenantClient) Nodes() tenant.NodesClient {
-	return &m.NodesClient
-}
-
-func (m MockTenantClient) Namespaces() tenant.NamespacesClient {
-	return &m.NamespacesClient
-}
-
-func (m MockTenantClient) Workloads() tenant.WorkloadsClient {
-	return &m.WorkloadsClient
 }
 
 func (m MockTenantClient) VulnReports() tenant.VulnReportsClient {
