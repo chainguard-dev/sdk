@@ -22,7 +22,6 @@ type MockIAMClient struct {
 	IdentityProvidersClient        MockIdentityProvidersClient
 	GroupAccountAssociationsClient MockGroupAccountAssociationsClient
 	SubscriptionsClient            MockSubscriptionsClient
-	PoliciesClient                 MockPoliciesClient
 }
 
 var _ iam.Clients = (*MockIAMClient)(nil)
@@ -61,10 +60,6 @@ func (m MockIAMClient) AccountAssociations() iam.GroupAccountAssociationsClient 
 
 func (m MockIAMClient) Subscriptions() events.SubscriptionsClient {
 	return &m.SubscriptionsClient
-}
-
-func (m MockIAMClient) Policies() iam.PoliciesClient {
-	return &m.PoliciesClient
 }
 
 func (m MockIAMClient) Close() error {
