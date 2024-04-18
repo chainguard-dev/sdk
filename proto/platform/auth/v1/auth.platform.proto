@@ -13,7 +13,6 @@ import "annotations/auth.proto";
 import "annotations/events.proto";
 import "platform/iam/v1/group.platform.proto";
 import "platform/iam/v1/role.platform.proto";
-import "platform/tenant/v1/cluster.platform.proto";
 import "google/protobuf/timestamp.proto";
 
 service Auth {
@@ -55,26 +54,30 @@ message RegistrationRequest {
   // +optional
   string code = 1;
 
-  // cluster_id is an optional cluster id, which simultaneously registers
+  // DEPRECATED: cluster_id is an optional cluster id, which simultaneously registers
   // a Cluster with the Identity.  This path must specify an invite code, so
   // we know where in the IAM hierarchy to link the cluster.
-  string cluster_id = 2;
+  // string cluster_id = 2;
+  reserved 2;
 
   // identity_id is an optional identity id. If the user already exists, this
   // by-passes identity registration and continues on to cluster registration
   // (if applicable)
   string identity_id = 3;
 
-  // cluster_name is an optional name to give the cluster when one is
+  // DEPRECATED: cluster_name is an optional name to give the cluster when one is
   // registered as part of the registration flow.
-  string cluster_name = 4;
+  // string cluster_name = 4;
+  reserved 4;
 
-  // cluster_description is an optional description to give the cluster
+  // DEPRECATED: cluster_description is an optional description to give the cluster
   // when one is registered as part of the registration flow.
-  string cluster_description = 5;
+  // string cluster_description = 5;
+  reserved 5;
 
-  // enforcer_options defines the enforcer options.
-  chainguard.platform.tenant.Cluster.EnforcerOptions enforcer_options = 6;
+  // DEPRECATED: enforcer_options defines the enforcer options.
+  // chainguard.platform.tenant.Cluster.EnforcerOptions enforcer_options = 6;
+  reserved 6;
 }
 
 message Session {
