@@ -33,8 +33,6 @@ type Clients interface {
 
 	Subscriptions() events.SubscriptionsClient
 
-	Policies() PoliciesClient
-
 	Close() error
 }
 
@@ -76,8 +74,6 @@ func NewClients(ctx context.Context, iamURL string, token string) (Clients, erro
 
 		subscription: events.NewSubscriptionsClient(conn),
 
-		policy: NewPoliciesClient(conn),
-
 		conn: conn,
 	}, nil
 }
@@ -96,8 +92,6 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 
 		subscription: events.NewSubscriptionsClient(conn),
 
-		policy: NewPoliciesClient(conn),
-
 		// conn is not set, this client struct does not own closing it.
 	}
 }
@@ -114,8 +108,6 @@ type clients struct {
 	accountAssociations GroupAccountAssociationsClient
 
 	subscription events.SubscriptionsClient
-
-	policy PoliciesClient
 
 	conn *grpc.ClientConn
 }
@@ -154,10 +146,6 @@ func (c *clients) AccountAssociations() GroupAccountAssociationsClient {
 
 func (c *clients) Subscriptions() events.SubscriptionsClient {
 	return c.subscription
-}
-
-func (c *clients) Policies() PoliciesClient {
-	return c.policy
 }
 
 func (c *clients) Close() error {
