@@ -12,7 +12,6 @@ import (
 type MockTenantClient struct {
 	OnClose error
 
-	RecordsClient     MockRecordsClient
 	SbomsClient       MockSbomsClient
 	SignaturesClient  MockSignaturesClient
 	VulnReportsClient MockVulnReportsClient
@@ -20,10 +19,6 @@ type MockTenantClient struct {
 }
 
 var _ tenant.Clients = (*MockTenantClient)(nil)
-
-func (m MockTenantClient) Records() tenant.RecordsClient {
-	return &m.RecordsClient
-}
 
 func (m MockTenantClient) Sboms() tenant.SbomsClient {
 	return &m.SbomsClient
