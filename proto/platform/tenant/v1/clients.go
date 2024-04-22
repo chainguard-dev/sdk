@@ -20,10 +20,8 @@ import (
 
 type Clients interface {
 	Records() RecordsClient
-	RecordContexts() RecordContextsClient
 	Sboms() SbomsClient
 	Signatures() SignaturesClient
-	PolicyResults() PolicyResultsClient
 	VulnReports() VulnReportsClient
 
 	Close() error
@@ -55,12 +53,10 @@ func NewClients(ctx context.Context, addr string, token string) (Clients, error)
 	}
 
 	return &clients{
-		records:        NewRecordsClient(conn),
-		recordContexts: NewRecordContextsClient(conn),
-		sboms:          NewSbomsClient(conn),
-		vulnReports:    NewVulnReportsClient(conn),
-		signatures:     NewSignaturesClient(conn),
-		policyResults:  NewPolicyResultsClient(conn),
+		records:     NewRecordsClient(conn),
+		sboms:       NewSbomsClient(conn),
+		vulnReports: NewVulnReportsClient(conn),
+		signatures:  NewSignaturesClient(conn),
 
 		conn: conn,
 	}, nil
@@ -68,12 +64,10 @@ func NewClients(ctx context.Context, addr string, token string) (Clients, error)
 
 func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 	return &clients{
-		records:        NewRecordsClient(conn),
-		recordContexts: NewRecordContextsClient(conn),
-		sboms:          NewSbomsClient(conn),
-		vulnReports:    NewVulnReportsClient(conn),
-		signatures:     NewSignaturesClient(conn),
-		policyResults:  NewPolicyResultsClient(conn),
+		records:     NewRecordsClient(conn),
+		sboms:       NewSbomsClient(conn),
+		vulnReports: NewVulnReportsClient(conn),
+		signatures:  NewSignaturesClient(conn),
 		// conn is not set, this client struct does not own closing it.
 	}
 }
@@ -81,11 +75,9 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 type clients struct {
 	records RecordsClient
 
-	recordContexts RecordContextsClient
-	sboms          SbomsClient
-	signatures     SignaturesClient
-	policyResults  PolicyResultsClient
-	vulnReports    VulnReportsClient
+	sboms       SbomsClient
+	signatures  SignaturesClient
+	vulnReports VulnReportsClient
 
 	conn *grpc.ClientConn
 }
@@ -94,20 +86,12 @@ func (c *clients) Records() RecordsClient {
 	return c.records
 }
 
-func (c *clients) RecordContexts() RecordContextsClient {
-	return c.recordContexts
-}
-
 func (c *clients) Sboms() SbomsClient {
 	return c.sboms
 }
 
 func (c *clients) Signatures() SignaturesClient {
 	return c.signatures
-}
-
-func (c *clients) PolicyResults() PolicyResultsClient {
-	return c.policyResults
 }
 
 func (c *clients) VulnReports() VulnReportsClient {
