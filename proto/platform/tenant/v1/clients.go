@@ -19,7 +19,6 @@ import (
 )
 
 type Clients interface {
-	Records() RecordsClient
 	Sboms() SbomsClient
 	Signatures() SignaturesClient
 	VulnReports() VulnReportsClient
@@ -53,7 +52,6 @@ func NewClients(ctx context.Context, addr string, token string) (Clients, error)
 	}
 
 	return &clients{
-		records:     NewRecordsClient(conn),
 		sboms:       NewSbomsClient(conn),
 		vulnReports: NewVulnReportsClient(conn),
 		signatures:  NewSignaturesClient(conn),
@@ -64,7 +62,6 @@ func NewClients(ctx context.Context, addr string, token string) (Clients, error)
 
 func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 	return &clients{
-		records:     NewRecordsClient(conn),
 		sboms:       NewSbomsClient(conn),
 		vulnReports: NewVulnReportsClient(conn),
 		signatures:  NewSignaturesClient(conn),
@@ -73,17 +70,11 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 }
 
 type clients struct {
-	records RecordsClient
-
 	sboms       SbomsClient
 	signatures  SignaturesClient
 	vulnReports VulnReportsClient
 
 	conn *grpc.ClientConn
-}
-
-func (c *clients) Records() RecordsClient {
-	return c.records
 }
 
 func (c *clients) Sboms() SbomsClient {
