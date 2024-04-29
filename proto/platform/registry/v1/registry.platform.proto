@@ -174,6 +174,17 @@ service Registry {
     };
   }
 
+  rpc GetImageConfig(ImageConfigRequest) returns (ImageConfig) {
+    option (google.api.http) = {
+      get: "/registry/v1/repos/{repo_id=**}/digests/{digest=*}/imageconfig"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST, CAP_MANIFEST_METADATA_LIST]
+      }
+    };
+  }
+
   rpc GetVulnReport(VulnReportRequest) returns (chainguard.platform.tenant.VulnReport) {
     option (google.api.http) = {
       get: "/registry/v1/repos/{repo_id=**}/digests/{digest=*}/vulnreport"
@@ -399,6 +410,37 @@ message ChangedImageConfig {
   VolumeDiff volumes = 7;
 }
 
+message ImageConfig {
+  // User defines the username or UID which the process in the container should run as.
+  string user = 1;
+
+  // ExposedPorts a set of ports to expose from a container running this image.
+  message ExposedPort {}
+  map<string, ExposedPort> exposed_ports = 2;
+
+  // Env is a list of environment variables to be used in a container.
+  repeated string env = 3;
+
+  // Entrypoint defines a list of arguments to use as the command to execute when the container starts.
+  repeated string entrypoint = 4;
+
+  // Cmd defines the default arguments to the entrypoint of the container.
+  repeated string cmd = 5;
+
+  message Volume {}
+  // Volumes is a set of directories describing where the process is likely write data specific to a container instance.
+  map<string, Volume> volumes = 6;
+
+  // WorkingDir sets the current working directory of the entrypoint process in the container.
+  string working_dir = 7;
+
+  // Labels contains arbitrary metadata for the container.
+  map<string, string> labels = 8;
+
+  // StopSignal contains the system call signal that will be sent to the container to exit.
+  string stop_signal = 9;
+}
+
 message PackagesDiff {
   repeated PackageReference added = 1;
   repeated PackageReference removed = 2;
@@ -458,6 +500,15 @@ message SbomRequest {
   string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
   // The digest of the image to get an SBOM for.
   string digest = 2;
+}
+
+message ImageConfigRequest {
+  // The UIDP of the image repo to get config for.
+  string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
+  // The digest of the image to get config for.
+  string digest = 2;
+  // The architecture to get config for.
+  string arch = 3;
 }
 
 message VulnReportRequest {
