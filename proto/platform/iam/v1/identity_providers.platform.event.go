@@ -24,6 +24,34 @@ func (x *IdentityProvider) CloudEventsSubject() string {
 	return x.GetId()
 }
 
+// CloudEventsRedact implements chainguard.dev/sdk/events/Redactable.CloudEventsRedact.
+func (x *IdentityProvider) CloudEventsRedact() interface{} {
+	idp := &IdentityProvider{
+		Id:          x.Id,
+		Name:        x.Name,
+		Description: x.Description,
+		DefaultRole: x.DefaultRole,
+	}
+
+	switch cfg := x.Configuration.(type) {
+	case *IdentityProvider_Oidc:
+		// redact OIDC configuration
+		idp.Configuration = &IdentityProvider_Oidc{
+			Oidc: &IdentityProvider_OIDC{
+				Issuer:   cfg.Oidc.Issuer,
+				ClientId: cfg.Oidc.ClientId,
+				// ClientSecret is redacted.
+				AdditionalScopes: cfg.Oidc.AdditionalScopes,
+			},
+		}
+	default:
+		// no redaction
+		idp.Configuration = x.Configuration
+	}
+
+	return idp
+}
+
 // CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension
 func (x *DeleteIdentityProviderRequest) CloudEventsExtension(key string) (string, bool) {
 	switch key {
