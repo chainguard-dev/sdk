@@ -242,6 +242,9 @@ message SyncConfig {
 
   // Controls whether exported tags will be uniquely labeled.
   bool unique_tags = 2;
+
+  // When the catalog syncer should stop syncing from the source repository.
+  google.protobuf.Timestamp expiration = 3;
 }
 
 message CreateRepoRequest {
