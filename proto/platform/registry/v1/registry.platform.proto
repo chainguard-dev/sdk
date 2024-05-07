@@ -226,7 +226,9 @@ message Repo {
 
   // (optional) Repository sync configuration. If enabled, images are synced from the source to this repo.
   // NOTE: This property can only be set by Chainguard.
-  SyncConfig sync_config = 6;
+  // Note: the json_name defaults to "syncConfig" which causes our eventing
+  // system to not work properly (since the protobuf name is "sync_config")
+  SyncConfig sync_config = 6 [json_name="sync_config"];
 }
 
 enum CatalogTier {
