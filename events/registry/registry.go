@@ -13,6 +13,12 @@ const (
 
 	// PushedEventType is the cloudevents event type for registry pushes
 	PushedEventType = "dev.chainguard.registry.push.v1"
+
+	// RepoCreatedEventType is the cloudevents event type for registry repo created
+	RepoCreatedEventType = "dev.chainguard.api.platform.registry.repo.created.v1"
+
+	// RepoUpdatedEventType is the cloudevents event type for registry repo updated
+	RepoUpdatedEventType = "dev.chainguard.api.platform.registry.repo.updated.v1"
 )
 
 // PullEvent describes an item being pulled from the registry.
