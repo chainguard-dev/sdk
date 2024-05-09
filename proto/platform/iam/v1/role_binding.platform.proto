@@ -102,7 +102,7 @@ message RoleBindingList {
     string identity = 3;
     // role of the bound identity.
     chainguard.platform.iam.Role role = 4;
-    // email of the bound identity.
+    // verified email of the bound identity.
     string email = 5;
     // ClaimMatch issuer of the bound identity.
     string claim_match_issuer = 6;
@@ -110,6 +110,8 @@ message RoleBindingList {
     string claim_match_subject = 7;
     // created_at is the timestamp for when the role binding was created.
     google.protobuf.Timestamp created_at = 8;
+    // unverified email of the bound identity.
+    string email_unverified = 9;
   }
   repeated Binding items = 1;
 }
