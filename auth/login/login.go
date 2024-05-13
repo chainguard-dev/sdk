@@ -74,12 +74,15 @@ func Login(ctx context.Context, opts ...Option) (token string, refreshToken stri
 		params.Set("create_refresh_token", "true")
 	}
 	u := fmt.Sprintf("%s/oauth?%s", conf.Issuer, params.Encode())
-	fmt.Fprintf(os.Stderr, "Opening browser to %s\n", u)
-	err = browser.OpenURL(u)
-	if err != nil {
-		return "", "", &OpenBrowserError{err}
+	if conf.SkipBrowser {
+		fmt.Fprintf(os.Stderr, "Please open a browser to %s\n", u)
+	} else {
+		fmt.Fprintf(os.Stderr, "Opening browser to %s\n", u)
+		err = browser.OpenURL(u)
+		if err != nil {
+			return "", "", &OpenBrowserError{err}
+		}
 	}
-
 	token, err = s.Token()
 	if err != nil {
 		return "", "", err
