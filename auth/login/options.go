@@ -51,6 +51,9 @@ type config struct {
 
 	// CreateRefreshToken tells the issuer to create a refresh token
 	CreateRefreshToken bool
+
+	// SkipBrowser avoids opening a browser window for login, just print out the url
+	SkipBrowser bool
 }
 
 const defaultIssuer = `https://issuer.enforce.dev`
@@ -177,5 +180,11 @@ func WithIncludeUpstreamToken() Option {
 func WithCreateRefreshToken() Option {
 	return func(c *config) {
 		c.CreateRefreshToken = true
+	}
+}
+
+func WithSkipBrowser() Option {
+	return func(c *config) {
+		c.SkipBrowser = true
 	}
 }
