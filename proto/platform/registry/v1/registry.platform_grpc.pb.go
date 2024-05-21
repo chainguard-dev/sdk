@@ -33,6 +33,8 @@ const (
 	Registry_DiffImage_FullMethodName            = "/chainguard.platform.registry.Registry/DiffImage"
 	Registry_GetSbom_FullMethodName              = "/chainguard.platform.registry.Registry/GetSbom"
 	Registry_GetImageConfig_FullMethodName       = "/chainguard.platform.registry.Registry/GetImageConfig"
+	Registry_GetArchs_FullMethodName             = "/chainguard.platform.registry.Registry/GetArchs"
+	Registry_GetSize_FullMethodName              = "/chainguard.platform.registry.Registry/GetSize"
 	Registry_GetVulnReport_FullMethodName        = "/chainguard.platform.registry.Registry/GetVulnReport"
 	Registry_ListManifestMetadata_FullMethodName = "/chainguard.platform.registry.Registry/ListManifestMetadata"
 )
@@ -53,6 +55,8 @@ type RegistryClient interface {
 	DiffImage(ctx context.Context, in *DiffImageRequest, opts ...grpc.CallOption) (*DiffImageResponse, error)
 	GetSbom(ctx context.Context, in *SbomRequest, opts ...grpc.CallOption) (*v1.Sbom2, error)
 	GetImageConfig(ctx context.Context, in *ImageConfigRequest, opts ...grpc.CallOption) (*ImageConfig, error)
+	GetArchs(ctx context.Context, in *ArchRequest, opts ...grpc.CallOption) (*Archs, error)
+	GetSize(ctx context.Context, in *SizeRequest, opts ...grpc.CallOption) (*Size, error)
 	GetVulnReport(ctx context.Context, in *VulnReportRequest, opts ...grpc.CallOption) (*v1.VulnReport, error)
 	ListManifestMetadata(ctx context.Context, in *ManifestMetadataFilter, opts ...grpc.CallOption) (*ManifestMetadataList, error)
 }
@@ -173,6 +177,24 @@ func (c *registryClient) GetImageConfig(ctx context.Context, in *ImageConfigRequ
 	return out, nil
 }
 
+func (c *registryClient) GetArchs(ctx context.Context, in *ArchRequest, opts ...grpc.CallOption) (*Archs, error) {
+	out := new(Archs)
+	err := c.cc.Invoke(ctx, Registry_GetArchs_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *registryClient) GetSize(ctx context.Context, in *SizeRequest, opts ...grpc.CallOption) (*Size, error) {
+	out := new(Size)
+	err := c.cc.Invoke(ctx, Registry_GetSize_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *registryClient) GetVulnReport(ctx context.Context, in *VulnReportRequest, opts ...grpc.CallOption) (*v1.VulnReport, error) {
 	out := new(v1.VulnReport)
 	err := c.cc.Invoke(ctx, Registry_GetVulnReport_FullMethodName, in, out, opts...)
@@ -207,6 +229,8 @@ type RegistryServer interface {
 	DiffImage(context.Context, *DiffImageRequest) (*DiffImageResponse, error)
 	GetSbom(context.Context, *SbomRequest) (*v1.Sbom2, error)
 	GetImageConfig(context.Context, *ImageConfigRequest) (*ImageConfig, error)
+	GetArchs(context.Context, *ArchRequest) (*Archs, error)
+	GetSize(context.Context, *SizeRequest) (*Size, error)
 	GetVulnReport(context.Context, *VulnReportRequest) (*v1.VulnReport, error)
 	ListManifestMetadata(context.Context, *ManifestMetadataFilter) (*ManifestMetadataList, error)
 	mustEmbedUnimplementedRegistryServer()
@@ -251,6 +275,12 @@ func (UnimplementedRegistryServer) GetSbom(context.Context, *SbomRequest) (*v1.S
 }
 func (UnimplementedRegistryServer) GetImageConfig(context.Context, *ImageConfigRequest) (*ImageConfig, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetImageConfig not implemented")
+}
+func (UnimplementedRegistryServer) GetArchs(context.Context, *ArchRequest) (*Archs, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetArchs not implemented")
+}
+func (UnimplementedRegistryServer) GetSize(context.Context, *SizeRequest) (*Size, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSize not implemented")
 }
 func (UnimplementedRegistryServer) GetVulnReport(context.Context, *VulnReportRequest) (*v1.VulnReport, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetVulnReport not implemented")
@@ -487,6 +517,42 @@ func _Registry_GetImageConfig_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Registry_GetArchs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ArchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).GetArchs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_GetArchs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).GetArchs(ctx, req.(*ArchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Registry_GetSize_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SizeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).GetSize(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_GetSize_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).GetSize(ctx, req.(*SizeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Registry_GetVulnReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(VulnReportRequest)
 	if err := dec(in); err != nil {
@@ -577,6 +643,14 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetImageConfig",
 			Handler:    _Registry_GetImageConfig_Handler,
+		},
+		{
+			MethodName: "GetArchs",
+			Handler:    _Registry_GetArchs_Handler,
+		},
+		{
+			MethodName: "GetSize",
+			Handler:    _Registry_GetSize_Handler,
 		},
 		{
 			MethodName: "GetVulnReport",
