@@ -2027,9 +2027,9 @@ type SizeRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// The UIDP of the image repo to get architectures for.
+	// The UIDP of the image repo to get size and architecture information for.
 	RepoId string `protobuf:"bytes,1,opt,name=repo_id,json=repoId,proto3" json:"repo_id,omitempty"`
-	// The digest of the image to get architectures for.
+	// The digest of the image to get size and architecture information for.
 	Digest string `protobuf:"bytes,2,opt,name=digest,proto3" json:"digest,omitempty"`
 	// The architecture to filter on.
 	Arch string `protobuf:"bytes,3,opt,name=arch,proto3" json:"arch,omitempty"`
