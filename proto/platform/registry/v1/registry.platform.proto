@@ -169,7 +169,7 @@ service Registry {
     };
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [CAP_REPO_LIST, CAP_TENANT_SBOMS_LIST]
+        capabilities: [CAP_REPO_LIST, CAP_TENANT_SBOMS_LIST, CAP_MANIFEST_METADATA_LIST]
       }
     };
   }
@@ -177,6 +177,28 @@ service Registry {
   rpc GetImageConfig(ImageConfigRequest) returns (ImageConfig) {
     option (google.api.http) = {
       get: "/registry/v1/repos/{repo_id=**}/digests/{digest=*}/imageconfig"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST, CAP_MANIFEST_METADATA_LIST]
+      }
+    };
+  }
+
+  rpc GetArchs(ArchRequest) returns (Archs) {
+    option (google.api.http) = {
+      get: "/registry/v1/repos/{repo_id=**}/digests/{digest=*}/architectures"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST, CAP_MANIFEST_METADATA_LIST]
+      }
+    };
+  }
+
+  rpc GetSize(SizeRequest) returns (Size) {
+    option (google.api.http) = {
+      get: "/registry/v1/repos/{repo_id=**}/digests/{digest=*}/size"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
@@ -362,6 +384,17 @@ message DiffImageResponse {
   repeated string warnings = 5;
 }
 
+message SbomRequest {
+  // The UIDP of the image repo to get an SBOM for.
+  string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // The digest of the image to get an SBOM for.
+  string digest = 2;
+
+  // The architecture to get the SBOM for.
+  string arch = 3;
+}
+
 message ImageConfigDiff {
   ChangedImageConfig changed = 1;
 }
@@ -413,6 +446,24 @@ message ChangedImageConfig {
     map<string, Volume> removed = 2;
   }
   VolumeDiff volumes = 7;
+}
+
+message Archs {
+  // Architectures belonging to the requested digest's manifests.
+  repeated string archs = 1;
+}
+
+message ArchFilter {
+  // The architecture to filter on.
+  string arch = 1;
+}
+
+message Size {
+  // Size per manifest digest, by architecture.
+  int64 size = 1;
+
+  // Architecture.
+  string arch = 2;
 }
 
 message ImageConfig {
@@ -500,11 +551,23 @@ message DiffImageRequest {
   string to_digest = 3;
 }
 
-message SbomRequest {
-  // The UIDP of the image repo to get an SBOM for.
+message ArchRequest {
+  // The UIDP of the image repo to get architectures for.
   string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
-  // The digest of the image to get an SBOM for.
+
+  // The digest of the image to get architectures for.
   string digest = 2;
+}
+
+message SizeRequest {
+  // The UIDP of the image repo to get architectures for.
+  string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // The digest of the image to get architectures for.
+  string digest = 2;
+
+  // The architecture to filter on.
+  string arch = 3;
 }
 
 message ImageConfigRequest {
