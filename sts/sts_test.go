@@ -64,7 +64,7 @@ func TestRefresh(t *testing.T) {
 			issuer:   "bar",
 			audience: "baz",
 			exchangeOpts: []ExchangerOption{
-				WithCapabilities("groups.list"),
+				WithCapabilities("registry.push"),
 				WithScope("derp"),
 			},
 			clientMock: test.MockOIDCClient{
@@ -72,7 +72,7 @@ func TestRefresh(t *testing.T) {
 					OnGetAccessToken: []test.STSOnGetAccessToken{{
 						Given: &oidc.ExchangeRefreshTokenRequest{
 							Aud:   []string{"baz"},
-							Cap:   []string{"groups.list"},
+							Cap:   []string{"registry.push"},
 							Scope: "derp",
 						},
 						Exchanged: &oidc.TokenPair{
@@ -151,7 +151,7 @@ func TestImplExchange(t *testing.T) {
 			issuer:   "bar",
 			audience: "baz",
 			newOpts: []ExchangerOption{
-				WithCapabilities("groups.list"),
+				WithCapabilities("registry.push"),
 				WithScope("derp"),
 			},
 			clientMock: test.MockOIDCClient{
@@ -159,7 +159,7 @@ func TestImplExchange(t *testing.T) {
 					OnExchange: []test.STSOnExchange{{
 						Given: &oidc.ExchangeRequest{
 							Aud:   []string{"baz"},
-							Cap:   []string{"groups.list"},
+							Cap:   []string{"registry.push"},
 							Scope: "derp",
 						},
 						Exchanged: &oidc.RawToken{Token: "token!"},
@@ -172,7 +172,7 @@ func TestImplExchange(t *testing.T) {
 			issuer:   "bar",
 			audience: "baz",
 			exchangeOpts: []ExchangerOption{
-				WithCapabilities("groups.list"),
+				WithCapabilities("registry.push"),
 				WithScope("derp"),
 			},
 			clientMock: test.MockOIDCClient{
@@ -180,7 +180,7 @@ func TestImplExchange(t *testing.T) {
 					OnExchange: []test.STSOnExchange{{
 						Given: &oidc.ExchangeRequest{
 							Aud:   []string{"baz"},
-							Cap:   []string{"groups.list"},
+							Cap:   []string{"registry.push"},
 							Scope: "derp",
 						},
 						Exchanged: &oidc.RawToken{Token: "token!"},
@@ -309,7 +309,7 @@ func TestExchange(t *testing.T) {
 			issuer:   "bar",
 			audience: "baz",
 			exchangeOpts: []ExchangerOption{
-				WithCapabilities("groups.list"),
+				WithCapabilities("registry.push"),
 				WithScope("derp"),
 			},
 			clientMock: test.MockOIDCClient{
@@ -317,7 +317,7 @@ func TestExchange(t *testing.T) {
 					OnExchange: []test.STSOnExchange{{
 						Given: &oidc.ExchangeRequest{
 							Aud:   []string{"baz"},
-							Cap:   []string{"groups.list"},
+							Cap:   []string{"registry.push"},
 							Scope: "derp",
 						},
 						Exchanged: &oidc.RawToken{Token: "token!"},
@@ -330,7 +330,7 @@ func TestExchange(t *testing.T) {
 			issuer:   "bar",
 			audience: "baz",
 			exchangeOpts: []ExchangerOption{
-				WithCapabilities("groups.list"),
+				WithCapabilities("registry.push"),
 				WithScope("derp"),
 			},
 			clientMock: test.MockOIDCClient{
@@ -338,7 +338,7 @@ func TestExchange(t *testing.T) {
 					OnExchange: []test.STSOnExchange{{
 						Given: &oidc.ExchangeRequest{
 							Aud:   []string{"baz"},
-							Cap:   []string{"groups.list"},
+							Cap:   []string{"registry.push"},
 							Scope: "derp",
 						},
 						Exchanged: &oidc.RawToken{Token: "token!"},
