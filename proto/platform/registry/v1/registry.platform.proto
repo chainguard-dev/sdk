@@ -560,10 +560,10 @@ message ArchRequest {
 }
 
 message SizeRequest {
-  // The UIDP of the image repo to get architectures for.
+  // The UIDP of the image repo to get size and architecture information for.
   string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
 
-  // The digest of the image to get architectures for.
+  // The digest of the image to get size and architecture information for.
   string digest = 2;
 
   // The architecture to filter on.
