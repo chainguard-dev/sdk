@@ -20,24 +20,11 @@ var (
 		Capability_CAP_IAM_GROUPS_LIST,
 		Capability_CAP_IAM_ROLE_BINDINGS_LIST,
 		Capability_CAP_IAM_ROLES_LIST,
-		Capability_CAP_IAM_POLICY_LIST,
 		Capability_CAP_IAM_IDENTITY_LIST,
 		Capability_CAP_IAM_IDENTITY_PROVIDERS_LIST,
 
-		Capability_CAP_TENANT_CLUSTERS_DISCOVER,
-		Capability_CAP_TENANT_CLUSTERS_LIST,
-		Capability_CAP_TENANT_NAMESPACES_LIST,
-		Capability_CAP_TENANT_NODES_LIST,
-		Capability_CAP_TENANT_RECORDS_LIST,
-		Capability_CAP_TENANT_RECORD_CONTEXTS_LIST,
 		Capability_CAP_TENANT_RECORD_SIGNATURES_LIST,
-		Capability_CAP_TENANT_RECORD_POLICY_RESULTS_LIST,
-		Capability_CAP_TENANT_RISKS_LIST,
-		Capability_CAP_TENANT_SBOMS_LIST,
 		Capability_CAP_TENANT_VULN_REPORTS_LIST,
-		Capability_CAP_TENANT_WORKLOADS_LIST,
-
-		Capability_CAP_SIGSTORE_LIST,
 	},
 		// Viewers can also list repos and tags, and pull images.
 		RegistryPullCaps...))
@@ -47,15 +34,6 @@ var (
 		Capability_CAP_EVENTS_SUBSCRIPTION_CREATE,
 		Capability_CAP_EVENTS_SUBSCRIPTION_DELETE,
 		Capability_CAP_EVENTS_SUBSCRIPTION_UPDATE,
-
-		Capability_CAP_TENANT_CLUSTERS_CREATE,
-		Capability_CAP_TENANT_CLUSTERS_UPDATE,
-		Capability_CAP_TENANT_CLUSTERS_DELETE,
-
-		Capability_CAP_SIGSTORE_CERTIFICATE_CREATE,
-		Capability_CAP_SIGSTORE_CREATE,
-		Capability_CAP_SIGSTORE_DELETE,
-		Capability_CAP_SIGSTORE_UPDATE,
 	}, ViewerCaps...))
 
 	// ownerCaps includes all capabilities possible by a user.
@@ -70,10 +48,6 @@ var (
 		Capability_CAP_IAM_GROUPS_CREATE,
 		Capability_CAP_IAM_GROUPS_DELETE,
 		Capability_CAP_IAM_GROUPS_UPDATE,
-
-		Capability_CAP_IAM_POLICY_CREATE,
-		Capability_CAP_IAM_POLICY_UPDATE,
-		Capability_CAP_IAM_POLICY_DELETE,
 
 		Capability_CAP_IAM_IDENTITY_CREATE,
 		Capability_CAP_IAM_IDENTITY_DELETE,
@@ -135,20 +109,6 @@ var (
 
 		Capability_CAP_IAM_ROLES_LIST,
 	}, RegistryPullCaps...))
-
-	SigningViewerCaps = sortCaps([]Capability{
-		Capability_CAP_SIGSTORE_LIST,
-	})
-
-	SigningCertRequesterCaps = sortCaps(append([]Capability{
-		Capability_CAP_SIGSTORE_CERTIFICATE_CREATE,
-	}, SigningViewerCaps...))
-
-	SigningEditorCaps = sortCaps(append([]Capability{
-		Capability_CAP_SIGSTORE_CREATE,
-		Capability_CAP_SIGSTORE_DELETE,
-		Capability_CAP_SIGSTORE_UPDATE,
-	}, SigningCertRequesterCaps...))
 )
 
 func sortCaps(caps []Capability) []Capability {
