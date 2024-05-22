@@ -16,7 +16,6 @@ import (
 
 	"github.com/bits-and-blooms/bitset"
 	"github.com/chainguard-dev/clog"
-	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
@@ -85,7 +84,7 @@ func Parse(name string) (Capability, error) {
 				nameCapabilityMap[scap] = Capability(cap)
 			} else {
 				clog.FromContext(context.Background()).Errorf("Failed to stringify capability %d, error: %v",
-					cap, zap.Error(perror))
+					cap, perror)
 			}
 		}
 	})
