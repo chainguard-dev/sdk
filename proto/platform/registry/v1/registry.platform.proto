@@ -152,17 +152,6 @@ service Registry {
     };
   }
 
-  rpc DiffImage(DiffImageRequest) returns (DiffImageResponse) {
-    option (google.api.http) = {
-      get: "/registry/v1/repos/{repo_id=**}/diff"
-    };
-    option (chainguard.annotations.iam) = {
-      enabled: {
-        capabilities: [CAP_REPO_LIST, CAP_TENANT_VULN_REPORTS_LIST, CAP_TENANT_SBOMS_LIST]
-      }
-    };
-  }
-
   rpc GetSbom(SbomRequest) returns (chainguard.platform.tenant.Sbom2) {
     option (google.api.http) = {
       get: "/registry/v1/repos/{repo_id=**}/digests/{digest=*}/sbom"
@@ -376,7 +365,8 @@ message DiffImageResponse {
   // This field referred to the FilesDiff mesage and is no longer in use.
   reserved 3;
 
-  ImageConfigDiff config = 4;
+  // This field referred to the ImageConfigDiff message and is no longer in use.
+  reserved 4;
 
   // warnings is a list of warning messages to return to the requesting client.
   // Warning messages describe a problem the client making the DiffImageRequest should correct or be aware of.
@@ -393,59 +383,6 @@ message SbomRequest {
 
   // The architecture to get the SBOM for.
   string arch = 3;
-}
-
-message ImageConfigDiff {
-  ChangedImageConfig changed = 1;
-}
-
-message ChangedImageConfig {
-  message ChangedUser {
-    string current = 1;
-    string previous = 2;
-  }
-  ChangedUser changedUser = 1;
-
-  message ChangedWorkingDir {
-    string current = 1;
-    string previous = 2;
-  }
-
-  ChangedWorkingDir changedWorkingDir = 2;
-
-  message EntrypointDiff {
-    repeated string added = 1;
-    repeated string removed = 2;
-  }
-
-  EntrypointDiff entrypoints = 3;
-
-  message EnvDiff {
-    repeated string added = 1;
-    repeated string removed = 2;
-  }
-
-  EnvDiff envs = 4;
-
-  message CmdDiff {
-    repeated string added = 1;
-    repeated string removed = 2;
-  }
-
-  CmdDiff cmds = 5;
-
-  message ChangedStopSignal {
-    string current = 1;
-    string previous = 2;
-  }
-  ChangedStopSignal changedStopSignal = 6;
-
-  message Volume {}
-  message VolumeDiff {
-    map<string, Volume> added = 1;
-    map<string, Volume> removed = 2;
-  }
-  VolumeDiff volumes = 7;
 }
 
 message Archs {

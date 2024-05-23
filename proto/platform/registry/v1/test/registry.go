@@ -50,14 +50,7 @@ type MockRegistryClient struct {
 	OnGetImageConfig       []ImageConfigOnGet
 	OnGetSbom              []SbomOnGet
 	OnGetVulnReport        []VulnReportOnGet
-	OnDiffImage            []DiffImage
 	OnListManifestMetadata []ManifestMetadataOnList
-}
-
-type DiffImage struct {
-	Given *registry.DiffImageRequest
-	Diff  *registry.DiffImageResponse
-	Error error
 }
 
 type ReposOnCreate struct {
@@ -239,15 +232,6 @@ func (m MockRegistryClient) GetVulnReport(_ context.Context, given *registry.Vul
 	for _, o := range m.OnGetVulnReport {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Get, o.Error
-		}
-	}
-	return nil, fmt.Errorf("mock not found for %v", given)
-}
-
-func (m MockRegistryClient) DiffImage(_ context.Context, given *registry.DiffImageRequest, _ ...grpc.CallOption) (*registry.DiffImageResponse, error) {
-	for _, o := range m.OnDiffImage {
-		if cmp.Equal(o.Given, given, protocmp.Transform()) {
-			return o.Diff, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)
