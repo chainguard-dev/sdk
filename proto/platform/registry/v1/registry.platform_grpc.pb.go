@@ -30,7 +30,6 @@ const (
 	Registry_DeleteTag_FullMethodName            = "/chainguard.platform.registry.Registry/DeleteTag"
 	Registry_ListTags_FullMethodName             = "/chainguard.platform.registry.Registry/ListTags"
 	Registry_ListTagHistory_FullMethodName       = "/chainguard.platform.registry.Registry/ListTagHistory"
-	Registry_DiffImage_FullMethodName            = "/chainguard.platform.registry.Registry/DiffImage"
 	Registry_GetSbom_FullMethodName              = "/chainguard.platform.registry.Registry/GetSbom"
 	Registry_GetImageConfig_FullMethodName       = "/chainguard.platform.registry.Registry/GetImageConfig"
 	Registry_GetArchs_FullMethodName             = "/chainguard.platform.registry.Registry/GetArchs"
@@ -52,7 +51,6 @@ type RegistryClient interface {
 	DeleteTag(ctx context.Context, in *DeleteTagRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ListTags(ctx context.Context, in *TagFilter, opts ...grpc.CallOption) (*TagList, error)
 	ListTagHistory(ctx context.Context, in *TagHistoryFilter, opts ...grpc.CallOption) (*TagHistoryList, error)
-	DiffImage(ctx context.Context, in *DiffImageRequest, opts ...grpc.CallOption) (*DiffImageResponse, error)
 	GetSbom(ctx context.Context, in *SbomRequest, opts ...grpc.CallOption) (*v1.Sbom2, error)
 	GetImageConfig(ctx context.Context, in *ImageConfigRequest, opts ...grpc.CallOption) (*ImageConfig, error)
 	GetArchs(ctx context.Context, in *ArchRequest, opts ...grpc.CallOption) (*Archs, error)
@@ -150,15 +148,6 @@ func (c *registryClient) ListTagHistory(ctx context.Context, in *TagHistoryFilte
 	return out, nil
 }
 
-func (c *registryClient) DiffImage(ctx context.Context, in *DiffImageRequest, opts ...grpc.CallOption) (*DiffImageResponse, error) {
-	out := new(DiffImageResponse)
-	err := c.cc.Invoke(ctx, Registry_DiffImage_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *registryClient) GetSbom(ctx context.Context, in *SbomRequest, opts ...grpc.CallOption) (*v1.Sbom2, error) {
 	out := new(v1.Sbom2)
 	err := c.cc.Invoke(ctx, Registry_GetSbom_FullMethodName, in, out, opts...)
@@ -226,7 +215,6 @@ type RegistryServer interface {
 	DeleteTag(context.Context, *DeleteTagRequest) (*emptypb.Empty, error)
 	ListTags(context.Context, *TagFilter) (*TagList, error)
 	ListTagHistory(context.Context, *TagHistoryFilter) (*TagHistoryList, error)
-	DiffImage(context.Context, *DiffImageRequest) (*DiffImageResponse, error)
 	GetSbom(context.Context, *SbomRequest) (*v1.Sbom2, error)
 	GetImageConfig(context.Context, *ImageConfigRequest) (*ImageConfig, error)
 	GetArchs(context.Context, *ArchRequest) (*Archs, error)
@@ -266,9 +254,6 @@ func (UnimplementedRegistryServer) ListTags(context.Context, *TagFilter) (*TagLi
 }
 func (UnimplementedRegistryServer) ListTagHistory(context.Context, *TagHistoryFilter) (*TagHistoryList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListTagHistory not implemented")
-}
-func (UnimplementedRegistryServer) DiffImage(context.Context, *DiffImageRequest) (*DiffImageResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DiffImage not implemented")
 }
 func (UnimplementedRegistryServer) GetSbom(context.Context, *SbomRequest) (*v1.Sbom2, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSbom not implemented")
@@ -463,24 +448,6 @@ func _Registry_ListTagHistory_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Registry_DiffImage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DiffImageRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RegistryServer).DiffImage(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Registry_DiffImage_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RegistryServer).DiffImage(ctx, req.(*DiffImageRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Registry_GetSbom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SbomRequest)
 	if err := dec(in); err != nil {
@@ -631,10 +598,6 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListTagHistory",
 			Handler:    _Registry_ListTagHistory_Handler,
-		},
-		{
-			MethodName: "DiffImage",
-			Handler:    _Registry_DiffImage_Handler,
 		},
 		{
 			MethodName: "GetSbom",
