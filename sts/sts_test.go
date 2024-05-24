@@ -89,7 +89,7 @@ func TestRefresh(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			oidcNewClients = func(_ context.Context, issuer string, token string, opts ...oidc.ClientOption) (oidc.Clients, error) {
+			oidcNewClients = func(_ context.Context, _ string, _ string, _ ...oidc.ClientOption) (oidc.Clients, error) {
 				return test.clientMock, nil
 			}
 
@@ -250,7 +250,7 @@ func TestImplExchange(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			oidcNewClients = func(_ context.Context, issuer string, token string, opts ...oidc.ClientOption) (oidc.Clients, error) {
+			oidcNewClients = func(_ context.Context, _ string, _ string, _ ...oidc.ClientOption) (oidc.Clients, error) {
 				return test.clientMock, nil
 			}
 
@@ -408,7 +408,7 @@ func TestExchange(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			oidcNewClients = func(_ context.Context, issuer string, token string, opts ...oidc.ClientOption) (oidc.Clients, error) {
+			oidcNewClients = func(_ context.Context, _ string, _ string, _ ...oidc.ClientOption) (oidc.Clients, error) {
 				return test.clientMock, nil
 			}
 
