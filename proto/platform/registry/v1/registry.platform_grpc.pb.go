@@ -30,9 +30,10 @@ const (
 	Registry_DeleteTag_FullMethodName            = "/chainguard.platform.registry.Registry/DeleteTag"
 	Registry_ListTags_FullMethodName             = "/chainguard.platform.registry.Registry/ListTags"
 	Registry_ListTagHistory_FullMethodName       = "/chainguard.platform.registry.Registry/ListTagHistory"
-	Registry_DiffImage_FullMethodName            = "/chainguard.platform.registry.Registry/DiffImage"
 	Registry_GetSbom_FullMethodName              = "/chainguard.platform.registry.Registry/GetSbom"
 	Registry_GetImageConfig_FullMethodName       = "/chainguard.platform.registry.Registry/GetImageConfig"
+	Registry_GetArchs_FullMethodName             = "/chainguard.platform.registry.Registry/GetArchs"
+	Registry_GetSize_FullMethodName              = "/chainguard.platform.registry.Registry/GetSize"
 	Registry_GetVulnReport_FullMethodName        = "/chainguard.platform.registry.Registry/GetVulnReport"
 	Registry_ListManifestMetadata_FullMethodName = "/chainguard.platform.registry.Registry/ListManifestMetadata"
 )
@@ -50,9 +51,10 @@ type RegistryClient interface {
 	DeleteTag(ctx context.Context, in *DeleteTagRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ListTags(ctx context.Context, in *TagFilter, opts ...grpc.CallOption) (*TagList, error)
 	ListTagHistory(ctx context.Context, in *TagHistoryFilter, opts ...grpc.CallOption) (*TagHistoryList, error)
-	DiffImage(ctx context.Context, in *DiffImageRequest, opts ...grpc.CallOption) (*DiffImageResponse, error)
 	GetSbom(ctx context.Context, in *SbomRequest, opts ...grpc.CallOption) (*v1.Sbom2, error)
 	GetImageConfig(ctx context.Context, in *ImageConfigRequest, opts ...grpc.CallOption) (*ImageConfig, error)
+	GetArchs(ctx context.Context, in *ArchRequest, opts ...grpc.CallOption) (*Archs, error)
+	GetSize(ctx context.Context, in *SizeRequest, opts ...grpc.CallOption) (*Size, error)
 	GetVulnReport(ctx context.Context, in *VulnReportRequest, opts ...grpc.CallOption) (*v1.VulnReport, error)
 	ListManifestMetadata(ctx context.Context, in *ManifestMetadataFilter, opts ...grpc.CallOption) (*ManifestMetadataList, error)
 }
@@ -146,15 +148,6 @@ func (c *registryClient) ListTagHistory(ctx context.Context, in *TagHistoryFilte
 	return out, nil
 }
 
-func (c *registryClient) DiffImage(ctx context.Context, in *DiffImageRequest, opts ...grpc.CallOption) (*DiffImageResponse, error) {
-	out := new(DiffImageResponse)
-	err := c.cc.Invoke(ctx, Registry_DiffImage_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *registryClient) GetSbom(ctx context.Context, in *SbomRequest, opts ...grpc.CallOption) (*v1.Sbom2, error) {
 	out := new(v1.Sbom2)
 	err := c.cc.Invoke(ctx, Registry_GetSbom_FullMethodName, in, out, opts...)
@@ -167,6 +160,24 @@ func (c *registryClient) GetSbom(ctx context.Context, in *SbomRequest, opts ...g
 func (c *registryClient) GetImageConfig(ctx context.Context, in *ImageConfigRequest, opts ...grpc.CallOption) (*ImageConfig, error) {
 	out := new(ImageConfig)
 	err := c.cc.Invoke(ctx, Registry_GetImageConfig_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *registryClient) GetArchs(ctx context.Context, in *ArchRequest, opts ...grpc.CallOption) (*Archs, error) {
+	out := new(Archs)
+	err := c.cc.Invoke(ctx, Registry_GetArchs_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *registryClient) GetSize(ctx context.Context, in *SizeRequest, opts ...grpc.CallOption) (*Size, error) {
+	out := new(Size)
+	err := c.cc.Invoke(ctx, Registry_GetSize_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -204,9 +215,10 @@ type RegistryServer interface {
 	DeleteTag(context.Context, *DeleteTagRequest) (*emptypb.Empty, error)
 	ListTags(context.Context, *TagFilter) (*TagList, error)
 	ListTagHistory(context.Context, *TagHistoryFilter) (*TagHistoryList, error)
-	DiffImage(context.Context, *DiffImageRequest) (*DiffImageResponse, error)
 	GetSbom(context.Context, *SbomRequest) (*v1.Sbom2, error)
 	GetImageConfig(context.Context, *ImageConfigRequest) (*ImageConfig, error)
+	GetArchs(context.Context, *ArchRequest) (*Archs, error)
+	GetSize(context.Context, *SizeRequest) (*Size, error)
 	GetVulnReport(context.Context, *VulnReportRequest) (*v1.VulnReport, error)
 	ListManifestMetadata(context.Context, *ManifestMetadataFilter) (*ManifestMetadataList, error)
 	mustEmbedUnimplementedRegistryServer()
@@ -243,14 +255,17 @@ func (UnimplementedRegistryServer) ListTags(context.Context, *TagFilter) (*TagLi
 func (UnimplementedRegistryServer) ListTagHistory(context.Context, *TagHistoryFilter) (*TagHistoryList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListTagHistory not implemented")
 }
-func (UnimplementedRegistryServer) DiffImage(context.Context, *DiffImageRequest) (*DiffImageResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DiffImage not implemented")
-}
 func (UnimplementedRegistryServer) GetSbom(context.Context, *SbomRequest) (*v1.Sbom2, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSbom not implemented")
 }
 func (UnimplementedRegistryServer) GetImageConfig(context.Context, *ImageConfigRequest) (*ImageConfig, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetImageConfig not implemented")
+}
+func (UnimplementedRegistryServer) GetArchs(context.Context, *ArchRequest) (*Archs, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetArchs not implemented")
+}
+func (UnimplementedRegistryServer) GetSize(context.Context, *SizeRequest) (*Size, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSize not implemented")
 }
 func (UnimplementedRegistryServer) GetVulnReport(context.Context, *VulnReportRequest) (*v1.VulnReport, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetVulnReport not implemented")
@@ -433,24 +448,6 @@ func _Registry_ListTagHistory_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Registry_DiffImage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DiffImageRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RegistryServer).DiffImage(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Registry_DiffImage_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RegistryServer).DiffImage(ctx, req.(*DiffImageRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Registry_GetSbom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SbomRequest)
 	if err := dec(in); err != nil {
@@ -483,6 +480,42 @@ func _Registry_GetImageConfig_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RegistryServer).GetImageConfig(ctx, req.(*ImageConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Registry_GetArchs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ArchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).GetArchs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_GetArchs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).GetArchs(ctx, req.(*ArchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Registry_GetSize_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SizeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).GetSize(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_GetSize_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).GetSize(ctx, req.(*SizeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -567,16 +600,20 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Registry_ListTagHistory_Handler,
 		},
 		{
-			MethodName: "DiffImage",
-			Handler:    _Registry_DiffImage_Handler,
-		},
-		{
 			MethodName: "GetSbom",
 			Handler:    _Registry_GetSbom_Handler,
 		},
 		{
 			MethodName: "GetImageConfig",
 			Handler:    _Registry_GetImageConfig_Handler,
+		},
+		{
+			MethodName: "GetArchs",
+			Handler:    _Registry_GetArchs_Handler,
+		},
+		{
+			MethodName: "GetSize",
+			Handler:    _Registry_GetSize_Handler,
 		},
 		{
 			MethodName: "GetVulnReport",
