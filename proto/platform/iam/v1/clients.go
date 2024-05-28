@@ -9,7 +9,6 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"time"
 
 	delegate "chainguard.dev/go-grpc-kit/pkg/options"
 	"github.com/chainguard-dev/clog"
@@ -51,12 +50,7 @@ func NewClients(ctx context.Context, iamURL string, token string) (Clients, erro
 		clog.FromContext(ctx).Warn("No authentication provided, this may end badly.")
 	}
 
-	var cancel context.CancelFunc
-	if _, timeoutSet := ctx.Deadline(); !timeoutSet {
-		ctx, cancel = context.WithTimeout(ctx, 300*time.Second)
-		defer cancel()
-	}
-	conn, err := grpc.DialContext(ctx, target, opts...)
+	conn, err := grpc.NewClient(target, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("iam.NewClients: failed to connect to the iam server: %w", err)
 	}
