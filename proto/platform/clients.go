@@ -9,7 +9,6 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"time"
 
 	delegate "chainguard.dev/go-grpc-kit/pkg/options"
 	advisory "chainguard.dev/sdk/proto/platform/advisory/v1"
@@ -55,12 +54,7 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 	}
 	opts = append(opts, addlOpts...)
 
-	var cancel context.CancelFunc
-	if _, timeoutSet := ctx.Deadline(); !timeoutSet {
-		ctx, cancel = context.WithTimeout(ctx, 300*time.Second)
-		defer cancel()
-	}
-	conn, err := grpc.DialContext(ctx, target, opts...)
+	conn, err := grpc.NewClient(target, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("NewPlatformClients: failed to connect to the iam server: %w", err)
 	}
@@ -135,12 +129,7 @@ func NewOIDCClients(ctx context.Context, issuerURL string, cred credentials.PerR
 		opts = append(opts, grpc.WithUserAgent(ua))
 	}
 
-	var cancel context.CancelFunc
-	if _, timeoutSet := ctx.Deadline(); !timeoutSet {
-		ctx, cancel = context.WithTimeout(ctx, 300*time.Second)
-		defer cancel()
-	}
-	conn, err := grpc.DialContext(ctx, target, opts...)
+	conn, err := grpc.NewClient(target, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("NewOIDCClients: failed to connect to the OIDC issuer: %w", err)
 	}
