@@ -12,7 +12,7 @@ import (
 
 var (
 	// viewerCaps are read-only capabilities that do not affect state.
-	ViewerCaps = sortCaps(append([]Capability{
+	ViewerCaps = sortCaps(append(append([]Capability{
 		Capability_CAP_EVENTS_SUBSCRIPTION_LIST,
 
 		Capability_CAP_IAM_ACCOUNT_ASSOCIATIONS_LIST,
@@ -40,7 +40,7 @@ var (
 		Capability_CAP_SIGSTORE_LIST,
 	},
 		// Viewers can also list repos and tags, and pull images.
-		RegistryPullCaps...))
+		RegistryPullCaps...), APKPullCaps...))
 
 	// editorCaps can modify state, but not grant roles/permissions.
 	EditorCaps = sortCaps(append([]Capability{
@@ -59,7 +59,7 @@ var (
 	}, ViewerCaps...))
 
 	// ownerCaps includes all capabilities possible by a user.
-	OwnerCaps = sortCaps(append([]Capability{
+	OwnerCaps = sortCaps(append(append(append([]Capability{
 		Capability_CAP_IAM_ACCOUNT_ASSOCIATIONS_CREATE,
 		Capability_CAP_IAM_ACCOUNT_ASSOCIATIONS_DELETE,
 		Capability_CAP_IAM_ACCOUNT_ASSOCIATIONS_UPDATE,
@@ -94,9 +94,10 @@ var (
 		// Add gulfstream capability to owner so owners can rolebind
 		// identities to the gulfstream role.
 		Capability_CAP_GULFSTREAM,
-	}, append(EditorCaps,
+	}, EditorCaps...),
 		// Owners can also push and delete images, subject to the identity allowlist.
-		RegistryPushCaps...)...))
+		RegistryPushCaps...),
+		APKPushCaps...))
 
 	RegistryPullCaps = sortCaps([]Capability{
 		Capability_CAP_IAM_GROUPS_LIST,
@@ -128,13 +129,24 @@ var (
 		Capability_CAP_IAM_GROUPS_CREATE,
 	}, RegistryPullCaps...))
 
-	RegistryPullTokenCreatorCaps = sortCaps(append([]Capability{
+	RegistryPullTokenCreatorCaps = sortCaps(append(append([]Capability{
 		// Minimal set of capabilities to create a registry pull token.
 		Capability_CAP_IAM_ROLE_BINDINGS_CREATE,
 		Capability_CAP_IAM_IDENTITY_CREATE,
 
 		Capability_CAP_IAM_ROLES_LIST,
-	}, RegistryPullCaps...))
+	}, RegistryPullCaps...), APKPullCaps...))
+
+	APKPullCaps = sortCaps([]Capability{
+		Capability_CAP_IAM_GROUPS_LIST,
+		Capability_CAP_APK_LIST,
+	})
+
+	APKPushCaps = sortCaps(append([]Capability{
+		Capability_CAP_IAM_GROUPS_LIST,
+		Capability_CAP_APK_CREATE,
+		Capability_CAP_APK_DELETE,
+	}, APKPullCaps...))
 
 	SigningViewerCaps = sortCaps([]Capability{
 		Capability_CAP_SIGSTORE_LIST,
