@@ -1,6 +1,6 @@
 module chainguard.dev/sdk
 
-go 1.22.2
+go 1.22.3
 
 require (
 	chainguard.dev/go-grpc-kit v0.17.4
@@ -60,6 +60,6 @@ require (
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240520151616-dc85e6b867a5 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240521202816-d264139d666e // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
