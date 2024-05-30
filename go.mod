@@ -5,7 +5,7 @@ go 1.22.3
 require (
 	chainguard.dev/go-grpc-kit v0.17.4
 	chainguard.dev/go-oidctest v0.3.1
-	github.com/aws/aws-sdk-go-v2 v1.26.0
+	github.com/aws/aws-sdk-go-v2 v1.27.0
 	github.com/bits-and-blooms/bitset v1.13.0
 	github.com/chainguard-dev/clog v1.3.1
 	github.com/cloudevents/sdk-go/v2 v2.15.2
@@ -26,7 +26,7 @@ require (
 )
 
 require (
-	github.com/aws/smithy-go v1.20.1 // indirect
+	github.com/aws/smithy-go v1.20.2 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
