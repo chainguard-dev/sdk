@@ -28,9 +28,10 @@ type MockIdentitiesClient struct {
 }
 
 type IdentityOnCreate struct {
-	Given   *iam.CreateIdentityRequest
-	Created *iam.Identity
-	Error   error
+	Given        *iam.CreateIdentityRequest
+	Created      *iam.Identity
+	Error        error
+	IgnoreFields cmp.Option
 }
 
 type IdentityOnUpdate struct {
@@ -58,7 +59,7 @@ type IdentityOnLookup struct {
 
 func (m MockIdentitiesClient) Create(_ context.Context, given *iam.CreateIdentityRequest, _ ...grpc.CallOption) (*iam.Identity, error) {
 	for _, o := range m.OnCreate {
-		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+		if cmp.Equal(o.Given, given, protocmp.Transform(), o.IgnoreFields) {
 			return o.Created, o.Error
 		}
 	}
