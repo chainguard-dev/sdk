@@ -46,6 +46,19 @@ func Names() []string {
 	return all
 }
 
+func Deprecated(cap Capability) bool {
+	evd := cap.Descriptor().Values().ByNumber(cap.Number())
+	if evd == nil {
+		return false
+	}
+	opt := evd.Options()
+	if opt == nil {
+		return false
+	}
+	evo := opt.(*descriptorpb.EnumValueOptions)
+	return evo.GetDeprecated()
+}
+
 func Stringify(cap Capability) (string, error) {
 	evd := cap.Descriptor().Values().ByNumber(cap.Number())
 	if evd == nil {
