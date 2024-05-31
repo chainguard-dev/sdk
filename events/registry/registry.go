@@ -52,6 +52,9 @@ type PullEvent struct {
 	// For example, "ColumbusOHUS" or "Minato City13JP".
 	Location string `json:"location"`
 
+	// RemoteAddress holds the address of the client who pulled.
+	RemoteAddress string `json:"remote_address"`
+
 	// UserAgent holds the user-agent of the client who pulled.
 	UserAgent string `json:"user_agent"`
 
@@ -83,6 +86,9 @@ type PushEvent struct {
 	// Location holds the detected approximate location of the client who pushed.
 	// For example, "ColumbusOHUS" or "Minato City13JP".
 	Location string `json:"location"`
+
+	// RemoteAddress holds the address of the client who pushed.
+	RemoteAddress string `json:"remote_address"`
 
 	// UserAgent holds the user-agent of the client who pushed.
 	UserAgent string `json:"user_agent"`
