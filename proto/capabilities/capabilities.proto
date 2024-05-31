@@ -42,18 +42,18 @@ enum Capability {
   CAP_IAM_ROLE_BINDINGS_LIST   = 403 [(name) = "role_bindings.list", (bit) = 14];
   CAP_IAM_ROLE_BINDINGS_DELETE = 404 [(name) = "role_bindings.delete", (bit) = 15];
 
-  CAP_TENANT_CLUSTERS_CREATE   = 501 [(name) = "clusters.create", (bit) = 16];
-  CAP_TENANT_CLUSTERS_UPDATE   = 502 [(name) = "clusters.update", (bit) = 17];
-  CAP_TENANT_CLUSTERS_LIST     = 503 [(name) = "clusters.list", (bit) = 18];
-  CAP_TENANT_CLUSTERS_DELETE   = 504 [(name) = "clusters.delete", (bit) = 19];
-  CAP_TENANT_CLUSTERS_DISCOVER = 505 [(name) = "clusters.discover", (bit) = 51];
+  CAP_TENANT_CLUSTERS_CREATE   = 501 [(name) = "clusters.create", (bit) = 16, deprecated = true];
+  CAP_TENANT_CLUSTERS_UPDATE   = 502 [(name) = "clusters.update", (bit) = 17, deprecated = true];
+  CAP_TENANT_CLUSTERS_LIST     = 503 [(name) = "clusters.list", (bit) = 18, deprecated = true];
+  CAP_TENANT_CLUSTERS_DELETE   = 504 [(name) = "clusters.delete", (bit) = 19, deprecated = true];
+  CAP_TENANT_CLUSTERS_DISCOVER = 505 [(name) = "clusters.discover", (bit) = 51, deprecated = true];
 
-  CAP_TENANT_RECORDS_LIST               = 603 [(name) = "records.list", (bit) = 20];
-  CAP_TENANT_RECORD_CONTEXTS_LIST       = 613 [(name) = "record_contexts.list", (bit) = 48];
+  CAP_TENANT_RECORDS_LIST               = 603 [(name) = "records.list", (bit) = 20, deprecated = true];
+  CAP_TENANT_RECORD_CONTEXTS_LIST       = 613 [(name) = "record_contexts.list", (bit) = 48, deprecated = true];
   CAP_TENANT_RECORD_SIGNATURES_LIST     = 623 [(name) = "record_signatures.list", (bit) = 49];
-  CAP_TENANT_RECORD_POLICY_RESULTS_LIST = 633 [(name) = "record_policy_results.list", (bit) = 50];
+  CAP_TENANT_RECORD_POLICY_RESULTS_LIST = 633 [(name) = "record_policy_results.list", (bit) = 50, deprecated = true];
 
-  CAP_TENANT_RISKS_LIST = 640 [(name) = "risks.list", (bit) = 68];
+  CAP_TENANT_RISKS_LIST = 640 [(name) = "risks.list", (bit) = 68, deprecated = true];
 
   CAP_TENANT_SBOMS_LIST = 650 [(name) = "sboms.list", (bit) = 69];
 
@@ -66,26 +66,26 @@ enum Capability {
   CAP_IAM_ACCOUNT_ASSOCIATIONS_LIST   = 703 [(name) = "account_associations.list", (bit) = 23];
   CAP_IAM_ACCOUNT_ASSOCIATIONS_DELETE = 704 [(name) = "account_associations.delete", (bit) = 24];
 
-  CAP_IAM_POLICY_CREATE = 801 [(name) = "policy.create", (bit) = 25];
-  CAP_IAM_POLICY_UPDATE = 802 [(name) = "policy.update", (bit) = 26];
-  CAP_IAM_POLICY_LIST   = 803 [(name) = "policy.list", (bit) = 27];
-  CAP_IAM_POLICY_DELETE = 804 [(name) = "policy.delete", (bit) = 28];
+  CAP_IAM_POLICY_CREATE = 801 [(name) = "policy.create", (bit) = 25, deprecated = true];
+  CAP_IAM_POLICY_UPDATE = 802 [(name) = "policy.update", (bit) = 26, deprecated = true];
+  CAP_IAM_POLICY_LIST   = 803 [(name) = "policy.list", (bit) = 27, deprecated = true];
+  CAP_IAM_POLICY_DELETE = 804 [(name) = "policy.delete", (bit) = 28, deprecated = true];
 
   CAP_IAM_IDENTITY_CREATE = 901 [(name) = "identity.create", (bit) = 29];
   CAP_IAM_IDENTITY_UPDATE = 902 [(name) = "identity.update", (bit) = 30];
   CAP_IAM_IDENTITY_LIST   = 903 [(name) = "identity.list", (bit) = 31];
   CAP_IAM_IDENTITY_DELETE = 904 [(name) = "identity.delete", (bit) = 32];
 
-  CAP_TENANT_NODES_LIST = 1003 [(name) = "nodes.list", (bit) = 33];
+  CAP_TENANT_NODES_LIST = 1003 [(name) = "nodes.list", (bit) = 33, deprecated = true];
 
-  CAP_TENANT_NAMESPACES_LIST = 1103 [(name) = "namespaces.list", (bit) = 34];
+  CAP_TENANT_NAMESPACES_LIST = 1103 [(name) = "namespaces.list", (bit) = 34, deprecated = true];
 
-  CAP_TENANT_WORKLOADS_LIST = 1203 [(name) = "workloads.list", (bit) = 35];
+  CAP_TENANT_WORKLOADS_LIST = 1203 [(name) = "workloads.list", (bit) = 35, deprecated = true];
 
 
   CAP_IAM_IDENTITY_PROVIDERS_CREATE = 1301 [(name) = "identity_providers.create", (bit) = 52];
   CAP_IAM_IDENTITY_PROVIDERS_UPDATE = 1302 [(name) = "identity_providers.update", (bit) = 53];
-  CAP_IAM_IDENTITY_PROVIDERS_LIST = 1303 [(name) = "identity_providers.list", (bit) = 54];
+  CAP_IAM_IDENTITY_PROVIDERS_LIST = 1303 [(name)   = "identity_providers.list", (bit) = 54];
   CAP_IAM_IDENTITY_PROVIDERS_DELETE = 1304 [(name) = "identity_providers.delete", (bit) = 55];
 
   // Events
@@ -98,8 +98,8 @@ enum Capability {
   // Registry
 
   // TODO(jason): Remove these coarse-grained capabilities after they're removed from the roles.
-  CAP_REGISTRY_PULL = 1601 [(name) = "registry.pull", (bit) = 40]; // Can read tags, blobs, manifests.
-  CAP_REGISTRY_PUSH = 1602 [(name) = "registry.push", (bit) = 41]; // Can create and update tags, blobs, manifests.
+  CAP_REGISTRY_PULL = 1601 [(name) = "registry.pull", (bit) = 40, deprecated = true]; // Can read tags, blobs, manifests.
+  CAP_REGISTRY_PUSH = 1602 [(name) = "registry.push", (bit) = 41, deprecated = true]; // Can create and update tags, blobs, manifests.
 
   CAP_REPO_CREATE = 1603 [(name) = "repo.create", (bit) = 56];
   CAP_REPO_UPDATE = 1604 [(name) = "repo.update", (bit) = 57];
@@ -125,12 +125,12 @@ enum Capability {
 
   // Sigstore-aas
 
-  CAP_SIGSTORE_CREATE   = 1701 [(name) = "sigstore.create", (bit) = 42];
-  CAP_SIGSTORE_UPDATE   = 1702 [(name) = "sigstore.update", (bit) = 43];
-  CAP_SIGSTORE_LIST     = 1703 [(name) = "sigstore.list", (bit) = 44];
-  CAP_SIGSTORE_DELETE   = 1704 [(name) = "sigstore.delete", (bit) = 45];
+  CAP_SIGSTORE_CREATE   = 1701 [(name) = "sigstore.create", (bit) = 42, deprecated = true];
+  CAP_SIGSTORE_UPDATE   = 1702 [(name) = "sigstore.update", (bit) = 43, deprecated = true];
+  CAP_SIGSTORE_LIST     = 1703 [(name) = "sigstore.list", (bit) = 44, deprecated = true];
+  CAP_SIGSTORE_DELETE   = 1704 [(name) = "sigstore.delete", (bit) = 45, deprecated = true];
 
-  CAP_SIGSTORE_CERTIFICATE_CREATE = 1705 [(name) = "sigstore.certificate.create", (bit) = 46];
+  CAP_SIGSTORE_CERTIFICATE_CREATE = 1705 [(name) = "sigstore.certificate.create", (bit) = 46, deprecated = true];
 
   // This is orthogonal enough that we should leave
   // it somewhat separate, so add new capabilities above.
