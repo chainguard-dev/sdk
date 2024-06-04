@@ -77,7 +77,6 @@ type impl struct {
 type options struct {
 	issuer         string
 	audience       string
-	cluster        string
 	userAgent      string
 	scope          string
 	capabilities   []string
@@ -106,7 +105,6 @@ func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOpti
 	resp, err := c.STS().Exchange(ctx, &oidc.ExchangeRequest{
 		Aud:      []string{o.audience},
 		Scope:    o.scope,
-		Cluster:  o.cluster,
 		Identity: o.identity,
 		Cap:      o.capabilities,
 	})
@@ -262,7 +260,6 @@ func (i *HTTP1DowngradeExchanger) Exchange(ctx context.Context, token string, op
 	in := &oidc.ExchangeRequest{
 		Aud:      []string{o.audience},
 		Scope:    o.scope,
-		Cluster:  o.cluster,
 		Identity: o.identity,
 		Cap:      o.capabilities,
 	}
