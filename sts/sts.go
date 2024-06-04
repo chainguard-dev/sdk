@@ -151,15 +151,6 @@ func WithUserAgent(agent string) ExchangerOption {
 	}
 }
 
-// WithCluster sets the cluster parameter sent by the Exchanger.
-//
-// Only one of cluster or scope may be set.
-func WithCluster(cluster string) ExchangerOption {
-	return func(i *options) {
-		i.cluster = cluster
-	}
-}
-
 // WithScope sets the scope parameter sent by the Exchanger.
 //
 // Only one of cluster or scope may be set.
