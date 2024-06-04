@@ -40,7 +40,11 @@ message ExchangeRefreshTokenRequest {
 message ExchangeRequest {
   repeated string aud = 1;
   string scope = 2;
-  string cluster = 3;
+
+  // `cluster` field was deprecated and removed.
+  reserved 3;
+  reserved "cluster";
+
   string identity = 4;
 
   // List of capabilities to request for the token.
@@ -48,8 +52,9 @@ message ExchangeRequest {
     type: "chainguard.capabilities/Capability"
   }];
 
-  // Whether or not to include the upstream token in the response
-  bool include_upstream_token = 6;
+  // `include_upstream_token` field was deprecated and removed.
+  reserved 6;
+  reserved "include_upstream_token";
 }
 
 message RawToken {
