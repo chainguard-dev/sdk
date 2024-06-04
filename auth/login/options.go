@@ -45,10 +45,6 @@ type config struct {
 	// if the account is not found.
 	SkipRegistration bool
 
-	// IncludeUpstreamToken tells the issuer to include the encrypted upstream token
-	// in the Chainguard token
-	IncludeUpstreamToken bool
-
 	// CreateRefreshToken tells the issuer to create a refresh token
 	CreateRefreshToken bool
 
@@ -168,12 +164,6 @@ func WithAuth0Connection(conn string) Option {
 func WithSkipRegistration() Option {
 	return func(c *config) {
 		c.SkipRegistration = true
-	}
-}
-
-func WithIncludeUpstreamToken() Option {
-	return func(c *config) {
-		c.IncludeUpstreamToken = true
 	}
 }
 
