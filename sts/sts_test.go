@@ -208,25 +208,6 @@ func TestImplExchange(t *testing.T) {
 			},
 			want: "token foo",
 		},
-		"cluster": {
-			issuer:   "bar",
-			audience: "baz",
-			exchangeOpts: []ExchangerOption{
-				WithCluster("kind i presume"),
-			},
-			clientMock: test.MockOIDCClient{
-				STSClient: test.MockSTSClient{
-					OnExchange: []test.STSOnExchange{{
-						Given: &oidc.ExchangeRequest{
-							Aud:     []string{"baz"},
-							Cluster: "kind i presume",
-						},
-						Exchanged: &oidc.RawToken{Token: "tokenz"},
-					}},
-				},
-			},
-			want: "tokenz",
-		},
 	}
 
 	for name, test := range tests {
@@ -346,25 +327,6 @@ func TestExchange(t *testing.T) {
 				},
 			},
 			want: "token foo",
-		},
-		"cluster": {
-			issuer:   "bar",
-			audience: "baz",
-			exchangeOpts: []ExchangerOption{
-				WithCluster("kind i presume"),
-			},
-			clientMock: test.MockOIDCClient{
-				STSClient: test.MockSTSClient{
-					OnExchange: []test.STSOnExchange{{
-						Given: &oidc.ExchangeRequest{
-							Aud:     []string{"baz"},
-							Cluster: "kind i presume",
-						},
-						Exchanged: &oidc.RawToken{Token: "tokenz"},
-					}},
-				},
-			},
-			want: "tokenz",
 		},
 	}
 
