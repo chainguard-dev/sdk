@@ -75,15 +75,14 @@ type impl struct {
 }
 
 type options struct {
-	issuer               string
-	audience             string
-	cluster              string
-	userAgent            string
-	scope                string
-	capabilities         []string
-	identity             string
-	includeUpstreamToken bool
-	http1Downgrade       bool
+	issuer         string
+	audience       string
+	cluster        string
+	userAgent      string
+	scope          string
+	capabilities   []string
+	identity       string
+	http1Downgrade bool
 }
 
 var _ Exchanger = (*impl)(nil)
@@ -105,12 +104,11 @@ func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOpti
 	defer c.Close()
 
 	resp, err := c.STS().Exchange(ctx, &oidc.ExchangeRequest{
-		Aud:                  []string{o.audience},
-		Scope:                o.scope,
-		Cluster:              o.cluster,
-		Identity:             o.identity,
-		IncludeUpstreamToken: o.includeUpstreamToken,
-		Cap:                  o.capabilities,
+		Aud:      []string{o.audience},
+		Scope:    o.scope,
+		Cluster:  o.cluster,
+		Identity: o.identity,
+		Cap:      o.capabilities,
 	})
 	if err != nil {
 		return "", err
@@ -183,14 +181,6 @@ func WithCapabilities(cap ...string) ExchangerOption {
 func WithIdentity(uid string) ExchangerOption {
 	return func(i *options) {
 		i.identity = uid
-	}
-}
-
-// WithIncludeUpstreamToken requests that the upstream token be included in the returned
-// STS token.
-func WithIncludeUpstreamToken() ExchangerOption {
-	return func(i *options) {
-		i.includeUpstreamToken = true
 	}
 }
 
@@ -279,12 +269,11 @@ func (i *HTTP1DowngradeExchanger) Exchange(ctx context.Context, token string, op
 		opt(&o)
 	}
 	in := &oidc.ExchangeRequest{
-		Aud:                  []string{o.audience},
-		Scope:                o.scope,
-		Cluster:              o.cluster,
-		Identity:             o.identity,
-		IncludeUpstreamToken: o.includeUpstreamToken,
-		Cap:                  o.capabilities,
+		Aud:      []string{o.audience},
+		Scope:    o.scope,
+		Cluster:  o.cluster,
+		Identity: o.identity,
+		Cap:      o.capabilities,
 	}
 	out := new(oidc.RawToken)
 	if err := i.doHTTP1(ctx, token, "/sts/exchange", in, out, o); err != nil {

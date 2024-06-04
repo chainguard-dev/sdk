@@ -208,25 +208,6 @@ func TestImplExchange(t *testing.T) {
 			},
 			want: "token foo",
 		},
-		"include upstream": {
-			issuer:   "bar",
-			audience: "baz",
-			exchangeOpts: []ExchangerOption{
-				WithIncludeUpstreamToken(),
-			},
-			clientMock: test.MockOIDCClient{
-				STSClient: test.MockSTSClient{
-					OnExchange: []test.STSOnExchange{{
-						Given: &oidc.ExchangeRequest{
-							Aud:                  []string{"baz"},
-							IncludeUpstreamToken: true,
-						},
-						Exchanged: &oidc.RawToken{Token: "tokenz"},
-					}},
-				},
-			},
-			want: "tokenz",
-		},
 		"cluster": {
 			issuer:   "bar",
 			audience: "baz",
@@ -365,25 +346,6 @@ func TestExchange(t *testing.T) {
 				},
 			},
 			want: "token foo",
-		},
-		"include upstream": {
-			issuer:   "bar",
-			audience: "baz",
-			exchangeOpts: []ExchangerOption{
-				WithIncludeUpstreamToken(),
-			},
-			clientMock: test.MockOIDCClient{
-				STSClient: test.MockSTSClient{
-					OnExchange: []test.STSOnExchange{{
-						Given: &oidc.ExchangeRequest{
-							Aud:                  []string{"baz"},
-							IncludeUpstreamToken: true,
-						},
-						Exchanged: &oidc.RawToken{Token: "tokenz"},
-					}},
-				},
-			},
-			want: "tokenz",
 		},
 		"cluster": {
 			issuer:   "bar",
