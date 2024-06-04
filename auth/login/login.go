@@ -67,9 +67,6 @@ func Login(ctx context.Context, opts ...Option) (token string, refreshToken stri
 	if len(conf.Audience) > 0 {
 		params.Set("audience", strings.Join(conf.Audience, ","))
 	}
-	if conf.IncludeUpstreamToken {
-		params.Set("include_upstream_token", "true")
-	}
 	if conf.CreateRefreshToken {
 		params.Set("create_refresh_token", "true")
 	}
