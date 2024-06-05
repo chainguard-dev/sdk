@@ -64,7 +64,7 @@ func TestRefresh(t *testing.T) {
 			issuer:   "bar",
 			audience: "baz",
 			exchangeOpts: []ExchangerOption{
-				WithCapabilities("registry.push"),
+				WithCapabilities("groups.list"),
 				WithScope("derp"),
 			},
 			clientMock: test.MockOIDCClient{
@@ -72,7 +72,7 @@ func TestRefresh(t *testing.T) {
 					OnGetAccessToken: []test.STSOnGetAccessToken{{
 						Given: &oidc.ExchangeRefreshTokenRequest{
 							Aud:   []string{"baz"},
-							Cap:   []string{"registry.push"},
+							Cap:   []string{"groups.list"},
 							Scope: "derp",
 						},
 						Exchanged: &oidc.TokenPair{
@@ -151,7 +151,7 @@ func TestImplExchange(t *testing.T) {
 			issuer:   "bar",
 			audience: "baz",
 			newOpts: []ExchangerOption{
-				WithCapabilities("registry.push"),
+				WithCapabilities("groups.list"),
 				WithScope("derp"),
 			},
 			clientMock: test.MockOIDCClient{
@@ -159,7 +159,7 @@ func TestImplExchange(t *testing.T) {
 					OnExchange: []test.STSOnExchange{{
 						Given: &oidc.ExchangeRequest{
 							Aud:   []string{"baz"},
-							Cap:   []string{"registry.push"},
+							Cap:   []string{"groups.list"},
 							Scope: "derp",
 						},
 						Exchanged: &oidc.RawToken{Token: "token!"},
@@ -172,7 +172,7 @@ func TestImplExchange(t *testing.T) {
 			issuer:   "bar",
 			audience: "baz",
 			exchangeOpts: []ExchangerOption{
-				WithCapabilities("registry.push"),
+				WithCapabilities("groups.list"),
 				WithScope("derp"),
 			},
 			clientMock: test.MockOIDCClient{
@@ -180,7 +180,7 @@ func TestImplExchange(t *testing.T) {
 					OnExchange: []test.STSOnExchange{{
 						Given: &oidc.ExchangeRequest{
 							Aud:   []string{"baz"},
-							Cap:   []string{"registry.push"},
+							Cap:   []string{"groups.list"},
 							Scope: "derp",
 						},
 						Exchanged: &oidc.RawToken{Token: "token!"},
@@ -207,44 +207,6 @@ func TestImplExchange(t *testing.T) {
 				},
 			},
 			want: "token foo",
-		},
-		"include upstream": {
-			issuer:   "bar",
-			audience: "baz",
-			exchangeOpts: []ExchangerOption{
-				WithIncludeUpstreamToken(),
-			},
-			clientMock: test.MockOIDCClient{
-				STSClient: test.MockSTSClient{
-					OnExchange: []test.STSOnExchange{{
-						Given: &oidc.ExchangeRequest{
-							Aud:                  []string{"baz"},
-							IncludeUpstreamToken: true,
-						},
-						Exchanged: &oidc.RawToken{Token: "tokenz"},
-					}},
-				},
-			},
-			want: "tokenz",
-		},
-		"cluster": {
-			issuer:   "bar",
-			audience: "baz",
-			exchangeOpts: []ExchangerOption{
-				WithCluster("kind i presume"),
-			},
-			clientMock: test.MockOIDCClient{
-				STSClient: test.MockSTSClient{
-					OnExchange: []test.STSOnExchange{{
-						Given: &oidc.ExchangeRequest{
-							Aud:     []string{"baz"},
-							Cluster: "kind i presume",
-						},
-						Exchanged: &oidc.RawToken{Token: "tokenz"},
-					}},
-				},
-			},
-			want: "tokenz",
 		},
 	}
 
@@ -309,7 +271,7 @@ func TestExchange(t *testing.T) {
 			issuer:   "bar",
 			audience: "baz",
 			exchangeOpts: []ExchangerOption{
-				WithCapabilities("registry.push"),
+				WithCapabilities("groups.list"),
 				WithScope("derp"),
 			},
 			clientMock: test.MockOIDCClient{
@@ -317,7 +279,7 @@ func TestExchange(t *testing.T) {
 					OnExchange: []test.STSOnExchange{{
 						Given: &oidc.ExchangeRequest{
 							Aud:   []string{"baz"},
-							Cap:   []string{"registry.push"},
+							Cap:   []string{"groups.list"},
 							Scope: "derp",
 						},
 						Exchanged: &oidc.RawToken{Token: "token!"},
@@ -330,7 +292,7 @@ func TestExchange(t *testing.T) {
 			issuer:   "bar",
 			audience: "baz",
 			exchangeOpts: []ExchangerOption{
-				WithCapabilities("registry.push"),
+				WithCapabilities("groups.list"),
 				WithScope("derp"),
 			},
 			clientMock: test.MockOIDCClient{
@@ -338,7 +300,7 @@ func TestExchange(t *testing.T) {
 					OnExchange: []test.STSOnExchange{{
 						Given: &oidc.ExchangeRequest{
 							Aud:   []string{"baz"},
-							Cap:   []string{"registry.push"},
+							Cap:   []string{"groups.list"},
 							Scope: "derp",
 						},
 						Exchanged: &oidc.RawToken{Token: "token!"},
@@ -365,44 +327,6 @@ func TestExchange(t *testing.T) {
 				},
 			},
 			want: "token foo",
-		},
-		"include upstream": {
-			issuer:   "bar",
-			audience: "baz",
-			exchangeOpts: []ExchangerOption{
-				WithIncludeUpstreamToken(),
-			},
-			clientMock: test.MockOIDCClient{
-				STSClient: test.MockSTSClient{
-					OnExchange: []test.STSOnExchange{{
-						Given: &oidc.ExchangeRequest{
-							Aud:                  []string{"baz"},
-							IncludeUpstreamToken: true,
-						},
-						Exchanged: &oidc.RawToken{Token: "tokenz"},
-					}},
-				},
-			},
-			want: "tokenz",
-		},
-		"cluster": {
-			issuer:   "bar",
-			audience: "baz",
-			exchangeOpts: []ExchangerOption{
-				WithCluster("kind i presume"),
-			},
-			clientMock: test.MockOIDCClient{
-				STSClient: test.MockSTSClient{
-					OnExchange: []test.STSOnExchange{{
-						Given: &oidc.ExchangeRequest{
-							Aud:     []string{"baz"},
-							Cluster: "kind i presume",
-						},
-						Exchanged: &oidc.RawToken{Token: "tokenz"},
-					}},
-				},
-			},
-			want: "tokenz",
 		},
 	}
 
