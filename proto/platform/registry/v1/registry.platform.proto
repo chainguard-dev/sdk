@@ -258,6 +258,12 @@ message SyncConfig {
 
   // When the catalog syncer should stop syncing from the source repository.
   google.protobuf.Timestamp expiration = 3;
+
+  // GCP Artifact Registry repo to sync to.
+  string google = 4;
+
+  // AWS ECR repo to sync to.
+  string amazon = 5;
 }
 
 message CreateRepoRequest {
