@@ -10,7 +10,7 @@ var (
 <html>
 	<head>
 		<title>Chainguard Authentication</title>
-		<link rel="icon" href="https://console.enforce.dev/favicon.ico"/>
+		<link rel="icon" href="https://console.chainguard.dev/favicon.ico"/>
 		<style>
 			:root { color-scheme: light dark; font-family: "Helvetica Neue", "Arial", sans-serif; height: 100%; }
 			body { display: flex; justify-content: center; height: 100%; margin: 0 10%; }
@@ -46,7 +46,7 @@ var (
 		</script>
 		<div class="header if-offline logo">Chainguard</div>
 		<a class="header if-online" href="https://chainguard.dev">
-			<img src="https://console.enforce.dev/logo512.png" onerror="this.remove()" />
+			<img src="https://console.chainguard.dev/logo512.png" onerror="this.remove()" />
 			<span class="logo">Chainguard</span>
 		</a>
 		<div class="container">
@@ -60,7 +60,7 @@ var (
 				<span class="if-offline">this page.</span>
 			</div>
 			<div class="links if-online">
-				<a href="https://console.enforce.dev" class="link login"><span class="logo">Chainguard Console</span></a>
+				<a href="https://console.chainguard.dev" class="link login"><span class="logo">Chainguard Console</span></a>
 				<a href="https://edu.chainguard.dev" class="link"><span class="logo">Chainguard Academy</span></a>
 				<a href="https://www.chainguard.dev/unchained" class="link"><span class="logo">Chainguard Blog</span></a>
 			</div>
