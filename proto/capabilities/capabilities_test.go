@@ -52,33 +52,31 @@ func TestStringify(t *testing.T) {
 	}
 }
 
-// NB: no caps are currently deprecated, so this test is disabled.
-// Uncomment and replace the deprecated cap to test future deprecated caps.
-// func TestDeprecated(t *testing.T) {
-//	tests := []struct {
-//		name       string
-//		capability Capability
-//		want       bool
-//	}{{
-//		name:       "is deprecated",
-//		capability: Capability_CAP_TENANT_CLUSTERS_CREATE,
-//		want:       true,
-//	}, {
-//		name:       "not deprecated",
-//		capability: Capability_CAP_IAM_GROUPS_CREATE,
-//		want:       false,
-//	}}
-//
-//	for _, test := range tests {
-//		t.Run(test.name, func(t *testing.T) {
-//			got := Deprecated(test.capability)
-//
-//			if got != test.want {
-//				t.Errorf("Deprecated() mismatch for %s: want=%t, got=%t", test.capability, test.want, got)
-//			}
-//		})
-//	}
-// }
+func TestDeprecated(t *testing.T) {
+	tests := []struct {
+		name       string
+		capability Capability
+		want       bool
+	}{{
+		name:       "is deprecated",
+		capability: Capability_CAP_TENANT_CLUSTERS_CREATE,
+		want:       true,
+	}, {
+		name:       "not deprecated",
+		capability: Capability_CAP_IAM_GROUPS_CREATE,
+		want:       false,
+	}}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got := Deprecated(test.capability)
+
+			if got != test.want {
+				t.Errorf("Depcrecated() mismatch for %s: want=%t, got=%t", test.capability, test.want, got)
+			}
+		})
+	}
+}
 
 func TestRoundTrip(t *testing.T) {
 	for cap := range Capability_name {
