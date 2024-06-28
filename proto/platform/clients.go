@@ -14,6 +14,7 @@ import (
 	advisory "chainguard.dev/sdk/proto/platform/advisory/v1"
 	platformauth "chainguard.dev/sdk/proto/platform/auth/v1"
 	iam "chainguard.dev/sdk/proto/platform/iam/v1"
+	notifications "chainguard.dev/sdk/proto/platform/notifications/v1"
 	platformoidc "chainguard.dev/sdk/proto/platform/oidc/v1"
 	ping "chainguard.dev/sdk/proto/platform/ping/v1"
 	registry "chainguard.dev/sdk/proto/platform/registry/v1"
@@ -31,6 +32,7 @@ type Clients interface {
 	Registry() registry.Clients
 	Advisory() advisory.Clients
 	Ping() ping.Clients
+	Notifications() notifications.Clients
 
 	Close() error
 }
@@ -60,21 +62,23 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 	}
 
 	return &clients{
-		iam:      iam.NewClientsFromConnection(conn),
-		tenant:   tenant.NewClientsFromConnection(conn),
-		registry: registry.NewClientsFromConnection(conn),
-		advisory: advisory.NewClientsFromConnection(conn),
-		ping:     ping.NewClientsFromConnection(conn),
-		conn:     conn,
+		iam:           iam.NewClientsFromConnection(conn),
+		tenant:        tenant.NewClientsFromConnection(conn),
+		registry:      registry.NewClientsFromConnection(conn),
+		advisory:      advisory.NewClientsFromConnection(conn),
+		ping:          ping.NewClientsFromConnection(conn),
+		notifications: notifications.NewClientsFromConnection(conn),
+		conn:          conn,
 	}, nil
 }
 
 type clients struct {
-	iam      iam.Clients
-	tenant   tenant.Clients
-	registry registry.Clients
-	advisory advisory.Clients
-	ping     ping.Clients
+	iam           iam.Clients
+	tenant        tenant.Clients
+	registry      registry.Clients
+	advisory      advisory.Clients
+	ping          ping.Clients
+	notifications notifications.Clients
 
 	conn *grpc.ClientConn
 }
@@ -97,6 +101,10 @@ func (c *clients) Advisory() advisory.Clients {
 
 func (c *clients) Ping() ping.Clients {
 	return c.ping
+}
+
+func (c *clients) Notifications() notifications.Clients {
+	return c.notifications
 }
 
 func (c *clients) Close() error {

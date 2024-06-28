@@ -13,6 +13,8 @@ import (
 	authtest "chainguard.dev/sdk/proto/platform/auth/v1/test"
 	iam "chainguard.dev/sdk/proto/platform/iam/v1"
 	iamtest "chainguard.dev/sdk/proto/platform/iam/v1/test"
+	notifications "chainguard.dev/sdk/proto/platform/notifications/v1"
+	notificationstest "chainguard.dev/sdk/proto/platform/notifications/v1/test"
 	oidc "chainguard.dev/sdk/proto/platform/oidc/v1"
 	oidctest "chainguard.dev/sdk/proto/platform/oidc/v1/test"
 	ping "chainguard.dev/sdk/proto/platform/ping/v1"
@@ -28,11 +30,12 @@ var _ platform.Clients = (*MockPlatformClients)(nil)
 type MockPlatformClients struct {
 	OnError error
 
-	IAMClient      iamtest.MockIAMClient
-	TenantClient   tenanttest.MockTenantClient
-	RegistryClient registrytest.MockRegistryClients
-	AdvisoryClient advisorytest.MockSecurityAdvisoryClients
-	PingClient     pingtest.MockPingServiceClients
+	IAMClient           iamtest.MockIAMClient
+	TenantClient        tenanttest.MockTenantClient
+	RegistryClient      registrytest.MockRegistryClients
+	AdvisoryClient      advisorytest.MockSecurityAdvisoryClients
+	PingClient          pingtest.MockPingServiceClients
+	NotificationsClient notificationstest.MockNotificationsClients
 }
 
 func (m MockPlatformClients) Close() error {
@@ -57,6 +60,10 @@ func (m MockPlatformClients) Advisory() advisory.Clients {
 
 func (m MockPlatformClients) Ping() ping.Clients {
 	return m.PingClient
+}
+
+func (m MockPlatformClients) Notifications() notifications.Clients {
+	return m.NotificationsClient
 }
 
 var _ platform.OIDCClients = (*MockOIDCClients)(nil)
