@@ -51,6 +51,7 @@ type MockRegistryClient struct {
 	OnGetSbom              []SbomOnGet
 	OnGetVulnReport        []VulnReportOnGet
 	OnListManifestMetadata []ManifestMetadataOnList
+	OnGetRawSbom           []RawSbomOnGet
 }
 
 type ReposOnCreate struct {
@@ -126,6 +127,12 @@ type VulnReportOnGet struct {
 type ManifestMetadataOnList struct {
 	Given *registry.ManifestMetadataFilter
 	List  *registry.ManifestMetadataList
+	Error error
+}
+
+type RawSbomOnGet struct {
+	Given *registry.RawSbomRequest
+	Get   *registry.RawSbom
 	Error error
 }
 
@@ -241,6 +248,15 @@ func (m MockRegistryClient) ListManifestMetadata(_ context.Context, given *regis
 	for _, o := range m.OnListManifestMetadata {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.List, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockRegistryClient) GetRawSbom(_ context.Context, given *registry.RawSbomRequest, _ ...grpc.CallOption) (*registry.RawSbom, error) { //nolint: revive
+	for _, o := range m.OnGetRawSbom {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Get, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)
