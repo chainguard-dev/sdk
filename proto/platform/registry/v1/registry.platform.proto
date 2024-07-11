@@ -275,6 +275,12 @@ message SyncConfig {
 
   // AWS ECR repo to sync to.
   string amazon = 5;
+
+  // Hold 6 for Azure.
+
+  // Controls whether to synchronize APKs for the images in this repository
+  // to the enclosing Chainguard group.
+  bool sync_apks = 7;
 }
 
 message CreateRepoRequest {
