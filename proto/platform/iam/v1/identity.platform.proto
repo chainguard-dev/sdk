@@ -95,6 +95,7 @@ enum ServicePrincipal {
   COSIGNED       = 1;
   INGESTER       = 2;
   CATALOG_SYNCER = 3;
+  APKO_BUILDER   = 4;
 }
 
 message Identity {
