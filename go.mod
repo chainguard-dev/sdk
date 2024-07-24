@@ -5,30 +5,30 @@ go 1.22.5
 require (
 	chainguard.dev/go-grpc-kit v0.17.5
 	chainguard.dev/go-oidctest v0.3.1
-	github.com/aws/aws-sdk-go-v2 v1.30.0
+	github.com/aws/aws-sdk-go-v2 v1.30.3
 	github.com/bits-and-blooms/bitset v1.13.0
 	github.com/chainguard-dev/clog v1.4.0
 	github.com/cloudevents/sdk-go/v2 v2.15.2
-	github.com/coreos/go-oidc/v3 v3.10.0
+	github.com/coreos/go-oidc/v3 v3.11.0
 	github.com/go-jose/go-jose/v3 v3.0.3
 	github.com/google/go-cmp v0.6.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0
-	github.com/microcosm-cc/bluemonday v1.0.26
+	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
 	github.com/russross/blackfriday/v2 v2.1.0
-	github.com/sigstore/sigstore v1.8.6
+	github.com/sigstore/sigstore v1.8.7
 	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8
 	golang.org/x/oauth2 v0.21.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240701130421-f6361c86f094
 	google.golang.org/grpc v1.65.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.4.0
 	google.golang.org/protobuf v1.34.2
-	k8s.io/apimachinery v0.30.2
+	k8s.io/apimachinery v0.30.3
 
 )
 
 require (
-	github.com/aws/smithy-go v1.20.2 // indirect
+	github.com/aws/smithy-go v1.20.3 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
@@ -38,7 +38,7 @@ require (
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/gorilla/css v1.0.0 // indirect
+	github.com/gorilla/css v1.0.1 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.1-0.20210315223345-82c243799c99 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
