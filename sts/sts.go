@@ -67,7 +67,12 @@ func Exchange(ctx context.Context, issuer, audience, idToken string, exchangerOp
 	} else {
 		e = &impl{opts: opts}
 	}
-	return e.Exchange(ctx, idToken, exchangerOptions...)
+	tok, err := e.Exchange(ctx, idToken, exchangerOptions...)
+	if err != nil {
+		return "", fmt.Errorf("exchanging token with %q: %w", issuer, err)
+	}
+
+	return tok, nil
 }
 
 type impl struct {
