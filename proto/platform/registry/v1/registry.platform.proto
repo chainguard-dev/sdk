@@ -255,9 +255,15 @@ message Repo {
 
 enum CatalogTier {
   UNKNOWN  = 0;
-  FREE     = 1;
-  STANDARD = 2;
-  PREMIUM  = 3;
+
+  FREE     = 1 [deprecated = true];
+  STANDARD = 2 [deprecated = true];
+  PREMIUM  = 3 [deprecated = true];
+
+  APPLICATION = 4;
+  BASE = 5;
+  FIPS = 6;
+  AI = 7;
 }
 
 message SyncConfig {
