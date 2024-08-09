@@ -1,13 +1,13 @@
 module chainguard.dev/sdk
 
-go 1.22.5
+go 1.22.6
 
 require (
 	chainguard.dev/go-grpc-kit v0.17.5
 	chainguard.dev/go-oidctest v0.3.1
 	github.com/aws/aws-sdk-go-v2 v1.30.3
 	github.com/bits-and-blooms/bitset v1.13.0
-	github.com/chainguard-dev/clog v1.4.0
+	github.com/chainguard-dev/clog v1.5.0
 	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/coreos/go-oidc/v3 v3.11.0
 	github.com/go-jose/go-jose/v3 v3.0.3
