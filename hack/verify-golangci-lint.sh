@@ -7,7 +7,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-VERSION=v1.54.2
+VERSION=v1.60.1
 URL_BASE=https://raw.githubusercontent.com/golangci/golangci-lint
 URL=$URL_BASE/$VERSION/install.sh
 # If you update the version above you might need to update the checksum
@@ -16,7 +16,7 @@ URL=$URL_BASE/$VERSION/install.sh
 # To obtain the checksum, download the install script and run the following
 # command:
 # > sha256sum <path-to-install-script>
-INSTALL_CHECKSUM=060f1f3deb31b3d3b9515d691d9a776354cd63c7fcb5e036f18f0444cf2c934b
+INSTALL_CHECKSUM=99c88811588dbb3b155e624a167107bced5357325016d591c9392a0a222e6ec5
 
 if [[ ! -f .golangci.yml ]]; then
     echo 'ERROR: missing .golangci.yml in repo root' >&2
