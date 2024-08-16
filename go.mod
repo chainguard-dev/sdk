@@ -5,7 +5,7 @@ go 1.23.0
 require (
 	chainguard.dev/go-grpc-kit v0.17.5
 	chainguard.dev/go-oidctest v0.3.1
-	github.com/aws/aws-sdk-go-v2 v1.30.3
+	github.com/aws/aws-sdk-go-v2 v1.30.4
 	github.com/bits-and-blooms/bitset v1.13.0
 	github.com/chainguard-dev/clog v1.5.0
 	github.com/cloudevents/sdk-go/v2 v2.15.2
