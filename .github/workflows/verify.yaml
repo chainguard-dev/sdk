@@ -20,19 +20,19 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           path: ./src/github.com/${{ github.repository }}
           fetch-depth: 0
 
       - name: Set up Go
-        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+        uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5.0.2
         with:
           go-version-file: './src/github.com/${{ github.repository }}/go.mod'
           check-latest: true
 
       # https://github.com/mvdan/github-actions-golang#how-do-i-set-up-caching-between-builds
-      - uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           # In order:
           # * Module download cache
@@ -52,7 +52,7 @@ jobs:
       - name: Install Protoc
         run: |
           cd "$(mktemp -d)"
-          wget -O protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v26.1/protoc-26.1-linux-x86_64.zip
+          wget -O protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v27.3/protoc-27.3-linux-x86_64.zip
           unzip protoc.zip -d .
           chmod +x ./bin/protoc
           echo "$(pwd)/bin" >> "$GITHUB_PATH"
@@ -61,10 +61,10 @@ jobs:
         run: |
           cd $(mktemp -d)
           go install github.com/google/go-licenses@ceb292363ec84358c9a276ef23aa0de893e59b84
-          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.33.0
-          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
-          go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.10.0
-          go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.10.0
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.2
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
+          go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.22.0
+          go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.22.0
 
       - name: Update Codegen
         shell: bash
