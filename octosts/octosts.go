@@ -57,12 +57,12 @@ func Token(ctx context.Context, policyName, org, repo string) (string, error) {
 		return "", err
 	}
 
-	res, err := xchg.Exchange(ctx, token.AccessToken)
+	tok, err := xchg.Exchange(ctx, token.AccessToken)
 	if err != nil {
 		return "", err
 	}
 
-	return res, nil
+	return tok.AccessToken, nil
 }
 
 // Revoke revokes the given security token.

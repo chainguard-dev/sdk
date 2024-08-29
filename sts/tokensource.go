@@ -38,7 +38,7 @@ func (sts *stsTokenSource) Token() (*oauth2.Token, error) {
 		return nil, fmt.Errorf("exchanging base token: %w", err)
 	}
 	return &oauth2.Token{
-		AccessToken: idt,
+		AccessToken: idt.AccessToken,
 		Expiry:      time.Now().Add(time.Hour),
 	}, nil
 }
