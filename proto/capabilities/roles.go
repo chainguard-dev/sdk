@@ -26,6 +26,8 @@ var (
 		Capability_CAP_TENANT_RECORD_SIGNATURES_LIST,
 		Capability_CAP_TENANT_SBOMS_LIST,
 		Capability_CAP_TENANT_VULN_REPORTS_LIST,
+
+		Capability_CAP_VERSION_LIST,
 	},
 		// Viewers can also list repos and tags, and pull images.
 		RegistryPullCaps...), APKPullCaps...))

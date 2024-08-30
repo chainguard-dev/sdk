@@ -21,22 +21,23 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Registry_CreateRepo_FullMethodName           = "/chainguard.platform.registry.Registry/CreateRepo"
-	Registry_UpdateRepo_FullMethodName           = "/chainguard.platform.registry.Registry/UpdateRepo"
-	Registry_ListRepos_FullMethodName            = "/chainguard.platform.registry.Registry/ListRepos"
-	Registry_DeleteRepo_FullMethodName           = "/chainguard.platform.registry.Registry/DeleteRepo"
-	Registry_CreateTag_FullMethodName            = "/chainguard.platform.registry.Registry/CreateTag"
-	Registry_UpdateTag_FullMethodName            = "/chainguard.platform.registry.Registry/UpdateTag"
-	Registry_DeleteTag_FullMethodName            = "/chainguard.platform.registry.Registry/DeleteTag"
-	Registry_ListTags_FullMethodName             = "/chainguard.platform.registry.Registry/ListTags"
-	Registry_ListTagHistory_FullMethodName       = "/chainguard.platform.registry.Registry/ListTagHistory"
-	Registry_GetSbom_FullMethodName              = "/chainguard.platform.registry.Registry/GetSbom"
-	Registry_GetImageConfig_FullMethodName       = "/chainguard.platform.registry.Registry/GetImageConfig"
-	Registry_GetArchs_FullMethodName             = "/chainguard.platform.registry.Registry/GetArchs"
-	Registry_GetSize_FullMethodName              = "/chainguard.platform.registry.Registry/GetSize"
-	Registry_GetRawSbom_FullMethodName           = "/chainguard.platform.registry.Registry/GetRawSbom"
-	Registry_GetVulnReport_FullMethodName        = "/chainguard.platform.registry.Registry/GetVulnReport"
-	Registry_ListManifestMetadata_FullMethodName = "/chainguard.platform.registry.Registry/ListManifestMetadata"
+	Registry_CreateRepo_FullMethodName                = "/chainguard.platform.registry.Registry/CreateRepo"
+	Registry_UpdateRepo_FullMethodName                = "/chainguard.platform.registry.Registry/UpdateRepo"
+	Registry_ListRepos_FullMethodName                 = "/chainguard.platform.registry.Registry/ListRepos"
+	Registry_DeleteRepo_FullMethodName                = "/chainguard.platform.registry.Registry/DeleteRepo"
+	Registry_CreateTag_FullMethodName                 = "/chainguard.platform.registry.Registry/CreateTag"
+	Registry_UpdateTag_FullMethodName                 = "/chainguard.platform.registry.Registry/UpdateTag"
+	Registry_DeleteTag_FullMethodName                 = "/chainguard.platform.registry.Registry/DeleteTag"
+	Registry_ListTags_FullMethodName                  = "/chainguard.platform.registry.Registry/ListTags"
+	Registry_ListTagHistory_FullMethodName            = "/chainguard.platform.registry.Registry/ListTagHistory"
+	Registry_GetSbom_FullMethodName                   = "/chainguard.platform.registry.Registry/GetSbom"
+	Registry_GetImageConfig_FullMethodName            = "/chainguard.platform.registry.Registry/GetImageConfig"
+	Registry_GetArchs_FullMethodName                  = "/chainguard.platform.registry.Registry/GetArchs"
+	Registry_GetSize_FullMethodName                   = "/chainguard.platform.registry.Registry/GetSize"
+	Registry_GetRawSbom_FullMethodName                = "/chainguard.platform.registry.Registry/GetRawSbom"
+	Registry_GetVulnReport_FullMethodName             = "/chainguard.platform.registry.Registry/GetVulnReport"
+	Registry_ListManifestMetadata_FullMethodName      = "/chainguard.platform.registry.Registry/ListManifestMetadata"
+	Registry_GetPackageVersionMetadata_FullMethodName = "/chainguard.platform.registry.Registry/GetPackageVersionMetadata"
 )
 
 // RegistryClient is the client API for Registry service.
@@ -59,6 +60,7 @@ type RegistryClient interface {
 	GetRawSbom(ctx context.Context, in *RawSbomRequest, opts ...grpc.CallOption) (*RawSbom, error)
 	GetVulnReport(ctx context.Context, in *VulnReportRequest, opts ...grpc.CallOption) (*v1.VulnReport, error)
 	ListManifestMetadata(ctx context.Context, in *ManifestMetadataFilter, opts ...grpc.CallOption) (*ManifestMetadataList, error)
+	GetPackageVersionMetadata(ctx context.Context, in *PackageVersionMetadataRequest, opts ...grpc.CallOption) (*PackageVersionMetadata, error)
 }
 
 type registryClient struct {
@@ -229,6 +231,16 @@ func (c *registryClient) ListManifestMetadata(ctx context.Context, in *ManifestM
 	return out, nil
 }
 
+func (c *registryClient) GetPackageVersionMetadata(ctx context.Context, in *PackageVersionMetadataRequest, opts ...grpc.CallOption) (*PackageVersionMetadata, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PackageVersionMetadata)
+	err := c.cc.Invoke(ctx, Registry_GetPackageVersionMetadata_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RegistryServer is the server API for Registry service.
 // All implementations must embed UnimplementedRegistryServer
 // for forward compatibility.
@@ -249,6 +261,7 @@ type RegistryServer interface {
 	GetRawSbom(context.Context, *RawSbomRequest) (*RawSbom, error)
 	GetVulnReport(context.Context, *VulnReportRequest) (*v1.VulnReport, error)
 	ListManifestMetadata(context.Context, *ManifestMetadataFilter) (*ManifestMetadataList, error)
+	GetPackageVersionMetadata(context.Context, *PackageVersionMetadataRequest) (*PackageVersionMetadata, error)
 	mustEmbedUnimplementedRegistryServer()
 }
 
@@ -306,6 +319,9 @@ func (UnimplementedRegistryServer) GetVulnReport(context.Context, *VulnReportReq
 }
 func (UnimplementedRegistryServer) ListManifestMetadata(context.Context, *ManifestMetadataFilter) (*ManifestMetadataList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListManifestMetadata not implemented")
+}
+func (UnimplementedRegistryServer) GetPackageVersionMetadata(context.Context, *PackageVersionMetadataRequest) (*PackageVersionMetadata, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPackageVersionMetadata not implemented")
 }
 func (UnimplementedRegistryServer) mustEmbedUnimplementedRegistryServer() {}
 func (UnimplementedRegistryServer) testEmbeddedByValue()                  {}
@@ -616,6 +632,24 @@ func _Registry_ListManifestMetadata_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Registry_GetPackageVersionMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PackageVersionMetadataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).GetPackageVersionMetadata(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_GetPackageVersionMetadata_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).GetPackageVersionMetadata(ctx, req.(*PackageVersionMetadataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Registry_ServiceDesc is the grpc.ServiceDesc for Registry service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -686,6 +720,10 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListManifestMetadata",
 			Handler:    _Registry_ListManifestMetadata_Handler,
+		},
+		{
+			MethodName: "GetPackageVersionMetadata",
+			Handler:    _Registry_GetPackageVersionMetadata_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

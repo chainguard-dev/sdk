@@ -123,6 +123,8 @@ enum Capability {
   CAP_APK_LIST   = 1652 [(name) = "apk.list",   (bit) = 75];
   CAP_APK_DELETE = 1653 [(name) = "apk.delete", (bit) = 76];
 
+  CAP_VERSION_LIST = 1654 [(name) = "version.list", (bit) = 77];
+
   // Sigstore-aas
 
   CAP_SIGSTORE_CREATE   = 1701 [(name) = "sigstore.create", (bit) = 42, deprecated = true];
@@ -140,5 +142,5 @@ enum Capability {
   // capability?
   CAP_GULFSTREAM = 10000 [(name) = "gulfstream", (bit) = 47];
 
-  // next bit: 77
+  // next bit: 78
 }

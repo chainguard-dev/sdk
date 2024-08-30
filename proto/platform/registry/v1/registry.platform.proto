@@ -228,6 +228,18 @@ service Registry {
       }
     };
   };
+
+  rpc GetPackageVersionMetadata(PackageVersionMetadataRequest) returns (PackageVersionMetadata) {
+    option (google.api.http) = {
+      get: "/registry/v1/versions/{package=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_VERSION_LIST]
+        unscoped: true
+      }
+    };
+  }
 }
 
 message Repo {
@@ -415,6 +427,11 @@ message SbomRequest {
 
   // The architecture to get the SBOM for.
   string arch = 3;
+}
+
+message PackageVersionMetadataRequest {
+  // The name of the package.
+  string package = 1;
 }
 
 message Archs {
@@ -616,4 +633,32 @@ message ManifestMetadataList {
 
 message RawSbom {
 	string rawSbom = 1;
+}
+
+// This type mimics the "status" section from the original
+// YAML files located at https://github.com/chainguard-dev/package-version-metadata
+message PackageVersionMetadata {
+  // list of versions which are now eol
+  repeated PackageVersion eolVersions = 1;
+  // the last time this data was updated
+  string lastUpdatedTimestamp = 2;
+  // the latest version of the software
+  string latestVersion = 3;
+  // list of versions which are active
+  repeated PackageVersion versions = 4;
+}
+
+message PackageVersion {
+  // the date when this version goes eol
+  string eolDate = 1;
+  // whether or not the package exists in an apk repo
+  bool exists = 2;
+  // whether or not a FIPS-enabled version of the package exists in an apk repo
+  bool fips = 3;
+  // may be set to a date or true if the software is marked as lts
+  string lts = 4;
+  // the date this version was release
+  string releaseDate = 5;
+  // the version stream identifier
+  string version = 6;
 }
