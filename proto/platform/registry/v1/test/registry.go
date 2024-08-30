@@ -38,20 +38,21 @@ var _ registry.RegistryClient = (*MockRegistryClient)(nil)
 type MockRegistryClient struct {
 	registry.RegistryClient
 
-	OnCreateRepos          []ReposOnCreate
-	OnDeleteRepos          []ReposOnDelete
-	OnListRepos            []ReposOnList
-	OnCreateTags           []TagsOnCreate
-	OnDeleteTags           []TagsOnDelete
-	OnUpdateTag            []TagOnUpdate
-	OnListTags             []TagsOnList
-	OnUpdateRepo           []RepoOnUpdate
-	OnListTagHistory       []TagHistoryOnList
-	OnGetImageConfig       []ImageConfigOnGet
-	OnGetSbom              []SbomOnGet
-	OnGetVulnReport        []VulnReportOnGet
-	OnListManifestMetadata []ManifestMetadataOnList
-	OnGetRawSbom           []RawSbomOnGet
+	OnCreateRepos               []ReposOnCreate
+	OnDeleteRepos               []ReposOnDelete
+	OnListRepos                 []ReposOnList
+	OnCreateTags                []TagsOnCreate
+	OnDeleteTags                []TagsOnDelete
+	OnUpdateTag                 []TagOnUpdate
+	OnListTags                  []TagsOnList
+	OnUpdateRepo                []RepoOnUpdate
+	OnListTagHistory            []TagHistoryOnList
+	OnGetImageConfig            []ImageConfigOnGet
+	OnGetSbom                   []SbomOnGet
+	OnGetVulnReport             []VulnReportOnGet
+	OnListManifestMetadata      []ManifestMetadataOnList
+	OnGetRawSbom                []RawSbomOnGet
+	OnGetPackageVersionMetadata []PackageVersionMetadataOnGet
 }
 
 type ReposOnCreate struct {
@@ -133,6 +134,12 @@ type ManifestMetadataOnList struct {
 type RawSbomOnGet struct {
 	Given *registry.RawSbomRequest
 	Get   *registry.RawSbom
+	Error error
+}
+
+type PackageVersionMetadataOnGet struct {
+	Given *registry.PackageVersionMetadataRequest
+	Get   *registry.PackageVersionMetadata
 	Error error
 }
 
@@ -255,6 +262,15 @@ func (m MockRegistryClient) ListManifestMetadata(_ context.Context, given *regis
 
 func (m MockRegistryClient) GetRawSbom(_ context.Context, given *registry.RawSbomRequest, _ ...grpc.CallOption) (*registry.RawSbom, error) { //nolint: revive
 	for _, o := range m.OnGetRawSbom {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Get, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockRegistryClient) GetPackageVersionMetadata(_ context.Context, given *registry.PackageVersionMetadataRequest, _ ...grpc.CallOption) (*registry.PackageVersionMetadata, error) { //nolint: revive
+	for _, o := range m.OnGetPackageVersionMetadata {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Get, o.Error
 		}
