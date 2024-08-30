@@ -23,12 +23,18 @@ import (
 
 const GulfstreamAudience = "gulfstream"
 
+type TokenPair struct {
+	AccessToken  string
+	RefreshToken string
+}
+
 // Exchanger is an interface for exchanging a third-party token for a Chainguard
 // token.
 type Exchanger interface {
+
 	// Exchange performs the actual token exchange, sending "token" to the
 	// Chainguard issuer's STS interface, and receiving bytes or an error.
-	Exchange(ctx context.Context, token string, opts ...ExchangerOption) (string, error)
+	Exchange(ctx context.Context, token string, opts ...ExchangerOption) (TokenPair, error)
 
 	// Refresh exchanges a refresh token for a new access token and refresh token.
 	Refresh(ctx context.Context, token string, opts ...ExchangerOption) (accessToken string, refreshToken string, err error)
@@ -52,7 +58,19 @@ func New(issuer, audience string, opts ...ExchangerOption) Exchanger {
 }
 
 // Exchange performs an OIDC token exchange with the correct Exchanger based on the provided options.
-func Exchange(ctx context.Context, issuer, audience, idToken string, exchangerOptions ...ExchangerOption) (string, error) {
+//
+// Deprecated: use ExchangePair instead. This is kept around only until we migrate all existing callers
+// to ExchangePair.
+func Exchange(ctx context.Context, issuer, audience, idToken string, opts ...ExchangerOption) (string, error) {
+	o, err := ExchangePair(ctx, issuer, audience, idToken, opts...)
+	if err != nil {
+		return "", err
+	}
+	return o.AccessToken, nil
+}
+
+// ExchangePair performs an OIDC token exchange with the correct Exchanger based on the provided options.
+func ExchangePair(ctx context.Context, issuer, audience, idToken string, exchangerOptions ...ExchangerOption) (TokenPair, error) {
 	opts := options{
 		issuer:   issuer,
 		audience: audience,
@@ -67,12 +85,11 @@ func Exchange(ctx context.Context, issuer, audience, idToken string, exchangerOp
 	} else {
 		e = &impl{opts: opts}
 	}
-	tok, err := e.Exchange(ctx, idToken, exchangerOptions...)
+	tokenSet, err := e.Exchange(ctx, idToken, exchangerOptions...)
 	if err != nil {
-		return "", fmt.Errorf("exchanging token with %q: %w", issuer, err)
+		return TokenPair{}, fmt.Errorf("exchanging token with %q: %w", issuer, err)
 	}
-
-	return tok, nil
+	return tokenSet, nil
 }
 
 type impl struct {
@@ -95,7 +112,7 @@ var _ Exchanger = (*impl)(nil)
 var oidcNewClients = oidc.NewClients
 
 // Exchange implements Exchanger
-func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOption) (string, error) {
+func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOption) (TokenPair, error) {
 	o := i.opts
 	for _, opt := range opts {
 		opt(&o)
@@ -103,7 +120,7 @@ func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOpti
 
 	c, err := oidcNewClients(ctx, o.issuer, fmt.Sprintf("Bearer %s", token), oidc.WithUserAgent(o.userAgent))
 	if err != nil {
-		return "", err
+		return TokenPair{}, err
 	}
 	defer c.Close()
 
@@ -114,9 +131,9 @@ func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOpti
 		Cap:      o.capabilities,
 	})
 	if err != nil {
-		return "", err
+		return TokenPair{}, err
 	}
-	return resp.Token, nil
+	return TokenPair{AccessToken: resp.Token, RefreshToken: resp.RefreshToken}, nil
 }
 
 // Refresh implements Exchanger
@@ -257,7 +274,7 @@ func (i *HTTP1DowngradeExchanger) doHTTP1(ctx context.Context,
 	return protojson.Unmarshal(b, out)
 }
 
-func (i *HTTP1DowngradeExchanger) Exchange(ctx context.Context, token string, opts ...ExchangerOption) (string, error) {
+func (i *HTTP1DowngradeExchanger) Exchange(ctx context.Context, token string, opts ...ExchangerOption) (TokenPair, error) {
 	o := i.opts
 	for _, opt := range opts {
 		opt(&o)
@@ -270,9 +287,9 @@ func (i *HTTP1DowngradeExchanger) Exchange(ctx context.Context, token string, op
 	}
 	out := new(oidc.RawToken)
 	if err := i.doHTTP1(ctx, token, "/sts/exchange", in, out, o); err != nil {
-		return "", err
+		return TokenPair{}, err
 	}
-	return out.Token, nil
+	return TokenPair{AccessToken: out.Token, RefreshToken: out.RefreshToken}, nil
 }
 
 func (i *HTTP1DowngradeExchanger) Refresh(ctx context.Context, token string, opts ...ExchangerOption) (string, string, error) {

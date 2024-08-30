@@ -11,6 +11,7 @@ import "google/api/annotations.proto";
 import "google/api/resource.proto";
 
 service SecurityTokenService {
+
   rpc Exchange(ExchangeRequest) returns (RawToken) {
     option (google.api.http) = {
       post: "/sts/exchange"
@@ -55,10 +56,14 @@ message ExchangeRequest {
   // `include_upstream_token` field was deprecated and removed.
   reserved 6;
   reserved "include_upstream_token";
+
+  // Empty or the UIDP of the custom identity provider.
+  string identity_provider = 7;
 }
 
 message RawToken {
   string token = 1;
+  string refresh_token = 2;
 }
 
 // ExchangeRefreshToken returns a pair of token, in order to allow

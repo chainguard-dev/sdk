@@ -113,7 +113,7 @@ func TestImplExchange(t *testing.T) {
 		audience     string
 		newOpts      []ExchangerOption
 		exchangeOpts []ExchangerOption
-		want         string
+		wantToken    TokenPair
 		wantErr      bool
 		clientMock   test.MockOIDCClient
 	}{
@@ -126,11 +126,11 @@ func TestImplExchange(t *testing.T) {
 						Given: &oidc.ExchangeRequest{
 							Aud: []string{"baz"},
 						},
-						Exchanged: &oidc.RawToken{Token: "token!"},
+						Exchanged: &oidc.RawToken{Token: "token!", RefreshToken: "refresh token!"},
 					}},
 				},
 			},
-			want: "token!",
+			wantToken: TokenPair{AccessToken: "token!", RefreshToken: "refresh token!"},
 		},
 		"basic error plumbing": {
 			issuer:   "bar",
@@ -162,11 +162,11 @@ func TestImplExchange(t *testing.T) {
 							Cap:   []string{"groups.list"},
 							Scope: "derp",
 						},
-						Exchanged: &oidc.RawToken{Token: "token!"},
+						Exchanged: &oidc.RawToken{Token: "token!", RefreshToken: ""},
 					}},
 				},
 			},
-			want: "token!",
+			wantToken: TokenPair{AccessToken: "token!"},
 		},
 		"capabilities and scope on exchange": {
 			issuer:   "bar",
@@ -183,11 +183,11 @@ func TestImplExchange(t *testing.T) {
 							Cap:   []string{"groups.list"},
 							Scope: "derp",
 						},
-						Exchanged: &oidc.RawToken{Token: "token!"},
+						Exchanged: &oidc.RawToken{Token: "token!", RefreshToken: "refreshToken!"},
 					}},
 				},
 			},
-			want: "token!",
+			wantToken: TokenPair{AccessToken: "token!", RefreshToken: "refreshToken!"},
 		},
 		"identity": {
 			issuer:   "bar",
@@ -202,11 +202,11 @@ func TestImplExchange(t *testing.T) {
 							Aud:      []string{"baz"},
 							Identity: "my-identity",
 						},
-						Exchanged: &oidc.RawToken{Token: "token foo"},
+						Exchanged: &oidc.RawToken{Token: "token foo", RefreshToken: "refresh token"},
 					}},
 				},
 			},
-			want: "token foo",
+			wantToken: TokenPair{AccessToken: "token foo", RefreshToken: "refresh token"},
 		},
 	}
 
@@ -217,11 +217,11 @@ func TestImplExchange(t *testing.T) {
 			}
 
 			exch := New(test.issuer, test.audience, test.newOpts...)
-			gotToken, gotErr := exch.Exchange(context.Background(), "foo", test.exchangeOpts...)
+			gotTok, gotErr := exch.Exchange(context.Background(), "foo", test.exchangeOpts...)
 			if gotErr != nil && !test.wantErr {
 				t.Error("got err: ", gotErr, "and expected no error")
 			}
-			if diff := cmp.Diff(gotToken, test.want); diff != "" {
+			if diff := cmp.Diff(test.wantToken, gotTok); diff != "" {
 				t.Error("Got unexpected diff in token: ", diff)
 			}
 		})
@@ -233,7 +233,7 @@ func TestExchange(t *testing.T) {
 		issuer       string
 		audience     string
 		exchangeOpts []ExchangerOption
-		want         string
+		wantToken    TokenPair
 		wantErr      bool
 		clientMock   test.MockOIDCClient
 	}{
@@ -246,11 +246,11 @@ func TestExchange(t *testing.T) {
 						Given: &oidc.ExchangeRequest{
 							Aud: []string{"baz"},
 						},
-						Exchanged: &oidc.RawToken{Token: "token!"},
+						Exchanged: &oidc.RawToken{Token: "token!", RefreshToken: "refresh token!"},
 					}},
 				},
 			},
-			want: "token!",
+			wantToken: TokenPair{AccessToken: "token!", RefreshToken: "refresh token!"},
 		},
 		"basic error plumbing": {
 			issuer:   "bar",
@@ -286,7 +286,7 @@ func TestExchange(t *testing.T) {
 					}},
 				},
 			},
-			want: "token!",
+			wantToken: TokenPair{AccessToken: "token!"},
 		},
 		"capabilities and scope on exchange": {
 			issuer:   "bar",
@@ -303,11 +303,11 @@ func TestExchange(t *testing.T) {
 							Cap:   []string{"groups.list"},
 							Scope: "derp",
 						},
-						Exchanged: &oidc.RawToken{Token: "token!"},
+						Exchanged: &oidc.RawToken{Token: "token!", RefreshToken: "refreshToken!"},
 					}},
 				},
 			},
-			want: "token!",
+			wantToken: TokenPair{AccessToken: "token!", RefreshToken: "refreshToken!"},
 		},
 		"identity": {
 			issuer:   "bar",
@@ -326,7 +326,7 @@ func TestExchange(t *testing.T) {
 					}},
 				},
 			},
-			want: "token foo",
+			wantToken: TokenPair{AccessToken: "token foo"},
 		},
 	}
 
@@ -336,11 +336,11 @@ func TestExchange(t *testing.T) {
 				return test.clientMock, nil
 			}
 
-			gotToken, gotErr := Exchange(context.Background(), test.issuer, test.audience, "foo", test.exchangeOpts...)
+			gotTok, gotErr := ExchangePair(context.Background(), test.issuer, test.audience, "foo", test.exchangeOpts...)
 			if gotErr != nil && !test.wantErr {
 				t.Error("got err: ", gotErr, "and expected no error")
 			}
-			if diff := cmp.Diff(gotToken, test.want); diff != "" {
+			if diff := cmp.Diff(test.wantToken, gotTok); diff != "" {
 				t.Error("Got unexpected diff in token: ", diff)
 			}
 		})
