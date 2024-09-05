@@ -45,6 +45,12 @@ service Auth {
       audience: CUSTOMER
     };
   }
+
+  rpc GetHeadlessSession(GetHeadlessSessionRequest) returns (HeadlessSession) {
+    option (google.api.http) = {
+      get: "/sts/headless_sessions"
+    };
+  }
 }
 
 message RegistrationRequest {
@@ -111,6 +117,10 @@ message WhoAmI {
   repeated Capability capabilities = 101;
   // The upstream email for this token.
   string email = 102;
+}
+
+message GetHeadlessSessionRequest {
+  string code = 1;
 }
 
 message HeadlessSession {
