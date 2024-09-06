@@ -27,6 +27,12 @@ var URLSafeEncoding = base64.RawURLEncoding // Headless codes must be URL-safe
 // private key.
 type Code string
 
+// VerifyCode checks if the code is a valid public key.
+func VerifyCode(code string) error {
+	_, err := parsePublic(code)
+	return err
+}
+
 // NewCode creates a code by serializing the public key in an url-safe format.
 func NewCode(k *ecdh.PublicKey) Code {
 	return Code(marshalPublic(k))

@@ -26,6 +26,22 @@ type OpenBrowserError struct {
 func (e *OpenBrowserError) Error() string { return "failed to open browser: " + e.err.Error() }
 func (e *OpenBrowserError) Unwrap() error { return e.err }
 
+func BuildHeadlessURL(opts ...Option) (u string, err error) {
+	conf, err := newConfigFromOptions(opts...)
+	if err != nil {
+		return "", err
+	}
+	if conf.HeadlessCode == "" {
+		return "", fmt.Errorf("headless code is required")
+	}
+	params := make(url.Values)
+	if conf.IDP != "" {
+		params.Set("idp_id", conf.IDP)
+	}
+	params.Set("headless_code", conf.HeadlessCode)
+	return fmt.Sprintf("%s/oauth?%s", conf.Issuer, params.Encode()), nil
+}
+
 func Login(ctx context.Context, opts ...Option) (token string, refreshToken string, err error) {
 	conf, err := newConfigFromOptions(opts...)
 	if err != nil {
