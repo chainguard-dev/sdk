@@ -1,6 +1,6 @@
 module chainguard.dev/sdk
 
-go 1.23.0
+go 1.23.1
 
 require (
 	chainguard.dev/go-grpc-kit v0.17.5
