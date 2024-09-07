@@ -80,6 +80,15 @@ func TestBuildHeadlessURL(t *testing.T) {
 			},
 			want: "https://issuer.chaintest.net/oauth?headless_code=code&idp_id=deadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
 		},
+		{
+			name: "has code, has connection",
+			opts: []Option{
+				WithHeadlessCode("code"),
+				WithIssuer("https://issuer.chaintest.net"),
+				WithAuth0Connection("google-oauth2"),
+			},
+			want: "https://issuer.chaintest.net/oauth?connection=google-oauth2&headless_code=code",
+		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := BuildHeadlessURL(tt.opts...)

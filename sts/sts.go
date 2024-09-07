@@ -97,13 +97,14 @@ type impl struct {
 }
 
 type options struct {
-	issuer         string
-	audience       string
-	userAgent      string
-	scope          string
-	capabilities   []string
-	identity       string
-	http1Downgrade bool
+	issuer           string
+	audience         string
+	userAgent        string
+	scope            string
+	capabilities     []string
+	identity         string
+	http1Downgrade   bool
+	identityProvider string
 }
 
 var _ Exchanger = (*impl)(nil)
@@ -125,10 +126,11 @@ func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOpti
 	defer c.Close()
 
 	resp, err := c.STS().Exchange(ctx, &oidc.ExchangeRequest{
-		Aud:      []string{o.audience},
-		Scope:    o.scope,
-		Identity: o.identity,
-		Cap:      o.capabilities,
+		Aud:              []string{o.audience},
+		Scope:            o.scope,
+		Identity:         o.identity,
+		Cap:              o.capabilities,
+		IdentityProvider: o.identityProvider,
 	})
 	if err != nil {
 		return TokenPair{}, err
@@ -199,6 +201,13 @@ func WithIdentity(uid string) ExchangerOption {
 func WithHTTP1Downgrade() ExchangerOption {
 	return func(i *options) {
 		i.http1Downgrade = true
+	}
+}
+
+// WithIdentityProvider sets the identity provider to use for the exchange.
+func WithIdentityProvider(idp string) ExchangerOption {
+	return func(i *options) {
+		i.identityProvider = idp
 	}
 }
 
@@ -280,10 +289,11 @@ func (i *HTTP1DowngradeExchanger) Exchange(ctx context.Context, token string, op
 		opt(&o)
 	}
 	in := &oidc.ExchangeRequest{
-		Aud:      []string{o.audience},
-		Scope:    o.scope,
-		Identity: o.identity,
-		Cap:      o.capabilities,
+		Aud:              []string{o.audience},
+		Scope:            o.scope,
+		Identity:         o.identity,
+		Cap:              o.capabilities,
+		IdentityProvider: o.identityProvider,
 	}
 	out := new(oidc.RawToken)
 	if err := i.doHTTP1(ctx, token, "/sts/exchange", in, out, o); err != nil {

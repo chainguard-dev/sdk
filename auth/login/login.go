@@ -35,10 +35,13 @@ func BuildHeadlessURL(opts ...Option) (u string, err error) {
 		return "", fmt.Errorf("headless code is required")
 	}
 	params := make(url.Values)
+	params.Set("headless_code", conf.HeadlessCode)
 	if conf.IDP != "" {
 		params.Set("idp_id", conf.IDP)
+	} else if conf.Auth0Connection != "" {
+		// We should only use connection for Auth0, not custom IDP
+		params.Set("connection", conf.Auth0Connection)
 	}
-	params.Set("headless_code", conf.HeadlessCode)
 	return fmt.Sprintf("%s/oauth?%s", conf.Issuer, params.Encode()), nil
 }
 
