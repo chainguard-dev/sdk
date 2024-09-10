@@ -22,7 +22,7 @@ require (
 	golang.org/x/oauth2 v0.23.0
 	google.golang.org/api v0.196.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240827150818-7e3bb234dfed
-	google.golang.org/grpc v1.66.0
+	google.golang.org/grpc v1.66.1
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1
 	google.golang.org/protobuf v1.34.2
 	k8s.io/apimachinery v0.31.0
