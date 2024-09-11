@@ -22,7 +22,7 @@ Example for MacOS:
 brew install protobuf
 ```
 
-We currently require `protoc` v5.27.3.
+We currently require `protoc` v5.28.0.
 
 Install `protoc` codegen dependencies:
 
