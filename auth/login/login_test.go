@@ -7,7 +7,10 @@ package login
 
 import (
 	"errors"
+	"strings"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestOpenBrowserErrorAs(t *testing.T) {
@@ -40,6 +43,69 @@ func TestOpenBrowserErrorAs(t *testing.T) {
 			}
 			if got {
 				t.Log(want.Error())
+			}
+		})
+	}
+}
+
+func TestBuildHeadlessURL(t *testing.T) {
+	for _, tt := range []struct {
+		name    string
+		opts    []Option
+		want    string
+		wantErr string
+	}{
+		{
+			name: "no code, error",
+			opts: []Option{
+				WithIssuer("https://issuer.chaintest.net"),
+				WithIdentityProvider("deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"),
+			},
+			wantErr: "headless code is required",
+		},
+		{
+			name: "has code, no idp",
+			opts: []Option{
+				WithHeadlessCode("code"),
+				WithIssuer("https://issuer.chaintest.net"),
+			},
+			want: "https://issuer.chaintest.net/oauth?headless_code=code",
+		},
+		{
+			name: "has code, has idp",
+			opts: []Option{
+				WithHeadlessCode("code"),
+				WithIssuer("https://issuer.chaintest.net"),
+				WithIdentityProvider("deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"),
+			},
+			want: "https://issuer.chaintest.net/oauth?headless_code=code&idp_id=deadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+		},
+		{
+			name: "has code, has connection",
+			opts: []Option{
+				WithHeadlessCode("code"),
+				WithIssuer("https://issuer.chaintest.net"),
+				WithAuth0Connection("google-oauth2"),
+			},
+			want: "https://issuer.chaintest.net/oauth?connection=google-oauth2&headless_code=code",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := BuildHeadlessURL(tt.opts...)
+			if tt.wantErr != "" {
+				if err == nil {
+					t.Fatal("expected error, got none")
+				}
+				if !strings.Contains(err.Error(), tt.wantErr) {
+					t.Fatalf("expected error %s, got %s", tt.wantErr, err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Fatalf("unexpected diff: %s", diff)
 			}
 		})
 	}

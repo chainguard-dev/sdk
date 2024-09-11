@@ -45,6 +45,12 @@ service Auth {
       audience: CUSTOMER
     };
   }
+
+  rpc GetHeadlessSession(GetHeadlessSessionRequest) returns (HeadlessSession) {
+    option (google.api.http) = {
+      get: "/sts/headless_sessions"
+    };
+  }
 }
 
 message RegistrationRequest {
@@ -111,4 +117,33 @@ message WhoAmI {
   repeated Capability capabilities = 101;
   // The upstream email for this token.
   string email = 102;
+}
+
+message GetHeadlessSessionRequest {
+  string code = 1;
+}
+
+message HeadlessSession {
+  // When establishing a headless session, the client must first provide
+  // their ECDH public key. The server will then generate an ephemeral
+  // ECHD keypair and use the client's public key to establish a symmetric
+  // key.
+  //
+  // This symmetric key will be used to encrypt the idtoken and stored the
+  // encrypted idtoken in the database for a short period, as well as
+  // returning it to the client.
+  //
+  // After the idtoken is encrypted, the server will discard both the shared
+  // symmetric key and the ephemeral ECDH private key. The server ECDH will
+  // be sent back to the client.
+  //
+  // The client, with their private key, can use this public key to
+  // establish the same symmetric key, which can be used to decrypt
+  // the idtoken.
+  //
+  // echd_public_key is the client's ECDH public key.
+  bytes ecdh_public_key = 1;
+
+  // encrypted_idtoken is the encrypted idtoken.
+  bytes encrypted_idtoken = 2;
 }

@@ -20,8 +20,9 @@ import (
 var _ auth.AuthClient = (*MockAuthClient)(nil)
 
 type MockAuthClient struct {
-	OnValidate []AuthOnValidate
-	OnRegister []AuthOnRegister
+	OnValidate           []AuthOnValidate
+	OnRegister           []AuthOnRegister
+	OnGetHeadlessSession []AuthOnGetHeadlessSession
 }
 
 type FromContextFn func(context.Context) bool
@@ -37,6 +38,12 @@ type AuthOnRegister struct {
 	Created      *auth.Session
 	CheckContext FromContextFn
 	Error        error
+}
+
+type AuthOnGetHeadlessSession struct {
+	Given *auth.GetHeadlessSessionRequest
+	Found *auth.HeadlessSession
+	Error error
 }
 
 func (m MockAuthClient) Validate(ctx context.Context, _ *emptypb.Empty, _ ...grpc.CallOption) (*auth.WhoAmI, error) {
@@ -59,6 +66,15 @@ func (m MockAuthClient) Register(ctx context.Context, given *auth.RegistrationRe
 	return nil, fmt.Errorf("mock not found for %v", given)
 }
 
+func (m MockAuthClient) GetHeadlessSession(_ context.Context, given *auth.GetHeadlessSessionRequest, _ ...grpc.CallOption) (*auth.HeadlessSession, error) {
+	for _, o := range m.OnGetHeadlessSession {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Found, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
 // --- Server ---
 
 type MockAuthServer struct {
@@ -72,4 +88,8 @@ func (m MockAuthServer) Validate(ctx context.Context, empty *emptypb.Empty) (*au
 
 func (m MockAuthServer) Register(ctx context.Context, req *auth.RegistrationRequest) (*auth.Session, error) {
 	return m.Client.Register(ctx, req)
+}
+
+func (m MockAuthServer) GetHeadlessSession(ctx context.Context, req *auth.GetHeadlessSessionRequest) (*auth.HeadlessSession, error) {
+	return m.Client.GetHeadlessSession(ctx, req)
 }

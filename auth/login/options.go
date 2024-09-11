@@ -50,6 +50,9 @@ type config struct {
 
 	// SkipBrowser avoids opening a browser window for login, just print out the url
 	SkipBrowser bool
+
+	// HeadlessCode is the code to use for headless login
+	HeadlessCode string
 }
 
 const defaultIssuer = `https://issuer.enforce.dev`
@@ -72,16 +75,19 @@ func newConfigFromOptions(opts ...Option) (*config, error) {
 }
 
 func (c *config) valid() error {
-	if c.ClientID != "" && (c.IDP != "" || c.OrgName != "") {
-		return errors.New("must specify one of client id or custom identity provider")
+	// Headless URLs need to be very short: a lot of the following will be defaulted
+	// instead of being passed in.
+	if c.HeadlessCode == "" {
+		if c.ClientID != "" && (c.IDP != "" || c.OrgName != "") {
+			return errors.New("must specify one of client id or custom identity provider")
+		}
+		if c.IDP != "" && c.OrgName != "" {
+			return errors.New("must specify one of identity provider id or organization name")
+		}
+		if c.ClientID == "" && c.IDP == "" && c.OrgName == "" {
+			return errors.New("must select one of client id, custom identity provider and organization name")
+		}
 	}
-	if c.IDP != "" && c.OrgName != "" {
-		return errors.New("must specify one of identity provider id or organization name")
-	}
-	if c.ClientID == "" && c.IDP == "" && c.OrgName == "" {
-		return errors.New("must select one of client id, custom identity provider and organization name")
-	}
-
 	switch {
 	case c.IDP != "":
 		if !uidp.Valid(c.IDP) {
@@ -176,5 +182,11 @@ func WithCreateRefreshToken() Option {
 func WithSkipBrowser() Option {
 	return func(c *config) {
 		c.SkipBrowser = true
+	}
+}
+
+func WithHeadlessCode(code string) Option {
+	return func(c *config) {
+		c.HeadlessCode = code
 	}
 }

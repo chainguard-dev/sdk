@@ -28,6 +28,8 @@ var (
 		Capability_CAP_TENANT_VULN_REPORTS_LIST,
 
 		Capability_CAP_VERSION_LIST,
+
+		Capability_CAP_VULN_REPORT_LIST,
 	},
 		// Viewers can also list repos and tags, and pull images.
 		RegistryPullCaps...), APKPullCaps...))
@@ -67,6 +69,9 @@ var (
 		Capability_CAP_IAM_ROLES_CREATE,
 		Capability_CAP_IAM_ROLES_DELETE,
 		Capability_CAP_IAM_ROLES_UPDATE,
+
+		Capability_CAP_VULN_CREATE,
+		Capability_CAP_VULN_REPORT_CREATE,
 
 		// Add gulfstream capability to owner so owners can rolebind
 		// identities to the gulfstream role.

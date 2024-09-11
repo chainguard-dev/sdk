@@ -57,6 +57,7 @@ enum Capability {
 
   CAP_TENANT_SBOMS_LIST = 650 [(name) = "sboms.list", (bit) = 69];
 
+  // TODO(colin): deprecate this cap once the legacy endpoint is removed
   CAP_TENANT_VULN_REPORTS_LIST = 660 [(name) = "vuln_reports.list", (bit) = 70];
 
   CAP_TENANT_ATTESTATIONS_LIST = 670 [(name) = "attestations.list", (bit) = 71];
@@ -125,6 +126,10 @@ enum Capability {
 
   CAP_VERSION_LIST = 1654 [(name) = "version.list", (bit) = 77];
 
+  CAP_VULN_REPORT_CREATE = 1660 [(name) = "vuln_report.create", (bit) = 78];
+  CAP_VULN_REPORT_LIST = 1661 [(name) = "vuln_report.list", (bit) = 79];
+  CAP_VULN_CREATE = 1662 [(name) = "vuln.create", (bit) = 80];
+
   // Sigstore-aas
 
   CAP_SIGSTORE_CREATE   = 1701 [(name) = "sigstore.create", (bit) = 42, deprecated = true];
@@ -142,5 +147,5 @@ enum Capability {
   // capability?
   CAP_GULFSTREAM = 10000 [(name) = "gulfstream", (bit) = 47];
 
-  // next bit: 78
+  // next bit: 81
 }

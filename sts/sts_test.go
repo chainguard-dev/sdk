@@ -328,6 +328,25 @@ func TestExchange(t *testing.T) {
 			},
 			wantToken: TokenPair{AccessToken: "token foo"},
 		},
+		"identityProvider": {
+			issuer:   "bar",
+			audience: "baz",
+			exchangeOpts: []ExchangerOption{
+				WithIdentityProvider("my-identity-provider"),
+			},
+			clientMock: test.MockOIDCClient{
+				STSClient: test.MockSTSClient{
+					OnExchange: []test.STSOnExchange{{
+						Given: &oidc.ExchangeRequest{
+							Aud:              []string{"baz"},
+							IdentityProvider: "my-identity-provider",
+						},
+						Exchanged: &oidc.RawToken{Token: "token foo"},
+					}},
+				},
+			},
+			wantToken: TokenPair{AccessToken: "token foo"},
+		},
 	}
 
 	for name, test := range tests {

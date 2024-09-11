@@ -5,7 +5,11 @@ SPDX-License-Identifier: Apache-2.0
 
 package apk
 
-import "chainguard.dev/sdk/civil"
+import (
+	"fmt"
+
+	"chainguard.dev/sdk/civil"
+)
 
 const (
 	// PushedEventType is the cloudevents event type for registry pushes
@@ -17,7 +21,7 @@ type PushEvent struct {
 	// Repository identifies the repository being pushed
 	Repository string `json:"repository"`
 
-	// GroupID identifies the UIDP of the APK repository (group) being pushed
+	// RepoID identifies the UIDP of the APK repository (group) being pushed
 	RepoID string `json:"repo_id"`
 
 	// Package holds the name of the package being pushed.
@@ -47,6 +51,11 @@ type PushEvent struct {
 	UserAgent string `json:"user_agent"`
 
 	Error *Error `json:"error,omitempty"`
+}
+
+// APKPath is a convenience method for constructing the full path to the APK.
+func (e PushEvent) APKPath() string {
+	return fmt.Sprintf("%s/%s/%s-%s.apk", e.RepoID, e.Architecture, e.Package, e.Version)
 }
 
 type Error struct {
