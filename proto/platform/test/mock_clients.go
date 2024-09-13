@@ -9,6 +9,8 @@ import (
 	"chainguard.dev/sdk/proto/platform"
 	advisory "chainguard.dev/sdk/proto/platform/advisory/v1"
 	advisorytest "chainguard.dev/sdk/proto/platform/advisory/v1/test"
+	apk "chainguard.dev/sdk/proto/platform/apk/v1"
+	apktest "chainguard.dev/sdk/proto/platform/apk/v1/test"
 	auth "chainguard.dev/sdk/proto/platform/auth/v1"
 	authtest "chainguard.dev/sdk/proto/platform/auth/v1/test"
 	iam "chainguard.dev/sdk/proto/platform/iam/v1"
@@ -36,6 +38,7 @@ type MockPlatformClients struct {
 	AdvisoryClient      advisorytest.MockSecurityAdvisoryClients
 	PingClient          pingtest.MockPingServiceClients
 	NotificationsClient notificationstest.MockNotificationsClients
+	APKClient           apktest.MockAPKClients
 }
 
 func (m MockPlatformClients) Close() error {
@@ -64,6 +67,10 @@ func (m MockPlatformClients) Ping() ping.Clients {
 
 func (m MockPlatformClients) Notifications() notifications.Clients {
 	return m.NotificationsClient
+}
+
+func (m MockPlatformClients) APK() apk.Clients {
+	return m.APKClient
 }
 
 var _ platform.OIDCClients = (*MockOIDCClients)(nil)
