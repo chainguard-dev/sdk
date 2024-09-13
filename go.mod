@@ -5,7 +5,7 @@ go 1.23.1
 require (
 	chainguard.dev/go-grpc-kit v0.17.6
 	chainguard.dev/go-oidctest v0.3.1
-	cloud.google.com/go/compute/metadata v0.5.0
+	cloud.google.com/go/compute/metadata v0.5.1
 	github.com/aws/aws-sdk-go-v2 v1.30.5
 	github.com/bits-and-blooms/bitset v1.14.3
 	github.com/chainguard-dev/clog v1.5.1-0.20240811185937-4c523ae4593f
@@ -25,7 +25,7 @@ require (
 	google.golang.org/grpc v1.66.2
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1
 	google.golang.org/protobuf v1.34.2
-	k8s.io/apimachinery v0.31.0
+	k8s.io/apimachinery v0.31.1
 
 )
 
