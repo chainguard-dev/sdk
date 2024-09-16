@@ -55,7 +55,12 @@ type PushEvent struct {
 
 // APKPath is a convenience method for constructing the full path to the APK.
 func (e PushEvent) APKPath() string {
-	return fmt.Sprintf("%s/%s/%s-%s.apk", e.RepoID, e.Architecture, e.Package, e.Version)
+	return fmt.Sprintf("%s/%s", e.RepoID, e.APKBasePath())
+}
+
+// APKPath is a convenience method for constructing the base path to the APK.
+func (e PushEvent) APKBasePath() string {
+	return fmt.Sprintf("%s/%s-%s.apk", e.Architecture, e.Package, e.Version)
 }
 
 type Error struct {
