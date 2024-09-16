@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/apk/v1";
+option java_multiple_files = true;
+option java_package = "dev.chainguard.sdk.platform.apk.v1";
+option java_outer_classname = "PlatformAPKProto";
+
+package chainguard.platform.apk;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "annotations/auth.proto";
+import "platform/common/v1/uidp.platform.proto";
+
+service APK {
+  // ListAPKs lists all APKs that match the filter.
+  rpc ListAPKs(APKFilter) returns (APKList) {
+    option (google.api.http) = {
+      get : "/apk/v1/packages"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled : {
+        capabilities : [ CAP_APK_LIST ]
+        unscoped : true
+      }
+    };
+  };
+}
+
+// APKFilter is a filter for APKs.
+//
+// At a minimum the uidp and arch must be set.
+message APKFilter {
+  chainguard.platform.common.UIDPFilter uidp = 1;
+
+  // A name to filter by.
+  string package_name = 2;
+
+  // An architecture to filter by (e.g., x86_64 or aarch64).
+  string architecture = 3;
+}
+
+// APKList is a list of APKs.
+message APKList {
+  // The APKs returned by the list request.
+  repeated APKPackage items = 1;
+}
+
+// APKPackage is an APK package and its metadata.
+//
+// An APK can be downloaded by requesting
+// https://apk.cgr.dev/{group}/{arch}/{pkgname}-{pkgver}.apk
+// with suitable credentials.
+//
+// The fields 10+ are the fields that make up the APKINDEX format
+// from here: https://wiki.alpinelinux.org/wiki/Apk_spec#APKINDEX_Format
+message APKPackage {
+  // id, identifier of this APK, a UIDP under a Group.
+  string id = 1;
+
+  // Checksum, the checksum of the package.
+  bytes checksum = 10;
+
+  // Package name, the name of the package.
+  string package_name = 11;
+
+  // Package version, the version of the package (e.g., 1.2.3-r4).
+  string version = 12;
+
+  // Package architecture, the architecture of the package (e.g., x86_64 or
+  // aarch64).
+  string architecture = 13;
+
+  // Package size, the size of the package in bytes.
+  uint64 size = 14;
+
+  // Installed size, the size of the package when installed in bytes.
+  uint64 installed_size = 15;
+
+  // Package description, a description of the package.
+  string description = 16;
+
+  // Package URL, a URL for the package.
+  string url = 17;
+
+  // Package license, the license of the package.
+  string license = 18;
+
+  // Package origin, the origin of the package (if the package is a subpackage).
+  string origin = 19;
+
+  // Package maintainer, unused.
+  string maintainer = 20;
+
+  // Package build time, the time the package was built.
+  google.protobuf.Timestamp build_time = 21;
+
+  // Package commit, the commit of the package.
+  string repo_commit = 22;
+
+  // Package provider priority, the priority of the package provider.
+  // If multiple packages provide the same virtual package, the package
+  // with the highest provider priority is selected.
+  uint64 provider_priority = 23;
+
+  // Package depend, the direct runtime dependencies of the package.
+  repeated string depend = 24;
+
+  // Package provides, the virtual packages provided by the package.
+  repeated string provides = 25;
+
+  // Package install if, the conditions under which the package is installed.
+  repeated string install_if = 26;
+}

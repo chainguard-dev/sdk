@@ -12,6 +12,7 @@ import (
 
 	delegate "chainguard.dev/go-grpc-kit/pkg/options"
 	advisory "chainguard.dev/sdk/proto/platform/advisory/v1"
+	apk "chainguard.dev/sdk/proto/platform/apk/v1"
 	platformauth "chainguard.dev/sdk/proto/platform/auth/v1"
 	iam "chainguard.dev/sdk/proto/platform/iam/v1"
 	notifications "chainguard.dev/sdk/proto/platform/notifications/v1"
@@ -33,6 +34,7 @@ type Clients interface {
 	Advisory() advisory.Clients
 	Ping() ping.Clients
 	Notifications() notifications.Clients
+	APK() apk.Clients
 
 	Close() error
 }
@@ -68,6 +70,7 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 		advisory:      advisory.NewClientsFromConnection(conn),
 		ping:          ping.NewClientsFromConnection(conn),
 		notifications: notifications.NewClientsFromConnection(conn),
+		apk:           apk.NewClientsFromConnection(conn),
 		conn:          conn,
 	}, nil
 }
@@ -79,6 +82,7 @@ type clients struct {
 	advisory      advisory.Clients
 	ping          ping.Clients
 	notifications notifications.Clients
+	apk           apk.Clients
 
 	conn *grpc.ClientConn
 }
@@ -105,6 +109,10 @@ func (c *clients) Ping() ping.Clients {
 
 func (c *clients) Notifications() notifications.Clients {
 	return c.notifications
+}
+
+func (c *clients) APK() apk.Clients {
+	return c.apk
 }
 
 func (c *clients) Close() error {
