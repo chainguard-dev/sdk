@@ -20,11 +20,11 @@ var _ apk.Clients = (*MockAPKClients)(nil)
 type MockAPKClients struct {
 	OnClose error
 
-	apkClient MockAPKClient
+	APKClient MockAPKClient
 }
 
 func (m MockAPKClients) APK() apk.APKClient {
-	return &m.apkClient
+	return &m.APKClient
 }
 
 func (m MockAPKClients) Close() error {
