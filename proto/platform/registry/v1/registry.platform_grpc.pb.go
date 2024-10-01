@@ -38,6 +38,7 @@ const (
 	Registry_GetVulnReport_FullMethodName             = "/chainguard.platform.registry.Registry/GetVulnReport"
 	Registry_ListManifestMetadata_FullMethodName      = "/chainguard.platform.registry.Registry/ListManifestMetadata"
 	Registry_GetPackageVersionMetadata_FullMethodName = "/chainguard.platform.registry.Registry/GetPackageVersionMetadata"
+	Registry_ListBuildReports_FullMethodName          = "/chainguard.platform.registry.Registry/ListBuildReports"
 )
 
 // RegistryClient is the client API for Registry service.
@@ -61,6 +62,7 @@ type RegistryClient interface {
 	GetVulnReport(ctx context.Context, in *VulnReportRequest, opts ...grpc.CallOption) (*v1.VulnReport, error)
 	ListManifestMetadata(ctx context.Context, in *ManifestMetadataFilter, opts ...grpc.CallOption) (*ManifestMetadataList, error)
 	GetPackageVersionMetadata(ctx context.Context, in *PackageVersionMetadataRequest, opts ...grpc.CallOption) (*PackageVersionMetadata, error)
+	ListBuildReports(ctx context.Context, in *BuildReportFilter, opts ...grpc.CallOption) (*BuildReportList, error)
 }
 
 type registryClient struct {
@@ -241,6 +243,16 @@ func (c *registryClient) GetPackageVersionMetadata(ctx context.Context, in *Pack
 	return out, nil
 }
 
+func (c *registryClient) ListBuildReports(ctx context.Context, in *BuildReportFilter, opts ...grpc.CallOption) (*BuildReportList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BuildReportList)
+	err := c.cc.Invoke(ctx, Registry_ListBuildReports_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RegistryServer is the server API for Registry service.
 // All implementations must embed UnimplementedRegistryServer
 // for forward compatibility.
@@ -262,6 +274,7 @@ type RegistryServer interface {
 	GetVulnReport(context.Context, *VulnReportRequest) (*v1.VulnReport, error)
 	ListManifestMetadata(context.Context, *ManifestMetadataFilter) (*ManifestMetadataList, error)
 	GetPackageVersionMetadata(context.Context, *PackageVersionMetadataRequest) (*PackageVersionMetadata, error)
+	ListBuildReports(context.Context, *BuildReportFilter) (*BuildReportList, error)
 	mustEmbedUnimplementedRegistryServer()
 }
 
@@ -322,6 +335,9 @@ func (UnimplementedRegistryServer) ListManifestMetadata(context.Context, *Manife
 }
 func (UnimplementedRegistryServer) GetPackageVersionMetadata(context.Context, *PackageVersionMetadataRequest) (*PackageVersionMetadata, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPackageVersionMetadata not implemented")
+}
+func (UnimplementedRegistryServer) ListBuildReports(context.Context, *BuildReportFilter) (*BuildReportList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListBuildReports not implemented")
 }
 func (UnimplementedRegistryServer) mustEmbedUnimplementedRegistryServer() {}
 func (UnimplementedRegistryServer) testEmbeddedByValue()                  {}
@@ -650,6 +666,24 @@ func _Registry_GetPackageVersionMetadata_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Registry_ListBuildReports_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BuildReportFilter)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).ListBuildReports(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_ListBuildReports_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).ListBuildReports(ctx, req.(*BuildReportFilter))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Registry_ServiceDesc is the grpc.ServiceDesc for Registry service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -724,6 +758,10 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPackageVersionMetadata",
 			Handler:    _Registry_GetPackageVersionMetadata_Handler,
+		},
+		{
+			MethodName: "ListBuildReports",
+			Handler:    _Registry_ListBuildReports_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

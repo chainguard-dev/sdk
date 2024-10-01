@@ -240,6 +240,18 @@ service Registry {
       }
     };
   }
+
+  rpc ListBuildReports(BuildReportFilter) returns (BuildReportList) {
+    option (google.api.http) = {
+      get: "/registry/v1/buildreports"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_BUILD_REPORT_LIST]
+        unscoped: true
+      }
+    };
+  }
 }
 
 message Repo {
@@ -661,4 +673,58 @@ message PackageVersion {
   string releaseDate = 5;
   // the version stream identifier
   string version = 6;
+}
+
+// BuildReportFilter is used to filter BuildReports for ListBuildReports call.
+message BuildReportFilter {
+  // uidp filters records based on their position in the group hierarchy.
+  chainguard.platform.common.UIDPFilter uidp = 1;
+}
+
+// BuildReport is a record of a build, including the configuration used, the result, and the log.
+//
+// These are created by the build system, the clients should not create/update these themselves,
+// but can read them to see the build information as well as build results.
+message BuildReport {
+  // id, identifier of this BuildReport, a UIDP under a Repo.
+  string id = 1;
+
+  // The configuration used to build the image, in APKO build config JSON.
+  string config = 2;
+
+  // The version-locked configuration used to build the image, in APKO build config JSON.
+  string locked_config = 3;
+
+  enum Result {
+    Unknown = 0;
+    Success = 1;
+    Failure = 2;
+  }
+  // The result of the build.
+  Result result = 4;
+
+  // The warnings generated during the build.
+  repeated string warnings = 5;
+
+  // The build log. For the moment, this is the build log's content.
+  // This could later change to an URI if the build log gets large enough.
+  string log = 6;
+
+  // The digest of the image built, in case of success.
+  string digest = 7;
+
+  // The version of the APKO used to build the image.
+  string apko_version = 8;
+
+  // The start time of the build. It is set by the server automatically,
+  // anything written by the client will be ignored.
+  google.protobuf.Timestamp started_at = 9;
+
+  // The end time of the build. Must be after the started_at time.
+  google.protobuf.Timestamp completed_at = 10;
+}
+
+// BuildReportList is a list of BuildReports.
+message BuildReportList {
+  repeated BuildReport reports = 1;
 }

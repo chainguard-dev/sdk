@@ -130,6 +130,9 @@ enum Capability {
   CAP_VULN_REPORT_LIST = 1661 [(name) = "vuln_report.list", (bit) = 79];
   CAP_VULN_CREATE = 1662 [(name) = "vuln.create", (bit) = 80];
 
+  // Custom Image Build
+  CAP_BUILD_REPORT_LIST = 1670 [(name) = "build_report.list", (bit) = 81];
+
   // Sigstore-aas
 
   CAP_SIGSTORE_CREATE   = 1701 [(name) = "sigstore.create", (bit) = 42, deprecated = true];
