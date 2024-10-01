@@ -275,6 +275,9 @@ message Repo {
   // Note: the json_name defaults to "syncConfig" which causes our eventing
   // system to not work properly (since the protobuf name is "sync_config")
   SyncConfig sync_config = 6 [json_name="sync_config"];
+
+  // (optional) custom apko image configuration that gets applied to images in this repo.
+  CustomOverlay custom_overlay = 7;
 }
 
 enum CatalogTier {
@@ -314,6 +317,16 @@ message SyncConfig {
 
   // An apko configuration overlay to rebuild images with when syncing them.
   string apko_overlay = 8;
+}
+
+message CustomOverlay {
+  // Mirrors apko configuration for image contents.
+  ImageContents contents = 1;
+}
+
+message ImageContents {
+  // Packages to append to the image config.
+  repeated string packages = 1;
 }
 
 message CreateRepoRequest {
