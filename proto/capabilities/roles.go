@@ -30,6 +30,8 @@ var (
 		Capability_CAP_VERSION_LIST,
 
 		Capability_CAP_VULN_REPORT_LIST,
+
+		Capability_CAP_BUILD_REPORT_LIST,
 	},
 		// Viewers can also list repos and tags, and pull images.
 		RegistryPullCaps...), APKPullCaps...))
