@@ -22,11 +22,16 @@ var _ registry.Clients = (*MockRegistryClients)(nil)
 type MockRegistryClients struct {
 	OnClose error
 
-	RegistryClient MockRegistryClient
+	RegistryClient        MockRegistryClient
+	VulnerabilitiesClient MockVulnerabilitiesClient
 }
 
 func (m MockRegistryClients) Registry() registry.RegistryClient {
 	return &m.RegistryClient
+}
+
+func (m MockRegistryClients) Vulnerabilities() registry.VulnerabilitiesClient {
+	return &m.VulnerabilitiesClient
 }
 
 func (m MockRegistryClients) Close() error {
