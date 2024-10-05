@@ -692,6 +692,10 @@ message PackageVersion {
 message BuildReportFilter {
   // uidp filters records based on their position in the group hierarchy.
   chainguard.platform.common.UIDPFilter uidp = 1;
+
+  // use to choose reports started after this time.
+  // defaults to 1 day ago.
+  google.protobuf.Timestamp started_since = 2;
 }
 
 // BuildReport is a record of a build, including the configuration used, the result, and the log.
