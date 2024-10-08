@@ -404,6 +404,9 @@ message TagFilter {
   bool exclude_epochs = 8;
 
   string id = 9;
+
+  // only return tags with this digest.
+  string digest = 10;
 }
 
 message TagList {
