@@ -677,6 +677,8 @@ message PackageVersionMetadata {
   string latestVersion = 3;
   // list of versions which are active
   repeated PackageVersion versions = 4;
+  // the grace period to extend the EOL of the package
+  int32 gracePeriodMonths = 5;
 }
 
 message PackageVersion {
