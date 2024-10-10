@@ -278,6 +278,9 @@ message Repo {
 
   // (optional) custom apko image configuration that gets applied to images in this repo.
   CustomOverlay custom_overlay = 7;
+
+  // aliases is a list of equivalent images.
+  repeated string aliases = 8;
 }
 
 enum CatalogTier {
