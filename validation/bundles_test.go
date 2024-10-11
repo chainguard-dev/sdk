@@ -14,16 +14,17 @@ func TestValidateBundles(t *testing.T) {
 		Input  []string
 		Expect bool
 	}{
-		"valid":                   {[]string{"boo"}, true},
-		"valid colon":             {[]string{"bundle:boo", "tag:something"}, true},
-		"start with colon":        {[]string{":boo"}, false},
-		"end with colon":          {[]string{"boo:"}, false},
-		"multiple colons":         {[]string{"boo:haha:ra"}, false},
-		"empty":                   {[]string{""}, false},
-		"no slashes":              {[]string{"foo/bar"}, false},
-		"spaces are not alright":  {[]string{"chainguard engineering"}, false},
-		"other whitespace is bad": {[]string{"\r\n\tderp"}, false},
-		"no uppercase":            {[]string{"DERP"}, false},
+		"valid":                   {[]string{"application"}, true},
+		"not allowed":             {[]string{"kubernetes"}, false},
+		"start with colon":        {[]string{":featured"}, false},
+		"end with colon":          {[]string{"featured:"}, false},
+		"multiple colons":         {[]string{"application:featured:ai"}, false},
+		"empty value":             {[]string{""}, false},
+		"empty":                   {[]string{}, true},
+		"no slashes":              {[]string{"featured/application"}, false},
+		"spaces are not alright":  {[]string{"featured application"}, false},
+		"other whitespace is bad": {[]string{"\r\n\tfeatured"}, false},
+		"no uppercase":            {[]string{"FEATURED"}, false},
 	}
 
 	for name, tt := range tests {

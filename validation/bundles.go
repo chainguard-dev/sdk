@@ -10,20 +10,19 @@ import (
 	"regexp"
 )
 
-const bundlePattern = `^[a-z]+(:[a-z]+)?$`
+const bundleAllowList = `^application$|^base$|^byol$|^ai$|^ai-gpu$|^featured$|^fips$`
 
 var (
-	bundlePatternCompiled = regexp.MustCompile(bundlePattern)
+	bundleAllowListCompiled = regexp.MustCompile(bundleAllowList)
 
-	// ErrInvalidBundles describes invalid bundle(s) by sharing the regular expression
-	// they must match
-	ErrInvalidBundles = fmt.Errorf("each bundle item must match %q", bundlePattern)
+	// ErrInvalidEntry flags keywords that are not in the allow list
+	ErrInvalidEntry = fmt.Errorf("only the following keywords are valid %q", bundleAllowList)
 )
 
 func ValidateBundles(bundles []string) error {
 	for _, bundle := range bundles {
-		if !bundlePatternCompiled.MatchString(bundle) {
-			return ErrInvalidBundles
+		if !bundleAllowListCompiled.MatchString(bundle) {
+			return ErrInvalidEntry
 		}
 	}
 	return nil
