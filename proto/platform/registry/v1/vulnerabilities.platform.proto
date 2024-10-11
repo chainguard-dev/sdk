@@ -35,6 +35,51 @@ service Vulnerabilities {
       }
     };
   }
+
+  rpc ListVulnCountReports(VulnCountReportFilter) returns (VulnCountReportList) {
+    option (google.api.http) = {
+      get: "/registry/v1/vuln_reports/counts"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_VULN_REPORT_LIST]
+        unscoped: true,
+      }
+    };
+  }
+}
+
+message VulnCountReportFilter {
+  // repo is the name of the repo to retrieve vulnerability summaries for
+  string repo = 1;
+  // tag is the version of the image to retrieve vulnerability summaries for.
+  string tag = 2;
+  // from defines the beginning of the date range of vulnerability summaries, inclusive.
+  google.protobuf.Timestamp from = 3;
+  // end defines the end of the date range of vulnerability summaries, inclusive.
+  google.protobuf.Timestamp to = 4;
+}
+
+message VulnCountReportList {
+  repeated VulnCountReport items = 1;
+}
+
+message VulnCountReport {
+  // repo is the name of the image scanned.
+  string repo = 1;
+  // tag is the version of the image scanned.
+  string tag = 2;
+  // date is when the image was scanned.
+  google.protobuf.Timestamp date = 3;
+  // vuln_counts enumerate the number of each CVE per severity found.
+  repeated VulnCount vuln_counts = 4;
+}
+
+message VulnCount {
+  // severity is the CVE severity being enumerated
+  Vulnerability.Severity severity = 1;
+  // count is the number of CVEs at this severity detected.
+  int32 count = 2;
 }
 
 message GetRawVulnReportRequest {
@@ -133,6 +178,7 @@ message Vulnerability {
     MEDIUM = 2;
     HIGH = 3;
     CRITICAL = 4;
+    NEGLIGIBLE = 5;
   }
 
   // List of CVSS information about the exploitability of the vulnerability.

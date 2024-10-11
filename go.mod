@@ -1,12 +1,12 @@
 module chainguard.dev/sdk
 
-go 1.23.1
+go 1.23.2
 
 require (
 	chainguard.dev/go-grpc-kit v0.17.6
 	chainguard.dev/go-oidctest v0.3.1
 	cloud.google.com/go/compute/metadata v0.5.2
-	github.com/aws/aws-sdk-go-v2 v1.30.5
+	github.com/aws/aws-sdk-go-v2 v1.32.2
 	github.com/bits-and-blooms/bitset v1.14.3
 	github.com/chainguard-dev/clog v1.5.1-0.20240811185937-4c523ae4593f
 	github.com/cloudevents/sdk-go/v2 v2.15.2
@@ -22,9 +22,9 @@ require (
 	golang.org/x/oauth2 v0.23.0
 	google.golang.org/api v0.198.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240903143218-8af14fe29dc1
-	google.golang.org/grpc v1.67.0
+	google.golang.org/grpc v1.67.1
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1
-	google.golang.org/protobuf v1.34.2
+	google.golang.org/protobuf v1.35.1
 	k8s.io/apimachinery v0.31.1
 
 )
@@ -32,7 +32,7 @@ require (
 require (
 	cloud.google.com/go/auth v0.9.4 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.4 // indirect
-	github.com/aws/smithy-go v1.20.4 // indirect
+	github.com/aws/smithy-go v1.22.0 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect

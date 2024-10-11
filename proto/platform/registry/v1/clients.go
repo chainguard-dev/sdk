@@ -19,6 +19,7 @@ import (
 
 type Clients interface {
 	Registry() RegistryClient
+	Vulnerabilities() VulnerabilitiesClient
 
 	Close() error
 }
@@ -44,7 +45,8 @@ func NewClients(ctx context.Context, addr string, token string) (Clients, error)
 	}
 
 	return &clients{
-		registry: NewRegistryClient(conn),
+		registry:        NewRegistryClient(conn),
+		vulnerabilities: NewVulnerabilitiesClient(conn),
 
 		conn: conn,
 	}, nil
@@ -52,19 +54,25 @@ func NewClients(ctx context.Context, addr string, token string) (Clients, error)
 
 func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 	return &clients{
-		registry: NewRegistryClient(conn),
+		registry:        NewRegistryClient(conn),
+		vulnerabilities: NewVulnerabilitiesClient(conn),
 		// conn is not set, this client struct does not own closing it.
 	}
 }
 
 type clients struct {
-	registry RegistryClient
+	registry        RegistryClient
+	vulnerabilities VulnerabilitiesClient
 
 	conn *grpc.ClientConn
 }
 
 func (c *clients) Registry() RegistryClient {
 	return c.registry
+}
+
+func (c *clients) Vulnerabilities() VulnerabilitiesClient {
+	return c.vulnerabilities
 }
 
 func (c *clients) Close() error {

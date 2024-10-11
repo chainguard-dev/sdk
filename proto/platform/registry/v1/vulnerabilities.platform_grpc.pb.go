@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Vulnerabilities_ListVulnReports_FullMethodName  = "/chainguard.platform.registry.Vulnerabilities/ListVulnReports"
-	Vulnerabilities_GetRawVulnReport_FullMethodName = "/chainguard.platform.registry.Vulnerabilities/GetRawVulnReport"
+	Vulnerabilities_ListVulnReports_FullMethodName      = "/chainguard.platform.registry.Vulnerabilities/ListVulnReports"
+	Vulnerabilities_GetRawVulnReport_FullMethodName     = "/chainguard.platform.registry.Vulnerabilities/GetRawVulnReport"
+	Vulnerabilities_ListVulnCountReports_FullMethodName = "/chainguard.platform.registry.Vulnerabilities/ListVulnCountReports"
 )
 
 // VulnerabilitiesClient is the client API for Vulnerabilities service.
@@ -29,6 +30,7 @@ const (
 type VulnerabilitiesClient interface {
 	ListVulnReports(ctx context.Context, in *VulnReportFilter, opts ...grpc.CallOption) (*VulnReportList, error)
 	GetRawVulnReport(ctx context.Context, in *GetRawVulnReportRequest, opts ...grpc.CallOption) (*RawVulnReport, error)
+	ListVulnCountReports(ctx context.Context, in *VulnCountReportFilter, opts ...grpc.CallOption) (*VulnCountReportList, error)
 }
 
 type vulnerabilitiesClient struct {
@@ -59,12 +61,23 @@ func (c *vulnerabilitiesClient) GetRawVulnReport(ctx context.Context, in *GetRaw
 	return out, nil
 }
 
+func (c *vulnerabilitiesClient) ListVulnCountReports(ctx context.Context, in *VulnCountReportFilter, opts ...grpc.CallOption) (*VulnCountReportList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(VulnCountReportList)
+	err := c.cc.Invoke(ctx, Vulnerabilities_ListVulnCountReports_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // VulnerabilitiesServer is the server API for Vulnerabilities service.
 // All implementations must embed UnimplementedVulnerabilitiesServer
 // for forward compatibility.
 type VulnerabilitiesServer interface {
 	ListVulnReports(context.Context, *VulnReportFilter) (*VulnReportList, error)
 	GetRawVulnReport(context.Context, *GetRawVulnReportRequest) (*RawVulnReport, error)
+	ListVulnCountReports(context.Context, *VulnCountReportFilter) (*VulnCountReportList, error)
 	mustEmbedUnimplementedVulnerabilitiesServer()
 }
 
@@ -80,6 +93,9 @@ func (UnimplementedVulnerabilitiesServer) ListVulnReports(context.Context, *Vuln
 }
 func (UnimplementedVulnerabilitiesServer) GetRawVulnReport(context.Context, *GetRawVulnReportRequest) (*RawVulnReport, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRawVulnReport not implemented")
+}
+func (UnimplementedVulnerabilitiesServer) ListVulnCountReports(context.Context, *VulnCountReportFilter) (*VulnCountReportList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListVulnCountReports not implemented")
 }
 func (UnimplementedVulnerabilitiesServer) mustEmbedUnimplementedVulnerabilitiesServer() {}
 func (UnimplementedVulnerabilitiesServer) testEmbeddedByValue()                         {}
@@ -138,6 +154,24 @@ func _Vulnerabilities_GetRawVulnReport_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Vulnerabilities_ListVulnCountReports_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VulnCountReportFilter)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VulnerabilitiesServer).ListVulnCountReports(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Vulnerabilities_ListVulnCountReports_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VulnerabilitiesServer).ListVulnCountReports(ctx, req.(*VulnCountReportFilter))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Vulnerabilities_ServiceDesc is the grpc.ServiceDesc for Vulnerabilities service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +186,10 @@ var Vulnerabilities_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetRawVulnReport",
 			Handler:    _Vulnerabilities_GetRawVulnReport_Handler,
+		},
+		{
+			MethodName: "ListVulnCountReports",
+			Handler:    _Vulnerabilities_ListVulnCountReports_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
