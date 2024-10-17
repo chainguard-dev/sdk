@@ -320,6 +320,9 @@ message SyncConfig {
 
   // An apko configuration overlay to rebuild images with when syncing them.
   string apko_overlay = 8;
+
+  // Controls whether the image grace period functionality is enabled or not.
+  bool grace_period = 9;
 }
 
 message CustomOverlay {
