@@ -24,6 +24,7 @@ type MockRegistryClients struct {
 
 	RegistryClient        MockRegistryClient
 	VulnerabilitiesClient MockVulnerabilitiesClient
+	ApkoClient            MockApkoClient
 }
 
 func (m MockRegistryClients) Registry() registry.RegistryClient {
@@ -32,6 +33,10 @@ func (m MockRegistryClients) Registry() registry.RegistryClient {
 
 func (m MockRegistryClients) Vulnerabilities() registry.VulnerabilitiesClient {
 	return &m.VulnerabilitiesClient
+}
+
+func (m MockRegistryClients) Apko() registry.ApkoClient {
+	return &m.ApkoClient
 }
 
 func (m MockRegistryClients) Close() error {
@@ -58,6 +63,7 @@ type MockRegistryClient struct {
 	OnListManifestMetadata      []ManifestMetadataOnList
 	OnGetRawSbom                []RawSbomOnGet
 	OnGetPackageVersionMetadata []PackageVersionMetadataOnGet
+	OnListBuildReports          []BuildReportsOnList
 }
 
 type ReposOnCreate struct {
@@ -145,6 +151,12 @@ type RawSbomOnGet struct {
 type PackageVersionMetadataOnGet struct {
 	Given *registry.PackageVersionMetadataRequest
 	Get   *registry.PackageVersionMetadata
+	Error error
+}
+
+type BuildReportsOnList struct {
+	Given *registry.BuildReportFilter
+	List  *registry.BuildReportList
 	Error error
 }
 
@@ -278,6 +290,15 @@ func (m MockRegistryClient) GetPackageVersionMetadata(_ context.Context, given *
 	for _, o := range m.OnGetPackageVersionMetadata {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Get, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockRegistryClient) ListBuildReports(_ context.Context, given *registry.BuildReportFilter, _ ...grpc.CallOption) (*registry.BuildReportList, error) {
+	for _, o := range m.OnListBuildReports {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.List, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)

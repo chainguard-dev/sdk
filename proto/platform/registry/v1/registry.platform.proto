@@ -717,6 +717,9 @@ message BuildReport {
   // id, identifier of this BuildReport, a UIDP under a Repo.
   string id = 1;
 
+  // The media type of the layer being built.
+  string media_type = 11;
+
   // The configuration used to build the image, in APKO build config JSON.
   string config = 2;
 
