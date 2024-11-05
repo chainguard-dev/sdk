@@ -281,6 +281,8 @@ message Repo {
 
   // aliases is a list of equivalent images.
   repeated string aliases = 8;
+
+  google.protobuf.Timestamp create_time = 9;
 }
 
 enum CatalogTier {
