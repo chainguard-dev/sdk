@@ -73,6 +73,8 @@ message VulnCountReport {
   google.protobuf.Timestamp date = 3;
   // vuln_counts enumerate the number of each CVE per severity found.
   repeated VulnCount vuln_counts = 4;
+  // size_bytes is the size in bytes of the image at scan time.
+  int64 size_bytes = 5;
 }
 
 message VulnCount {
