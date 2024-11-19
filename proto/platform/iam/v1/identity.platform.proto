@@ -96,6 +96,7 @@ enum ServicePrincipal {
   INGESTER       = 2;
   CATALOG_SYNCER = 3;
   APKO_BUILDER   = 4;
+  ENTITLEMENT_SYNCER = 5;
 }
 
 message Identity {
