@@ -187,8 +187,8 @@ message Fixed {
 message Detection {
   oneof type {
     DetectionTypeNVDAPI nvdapi = 1;
-
     DetectionTypeManual manual = 2;
+    DetectionTypeScanV1 scanv1 = 3;
   }
 
   message DetectionTypeNVDAPI {
@@ -198,6 +198,16 @@ message Detection {
   }
 
   message DetectionTypeManual {}
+
+  message DetectionTypeScanV1 {
+    string scanner = 1;
+    string subpackage_name = 2;
+    string component_id = 3;
+    string component_name = 4;
+    string component_version = 5;
+    string component_type = 6;
+    string component_location = 7;
+  }
 }
 
 message AnalysisNotPlanned {

@@ -11,7 +11,6 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"os"
 	"strings"
 
 	"github.com/pkg/browser"
@@ -91,9 +90,9 @@ func Login(ctx context.Context, opts ...Option) (token string, refreshToken stri
 	}
 	u := fmt.Sprintf("%s/oauth?%s", conf.Issuer, params.Encode())
 	if conf.SkipBrowser {
-		fmt.Fprintf(os.Stderr, "Please open a browser to %s\n", u)
+		fmt.Fprintf(conf.MessageWriter, "Please open a browser to %s\n", u)
 	} else {
-		fmt.Fprintf(os.Stderr, "Opening browser to %s\n", u)
+		fmt.Fprintf(conf.MessageWriter, "Opening browser to %s\n", u)
 		err = browser.OpenURL(u)
 		if err != nil {
 			return "", "", &OpenBrowserError{err}

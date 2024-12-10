@@ -7,10 +7,12 @@ package login
 
 import (
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"chainguard.dev/sdk/uidp"
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 func TestConfFromOptions(t *testing.T) {
@@ -30,9 +32,10 @@ func TestConfFromOptions(t *testing.T) {
 				WithInviteCode("foo"),
 			},
 			WantConfig: &config{
-				Issuer:     "https://example.com",
-				IDP:        id,
-				InviteCode: "foo",
+				Issuer:        "https://example.com",
+				IDP:           id,
+				InviteCode:    "foo",
+				MessageWriter: defaultMessageWriter,
 			},
 		},
 		"Bad IDP ID": {
@@ -48,8 +51,9 @@ func TestConfFromOptions(t *testing.T) {
 				WithOrgName("chainguard.dev"),
 			},
 			WantConfig: &config{
-				Issuer:  testIssuer.URL,
-				OrgName: "chainguard.dev",
+				Issuer:        testIssuer.URL,
+				OrgName:       "chainguard.dev",
+				MessageWriter: defaultMessageWriter,
 			},
 		},
 		"Cannot specify both identity provider and org name": {
@@ -71,8 +75,9 @@ func TestConfFromOptions(t *testing.T) {
 				WithIdentityProvider(id),
 			},
 			WantConfig: &config{
-				Issuer: defaultIssuer,
-				IDP:    id,
+				Issuer:        defaultIssuer,
+				IDP:           id,
+				MessageWriter: defaultMessageWriter,
 			},
 		},
 		"No idp ID or client ID set errors": {
@@ -106,7 +111,10 @@ func TestConfFromOptions(t *testing.T) {
 				return
 			}
 
-			if diff := cmp.Diff(gotConfig, data.WantConfig); diff != "" {
+			// We need to ignore unexported fields of os.File because the default value of
+			// MessageWriter is os.Stderr, and its unexported fields cause problems with
+			// cmp.Diff otherwise.
+			if diff := cmp.Diff(gotConfig, data.WantConfig, cmpopts.IgnoreUnexported(os.File{})); diff != "" {
 				t.Errorf("diff in expected config = %s", diff)
 			}
 		})

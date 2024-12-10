@@ -8,6 +8,8 @@ package login
 import (
 	"errors"
 	"fmt"
+	"io"
+	"os"
 
 	"chainguard.dev/sdk/uidp"
 )
@@ -53,13 +55,20 @@ type config struct {
 
 	// HeadlessCode is the code to use for headless login
 	HeadlessCode string
+
+	// MessageWriter is the writer to use for outputting informational messages to
+	// the user. (e.g. os.Stderr)
+	MessageWriter io.Writer
 }
 
 const defaultIssuer = `https://issuer.enforce.dev`
 
+var defaultMessageWriter io.Writer = os.Stderr
+
 func newDefaultConfig() *config {
 	return &config{
-		Issuer: defaultIssuer,
+		Issuer:        defaultIssuer,
+		MessageWriter: defaultMessageWriter,
 	}
 }
 
@@ -88,6 +97,11 @@ func (c *config) valid() error {
 			return errors.New("must select one of client id, custom identity provider and organization name")
 		}
 	}
+
+	if c.MessageWriter == nil {
+		return errors.New("message writer must be set to a non-nil value (consider os.Stderr or io.Discard)")
+	}
+
 	switch {
 	case c.IDP != "":
 		if !uidp.Valid(c.IDP) {
@@ -188,5 +202,11 @@ func WithSkipBrowser() Option {
 func WithHeadlessCode(code string) Option {
 	return func(c *config) {
 		c.HeadlessCode = code
+	}
+}
+
+func WithMessageWriter(w io.Writer) Option {
+	return func(c *config) {
+		c.MessageWriter = w
 	}
 }
