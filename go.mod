@@ -3,11 +3,11 @@ module chainguard.dev/sdk
 go 1.23.3
 
 require (
-	chainguard.dev/apko v0.20.1
+	chainguard.dev/apko v0.20.2
 	chainguard.dev/go-grpc-kit v0.17.7
 	chainguard.dev/go-oidctest v0.3.1
 	cloud.google.com/go/compute/metadata v0.5.2
-	github.com/aws/aws-sdk-go-v2 v1.32.4
+	github.com/aws/aws-sdk-go-v2 v1.32.5
 	github.com/bits-and-blooms/bitset v1.15.0
 	github.com/chainguard-dev/clog v1.5.1
 	github.com/cloudevents/sdk-go/v2 v2.15.2
@@ -22,12 +22,12 @@ require (
 	github.com/sigstore/sigstore v1.8.10
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f
 	golang.org/x/oauth2 v0.24.0
-	google.golang.org/api v0.208.0
+	google.golang.org/api v0.209.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20241118233622-e639e219e697
 	google.golang.org/grpc v1.68.1
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1
 	google.golang.org/protobuf v1.35.2
-	k8s.io/apimachinery v0.31.2
+	k8s.io/apimachinery v0.31.3
 
 )
 
@@ -82,7 +82,6 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.0 // indirect
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966 // indirect
-	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.57.0 // indirect
