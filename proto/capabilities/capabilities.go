@@ -46,8 +46,8 @@ func Names() []string {
 	return all
 }
 
-func Deprecated(cap Capability) bool {
-	evd := cap.Descriptor().Values().ByNumber(cap.Number())
+func Deprecated(capability Capability) bool {
+	evd := capability.Descriptor().Values().ByNumber(capability.Number())
 	if evd == nil {
 		return false
 	}
@@ -59,27 +59,27 @@ func Deprecated(cap Capability) bool {
 	return evo.GetDeprecated()
 }
 
-func Stringify(cap Capability) (string, error) {
-	evd := cap.Descriptor().Values().ByNumber(cap.Number())
+func Stringify(capability Capability) (string, error) {
+	evd := capability.Descriptor().Values().ByNumber(capability.Number())
 	if evd == nil {
-		return "", status.Errorf(codes.Internal, "capability has no descriptor: %v", cap)
+		return "", status.Errorf(codes.Internal, "capability has no descriptor: %v", capability)
 	}
 	opt := evd.Options()
 	if opt == nil {
-		return "", status.Errorf(codes.Internal, "capability has no options: %v", cap)
+		return "", status.Errorf(codes.Internal, "capability has no options: %v", capability)
 	}
 	evo := opt.(*descriptorpb.EnumValueOptions)
 	name := proto.GetExtension(evo, E_Name)
 	if name == nil {
-		return "", status.Errorf(codes.Internal, "capability is missing the name option: %v", cap)
+		return "", status.Errorf(codes.Internal, "capability is missing the name option: %v", capability)
 	}
 	return name.(string), nil
 }
 
 func StringifyAll(caps []Capability) ([]string, error) {
 	scs := make([]string, 0, len(caps))
-	for _, cap := range caps {
-		sc, err := Stringify(cap)
+	for _, capability := range caps {
+		sc, err := Stringify(capability)
 		if err != nil {
 			return nil, err
 		}
@@ -91,13 +91,13 @@ func StringifyAll(caps []Capability) ([]string, error) {
 func Parse(name string) (Capability, error) {
 	ponce.Do(func() {
 		// Populate nameCapabilityMap
-		for cap := range Capability_name {
-			scap, perror := Stringify(Capability(cap))
+		for capability := range Capability_name {
+			scap, perror := Stringify(Capability(capability))
 			if perror == nil {
-				nameCapabilityMap[scap] = Capability(cap)
+				nameCapabilityMap[scap] = Capability(capability)
 			} else {
 				clog.FromContext(context.Background()).Errorf("Failed to stringify capability %d, error: %v",
-					cap, perror)
+					capability, perror)
 			}
 		}
 	})
@@ -108,19 +108,19 @@ func Parse(name string) (Capability, error) {
 	return nameCapabilityMap[name], nil
 }
 
-func Bitify(cap Capability) (uint32, error) {
-	evd := cap.Descriptor().Values().ByNumber(cap.Number())
+func Bitify(capability Capability) (uint32, error) {
+	evd := capability.Descriptor().Values().ByNumber(capability.Number())
 	if evd == nil {
-		return 0, status.Errorf(codes.Internal, "capability has no descriptor: %v", cap)
+		return 0, status.Errorf(codes.Internal, "capability has no descriptor: %v", capability)
 	}
 	opt := evd.Options()
 	if opt == nil {
-		return 0, status.Errorf(codes.Internal, "capability has no options: %v", cap)
+		return 0, status.Errorf(codes.Internal, "capability has no options: %v", capability)
 	}
 	evo := opt.(*descriptorpb.EnumValueOptions)
 	name := proto.GetExtension(evo, E_Bit)
 	if name == nil {
-		return 0, status.Errorf(codes.Internal, "capability is missing the bit option: %v", cap)
+		return 0, status.Errorf(codes.Internal, "capability is missing the bit option: %v", capability)
 	}
 	return name.(uint32), nil
 }
@@ -144,8 +144,8 @@ func (s Set) String() string {
 // MarshalJSON implements json.Marshaler
 func (s Set) MarshalJSON() ([]byte, error) {
 	bs := bitset.New(50)
-	for _, cap := range s {
-		b, err := Bitify(cap)
+	for _, capability := range s {
+		b, err := Bitify(capability)
 		if err != nil {
 			return nil, err
 		}
@@ -166,8 +166,8 @@ func (s *Set) UnmarshalJSON(b []byte) error {
 		if err := json.Unmarshal(b, &caps); err != nil {
 			return err
 		}
-		for _, cap := range caps {
-			*s = append(*s, cap)
+		for _, capability := range caps {
+			*s = append(*s, capability)
 		}
 		return nil
 
@@ -178,16 +178,16 @@ func (s *Set) UnmarshalJSON(b []byte) error {
 			return err
 		}
 		for i := range Capability_name {
-			cap := Capability(i) //nolint: revive
-			if cap == Capability_UNKNOWN {
+			capability := Capability(i) //nolint: revive
+			if capability == Capability_UNKNOWN {
 				continue
 			}
-			bit, err := Bitify(cap)
+			bit, err := Bitify(capability)
 			if err != nil {
 				return err
 			}
 			if bs.Test(uint(bit)) {
-				*s = append(*s, cap)
+				*s = append(*s, capability)
 				// This ensures that our unit testing checks that no two
 				// enumeration values are assigned the same bit.
 				bs.Clear(uint(bit))
