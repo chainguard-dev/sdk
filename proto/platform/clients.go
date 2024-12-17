@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"time"
 
 	delegate "chainguard.dev/go-grpc-kit/pkg/options"
 	advisory "chainguard.dev/sdk/proto/platform/advisory/v1"
@@ -58,9 +59,20 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 	}
 	opts = append(opts, addlOpts...)
 
-	conn, err := grpc.NewClient(target, opts...)
+	var cancel context.CancelFunc
+	if _, timeoutSet := ctx.Deadline(); !timeoutSet {
+		ctx, cancel = context.WithTimeout(ctx, 300*time.Second)
+		defer cancel()
+	}
+	// grpc.NewClient introduced a regression with respect to proxying requests.
+	// Specifically, the target URI gets resolved to the IP and passed to the connection,
+	// which causes issues for customers using proxies.
+	// This issue is being tracked here https://github.com/grpc/grpc-go/issues/7556 and a fix
+	// is expected by grpc-go 1.70
+	//nolint:staticcheck // Revert back to grpc.NewClient once #7556 is resolved.
+	conn, err := grpc.DialContext(ctx, target, opts...)
 	if err != nil {
-		return nil, fmt.Errorf("NewPlatformClients: failed to connect to the iam server: %w", err)
+		return nil, fmt.Errorf("NewPlatformClients: failed to connect to the api server %s: %w", target, err)
 	}
 
 	return &clients{
@@ -145,7 +157,18 @@ func NewOIDCClients(ctx context.Context, issuerURL string, cred credentials.PerR
 		opts = append(opts, grpc.WithUserAgent(ua))
 	}
 
-	conn, err := grpc.NewClient(target, opts...)
+	var cancel context.CancelFunc
+	if _, timeoutSet := ctx.Deadline(); !timeoutSet {
+		ctx, cancel = context.WithTimeout(ctx, 300*time.Second)
+		defer cancel()
+	}
+	// grpc.NewClient introduced a regression with respect to proxying requests.
+	// Specifically, the target URI gets resolved to the IP and passed to the connection,
+	// which causes issues for customers using proxies.
+	// This issue is being tracked here https://github.com/grpc/grpc-go/issues/7556 and a fix
+	// is expected by grpc-go 1.70
+	//nolint:staticcheck // Revert back to grpc.NewClient once #7556 is resolved.
+	conn, err := grpc.DialContext(ctx, target, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("NewOIDCClients: failed to connect to the OIDC issuer: %w", err)
 	}

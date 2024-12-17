@@ -9,12 +9,13 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"time"
 
-	delegate "chainguard.dev/go-grpc-kit/pkg/options"
-	"github.com/chainguard-dev/clog"
 	"google.golang.org/grpc"
 
+	delegate "chainguard.dev/go-grpc-kit/pkg/options"
 	"chainguard.dev/sdk/auth"
+	"github.com/chainguard-dev/clog"
 )
 
 type Clients interface {
@@ -58,7 +59,18 @@ func NewClients(ctx context.Context, addr string, token string, opts ...ClientOp
 		rpcOpts = append(rpcOpts, grpc.WithUserAgent(conf.userAgent))
 	}
 
-	conn, err := grpc.NewClient(target, rpcOpts...)
+	var cancel context.CancelFunc
+	if _, timeoutSet := ctx.Deadline(); !timeoutSet {
+		ctx, cancel = context.WithTimeout(ctx, 300*time.Second)
+		defer cancel()
+	}
+	// grpc.NewClient introduced a regression with respect to proxying requests.
+	// Specifically, the target URI gets resolved to the IP and passed to the connection,
+	// which causes issues for customers using proxies.
+	// This issue is being tracked here https://github.com/grpc/grpc-go/issues/7556 and a fix
+	// is expected by grpc-go 1.70
+	//nolint:staticcheck // Revert back to grpc.NewClient once #7556 is resolved.
+	conn, err := grpc.DialContext(ctx, target, rpcOpts...)
 	if err != nil {
 		return nil, fmt.Errorf("oidc.NewClients: failed to connect to the iam server: %w", err)
 	}

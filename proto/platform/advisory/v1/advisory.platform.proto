@@ -31,6 +31,56 @@ service SecurityAdvisory {
       disabled: {}
     };
   }
+
+  rpc ListResolvedVulnsReports(ResolvedVulnsReportFilter) returns (ResolvedVulnsReportList) {
+    option (google.api.http) = {
+      get: "/advisory/v1/images/resolved_vulns"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_APK_LIST, CAP_REPO_LIST, CAP_MANIFEST_METADATA_LIST, CAP_TAG_LIST]
+        unscoped: true,
+      }
+    };
+  }
+}
+
+message ResolvedVulnsReportFilter {
+  // image_refs are the repo and tags to pull resolved vulns for.
+  repeated ImageRef image_refs = 1;
+  // from defines the beginning of the date range of advisory events, inclusive.
+  google.protobuf.Timestamp from = 2;
+  // end defines the end of the date range of advisory events, inclusive.
+  google.protobuf.Timestamp to = 3;
+
+  message ImageRef {
+    // repo is the name of the image repo.
+    string repo = 1;
+    // tags are optional tags to specify which version of the image to filter.
+    // If tags is empty, it is assumed the caller wants latest.
+    repeated string tags = 2;
+  }
+}
+
+message ResolvedVulnsReportList {
+  repeated ResolvedVulnsReport items = 1;
+}
+
+message ResolvedVulnsReport {
+  // date is when the list vulnerabilities were reported as resolved.
+  google.protobuf.Timestamp date = 1;
+  // resolved_vulns are the vulnerabilities marked fixed or as a false positive for the given date.
+  repeated ResolvedVuln resolved_vulns = 2;
+}
+
+message ResolvedVuln {
+  // id is the CGA ID for the associated advisory
+  string id = 1;
+  // aliases are other identifiers this vulnerability is known by
+  repeated string aliases = 2;
+  // css_severities are the OSV assigned CVSS severities for this vulnerability.
+  // If not known or not assigned on OSV, this holds a single UNSPECIFIED value.
+  repeated Severity cvss_severities = 3;
 }
 
 message VulnerabilityMetadata {

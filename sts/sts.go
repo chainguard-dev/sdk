@@ -183,9 +183,9 @@ func WithScope(scope string) ExchangerOption {
 }
 
 // WithCapabilities sets the capabilities sent by the Exchanger.
-func WithCapabilities(cap ...string) ExchangerOption {
+func WithCapabilities(capabilities ...string) ExchangerOption {
 	return func(i *options) {
-		i.capabilities = cap
+		i.capabilities = capabilities
 	}
 }
 
