@@ -37,6 +37,7 @@ var _ advisory.SecurityAdvisoryClient = (*MockSecurityAdvisoryClient)(nil)
 type MockSecurityAdvisoryClient struct {
 	OnListDocuments             []DocumentsOnList
 	OnListVulnerabilityMetadata []VulnerabilityMetadataOnList
+	OnListResolvedVulnsReports  []ResolvedVulnsReportsOnList
 }
 
 type DocumentsOnList struct {
@@ -51,6 +52,12 @@ type VulnerabilityMetadataOnList struct {
 	Error error
 }
 
+type ResolvedVulnsReportsOnList struct {
+	Given *advisory.ResolvedVulnsReportFilter
+	List  *advisory.ResolvedVulnsReportList
+	Error error
+}
+
 func (m MockSecurityAdvisoryClient) ListDocuments(_ context.Context, given *advisory.DocumentFilter, _ ...grpc.CallOption) (*advisory.DocumentList, error) { //nolint: revive
 	for _, o := range m.OnListDocuments {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
@@ -62,6 +69,15 @@ func (m MockSecurityAdvisoryClient) ListDocuments(_ context.Context, given *advi
 
 func (m MockSecurityAdvisoryClient) ListVulnerabilityMetadata(_ context.Context, given *advisory.VulnerabilityMetadataFilter, _ ...grpc.CallOption) (*advisory.VulnerabilityMetadataList, error) { //nolint: revive
 	for _, o := range m.OnListVulnerabilityMetadata {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.List, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockSecurityAdvisoryClient) ListResolvedVulnsReports(_ context.Context, given *advisory.ResolvedVulnsReportFilter, _ ...grpc.CallOption) (*advisory.ResolvedVulnsReportList, error) { //nolint: revive
+	for _, o := range m.OnListResolvedVulnsReports {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.List, o.Error
 		}

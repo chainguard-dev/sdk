@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	SecurityAdvisory_ListDocuments_FullMethodName             = "/chainguard.platform.advisory.SecurityAdvisory/ListDocuments"
 	SecurityAdvisory_ListVulnerabilityMetadata_FullMethodName = "/chainguard.platform.advisory.SecurityAdvisory/ListVulnerabilityMetadata"
+	SecurityAdvisory_ListResolvedVulnsReports_FullMethodName  = "/chainguard.platform.advisory.SecurityAdvisory/ListResolvedVulnsReports"
 )
 
 // SecurityAdvisoryClient is the client API for SecurityAdvisory service.
@@ -29,6 +30,7 @@ const (
 type SecurityAdvisoryClient interface {
 	ListDocuments(ctx context.Context, in *DocumentFilter, opts ...grpc.CallOption) (*DocumentList, error)
 	ListVulnerabilityMetadata(ctx context.Context, in *VulnerabilityMetadataFilter, opts ...grpc.CallOption) (*VulnerabilityMetadataList, error)
+	ListResolvedVulnsReports(ctx context.Context, in *ResolvedVulnsReportFilter, opts ...grpc.CallOption) (*ResolvedVulnsReportList, error)
 }
 
 type securityAdvisoryClient struct {
@@ -59,12 +61,23 @@ func (c *securityAdvisoryClient) ListVulnerabilityMetadata(ctx context.Context, 
 	return out, nil
 }
 
+func (c *securityAdvisoryClient) ListResolvedVulnsReports(ctx context.Context, in *ResolvedVulnsReportFilter, opts ...grpc.CallOption) (*ResolvedVulnsReportList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ResolvedVulnsReportList)
+	err := c.cc.Invoke(ctx, SecurityAdvisory_ListResolvedVulnsReports_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SecurityAdvisoryServer is the server API for SecurityAdvisory service.
 // All implementations must embed UnimplementedSecurityAdvisoryServer
 // for forward compatibility.
 type SecurityAdvisoryServer interface {
 	ListDocuments(context.Context, *DocumentFilter) (*DocumentList, error)
 	ListVulnerabilityMetadata(context.Context, *VulnerabilityMetadataFilter) (*VulnerabilityMetadataList, error)
+	ListResolvedVulnsReports(context.Context, *ResolvedVulnsReportFilter) (*ResolvedVulnsReportList, error)
 	mustEmbedUnimplementedSecurityAdvisoryServer()
 }
 
@@ -80,6 +93,9 @@ func (UnimplementedSecurityAdvisoryServer) ListDocuments(context.Context, *Docum
 }
 func (UnimplementedSecurityAdvisoryServer) ListVulnerabilityMetadata(context.Context, *VulnerabilityMetadataFilter) (*VulnerabilityMetadataList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListVulnerabilityMetadata not implemented")
+}
+func (UnimplementedSecurityAdvisoryServer) ListResolvedVulnsReports(context.Context, *ResolvedVulnsReportFilter) (*ResolvedVulnsReportList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListResolvedVulnsReports not implemented")
 }
 func (UnimplementedSecurityAdvisoryServer) mustEmbedUnimplementedSecurityAdvisoryServer() {}
 func (UnimplementedSecurityAdvisoryServer) testEmbeddedByValue()                          {}
@@ -138,6 +154,24 @@ func _SecurityAdvisory_ListVulnerabilityMetadata_Handler(srv interface{}, ctx co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SecurityAdvisory_ListResolvedVulnsReports_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResolvedVulnsReportFilter)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecurityAdvisoryServer).ListResolvedVulnsReports(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SecurityAdvisory_ListResolvedVulnsReports_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecurityAdvisoryServer).ListResolvedVulnsReports(ctx, req.(*ResolvedVulnsReportFilter))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SecurityAdvisory_ServiceDesc is the grpc.ServiceDesc for SecurityAdvisory service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +186,10 @@ var SecurityAdvisory_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListVulnerabilityMetadata",
 			Handler:    _SecurityAdvisory_ListVulnerabilityMetadata_Handler,
+		},
+		{
+			MethodName: "ListResolvedVulnsReports",
+			Handler:    _SecurityAdvisory_ListResolvedVulnsReports_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
