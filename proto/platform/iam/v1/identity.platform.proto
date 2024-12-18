@@ -97,6 +97,7 @@ enum ServicePrincipal {
   CATALOG_SYNCER = 3;
   APKO_BUILDER   = 4;
   ENTITLEMENT_SYNCER = 5;
+  TENANT_SCANNER = 6;
 }
 
 message Identity {
