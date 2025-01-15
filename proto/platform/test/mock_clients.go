@@ -13,6 +13,8 @@ import (
 	apktest "chainguard.dev/sdk/proto/platform/apk/v1/test"
 	auth "chainguard.dev/sdk/proto/platform/auth/v1"
 	authtest "chainguard.dev/sdk/proto/platform/auth/v1/test"
+	ecosystems "chainguard.dev/sdk/proto/platform/ecosystems/v1"
+	ecosystemstest "chainguard.dev/sdk/proto/platform/ecosystems/v1/test"
 	iam "chainguard.dev/sdk/proto/platform/iam/v1"
 	iamtest "chainguard.dev/sdk/proto/platform/iam/v1/test"
 	notifications "chainguard.dev/sdk/proto/platform/notifications/v1"
@@ -39,6 +41,7 @@ type MockPlatformClients struct {
 	PingClient          pingtest.MockPingServiceClients
 	NotificationsClient notificationstest.MockNotificationsClients
 	APKClient           apktest.MockAPKClients
+	EcosystemsClient    ecosystemstest.MockEcosystemsClients
 }
 
 func (m MockPlatformClients) Close() error {
@@ -71,6 +74,10 @@ func (m MockPlatformClients) Notifications() notifications.Clients {
 
 func (m MockPlatformClients) APK() apk.Clients {
 	return m.APKClient
+}
+
+func (m MockPlatformClients) Ecosystems() ecosystems.Clients {
+	return m.EcosystemsClient
 }
 
 var _ platform.OIDCClients = (*MockOIDCClients)(nil)
