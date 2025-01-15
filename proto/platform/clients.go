@@ -11,10 +11,14 @@ import (
 	"net/url"
 	"time"
 
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+
 	delegate "chainguard.dev/go-grpc-kit/pkg/options"
 	advisory "chainguard.dev/sdk/proto/platform/advisory/v1"
 	apk "chainguard.dev/sdk/proto/platform/apk/v1"
 	platformauth "chainguard.dev/sdk/proto/platform/auth/v1"
+	ecosystems "chainguard.dev/sdk/proto/platform/ecosystems/v1"
 	iam "chainguard.dev/sdk/proto/platform/iam/v1"
 	notifications "chainguard.dev/sdk/proto/platform/notifications/v1"
 	platformoidc "chainguard.dev/sdk/proto/platform/oidc/v1"
@@ -22,8 +26,6 @@ import (
 	registry "chainguard.dev/sdk/proto/platform/registry/v1"
 	tenant "chainguard.dev/sdk/proto/platform/tenant/v1"
 	"github.com/chainguard-dev/clog"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 )
 
 type userAgentString struct{}
@@ -36,6 +38,7 @@ type Clients interface {
 	Ping() ping.Clients
 	Notifications() notifications.Clients
 	APK() apk.Clients
+	Ecosystems() ecosystems.Clients
 
 	Close() error
 }
@@ -43,7 +46,7 @@ type Clients interface {
 func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.PerRPCCredentials, addlOpts ...grpc.DialOption) (Clients, error) {
 	apiURI, err := url.Parse(apiURL)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse iam service address, must be a url: %w", err)
+		return nil, fmt.Errorf("failed to parse api service address, must be a url: %w", err)
 	}
 
 	target, opts := delegate.GRPCOptions(*apiURI)
@@ -83,6 +86,7 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 		ping:          ping.NewClientsFromConnection(conn),
 		notifications: notifications.NewClientsFromConnection(conn),
 		apk:           apk.NewClientsFromConnection(conn),
+		ecosystems:    ecosystems.NewClientsFromConnection(conn),
 		conn:          conn,
 	}, nil
 }
@@ -95,6 +99,7 @@ type clients struct {
 	ping          ping.Clients
 	notifications notifications.Clients
 	apk           apk.Clients
+	ecosystems    ecosystems.Clients
 
 	conn *grpc.ClientConn
 }
@@ -125,6 +130,10 @@ func (c *clients) Notifications() notifications.Clients {
 
 func (c *clients) APK() apk.Clients {
 	return c.apk
+}
+
+func (c *clients) Ecosystems() ecosystems.Clients {
+	return c.ecosystems
 }
 
 func (c *clients) Close() error {

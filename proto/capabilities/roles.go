@@ -32,6 +32,8 @@ var (
 		Capability_CAP_VULN_REPORT_LIST,
 
 		Capability_CAP_BUILD_REPORT_LIST,
+
+		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
 	},
 		// Viewers can also list repos and tags, and pull images.
 		RegistryPullCaps...), APKPullCaps...))
@@ -44,7 +46,7 @@ var (
 	}, ViewerCaps...))
 
 	// ownerCaps includes all capabilities possible by a user.
-	OwnerCaps = sortCaps(append(append(append([]Capability{
+	OwnerCaps = sortCaps(append(append(append(append(append([]Capability{
 		Capability_CAP_IAM_ACCOUNT_ASSOCIATIONS_CREATE,
 		Capability_CAP_IAM_ACCOUNT_ASSOCIATIONS_DELETE,
 		Capability_CAP_IAM_ACCOUNT_ASSOCIATIONS_UPDATE,
@@ -75,13 +77,19 @@ var (
 		Capability_CAP_VULN_CREATE,
 		Capability_CAP_VULN_REPORT_CREATE,
 
+		Capability_CAP_LIBRARIES_ENTITLEMENTS_CREATE,
+		Capability_CAP_LIBRARIES_ENTITLEMENTS_DELETE,
+
 		// Add gulfstream capability to owner so owners can rolebind
 		// identities to the gulfstream role.
 		Capability_CAP_GULFSTREAM,
 	}, EditorCaps...),
 		// Owners can also push and delete images, subject to the identity allowlist.
 		RegistryPushCaps...),
-		APKPushCaps...))
+		APKPushCaps...),
+		// Owners can pull artifacts from ecosystem libraries and grant this role to others in their org.
+		// NB: The org must also be entitled to the ecosystem to pull artifacts.
+		LibrariesJavaPullCaps...), LibrariesPythonPullCaps...))
 
 	RegistryPullCaps = sortCaps([]Capability{
 		Capability_CAP_IAM_GROUPS_LIST,
@@ -131,6 +139,16 @@ var (
 		Capability_CAP_APK_CREATE,
 		Capability_CAP_APK_DELETE,
 	}, APKPullCaps...))
+
+	LibrariesJavaPullCaps = sortCaps([]Capability{
+		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
+		Capability_CAP_LIBRARIES_JAVA_LIST,
+	})
+
+	LibrariesPythonPullCaps = sortCaps([]Capability{
+		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
+		Capability_CAP_LIBRARIES_PYTHON_LIST,
+	})
 )
 
 func sortCaps(caps []Capability) []Capability {

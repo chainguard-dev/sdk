@@ -3,7 +3,7 @@ module chainguard.dev/sdk
 go 1.23.4
 
 require (
-	chainguard.dev/apko v0.22.5
+	chainguard.dev/apko v0.22.6
 	chainguard.dev/go-grpc-kit v0.17.7
 	chainguard.dev/go-oidctest v0.3.1
 	cloud.google.com/go/compute/metadata v0.6.0
@@ -22,11 +22,11 @@ require (
 	github.com/sigstore/sigstore v1.8.10
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f
 	golang.org/x/oauth2 v0.24.0
-	google.golang.org/api v0.214.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20241118233622-e639e219e697
+	google.golang.org/api v0.215.0
+	google.golang.org/genproto/googleapis/api v0.0.0-20241209162323-e6fa225c2576
 	google.golang.org/grpc v1.69.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1
-	google.golang.org/protobuf v1.36.0
+	google.golang.org/protobuf v1.36.1
 	k8s.io/apimachinery v0.32.0
 
 )
@@ -57,7 +57,7 @@ require (
 	github.com/google/s2a-go v0.1.8 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.4 // indirect
-	github.com/googleapis/gax-go/v2 v2.14.0 // indirect
+	github.com/googleapis/gax-go/v2 v2.14.1 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.1-0.20210315223345-82c243799c99 // indirect
@@ -94,7 +94,7 @@ require (
 	golang.org/x/net v0.34.0 // indirect
 	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20241209162323-e6fa225c2576 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20241223144023-3abc09e42ca8 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
