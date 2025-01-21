@@ -37,6 +37,7 @@ service Entitlements {
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [CAP_LIBRARIES_ENTITLEMENTS_LIST]
+        unscoped: true
       }
     };
   }
