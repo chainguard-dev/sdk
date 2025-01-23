@@ -47,6 +47,18 @@ service Vulnerabilities {
       }
     };
   }
+
+  rpc ListCumulativeVulnCountReports(VulnCountReportFilter) returns (VulnCountReportList) {
+    option (google.api.http) = {
+      get: "/registry/v1/vuln_reports/counts_cumulative"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_VULN_REPORT_LIST]
+        unscoped: true,
+      }
+    };
+  }
 }
 
 message VulnCountReportFilter {

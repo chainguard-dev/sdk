@@ -58,7 +58,7 @@ func pbUsers(users []apkotypes.User) []*ApkoConfig_Accounts_User {
 		pbUsers[i] = &ApkoConfig_Accounts_User{
 			Uid:      u.UID,
 			UserName: u.UserName,
-			Gid:      *u.GID,
+			Gid:      u.GID,
 		}
 	}
 	return pbUsers
@@ -174,7 +174,7 @@ func apkoUsers(users []*ApkoConfig_Accounts_User) []apkotypes.User {
 		apkoUsers[i] = apkotypes.User{
 			UID:      u.Uid,
 			UserName: u.UserName,
-			GID:      &u.Gid,
+			GID:      u.Gid,
 		}
 	}
 	return apkoUsers
