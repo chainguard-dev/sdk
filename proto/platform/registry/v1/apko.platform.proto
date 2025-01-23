@@ -14,29 +14,25 @@ import "annotations/auth.proto";
 service Apko {
   rpc ResolveConfig(ResolveConfigRequest) returns (ApkoConfig) {
     option (google.api.http) = {
-      post: "/apko/v1/resolve/{repo_uidp=**}"
-      body: "*"
+      post : "/apko/v1/resolve/{repo_uidp=**}"
+      body : "*"
     };
     option (chainguard.annotations.iam) = {
-      enabled: {
+      enabled : {
         // To resolve the config, we need to list the available APKs.
-        capabilities: [CAP_APK_LIST]
+        capabilities : [ CAP_APK_LIST ]
       }
     };
   }
   rpc BuildImage(BuildImageRequest) returns (BuildImageResponse) {
     option (google.api.http) = {
-      post: "/apko/v1/build/{repo_uidp=**}"
-      body: "*"
+      post : "/apko/v1/build/{repo_uidp=**}"
+      body : "*"
     };
     option (chainguard.annotations.iam) = {
-      enabled: {
+      enabled : {
         // To build the image, we need to resolve APKs and push images.
-        capabilities: [
-          CAP_APK_LIST,
-          CAP_MANIFEST_CREATE,
-          CAP_REPO_UPDATE
-        ]
+        capabilities : [ CAP_APK_LIST, CAP_MANIFEST_CREATE, CAP_REPO_UPDATE ]
       }
     };
   }
@@ -47,7 +43,7 @@ message ResolveConfigRequest {
 
   // The repository context in which to perform the resolution.
   // This is relevant for how we authenticate for APK access.
-  string repo_uidp = 2 [(chainguard.annotations.iam_scope) = true];
+  string repo_uidp = 2 [ (chainguard.annotations.iam_scope) = true ];
 }
 
 message ApkoConfig {
@@ -70,7 +66,7 @@ message ApkoConfig {
     message User {
       uint32 uid = 1;
       string user_name = 2;
-      uint32 gid = 3;
+      optional uint32 gid = 3;
       string group_name = 4;
     };
     repeated User users = 2;
@@ -115,7 +111,7 @@ message BuildImageRequest {
   ApkoConfig config = 1;
 
   // Repo UIDP to push to.
-  string repo_uidp = 2 [(chainguard.annotations.iam_scope) = true];
+  string repo_uidp = 2 [ (chainguard.annotations.iam_scope) = true ];
 
   // The media type of the layer to build.
   string media_type = 3;
