@@ -87,6 +87,8 @@ message VulnCountReport {
   repeated VulnCount vuln_counts = 4;
   // size_bytes is the size in bytes of the image at scan time.
   int64 size_bytes = 5;
+  // cve_ids is a list of cumulative CVE IDs found in the image.
+  repeated string cve_ids = 6;
 }
 
 message VulnCount {
