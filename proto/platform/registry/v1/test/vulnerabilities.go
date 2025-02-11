@@ -21,9 +21,10 @@ var _ registry.VulnerabilitiesClient = (*MockVulnerabilitiesClient)(nil)
 type MockVulnerabilitiesClient struct {
 	registry.VulnerabilitiesClient
 
-	OnListVulnReports      []VulnReportsOnList
-	OnGetRawVulnReport     []RawVulnReportOnGet
-	OnListVulnCountReports []VulnCountReportsOnList
+	OnListVulnReports                []VulnReportsOnList
+	OnGetRawVulnReport               []RawVulnReportOnGet
+	OnListVulnCountReports           []VulnCountReportsOnList
+	OnListCumulativeVulnCountReports []VulnCountReportsOnList
 }
 
 type VulnReportsOnList struct {
@@ -64,6 +65,15 @@ func (m MockVulnerabilitiesClient) GetRawVulnReport(_ context.Context, given *re
 
 func (m MockVulnerabilitiesClient) ListVulnCountReports(_ context.Context, given *registry.VulnCountReportFilter, _ ...grpc.CallOption) (*registry.VulnCountReportList, error) {
 	for _, o := range m.OnListVulnCountReports {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.List, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockVulnerabilitiesClient) ListCumulativeVulnCountReports(_ context.Context, given *registry.VulnCountReportFilter, _ ...grpc.CallOption) (*registry.VulnCountReportList, error) {
+	for _, o := range m.OnListCumulativeVulnCountReports {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.List, o.Error
 		}
