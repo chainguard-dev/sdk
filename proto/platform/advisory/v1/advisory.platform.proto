@@ -166,6 +166,10 @@ message Advisory {
   repeated Event events = 2;
 
   repeated string aliases = 3;
+
+  // package_namespace identifies the repository that
+  // the origin package belongs to (e.g. wolfi or chainguard).
+  string package_namespace = 4;
 }
 
 message Document {
