@@ -33,7 +33,6 @@ func ToApkoProto(ic apkotypes.ImageConfiguration) *ApkoConfig {
 		// These are unused.
 		Volumes:    ic.Volumes,
 		StopSignal: ic.StopSignal,
-		Include:    ic.Include,
 		VcsUrl:     ic.VCSUrl,
 	}
 }
@@ -125,7 +124,6 @@ func ToApkoNative(cfg *ApkoConfig) apkotypes.ImageConfiguration {
 		// These are unused.
 		Volumes:    cfg.Volumes,
 		StopSignal: cfg.StopSignal,
-		Include:    cfg.Include,
 		VCSUrl:     cfg.VcsUrl,
 	}
 }
