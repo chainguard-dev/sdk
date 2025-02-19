@@ -11,6 +11,7 @@ import (
 
 	apkotypes "chainguard.dev/apko/pkg/build/types"
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"google.golang.org/protobuf/testing/protocmp"
 )
 
@@ -18,7 +19,9 @@ func TestRoundTrip(t *testing.T) {
 	if err := quick.Check(func(apko apkotypes.ImageConfiguration) bool {
 		pb := ToApkoProto(apko)
 		apko2 := ToApkoNative(pb)
-		if d := cmp.Diff(apko, apko2); d != "" {
+		// Include was deprecated in the proto, but quick.Check still populates it.
+		// We ignore it here to avoid the diff.
+		if d := cmp.Diff(apko, apko2, cmpopts.IgnoreFields(apkotypes.ImageConfiguration{}, "Include")); d != "" {
 			t.Errorf("apko diff(-want,+got): %s", d)
 			return false
 		}
