@@ -3,7 +3,7 @@ module chainguard.dev/sdk
 go 1.24.0
 
 require (
-	chainguard.dev/apko v0.25.0
+	chainguard.dev/apko v0.25.1
 	chainguard.dev/go-grpc-kit v0.17.7
 	chainguard.dev/go-oidctest v0.3.1
 	cloud.google.com/go/compute/metadata v0.6.0
@@ -76,6 +76,7 @@ require (
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.62.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
+	github.com/rogpeppe/go-internal v1.13.2-0.20241226121412-a5dc8ff20d0a // indirect
 	github.com/segmentio/ksuid v1.0.4 // indirect
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
