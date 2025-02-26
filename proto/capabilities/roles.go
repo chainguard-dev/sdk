@@ -121,13 +121,18 @@ var (
 		Capability_CAP_IAM_GROUPS_CREATE,
 	}, RegistryPullCaps...))
 
-	RegistryPullTokenCreatorCaps = sortCaps(append(append([]Capability{
-		// Minimal set of capabilities to create a registry pull token.
+	// PullTokenCreatorCaps is the minimal set of capabilities to create a pull token.
+	PullTokenCreatorCaps = sortCaps([]Capability{
+		// To create the token (identity + rolebinding)
 		Capability_CAP_IAM_ROLE_BINDINGS_CREATE,
 		Capability_CAP_IAM_IDENTITY_CREATE,
-
+		// To validate the role of the token.
 		Capability_CAP_IAM_ROLES_LIST,
-	}, RegistryPullCaps...), APKPullCaps...))
+		// To validate the parent group the token will attach to.
+		Capability_CAP_IAM_GROUPS_LIST,
+	})
+
+	RegistryPullTokenCreatorCaps = sortCaps(append(append(PullTokenCreatorCaps, RegistryPullCaps...), APKPullCaps...))
 
 	APKPullCaps = sortCaps([]Capability{
 		Capability_CAP_IAM_GROUPS_LIST,
