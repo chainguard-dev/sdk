@@ -63,6 +63,17 @@ service Registry {
     };
   }
 
+  rpc GetRepoCountBySource(GetRepoCountBySourceRequest) returns (RepoCount) {
+    option (google.api.http) = {
+      get: "/registry/v1/repocountbysource/{id=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST]
+      }
+    };
+  }
+
   rpc DeleteRepo(DeleteRepoRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/registry/v1/repos/{id=**}"
@@ -340,6 +351,15 @@ message ImageContents {
 message CreateRepoRequest {
   string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
   Repo repo = 2;
+}
+
+message GetRepoCountBySourceRequest {
+  // ID, UID of the source repo.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message RepoCount {
+  int64 count = 1;
 }
 
 message DeleteRepoRequest {
