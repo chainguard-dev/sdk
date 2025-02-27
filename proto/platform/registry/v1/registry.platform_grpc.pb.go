@@ -24,6 +24,7 @@ const (
 	Registry_CreateRepo_FullMethodName                = "/chainguard.platform.registry.Registry/CreateRepo"
 	Registry_UpdateRepo_FullMethodName                = "/chainguard.platform.registry.Registry/UpdateRepo"
 	Registry_ListRepos_FullMethodName                 = "/chainguard.platform.registry.Registry/ListRepos"
+	Registry_GetRepoCountBySource_FullMethodName      = "/chainguard.platform.registry.Registry/GetRepoCountBySource"
 	Registry_DeleteRepo_FullMethodName                = "/chainguard.platform.registry.Registry/DeleteRepo"
 	Registry_CreateTag_FullMethodName                 = "/chainguard.platform.registry.Registry/CreateTag"
 	Registry_UpdateTag_FullMethodName                 = "/chainguard.platform.registry.Registry/UpdateTag"
@@ -48,6 +49,7 @@ type RegistryClient interface {
 	CreateRepo(ctx context.Context, in *CreateRepoRequest, opts ...grpc.CallOption) (*Repo, error)
 	UpdateRepo(ctx context.Context, in *Repo, opts ...grpc.CallOption) (*Repo, error)
 	ListRepos(ctx context.Context, in *RepoFilter, opts ...grpc.CallOption) (*RepoList, error)
+	GetRepoCountBySource(ctx context.Context, in *GetRepoCountBySourceRequest, opts ...grpc.CallOption) (*RepoCount, error)
 	DeleteRepo(ctx context.Context, in *DeleteRepoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateTag(ctx context.Context, in *CreateTagRequest, opts ...grpc.CallOption) (*Tag, error)
 	UpdateTag(ctx context.Context, in *Tag, opts ...grpc.CallOption) (*Tag, error)
@@ -97,6 +99,16 @@ func (c *registryClient) ListRepos(ctx context.Context, in *RepoFilter, opts ...
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RepoList)
 	err := c.cc.Invoke(ctx, Registry_ListRepos_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *registryClient) GetRepoCountBySource(ctx context.Context, in *GetRepoCountBySourceRequest, opts ...grpc.CallOption) (*RepoCount, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RepoCount)
+	err := c.cc.Invoke(ctx, Registry_GetRepoCountBySource_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -260,6 +272,7 @@ type RegistryServer interface {
 	CreateRepo(context.Context, *CreateRepoRequest) (*Repo, error)
 	UpdateRepo(context.Context, *Repo) (*Repo, error)
 	ListRepos(context.Context, *RepoFilter) (*RepoList, error)
+	GetRepoCountBySource(context.Context, *GetRepoCountBySourceRequest) (*RepoCount, error)
 	DeleteRepo(context.Context, *DeleteRepoRequest) (*emptypb.Empty, error)
 	CreateTag(context.Context, *CreateTagRequest) (*Tag, error)
 	UpdateTag(context.Context, *Tag) (*Tag, error)
@@ -293,6 +306,9 @@ func (UnimplementedRegistryServer) UpdateRepo(context.Context, *Repo) (*Repo, er
 }
 func (UnimplementedRegistryServer) ListRepos(context.Context, *RepoFilter) (*RepoList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRepos not implemented")
+}
+func (UnimplementedRegistryServer) GetRepoCountBySource(context.Context, *GetRepoCountBySourceRequest) (*RepoCount, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRepoCountBySource not implemented")
 }
 func (UnimplementedRegistryServer) DeleteRepo(context.Context, *DeleteRepoRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteRepo not implemented")
@@ -410,6 +426,24 @@ func _Registry_ListRepos_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RegistryServer).ListRepos(ctx, req.(*RepoFilter))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Registry_GetRepoCountBySource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRepoCountBySourceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).GetRepoCountBySource(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_GetRepoCountBySource_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).GetRepoCountBySource(ctx, req.(*GetRepoCountBySourceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -702,6 +736,10 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListRepos",
 			Handler:    _Registry_ListRepos_Handler,
+		},
+		{
+			MethodName: "GetRepoCountBySource",
+			Handler:    _Registry_GetRepoCountBySource_Handler,
 		},
 		{
 			MethodName: "DeleteRepo",

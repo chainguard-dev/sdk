@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-jose/go-jose/v3/jwt"
+	"github.com/go-jose/go-jose/v4/jwt"
 	"github.com/google/go-cmp/cmp"
 
 	"chainguard.dev/go-oidctest/pkg/oidctest"
@@ -31,9 +31,9 @@ func testToken(t *testing.T, audience, subject string, issuedAt time.Time, valid
 		Expiry:   jwt.NewNumericDate(issuedAt.Add(validDur)),
 		Subject:  subject,
 		Audience: jwt.Audience{audience},
-	}).CompactSerialize()
+	}).Serialize()
 	if err != nil {
-		t.Fatalf("CompactSerialize() = %v", err)
+		t.Fatalf("Serialize() = %v", err)
 	}
 
 	return tok
