@@ -5,14 +5,15 @@ go 1.24.0
 require (
 	chainguard.dev/apko v0.25.1
 	chainguard.dev/go-grpc-kit v0.17.7
-	chainguard.dev/go-oidctest v0.3.1
+	chainguard.dev/go-oidctest v0.4.0
 	cloud.google.com/go/compute/metadata v0.6.0
 	github.com/aws/aws-sdk-go-v2 v1.36.2
 	github.com/bits-and-blooms/bitset v1.21.0
 	github.com/chainguard-dev/clog v1.6.1
 	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/coreos/go-oidc/v3 v3.12.0
-	github.com/go-jose/go-jose/v3 v3.0.4
+	github.com/go-jose/go-jose/v3 v3.0.4 // indirect
+	github.com/go-jose/go-jose/v4 v4.0.5
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-containerregistry v0.20.3
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1
@@ -50,7 +51,6 @@ require (
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
 	github.com/go-git/go-billy/v5 v5.6.2 // indirect
 	github.com/go-git/go-git/v5 v5.13.2 // indirect
-	github.com/go-jose/go-jose/v4 v4.0.5 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
