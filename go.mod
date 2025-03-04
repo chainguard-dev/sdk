@@ -3,28 +3,28 @@ module chainguard.dev/sdk
 go 1.24.0
 
 require (
-	chainguard.dev/apko v0.25.1
+	chainguard.dev/apko v0.25.2-0.20250225192758-581904a29f4a
 	chainguard.dev/go-grpc-kit v0.17.7
 	chainguard.dev/go-oidctest v0.4.0
 	cloud.google.com/go/compute/metadata v0.6.0
-	github.com/aws/aws-sdk-go-v2 v1.36.2
+	github.com/aws/aws-sdk-go-v2 v1.36.3
 	github.com/bits-and-blooms/bitset v1.21.0
-	github.com/chainguard-dev/clog v1.6.1
+	github.com/chainguard-dev/clog v1.7.0
 	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/coreos/go-oidc/v3 v3.12.0
 	github.com/go-jose/go-jose/v3 v3.0.4 // indirect
 	github.com/go-jose/go-jose/v4 v4.0.5
 	github.com/google/go-cmp v0.7.0
-	github.com/google/go-containerregistry v0.20.3
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1
+	github.com/google/go-containerregistry v0.20.4-0.20250225234217-098045d5e61f
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.2
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/sigstore/sigstore v1.8.15
-	golang.org/x/exp v0.0.0-20250210185358-939b2ce775ac
+	golang.org/x/exp v0.0.0-20250218142911-aa4b98e5adaa
 	golang.org/x/oauth2 v0.27.0
 	google.golang.org/api v0.223.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20250207221924-e9438ea467c6
+	google.golang.org/genproto/googleapis/api v0.0.0-20250303144028-a0af3efb3deb
 	google.golang.org/grpc v1.70.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1
 	google.golang.org/protobuf v1.36.5
@@ -44,7 +44,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudflare/circl v1.6.0 // indirect
 	github.com/cyphar/filepath-securejoin v0.4.1 // indirect
-	github.com/docker/cli v27.5.1+incompatible // indirect
+	github.com/docker/cli v28.0.1+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.9.1 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
@@ -95,7 +95,7 @@ require (
 	golang.org/x/net v0.35.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/text v0.22.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250219182151-9fdb1cabc7b2 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250303144028-a0af3efb3deb // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
