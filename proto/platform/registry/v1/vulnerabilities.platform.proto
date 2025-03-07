@@ -89,6 +89,18 @@ message VulnCountReport {
   int64 size_bytes = 5;
   // cve_ids is a list of cumulative CVE IDs found in the image.
   repeated string cve_ids = 6;
+  // low_cve_ids is a list of cumulative CVE IDs found in the image with a low severity.
+  repeated string low_cve_ids = 7;
+  // med_cve_ids is a list of cumulative CVE IDs found in the image with a medium severity.
+  repeated string med_cve_ids = 8;
+  // high_cve_ids is a list of cumulative CVE IDs found in the image with a high severity.
+  repeated string high_cve_ids = 9;
+  // crit_cve_ids is a list of cumulative CVE IDs found in the image with a critical severity.
+  repeated string crit_cve_ids = 10;
+  // negligible_cve_ids is a list of cumulative CVE IDs found in the image with a negligible severity.
+  repeated string negligible_cve_ids = 11;
+  // unknown_cve_ids is a list of cumulative CVE IDs found in the image with an unknown severity.
+  repeated string unknown_cve_ids = 12;
 }
 
 message VulnCount {
