@@ -8,7 +8,7 @@ require (
 	chainguard.dev/go-oidctest v0.4.0
 	cloud.google.com/go/compute/metadata v0.6.0
 	github.com/aws/aws-sdk-go-v2 v1.36.3
-	github.com/bits-and-blooms/bitset v1.21.0
+	github.com/bits-and-blooms/bitset v1.22.0
 	github.com/chainguard-dev/clog v1.7.0
 	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/coreos/go-oidc/v3 v3.12.0
@@ -19,15 +19,15 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
 	github.com/russross/blackfriday/v2 v2.1.0
-	github.com/sigstore/sigstore v1.9.0
+	github.com/sigstore/sigstore v1.9.1
 	golang.org/x/exp v0.0.0-20250218142911-aa4b98e5adaa
 	golang.org/x/oauth2 v0.28.0
-	google.golang.org/api v0.224.0
+	google.golang.org/api v0.225.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250303144028-a0af3efb3deb
 	google.golang.org/grpc v1.71.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1
 	google.golang.org/protobuf v1.36.5
-	k8s.io/apimachinery v0.32.2
+	k8s.io/apimachinery v0.32.3
 
 )
 
@@ -93,7 +93,6 @@ require (
 	golang.org/x/net v0.37.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
-	golang.org/x/time v0.11.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250303144028-a0af3efb3deb // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
