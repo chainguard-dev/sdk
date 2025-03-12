@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/registry/v1";
+option java_multiple_files = true;
+option java_package = "dev.chainguard.sdk.platform.registry.v1";
+option java_outer_classname = "PlatformRegistryProto";
+
+package chainguard.platform.registry;
+
+import "google/protobuf/timestamp.proto";
+import "registry.platform.proto";
+import "google/api/annotations.proto";
+import "annotations/auth.proto";
+
+// Entitlements is a service for viewing configuration and features enabled on a registry.
+// NOTE: This API is EARLY ACCESS and is subject to change without notice.
+service Entitlements {
+  rpc ListEntitlements(EntitlementFilter) returns (EntitlementList) {
+    option (google.api.http) = {
+      get: "/registry/v1/entitlements"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_ENTITLEMENTS_LIST]
+      }
+    };
+  }
+  rpc ListEntitlementImages(EntitlementImagesFilter) returns (EntitlementImagesList) {
+    option (google.api.http) = {
+      get: "/registry/v1/entitlements/{parent=**}/images"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_ENTITLEMENTS_LIST]
+      }
+    };
+  }
+}
+
+// Entitlement contains information about what an organization is entitled to.
+message Entitlement {
+  string id = 1;
+  string external_id = 2;
+
+  google.protobuf.Timestamp create_time = 3;
+  google.protobuf.Timestamp update_time = 4;
+  google.protobuf.Timestamp expiration_time = 5;
+
+  enum Type {
+      UNKNOWN = 0;
+      TRIAL = 1;
+      PRODUCTION = 2;
+  }
+  Type type = 6;
+
+  // Keys can't be enum types, but string should match CatalogTier.
+  map<string, ImageQuota> quota = 7;
+}
+
+message ImageQuota {
+  int32 current = 1;
+  int32 max = 2;
+}
+
+message EntitlementFilter {
+  string parent = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message EntitlementList {
+  repeated Entitlement items = 1;
+}
+
+message EntitlementImage {
+  string id = 1 ;
+  string name = 2;
+
+  chainguard.platform.registry.CatalogTier tier = 3;
+  string bundle_id = 4;
+}
+
+message EntitlementImagesFilter {
+  string parent = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message EntitlementImagesList {
+  repeated EntitlementImage images = 1;
+}
