@@ -23,11 +23,32 @@ import (
 )
 
 var (
-	// Map of stringified name to capability. Initialized with initNameCapabilityMap()
+	// Map of stringified name to capability.
 	nameCapabilityMap = make(map[string]Capability, len(Capability_value))
 	ponce             sync.Once
 	perror            error
+
+	// Map of Capability to result of Bitify(). Set in initBitifyMap().
+	bitifiedMap = make(map[Capability]uint32, len(Capability_value))
+	bitifyOnce  sync.Once
 )
+
+// We can't do this in init() because init() ordering is hard.
+func initBitifyMap() {
+	for i := range Capability_name {
+		capability := Capability(i) //nolint: revive
+		if capability == Capability_UNKNOWN {
+			continue
+		}
+		bit, err := bitify(capability)
+		if err != nil {
+			// This should never happen!
+			continue
+		}
+
+		bitifiedMap[capability] = bit
+	}
+}
 
 // Names returns a slice of all capabilities Stringify'd, sans UNKNOWN.
 func Names() []string {
@@ -109,6 +130,20 @@ func Parse(name string) (Capability, error) {
 }
 
 func Bitify(capability Capability) (uint32, error) {
+	bitifyOnce.Do(initBitifyMap)
+
+	bit, ok := bitifiedMap[capability]
+	if !ok {
+		// If it's missing in bitifiedMap, we ignored it because bitify() returned an error.
+		// Just call bitify() again here to get whatever the error was.
+		// This should almost never happen, so duplicating the work is fine.
+		return bitify(capability)
+	}
+
+	return bit, nil
+}
+
+func bitify(capability Capability) (uint32, error) {
 	evd := capability.Descriptor().Values().ByNumber(capability.Number())
 	if evd == nil {
 		return 0, status.Errorf(codes.Internal, "capability has no descriptor: %v", capability)
@@ -172,20 +207,14 @@ func (s *Set) UnmarshalJSON(b []byte) error {
 		return nil
 
 	default:
+		bitifyOnce.Do(initBitifyMap)
+
 		// Compact encoding
 		var bs bitset.BitSet
 		if err := json.Unmarshal(b, &bs); err != nil {
 			return err
 		}
-		for i := range Capability_name {
-			capability := Capability(i) //nolint: revive
-			if capability == Capability_UNKNOWN {
-				continue
-			}
-			bit, err := Bitify(capability)
-			if err != nil {
-				return err
-			}
+		for capability, bit := range bitifiedMap {
 			if bs.Test(uint(bit)) {
 				*s = append(*s, capability)
 				// This ensures that our unit testing checks that no two
