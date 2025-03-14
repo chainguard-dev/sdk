@@ -21,6 +21,7 @@ type Clients interface {
 	Registry() RegistryClient
 	Vulnerabilities() VulnerabilitiesClient
 	Apko() ApkoClient
+	Entitlements() EntitlementsClient
 
 	Close() error
 }
@@ -49,6 +50,7 @@ func NewClients(ctx context.Context, addr string, token string) (Clients, error)
 		registry:        NewRegistryClient(conn),
 		vulnerabilities: NewVulnerabilitiesClient(conn),
 		apko:            NewApkoClient(conn),
+		entitlements:    NewEntitlementsClient(conn),
 
 		conn: conn,
 	}, nil
@@ -59,6 +61,7 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 		registry:        NewRegistryClient(conn),
 		vulnerabilities: NewVulnerabilitiesClient(conn),
 		apko:            NewApkoClient(conn),
+		entitlements:    NewEntitlementsClient(conn),
 		// conn is not set, this client struct does not own closing it.
 	}
 }
@@ -67,6 +70,7 @@ type clients struct {
 	registry        RegistryClient
 	vulnerabilities VulnerabilitiesClient
 	apko            ApkoClient
+	entitlements    EntitlementsClient
 
 	conn *grpc.ClientConn
 }
@@ -81,6 +85,10 @@ func (c *clients) Vulnerabilities() VulnerabilitiesClient {
 
 func (c *clients) Apko() ApkoClient {
 	return c.apko
+}
+
+func (c *clients) Entitlements() EntitlementsClient {
+	return c.entitlements
 }
 
 func (c *clients) Close() error {
