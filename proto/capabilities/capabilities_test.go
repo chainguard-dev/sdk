@@ -163,3 +163,44 @@ func TestEncoding(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkUnmarshal(b *testing.B) {
+	caps := Set{
+		Capability_CAP_IAM_GROUPS_LIST,
+
+		Capability_CAP_REPO_LIST,
+		Capability_CAP_MANIFEST_LIST,
+		Capability_CAP_TAG_LIST,
+		Capability_CAP_MANIFEST_METADATA_LIST,
+
+		Capability_CAP_TENANT_RECORD_SIGNATURES_LIST,
+		Capability_CAP_TENANT_SBOMS_LIST,
+		Capability_CAP_TENANT_VULN_REPORTS_LIST,
+
+		Capability_CAP_REPO_CREATE,
+		Capability_CAP_REPO_UPDATE,
+		Capability_CAP_REPO_DELETE,
+
+		Capability_CAP_MANIFEST_CREATE,
+		Capability_CAP_MANIFEST_UPDATE,
+		Capability_CAP_MANIFEST_DELETE,
+
+		Capability_CAP_TAG_CREATE,
+		Capability_CAP_TAG_UPDATE,
+		Capability_CAP_TAG_DELETE,
+
+		// To create nested groups as needed on push.
+		Capability_CAP_IAM_GROUPS_CREATE,
+	}
+	raw, err := json.Marshal(caps)
+	if err != nil {
+		b.Fatalf("json.Marshal() = %v", err)
+	}
+
+	for b.Loop() {
+		var got Set
+		if err := json.Unmarshal(raw, &got); err != nil {
+			b.Fatalf("json.Unmarshal() = %v", err)
+		}
+	}
+}

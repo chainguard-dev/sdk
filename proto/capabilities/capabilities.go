@@ -30,8 +30,15 @@ var (
 
 	// Map of Capability to result of Bitify(). Set in initBitifyMap().
 	bitifiedMap = make(map[Capability]uint32, len(Capability_value))
-	bitifyOnce  sync.Once
+	// Sorted list of {bit, cap} so we can skip sorting in UnmarshalJSON.
+	bitCaps    = make([]bitcap, 0, len(Capability_value))
+	bitifyOnce sync.Once
 )
+
+type bitcap struct {
+	bit uint32
+	cap Capability
+}
 
 // We can't do this in init() because init() ordering is hard.
 func initBitifyMap() {
@@ -47,7 +54,12 @@ func initBitifyMap() {
 		}
 
 		bitifiedMap[capability] = bit
+		bitCaps = append(bitCaps, bitcap{bit, capability})
 	}
+
+	sort.Slice(bitCaps, func(i int, j int) bool {
+		return bitCaps[i].cap < bitCaps[j].cap
+	})
 }
 
 // Names returns a slice of all capabilities Stringify'd, sans UNKNOWN.
@@ -214,17 +226,18 @@ func (s *Set) UnmarshalJSON(b []byte) error {
 		if err := json.Unmarshal(b, &bs); err != nil {
 			return err
 		}
-		for capability, bit := range bitifiedMap {
-			if bs.Test(uint(bit)) {
-				*s = append(*s, capability)
+
+		*s = make([]Capability, 0, bs.Count())
+
+		for _, bitcap := range bitCaps {
+			if bs.Test(uint(bitcap.bit)) {
+				*s = append(*s, bitcap.cap)
 				// This ensures that our unit testing checks that no two
 				// enumeration values are assigned the same bit.
-				bs.Clear(uint(bit))
+				bs.Clear(uint(bitcap.bit))
 			}
 		}
-		sort.Slice(*s, func(i int, j int) bool {
-			return (*s)[i] < (*s)[j]
-		})
+
 		return nil
 	}
 }
