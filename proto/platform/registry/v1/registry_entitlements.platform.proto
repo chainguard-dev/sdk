@@ -17,7 +17,7 @@ import "annotations/auth.proto";
 service Entitlements {
   rpc ListEntitlements(EntitlementFilter) returns (EntitlementList) {
     option (google.api.http) = {
-      get: "/registry/v1/entitlements"
+      get: "/registry/v1/entitlements/{parent=**}"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
@@ -71,11 +71,10 @@ message EntitlementList {
 }
 
 message EntitlementImage {
+  // The image repository UID.
   string id = 1 ;
-  string name = 2;
-
-  chainguard.platform.registry.CatalogTier tier = 3;
-  string bundle_id = 4;
+  // The image repository catalog tier the image is associated with.
+  chainguard.platform.registry.CatalogTier tier = 2;
 }
 
 message EntitlementImagesFilter {

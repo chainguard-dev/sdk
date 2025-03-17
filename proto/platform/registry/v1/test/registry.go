@@ -25,6 +25,7 @@ type MockRegistryClients struct {
 	RegistryClient        MockRegistryClient
 	VulnerabilitiesClient MockVulnerabilitiesClient
 	ApkoClient            MockApkoClient
+	EntitlementsClient    MockEntitlementsClient
 }
 
 func (m MockRegistryClients) Registry() registry.RegistryClient {
@@ -37,6 +38,10 @@ func (m MockRegistryClients) Vulnerabilities() registry.VulnerabilitiesClient {
 
 func (m MockRegistryClients) Apko() registry.ApkoClient {
 	return &m.ApkoClient
+}
+
+func (m MockRegistryClients) Entitlements() registry.EntitlementsClient {
+	return &m.EntitlementsClient
 }
 
 func (m MockRegistryClients) Close() error {
