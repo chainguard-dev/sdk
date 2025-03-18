@@ -98,9 +98,8 @@ enum Capability {
 
   // Registry
 
-  // TODO(jason): Remove these coarse-grained capabilities after they're removed from the roles.
-  CAP_REGISTRY_PULL = 1601 [(name) = "registry.pull", (bit) = 40, deprecated = true]; // Can read tags, blobs, manifests.
-  CAP_REGISTRY_PUSH = 1602 [(name) = "registry.push", (bit) = 41, deprecated = true]; // Can create and update tags, blobs, manifests.
+  reserved 1601; // CAP_REGISTRY_PULL
+  reserved 1602; // CAP_REGISTRY_PUSH
 
   CAP_REPO_CREATE = 1603 [(name) = "repo.create", (bit) = 56];
   CAP_REPO_UPDATE = 1604 [(name) = "repo.update", (bit) = 57];
