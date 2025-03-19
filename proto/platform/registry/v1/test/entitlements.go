@@ -7,21 +7,49 @@ package test
 
 import (
 	"context"
+	"fmt"
 
 	registry "chainguard.dev/sdk/proto/platform/registry/v1"
+	"github.com/google/go-cmp/cmp"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/testing/protocmp"
 )
 
 var _ registry.EntitlementsClient = (*MockEntitlementsClient)(nil)
 
-type MockEntitlementsClient struct{}
+type MockEntitlementsClient struct {
+	registry.EntitlementsClient
 
-func (*MockEntitlementsClient) ListEntitlements(context.Context, *registry.EntitlementFilter, ...grpc.CallOption) (*registry.EntitlementList, error) {
-	return nil, status.Error(codes.Unimplemented, "not implemented")
+	OnListEntitlements      []ListOnEntitlements
+	OnListEntitlementImages []ListOnEntitlementImages
 }
 
-func (*MockEntitlementsClient) ListEntitlementImages(context.Context, *registry.EntitlementImagesFilter, ...grpc.CallOption) (*registry.EntitlementImagesList, error) {
-	return nil, status.Error(codes.Unimplemented, "not implemented")
+type ListOnEntitlements struct {
+	Given *registry.EntitlementFilter
+	List  *registry.EntitlementList
+	Error error
+}
+
+type ListOnEntitlementImages struct {
+	Given *registry.EntitlementImagesFilter
+	List  *registry.EntitlementImagesList
+	Error error
+}
+
+func (m *MockEntitlementsClient) ListEntitlements(_ context.Context, given *registry.EntitlementFilter, _ ...grpc.CallOption) (*registry.EntitlementList, error) {
+	for _, o := range m.OnListEntitlements {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.List, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m *MockEntitlementsClient) ListEntitlementImages(_ context.Context, given *registry.EntitlementImagesFilter, _ ...grpc.CallOption) (*registry.EntitlementImagesList, error) {
+	for _, o := range m.OnListEntitlementImages {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.List, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
 }
