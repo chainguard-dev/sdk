@@ -69,6 +69,9 @@ type MockRegistryClient struct {
 	OnGetRawSbom                []RawSbomOnGet
 	OnGetPackageVersionMetadata []PackageVersionMetadataOnGet
 	OnListBuildReports          []BuildReportsOnList
+	OnGetRepoCountBySource      []RepoCountBySourceOnGet
+	OnGetArchs                  []ArchsOnGet
+	OnGetSize                   []SizeOnGet
 }
 
 type ReposOnCreate struct {
@@ -162,6 +165,24 @@ type PackageVersionMetadataOnGet struct {
 type BuildReportsOnList struct {
 	Given *registry.BuildReportFilter
 	List  *registry.BuildReportList
+	Error error
+}
+
+type RepoCountBySourceOnGet struct {
+	Given *registry.GetRepoCountBySourceRequest
+	Get   *registry.RepoCount
+	Error error
+}
+
+type ArchsOnGet struct {
+	Given *registry.ArchRequest
+	Get   *registry.Archs
+	Error error
+}
+
+type SizeOnGet struct {
+	Given *registry.SizeRequest
+	Get   *registry.Size
 	Error error
 }
 
@@ -304,6 +325,33 @@ func (m MockRegistryClient) ListBuildReports(_ context.Context, given *registry.
 	for _, o := range m.OnListBuildReports {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.List, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockRegistryClient) GetRepoCountBySource(_ context.Context, given *registry.GetRepoCountBySourceRequest, _ ...grpc.CallOption) (*registry.RepoCount, error) {
+	for _, o := range m.OnGetRepoCountBySource {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Get, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockRegistryClient) GetArchs(_ context.Context, given *registry.ArchRequest, _ ...grpc.CallOption) (*registry.Archs, error) {
+	for _, o := range m.OnGetArchs {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Get, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockRegistryClient) GetSize(_ context.Context, given *registry.SizeRequest, _ ...grpc.CallOption) (*registry.Size, error) {
+	for _, o := range m.OnGetSize {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Get, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)
