@@ -619,6 +619,8 @@ message ImageConfigRequest {
   string digest = 2;
   // The architecture to get config for.
   string arch = 3;
+  // Fetch config from registry.
+  bool registry = 4;
 }
 
 message RawSbomRequest {
