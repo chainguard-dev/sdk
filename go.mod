@@ -1,6 +1,6 @@
 module chainguard.dev/sdk
 
-go 1.24.0
+go 1.24.1
 
 require (
 	chainguard.dev/apko v0.25.5
