@@ -43,6 +43,7 @@ var (
 		Capability_CAP_EVENTS_SUBSCRIPTION_CREATE,
 		Capability_CAP_EVENTS_SUBSCRIPTION_DELETE,
 		Capability_CAP_EVENTS_SUBSCRIPTION_UPDATE,
+		Capability_CAP_REPO_UPDATE,
 	}, ViewerCaps...))
 
 	// ownerCaps includes all capabilities possible by a user.
