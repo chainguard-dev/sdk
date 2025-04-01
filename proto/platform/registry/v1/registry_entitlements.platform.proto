@@ -10,6 +10,7 @@ package chainguard.platform.registry;
 import "google/protobuf/timestamp.proto";
 import "registry.platform.proto";
 import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 import "annotations/auth.proto";
 
 // Entitlements is a service for viewing configuration and features enabled on a registry.
@@ -87,6 +88,9 @@ message EntitlementImage {
   string id = 1 ;
   // The image repository catalog tier the image is associated with.
   chainguard.platform.registry.CatalogTier tier = 2;
+
+  // Human-readable image name corresponding to id.
+  string name = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message EntitlementImagesFilter {
