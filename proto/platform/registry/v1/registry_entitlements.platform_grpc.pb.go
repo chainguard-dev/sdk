@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	Entitlements_ListEntitlements_FullMethodName      = "/chainguard.platform.registry.Entitlements/ListEntitlements"
 	Entitlements_ListEntitlementImages_FullMethodName = "/chainguard.platform.registry.Entitlements/ListEntitlementImages"
+	Entitlements_Summary_FullMethodName               = "/chainguard.platform.registry.Entitlements/Summary"
 )
 
 // EntitlementsClient is the client API for Entitlements service.
@@ -32,6 +33,8 @@ const (
 type EntitlementsClient interface {
 	ListEntitlements(ctx context.Context, in *EntitlementFilter, opts ...grpc.CallOption) (*EntitlementList, error)
 	ListEntitlementImages(ctx context.Context, in *EntitlementImagesFilter, opts ...grpc.CallOption) (*EntitlementImagesList, error)
+	// Summary provides a group-level summary of entitlements.
+	Summary(ctx context.Context, in *EntitlementSummaryRequest, opts ...grpc.CallOption) (*EntitlementSummaryResponse, error)
 }
 
 type entitlementsClient struct {
@@ -62,6 +65,16 @@ func (c *entitlementsClient) ListEntitlementImages(ctx context.Context, in *Enti
 	return out, nil
 }
 
+func (c *entitlementsClient) Summary(ctx context.Context, in *EntitlementSummaryRequest, opts ...grpc.CallOption) (*EntitlementSummaryResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(EntitlementSummaryResponse)
+	err := c.cc.Invoke(ctx, Entitlements_Summary_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // EntitlementsServer is the server API for Entitlements service.
 // All implementations must embed UnimplementedEntitlementsServer
 // for forward compatibility.
@@ -71,6 +84,8 @@ func (c *entitlementsClient) ListEntitlementImages(ctx context.Context, in *Enti
 type EntitlementsServer interface {
 	ListEntitlements(context.Context, *EntitlementFilter) (*EntitlementList, error)
 	ListEntitlementImages(context.Context, *EntitlementImagesFilter) (*EntitlementImagesList, error)
+	// Summary provides a group-level summary of entitlements.
+	Summary(context.Context, *EntitlementSummaryRequest) (*EntitlementSummaryResponse, error)
 	mustEmbedUnimplementedEntitlementsServer()
 }
 
@@ -86,6 +101,9 @@ func (UnimplementedEntitlementsServer) ListEntitlements(context.Context, *Entitl
 }
 func (UnimplementedEntitlementsServer) ListEntitlementImages(context.Context, *EntitlementImagesFilter) (*EntitlementImagesList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListEntitlementImages not implemented")
+}
+func (UnimplementedEntitlementsServer) Summary(context.Context, *EntitlementSummaryRequest) (*EntitlementSummaryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Summary not implemented")
 }
 func (UnimplementedEntitlementsServer) mustEmbedUnimplementedEntitlementsServer() {}
 func (UnimplementedEntitlementsServer) testEmbeddedByValue()                      {}
@@ -144,6 +162,24 @@ func _Entitlements_ListEntitlementImages_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Entitlements_Summary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EntitlementSummaryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EntitlementsServer).Summary(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Entitlements_Summary_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EntitlementsServer).Summary(ctx, req.(*EntitlementSummaryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Entitlements_ServiceDesc is the grpc.ServiceDesc for Entitlements service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -158,6 +194,10 @@ var Entitlements_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListEntitlementImages",
 			Handler:    _Entitlements_ListEntitlementImages_Handler,
+		},
+		{
+			MethodName: "Summary",
+			Handler:    _Entitlements_Summary_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
