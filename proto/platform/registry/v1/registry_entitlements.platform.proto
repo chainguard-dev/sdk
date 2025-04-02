@@ -40,7 +40,7 @@ service Entitlements {
   // Summary provides a group-level summary of entitlements.
   rpc Summary(EntitlementSummaryRequest) returns (EntitlementSummaryResponse) {
     option (google.api.http) = {
-      get: "/registry/v1/entitlements:summary"
+      get: "/registry/v1/entitlements/{parent=**}:summary"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
