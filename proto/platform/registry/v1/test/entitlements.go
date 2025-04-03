@@ -22,6 +22,7 @@ type MockEntitlementsClient struct {
 
 	OnListEntitlements      []ListOnEntitlements
 	OnListEntitlementImages []ListOnEntitlementImages
+	OnGetEntitlementSummary []GetOnEntitlementSummary
 }
 
 type ListOnEntitlements struct {
@@ -33,6 +34,12 @@ type ListOnEntitlements struct {
 type ListOnEntitlementImages struct {
 	Given *registry.EntitlementImagesFilter
 	List  *registry.EntitlementImagesList
+	Error error
+}
+
+type GetOnEntitlementSummary struct {
+	Given *registry.EntitlementSummaryRequest
+	Get   *registry.EntitlementSummaryResponse
 	Error error
 }
 
@@ -49,6 +56,15 @@ func (m *MockEntitlementsClient) ListEntitlementImages(_ context.Context, given 
 	for _, o := range m.OnListEntitlementImages {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.List, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m *MockEntitlementsClient) Summary(_ context.Context, given *registry.EntitlementSummaryRequest, _ ...grpc.CallOption) (*registry.EntitlementSummaryResponse, error) {
+	for _, o := range m.OnGetEntitlementSummary {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Get, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)
