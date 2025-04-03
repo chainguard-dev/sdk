@@ -108,4 +108,6 @@ message EntitlementSummaryRequest {
 message EntitlementSummaryResponse {
   // Keys can't be enum types, but string should match CatalogTier.
   map<string, ImageQuota> quota = 1;
+  // last updated time
+  google.protobuf.Timestamp last_updated_time = 2;
 }
