@@ -263,6 +263,18 @@ service Registry {
       }
     };
   }
+
+  rpc GetBuildStatus(BuildReportFilter) returns (BuildStatus) {
+    option (google.api.http) = {
+      get: "/registry/v1/buildstatus"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_BUILD_REPORT_LIST]
+        unscoped: true
+      }
+    };
+  }
 }
 
 message Repo {
@@ -307,6 +319,7 @@ enum CatalogTier {
   BASE = 5;
   FIPS = 6;
   AI = 7;
+  DEVTOOLS = 8;
 }
 
 message SyncConfig {
@@ -784,4 +797,19 @@ message BuildReport {
 // BuildReportList is a list of BuildReports.
 message BuildReportList {
   repeated BuildReport reports = 1;
+}
+
+//  BuildStatus is an overview of build results for a given org.
+message BuildStatus {
+
+  message Failures {
+    // The ID of a repo.
+    string repo_id = 1;
+
+    // The total number of failures for this repo.
+    int32 total = 2;
+  }
+
+  //  The list of all repos with failures.
+  repeated Failures failures = 1;
 }
