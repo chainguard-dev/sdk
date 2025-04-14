@@ -38,6 +38,9 @@ message APKFilter {
 
   // An architecture to filter by (e.g., x86_64 or aarch64).
   string architecture = 3;
+
+  // Only return the most recently updated version of each package/architecture.
+  bool most_recently_updated = 4;
 }
 
 // APKList is a list of APKs.
