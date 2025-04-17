@@ -22,9 +22,7 @@ func TestRoundTrip(t *testing.T) {
 		// Include was deprecated in the proto, but quick.Check still populates it.
 		// We ignore it here to avoid the diff.
 		// https://github.com/chainguard-dev/apko/blob/main/pkg/build/types/types.go#L185-L186
-		// Layering is experimental, ignore for the time being.
-		// https://github.com/chainguard-dev/apko/blob/main/pkg/build/types/types.go#L197-L198
-		if d := cmp.Diff(apko, apko2, cmpopts.IgnoreFields(apkotypes.ImageConfiguration{}, "Include", "Layering")); d != "" {
+		if d := cmp.Diff(apko, apko2, cmpopts.IgnoreFields(apkotypes.ImageConfiguration{}, "Include")); d != "" {
 			t.Errorf("apko diff(-want,+got): %s", d)
 			return false
 		}

@@ -29,6 +29,7 @@ func ToApkoProto(ic apkotypes.ImageConfiguration) *ApkoConfig {
 		Cmd:         ic.Cmd,
 		WorkDir:     ic.WorkDir,
 		Archs:       pbArchs(ic.Archs),
+		Layering:    pbLayering(ic.Layering),
 
 		// These are unused.
 		Volumes:    ic.Volumes,
@@ -105,6 +106,16 @@ func pbEntrypoint(entrypoint apkotypes.ImageEntrypoint) *ApkoConfig_Entrypoint {
 	}
 }
 
+func pbLayering(layering *apkotypes.Layering) *ApkoConfig_Layering {
+	if layering == nil {
+		return nil
+	}
+	return &ApkoConfig_Layering{
+		Strategy: layering.Strategy,
+		Budget:   int64(layering.Budget),
+	}
+}
+
 func ToApkoNative(cfg *ApkoConfig) apkotypes.ImageConfiguration {
 	if cfg == nil {
 		return apkotypes.ImageConfiguration{}
@@ -120,6 +131,7 @@ func ToApkoNative(cfg *ApkoConfig) apkotypes.ImageConfiguration {
 		Cmd:         cfg.Cmd,
 		WorkDir:     cfg.WorkDir,
 		Archs:       apkoArchs(cfg.Archs),
+		Layering:    apkoLayering(cfg.Layering),
 
 		// These are unused.
 		Volumes:    cfg.Volumes,
@@ -220,5 +232,15 @@ func apkoEntrypoint(entrypoint *ApkoConfig_Entrypoint) apkotypes.ImageEntrypoint
 		Command:       entrypoint.Command,
 		ShellFragment: entrypoint.ShellFragment,
 		Services:      entrypoint.Services,
+	}
+}
+
+func apkoLayering(layering *ApkoConfig_Layering) *apkotypes.Layering {
+	if layering == nil {
+		return nil
+	}
+	return &apkotypes.Layering{
+		Strategy: layering.Strategy,
+		Budget:   int(layering.Budget),
 	}
 }
