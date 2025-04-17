@@ -104,6 +104,12 @@ message ApkoConfig {
   string include = 11;
   string stop_signal = 12;
   string vcs_url = 13;
+
+  message Layering {
+    string strategy = 1;
+    int64 budget = 2;
+  };
+  Layering layering = 14;
 }
 
 message BuildImageRequest {
