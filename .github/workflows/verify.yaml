@@ -28,6 +28,7 @@ jobs:
         with:
           path: ./src/github.com/${{ github.repository }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Go
         uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
@@ -77,7 +78,7 @@ jobs:
           ./hack/update-codegen.sh
 
       - name: Verify
-        uses: chainguard-dev/actions/nodiff@main
+        uses: chainguard-dev/actions/nodiff@0cda751b114eb55c388e88f7479292668165602a # v1.0.2
         with:
           path: ./src/github.com/${{ github.repository }}
           fixup-command: "./hack/update-codegen.sh"
