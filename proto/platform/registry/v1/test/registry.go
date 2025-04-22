@@ -70,6 +70,7 @@ type MockRegistryClient struct {
 	OnGetPackageVersionMetadata []PackageVersionMetadataOnGet
 	OnListBuildReports          []BuildReportsOnList
 	OnGetBuildStatus            []BuildStatusOnGet
+	OnGetUpdateStatus           []UpdateStatusOnGet
 	OnGetRepoCountBySource      []RepoCountBySourceOnGet
 	OnGetArchs                  []ArchsOnGet
 	OnGetSize                   []SizeOnGet
@@ -172,6 +173,12 @@ type BuildReportsOnList struct {
 type BuildStatusOnGet struct {
 	Given *registry.BuildReportFilter
 	Get   *registry.BuildStatus
+	Error error
+}
+
+type UpdateStatusOnGet struct {
+	Given *registry.UpdateStatusRequest
+	Get   *registry.UpdateStatus
 	Error error
 }
 
@@ -339,6 +346,15 @@ func (m MockRegistryClient) ListBuildReports(_ context.Context, given *registry.
 
 func (m MockRegistryClient) GetBuildStatus(_ context.Context, given *registry.BuildReportFilter, _ ...grpc.CallOption) (*registry.BuildStatus, error) {
 	for _, o := range m.OnGetBuildStatus {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Get, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockRegistryClient) GetUpdateStatus(_ context.Context, given *registry.UpdateStatusRequest, _ ...grpc.CallOption) (*registry.UpdateStatus, error) {
+	for _, o := range m.OnGetUpdateStatus {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Get, o.Error
 		}

@@ -41,6 +41,7 @@ const (
 	Registry_GetPackageVersionMetadata_FullMethodName = "/chainguard.platform.registry.Registry/GetPackageVersionMetadata"
 	Registry_ListBuildReports_FullMethodName          = "/chainguard.platform.registry.Registry/ListBuildReports"
 	Registry_GetBuildStatus_FullMethodName            = "/chainguard.platform.registry.Registry/GetBuildStatus"
+	Registry_GetUpdateStatus_FullMethodName           = "/chainguard.platform.registry.Registry/GetUpdateStatus"
 )
 
 // RegistryClient is the client API for Registry service.
@@ -67,6 +68,7 @@ type RegistryClient interface {
 	GetPackageVersionMetadata(ctx context.Context, in *PackageVersionMetadataRequest, opts ...grpc.CallOption) (*PackageVersionMetadata, error)
 	ListBuildReports(ctx context.Context, in *BuildReportFilter, opts ...grpc.CallOption) (*BuildReportList, error)
 	GetBuildStatus(ctx context.Context, in *BuildReportFilter, opts ...grpc.CallOption) (*BuildStatus, error)
+	GetUpdateStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*UpdateStatus, error)
 }
 
 type registryClient struct {
@@ -277,6 +279,16 @@ func (c *registryClient) GetBuildStatus(ctx context.Context, in *BuildReportFilt
 	return out, nil
 }
 
+func (c *registryClient) GetUpdateStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*UpdateStatus, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateStatus)
+	err := c.cc.Invoke(ctx, Registry_GetUpdateStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RegistryServer is the server API for Registry service.
 // All implementations must embed UnimplementedRegistryServer
 // for forward compatibility.
@@ -301,6 +313,7 @@ type RegistryServer interface {
 	GetPackageVersionMetadata(context.Context, *PackageVersionMetadataRequest) (*PackageVersionMetadata, error)
 	ListBuildReports(context.Context, *BuildReportFilter) (*BuildReportList, error)
 	GetBuildStatus(context.Context, *BuildReportFilter) (*BuildStatus, error)
+	GetUpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatus, error)
 	mustEmbedUnimplementedRegistryServer()
 }
 
@@ -370,6 +383,9 @@ func (UnimplementedRegistryServer) ListBuildReports(context.Context, *BuildRepor
 }
 func (UnimplementedRegistryServer) GetBuildStatus(context.Context, *BuildReportFilter) (*BuildStatus, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBuildStatus not implemented")
+}
+func (UnimplementedRegistryServer) GetUpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatus, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUpdateStatus not implemented")
 }
 func (UnimplementedRegistryServer) mustEmbedUnimplementedRegistryServer() {}
 func (UnimplementedRegistryServer) testEmbeddedByValue()                  {}
@@ -752,6 +768,24 @@ func _Registry_GetBuildStatus_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Registry_GetUpdateStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).GetUpdateStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_GetUpdateStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).GetUpdateStatus(ctx, req.(*UpdateStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Registry_ServiceDesc is the grpc.ServiceDesc for Registry service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -838,6 +872,10 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetBuildStatus",
 			Handler:    _Registry_GetBuildStatus_Handler,
+		},
+		{
+			MethodName: "GetUpdateStatus",
+			Handler:    _Registry_GetUpdateStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
