@@ -22,9 +22,9 @@ require (
 	github.com/sigstore/sigstore v1.9.3
 	golang.org/x/exp v0.0.0-20250218142911-aa4b98e5adaa
 	golang.org/x/oauth2 v0.29.0
-	google.golang.org/api v0.229.0
+	google.golang.org/api v0.230.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250303144028-a0af3efb3deb
-	google.golang.org/grpc v1.71.1
+	google.golang.org/grpc v1.72.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1
 	google.golang.org/protobuf v1.36.6
 	k8s.io/apimachinery v0.32.3
