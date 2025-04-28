@@ -152,6 +152,18 @@ service Registry {
     };
   }
 
+    rpc ListEolTags(EolTagFilter) returns (EolTagList) {
+    option (google.api.http) = {
+      get: "/registry/v1/eoltags"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TAG_LIST]
+        unscoped: true
+      }
+    };
+  }
+
   rpc ListTagHistory(TagHistoryFilter) returns (TagHistoryList) {
     option (google.api.http) = {
       get: "/registry/v1/tags/{parent_id=**}/history"
@@ -436,6 +448,34 @@ message Tag {
   repeated string bundles = 6;
 }
 
+message EolTag {
+  // id, identifier of this Tag, a UIDP under a Repo.
+  string id = 1;
+
+  // name, the unique name of the Tag.
+  string name = 2;
+
+  // name of the main package
+  string main_package_name = 7;
+
+  // version of the main package
+  string main_package_version = 8;
+
+  // eol grace period status
+  EolGracePeriodStatus grace_status = 9;
+
+  // the date the grace period expires
+  google.protobuf.Timestamp grace_period_expiry_date = 12;
+}
+
+enum EolGracePeriodStatus {
+  UNDEFINED = 0;
+  INACTIVE = 1;
+  ACTIVE = 2;
+  EXPIRED = 3;
+  BROKEN = 4;
+}
+
 message TagFilter {
   // uidp filters records based on their position in the group hierarchy.
   chainguard.platform.common.UIDPFilter uidp = 1;
@@ -461,8 +501,23 @@ message TagFilter {
   string digest = 10;
 }
 
+message EolTagFilter {
+  // uidp filters records based on their position in the group hierarchy.
+  chainguard.platform.common.UIDPFilter uidp = 1;
+
+  string name = 2;
+
+  // Pagination.
+  string page_token = 3;
+  int64 page_size = 4;
+}
+
 message TagList {
   repeated Tag items = 1;
+}
+
+message EolTagList {
+  repeated EolTag items = 1;
 }
 
 message TagHistoryFilter {
