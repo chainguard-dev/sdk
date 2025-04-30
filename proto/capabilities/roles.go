@@ -82,10 +82,6 @@ var (
 
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_CREATE,
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_DELETE,
-
-		// Add gulfstream capability to owner so owners can rolebind
-		// identities to the gulfstream role.
-		Capability_CAP_GULFSTREAM,
 	}, EditorCaps...),
 		// Owners can also push and delete images, subject to the identity allowlist.
 		RegistryPushCaps...),

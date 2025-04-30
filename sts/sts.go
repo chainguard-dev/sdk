@@ -21,8 +21,6 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-const GulfstreamAudience = "gulfstream"
-
 type TokenPair struct {
 	AccessToken  string
 	RefreshToken string

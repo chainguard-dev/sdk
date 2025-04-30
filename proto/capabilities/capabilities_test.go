@@ -111,15 +111,12 @@ func TestEncoding(t *testing.T) {
 		name: "viewer",
 		caps: ViewerCaps,
 	}, {
-		name: "gulfstream",
-		caps: Set{Capability_CAP_GULFSTREAM},
-	}, {
 		name: "all",
 		caps: all,
 	}, {
 		// sortCaps removes duplicates.
 		name: "duplicates",
-		caps: sortCaps(Set{Capability_CAP_GULFSTREAM, Capability_CAP_GULFSTREAM, Capability_CAP_GULFSTREAM}),
+		caps: sortCaps(Set{Capability_CAP_IAM_GROUPS_LIST, Capability_CAP_IAM_GROUPS_LIST}),
 	}}
 
 	for _, test := range tests {
