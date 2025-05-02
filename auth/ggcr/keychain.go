@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package ggcr
 
 import (
-	"context"
 	"fmt"
 
 	"chainguard.dev/sdk/sts"
@@ -15,7 +14,10 @@ import (
 	"golang.org/x/oauth2"
 )
 
-const issuer = "https://issuer.enforce.dev"
+const (
+	issuer = "https://issuer.enforce.dev"
+	aud    = "cgr.dev"
+)
 
 // Keychain returns an authn.Keychain used to authorize requests to the cgr.dev registry using go-containerregistry.
 //
@@ -29,33 +31,33 @@ const issuer = "https://issuer.enforce.dev"
 // This keychain can then be used to pull images from the cgr.dev registry:
 //
 //	img, err := remote.Image("cgr.dev/my/image", remote.WithAuth(kc))
-func Keychain(identity string, ts oauth2.TokenSource) authn.Keychain {
-	return cgKeychain{identity, ts}
+func Keychain(identity string, base oauth2.TokenSource) authn.Keychain {
+	exch := sts.New(issuer, aud, sts.WithIdentity(identity))
+	ts := oauth2.ReuseTokenSource(nil, sts.NewTokenSource(base, exch))
+	return cgKeychain{ts}
 }
 
 type cgKeychain struct {
-	identity string
-	ts       oauth2.TokenSource
+	ts oauth2.TokenSource
 }
 
 func (k cgKeychain) Resolve(res authn.Resource) (authn.Authenticator, error) {
-	if res.RegistryStr() != "cgr.dev" {
+	if res.RegistryStr() != aud {
 		return authn.Anonymous, nil
 	}
-
-	ctx := context.Background()
-	exch := sts.New(issuer, res.RegistryStr(), sts.WithIdentity(k.identity))
 
 	tok, err := k.ts.Token()
 	if err != nil {
 		return nil, fmt.Errorf("getting token: %w", err)
 	}
-	cgtok, err := exch.Exchange(ctx, tok.AccessToken)
-	if err != nil {
-		return nil, fmt.Errorf("exchanging token: %w", err)
-	}
+
 	return &authn.Basic{
 		Username: "_token",
-		Password: cgtok.AccessToken,
+		Password: tok.AccessToken,
 	}, nil
+}
+
+// TokenSourceKeychain returns an authn.Keychain that uses the provided oauth2.TokenSource to obtain tokens.
+func TokenSourceKeychain(ts oauth2.TokenSource) authn.Keychain {
+	return cgKeychain{ts}
 }

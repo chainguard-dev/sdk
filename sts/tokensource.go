@@ -17,12 +17,14 @@ import (
 // in a Chainguard STS exchange brokered by the provided Exchanger.
 func NewTokenSource(ts oauth2.TokenSource, xchg Exchanger) oauth2.TokenSource {
 	return &stsTokenSource{
+		ctx:  context.Background(),
 		ts:   ts,
 		xchg: xchg,
 	}
 }
 
 type stsTokenSource struct {
+	ctx  context.Context
 	ts   oauth2.TokenSource
 	xchg Exchanger
 }
@@ -33,7 +35,7 @@ func (sts *stsTokenSource) Token() (*oauth2.Token, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fetching base token: %w", err)
 	}
-	idt, err := sts.xchg.Exchange(context.Background(), tok.AccessToken)
+	idt, err := sts.xchg.Exchange(sts.ctx, tok.AccessToken)
 	if err != nil {
 		return nil, fmt.Errorf("exchanging base token: %w", err)
 	}
@@ -41,4 +43,12 @@ func (sts *stsTokenSource) Token() (*oauth2.Token, error) {
 		AccessToken: idt.AccessToken,
 		Expiry:      time.Now().Add(time.Hour),
 	}, nil
+}
+
+func NewTokenSourceFromValues(ctx context.Context, aud string, identity string, ts oauth2.TokenSource) oauth2.TokenSource {
+	return &stsTokenSource{
+		ctx:  ctx,
+		ts:   ts,
+		xchg: New(aud, identity),
+	}
 }
