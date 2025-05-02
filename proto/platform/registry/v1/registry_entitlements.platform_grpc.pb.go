@@ -22,6 +22,7 @@ const (
 	Entitlements_ListEntitlements_FullMethodName      = "/chainguard.platform.registry.Entitlements/ListEntitlements"
 	Entitlements_ListEntitlementImages_FullMethodName = "/chainguard.platform.registry.Entitlements/ListEntitlementImages"
 	Entitlements_Summary_FullMethodName               = "/chainguard.platform.registry.Entitlements/Summary"
+	Entitlements_GetFeatures_FullMethodName           = "/chainguard.platform.registry.Entitlements/GetFeatures"
 )
 
 // EntitlementsClient is the client API for Entitlements service.
@@ -35,6 +36,7 @@ type EntitlementsClient interface {
 	ListEntitlementImages(ctx context.Context, in *EntitlementImagesFilter, opts ...grpc.CallOption) (*EntitlementImagesList, error)
 	// Summary provides a group-level summary of entitlements.
 	Summary(ctx context.Context, in *EntitlementSummaryRequest, opts ...grpc.CallOption) (*EntitlementSummaryResponse, error)
+	GetFeatures(ctx context.Context, in *GetFeaturesRequest, opts ...grpc.CallOption) (*GetFeaturesResponse, error)
 }
 
 type entitlementsClient struct {
@@ -75,6 +77,16 @@ func (c *entitlementsClient) Summary(ctx context.Context, in *EntitlementSummary
 	return out, nil
 }
 
+func (c *entitlementsClient) GetFeatures(ctx context.Context, in *GetFeaturesRequest, opts ...grpc.CallOption) (*GetFeaturesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetFeaturesResponse)
+	err := c.cc.Invoke(ctx, Entitlements_GetFeatures_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // EntitlementsServer is the server API for Entitlements service.
 // All implementations must embed UnimplementedEntitlementsServer
 // for forward compatibility.
@@ -86,6 +98,7 @@ type EntitlementsServer interface {
 	ListEntitlementImages(context.Context, *EntitlementImagesFilter) (*EntitlementImagesList, error)
 	// Summary provides a group-level summary of entitlements.
 	Summary(context.Context, *EntitlementSummaryRequest) (*EntitlementSummaryResponse, error)
+	GetFeatures(context.Context, *GetFeaturesRequest) (*GetFeaturesResponse, error)
 	mustEmbedUnimplementedEntitlementsServer()
 }
 
@@ -104,6 +117,9 @@ func (UnimplementedEntitlementsServer) ListEntitlementImages(context.Context, *E
 }
 func (UnimplementedEntitlementsServer) Summary(context.Context, *EntitlementSummaryRequest) (*EntitlementSummaryResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Summary not implemented")
+}
+func (UnimplementedEntitlementsServer) GetFeatures(context.Context, *GetFeaturesRequest) (*GetFeaturesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFeatures not implemented")
 }
 func (UnimplementedEntitlementsServer) mustEmbedUnimplementedEntitlementsServer() {}
 func (UnimplementedEntitlementsServer) testEmbeddedByValue()                      {}
@@ -180,6 +196,24 @@ func _Entitlements_Summary_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Entitlements_GetFeatures_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFeaturesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EntitlementsServer).GetFeatures(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Entitlements_GetFeatures_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EntitlementsServer).GetFeatures(ctx, req.(*GetFeaturesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Entitlements_ServiceDesc is the grpc.ServiceDesc for Entitlements service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -198,6 +232,10 @@ var Entitlements_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Summary",
 			Handler:    _Entitlements_Summary_Handler,
+		},
+		{
+			MethodName: "GetFeatures",
+			Handler:    _Entitlements_GetFeatures_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
