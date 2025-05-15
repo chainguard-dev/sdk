@@ -27,6 +27,11 @@ type PushEvent struct {
 	// Package holds the name of the package being pushed.
 	Package string `json:"package"`
 
+	// Origin holds the name of the origin package being pushed. For
+	// subpackages, this is the name of the parent package, for main packages,
+	// this is the same as Package.
+	Origin string `json:"origin_package"`
+
 	// Version holds the version of the package being pushed.
 	Version string `json:"version"`
 
