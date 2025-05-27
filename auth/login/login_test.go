@@ -7,6 +7,7 @@ package login
 
 import (
 	"errors"
+	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -49,6 +50,10 @@ func TestOpenBrowserErrorAs(t *testing.T) {
 }
 
 func TestBuildHeadlessURL(t *testing.T) {
+	// Set up a test server for organization verification
+	orgServer := httptest.NewServer(expectedBehavior("my-org"))
+	defer orgServer.Close()
+
 	for _, tt := range []struct {
 		name    string
 		opts    []Option
@@ -88,6 +93,15 @@ func TestBuildHeadlessURL(t *testing.T) {
 				WithAuth0Connection("google-oauth2"),
 			},
 			want: "https://issuer.chaintest.net/oauth?connection=google-oauth2&headless_code=code",
+		},
+		{
+			name: "has code, has org name",
+			opts: []Option{
+				WithHeadlessCode("code"),
+				WithIssuer(orgServer.URL),
+				WithOrgName("my-org"),
+			},
+			want: orgServer.URL + "/oauth?headless_code=code&idp_id=my-org",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
