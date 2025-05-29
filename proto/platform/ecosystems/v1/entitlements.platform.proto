@@ -76,6 +76,7 @@ enum Ecosystem {
   UNKNOWN = 0;
   JAVA = 1;
   PYTHON = 2;
+  JAVASCRIPT = 3;
 }
 
 message CreateEntitlementRequest {

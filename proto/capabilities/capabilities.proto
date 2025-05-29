@@ -138,6 +138,7 @@ enum Capability {
 
   CAP_LIBRARIES_PYTHON_LIST = 1810 [(name) = "libraries.python.list", (bit) = 85];
   CAP_LIBRARIES_JAVA_LIST = 1820 [(name) = "libraries.java.list", (bit) = 86];
+  CAP_LIBRARIES_JAVASCRIPT_LIST = 1830 [(name) = "libraries.javascript.list", (bit) = 88];
 
   // Registry Entitlements
   CAP_REGISTRY_ENTITLEMENTS_LIST = 1680 [(name) = "registry.entitlements.list", (bit) = 87];
@@ -159,5 +160,5 @@ enum Capability {
   // capability?
   CAP_GULFSTREAM = 10000 [(name) = "gulfstream", (bit) = 47];
 
-  // next bit: 88
+  // next bit: 89
 }

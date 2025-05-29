@@ -35,10 +35,14 @@ func BuildHeadlessURL(opts ...Option) (u string, err error) {
 	}
 	params := make(url.Values)
 	params.Set("headless_code", conf.HeadlessCode)
-	if conf.IDP != "" {
+	switch {
+	case conf.IDP != "":
 		params.Set("idp_id", conf.IDP)
-	} else if conf.Auth0Connection != "" {
-		// We should only use connection for Auth0, not custom IDP
+	case conf.OrgName != "":
+		// Verified org single sign-on – reuse idp_id for org name.
+		params.Set("idp_id", conf.OrgName)
+	case conf.Auth0Connection != "":
+		// The connection param is only for Auth0 social logins.
 		params.Set("connection", conf.Auth0Connection)
 	}
 	return fmt.Sprintf("%s/oauth?%s", conf.Issuer, params.Encode()), nil
