@@ -144,6 +144,23 @@ var (
 		Capability_CAP_APK_DELETE,
 	}, APKPullCaps...))
 
+	AdvisoriesViewerCaps = sortCaps([]Capability{
+		Capability_CAP_ADVISORIES_LIST,
+	})
+
+	AdvisoriesCreatorCaps = sortCaps(append([]Capability{
+		Capability_CAP_ADVISORIES_CREATE,
+		Capability_CAP_ADVISORIES_UPDATE,
+	}, AdvisoriesViewerCaps...))
+
+	AdvisoriesApproverCaps = sortCaps(append([]Capability{
+		Capability_CAP_ADVISORIES_APPROVE,
+	}, AdvisoriesCreatorCaps...))
+
+	AdvisoriesAdminCaps = sortCaps(append([]Capability{
+		Capability_CAP_ADVISORIES_DELETE,
+	}, AdvisoriesApproverCaps...))
+
 	LibrariesJavaPullCaps = sortCaps([]Capability{
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
 		Capability_CAP_LIBRARIES_JAVA_LIST,
