@@ -152,6 +152,12 @@ enum Capability {
 
   CAP_SIGSTORE_CERTIFICATE_CREATE = 1705 [(name) = "sigstore.certificate.create", (bit) = 46, deprecated = true];
 
+  CAP_ADVISORIES_CREATE   = 1900 [(name) = "advisories.create", (bit) = 89];
+  CAP_ADVISORIES_UPDATE   = 1901 [(name) = "advisories.update", (bit) = 90];
+  CAP_ADVISORIES_LIST     = 1902 [(name) = "advisories.list", (bit) = 91];
+  CAP_ADVISORIES_DELETE   = 1903 [(name) = "advisories.delete", (bit) = 92];
+  CAP_ADVISORIES_APPROVE  = 1904 [(name) = "advisories.approve", (bit) = 93];
+
   // This is orthogonal enough that we should leave
   // it somewhat separate, so add new capabilities above.
   // TODO(mattmoor): Think about whether we can encode specific
@@ -160,5 +166,5 @@ enum Capability {
   // capability?
   CAP_GULFSTREAM = 10000 [(name) = "gulfstream", (bit) = 47];
 
-  // next bit: 89
+  // next bit: 94
 }
