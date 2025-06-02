@@ -458,8 +458,11 @@ message EolTag {
   // name of the main package
   string main_package_name = 7;
 
+  // status of the tag
+  EolTagStatus tag_status = 14;
+
   // version of the main package
-  string main_package_version = 8;
+  PackageVersion main_package_version = 13;
 
   // eol grace period status
   EolGracePeriodStatus grace_status = 9;
@@ -467,18 +470,24 @@ message EolTag {
   // the date the grace period expires
   google.protobuf.Timestamp grace_period_expiry_date = 12;
 
-  PackageVersion main_package = 13;
+  // this proto was updated after a prod release, so we needed to reserve the old fields.
+  reserved 3 to 6, 8, 10 to 11;
 
-  // next id: 14
-  reserved 3 to 6, 10, 11;
+  // next id: 15
+}
+
+enum EolTagStatus {
+  TAG_ACTIVE = 0;
+  TAG_IN_GRACE = 1;
+  TAG_INACTIVE = 2;
 }
 
 enum EolGracePeriodStatus {
-  UNDEFINED = 0;
-  INACTIVE = 1;
-  ACTIVE = 2;
-  EXPIRED = 3;
-  BROKEN = 4;
+  GRACE_NOT_ELIGIBLE = 0;
+  GRACE_ELIGIBLE = 1;
+  GRACE_ACTIVE = 2;
+  GRACE_BROKEN = 3;
+  GRACE_EXPIRED = 4;
 }
 
 message TagFilter {
