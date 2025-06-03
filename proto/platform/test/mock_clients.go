@@ -17,6 +17,8 @@ import (
 	ecosystemstest "chainguard.dev/sdk/proto/platform/ecosystems/v1/test"
 	iam "chainguard.dev/sdk/proto/platform/iam/v1"
 	iamtest "chainguard.dev/sdk/proto/platform/iam/v1/test"
+	libraries "chainguard.dev/sdk/proto/platform/libraries/v1"
+	librariestest "chainguard.dev/sdk/proto/platform/libraries/v1/test"
 	notifications "chainguard.dev/sdk/proto/platform/notifications/v1"
 	notificationstest "chainguard.dev/sdk/proto/platform/notifications/v1/test"
 	oidc "chainguard.dev/sdk/proto/platform/oidc/v1"
@@ -42,6 +44,7 @@ type MockPlatformClients struct {
 	NotificationsClient notificationstest.MockNotificationsClients
 	APKClient           apktest.MockAPKClients
 	EcosystemsClient    ecosystemstest.MockEcosystemsClients
+	LibrariesClient     librariestest.MockLibrariesClients
 }
 
 func (m MockPlatformClients) Close() error {
@@ -78,6 +81,10 @@ func (m MockPlatformClients) APK() apk.Clients {
 
 func (m MockPlatformClients) Ecosystems() ecosystems.Clients {
 	return m.EcosystemsClient
+}
+
+func (m MockPlatformClients) Libraries() libraries.Clients {
+	return m.LibrariesClient
 }
 
 var _ platform.OIDCClients = (*MockOIDCClients)(nil)
