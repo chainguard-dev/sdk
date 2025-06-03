@@ -132,10 +132,13 @@ enum Capability {
   // Custom Image Build
   CAP_BUILD_REPORT_LIST = 1670 [(name) = "build_report.list", (bit) = 81];
 
+  // Global libraries capabilities
   CAP_LIBRARIES_ENTITLEMENTS_CREATE = 1800 [(name) = "libraries.entitlements.create", (bit) = 82];
   CAP_LIBRARIES_ENTITLEMENTS_LIST = 1801 [(name) = "libraries.entitlements.list", (bit) = 83];
   CAP_LIBRARIES_ENTITLEMENTS_DELETE = 1802 [(name) = "libraries.entitlements.delete", (bit) = 84];
+  CAP_LIBRARIES_ARTIFACTS_LIST = 1803 [(name) = "libraries.artifacts.list", (bit) = 94];
 
+  // Ecosystems specific capabilities
   CAP_LIBRARIES_PYTHON_LIST = 1810 [(name) = "libraries.python.list", (bit) = 85];
   CAP_LIBRARIES_JAVA_LIST = 1820 [(name) = "libraries.java.list", (bit) = 86];
   CAP_LIBRARIES_JAVASCRIPT_LIST = 1830 [(name) = "libraries.javascript.list", (bit) = 88];
@@ -166,5 +169,5 @@ enum Capability {
   // capability?
   CAP_GULFSTREAM = 10000 [(name) = "gulfstream", (bit) = 47];
 
-  // next bit: 94
+  // next bit: 95
 }
