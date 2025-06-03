@@ -20,6 +20,7 @@ import (
 	platformauth "chainguard.dev/sdk/proto/platform/auth/v1"
 	ecosystems "chainguard.dev/sdk/proto/platform/ecosystems/v1"
 	iam "chainguard.dev/sdk/proto/platform/iam/v1"
+	libraries "chainguard.dev/sdk/proto/platform/libraries/v1"
 	notifications "chainguard.dev/sdk/proto/platform/notifications/v1"
 	platformoidc "chainguard.dev/sdk/proto/platform/oidc/v1"
 	ping "chainguard.dev/sdk/proto/platform/ping/v1"
@@ -39,6 +40,7 @@ type Clients interface {
 	Notifications() notifications.Clients
 	APK() apk.Clients
 	Ecosystems() ecosystems.Clients
+	Libraries() libraries.Clients
 
 	Close() error
 }
@@ -87,6 +89,7 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 		notifications: notifications.NewClientsFromConnection(conn),
 		apk:           apk.NewClientsFromConnection(conn),
 		ecosystems:    ecosystems.NewClientsFromConnection(conn),
+		libraries:     libraries.NewClientsFromConnection(conn),
 		conn:          conn,
 	}, nil
 }
@@ -100,6 +103,7 @@ type clients struct {
 	notifications notifications.Clients
 	apk           apk.Clients
 	ecosystems    ecosystems.Clients
+	libraries     libraries.Clients
 
 	conn *grpc.ClientConn
 }
@@ -134,6 +138,10 @@ func (c *clients) APK() apk.Clients {
 
 func (c *clients) Ecosystems() ecosystems.Clients {
 	return c.ecosystems
+}
+
+func (c *clients) Libraries() libraries.Clients {
+	return c.libraries
 }
 
 func (c *clients) Close() error {
