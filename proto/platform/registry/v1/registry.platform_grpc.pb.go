@@ -33,6 +33,7 @@ const (
 	Registry_ListEolTags_FullMethodName               = "/chainguard.platform.registry.Registry/ListEolTags"
 	Registry_ListTagHistory_FullMethodName            = "/chainguard.platform.registry.Registry/ListTagHistory"
 	Registry_GetSbom_FullMethodName                   = "/chainguard.platform.registry.Registry/GetSbom"
+	Registry_GetHelm_FullMethodName                   = "/chainguard.platform.registry.Registry/GetHelm"
 	Registry_GetImageConfig_FullMethodName            = "/chainguard.platform.registry.Registry/GetImageConfig"
 	Registry_GetArchs_FullMethodName                  = "/chainguard.platform.registry.Registry/GetArchs"
 	Registry_GetSize_FullMethodName                   = "/chainguard.platform.registry.Registry/GetSize"
@@ -61,6 +62,7 @@ type RegistryClient interface {
 	ListEolTags(ctx context.Context, in *EolTagFilter, opts ...grpc.CallOption) (*EolTagList, error)
 	ListTagHistory(ctx context.Context, in *TagHistoryFilter, opts ...grpc.CallOption) (*TagHistoryList, error)
 	GetSbom(ctx context.Context, in *SbomRequest, opts ...grpc.CallOption) (*v1.Sbom2, error)
+	GetHelm(ctx context.Context, in *HelmRequest, opts ...grpc.CallOption) (*Helm, error)
 	GetImageConfig(ctx context.Context, in *ImageConfigRequest, opts ...grpc.CallOption) (*ImageConfig, error)
 	GetArchs(ctx context.Context, in *ArchRequest, opts ...grpc.CallOption) (*Archs, error)
 	GetSize(ctx context.Context, in *SizeRequest, opts ...grpc.CallOption) (*Size, error)
@@ -201,6 +203,16 @@ func (c *registryClient) GetSbom(ctx context.Context, in *SbomRequest, opts ...g
 	return out, nil
 }
 
+func (c *registryClient) GetHelm(ctx context.Context, in *HelmRequest, opts ...grpc.CallOption) (*Helm, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Helm)
+	err := c.cc.Invoke(ctx, Registry_GetHelm_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *registryClient) GetImageConfig(ctx context.Context, in *ImageConfigRequest, opts ...grpc.CallOption) (*ImageConfig, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ImageConfig)
@@ -317,6 +329,7 @@ type RegistryServer interface {
 	ListEolTags(context.Context, *EolTagFilter) (*EolTagList, error)
 	ListTagHistory(context.Context, *TagHistoryFilter) (*TagHistoryList, error)
 	GetSbom(context.Context, *SbomRequest) (*v1.Sbom2, error)
+	GetHelm(context.Context, *HelmRequest) (*Helm, error)
 	GetImageConfig(context.Context, *ImageConfigRequest) (*ImageConfig, error)
 	GetArchs(context.Context, *ArchRequest) (*Archs, error)
 	GetSize(context.Context, *SizeRequest) (*Size, error)
@@ -372,6 +385,9 @@ func (UnimplementedRegistryServer) ListTagHistory(context.Context, *TagHistoryFi
 }
 func (UnimplementedRegistryServer) GetSbom(context.Context, *SbomRequest) (*v1.Sbom2, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSbom not implemented")
+}
+func (UnimplementedRegistryServer) GetHelm(context.Context, *HelmRequest) (*Helm, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHelm not implemented")
 }
 func (UnimplementedRegistryServer) GetImageConfig(context.Context, *ImageConfigRequest) (*ImageConfig, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetImageConfig not implemented")
@@ -640,6 +656,24 @@ func _Registry_GetSbom_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Registry_GetHelm_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HelmRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).GetHelm(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_GetHelm_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).GetHelm(ctx, req.(*HelmRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Registry_GetImageConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ImageConfigRequest)
 	if err := dec(in); err != nil {
@@ -874,6 +908,10 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSbom",
 			Handler:    _Registry_GetSbom_Handler,
+		},
+		{
+			MethodName: "GetHelm",
+			Handler:    _Registry_GetHelm_Handler,
 		},
 		{
 			MethodName: "GetImageConfig",
