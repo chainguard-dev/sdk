@@ -238,10 +238,19 @@ message AdvisoryFilter {
   optional string component_type = 6;
   // aliases filters by alias name (CVE, GHSA, etc.)
   repeated string aliases = 7;
+  // artifact_architecture filters by architecture (e.g., x86_64, aarch64)
+  optional string artifact_architecture = 8;
+  // Pagination
+  string page_token = 9;
+  int64 page_size = 10;
 }
 
 message AdvisoriesList {
   repeated Advisory items = 1;
+  // next_page_token is the token to use for the next page of results
+  string next_page_token = 2;
+  // total_count is the total number of advisories matching the filter (optional)
+  optional int64 total_count = 3;
 }
 
 message DeleteAdvisoryRequest {
