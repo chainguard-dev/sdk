@@ -137,7 +137,7 @@ message ArtifactVersion {
   // When this version was last published to Chainguard Libraries.
   google.protobuf.Timestamp updated_at = 6;
   // The estimated size of this artifact in bytes.
-  int32 size_bytes = 7;
+  int64 size_bytes = 7;
 }
 
 // Request the total number of artifacts for the given ecosystems.
