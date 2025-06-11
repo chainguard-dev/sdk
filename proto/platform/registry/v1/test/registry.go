@@ -56,6 +56,7 @@ type MockRegistryClient struct {
 	OnCreateRepos               []ReposOnCreate
 	OnDeleteRepos               []ReposOnDelete
 	OnListRepos                 []ReposOnList
+	OnListEolTags               []EolTagOnList
 	OnCreateTags                []TagsOnCreate
 	OnDeleteTags                []TagsOnDelete
 	OnUpdateTag                 []TagOnUpdate
@@ -74,6 +75,7 @@ type MockRegistryClient struct {
 	OnGetRepoCountBySource      []RepoCountBySourceOnGet
 	OnGetArchs                  []ArchsOnGet
 	OnGetSize                   []SizeOnGet
+	OnGetHelm                   []HelmOnGet
 }
 
 type ReposOnCreate struct {
@@ -197,6 +199,18 @@ type ArchsOnGet struct {
 type SizeOnGet struct {
 	Given *registry.SizeRequest
 	Get   *registry.Size
+	Error error
+}
+
+type HelmOnGet struct {
+	Given *registry.HelmRequest
+	Get   *registry.Helm
+	Error error
+}
+
+type EolTagOnList struct {
+	Given *registry.EolTagFilter
+	Get   *registry.EolTagList
 	Error error
 }
 
@@ -382,6 +396,24 @@ func (m MockRegistryClient) GetArchs(_ context.Context, given *registry.ArchRequ
 
 func (m MockRegistryClient) GetSize(_ context.Context, given *registry.SizeRequest, _ ...grpc.CallOption) (*registry.Size, error) {
 	for _, o := range m.OnGetSize {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Get, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockRegistryClient) GetHelm(_ context.Context, given *registry.HelmRequest, _ ...grpc.CallOption) (*registry.Helm, error) {
+	for _, o := range m.OnGetHelm {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Get, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockRegistryClient) ListEolTags(_ context.Context, given *registry.EolTagFilter, _ ...grpc.CallOption) (*registry.EolTagList, error) {
+	for _, o := range m.OnListEolTags {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Get, o.Error
 		}

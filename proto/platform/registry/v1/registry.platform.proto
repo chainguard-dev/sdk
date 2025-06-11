@@ -186,6 +186,17 @@ service Registry {
     };
   }
 
+  rpc GetHelm(HelmRequest) returns (Helm) {
+    option (google.api.http) = {
+      get: "/registry/v1/repos/{repo_id=**}/digests/{digest=*}/helm"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST, CAP_TAG_LIST]
+      }
+    };
+  }
+
   rpc GetImageConfig(ImageConfigRequest) returns (ImageConfig) {
     option (google.api.http) = {
       get: "/registry/v1/repos/{repo_id=**}/digests/{digest=*}/imageconfig"
@@ -908,4 +919,27 @@ message UpdateStatusRequest {
 message UpdateStatus {
   // Whether or not the repo has had a recent update.
   bool recently_updated = 1;
+}
+
+message HelmRequest {
+  // The UIDP of the image repo to get the Helm values for.
+  string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
+  // The digest of the image to get the Helm values for.
+  string digest = 2;
+  // The architecture to Helm values for.
+  string arch = 3;
+}
+
+// Helm contains the chart and values fields from the helm-values predicate.
+message Helm {
+  // Chart name.
+  string chart_name = 1;
+  // Chart version.
+  string chart_version = 2;
+  // Chart repository.
+  string chart_repository = 3;
+  // Chart digest.
+  string chart_digest = 4;
+  // Additional values.
+  string values = 5;
 }

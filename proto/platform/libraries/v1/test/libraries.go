@@ -10,9 +10,14 @@ import libraries "chainguard.dev/sdk/proto/platform/libraries/v1"
 var _ libraries.Clients = (*MockLibrariesClients)(nil)
 
 type MockLibrariesClients struct {
+	ArtifactsClient    MockArtifactsClient
 	EntitlementsClient MockEntitlementsClient
 
 	OnClose error
+}
+
+func (m MockLibrariesClients) Artifacts() libraries.ArtifactsClient {
+	return &m.ArtifactsClient
 }
 
 func (m MockLibrariesClients) Entitlements() libraries.EntitlementsClient {

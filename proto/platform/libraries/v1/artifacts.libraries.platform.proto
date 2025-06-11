@@ -1,0 +1,159 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/libraries/v1";
+option java_multiple_files = true;
+option java_package = "dev.chainguard.sdk.platform.libraries.v1";
+option java_outer_classname = "Artifacts";
+
+package chainguard.platform.libraries;
+
+import "annotations/auth.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "entitlements.libraries.platform.proto";
+
+service Artifacts {
+  rpc List(ArtifactFilter) returns (ArtifactList) {
+    option (google.api.http) = {
+      get: "/libraries/v1/artifacts"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_LIBRARIES_ARTIFACTS_LIST]
+        unscoped: true
+      }
+    };
+  }
+  rpc ListVersions(ArtifactVersionFilter) returns (ArtifactVersionList) {
+    option (google.api.http) = {
+      get: "/libraries/v1/artifacts/{id=*}/versions"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_LIBRARIES_ARTIFACTS_LIST]
+        unscoped: true
+      }
+    };
+  }
+  rpc GetArtifactCount(GetArtifactCountRequest) returns (GetArtifactCountResponse) {
+    option (google.api.http) = {
+      get: "/libraries/v1/artifacts/count"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_LIBRARIES_ARTIFACTS_LIST]
+        unscoped: true
+      }
+    };
+  }
+}
+
+// Artifact contains metadata related to a a software artifact for a language
+// ecosystem. The id returned by this Artifact can be used to retrieve further
+// data, including more detailed version information.
+message Artifact {
+  // A unique identifier for the artifact, based on the ecosystem it belongs to.
+  string id = 1;
+  // The artifact name.
+  string name = 2;
+  // The description of the most recent version of this artifact.
+  string description = 3;
+  // The language ecosystem this artifact belongs to.
+  Ecosystem ecosystem = 4;
+  // The most recent version of this artifact available.
+  string latest_version = 5;
+  // The number of versions available for this artifact.
+  int32 version_count = 6;
+  // When the first version was published to Chainguard Libraries.
+  google.protobuf.Timestamp created_at = 7;
+  // When the most recent version was published to Chainguard Libraries.
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+// A collection of Artifacts as returned by calls to ListArtifacts.
+// Contains pagination fields to allow callers to request additional
+// pages of results if the set exceeds the requested page size or maximum
+// default page size.
+message ArtifactList {
+  repeated Artifact items = 1;
+
+  // Pagination fields
+
+  // A token that can be reused on subsequent requests to retrieve
+  // the next page of results. Other filter fields must match
+  // the call that provided this token.
+  string next_page_token = 2;
+
+  // The total number of artifacts that this query found.
+  int32 total_artifacts = 3;
+}
+
+// Options to filter results of List.
+message ArtifactFilter {
+  // The language ecosystems to return artifacts for.
+  repeated Ecosystem ecosystems = 1;
+  // A string to search artifacts by. If empty, all artifacts
+  // from the given ecosystem will be returned.
+  string query = 2;
+
+  // Pagination options
+
+  // The maximum number of artifacts to return per request.
+  // The service may return fewer than this value.
+  int32 page_size = 10;
+  // The token received from the previous call to List.
+  // Provide this to retrieve the subsequent page. If populated,
+  // all non-pagination parameters must match the call that provided this token.
+  string page_token = 11;
+  // The number of artifacts to skip ahead in the list of returned artifacts,
+  // based on the state of the provided page_token. If page_token is not provided,
+  // the first result returned will be number skip+1. If page_token is provided,
+  // the first result returned will be (next result based on page_token)+skip.
+  int32 skip = 12;
+}
+
+// Filter for version data about a specific language artifact.
+message ArtifactVersionFilter {
+  // The artifact's unique identifier, as returned by ListArtifacts
+  string id = 1;
+}
+
+message ArtifactVersionList {
+  repeated ArtifactVersion items = 1;
+}
+
+// Metadata about a version of an artifact.
+message ArtifactVersion {
+  // A unique identifier for this version of the artifact.
+  string id = 1;
+  // The name of the artifact.
+  string name = 2;
+  // The version string of this artifact.
+  string version = 3;
+  // A long form description of this version of the artifact.
+  string description = 4;
+  // When this version was first published to Chainguard Libraries.
+  google.protobuf.Timestamp created_at = 5;
+  // When this version was last published to Chainguard Libraries.
+  google.protobuf.Timestamp updated_at = 6;
+  // The estimated size of this artifact in bytes.
+  int64 size_bytes = 7;
+}
+
+// Request the total number of artifacts for the given ecosystems.
+message GetArtifactCountRequest {
+  // The language ecosystems to request the artifact counts for.
+  repeated Ecosystem ecosystems = 1;
+}
+
+// A collection of the total number of artifacts for the requested
+// language ecosystems.
+message GetArtifactCountResponse {
+  // Count represents the total number of artifacts for a given ecosystem.
+  message Count {
+    Ecosystem ecosystem = 1;
+    int32 total_artifacts = 2;
+  }
+
+  repeated Count counts = 1;
+}

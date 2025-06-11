@@ -18,6 +18,7 @@ import (
 )
 
 type Clients interface {
+	Artifacts() ArtifactsClient
 	Entitlements() EntitlementsClient
 
 	Close() error
@@ -52,6 +53,7 @@ func NewClients(ctx context.Context, ecoURL string, token string) (Clients, erro
 
 func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 	return &clients{
+		artifacts:    NewArtifactsClient(conn),
 		entitlements: NewEntitlementsClient(conn),
 
 		// conn is not set, this client struct does not own closing it.
@@ -59,9 +61,14 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 }
 
 type clients struct {
+	artifacts    ArtifactsClient
 	entitlements EntitlementsClient
 
 	conn *grpc.ClientConn
+}
+
+func (c *clients) Artifacts() ArtifactsClient {
+	return c.artifacts
 }
 
 func (c *clients) Entitlements() EntitlementsClient {
