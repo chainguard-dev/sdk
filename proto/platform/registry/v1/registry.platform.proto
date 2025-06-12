@@ -827,6 +827,8 @@ message PackageVersion {
   string version = 6;
   // whether or not an EOL version cannot longer be supported due to incompatibilities or no longer available dependencies
   bool eolBroken = 7;
+  // the latest version of this specific version stream
+  string latestVersion = 8;
 }
 
 // BuildReportFilter is used to filter BuildReports for ListBuildReports call.
