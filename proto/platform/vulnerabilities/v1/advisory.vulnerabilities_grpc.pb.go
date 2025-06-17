@@ -36,7 +36,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AdvisoriesClient interface {
-	Create(ctx context.Context, in *Advisory, opts ...grpc.CallOption) (*Advisory, error)
+	Create(ctx context.Context, in *CreateAdvisoryRequest, opts ...grpc.CallOption) (*Advisory, error)
 	List(ctx context.Context, in *AdvisoryFilter, opts ...grpc.CallOption) (*AdvisoriesList, error)
 	Update(ctx context.Context, in *Advisory, opts ...grpc.CallOption) (*Advisory, error)
 	Delete(ctx context.Context, in *DeleteAdvisoryRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -52,7 +52,7 @@ func NewAdvisoriesClient(cc grpc.ClientConnInterface) AdvisoriesClient {
 	return &advisoriesClient{cc}
 }
 
-func (c *advisoriesClient) Create(ctx context.Context, in *Advisory, opts ...grpc.CallOption) (*Advisory, error) {
+func (c *advisoriesClient) Create(ctx context.Context, in *CreateAdvisoryRequest, opts ...grpc.CallOption) (*Advisory, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Advisory)
 	err := c.cc.Invoke(ctx, Advisories_Create_FullMethodName, in, out, cOpts...)
@@ -116,7 +116,7 @@ func (c *advisoriesClient) ListAdvisoryEvents(ctx context.Context, in *AdvisoryE
 // All implementations must embed UnimplementedAdvisoriesServer
 // for forward compatibility.
 type AdvisoriesServer interface {
-	Create(context.Context, *Advisory) (*Advisory, error)
+	Create(context.Context, *CreateAdvisoryRequest) (*Advisory, error)
 	List(context.Context, *AdvisoryFilter) (*AdvisoriesList, error)
 	Update(context.Context, *Advisory) (*Advisory, error)
 	Delete(context.Context, *DeleteAdvisoryRequest) (*emptypb.Empty, error)
@@ -132,7 +132,7 @@ type AdvisoriesServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAdvisoriesServer struct{}
 
-func (UnimplementedAdvisoriesServer) Create(context.Context, *Advisory) (*Advisory, error) {
+func (UnimplementedAdvisoriesServer) Create(context.Context, *CreateAdvisoryRequest) (*Advisory, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
 func (UnimplementedAdvisoriesServer) List(context.Context, *AdvisoryFilter) (*AdvisoriesList, error) {
@@ -172,7 +172,7 @@ func RegisterAdvisoriesServer(s grpc.ServiceRegistrar, srv AdvisoriesServer) {
 }
 
 func _Advisories_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Advisory)
+	in := new(CreateAdvisoryRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -184,7 +184,7 @@ func _Advisories_Create_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: Advisories_Create_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdvisoriesServer).Create(ctx, req.(*Advisory))
+		return srv.(AdvisoriesServer).Create(ctx, req.(*CreateAdvisoryRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
