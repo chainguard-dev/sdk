@@ -18,7 +18,7 @@ import "google/protobuf/timestamp.proto";
 import "annotations/auth.proto";
 
 service Advisories {
-  rpc Create(Advisory) returns (Advisory) {
+  rpc Create(CreateAdvisoryRequest) returns (Advisory) {
     option (google.api.http) = {
       post: "/vulnerabilities/v1/advisories"
       body: "*"
@@ -36,8 +36,9 @@ service Advisories {
     };
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [CAP_ADVISORIES_LIST]
+        // This gets restricted in the api-impl code.
         unscoped: true
+        capabilities: [CAP_ADVISORIES_LIST]
       }
     };
   }
@@ -67,7 +68,7 @@ service Advisories {
 
   rpc CreateAdvisoryEvent(CreateAdvisoryEventRequest) returns (AdvisoryEvent) {
     option (google.api.http) = {
-      post: "/vulnerabilities/v1/advisories/{advisory_id}/events"
+      post: "/vulnerabilities/v1/advisories/{parent_id}/events"
       body: "*"
     };
     option (chainguard.annotations.iam) = {
@@ -79,26 +80,35 @@ service Advisories {
 
   rpc ListAdvisoryEvents(AdvisoryEventFilter) returns (AdvisoryEventList) {
     option (google.api.http) = {
-      get: "/vulnerabilities/v1/advisories/{advisory_id}/events"
+      get: "/vulnerabilities/v1/advisories/{parent_id}/events"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [CAP_ADVISORIES_LIST]
-        unscoped: true
       }
     };
   }
 }
 
+// ReviewStatus represents the possible states of review for an advisory event
+enum ReviewStatus {
+  UNKNOWN = 0;
+  PENDING = 1;
+  APPROVED = 2;
+  REQUEST_CHANGES = 3;
+  REJECTED = 4;
+}
+
 message Advisory {
-  // id is the CGA identifier for the advisory
-  string id = 1;
+  // id is the UIDP for the Advisory.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
   // artifact_type is the artifact type (e.g., apk, image, library)
   string artifact_type = 2;
   // artifact_name is the artifact name (e.g., wheel, jar name)
   string artifact_name = 3;
   // artifact_namespace identifies which set of repositories the artifact is in
-  string artifact_namespace = 4;
+  // REMOVED: Do NOT REUSE: string artifact_namespace = 4;
+  reserved 4;
   // artifact_architecture is the architecture of the artifact
   string artifact_architecture = 5;
 
@@ -119,10 +129,21 @@ message Advisory {
   repeated string aliases = 13;
   // events are advisory events associated with this advisory
   repeated AdvisoryEvent events = 14;
+  // advisory_id is the CGA identifier for the advisory
+  string advisory_id = 15;
+
+  // For review process
+  // author is the person who created this event
+  string author = 16;
+  // reviewer is the person who reviewed this event
+  string reviewer = 17;
+  // status is the status of the review. Note that not all the entries need to
+  // get reviewed, so this is optional.
+  ReviewStatus status = 18;
 }
 
 message AdvisoryEvent {
-  // id is the CGA identifier this event belongs to
+  // id is the UIDP of this event, child of Advisory UIDP it belongs to.
   string id = 1;
 
   google.protobuf.Timestamp timestamp = 2;
@@ -207,23 +228,16 @@ message AdvisoryEvent {
   // reviewer is the person who reviewed this event
   string reviewer = 12;
   // status is the status of the review
-  Status status = 13;
+  ReviewStatus status = 13;
   // issue is the original CVE Dashboard issue
-  string issue = 14;
-
-  // Status represents the possible states of review for an advisory event
-  enum Status {
-    PENDING = 0;
-    APPROVED = 1;
-    REQUEST_CHANGES = 2;
-    REJECTED = 3;
-  }
+  optional string issue = 14;
 }
 
 
 message AdvisoryFilter {
-  // id filters by advisory ID
-  string id = 1;
+  // advisory_id filters by advisory ID
+  string advisory_id = 1;
+
   // artifact_type filters by artifact type
   optional string artifact_type = 2;
   // artifact filters by artifact name
@@ -241,33 +255,48 @@ message AdvisoryFilter {
   // Pagination
   string page_token = 9;
   int64 page_size = 10;
+
+  // next id: 11
 }
 
 message AdvisoriesList {
-  repeated Advisory items = 1;
+  // ID of the group the advisories belong to, parent UIDP.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+  repeated Advisory items = 2;
   // next_page_token is the token to use for the next page of results
-  string next_page_token = 2;
+  string next_page_token = 3;
   // total_count is the total number of advisories matching the filter (optional)
-  optional int64 total_count = 3;
+  optional int64 total_count = 4;
 }
 
 message DeleteAdvisoryRequest {
-  // id filters by advisory ID
-  string id = 1;
+  // id is the exact UIDP of the advisory to delete.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message CreateAdvisoryRequest {
+  // parent_id is the IAM scope identifier, parent under which to create this
+  // advisory.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+  // The advisory being created.
+  Advisory advisory = 2;
 }
 
 message CreateAdvisoryEventRequest {
-  // advisory_id filters by advisory ID
-  string advisory_id = 1;
-
+  // parent_id is the UIDP of the Advisory the events belong to.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
   repeated AdvisoryEvent items = 2;
 }
 
 message AdvisoryEventFilter {
-  // advisory_id filters by advisory ID
-  string advisory_id = 1;
+  // parent_id is the IAM scope identifier. If you are fetching a single
+  // AdvisoryEvent you can use this to get the exact one.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
 }
 
 message AdvisoryEventList {
-  repeated AdvisoryEvent items = 1;
+  // UIDP of the group the advisories belong to, parent UIDP of the
+  // advisories.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+  repeated AdvisoryEvent items = 2;
 }

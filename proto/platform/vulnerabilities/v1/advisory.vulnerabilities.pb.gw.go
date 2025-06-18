@@ -27,7 +27,7 @@ var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
 func request_Advisories_Create_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisoriesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq Advisory
+	var protoReq CreateAdvisoryRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -40,7 +40,7 @@ func request_Advisories_Create_0(ctx context.Context, marshaler runtime.Marshale
 }
 
 func local_request_Advisories_Create_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisoriesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq Advisory
+	var protoReq CreateAdvisoryRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -215,14 +215,14 @@ func request_Advisories_CreateAdvisoryEvent_0(ctx context.Context, marshaler run
 		_   = err
 	)
 
-	val, ok = pathParams["advisory_id"]
+	val, ok = pathParams["parent_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "advisory_id")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent_id")
 	}
 
-	protoReq.AdvisoryId, err = runtime.String(val)
+	protoReq.ParentId, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "advisory_id", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent_id", err)
 	}
 
 	msg, err := client.CreateAdvisoryEvent(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -245,14 +245,14 @@ func local_request_Advisories_CreateAdvisoryEvent_0(ctx context.Context, marshal
 		_   = err
 	)
 
-	val, ok = pathParams["advisory_id"]
+	val, ok = pathParams["parent_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "advisory_id")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent_id")
 	}
 
-	protoReq.AdvisoryId, err = runtime.String(val)
+	protoReq.ParentId, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "advisory_id", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent_id", err)
 	}
 
 	msg, err := server.CreateAdvisoryEvent(ctx, &protoReq)
@@ -271,14 +271,14 @@ func request_Advisories_ListAdvisoryEvents_0(ctx context.Context, marshaler runt
 		_   = err
 	)
 
-	val, ok = pathParams["advisory_id"]
+	val, ok = pathParams["parent_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "advisory_id")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent_id")
 	}
 
-	protoReq.AdvisoryId, err = runtime.String(val)
+	protoReq.ParentId, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "advisory_id", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent_id", err)
 	}
 
 	msg, err := client.ListAdvisoryEvents(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -297,14 +297,14 @@ func local_request_Advisories_ListAdvisoryEvents_0(ctx context.Context, marshale
 		_   = err
 	)
 
-	val, ok = pathParams["advisory_id"]
+	val, ok = pathParams["parent_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "advisory_id")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent_id")
 	}
 
-	protoReq.AdvisoryId, err = runtime.String(val)
+	protoReq.ParentId, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "advisory_id", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent_id", err)
 	}
 
 	msg, err := server.ListAdvisoryEvents(ctx, &protoReq)
@@ -427,7 +427,7 @@ func RegisterAdvisoriesHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/CreateAdvisoryEvent", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{advisory_id}/events"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/CreateAdvisoryEvent", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{parent_id}/events"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -452,7 +452,7 @@ func RegisterAdvisoriesHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/ListAdvisoryEvents", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{advisory_id}/events"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/ListAdvisoryEvents", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{parent_id}/events"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -604,7 +604,7 @@ func RegisterAdvisoriesHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/CreateAdvisoryEvent", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{advisory_id}/events"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/CreateAdvisoryEvent", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{parent_id}/events"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -626,7 +626,7 @@ func RegisterAdvisoriesHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/ListAdvisoryEvents", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{advisory_id}/events"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/ListAdvisoryEvents", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{parent_id}/events"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -654,9 +654,9 @@ var (
 
 	pattern_Advisories_Delete_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"vulnerabilities", "v1", "advisories", "id"}, ""))
 
-	pattern_Advisories_CreateAdvisoryEvent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"vulnerabilities", "v1", "advisories", "advisory_id", "events"}, ""))
+	pattern_Advisories_CreateAdvisoryEvent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"vulnerabilities", "v1", "advisories", "parent_id", "events"}, ""))
 
-	pattern_Advisories_ListAdvisoryEvents_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"vulnerabilities", "v1", "advisories", "advisory_id", "events"}, ""))
+	pattern_Advisories_ListAdvisoryEvents_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"vulnerabilities", "v1", "advisories", "parent_id", "events"}, ""))
 )
 
 var (

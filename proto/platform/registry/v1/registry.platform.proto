@@ -819,14 +819,24 @@ message PackageVersion {
   bool exists = 2;
   // whether or not a FIPS-enabled version of the package exists in an apk repo
   bool fips = 3;
-  // may be set to a date or true if the software is marked as lts
-  string lts = 4;
+  // May be set to a date or true if the software is marked as lts.
+  // Clients should treat this field as a boolean based on whether or not it is set.
+  // This field will be removed. Prefer using the `lts` field instead.
+  string legacy_lts = 4;
+  // whether or not this version is considered "long-term support" version by upstream.
+  // This is set best effort based on the upstream's definition of LTS, and may not be consistent
+  // across packages in meaning or duration.
+  bool lts = 9;
   // the date this version was release
   string releaseDate = 5;
   // the version stream identifier
   string version = 6;
   // whether or not an EOL version cannot longer be supported due to incompatibilities or no longer available dependencies
   bool eolBroken = 7;
+  // the latest version of this specific version stream
+  string latestVersion = 8;
+
+  // next id: 10
 }
 
 // BuildReportFilter is used to filter BuildReports for ListBuildReports call.

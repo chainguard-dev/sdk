@@ -54,7 +54,7 @@ func (m MockAdvisoriesClient) List(_ context.Context, given *v1.AdvisoryFilter, 
 	return nil, fmt.Errorf("mock not found for %v", given)
 }
 
-func (m MockAdvisoriesClient) Create(_ context.Context, given *v1.Advisory, _ ...grpc.CallOption) (*v1.Advisory, error) {
+func (m MockAdvisoriesClient) Create(_ context.Context, given *v1.CreateAdvisoryRequest, _ ...grpc.CallOption) (*v1.Advisory, error) {
 	for _, o := range m.OnCreate {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Created, o.Error

@@ -83,9 +83,12 @@ message ArtifactList {
   // the next page of results. Other filter fields must match
   // the call that provided this token.
   string next_page_token = 2;
-
   // The total number of artifacts that this query found.
   int32 total_artifacts = 3;
+  // The number of records skipped to get to this page of results.
+  // The is the sum of the previous page token skip (if present)
+  // and the requested skip value.
+  int32 skipped = 4;
 }
 
 // Options to filter results of List.
