@@ -388,6 +388,10 @@ message SyncConfig {
 message CustomOverlay {
   // Mirrors apko configuration for image contents.
   ImageContents contents = 1;
+
+  map<string, string> environment = 2;
+
+  map<string, string> annotations = 3;
 }
 
 message ImageContents {
