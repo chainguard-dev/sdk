@@ -236,4 +236,3 @@ message ResourceReference {
   //     }
   string child_type = 2;
 }
-
