@@ -175,6 +175,7 @@ service Registry {
     };
   }
 
+  // Deprecated
   rpc GetSbom(SbomRequest) returns (chainguard.platform.tenant.Sbom2) {
     option (google.api.http) = {
       get: "/registry/v1/repos/{repo_id=**}/digests/{digest=*}/sbom"
@@ -230,6 +231,7 @@ service Registry {
     };
   }
 
+  // Deprecated
   rpc GetRawSbom(RawSbomRequest) returns (RawSbom) {
     option (google.api.http) = {
       get: "/registry/v1/repos/{repo_id=**}/digest/{digest=*}/rawsbom"
@@ -388,6 +390,10 @@ message SyncConfig {
 message CustomOverlay {
   // Mirrors apko configuration for image contents.
   ImageContents contents = 1;
+
+  map<string, string> environment = 2;
+
+  map<string, string> annotations = 3;
 }
 
 message ImageContents {
@@ -578,7 +584,9 @@ message DiffImageResponse {
   repeated string warnings = 5;
 }
 
+// The service for this request is deprecated.
 message SbomRequest {
+  option deprecated = true;
   // The UIDP of the image repo to get an SBOM for.
   string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
 
@@ -727,7 +735,9 @@ message ImageConfigRequest {
   bool registry = 4;
 }
 
+// The service for this request is deprecated.
 message RawSbomRequest {
+  option deprecated = true;
   // The UIDP of the image repo to get config for.
   string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
   // The digest of the image to get config for.
@@ -793,7 +803,9 @@ message ManifestMetadataList {
   repeated ManifestMetadata items = 1;
 }
 
+// The service for this request is deprecated.
 message RawSbom {
+  option deprecated = true;
 	string rawSbom = 1;
 }
 

@@ -137,7 +137,7 @@ type ImageConfigOnGet struct {
 }
 
 type SbomOnGet struct {
-	Given *registry.SbomRequest
+	Given *registry.SbomRequest //nolint:staticcheck
 	Get   *tenant.Sbom2
 	Error error
 }
@@ -155,8 +155,8 @@ type ManifestMetadataOnList struct {
 }
 
 type RawSbomOnGet struct {
-	Given *registry.RawSbomRequest
-	Get   *registry.RawSbom
+	Given *registry.RawSbomRequest //nolint:staticcheck
+	Get   *registry.RawSbom        //nolint:staticcheck
 	Error error
 }
 
@@ -304,6 +304,7 @@ func (m MockRegistryClient) GetImageConfig(_ context.Context, given *registry.Im
 	return nil, fmt.Errorf("mock not found for %v", given)
 }
 
+//nolint:staticcheck
 func (m MockRegistryClient) GetSbom(_ context.Context, given *registry.SbomRequest, _ ...grpc.CallOption) (*tenant.Sbom2, error) { //nolint: revive
 	for _, o := range m.OnGetSbom {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
@@ -331,6 +332,7 @@ func (m MockRegistryClient) ListManifestMetadata(_ context.Context, given *regis
 	return nil, fmt.Errorf("mock not found for %v", given)
 }
 
+//nolint:staticcheck
 func (m MockRegistryClient) GetRawSbom(_ context.Context, given *registry.RawSbomRequest, _ ...grpc.CallOption) (*registry.RawSbom, error) { //nolint: revive
 	for _, o := range m.OnGetRawSbom {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {

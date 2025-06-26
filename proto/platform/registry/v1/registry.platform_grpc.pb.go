@@ -61,11 +61,13 @@ type RegistryClient interface {
 	ListTags(ctx context.Context, in *TagFilter, opts ...grpc.CallOption) (*TagList, error)
 	ListEolTags(ctx context.Context, in *EolTagFilter, opts ...grpc.CallOption) (*EolTagList, error)
 	ListTagHistory(ctx context.Context, in *TagHistoryFilter, opts ...grpc.CallOption) (*TagHistoryList, error)
+	// Deprecated
 	GetSbom(ctx context.Context, in *SbomRequest, opts ...grpc.CallOption) (*v1.Sbom2, error)
 	GetHelm(ctx context.Context, in *HelmRequest, opts ...grpc.CallOption) (*Helm, error)
 	GetImageConfig(ctx context.Context, in *ImageConfigRequest, opts ...grpc.CallOption) (*ImageConfig, error)
 	GetArchs(ctx context.Context, in *ArchRequest, opts ...grpc.CallOption) (*Archs, error)
 	GetSize(ctx context.Context, in *SizeRequest, opts ...grpc.CallOption) (*Size, error)
+	// Deprecated
 	GetRawSbom(ctx context.Context, in *RawSbomRequest, opts ...grpc.CallOption) (*RawSbom, error)
 	GetVulnReport(ctx context.Context, in *VulnReportRequest, opts ...grpc.CallOption) (*v1.VulnReport, error)
 	ListManifestMetadata(ctx context.Context, in *ManifestMetadataFilter, opts ...grpc.CallOption) (*ManifestMetadataList, error)
@@ -328,11 +330,13 @@ type RegistryServer interface {
 	ListTags(context.Context, *TagFilter) (*TagList, error)
 	ListEolTags(context.Context, *EolTagFilter) (*EolTagList, error)
 	ListTagHistory(context.Context, *TagHistoryFilter) (*TagHistoryList, error)
+	// Deprecated
 	GetSbom(context.Context, *SbomRequest) (*v1.Sbom2, error)
 	GetHelm(context.Context, *HelmRequest) (*Helm, error)
 	GetImageConfig(context.Context, *ImageConfigRequest) (*ImageConfig, error)
 	GetArchs(context.Context, *ArchRequest) (*Archs, error)
 	GetSize(context.Context, *SizeRequest) (*Size, error)
+	// Deprecated
 	GetRawSbom(context.Context, *RawSbomRequest) (*RawSbom, error)
 	GetVulnReport(context.Context, *VulnReportRequest) (*v1.VulnReport, error)
 	ListManifestMetadata(context.Context, *ManifestMetadataFilter) (*ManifestMetadataList, error)
