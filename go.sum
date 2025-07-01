@@ -1,5 +1,5 @@
-chainguard.dev/apko v0.28.0 h1:/RNNwWecSwnzNJa1SFZxMjZy1k2DpY05jE3uHIK44s4=
-chainguard.dev/apko v0.28.0/go.mod h1:vmyBYal1gA+zno0hK4rl2c8olbLMFlfiz6sbAnkrSMI=
+chainguard.dev/apko v0.29.0 h1:m+jgHoIj/jt2GochKh+kxsT7Xzsvpv4QdSaLWg0Fcmk=
+chainguard.dev/apko v0.29.0/go.mod h1:vmyBYal1gA+zno0hK4rl2c8olbLMFlfiz6sbAnkrSMI=
 chainguard.dev/go-grpc-kit v0.17.11 h1:m4ZL2yg6sSrdPA593qVh9KHTZ+XOmLwqv3Jt5vT0FuU=
 chainguard.dev/go-grpc-kit v0.17.11/go.mod h1:aYlrvAscMZBtVIA7bykUWfbjhL2fDoUCECHvopC2xWY=
 chainguard.dev/go-oidctest v0.4.0 h1:B9YTfoa1WtsrEg0wnFeSP7i9tth0LO+GICm2j8HOgWI=
