@@ -12,10 +12,10 @@ require (
 	github.com/chainguard-dev/clog v1.7.0
 	github.com/cloudevents/sdk-go/v2 v2.16.1
 	github.com/coreos/go-oidc/v3 v3.14.1
-	github.com/go-jose/go-jose/v4 v4.1.0
+	github.com/go-jose/go-jose/v4 v4.1.1
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-containerregistry v0.20.6
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.0
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.1
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
 	github.com/russross/blackfriday/v2 v2.1.0
@@ -43,7 +43,7 @@ require (
 	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.16.3 // indirect
 	github.com/cyphar/filepath-securejoin v0.4.1 // indirect
-	github.com/docker/cli v28.2.2+incompatible // indirect
+	github.com/docker/cli v28.3.0+incompatible // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.9.3 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
@@ -79,15 +79,15 @@ require (
 	github.com/prometheus/common v0.63.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/segmentio/ksuid v1.0.4 // indirect
-	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
-	github.com/sirupsen/logrus v1.9.3 // indirect
+	github.com/sergi/go-diff v1.4.0 // indirect
+	github.com/sirupsen/logrus v1.9.4-0.20230606125235-dd1b4c2e81af // indirect
 	github.com/skeema/knownhosts v1.3.1 // indirect
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966 // indirect
 	github.com/vbatts/tar-split v0.12.1 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
-	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.61.0 // indirect
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.61.0 // indirect
+	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.62.0 // indirect
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.62.0 // indirect
 	go.opentelemetry.io/otel v1.37.0 // indirect
 	go.opentelemetry.io/otel/metric v1.37.0 // indirect
 	go.opentelemetry.io/otel/trace v1.37.0 // indirect
