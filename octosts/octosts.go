@@ -13,8 +13,10 @@ import (
 
 	"cloud.google.com/go/compute/metadata"
 	"github.com/chainguard-dev/clog"
+	"golang.org/x/oauth2"
 	"google.golang.org/api/idtoken"
 
+	"chainguard.dev/sdk/auth"
 	"chainguard.dev/sdk/sts"
 )
 
@@ -85,4 +87,66 @@ func Revoke(ctx context.Context, tok string) error {
 
 	// The token was revoked!
 	return nil
+}
+
+// NewTokenSource creates an octoSTSTokenSource, similar to sts.NewTokenSource
+func NewTokenSource(ts oauth2.TokenSource, xchg sts.Exchanger) oauth2.TokenSource {
+	return &octoSTSTokenSource{
+		ctx:  context.Background(),
+		ts:   ts,
+		xchg: xchg,
+	}
+}
+
+// NewTokenSourceFromValues creates the exchanger and token source required to create an octoSTSTokenSource
+// and then calls NewTokenSource with those values.
+func NewTokenSourceFromValues(ctx context.Context, policyName, org, repo string) (oauth2.TokenSource, error) {
+	scope := org
+	if repo != "" {
+		scope = fmt.Sprintf("%s/%s", org, repo)
+	}
+
+	xchg := sts.New(
+		OctoSTSEndpoint,
+		policyName,
+		sts.WithScope(scope),
+		sts.WithIdentity(policyName),
+	)
+
+	ts, err := idtoken.NewTokenSource(ctx, "octo-sts.dev" /* aud */)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewTokenSource(ts, xchg), nil
+}
+
+type octoSTSTokenSource struct {
+	ctx  context.Context
+	ts   oauth2.TokenSource
+	xchg sts.Exchanger
+}
+
+// Token implements oauth2.TokenSource
+func (sts *octoSTSTokenSource) Token() (*oauth2.Token, error) {
+	tok, err := sts.ts.Token()
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch base token: %w", err)
+	}
+
+	idt, err := sts.xchg.Exchange(sts.ctx, tok.AccessToken)
+	if err != nil {
+		return nil, fmt.Errorf("failed to exchange base token: %w", err)
+	}
+
+	accessToken := idt.AccessToken
+	expiry, err := auth.ExtractExpiry(accessToken)
+	if err != nil {
+		return nil, fmt.Errorf("failed to extract expiry from access token: %w", err)
+	}
+
+	return &oauth2.Token{
+		AccessToken: accessToken,
+		Expiry:      expiry,
+	}, nil
 }
