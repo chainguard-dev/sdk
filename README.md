@@ -32,3 +32,6 @@ go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
 go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.22.0
 go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.22.0
 ```
+
+## Breaking Changes
+While we make every effort to maintain backward compatibility and avoid breaking changes, we cannot guarantee that future updates to this SDK will be entirely non-breaking. As our platform evolves and new features are added, some modifications to the API surface may be necessary. We recommend pinning to specific versions in production environments and thoroughly testing updates before deployment.

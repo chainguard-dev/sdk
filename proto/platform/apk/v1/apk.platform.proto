@@ -1,9 +1,6 @@
 syntax = "proto3";
 
 option go_package = "chainguard.dev/sdk/proto/platform/apk/v1";
-option java_multiple_files = true;
-option java_package = "dev.chainguard.sdk.platform.apk.v1";
-option java_outer_classname = "PlatformAPKProto";
 
 package chainguard.platform.apk;
 
