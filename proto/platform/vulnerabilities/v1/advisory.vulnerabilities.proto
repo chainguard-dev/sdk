@@ -6,9 +6,6 @@ SPDX-License-Identifier: Apache-2.0
 syntax = "proto3";
 
 option go_package = "chainguard.dev/sdk/proto/platform/vulnerabilities/v1";
-option java_multiple_files = true;
-option java_package = "dev.chainguard.sdk.platform.vulnerabilities.v1";
-option java_outer_classname = "VulnerabilitiesAdvisoryProto";
 
 package chainguard.platform.vulnerabilities.v1;
 

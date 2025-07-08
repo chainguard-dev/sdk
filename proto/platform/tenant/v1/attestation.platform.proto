@@ -1,9 +1,6 @@
 syntax = "proto3";
 
 option go_package = "chainguard.dev/sdk/proto/platform/tenant/v1";
-option java_multiple_files = true;
-option java_package = "dev.chainguard.sdk.platform.tenant.v1";
-option java_outer_classname = "PlatformTenantAttestationProto";
 
 package chainguard.platform.tenant;
 
