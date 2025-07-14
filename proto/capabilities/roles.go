@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	// viewerCaps are read-only capabilities that do not affect state.
-	ViewerCaps = sortCaps(append(append([]Capability{
+	// ViewerCaps are read-only capabilities that do not affect state.
+	ViewerCaps = SortCaps([]Capability{
 		Capability_CAP_EVENTS_SUBSCRIPTION_LIST,
 
 		Capability_CAP_IAM_ACCOUNT_ASSOCIATIONS_LIST,
@@ -39,18 +39,18 @@ var (
 		Capability_CAP_REGISTRY_ENTITLEMENTS_LIST,
 	},
 		// Viewers can also list repos and tags, and pull images.
-		RegistryPullCaps...), APKPullCaps...))
+		RegistryPullCaps, APKPullCaps)
 
-	// editorCaps can modify state, but not grant roles/permissions.
-	EditorCaps = sortCaps(append([]Capability{
+	// EditorCaps can modify state, but not grant roles/permissions.
+	EditorCaps = SortCaps([]Capability{
 		Capability_CAP_EVENTS_SUBSCRIPTION_CREATE,
 		Capability_CAP_EVENTS_SUBSCRIPTION_DELETE,
 		Capability_CAP_EVENTS_SUBSCRIPTION_UPDATE,
 		Capability_CAP_REPO_UPDATE,
-	}, ViewerCaps...))
+	}, ViewerCaps)
 
-	// ownerCaps includes all capabilities possible by a user.
-	OwnerCaps = sortCaps(append(append(append(append(append(append([]Capability{
+	// OwnerCaps includes all capabilities possible by a user.
+	OwnerCaps = SortCaps([]Capability{
 		Capability_CAP_IAM_ACCOUNT_ASSOCIATIONS_CREATE,
 		Capability_CAP_IAM_ACCOUNT_ASSOCIATIONS_DELETE,
 		Capability_CAP_IAM_ACCOUNT_ASSOCIATIONS_UPDATE,
@@ -83,15 +83,14 @@ var (
 
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_CREATE,
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_DELETE,
-	}, EditorCaps...),
+	}, EditorCaps,
 		// Owners can also push and delete images, subject to the identity allowlist.
-		RegistryPushCaps...),
-		APKPushCaps...),
+		RegistryPushCaps, APKPushCaps,
 		// Owners can pull artifacts from ecosystem libraries and grant this role to others in their org.
 		// NB: The org must also be entitled to the ecosystem to pull artifacts.
-		LibrariesJavaPullCaps...), LibrariesPythonPullCaps...), LibrariesJavascriptPullCaps...))
+		LibrariesJavaPullCaps, LibrariesPythonPullCaps, LibrariesJavascriptPullCaps)
 
-	RegistryPullCaps = sortCaps([]Capability{
+	RegistryPullCaps = SortCaps([]Capability{
 		Capability_CAP_IAM_GROUPS_LIST,
 
 		Capability_CAP_REPO_LIST,
@@ -104,7 +103,7 @@ var (
 		Capability_CAP_TENANT_VULN_REPORTS_LIST,
 	})
 
-	RegistryPushCaps = sortCaps(append([]Capability{
+	RegistryPushCaps = SortCaps([]Capability{
 		Capability_CAP_REPO_CREATE,
 		Capability_CAP_REPO_UPDATE,
 		Capability_CAP_REPO_DELETE,
@@ -119,11 +118,11 @@ var (
 
 		// To create nested groups as needed on push.
 		Capability_CAP_IAM_GROUPS_CREATE,
-	}, RegistryPullCaps...))
+	}, RegistryPullCaps)
 
 	// PullTokenCreatorCaps is the minimal set of capabilities to create a pull token.
-	PullTokenCreatorCaps = sortCaps([]Capability{
-		// To create the token (identity + rolebinding)
+	PullTokenCreatorCaps = SortCaps([]Capability{
+		// To create the token (identity + role binding)
 		Capability_CAP_IAM_ROLE_BINDINGS_CREATE,
 		Capability_CAP_IAM_IDENTITY_CREATE,
 		// To validate the role of the token.
@@ -132,58 +131,60 @@ var (
 		Capability_CAP_IAM_GROUPS_LIST,
 	})
 
-	RegistryPullTokenCreatorCaps = sortCaps(append(append(PullTokenCreatorCaps, RegistryPullCaps...), APKPullCaps...))
+	RegistryPullTokenCreatorCaps = SortCaps(PullTokenCreatorCaps, RegistryPullCaps, APKPullCaps)
 
-	APKPullCaps = sortCaps([]Capability{
+	APKPullCaps = SortCaps([]Capability{
 		Capability_CAP_IAM_GROUPS_LIST,
 		Capability_CAP_APK_LIST,
 	})
 
-	APKPushCaps = sortCaps(append([]Capability{
+	APKPushCaps = SortCaps([]Capability{
 		Capability_CAP_IAM_GROUPS_LIST,
 		Capability_CAP_APK_CREATE,
 		Capability_CAP_APK_DELETE,
-	}, APKPullCaps...))
+	}, APKPullCaps)
 
-	AdvisoriesViewerCaps = sortCaps([]Capability{
+	AdvisoriesViewerCaps = SortCaps([]Capability{
 		Capability_CAP_ADVISORIES_LIST,
 	})
 
-	AdvisoriesCreatorCaps = sortCaps(append([]Capability{
+	AdvisoriesCreatorCaps = SortCaps([]Capability{
 		Capability_CAP_ADVISORIES_CREATE,
 		Capability_CAP_ADVISORIES_UPDATE,
-	}, AdvisoriesViewerCaps...))
+	}, AdvisoriesViewerCaps)
 
-	AdvisoriesApproverCaps = sortCaps(append([]Capability{
+	AdvisoriesApproverCaps = SortCaps([]Capability{
 		Capability_CAP_ADVISORIES_APPROVE,
-	}, AdvisoriesCreatorCaps...))
+	}, AdvisoriesCreatorCaps)
 
-	AdvisoriesAdminCaps = sortCaps(append([]Capability{
+	AdvisoriesAdminCaps = SortCaps([]Capability{
 		Capability_CAP_ADVISORIES_DELETE,
-	}, AdvisoriesApproverCaps...))
+	}, AdvisoriesApproverCaps)
 
-	LibrariesJavaPullCaps = sortCaps([]Capability{
+	LibrariesJavaPullCaps = SortCaps([]Capability{
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
 		Capability_CAP_LIBRARIES_JAVA_LIST,
 	})
 
-	LibrariesPythonPullCaps = sortCaps([]Capability{
+	LibrariesPythonPullCaps = SortCaps([]Capability{
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
 		Capability_CAP_LIBRARIES_PYTHON_LIST,
 	})
 
-	LibrariesJavascriptPullCaps = sortCaps([]Capability{
+	LibrariesJavascriptPullCaps = SortCaps([]Capability{
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
 		Capability_CAP_LIBRARIES_JAVASCRIPT_LIST,
 	})
 )
 
-func sortCaps(caps []Capability) []Capability {
+func SortCaps(caps ...[]Capability) []Capability {
 	uniq := map[Capability]struct{}{}
-	for _, c := range caps {
-		uniq[c] = struct{}{}
+	for _, cs := range caps {
+		for _, c := range cs {
+			uniq[c] = struct{}{}
+		}
 	}
 	out := maps.Keys(uniq)
-	slices.Sort(out)
+	slices.Sort(out) // These are sorted by enum value, not string name
 	return out
 }
