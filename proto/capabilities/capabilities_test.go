@@ -96,7 +96,7 @@ func TestEncoding(t *testing.T) {
 		}
 		all = append(all, Capability(cap))
 	}
-	all = sortCaps(all)
+	all = SortCaps(all)
 
 	tests := []struct {
 		name string
@@ -114,9 +114,9 @@ func TestEncoding(t *testing.T) {
 		name: "all",
 		caps: all,
 	}, {
-		// sortCaps removes duplicates.
+		// SortCaps removes duplicates.
 		name: "duplicates",
-		caps: sortCaps(Set{Capability_CAP_IAM_GROUPS_LIST, Capability_CAP_IAM_GROUPS_LIST}),
+		caps: SortCaps(Set{Capability_CAP_IAM_GROUPS_LIST, Capability_CAP_IAM_GROUPS_LIST}),
 	}}
 
 	for _, test := range tests {

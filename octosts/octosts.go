@@ -10,13 +10,13 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"cloud.google.com/go/compute/metadata"
 	"github.com/chainguard-dev/clog"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/idtoken"
 
-	"chainguard.dev/sdk/auth"
 	"chainguard.dev/sdk/sts"
 )
 
@@ -140,13 +140,12 @@ func (sts *octoSTSTokenSource) Token() (*oauth2.Token, error) {
 	}
 
 	accessToken := idt.AccessToken
-	expiry, err := auth.ExtractExpiry(accessToken)
-	if err != nil {
-		return nil, fmt.Errorf("failed to extract expiry from access token: %w", err)
-	}
 
 	return &oauth2.Token{
 		AccessToken: accessToken,
-		Expiry:      expiry,
+		// This is an approximation, as we don't have the actual expiry time from the Exchanger.
+		// Tokens are usually valid for 1 hour, so we set it to 55 minutes here.
+		// TODO: Return exact expiry time from the Exchanger if available.
+		Expiry: time.Now().Add(55 * time.Minute),
 	}, nil
 }
