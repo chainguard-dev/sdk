@@ -101,13 +101,13 @@ message AccountAssociations {
 
   Chainguard chainguard = 7;
 
+  Azure azure = 8;
+
   // name of the association.
   string name = 4;
 
   // a short description of this association.
   string description = 5;
-
-  // TODO(#617): Azure
 
   message Amazon {
       string account = 1;
@@ -144,7 +144,21 @@ message AccountAssociations {
     map<string, string> service_bindings = 1;
   }
 
-  // next id: 8
+  message Azure {
+    // tenant_id is the Azure tenant ID where this group and descendants
+    // are authorized to impersonate service principals to access resources.
+    //
+    // A tenant ID is a unique GUID that identifies an organization in
+    // Microsoft Entra ID (formerly Azure AD) instance
+    string tenant_id = 1;
+
+    // client_ids is a map from chainguard component to the Azure client IDs (also known as application ID)
+    //
+    // It serves as the application's identity for authentication with Azure services.
+    map<string, string> client_ids = 2;
+  }
+
+  // next id: 9
 }
 
 message AccountAssociationsList {
@@ -185,5 +199,6 @@ message AccountAssociationsCheckRequest {
 		UNKNOWN = 0;
 		GOOGLE = 1;
 		AMAZON = 2;
+		AZURE = 3;
 	}
 }
