@@ -96,6 +96,41 @@ enum ReviewStatus {
   REJECTED = 4;
 }
 
+// OrderBy specifies the sort order for advisory list results
+enum OrderBy {
+  // Default sort order
+  ORDER_BY_UNSPECIFIED = 0;
+  // Sort by ID in ascending order
+  ID_ASC = 1;
+  // Sort by ID in descending order
+  ID_DESC = 2;
+  // Sort by creation time in ascending order (oldest first)
+  CREATED_AT_ASC = 3;
+  // Sort by creation time in descending order (newest first)
+  CREATED_AT_DESC = 4;
+}
+
+// EventTypeFilter represents the event types that can be used for filtering
+// These map to the event type values used in the system
+enum EventTypeFilter {
+  // Default/unspecified
+  EVENT_TYPE_FILTER_UNSPECIFIED = 0;
+  // Detection event
+  EVENT_TYPE_FILTER_DETECTION = 1;
+  // True positive determination
+  EVENT_TYPE_FILTER_TRUE_POSITIVE_DETERMINATION = 2;
+  // Fixed event
+  EVENT_TYPE_FILTER_FIXED = 3;
+  // False positive determination
+  EVENT_TYPE_FILTER_FALSE_POSITIVE_DETERMINATION = 4;
+  // Analysis not planned
+  EVENT_TYPE_FILTER_ANALYSIS_NOT_PLANNED = 5;
+  // Fix not planned
+  EVENT_TYPE_FILTER_FIX_NOT_PLANNED = 6;
+  // Pending upstream fix
+  EVENT_TYPE_FILTER_PENDING_UPSTREAM_FIX = 7;
+}
+
 message Advisory {
   // id is the UIDP for the Advisory.
   string id = 1 [(chainguard.annotations.iam_scope) = true];
@@ -253,7 +288,34 @@ message AdvisoryFilter {
   string page_token = 9;
   int64 page_size = 10;
 
-  // next id: 11
+  // Event-level filters - only return advisories that have events matching these criteria
+  // These filters enable server-side filtering of advisories based on their event properties,
+  // reducing the amount of data transferred and improving query performance.
+
+  // event_statuses filters by event review status (e.g., PENDING, REQUEST_CHANGES)
+  // When specified, only advisories containing at least one event with any of the provided
+  // statuses will be returned. This is useful for review workflows where users need to see
+  // only events requiring action.
+  repeated ReviewStatus event_statuses = 11;
+
+  // event_author filters by event author email
+  // When specified, only advisories containing at least one event created by the specified
+  // author will be returned. This enables users to find their own events or events from
+  // specific team members.
+  optional string event_author = 12;
+
+  // event_types filters by event type
+  // When specified, only advisories containing at least one event of any of the provided
+  // types will be returned.
+  repeated EventTypeFilter event_types = 13;
+
+  // order_by specifies the sort order for results
+  // Default: ID_ASC
+  // This field affects the order of advisories returned, which is particularly useful
+  // for pagination and review workflows.
+  OrderBy order_by = 14;
+
+  // next id: 15
 }
 
 message AdvisoriesList {

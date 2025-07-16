@@ -6,6 +6,7 @@ package chainguard.platform.oidc;
 
 import "google/api/annotations.proto";
 import "google/api/resource.proto";
+import "google/protobuf/timestamp.proto";
 
 service SecurityTokenService {
 
@@ -61,6 +62,8 @@ message ExchangeRequest {
 message RawToken {
   string token = 1;
   string refresh_token = 2;
+  // (optional) Expiry time of the token.
+  google.protobuf.Timestamp expiry = 3;
 }
 
 // ExchangeRefreshToken returns a pair of token, in order to allow
