@@ -13,6 +13,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 
 	oidc "chainguard.dev/sdk/proto/platform/oidc/v1"
 	"golang.org/x/oauth2"
@@ -24,6 +25,7 @@ import (
 type TokenPair struct {
 	AccessToken  string
 	RefreshToken string
+	Expiry       time.Time
 }
 
 // Exchanger is an interface for exchanging a third-party token for a Chainguard
@@ -133,7 +135,12 @@ func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOpti
 	if err != nil {
 		return TokenPair{}, err
 	}
-	return TokenPair{AccessToken: resp.Token, RefreshToken: resp.RefreshToken}, nil
+
+	var expiry time.Time
+	if resp.GetExpiry() != nil {
+		expiry = resp.GetExpiry().AsTime()
+	}
+	return TokenPair{AccessToken: resp.Token, RefreshToken: resp.RefreshToken, Expiry: expiry}, nil
 }
 
 // Refresh implements Exchanger
@@ -297,7 +304,12 @@ func (i *HTTP1DowngradeExchanger) Exchange(ctx context.Context, token string, op
 	if err := i.doHTTP1(ctx, token, "/sts/exchange", in, out, o); err != nil {
 		return TokenPair{}, err
 	}
-	return TokenPair{AccessToken: out.Token, RefreshToken: out.RefreshToken}, nil
+
+	var expiry time.Time
+	if out.GetExpiry() != nil {
+		expiry = out.GetExpiry().AsTime()
+	}
+	return TokenPair{AccessToken: out.Token, RefreshToken: out.RefreshToken, Expiry: expiry}, nil
 }
 
 func (i *HTTP1DowngradeExchanger) Refresh(ctx context.Context, token string, opts ...ExchangerOption) (string, string, error) {
