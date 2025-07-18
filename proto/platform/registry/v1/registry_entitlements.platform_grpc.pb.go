@@ -19,10 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Entitlements_ListEntitlements_FullMethodName      = "/chainguard.platform.registry.Entitlements/ListEntitlements"
-	Entitlements_ListEntitlementImages_FullMethodName = "/chainguard.platform.registry.Entitlements/ListEntitlementImages"
-	Entitlements_Summary_FullMethodName               = "/chainguard.platform.registry.Entitlements/Summary"
-	Entitlements_GetFeatures_FullMethodName           = "/chainguard.platform.registry.Entitlements/GetFeatures"
+	Entitlements_ListEntitlements_FullMethodName             = "/chainguard.platform.registry.Entitlements/ListEntitlements"
+	Entitlements_ListEntitlementImages_FullMethodName        = "/chainguard.platform.registry.Entitlements/ListEntitlementImages"
+	Entitlements_ListEntitlementCatalogImages_FullMethodName = "/chainguard.platform.registry.Entitlements/ListEntitlementCatalogImages"
+	Entitlements_Summary_FullMethodName                      = "/chainguard.platform.registry.Entitlements/Summary"
+	Entitlements_GetFeatures_FullMethodName                  = "/chainguard.platform.registry.Entitlements/GetFeatures"
 )
 
 // EntitlementsClient is the client API for Entitlements service.
@@ -34,6 +35,9 @@ const (
 type EntitlementsClient interface {
 	ListEntitlements(ctx context.Context, in *EntitlementFilter, opts ...grpc.CallOption) (*EntitlementList, error)
 	ListEntitlementImages(ctx context.Context, in *EntitlementImagesFilter, opts ...grpc.CallOption) (*EntitlementImagesList, error)
+	// ListEntitlementCatalogImages returns catalog images for per-repo entitlements only.
+	// AYCE entitlements return empty list since access is captured in parent Entitlement.
+	ListEntitlementCatalogImages(ctx context.Context, in *EntitlementImagesFilter, opts ...grpc.CallOption) (*EntitlementImagesList, error)
 	// Summary provides a group-level summary of entitlements.
 	Summary(ctx context.Context, in *EntitlementSummaryRequest, opts ...grpc.CallOption) (*EntitlementSummaryResponse, error)
 	GetFeatures(ctx context.Context, in *GetFeaturesRequest, opts ...grpc.CallOption) (*GetFeaturesResponse, error)
@@ -61,6 +65,16 @@ func (c *entitlementsClient) ListEntitlementImages(ctx context.Context, in *Enti
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(EntitlementImagesList)
 	err := c.cc.Invoke(ctx, Entitlements_ListEntitlementImages_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *entitlementsClient) ListEntitlementCatalogImages(ctx context.Context, in *EntitlementImagesFilter, opts ...grpc.CallOption) (*EntitlementImagesList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(EntitlementImagesList)
+	err := c.cc.Invoke(ctx, Entitlements_ListEntitlementCatalogImages_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -96,6 +110,9 @@ func (c *entitlementsClient) GetFeatures(ctx context.Context, in *GetFeaturesReq
 type EntitlementsServer interface {
 	ListEntitlements(context.Context, *EntitlementFilter) (*EntitlementList, error)
 	ListEntitlementImages(context.Context, *EntitlementImagesFilter) (*EntitlementImagesList, error)
+	// ListEntitlementCatalogImages returns catalog images for per-repo entitlements only.
+	// AYCE entitlements return empty list since access is captured in parent Entitlement.
+	ListEntitlementCatalogImages(context.Context, *EntitlementImagesFilter) (*EntitlementImagesList, error)
 	// Summary provides a group-level summary of entitlements.
 	Summary(context.Context, *EntitlementSummaryRequest) (*EntitlementSummaryResponse, error)
 	GetFeatures(context.Context, *GetFeaturesRequest) (*GetFeaturesResponse, error)
@@ -114,6 +131,9 @@ func (UnimplementedEntitlementsServer) ListEntitlements(context.Context, *Entitl
 }
 func (UnimplementedEntitlementsServer) ListEntitlementImages(context.Context, *EntitlementImagesFilter) (*EntitlementImagesList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListEntitlementImages not implemented")
+}
+func (UnimplementedEntitlementsServer) ListEntitlementCatalogImages(context.Context, *EntitlementImagesFilter) (*EntitlementImagesList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListEntitlementCatalogImages not implemented")
 }
 func (UnimplementedEntitlementsServer) Summary(context.Context, *EntitlementSummaryRequest) (*EntitlementSummaryResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Summary not implemented")
@@ -178,6 +198,24 @@ func _Entitlements_ListEntitlementImages_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Entitlements_ListEntitlementCatalogImages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EntitlementImagesFilter)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EntitlementsServer).ListEntitlementCatalogImages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Entitlements_ListEntitlementCatalogImages_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EntitlementsServer).ListEntitlementCatalogImages(ctx, req.(*EntitlementImagesFilter))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Entitlements_Summary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(EntitlementSummaryRequest)
 	if err := dec(in); err != nil {
@@ -228,6 +266,10 @@ var Entitlements_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListEntitlementImages",
 			Handler:    _Entitlements_ListEntitlementImages_Handler,
+		},
+		{
+			MethodName: "ListEntitlementCatalogImages",
+			Handler:    _Entitlements_ListEntitlementCatalogImages_Handler,
 		},
 		{
 			MethodName: "Summary",

@@ -34,6 +34,19 @@ service Entitlements {
     };
   }
 
+  // ListEntitlementCatalogImages returns catalog images for per-repo entitlements only.
+  // AYCE entitlements return empty list since access is captured in parent Entitlement.
+  rpc ListEntitlementCatalogImages(EntitlementImagesFilter) returns (EntitlementImagesList) {
+    option (google.api.http) = {
+      get: "/registry/v1/entitlements/{parent=**}/catalog-images"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_ENTITLEMENTS_LIST]
+      }
+    };
+  }
+
   // Summary provides a group-level summary of entitlements.
   rpc Summary(EntitlementSummaryRequest) returns (EntitlementSummaryResponse) {
     option (google.api.http) = {
@@ -76,6 +89,10 @@ message Entitlement {
 
   // Keys can't be enum types, but string should match CatalogTier.
   map<string, ImageQuota> quota = 7;
+
+  // List of catalog tiers (e.g., ["APPLICATION", "BASE"]) that have unlimited access.
+  // This field is used for AYCE (All You Can Eat) entitlements.
+  repeated chainguard.platform.registry.CatalogTier tiers = 8;
 }
 
 message ImageQuota {
