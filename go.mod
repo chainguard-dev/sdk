@@ -4,7 +4,7 @@ go 1.24.5
 
 require (
 	chainguard.dev/apko v0.29.7
-	chainguard.dev/go-grpc-kit v0.17.11
+	chainguard.dev/go-grpc-kit v0.17.12
 	chainguard.dev/go-oidctest v0.4.0
 	cloud.google.com/go/compute/metadata v0.7.0
 	github.com/aws/aws-sdk-go-v2 v1.36.5
