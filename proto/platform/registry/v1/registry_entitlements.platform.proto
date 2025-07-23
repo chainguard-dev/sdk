@@ -84,6 +84,7 @@ message Entitlement {
       UNKNOWN = 0;
       TRIAL = 1;
       PRODUCTION = 2;
+      EXTRA = 3;
   }
   Type type = 6;
 
