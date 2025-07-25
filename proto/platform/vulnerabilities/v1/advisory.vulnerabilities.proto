@@ -110,6 +110,7 @@ enum OrderBy {
   CREATED_AT_DESC = 4;
 }
 
+
 // EventTypeFilter represents the event types that can be used for filtering
 // These map to the event type values used in the system
 enum EventTypeFilter {
@@ -315,7 +316,13 @@ message AdvisoryFilter {
   // for pagination and review workflows.
   OrderBy order_by = 14;
 
-  // next id: 15
+  // exclude_event_author filters out advisories where any event was created by the specified author
+  // When specified, advisories containing events by this author will be excluded from results.
+  // This is useful for review workflows where users want to see all pending events except their own,
+  // enabling them to review others' work without seeing their own submissions.
+  optional string exclude_event_author = 15;
+
+  // next id: 16
 }
 
 message AdvisoriesList {
