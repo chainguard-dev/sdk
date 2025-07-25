@@ -58,6 +58,13 @@ service Vulnerabilities {
   }
 }
 
+message RepoTagReference {
+  // repo is the name of the repo
+  string repo = 1;
+  // tag is the version of the image
+  string tag = 2;
+}
+
 message VulnCountReportFilter {
   // repo is the name of the repo to retrieve vulnerability summaries for
   string repo = 1;
@@ -67,6 +74,9 @@ message VulnCountReportFilter {
   google.protobuf.Timestamp from = 3;
   // end defines the end of the date range of vulnerability summaries, inclusive.
   google.protobuf.Timestamp to = 4;
+  // references is an array of repo+tag pairs to retrieve vulnerability summaries for
+  // If provided, this takes precedence over the individual repo and tag fields
+  repeated RepoTagReference references = 5;
 }
 
 message VulnCountReportList {
