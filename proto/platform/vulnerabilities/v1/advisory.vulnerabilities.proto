@@ -173,6 +173,9 @@ message Advisory {
   // status is the status of the review. Note that not all the entries need to
   // get reviewed, so this is optional.
   ReviewStatus status = 18;
+
+  // legacyAdvisoryID stores the advisory ID from the Github advisories repositories
+  optional string legacyAdvisoryID = 19;
 }
 
 message AdvisoryEvent {
