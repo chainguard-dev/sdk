@@ -262,6 +262,17 @@ service Registry {
     };
   };
 
+  rpc GetManifestDigestCount(ManifestDigestCountFilter) returns (ManifestDigestCount) {
+    option (google.api.http) = {
+      get: "/registry/v1/digestcount/{parent_id=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_MANIFEST_METADATA_LIST]
+      }
+    };
+  };
+
   rpc GetPackageVersionMetadata(PackageVersionMetadataRequest) returns (PackageVersionMetadata) {
     option (google.api.http) = {
       get: "/registry/v1/versions/{package=**}"
@@ -798,6 +809,14 @@ message ManifestMetadata {
 
 message ManifestMetadataList {
   repeated ManifestMetadata items = 1;
+}
+
+message ManifestDigestCountFilter {
+  string parent_id = 1;
+}
+
+message ManifestDigestCount {
+  int64 count = 1;
 }
 
 // The service for this request is deprecated.
