@@ -20,10 +20,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	RoleBindings_Create_FullMethodName = "/chainguard.platform.iam.RoleBindings/Create"
-	RoleBindings_Update_FullMethodName = "/chainguard.platform.iam.RoleBindings/Update"
-	RoleBindings_List_FullMethodName   = "/chainguard.platform.iam.RoleBindings/List"
-	RoleBindings_Delete_FullMethodName = "/chainguard.platform.iam.RoleBindings/Delete"
+	RoleBindings_Create_FullMethodName      = "/chainguard.platform.iam.RoleBindings/Create"
+	RoleBindings_CreateBatch_FullMethodName = "/chainguard.platform.iam.RoleBindings/CreateBatch"
+	RoleBindings_Update_FullMethodName      = "/chainguard.platform.iam.RoleBindings/Update"
+	RoleBindings_List_FullMethodName        = "/chainguard.platform.iam.RoleBindings/List"
+	RoleBindings_Delete_FullMethodName      = "/chainguard.platform.iam.RoleBindings/Delete"
 )
 
 // RoleBindingsClient is the client API for RoleBindings service.
@@ -31,6 +32,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RoleBindingsClient interface {
 	Create(ctx context.Context, in *CreateRoleBindingRequest, opts ...grpc.CallOption) (*RoleBinding, error)
+	CreateBatch(ctx context.Context, in *CreateRoleBindingBatchRequest, opts ...grpc.CallOption) (*RoleBindingBatch, error)
 	Update(ctx context.Context, in *RoleBinding, opts ...grpc.CallOption) (*RoleBinding, error)
 	List(ctx context.Context, in *RoleBindingFilter, opts ...grpc.CallOption) (*RoleBindingList, error)
 	Delete(ctx context.Context, in *DeleteRoleBindingRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -48,6 +50,16 @@ func (c *roleBindingsClient) Create(ctx context.Context, in *CreateRoleBindingRe
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RoleBinding)
 	err := c.cc.Invoke(ctx, RoleBindings_Create_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *roleBindingsClient) CreateBatch(ctx context.Context, in *CreateRoleBindingBatchRequest, opts ...grpc.CallOption) (*RoleBindingBatch, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RoleBindingBatch)
+	err := c.cc.Invoke(ctx, RoleBindings_CreateBatch_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -89,6 +101,7 @@ func (c *roleBindingsClient) Delete(ctx context.Context, in *DeleteRoleBindingRe
 // for forward compatibility.
 type RoleBindingsServer interface {
 	Create(context.Context, *CreateRoleBindingRequest) (*RoleBinding, error)
+	CreateBatch(context.Context, *CreateRoleBindingBatchRequest) (*RoleBindingBatch, error)
 	Update(context.Context, *RoleBinding) (*RoleBinding, error)
 	List(context.Context, *RoleBindingFilter) (*RoleBindingList, error)
 	Delete(context.Context, *DeleteRoleBindingRequest) (*emptypb.Empty, error)
@@ -104,6 +117,9 @@ type UnimplementedRoleBindingsServer struct{}
 
 func (UnimplementedRoleBindingsServer) Create(context.Context, *CreateRoleBindingRequest) (*RoleBinding, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (UnimplementedRoleBindingsServer) CreateBatch(context.Context, *CreateRoleBindingBatchRequest) (*RoleBindingBatch, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateBatch not implemented")
 }
 func (UnimplementedRoleBindingsServer) Update(context.Context, *RoleBinding) (*RoleBinding, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
@@ -149,6 +165,24 @@ func _RoleBindings_Create_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RoleBindingsServer).Create(ctx, req.(*CreateRoleBindingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RoleBindings_CreateBatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateRoleBindingBatchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoleBindingsServer).CreateBatch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RoleBindings_CreateBatch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoleBindingsServer).CreateBatch(ctx, req.(*CreateRoleBindingBatchRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -217,6 +251,10 @@ var RoleBindings_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Create",
 			Handler:    _RoleBindings_Create_Handler,
+		},
+		{
+			MethodName: "CreateBatch",
+			Handler:    _RoleBindings_CreateBatch_Handler,
 		},
 		{
 			MethodName: "Update",
