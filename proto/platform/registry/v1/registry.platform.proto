@@ -868,7 +868,14 @@ message PackageVersion {
   // the latest version of this specific version stream
   string latestVersion = 8;
 
-  // next id: 10
+  message VersionSource {
+    string ref = 1;
+    string sha = 2;
+  }
+
+  VersionSource versionSource = 10;
+
+  // next id: 11
 }
 
 // BuildReportFilter is used to filter BuildReports for ListBuildReports call.
