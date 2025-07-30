@@ -816,7 +816,7 @@ message ManifestMetadataList {
 }
 
 message ManifestDigestCountFilter {
-  string parent_id = 1;
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
 }
 
 message ManifestDigestCount {
