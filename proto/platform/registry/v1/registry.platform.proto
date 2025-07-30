@@ -350,6 +350,9 @@ message Repo {
   repeated string aliases = 8;
 
   google.protobuf.Timestamp create_time = 9;
+
+  // Disallow updating an existing repo on create name collision
+  bool prevent_existing = 10;
 }
 
 enum CatalogTier {
