@@ -350,9 +350,6 @@ message Repo {
   repeated string aliases = 8;
 
   google.protobuf.Timestamp create_time = 9;
-
-  // Disallow updating an existing repo on create name collision
-  bool prevent_existing = 10;
 }
 
 enum CatalogTier {
@@ -415,6 +412,9 @@ message ImageContents {
 message CreateRepoRequest {
   string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
   Repo repo = 2;
+
+  // Disallow updating an existing repo on create name collision
+  bool prevent_existing = 3;
 }
 
 message GetRepoCountBySourceRequest {
