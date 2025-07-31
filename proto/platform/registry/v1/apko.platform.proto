@@ -47,6 +47,7 @@ message ApkoConfig {
   message Contents {
     repeated string repositories = 1;
     repeated string build_repositories = 2;
+    repeated string runtime_repositories = 5;
     repeated string keyring = 3;
     repeated string packages = 4;
   };
