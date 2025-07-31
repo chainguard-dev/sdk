@@ -31,6 +31,23 @@ service RoleBindings {
     };
   }
 
+  rpc CreateBatch(CreateRoleBindingBatchRequest) returns (RoleBindingBatch) {
+    option (google.api.http) = {
+      post: "/iam/v1/rolebindings/batch/{parent=**}"
+      body: "role_bindings"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_ROLE_BINDINGS_CREATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.rolebindings.created.batch.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
   rpc Update(RoleBinding) returns (RoleBinding) {
     option (google.api.http) = {
       put: "/iam/v1/rolebindings/{id=**}"
@@ -125,6 +142,17 @@ message CreateRoleBindingRequest {
   string parent = 1 [(chainguard.annotations.iam_scope) = true];
   // RoleBinding to create.
   RoleBinding role_binding = 2;
+}
+
+message CreateRoleBindingBatchRequest {
+  // parent, The Group UIDP path under which the new RoleBinding resides.
+  string parent = 1 [(chainguard.annotations.iam_scope) = true];
+  // RoleBinding to create.
+  repeated RoleBinding role_bindings = 2;
+}
+
+message RoleBindingBatch {
+  repeated RoleBinding role_bindings = 1;
 }
 
 message DeleteRoleBindingRequest {

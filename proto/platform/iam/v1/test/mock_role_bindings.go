@@ -20,15 +20,22 @@ import (
 var _ iam.RoleBindingsClient = (*MockRoleBindingsClient)(nil)
 
 type MockRoleBindingsClient struct {
-	OnCreate []RoleBindingOnCreate
-	OnUpdate []RoleBindingOnUpdate
-	OnDelete []RoleBindingOnDelete
-	OnList   []RoleBindingOnList
+	OnCreate      []RoleBindingOnCreate
+	OnCreateBatch []RoleBindingOnCreateBatch
+	OnUpdate      []RoleBindingOnUpdate
+	OnDelete      []RoleBindingOnDelete
+	OnList        []RoleBindingOnList
 }
 
 type RoleBindingOnCreate struct {
 	Given   *iam.CreateRoleBindingRequest
 	Created *iam.RoleBinding
+	Error   error
+}
+
+type RoleBindingOnCreateBatch struct {
+	Given   *iam.CreateRoleBindingBatchRequest
+	Created *iam.RoleBindingBatch
 	Error   error
 }
 
@@ -51,6 +58,15 @@ type RoleBindingOnList struct {
 
 func (m MockRoleBindingsClient) Create(_ context.Context, given *iam.CreateRoleBindingRequest, _ ...grpc.CallOption) (*iam.RoleBinding, error) {
 	for _, o := range m.OnCreate {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Created, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockRoleBindingsClient) CreateBatch(_ context.Context, given *iam.CreateRoleBindingBatchRequest, _ ...grpc.CallOption) (*iam.RoleBindingBatch, error) {
+	for _, o := range m.OnCreateBatch {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Created, o.Error
 		}

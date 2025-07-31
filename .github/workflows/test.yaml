@@ -5,9 +5,11 @@ name: Test
 
 on:
   pull_request:
-    branches: [ 'main', 'release-*' ]
+    branches:
+      - 'main'
   push:
-    branches: [ 'main', 'release-*' ]
+    branches:
+      - 'main'
 
 permissions: {}
 

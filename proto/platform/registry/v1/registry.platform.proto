@@ -262,6 +262,17 @@ service Registry {
     };
   };
 
+  rpc GetManifestDigestCount(ManifestDigestCountFilter) returns (ManifestDigestCount) {
+    option (google.api.http) = {
+      get: "/registry/v1/digestcount/{parent_id=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_MANIFEST_METADATA_LIST]
+      }
+    };
+  };
+
   rpc GetPackageVersionMetadata(PackageVersionMetadataRequest) returns (PackageVersionMetadata) {
     option (google.api.http) = {
       get: "/registry/v1/versions/{package=**}"
@@ -371,7 +382,8 @@ message SyncConfig {
   // AWS ECR repo to sync to.
   string amazon = 5;
 
-  // Hold 6 for Azure.
+  // Azure ACR repo to sync to.
+  string azure = 6;
 
   // Controls whether to synchronize APKs for the images in this repository
   // to the enclosing Chainguard group.
@@ -401,6 +413,9 @@ message ImageContents {
 message CreateRepoRequest {
   string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
   Repo repo = 2;
+
+  // Disallow updating an existing repo on create name collision
+  bool prevent_existing = 3;
 }
 
 message GetRepoCountBySourceRequest {
@@ -800,6 +815,14 @@ message ManifestMetadataList {
   repeated ManifestMetadata items = 1;
 }
 
+message ManifestDigestCountFilter {
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message ManifestDigestCount {
+  int64 count = 1;
+}
+
 // The service for this request is deprecated.
 message RawSbom {
   option deprecated = true;
@@ -845,7 +868,14 @@ message PackageVersion {
   // the latest version of this specific version stream
   string latestVersion = 8;
 
-  // next id: 10
+  message VersionSource {
+    string ref = 1;
+    string sha = 2;
+  }
+
+  VersionSource versionSource = 10;
+
+  // next id: 11
 }
 
 // BuildReportFilter is used to filter BuildReports for ListBuildReports call.

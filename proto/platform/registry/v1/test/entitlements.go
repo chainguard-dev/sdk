@@ -20,10 +20,11 @@ var _ registry.EntitlementsClient = (*MockEntitlementsClient)(nil)
 type MockEntitlementsClient struct {
 	registry.EntitlementsClient
 
-	OnListEntitlements      []EntitlementsOnList
-	OnListEntitlementImages []EntitlementImagesOnList
-	OnGetEntitlementSummary []EntitlementSummaryOnGet
-	OnGetFeatures           []FeaturesOnGet
+	OnListEntitlements             []EntitlementsOnList
+	OnListEntitlementImages        []EntitlementImagesOnList
+	OnListEntitlementCatalogImages []EntitlementCatalogImagesOnList
+	OnGetEntitlementSummary        []EntitlementSummaryOnGet
+	OnGetFeatures                  []FeaturesOnGet
 }
 
 type EntitlementsOnList struct {
@@ -33,6 +34,12 @@ type EntitlementsOnList struct {
 }
 
 type EntitlementImagesOnList struct {
+	Given *registry.EntitlementImagesFilter
+	List  *registry.EntitlementImagesList
+	Error error
+}
+
+type EntitlementCatalogImagesOnList struct {
 	Given *registry.EntitlementImagesFilter
 	List  *registry.EntitlementImagesList
 	Error error
@@ -61,6 +68,15 @@ func (m *MockEntitlementsClient) ListEntitlements(_ context.Context, given *regi
 
 func (m *MockEntitlementsClient) ListEntitlementImages(_ context.Context, given *registry.EntitlementImagesFilter, _ ...grpc.CallOption) (*registry.EntitlementImagesList, error) {
 	for _, o := range m.OnListEntitlementImages {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.List, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m *MockEntitlementsClient) ListEntitlementCatalogImages(_ context.Context, given *registry.EntitlementImagesFilter, _ ...grpc.CallOption) (*registry.EntitlementImagesList, error) {
+	for _, o := range m.OnListEntitlementCatalogImages {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.List, o.Error
 		}

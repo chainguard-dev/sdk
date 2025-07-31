@@ -12,10 +12,11 @@ import (
 func ToApkoProto(ic apkotypes.ImageConfiguration) *ApkoConfig {
 	return &ApkoConfig{
 		Contents: &ApkoConfig_Contents{
-			Repositories:      ic.Contents.RuntimeRepositories,
-			BuildRepositories: ic.Contents.BuildRepositories,
-			Keyring:           ic.Contents.Keyring,
-			Packages:          ic.Contents.Packages,
+			Repositories:        ic.Contents.Repositories,
+			BuildRepositories:   ic.Contents.BuildRepositories,
+			RuntimeRepositories: ic.Contents.RuntimeOnlyRepositories,
+			Keyring:             ic.Contents.Keyring,
+			Packages:            ic.Contents.Packages,
 		},
 		Environment: ic.Environment,
 		Accounts: &ApkoConfig_Accounts{
@@ -146,10 +147,11 @@ func apkoContents(contents *ApkoConfig_Contents) apkotypes.ImageContents {
 	}
 
 	return apkotypes.ImageContents{
-		RuntimeRepositories: contents.Repositories,
-		BuildRepositories:   contents.BuildRepositories,
-		Keyring:             contents.Keyring,
-		Packages:            contents.Packages,
+		Repositories:            contents.Repositories,
+		BuildRepositories:       contents.BuildRepositories,
+		RuntimeOnlyRepositories: contents.RuntimeRepositories,
+		Keyring:                 contents.Keyring,
+		Packages:                contents.Packages,
 	}
 }
 

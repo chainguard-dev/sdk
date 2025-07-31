@@ -40,6 +40,7 @@ const (
 	Registry_GetRawSbom_FullMethodName                = "/chainguard.platform.registry.Registry/GetRawSbom"
 	Registry_GetVulnReport_FullMethodName             = "/chainguard.platform.registry.Registry/GetVulnReport"
 	Registry_ListManifestMetadata_FullMethodName      = "/chainguard.platform.registry.Registry/ListManifestMetadata"
+	Registry_GetManifestDigestCount_FullMethodName    = "/chainguard.platform.registry.Registry/GetManifestDigestCount"
 	Registry_GetPackageVersionMetadata_FullMethodName = "/chainguard.platform.registry.Registry/GetPackageVersionMetadata"
 	Registry_ListBuildReports_FullMethodName          = "/chainguard.platform.registry.Registry/ListBuildReports"
 	Registry_GetBuildStatus_FullMethodName            = "/chainguard.platform.registry.Registry/GetBuildStatus"
@@ -71,6 +72,7 @@ type RegistryClient interface {
 	GetRawSbom(ctx context.Context, in *RawSbomRequest, opts ...grpc.CallOption) (*RawSbom, error)
 	GetVulnReport(ctx context.Context, in *VulnReportRequest, opts ...grpc.CallOption) (*v1.VulnReport, error)
 	ListManifestMetadata(ctx context.Context, in *ManifestMetadataFilter, opts ...grpc.CallOption) (*ManifestMetadataList, error)
+	GetManifestDigestCount(ctx context.Context, in *ManifestDigestCountFilter, opts ...grpc.CallOption) (*ManifestDigestCount, error)
 	GetPackageVersionMetadata(ctx context.Context, in *PackageVersionMetadataRequest, opts ...grpc.CallOption) (*PackageVersionMetadata, error)
 	ListBuildReports(ctx context.Context, in *BuildReportFilter, opts ...grpc.CallOption) (*BuildReportList, error)
 	GetBuildStatus(ctx context.Context, in *BuildReportFilter, opts ...grpc.CallOption) (*BuildStatus, error)
@@ -275,6 +277,16 @@ func (c *registryClient) ListManifestMetadata(ctx context.Context, in *ManifestM
 	return out, nil
 }
 
+func (c *registryClient) GetManifestDigestCount(ctx context.Context, in *ManifestDigestCountFilter, opts ...grpc.CallOption) (*ManifestDigestCount, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ManifestDigestCount)
+	err := c.cc.Invoke(ctx, Registry_GetManifestDigestCount_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *registryClient) GetPackageVersionMetadata(ctx context.Context, in *PackageVersionMetadataRequest, opts ...grpc.CallOption) (*PackageVersionMetadata, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PackageVersionMetadata)
@@ -340,6 +352,7 @@ type RegistryServer interface {
 	GetRawSbom(context.Context, *RawSbomRequest) (*RawSbom, error)
 	GetVulnReport(context.Context, *VulnReportRequest) (*v1.VulnReport, error)
 	ListManifestMetadata(context.Context, *ManifestMetadataFilter) (*ManifestMetadataList, error)
+	GetManifestDigestCount(context.Context, *ManifestDigestCountFilter) (*ManifestDigestCount, error)
 	GetPackageVersionMetadata(context.Context, *PackageVersionMetadataRequest) (*PackageVersionMetadata, error)
 	ListBuildReports(context.Context, *BuildReportFilter) (*BuildReportList, error)
 	GetBuildStatus(context.Context, *BuildReportFilter) (*BuildStatus, error)
@@ -410,6 +423,9 @@ func (UnimplementedRegistryServer) GetVulnReport(context.Context, *VulnReportReq
 }
 func (UnimplementedRegistryServer) ListManifestMetadata(context.Context, *ManifestMetadataFilter) (*ManifestMetadataList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListManifestMetadata not implemented")
+}
+func (UnimplementedRegistryServer) GetManifestDigestCount(context.Context, *ManifestDigestCountFilter) (*ManifestDigestCount, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetManifestDigestCount not implemented")
 }
 func (UnimplementedRegistryServer) GetPackageVersionMetadata(context.Context, *PackageVersionMetadataRequest) (*PackageVersionMetadata, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPackageVersionMetadata not implemented")
@@ -786,6 +802,24 @@ func _Registry_ListManifestMetadata_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Registry_GetManifestDigestCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ManifestDigestCountFilter)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).GetManifestDigestCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_GetManifestDigestCount_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).GetManifestDigestCount(ctx, req.(*ManifestDigestCountFilter))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Registry_GetPackageVersionMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PackageVersionMetadataRequest)
 	if err := dec(in); err != nil {
@@ -940,6 +974,10 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListManifestMetadata",
 			Handler:    _Registry_ListManifestMetadata_Handler,
+		},
+		{
+			MethodName: "GetManifestDigestCount",
+			Handler:    _Registry_GetManifestDigestCount_Handler,
 		},
 		{
 			MethodName: "GetPackageVersionMetadata",
