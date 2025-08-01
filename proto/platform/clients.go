@@ -26,6 +26,7 @@ import (
 	ping "chainguard.dev/sdk/proto/platform/ping/v1"
 	registry "chainguard.dev/sdk/proto/platform/registry/v1"
 	tenant "chainguard.dev/sdk/proto/platform/tenant/v1"
+	vulnerabilities "chainguard.dev/sdk/proto/platform/vulnerabilities/v1"
 	"github.com/chainguard-dev/clog"
 )
 
@@ -41,6 +42,7 @@ type Clients interface {
 	APK() apk.Clients
 	Ecosystems() ecosystems.Clients
 	Libraries() libraries.Clients
+	Vulnerabilities() vulnerabilities.Clients
 
 	Close() error
 }
@@ -81,29 +83,31 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 	}
 
 	return &clients{
-		iam:           iam.NewClientsFromConnection(conn),
-		tenant:        tenant.NewClientsFromConnection(conn),
-		registry:      registry.NewClientsFromConnection(conn),
-		advisory:      advisory.NewClientsFromConnection(conn),
-		ping:          ping.NewClientsFromConnection(conn),
-		notifications: notifications.NewClientsFromConnection(conn),
-		apk:           apk.NewClientsFromConnection(conn),
-		ecosystems:    ecosystems.NewClientsFromConnection(conn),
-		libraries:     libraries.NewClientsFromConnection(conn),
-		conn:          conn,
+		iam:             iam.NewClientsFromConnection(conn),
+		tenant:          tenant.NewClientsFromConnection(conn),
+		registry:        registry.NewClientsFromConnection(conn),
+		advisory:        advisory.NewClientsFromConnection(conn),
+		ping:            ping.NewClientsFromConnection(conn),
+		notifications:   notifications.NewClientsFromConnection(conn),
+		apk:             apk.NewClientsFromConnection(conn),
+		ecosystems:      ecosystems.NewClientsFromConnection(conn),
+		libraries:       libraries.NewClientsFromConnection(conn),
+		vulnerabilities: vulnerabilities.NewClientsFromConnection(conn),
+		conn:            conn,
 	}, nil
 }
 
 type clients struct {
-	iam           iam.Clients
-	tenant        tenant.Clients
-	registry      registry.Clients
-	advisory      advisory.Clients
-	ping          ping.Clients
-	notifications notifications.Clients
-	apk           apk.Clients
-	ecosystems    ecosystems.Clients
-	libraries     libraries.Clients
+	iam             iam.Clients
+	tenant          tenant.Clients
+	registry        registry.Clients
+	advisory        advisory.Clients
+	ping            ping.Clients
+	notifications   notifications.Clients
+	apk             apk.Clients
+	ecosystems      ecosystems.Clients
+	libraries       libraries.Clients
+	vulnerabilities vulnerabilities.Clients
 
 	conn *grpc.ClientConn
 }
@@ -142,6 +146,10 @@ func (c *clients) Ecosystems() ecosystems.Clients {
 
 func (c *clients) Libraries() libraries.Clients {
 	return c.libraries
+}
+
+func (c *clients) Vulnerabilities() vulnerabilities.Clients {
+	return c.vulnerabilities
 }
 
 func (c *clients) Close() error {
