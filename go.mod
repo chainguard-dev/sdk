@@ -12,7 +12,7 @@ require (
 	github.com/chainguard-dev/clog v1.7.0
 	github.com/cloudevents/sdk-go/v2 v2.16.1
 	github.com/coreos/go-oidc/v3 v3.15.0
-	github.com/go-jose/go-jose/v4 v4.1.1
+	github.com/go-jose/go-jose/v4 v4.1.2
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-containerregistry v0.20.6
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.1
