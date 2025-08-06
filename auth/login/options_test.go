@@ -30,11 +30,13 @@ func TestConfFromOptions(t *testing.T) {
 				WithIssuer("https://example.com"),
 				WithIdentityProvider(id),
 				WithInviteCode("foo"),
+				WithScope("af6416b12efa9f304aae6c1f8b4d4cebc1b5c4c1"),
 			},
 			WantConfig: &config{
 				Issuer:        "https://example.com",
 				IDP:           id,
 				InviteCode:    "foo",
+				Scope:         "af6416b12efa9f304aae6c1f8b4d4cebc1b5c4c1",
 				MessageWriter: defaultMessageWriter,
 			},
 		},
@@ -95,6 +97,12 @@ func TestConfFromOptions(t *testing.T) {
 			Options: []Option{
 				WithIdentityProvider(id),
 				WithAuth0Connection("github"),
+			},
+			WantErr: true,
+		},
+		"Invalid scope": {
+			Options: []Option{
+				WithScope("not-a-uidp"),
 			},
 			WantErr: true,
 		},

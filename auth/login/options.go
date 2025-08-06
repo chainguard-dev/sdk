@@ -56,6 +56,9 @@ type config struct {
 	// HeadlessCode is the code to use for headless login
 	HeadlessCode string
 
+	// Scope is the requested group scope for the Chainguard token
+	Scope string
+
 	// MessageWriter is the writer to use for outputting informational messages to
 	// the user. (e.g. os.Stderr)
 	MessageWriter io.Writer
@@ -100,6 +103,10 @@ func (c *config) valid() error {
 
 	if c.MessageWriter == nil {
 		return errors.New("message writer must be set to a non-nil value (consider os.Stderr or io.Discard)")
+	}
+
+	if c.Scope != "" && !uidp.Valid(c.Scope) {
+		return errors.New("scope must be a valid UIDP")
 	}
 
 	switch {
@@ -196,6 +203,12 @@ func WithCreateRefreshToken() Option {
 func WithSkipBrowser() Option {
 	return func(c *config) {
 		c.SkipBrowser = true
+	}
+}
+
+func WithScope(scope string) Option {
+	return func(c *config) {
+		c.Scope = scope
 	}
 }
 

@@ -92,6 +92,9 @@ func Login(ctx context.Context, opts ...Option) (token string, refreshToken stri
 	if conf.CreateRefreshToken {
 		params.Set("create_refresh_token", "true")
 	}
+	if conf.Scope != "" {
+		params.Set("scope", conf.Scope)
+	}
 	u := fmt.Sprintf("%s/oauth?%s", conf.Issuer, params.Encode())
 	if conf.SkipBrowser {
 		fmt.Fprintf(conf.MessageWriter, "Please open a browser to %s\n", u)
