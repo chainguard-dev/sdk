@@ -100,7 +100,7 @@ type options struct {
 	issuer           string
 	audience         string
 	userAgent        string
-	scope            string
+	scope            []string
 	capabilities     []string
 	identity         string
 	http1Downgrade   bool
@@ -127,7 +127,7 @@ func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOpti
 
 	resp, err := c.STS().Exchange(ctx, &oidc.ExchangeRequest{
 		Aud:              []string{o.audience},
-		Scope:            o.scope,
+		Scopes:           o.scope,
 		Identity:         o.identity,
 		Cap:              o.capabilities,
 		IdentityProvider: o.identityProvider,
@@ -157,9 +157,9 @@ func (i *impl) Refresh(ctx context.Context, token string, opts ...ExchangerOptio
 	defer c.Close()
 
 	resp, err := c.STS().ExchangeRefreshToken(ctx, &oidc.ExchangeRefreshTokenRequest{
-		Aud:   []string{o.audience},
-		Scope: o.scope,
-		Cap:   o.capabilities,
+		Aud:    []string{o.audience},
+		Scopes: o.scope,
+		Cap:    o.capabilities,
 	})
 	if err != nil {
 		return "", "", err
@@ -181,7 +181,7 @@ func WithUserAgent(agent string) ExchangerOption {
 // WithScope sets the scope parameter sent by the Exchanger.
 //
 // Only one of cluster or scope may be set.
-func WithScope(scope string) ExchangerOption {
+func WithScope(scope ...string) ExchangerOption {
 	return func(i *options) {
 		i.scope = scope
 	}
@@ -295,7 +295,7 @@ func (i *HTTP1DowngradeExchanger) Exchange(ctx context.Context, token string, op
 	}
 	in := &oidc.ExchangeRequest{
 		Aud:              []string{o.audience},
-		Scope:            o.scope,
+		Scopes:           o.scope,
 		Identity:         o.identity,
 		Cap:              o.capabilities,
 		IdentityProvider: o.identityProvider,
@@ -319,9 +319,9 @@ func (i *HTTP1DowngradeExchanger) Refresh(ctx context.Context, token string, opt
 	}
 
 	in := &oidc.ExchangeRefreshTokenRequest{
-		Aud:   []string{o.audience},
-		Scope: o.scope,
-		Cap:   o.capabilities,
+		Aud:    []string{o.audience},
+		Scopes: o.scope,
+		Cap:    o.capabilities,
 	}
 
 	out := new(oidc.TokenPair)

@@ -71,9 +71,32 @@ func TestRefresh(t *testing.T) {
 				STSClient: test.MockSTSClient{
 					OnGetAccessToken: []test.STSOnGetAccessToken{{
 						Given: &oidc.ExchangeRefreshTokenRequest{
-							Aud:   []string{"baz"},
-							Cap:   []string{"groups.list"},
-							Scope: "derp",
+							Aud:    []string{"baz"},
+							Cap:    []string{"groups.list"},
+							Scopes: []string{"derp"},
+						},
+						Exchanged: &oidc.TokenPair{
+							Token:        &oidc.RawToken{Token: "token!"},
+							RefreshToken: &oidc.RawToken{Token: "refresh token"},
+						},
+					}},
+				},
+			},
+			wantToken:        "token!",
+			wantRefreshToken: "refresh token",
+		},
+		"multiple scopes": {
+			issuer:   "bar",
+			audience: "baz",
+			exchangeOpts: []ExchangerOption{
+				WithScope("derp", "ferp"),
+			},
+			clientMock: test.MockOIDCClient{
+				STSClient: test.MockSTSClient{
+					OnGetAccessToken: []test.STSOnGetAccessToken{{
+						Given: &oidc.ExchangeRefreshTokenRequest{
+							Aud:    []string{"baz"},
+							Scopes: []string{"derp", "ferp"},
 						},
 						Exchanged: &oidc.TokenPair{
 							Token:        &oidc.RawToken{Token: "token!"},
@@ -158,9 +181,9 @@ func TestImplExchange(t *testing.T) {
 				STSClient: test.MockSTSClient{
 					OnExchange: []test.STSOnExchange{{
 						Given: &oidc.ExchangeRequest{
-							Aud:   []string{"baz"},
-							Cap:   []string{"groups.list"},
-							Scope: "derp",
+							Aud:    []string{"baz"},
+							Cap:    []string{"groups.list"},
+							Scopes: []string{"derp"},
 						},
 						Exchanged: &oidc.RawToken{Token: "token!", RefreshToken: ""},
 					}},
@@ -179,9 +202,28 @@ func TestImplExchange(t *testing.T) {
 				STSClient: test.MockSTSClient{
 					OnExchange: []test.STSOnExchange{{
 						Given: &oidc.ExchangeRequest{
-							Aud:   []string{"baz"},
-							Cap:   []string{"groups.list"},
-							Scope: "derp",
+							Aud:    []string{"baz"},
+							Cap:    []string{"groups.list"},
+							Scopes: []string{"derp"},
+						},
+						Exchanged: &oidc.RawToken{Token: "token!", RefreshToken: "refreshToken!"},
+					}},
+				},
+			},
+			wantToken: TokenPair{AccessToken: "token!", RefreshToken: "refreshToken!"},
+		},
+		"multiple scopes": {
+			issuer:   "bar",
+			audience: "baz",
+			exchangeOpts: []ExchangerOption{
+				WithScope("derp", "ferp"),
+			},
+			clientMock: test.MockOIDCClient{
+				STSClient: test.MockSTSClient{
+					OnExchange: []test.STSOnExchange{{
+						Given: &oidc.ExchangeRequest{
+							Aud:    []string{"baz"},
+							Scopes: []string{"derp", "ferp"},
 						},
 						Exchanged: &oidc.RawToken{Token: "token!", RefreshToken: "refreshToken!"},
 					}},
@@ -278,9 +320,9 @@ func TestExchange(t *testing.T) {
 				STSClient: test.MockSTSClient{
 					OnExchange: []test.STSOnExchange{{
 						Given: &oidc.ExchangeRequest{
-							Aud:   []string{"baz"},
-							Cap:   []string{"groups.list"},
-							Scope: "derp",
+							Aud:    []string{"baz"},
+							Cap:    []string{"groups.list"},
+							Scopes: []string{"derp"},
 						},
 						Exchanged: &oidc.RawToken{Token: "token!"},
 					}},
@@ -299,9 +341,28 @@ func TestExchange(t *testing.T) {
 				STSClient: test.MockSTSClient{
 					OnExchange: []test.STSOnExchange{{
 						Given: &oidc.ExchangeRequest{
-							Aud:   []string{"baz"},
-							Cap:   []string{"groups.list"},
-							Scope: "derp",
+							Aud:    []string{"baz"},
+							Cap:    []string{"groups.list"},
+							Scopes: []string{"derp"},
+						},
+						Exchanged: &oidc.RawToken{Token: "token!", RefreshToken: "refreshToken!"},
+					}},
+				},
+			},
+			wantToken: TokenPair{AccessToken: "token!", RefreshToken: "refreshToken!"},
+		},
+		"multiple scopes": {
+			issuer:   "bar",
+			audience: "baz",
+			exchangeOpts: []ExchangerOption{
+				WithScope("derp", "ferp"),
+			},
+			clientMock: test.MockOIDCClient{
+				STSClient: test.MockSTSClient{
+					OnExchange: []test.STSOnExchange{{
+						Given: &oidc.ExchangeRequest{
+							Aud:    []string{"baz"},
+							Scopes: []string{"derp", "ferp"},
 						},
 						Exchanged: &oidc.RawToken{Token: "token!", RefreshToken: "refreshToken!"},
 					}},

@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"strconv"
 )
 
 type server struct {
@@ -24,6 +25,7 @@ type server struct {
 	token chan string
 
 	refreshToken string
+	err          error
 
 	l net.Listener
 }
@@ -41,7 +43,7 @@ func newServer(ctx context.Context) (*server, error) {
 
 		s.token = make(chan string, 1)
 
-		s.callbackURL = fmt.Sprintf("http://localhost:%d/callback?token=true", port)
+		s.callbackURL = fmt.Sprintf("http://localhost:%d/callback?token=true&error=true", port)
 		s.rootURL = fmt.Sprintf("http://localhost:%d/", port)
 		s.l = listener
 		s.ctx = ctx
@@ -62,8 +64,23 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	case "/callback":
 		token := r.URL.Query().Get("token")
+		// A lack of a token indicates there was an error.
 		if token == "" {
-			fmt.Fprint(w, "Account not found, registration required.")
+			errMessage := r.URL.Query().Get("error")
+			// We discard the error because if the int parse failed we return a generic error.
+			statusCode, _ := strconv.Atoi(r.URL.Query().Get("status_code"))
+
+			switch statusCode {
+			case http.StatusNotFound:
+				fmt.Fprint(w, "Account not found, registration required")
+				s.err = errors.New("account not found")
+			default:
+				fmt.Fprintf(w, "%d %s", statusCode, errMessage)
+				// Wrap the error message in Error so callers can distinguish server
+				// errors from account not found errors.
+				s.err = &Error{Details: remoteServerError, Err: errors.New(errMessage)}
+			}
+
 			close(s.token)
 			return
 		}
@@ -90,7 +107,7 @@ func (s *server) Token() (string, error) {
 	case t, ok := <-s.token:
 		if !ok {
 			// Didn't receive token from redirect to callback
-			return "", errors.New("login failed")
+			return "", s.err
 		}
 
 		// We've received a token, but need to block until the success page has been written to

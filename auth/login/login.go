@@ -14,24 +14,70 @@ import (
 	"strings"
 
 	"github.com/pkg/browser"
+
+	"github.com/chainguard-dev/clog"
 )
 
 // OpenBrowserError wraps the error returned from browser.OpenURL,
 // since this can take a few different forms depending on the OS.
+// Deprecated: use Error.
 type OpenBrowserError struct {
-	err error
+	error
 }
 
-func (e *OpenBrowserError) Error() string { return "failed to open browser: " + e.err.Error() }
-func (e *OpenBrowserError) Unwrap() error { return e.err }
+func (e OpenBrowserError) Error() string {
+	if e.error == nil {
+		return "login: failed to open browser"
+	}
+	return "login: failed to open browser: " + e.error.Error()
+}
+
+func (e OpenBrowserError) Unwrap() error { return e.error }
+
+const (
+	invalidConfigurationError = "invalid configuration"
+	openBrowserError          = "failed to open browser"
+	localServerError          = "failed to start localhost server"
+	remoteServerError         = "error returned from server"
+)
+
+// Error is a generic wrapper around client side errors this package may return.
+// It helps callers distinguish between local and remote errors.
+type Error struct {
+	Details string
+	Err     error
+}
+
+func (e *Error) Error() string {
+	if e.Err == nil && e.Details == "" {
+		return "login: unknown error"
+	}
+	if e.Err == nil {
+		return fmt.Sprintf("login: %s: unknown error", e.Details)
+	}
+	return fmt.Sprintf("login: %s: %s", e.Details, e.Err.Error())
+}
+
+func (e *Error) Unwrap() error { return e.Err }
+
+func (e *Error) As(target any) bool {
+	// For backwards compatibility, ensure Error can be cast as OpenBrowserError
+	// under the right circumstances.
+	//nolint:staticcheck
+	if obe, ok := target.(**OpenBrowserError); ok && e.Details == openBrowserError {
+		*obe = &OpenBrowserError{e.Err}
+		return true
+	}
+	return false
+}
 
 func BuildHeadlessURL(opts ...Option) (u string, err error) {
 	conf, err := newConfigFromOptions(opts...)
 	if err != nil {
-		return "", err
+		return "", &Error{Details: invalidConfigurationError, Err: err}
 	}
 	if conf.HeadlessCode == "" {
-		return "", fmt.Errorf("headless code is required")
+		return "", &Error{Details: invalidConfigurationError, Err: fmt.Errorf("headless code is required")}
 	}
 	params := make(url.Values)
 	params.Set("headless_code", conf.HeadlessCode)
@@ -51,13 +97,13 @@ func BuildHeadlessURL(opts ...Option) (u string, err error) {
 func Login(ctx context.Context, opts ...Option) (token string, refreshToken string, err error) {
 	conf, err := newConfigFromOptions(opts...)
 	if err != nil {
-		return "", "", err
+		return "", "", &Error{Details: invalidConfigurationError, Err: err}
 	}
 
 	// Start new token server on a random available localhost port
 	s, err := newServer(ctx)
 	if err != nil {
-		return "", "", err
+		return "", "", &Error{Details: localServerError, Err: err}
 	}
 	defer s.Close()
 
@@ -92,17 +138,19 @@ func Login(ctx context.Context, opts ...Option) (token string, refreshToken stri
 	if conf.CreateRefreshToken {
 		params.Set("create_refresh_token", "true")
 	}
-	if conf.Scope != "" {
-		params.Set("scope", conf.Scope)
+	for _, scope := range conf.Scope {
+		params.Add("scope", url.QueryEscape(scope))
 	}
+
 	u := fmt.Sprintf("%s/oauth?%s", conf.Issuer, params.Encode())
+	clog.DebugContext(ctx, "Authenticating", "url", u)
 	if conf.SkipBrowser {
 		fmt.Fprintf(conf.MessageWriter, "Please open a browser to %s\n", u)
 	} else {
 		fmt.Fprintf(conf.MessageWriter, "Opening browser to %s\n", u)
 		err = browser.OpenURL(u)
 		if err != nil {
-			return "", "", &OpenBrowserError{err}
+			return "", "", &Error{Details: openBrowserError, Err: err}
 		}
 	}
 	token, err = s.Token()

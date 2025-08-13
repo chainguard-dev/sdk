@@ -36,7 +36,7 @@ func TestConfFromOptions(t *testing.T) {
 				Issuer:        "https://example.com",
 				IDP:           id,
 				InviteCode:    "foo",
-				Scope:         "af6416b12efa9f304aae6c1f8b4d4cebc1b5c4c1",
+				Scope:         []string{"af6416b12efa9f304aae6c1f8b4d4cebc1b5c4c1"},
 				MessageWriter: defaultMessageWriter,
 			},
 		},
@@ -102,7 +102,7 @@ func TestConfFromOptions(t *testing.T) {
 		},
 		"Invalid scope": {
 			Options: []Option{
-				WithScope("not-a-uidp"),
+				WithScope("not:a:uidp:or:name"),
 			},
 			WantErr: true,
 		},
