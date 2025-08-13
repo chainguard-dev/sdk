@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"chainguard.dev/sdk/uidp"
+	"chainguard.dev/sdk/validation"
 )
 
 type config struct {
@@ -55,6 +56,9 @@ type config struct {
 
 	// HeadlessCode is the code to use for headless login
 	HeadlessCode string
+
+	// Scope is the requested group scope for the Chainguard token
+	Scope []string
 
 	// MessageWriter is the writer to use for outputting informational messages to
 	// the user. (e.g. os.Stderr)
@@ -100,6 +104,12 @@ func (c *config) valid() error {
 
 	if c.MessageWriter == nil {
 		return errors.New("message writer must be set to a non-nil value (consider os.Stderr or io.Discard)")
+	}
+
+	for _, scope := range c.Scope {
+		if err := validation.ValidateName(scope); err != nil && !uidp.Valid(scope) {
+			return errors.New("scope must be a valid UIDP or name")
+		}
 	}
 
 	switch {
@@ -196,6 +206,12 @@ func WithCreateRefreshToken() Option {
 func WithSkipBrowser() Option {
 	return func(c *config) {
 		c.SkipBrowser = true
+	}
+}
+
+func WithScope(scope ...string) Option {
+	return func(c *config) {
+		c.Scope = scope
 	}
 }
 

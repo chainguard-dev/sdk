@@ -29,6 +29,8 @@ import (
 	registrytest "chainguard.dev/sdk/proto/platform/registry/v1/test"
 	tenant "chainguard.dev/sdk/proto/platform/tenant/v1"
 	tenanttest "chainguard.dev/sdk/proto/platform/tenant/v1/test"
+	vulnerabilities "chainguard.dev/sdk/proto/platform/vulnerabilities/v1"
+	vulnerabilitiestest "chainguard.dev/sdk/proto/platform/vulnerabilities/v1/test"
 )
 
 var _ platform.Clients = (*MockPlatformClients)(nil)
@@ -36,15 +38,16 @@ var _ platform.Clients = (*MockPlatformClients)(nil)
 type MockPlatformClients struct {
 	OnError error
 
-	IAMClient           iamtest.MockIAMClient
-	TenantClient        tenanttest.MockTenantClient
-	RegistryClient      registrytest.MockRegistryClients
-	AdvisoryClient      advisorytest.MockSecurityAdvisoryClients
-	PingClient          pingtest.MockPingServiceClients
-	NotificationsClient notificationstest.MockNotificationsClients
-	APKClient           apktest.MockAPKClients
-	EcosystemsClient    ecosystemstest.MockEcosystemsClients
-	LibrariesClient     librariestest.MockLibrariesClients
+	IAMClient             iamtest.MockIAMClient
+	TenantClient          tenanttest.MockTenantClient
+	RegistryClient        registrytest.MockRegistryClients
+	AdvisoryClient        advisorytest.MockSecurityAdvisoryClients
+	PingClient            pingtest.MockPingServiceClients
+	NotificationsClient   notificationstest.MockNotificationsClients
+	APKClient             apktest.MockAPKClients
+	EcosystemsClient      ecosystemstest.MockEcosystemsClients
+	LibrariesClient       librariestest.MockLibrariesClients
+	VulnerabilitiesClient vulnerabilitiestest.MockVulnerabilitiesClients
 }
 
 func (m MockPlatformClients) Close() error {
@@ -85,6 +88,10 @@ func (m MockPlatformClients) Ecosystems() ecosystems.Clients {
 
 func (m MockPlatformClients) Libraries() libraries.Clients {
 	return m.LibrariesClient
+}
+
+func (m MockPlatformClients) Vulnerabilities() vulnerabilities.Clients {
+	return m.VulnerabilitiesClient
 }
 
 var _ platform.OIDCClients = (*MockOIDCClients)(nil)

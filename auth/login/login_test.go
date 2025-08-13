@@ -24,8 +24,15 @@ func TestOpenBrowserErrorAs(t *testing.T) {
 			want: false,
 		},
 		"success": {
-			err: &OpenBrowserError{
+			err: &OpenBrowserError{ //nolint:staticcheck
 				errors.New("unit test"),
+			},
+			want: true,
+		},
+		"success - login.Error": {
+			err: &Error{
+				Details: openBrowserError,
+				Err:     errors.New("unit test"),
 			},
 			want: true,
 		},
@@ -37,7 +44,43 @@ func TestOpenBrowserErrorAs(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			var want *OpenBrowserError
+			var want *OpenBrowserError //nolint:staticcheck
+			got := errors.As(test.err, &want)
+			if got != test.want {
+				t.Errorf("As() expected %t, got %t", test.want, got)
+			}
+			if got {
+				t.Log(want.Error())
+			}
+		})
+	}
+}
+
+func TestErrorAs(t *testing.T) {
+	tests := map[string]struct {
+		err  error
+		want bool
+	}{
+		"nil": {
+			err:  nil,
+			want: false,
+		},
+		"success - login.Error": {
+			err: &Error{
+				Details: remoteServerError,
+				Err:     errors.New("unit test"),
+			},
+			want: true,
+		},
+		"failure": {
+			err:  errors.New("unit test"),
+			want: false,
+		},
+	}
+
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			var want *Error
 			got := errors.As(test.err, &want)
 			if got != test.want {
 				t.Errorf("As() expected %t, got %t", test.want, got)

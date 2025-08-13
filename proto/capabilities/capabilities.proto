@@ -20,6 +20,8 @@ extend google.protobuf.EnumValueOptions {
 enum Capability {
   UNKNOWN = 0;
 
+  CAP_INTERNAL = 2 [(name) = "internal", (bit) = 95];
+
   CAP_IAM_GROUPS_CREATE = 101 [(name) = "groups.create", (bit) = 1];
   CAP_IAM_GROUPS_UPDATE = 102 [(name) = "groups.update", (bit) = 2];
   CAP_IAM_GROUPS_LIST   = 103 [(name) = "groups.list", (bit) = 3];
@@ -166,5 +168,6 @@ enum Capability {
   // capability?
   CAP_GULFSTREAM = 10000 [(name) = "gulfstream", (bit) = 47];
 
-  // next bit: 95
+  reserved 1;
+  // next bit: 96
 }

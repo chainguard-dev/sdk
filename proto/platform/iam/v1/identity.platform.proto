@@ -109,6 +109,9 @@ message Identity {
   // updated_at is the timestamp for when the identity was last updated.
   google.protobuf.Timestamp updated_at = 5;
 
+  // last_seen is the timestamp for when the identity was last federated.
+  google.protobuf.Timestamp last_seen = 9;
+
   // relationship is used to describe how this identity relates to
   // identities coming from 3rd party Identity Providers (IdPs)
   oneof relationship {
