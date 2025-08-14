@@ -73,6 +73,7 @@ func TestRefresh(t *testing.T) {
 						Given: &oidc.ExchangeRefreshTokenRequest{
 							Aud:    []string{"baz"},
 							Cap:    []string{"groups.list"},
+							Scope:  "derp",
 							Scopes: []string{"derp"},
 						},
 						Exchanged: &oidc.TokenPair{
@@ -96,6 +97,7 @@ func TestRefresh(t *testing.T) {
 					OnGetAccessToken: []test.STSOnGetAccessToken{{
 						Given: &oidc.ExchangeRefreshTokenRequest{
 							Aud:    []string{"baz"},
+							Scope:  "derp",
 							Scopes: []string{"derp", "ferp"},
 						},
 						Exchanged: &oidc.TokenPair{
@@ -183,6 +185,7 @@ func TestImplExchange(t *testing.T) {
 						Given: &oidc.ExchangeRequest{
 							Aud:    []string{"baz"},
 							Cap:    []string{"groups.list"},
+							Scope:  "derp",
 							Scopes: []string{"derp"},
 						},
 						Exchanged: &oidc.RawToken{Token: "token!", RefreshToken: ""},
@@ -204,6 +207,7 @@ func TestImplExchange(t *testing.T) {
 						Given: &oidc.ExchangeRequest{
 							Aud:    []string{"baz"},
 							Cap:    []string{"groups.list"},
+							Scope:  "derp",
 							Scopes: []string{"derp"},
 						},
 						Exchanged: &oidc.RawToken{Token: "token!", RefreshToken: "refreshToken!"},
@@ -223,6 +227,7 @@ func TestImplExchange(t *testing.T) {
 					OnExchange: []test.STSOnExchange{{
 						Given: &oidc.ExchangeRequest{
 							Aud:    []string{"baz"},
+							Scope:  "derp",
 							Scopes: []string{"derp", "ferp"},
 						},
 						Exchanged: &oidc.RawToken{Token: "token!", RefreshToken: "refreshToken!"},
@@ -322,6 +327,7 @@ func TestExchange(t *testing.T) {
 						Given: &oidc.ExchangeRequest{
 							Aud:    []string{"baz"},
 							Cap:    []string{"groups.list"},
+							Scope:  "derp",
 							Scopes: []string{"derp"},
 						},
 						Exchanged: &oidc.RawToken{Token: "token!"},
@@ -343,6 +349,7 @@ func TestExchange(t *testing.T) {
 						Given: &oidc.ExchangeRequest{
 							Aud:    []string{"baz"},
 							Cap:    []string{"groups.list"},
+							Scope:  "derp",
 							Scopes: []string{"derp"},
 						},
 						Exchanged: &oidc.RawToken{Token: "token!", RefreshToken: "refreshToken!"},
@@ -362,6 +369,7 @@ func TestExchange(t *testing.T) {
 					OnExchange: []test.STSOnExchange{{
 						Given: &oidc.ExchangeRequest{
 							Aud:    []string{"baz"},
+							Scope:  "derp",
 							Scopes: []string{"derp", "ferp"},
 						},
 						Exchanged: &oidc.RawToken{Token: "token!", RefreshToken: "refreshToken!"},

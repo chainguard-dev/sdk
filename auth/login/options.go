@@ -108,7 +108,7 @@ func (c *config) valid() error {
 
 	for _, scope := range c.Scope {
 		if err := validation.ValidateName(scope); err != nil && !uidp.Valid(scope) {
-			return errors.New("scope must be a valid UIDP or name")
+			return fmt.Errorf("scope %q must be a valid group UIDP or name", scope)
 		}
 	}
 
