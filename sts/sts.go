@@ -100,6 +100,7 @@ type options struct {
 	issuer           string
 	audience         string
 	userAgent        string
+	firstScope       string
 	scope            []string
 	capabilities     []string
 	identity         string
@@ -127,6 +128,7 @@ func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOpti
 
 	resp, err := c.STS().Exchange(ctx, &oidc.ExchangeRequest{
 		Aud:              []string{o.audience},
+		Scope:            o.firstScope, //nolint:staticcheck // Populating for backward compatibility
 		Scopes:           o.scope,
 		Identity:         o.identity,
 		Cap:              o.capabilities,
@@ -158,6 +160,7 @@ func (i *impl) Refresh(ctx context.Context, token string, opts ...ExchangerOptio
 
 	resp, err := c.STS().ExchangeRefreshToken(ctx, &oidc.ExchangeRefreshTokenRequest{
 		Aud:    []string{o.audience},
+		Scope:  o.firstScope, //nolint:staticcheck // Populating for backward compatibility
 		Scopes: o.scope,
 		Cap:    o.capabilities,
 	})
@@ -184,6 +187,12 @@ func WithUserAgent(agent string) ExchangerOption {
 func WithScope(scope ...string) ExchangerOption {
 	return func(i *options) {
 		i.scope = scope
+		// Capture the first scope for backward compatibility.
+		// For callers who expect a single WithScope("scope") to
+		// be included in the exchange request Scope field.
+		if len(scope) > 0 {
+			i.firstScope = scope[0]
+		}
 	}
 }
 
@@ -295,6 +304,7 @@ func (i *HTTP1DowngradeExchanger) Exchange(ctx context.Context, token string, op
 	}
 	in := &oidc.ExchangeRequest{
 		Aud:              []string{o.audience},
+		Scope:            o.firstScope, //nolint:staticcheck // Populating for backward compatibility
 		Scopes:           o.scope,
 		Identity:         o.identity,
 		Cap:              o.capabilities,
@@ -320,6 +330,7 @@ func (i *HTTP1DowngradeExchanger) Refresh(ctx context.Context, token string, opt
 
 	in := &oidc.ExchangeRefreshTokenRequest{
 		Aud:    []string{o.audience},
+		Scope:  o.firstScope, //nolint:staticcheck // Populating for backward compatibility
 		Scopes: o.scope,
 		Cap:    o.capabilities,
 	}
