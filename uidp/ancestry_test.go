@@ -175,3 +175,27 @@ func TestAncestry(t *testing.T) {
 		})
 	}
 }
+
+func TestRoot(t *testing.T) {
+	tests := []struct {
+		id   string
+		want string
+	}{
+		{"x", "x"},
+		{"xyz", "xyz"},
+		{"x/y", "x"},
+		{"x/y/z", "x"},
+		{"a/b/c/d", "a"},
+		{"rootuid", "rootuid"},
+		{"", ""},
+	}
+
+	for _, test := range tests {
+		t.Run(test.id, func(t *testing.T) {
+			got := Root(test.id)
+			if got != test.want {
+				t.Errorf("Root(%q) = %q, wanted %q", test.id, got, test.want)
+			}
+		})
+	}
+}
