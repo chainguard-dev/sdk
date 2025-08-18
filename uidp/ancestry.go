@@ -69,6 +69,16 @@ func Ancestry(child string) []string {
 	return ancestry
 }
 
+// Root returns the root UIDP for a given UIDP. If the UIDP is already in root, it returns the UIDP itself.
+func Root(uidp string) string {
+	if InRoot(uidp) {
+		return uidp
+	}
+	// If the UIDP is not in root, return the first segment
+	// which is the root UIDP.
+	return strings.SplitN(uidp, "/", 2)[0]
+}
+
 // Valid returns true for valid UIDP values.
 // The base segment of a UIDP is 20 hex-encoded bytes (40 characters).  This may
 // be followed by zero or more parts with 8 hex-encoded bytes (16 characters).
