@@ -144,6 +144,8 @@ enum Capability {
 
   // Registry Entitlements
   CAP_REGISTRY_ENTITLEMENTS_LIST = 1680 [(name) = "registry.entitlements.list", (bit) = 87];
+  CAP_REGISTRY_ENTITLEMENTS_CREATE = 1681 [(name) = "registry.entitlements.create", (bit) = 96];
+  CAP_REGISTRY_ENTITLEMENTS_DELETE = 1682 [(name) = "registry.entitlements.delete", (bit) = 97];
 
   // Sigstore-aas
 

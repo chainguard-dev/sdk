@@ -350,6 +350,9 @@ message Repo {
   repeated string aliases = 8;
 
   google.protobuf.Timestamp create_time = 9;
+
+  // (optional) actively maintained tags in this repository.
+  repeated string active_tags = 10;
 }
 
 enum CatalogTier {

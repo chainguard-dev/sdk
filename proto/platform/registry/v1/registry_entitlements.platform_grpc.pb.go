@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -24,6 +25,8 @@ const (
 	Entitlements_ListEntitlementCatalogImages_FullMethodName = "/chainguard.platform.registry.Entitlements/ListEntitlementCatalogImages"
 	Entitlements_Summary_FullMethodName                      = "/chainguard.platform.registry.Entitlements/Summary"
 	Entitlements_GetFeatures_FullMethodName                  = "/chainguard.platform.registry.Entitlements/GetFeatures"
+	Entitlements_CreateEntitlement_FullMethodName            = "/chainguard.platform.registry.Entitlements/CreateEntitlement"
+	Entitlements_DeleteEntitlement_FullMethodName            = "/chainguard.platform.registry.Entitlements/DeleteEntitlement"
 )
 
 // EntitlementsClient is the client API for Entitlements service.
@@ -41,6 +44,8 @@ type EntitlementsClient interface {
 	// Summary provides a group-level summary of entitlements.
 	Summary(ctx context.Context, in *EntitlementSummaryRequest, opts ...grpc.CallOption) (*EntitlementSummaryResponse, error)
 	GetFeatures(ctx context.Context, in *GetFeaturesRequest, opts ...grpc.CallOption) (*GetFeaturesResponse, error)
+	CreateEntitlement(ctx context.Context, in *CreateEntitlementRequest, opts ...grpc.CallOption) (*Entitlement, error)
+	DeleteEntitlement(ctx context.Context, in *DeleteEntitlementRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type entitlementsClient struct {
@@ -101,6 +106,26 @@ func (c *entitlementsClient) GetFeatures(ctx context.Context, in *GetFeaturesReq
 	return out, nil
 }
 
+func (c *entitlementsClient) CreateEntitlement(ctx context.Context, in *CreateEntitlementRequest, opts ...grpc.CallOption) (*Entitlement, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Entitlement)
+	err := c.cc.Invoke(ctx, Entitlements_CreateEntitlement_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *entitlementsClient) DeleteEntitlement(ctx context.Context, in *DeleteEntitlementRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Entitlements_DeleteEntitlement_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // EntitlementsServer is the server API for Entitlements service.
 // All implementations must embed UnimplementedEntitlementsServer
 // for forward compatibility.
@@ -116,6 +141,8 @@ type EntitlementsServer interface {
 	// Summary provides a group-level summary of entitlements.
 	Summary(context.Context, *EntitlementSummaryRequest) (*EntitlementSummaryResponse, error)
 	GetFeatures(context.Context, *GetFeaturesRequest) (*GetFeaturesResponse, error)
+	CreateEntitlement(context.Context, *CreateEntitlementRequest) (*Entitlement, error)
+	DeleteEntitlement(context.Context, *DeleteEntitlementRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedEntitlementsServer()
 }
 
@@ -140,6 +167,12 @@ func (UnimplementedEntitlementsServer) Summary(context.Context, *EntitlementSumm
 }
 func (UnimplementedEntitlementsServer) GetFeatures(context.Context, *GetFeaturesRequest) (*GetFeaturesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFeatures not implemented")
+}
+func (UnimplementedEntitlementsServer) CreateEntitlement(context.Context, *CreateEntitlementRequest) (*Entitlement, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateEntitlement not implemented")
+}
+func (UnimplementedEntitlementsServer) DeleteEntitlement(context.Context, *DeleteEntitlementRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteEntitlement not implemented")
 }
 func (UnimplementedEntitlementsServer) mustEmbedUnimplementedEntitlementsServer() {}
 func (UnimplementedEntitlementsServer) testEmbeddedByValue()                      {}
@@ -252,6 +285,42 @@ func _Entitlements_GetFeatures_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Entitlements_CreateEntitlement_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateEntitlementRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EntitlementsServer).CreateEntitlement(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Entitlements_CreateEntitlement_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EntitlementsServer).CreateEntitlement(ctx, req.(*CreateEntitlementRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Entitlements_DeleteEntitlement_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteEntitlementRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EntitlementsServer).DeleteEntitlement(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Entitlements_DeleteEntitlement_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EntitlementsServer).DeleteEntitlement(ctx, req.(*DeleteEntitlementRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Entitlements_ServiceDesc is the grpc.ServiceDesc for Entitlements service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -278,6 +347,14 @@ var Entitlements_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetFeatures",
 			Handler:    _Entitlements_GetFeatures_Handler,
+		},
+		{
+			MethodName: "CreateEntitlement",
+			Handler:    _Entitlements_CreateEntitlement_Handler,
+		},
+		{
+			MethodName: "DeleteEntitlement",
+			Handler:    _Entitlements_DeleteEntitlement_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
