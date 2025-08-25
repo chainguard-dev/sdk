@@ -13,6 +13,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "annotations/auth.proto";
+import "platform/common/v1/uidp.platform.proto";
 
 service Advisories {
   rpc Create(CreateAdvisoryRequest) returns (Advisory) {
@@ -271,8 +272,14 @@ message AdvisoryEvent {
 
 
 message AdvisoryFilter {
-  // advisory_id filters by advisory ID
+  // advisory_id filters by advisory ID (e.g., CGA-xvgw-cvr7-9g2q)
   string advisory_id = 1;
+
+  // id is the exact UID of the record.
+  string id = 17;
+
+  // uidp filters records based on their position in the group hierarchy.
+  chainguard.platform.common.UIDPFilter uidp = 16;
 
   // artifact_type filters by artifact type
   optional string artifact_type = 2;
@@ -325,7 +332,7 @@ message AdvisoryFilter {
   // enabling them to review others' work without seeing their own submissions.
   optional string exclude_event_author = 15;
 
-  // next id: 16
+  // next id: 18
 }
 
 message AdvisoriesList {
