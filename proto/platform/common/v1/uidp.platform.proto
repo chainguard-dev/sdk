@@ -13,4 +13,6 @@ message UIDPFilter {
 	string children_of = 3;
 	// in_root resticts responses to root level resources (organizations, user identities)
 	bool in_root = 4;
+  // ids are a list of exact UIDPs of records.
+  repeated string ids = 5;
 }
