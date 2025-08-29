@@ -367,6 +367,7 @@ enum CatalogTier {
   FIPS = 6;
   AI = 7;
   DEVTOOLS = 8;
+  HELM_CHART = 9;
 }
 
 message SyncConfig {
