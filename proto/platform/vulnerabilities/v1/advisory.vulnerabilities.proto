@@ -43,7 +43,7 @@ service Advisories {
 
   rpc Update(Advisory) returns (Advisory) {
     option (google.api.http) = {
-      put: "/vulnerabilities/v1/advisories/{id}"
+      put: "/vulnerabilities/v1/advisories/{id=**}"
       body: "*"
     };
     option (chainguard.annotations.iam) = {
@@ -55,7 +55,7 @@ service Advisories {
 
   rpc Delete(DeleteAdvisoryRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/vulnerabilities/v1/advisories/{id}"
+      delete: "/vulnerabilities/v1/advisories/{id=**}"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
@@ -66,7 +66,7 @@ service Advisories {
 
   rpc CreateAdvisoryEvent(CreateAdvisoryEventRequest) returns (AdvisoryEvent) {
     option (google.api.http) = {
-      post: "/vulnerabilities/v1/advisories/{parent_id}/events"
+      post: "/vulnerabilities/v1/advisories/{parent_id=**}/events"
       body: "*"
     };
     option (chainguard.annotations.iam) = {
@@ -78,7 +78,7 @@ service Advisories {
 
   rpc ListAdvisoryEvents(AdvisoryEventFilter) returns (AdvisoryEventList) {
     option (google.api.http) = {
-      get: "/vulnerabilities/v1/advisories/{parent_id}/events"
+      get: "/vulnerabilities/v1/advisories/{parent_id=**}/events"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
