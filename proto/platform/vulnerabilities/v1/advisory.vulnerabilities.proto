@@ -43,7 +43,7 @@ service Advisories {
 
   rpc Update(Advisory) returns (Advisory) {
     option (google.api.http) = {
-      put: "/vulnerabilities/v1/advisories/{id}"
+      put: "/vulnerabilities/v1/advisories/{id=**}"
       body: "*"
     };
     option (chainguard.annotations.iam) = {
@@ -55,7 +55,7 @@ service Advisories {
 
   rpc Delete(DeleteAdvisoryRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/vulnerabilities/v1/advisories/{id}"
+      delete: "/vulnerabilities/v1/advisories/{id=**}"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
@@ -66,7 +66,7 @@ service Advisories {
 
   rpc CreateAdvisoryEvent(CreateAdvisoryEventRequest) returns (AdvisoryEvent) {
     option (google.api.http) = {
-      post: "/vulnerabilities/v1/advisories/{parent_id}/events"
+      post: "/vulnerabilities/v1/advisories/{parent_id=**}/events"
       body: "*"
     };
     option (chainguard.annotations.iam) = {
@@ -78,7 +78,7 @@ service Advisories {
 
   rpc ListAdvisoryEvents(AdvisoryEventFilter) returns (AdvisoryEventList) {
     option (google.api.http) = {
-      get: "/vulnerabilities/v1/advisories/{parent_id}/events"
+      get: "/vulnerabilities/v1/advisories/{parent_id=**}/events"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
@@ -131,6 +131,8 @@ enum EventTypeFilter {
   EVENT_TYPE_FILTER_FIX_NOT_PLANNED = 6;
   // Pending upstream fix
   EVENT_TYPE_FILTER_PENDING_UPSTREAM_FIX = 7;
+  // Patched event
+  EVENT_TYPE_FILTER_PATCHED = 8;
 }
 
 message Advisory {
@@ -194,6 +196,7 @@ message AdvisoryEvent {
     FixNotPlanned fix_not_planned = 7;
     PendingUpstreamFix pending_upstream_fix = 8;
     TruePositiveDetermination true_positive_determination = 9;
+    Patched patched = 15;
   }
 
   message Detection {
@@ -258,6 +261,11 @@ message AdvisoryEvent {
     string note = 1;
   }
 
+  message Patched {
+    repeated string patched_versions = 1;
+    string note = 2;
+  }
+
   // findings is the JSON-encoded struct containing vulnerability findings
   bytes findings = 10;
   // author is the person who created this event
@@ -268,6 +276,8 @@ message AdvisoryEvent {
   ReviewStatus status = 13;
   // issue is the original CVE Dashboard issue
   optional string issue = 14;
+
+  // next id: 16
 }
 
 
