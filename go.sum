@@ -1,7 +1,7 @@
-chainguard.dev/apko v0.30.8 h1:XC1YLjRZU8mB9qlv/uS/pcaHVvN3lfT0vcJNgZFUtrA=
-chainguard.dev/apko v0.30.8/go.mod h1:t1kBsxcAnHQEaniw894beiJrKBbiII6xVCPTSM8A3rM=
-chainguard.dev/go-grpc-kit v0.17.14 h1:UIjWOokCXaZSFBpTjoArAykXa0BUnjK///TjFO6ugt4=
-chainguard.dev/go-grpc-kit v0.17.14/go.mod h1:mOL0MDp7ObTqmI2edqC+qGKsHVmquc7VaqQRp9xnq0E=
+chainguard.dev/apko v0.30.9 h1:G+tq1fFc+eOXsLXXp064FFlfctRkBqtNjlipLHsjsGQ=
+chainguard.dev/apko v0.30.9/go.mod h1:t1kBsxcAnHQEaniw894beiJrKBbiII6xVCPTSM8A3rM=
+chainguard.dev/go-grpc-kit v0.17.15 h1:y+FBjta2lsC0XxlkG+W5P1VxYl0zG74GRvoYN2o+p7s=
+chainguard.dev/go-grpc-kit v0.17.15/go.mod h1:1wAVAX2CCamtFlfMs9PFzfgQQxX1/TQyF6cbWApbJ2U=
 chainguard.dev/go-oidctest v0.4.0 h1:B9YTfoa1WtsrEg0wnFeSP7i9tth0LO+GICm2j8HOgWI=
 chainguard.dev/go-oidctest v0.4.0/go.mod h1:IIic4S3je1I7Acy3bqPtaSPefGEsQDzUp7NJF35MPV4=
 cloud.google.com/go/auth v0.16.5 h1:mFWNQ2FEVWAliEQWpAdH80omXFokmrnbDhUS9cBywsI=
