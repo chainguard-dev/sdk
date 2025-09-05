@@ -45,6 +45,7 @@ const (
 	Registry_ListBuildReports_FullMethodName          = "/chainguard.platform.registry.Registry/ListBuildReports"
 	Registry_GetBuildStatus_FullMethodName            = "/chainguard.platform.registry.Registry/GetBuildStatus"
 	Registry_GetUpdateStatus_FullMethodName           = "/chainguard.platform.registry.Registry/GetUpdateStatus"
+	Registry_GetSyncStatus_FullMethodName             = "/chainguard.platform.registry.Registry/GetSyncStatus"
 )
 
 // RegistryClient is the client API for Registry service.
@@ -77,6 +78,7 @@ type RegistryClient interface {
 	ListBuildReports(ctx context.Context, in *BuildReportFilter, opts ...grpc.CallOption) (*BuildReportList, error)
 	GetBuildStatus(ctx context.Context, in *BuildReportFilter, opts ...grpc.CallOption) (*BuildStatus, error)
 	GetUpdateStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*UpdateStatus, error)
+	GetSyncStatus(ctx context.Context, in *GetSyncStatusRequest, opts ...grpc.CallOption) (*SyncStatus, error)
 }
 
 type registryClient struct {
@@ -327,6 +329,16 @@ func (c *registryClient) GetUpdateStatus(ctx context.Context, in *UpdateStatusRe
 	return out, nil
 }
 
+func (c *registryClient) GetSyncStatus(ctx context.Context, in *GetSyncStatusRequest, opts ...grpc.CallOption) (*SyncStatus, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SyncStatus)
+	err := c.cc.Invoke(ctx, Registry_GetSyncStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RegistryServer is the server API for Registry service.
 // All implementations must embed UnimplementedRegistryServer
 // for forward compatibility.
@@ -357,6 +369,7 @@ type RegistryServer interface {
 	ListBuildReports(context.Context, *BuildReportFilter) (*BuildReportList, error)
 	GetBuildStatus(context.Context, *BuildReportFilter) (*BuildStatus, error)
 	GetUpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatus, error)
+	GetSyncStatus(context.Context, *GetSyncStatusRequest) (*SyncStatus, error)
 	mustEmbedUnimplementedRegistryServer()
 }
 
@@ -438,6 +451,9 @@ func (UnimplementedRegistryServer) GetBuildStatus(context.Context, *BuildReportF
 }
 func (UnimplementedRegistryServer) GetUpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatus, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUpdateStatus not implemented")
+}
+func (UnimplementedRegistryServer) GetSyncStatus(context.Context, *GetSyncStatusRequest) (*SyncStatus, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSyncStatus not implemented")
 }
 func (UnimplementedRegistryServer) mustEmbedUnimplementedRegistryServer() {}
 func (UnimplementedRegistryServer) testEmbeddedByValue()                  {}
@@ -892,6 +908,24 @@ func _Registry_GetUpdateStatus_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Registry_GetSyncStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSyncStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).GetSyncStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_GetSyncStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).GetSyncStatus(ctx, req.(*GetSyncStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Registry_ServiceDesc is the grpc.ServiceDesc for Registry service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -994,6 +1028,10 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUpdateStatus",
 			Handler:    _Registry_GetUpdateStatus_Handler,
+		},
+		{
+			MethodName: "GetSyncStatus",
+			Handler:    _Registry_GetSyncStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

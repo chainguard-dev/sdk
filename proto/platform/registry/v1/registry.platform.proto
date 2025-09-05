@@ -319,6 +319,17 @@ service Registry {
       }
     };
   }
+
+  rpc GetSyncStatus(GetSyncStatusRequest) returns (SyncStatus) {
+    option (google.api.http) = {
+      get: "/registry/v1/repos/{repo_id=**}:syncstatus"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST]
+      }
+    };
+  }
 }
 
 message Repo {
@@ -971,6 +982,26 @@ message UpdateStatusRequest {
 message UpdateStatus {
   // Whether or not the repo has had a recent update.
   bool recently_updated = 1;
+}
+
+message GetSyncStatusRequest {
+  // The UIDP of the image repo to get sync status for.
+  string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+// SyncStatus is the sync status of a repo in the workqueue.
+message SyncStatus {
+  enum Status {
+    UNKNOWN = 0;
+    QUEUED = 1;
+    IN_PROGRESS = 2;
+  }
+
+  // The current status of the repo in the workqueue.
+  Status status = 1;
+
+  // The time when the task was created in the workqueue.
+  google.protobuf.Timestamp create_time = 2;
 }
 
 message HelmRequest {
