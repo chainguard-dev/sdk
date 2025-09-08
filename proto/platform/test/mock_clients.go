@@ -27,8 +27,6 @@ import (
 	pingtest "chainguard.dev/sdk/proto/platform/ping/v1/test"
 	registry "chainguard.dev/sdk/proto/platform/registry/v1"
 	registrytest "chainguard.dev/sdk/proto/platform/registry/v1/test"
-	tenant "chainguard.dev/sdk/proto/platform/tenant/v1"
-	tenanttest "chainguard.dev/sdk/proto/platform/tenant/v1/test"
 	vulnerabilities "chainguard.dev/sdk/proto/platform/vulnerabilities/v1"
 	vulnerabilitiestest "chainguard.dev/sdk/proto/platform/vulnerabilities/v1/test"
 )
@@ -39,7 +37,6 @@ type MockPlatformClients struct {
 	OnError error
 
 	IAMClient             iamtest.MockIAMClient
-	TenantClient          tenanttest.MockTenantClient
 	RegistryClient        registrytest.MockRegistryClients
 	AdvisoryClient        advisorytest.MockSecurityAdvisoryClients
 	PingClient            pingtest.MockPingServiceClients
@@ -56,10 +53,6 @@ func (m MockPlatformClients) Close() error {
 
 func (m MockPlatformClients) IAM() iam.Clients {
 	return m.IAMClient
-}
-
-func (m MockPlatformClients) Tenant() tenant.Clients {
-	return m.TenantClient
 }
 
 func (m MockPlatformClients) Registry() registry.Clients {
