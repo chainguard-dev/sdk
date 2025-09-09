@@ -401,7 +401,7 @@ message SyncConfig {
 
   // Controls whether to synchronize APKs for the images in this repository
   // to the enclosing Chainguard group.
-  bool sync_apks = 7;
+  bool sync_apks = 7 [deprecated = true];
 
   // An apko configuration overlay to rebuild images with when syncing them.
   string apko_overlay = 8;
