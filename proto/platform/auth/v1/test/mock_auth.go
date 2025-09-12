@@ -23,6 +23,7 @@ type MockAuthClient struct {
 	OnValidate           []AuthOnValidate
 	OnRegister           []AuthOnRegister
 	OnGetHeadlessSession []AuthOnGetHeadlessSession
+	OnDelete             []AuthOnDelete
 }
 
 type FromContextFn func(context.Context) bool
@@ -43,6 +44,11 @@ type AuthOnRegister struct {
 type AuthOnGetHeadlessSession struct {
 	Given *auth.GetHeadlessSessionRequest
 	Found *auth.HeadlessSession
+	Error error
+}
+
+type AuthOnDelete struct {
+	Given *auth.DeletionRequest
 	Error error
 }
 
@@ -75,6 +81,15 @@ func (m MockAuthClient) GetHeadlessSession(_ context.Context, given *auth.GetHea
 	return nil, fmt.Errorf("mock not found for %v", given)
 }
 
+func (m MockAuthClient) Delete(_ context.Context, given *auth.DeletionRequest, _ ...grpc.CallOption) (*emptypb.Empty, error) {
+	for _, o := range m.OnDelete {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return &emptypb.Empty{}, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
 // --- Server ---
 
 type MockAuthServer struct {
@@ -92,4 +107,8 @@ func (m MockAuthServer) Register(ctx context.Context, req *auth.RegistrationRequ
 
 func (m MockAuthServer) GetHeadlessSession(ctx context.Context, req *auth.GetHeadlessSessionRequest) (*auth.HeadlessSession, error) {
 	return m.Client.GetHeadlessSession(ctx, req)
+}
+
+func (m MockAuthServer) Delete(ctx context.Context, req *auth.DeletionRequest) (*emptypb.Empty, error) {
+	return m.Client.Delete(ctx, req)
 }

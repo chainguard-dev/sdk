@@ -48,6 +48,25 @@ service Auth {
       get: "/sts/headless_sessions"
     };
   }
+
+  rpc Delete(DeletionRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/auth/v1/delete/{id=*}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        // This API requires no capabilities, anyone is allowed
+        // to delete their own identity.
+      }
+    };
+  }
+}
+
+message DeletionRequest {
+  // id is the exact UID of the identity to be deleted from the platform.
+  // It must be a root identity, and the UID must match the subject
+  // of the token.
+  string id = 1;
 }
 
 message RegistrationRequest {
