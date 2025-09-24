@@ -15,9 +15,16 @@ import (
 
 // NewTokenSource creates an oauth2.TokenSource by wrapping another TokenSource
 // in a Chainguard STS exchange brokered by the provided Exchanger.
+// This wraps NewContextTokenSource with a new background context.
 func NewTokenSource(ts oauth2.TokenSource, xchg Exchanger) oauth2.TokenSource {
+	return NewContextTokenSource(context.Background(), ts, xchg)
+}
+
+// NewTokenSource creates an oauth2.TokenSource by wrapping another TokenSource
+// in a Chainguard STS exchange brokered by the provided Exchanger.
+func NewContextTokenSource(ctx context.Context, ts oauth2.TokenSource, xchg Exchanger) oauth2.TokenSource {
 	return &stsTokenSource{
-		ctx:  context.Background(),
+		ctx:  ctx,
 		ts:   ts,
 		xchg: xchg,
 	}
@@ -45,10 +52,8 @@ func (sts *stsTokenSource) Token() (*oauth2.Token, error) {
 	}, nil
 }
 
-func NewTokenSourceFromValues(ctx context.Context, aud string, identity string, ts oauth2.TokenSource) oauth2.TokenSource {
-	return &stsTokenSource{
-		ctx:  ctx,
-		ts:   ts,
-		xchg: New(aud, identity),
-	}
+// NewTokenSourceFromValues creates a new TokenSource with common input parameters.
+// This is a convenience wrapper around NewContextTokenSource.
+func NewTokenSourceFromValues(ctx context.Context, issuer string, audience string, identity string, ts oauth2.TokenSource) oauth2.TokenSource {
+	return NewContextTokenSource(ctx, ts, New(issuer, audience, WithIdentity(identity)))
 }
