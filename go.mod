@@ -6,11 +6,11 @@ require (
 	chainguard.dev/apko v0.30.11
 	chainguard.dev/go-grpc-kit v0.17.15
 	chainguard.dev/go-oidctest v0.4.0
-	cloud.google.com/go/compute/metadata v0.8.0
-	github.com/aws/aws-sdk-go-v2 v1.39.0
+	cloud.google.com/go/compute/metadata v0.9.0
+	github.com/aws/aws-sdk-go-v2 v1.39.1
 	github.com/bits-and-blooms/bitset v1.24.0
 	github.com/chainguard-dev/clog v1.7.0
-	github.com/cloudevents/sdk-go/v2 v2.16.1
+	github.com/cloudevents/sdk-go/v2 v2.16.2
 	github.com/coreos/go-oidc/v3 v3.15.0
 	github.com/go-jose/go-jose/v4 v4.1.2
 	github.com/google/go-cmp v0.7.0
