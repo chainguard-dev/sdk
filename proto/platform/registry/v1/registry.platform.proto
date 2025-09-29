@@ -901,10 +901,17 @@ message BuildReportFilter {
   // defaults to 1 day ago.
   google.protobuf.Timestamp started_since = 2;
 
+  // use to choose reports started before this time.
+  google.protobuf.Timestamp started_before = 5;
+
   // Opt-in to exclude raw log output via Log field
   // Note: including logs has lead to high db input/output and timeouts
   // depending on the size of the returned log contents
   bool exclude_logs = 4;
+
+  // The maximum number of artifacts to return per request.
+  // The service may return fewer than this value.
+  int32 page_size = 6;
 }
 
 // BuildReport is a record of a build, including the configuration used, the result, and the log.
