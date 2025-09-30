@@ -568,6 +568,12 @@ message EolTagFilter {
   // Pagination.
   string page_token = 3;
   int64 page_size = 4;
+
+  // Exclude tags of the form "*-20yymmdd".
+  bool exclude_dates = 5;
+
+  // Exclude tags of the form "*-r[0-9]+".
+  bool exclude_epochs = 6;
 }
 
 message TagList {
