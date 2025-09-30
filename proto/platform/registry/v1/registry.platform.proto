@@ -369,9 +369,10 @@ message Repo {
 enum CatalogTier {
   UNKNOWN  = 0;
 
-  FREE     = 1 [deprecated = true];
-  STANDARD = 2 [deprecated = true];
-  PREMIUM  = 3 [deprecated = true];
+  //FREE     = 1 [deprecated = true];
+  //STANDARD = 2 [deprecated = true];
+  //PREMIUM  = 3 [deprecated = true];
+  reserved 1 to 3;
 
   APPLICATION = 4;
   BASE = 5;
