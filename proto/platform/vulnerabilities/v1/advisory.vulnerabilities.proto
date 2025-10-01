@@ -325,6 +325,12 @@ message AdvisoryFilter {
   // specific team members.
   optional string event_author = 12;
 
+  // event_reviewer filters by event reviewer email
+  // When specified, only advisories containing at least one event reviewed by the specified
+  // author will be returned. This enables users to find their own events or events from
+  // specific team members.
+  optional string event_reviewer = 18;
+
   // event_types filters by event type
   // When specified, only advisories containing at least one event of any of the provided
   // types will be returned.
@@ -342,7 +348,7 @@ message AdvisoryFilter {
   // enabling them to review others' work without seeing their own submissions.
   optional string exclude_event_author = 15;
 
-  // next id: 18
+  // next id: 19
 }
 
 message AdvisoriesList {
