@@ -1009,6 +1009,7 @@ message SyncStatus {
     UNKNOWN = 0;
     QUEUED = 1;
     IN_PROGRESS = 2;
+    FAILED = 3;
   }
 
   // The current status of the repo in the workqueue.
