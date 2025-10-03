@@ -86,6 +86,18 @@ service Advisories {
       }
     };
   }
+
+  rpc UpdateAdvisoryEvent(AdvisoryEvent) returns (AdvisoryEvent) {
+    option (google.api.http) = {
+      put: "/vulnerabilities/v1/advisory_events/{id=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ADVISORIES_UPDATE]
+      }
+    };
+  }
 }
 
 // ReviewStatus represents the possible states of review for an advisory event
@@ -183,7 +195,7 @@ message Advisory {
 
 message AdvisoryEvent {
   // id is the UIDP of this event, child of Advisory UIDP it belongs to.
-  string id = 1;
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
 
   google.protobuf.Timestamp timestamp = 2;
 
@@ -377,7 +389,9 @@ message CreateAdvisoryRequest {
 message CreateAdvisoryEventRequest {
   // parent_id is the UIDP of the Advisory the events belong to.
   string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
-  repeated AdvisoryEvent items = 2;
+  reserved 2;
+  reserved "items";
+  AdvisoryEvent advisory_event = 3;
 }
 
 message AdvisoryEventFilter {
