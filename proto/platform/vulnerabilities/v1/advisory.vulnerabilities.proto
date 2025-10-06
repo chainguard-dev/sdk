@@ -183,11 +183,14 @@ message Advisory {
   // For review process
   // author is the person who created this event
   string author = 16;
-  // reviewer is the person who reviewed this event
-  string reviewer = 17;
-  // status is the status of the review. Note that not all the entries need to
-  // get reviewed, so this is optional.
-  ReviewStatus status = 18;
+  // REMOVED: reviewer is the person who reviewed an event, not a property of
+  // and advisory. This field should not be used.
+  reserved 17;
+  reserved "reviewer";
+  // REMOVED: status is the status of the event review, not of an advisory. This
+  // field should not be used.
+  reserved 18;
+  reserved "status";
 
   // legacyAdvisoryID stores the advisory ID from the Github advisories repositories
   optional string legacyAdvisoryID = 19;
