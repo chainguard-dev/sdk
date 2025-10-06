@@ -22,8 +22,14 @@ type MockAdvisoriesClient struct {
 	vulnerabilities.AdvisoriesClient
 
 	OnList   []AdvisoriesOnList
+	OnGet    []AdvisoryOnGet
 	OnCreate []AdvisoriesOnCreate
+	OnUpdate []AdvisoriesOnUpdate
 	OnDelete []AdvisoriesOnDelete
+
+	OnListAdvisoryEvent   []AdvisoriesOnEventList
+	OnCreateAdvisoryEvent []AdvisoriesOnEventCreate
+	OnUpdateAdvisoryEvent []AdvisoriesOnEventUpdate
 }
 
 type AdvisoriesOnList struct {
@@ -32,9 +38,21 @@ type AdvisoriesOnList struct {
 	Error error
 }
 
+type AdvisoryOnGet struct {
+	Given    *vulnerabilities.AdvisoryFilter
+	Advisory *vulnerabilities.Advisory
+	Error    error
+}
+
 type AdvisoriesOnCreate struct {
 	Given   *vulnerabilities.Advisory
 	Created *vulnerabilities.Advisory
+	Error   error
+}
+
+type AdvisoriesOnUpdate struct {
+	Given   *vulnerabilities.Advisory
+	Updated *vulnerabilities.Advisory
 	Error   error
 }
 
@@ -43,10 +61,37 @@ type AdvisoriesOnDelete struct {
 	Error error
 }
 
+type AdvisoriesOnEventList struct {
+	Given     *vulnerabilities.AdvisoryEventFilter
+	EventList *vulnerabilities.AdvisoryEventList
+	Error     error
+}
+
+type AdvisoriesOnEventCreate struct {
+	Given        *vulnerabilities.CreateAdvisoryEventRequest
+	EventCreated *vulnerabilities.AdvisoryEvent
+	Error        error
+}
+
+type AdvisoriesOnEventUpdate struct {
+	Given        *vulnerabilities.AdvisoryEvent
+	EventUpdated *vulnerabilities.AdvisoryEvent
+	Error        error
+}
+
 func (m MockAdvisoriesClient) List(_ context.Context, given *vulnerabilities.AdvisoryFilter, _ ...grpc.CallOption) (*vulnerabilities.AdvisoriesList, error) { //nolint: revive
 	for _, o := range m.OnList {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.List, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m *MockAdvisoriesClient) Get(_ context.Context, given *vulnerabilities.AdvisoryFilter, _ ...grpc.CallOption) (*vulnerabilities.Advisory, error) {
+	for _, o := range m.OnGet {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Advisory, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)
@@ -68,4 +113,40 @@ func (m MockAdvisoriesClient) Delete(_ context.Context, given *vulnerabilities.D
 		}
 	}
 	return &emptypb.Empty{}, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockAdvisoriesClient) Update(_ context.Context, given *vulnerabilities.Advisory, _ ...grpc.CallOption) (*vulnerabilities.Advisory, error) {
+	for _, o := range m.OnUpdate {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Updated, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockAdvisoriesClient) ListAdvisoryEvents(_ context.Context, given *vulnerabilities.AdvisoryEventFilter, _ ...grpc.CallOption) (*vulnerabilities.AdvisoryEventList, error) { //nolint: revive
+	for _, o := range m.OnListAdvisoryEvent {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.EventList, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockAdvisoriesClient) CreateAdvisoryEvent(_ context.Context, given *vulnerabilities.CreateAdvisoryEventRequest, _ ...grpc.CallOption) (*vulnerabilities.AdvisoryEvent, error) {
+	for _, o := range m.OnCreateAdvisoryEvent {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.EventCreated, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockAdvisoriesClient) UpdateAdvisoryEvent(_ context.Context, given *vulnerabilities.AdvisoryEvent, _ ...grpc.CallOption) (*vulnerabilities.AdvisoryEvent, error) {
+	for _, o := range m.OnUpdateAdvisoryEvent {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.EventUpdated, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
 }

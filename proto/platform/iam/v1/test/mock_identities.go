@@ -35,9 +35,10 @@ type IdentityOnCreate struct {
 }
 
 type IdentityOnUpdate struct {
-	Given   *iam.Identity
-	Updated *iam.Identity
-	Error   error
+	Given        *iam.Identity
+	Updated      *iam.Identity
+	Error        error
+	IgnoreFields cmp.Option
 }
 
 type IdentityOnDelete struct {
@@ -68,7 +69,7 @@ func (m MockIdentitiesClient) Create(_ context.Context, given *iam.CreateIdentit
 
 func (m MockIdentitiesClient) Update(_ context.Context, given *iam.Identity, _ ...grpc.CallOption) (*iam.Identity, error) {
 	for _, o := range m.OnUpdate {
-		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+		if cmp.Equal(o.Given, given, protocmp.Transform(), o.IgnoreFields) {
 			return o.Updated, o.Error
 		}
 	}

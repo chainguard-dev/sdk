@@ -5,19 +5,8 @@ option go_package = "chainguard.dev/sdk/proto/platform/tenant/v1";
 package chainguard.platform.tenant;
 
 import "google/protobuf/timestamp.proto";
-import "annotations/auth.proto";
 import "platform/common/v1/uidp.platform.proto";
 
-service Sboms {
-    rpc List(Sbom2Filter) returns (Sbom2List) {
-    option (chainguard.annotations.iam) = {
-      enabled: {
-        capabilities: [CAP_TENANT_SBOMS_LIST]
-        unscoped: true
-      }
-    };
-    }
-  }
 
 // Sbom represents a normalized SBOM that we have ingested into our datastore.
 // They are linked to Signatures via ID, as in they are 'children' of Signatures

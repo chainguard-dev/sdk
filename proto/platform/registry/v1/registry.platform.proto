@@ -319,6 +319,17 @@ service Registry {
       }
     };
   }
+
+  rpc GetSyncStatus(GetSyncStatusRequest) returns (SyncStatus) {
+    option (google.api.http) = {
+      get: "/registry/v1/repos/{repo_id=**}:syncstatus"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST]
+      }
+    };
+  }
 }
 
 message Repo {
@@ -358,9 +369,10 @@ message Repo {
 enum CatalogTier {
   UNKNOWN  = 0;
 
-  FREE     = 1 [deprecated = true];
-  STANDARD = 2 [deprecated = true];
-  PREMIUM  = 3 [deprecated = true];
+  //FREE     = 1 [deprecated = true];
+  //STANDARD = 2 [deprecated = true];
+  //PREMIUM  = 3 [deprecated = true];
+  reserved 1 to 3;
 
   APPLICATION = 4;
   BASE = 5;
@@ -390,7 +402,7 @@ message SyncConfig {
 
   // Controls whether to synchronize APKs for the images in this repository
   // to the enclosing Chainguard group.
-  bool sync_apks = 7;
+  bool sync_apks = 7 [deprecated = true];
 
   // An apko configuration overlay to rebuild images with when syncing them.
   string apko_overlay = 8;
@@ -556,6 +568,12 @@ message EolTagFilter {
   // Pagination.
   string page_token = 3;
   int64 page_size = 4;
+
+  // Exclude tags of the form "*-20yymmdd".
+  bool exclude_dates = 5;
+
+  // Exclude tags of the form "*-r[0-9]+".
+  bool exclude_epochs = 6;
 }
 
 message TagList {
@@ -890,10 +908,17 @@ message BuildReportFilter {
   // defaults to 1 day ago.
   google.protobuf.Timestamp started_since = 2;
 
+  // use to choose reports started before this time.
+  google.protobuf.Timestamp started_before = 5;
+
   // Opt-in to exclude raw log output via Log field
   // Note: including logs has lead to high db input/output and timeouts
   // depending on the size of the returned log contents
   bool exclude_logs = 4;
+
+  // The maximum number of artifacts to return per request.
+  // The service may return fewer than this value.
+  int32 page_size = 6;
 }
 
 // BuildReport is a record of a build, including the configuration used, the result, and the log.
@@ -971,6 +996,27 @@ message UpdateStatusRequest {
 message UpdateStatus {
   // Whether or not the repo has had a recent update.
   bool recently_updated = 1;
+}
+
+message GetSyncStatusRequest {
+  // The UIDP of the image repo to get sync status for.
+  string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+// SyncStatus is the sync status of a repo in the workqueue.
+message SyncStatus {
+  enum Status {
+    UNKNOWN = 0;
+    QUEUED = 1;
+    IN_PROGRESS = 2;
+    FAILED = 3;
+  }
+
+  // The current status of the repo in the workqueue.
+  Status status = 1;
+
+  // The time when the task was created in the workqueue.
+  google.protobuf.Timestamp create_time = 2;
 }
 
 message HelmRequest {

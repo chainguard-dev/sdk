@@ -25,7 +25,6 @@ import (
 	platformoidc "chainguard.dev/sdk/proto/platform/oidc/v1"
 	ping "chainguard.dev/sdk/proto/platform/ping/v1"
 	registry "chainguard.dev/sdk/proto/platform/registry/v1"
-	tenant "chainguard.dev/sdk/proto/platform/tenant/v1"
 	vulnerabilities "chainguard.dev/sdk/proto/platform/vulnerabilities/v1"
 	"github.com/chainguard-dev/clog"
 )
@@ -34,7 +33,6 @@ type userAgentString struct{}
 
 type Clients interface {
 	IAM() iam.Clients
-	Tenant() tenant.Clients
 	Registry() registry.Clients
 	Advisory() advisory.Clients
 	Ping() ping.Clients
@@ -84,7 +82,6 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 
 	return &clients{
 		iam:             iam.NewClientsFromConnection(conn),
-		tenant:          tenant.NewClientsFromConnection(conn),
 		registry:        registry.NewClientsFromConnection(conn),
 		advisory:        advisory.NewClientsFromConnection(conn),
 		ping:            ping.NewClientsFromConnection(conn),
@@ -99,7 +96,6 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 
 type clients struct {
 	iam             iam.Clients
-	tenant          tenant.Clients
 	registry        registry.Clients
 	advisory        advisory.Clients
 	ping            ping.Clients
@@ -114,10 +110,6 @@ type clients struct {
 
 func (c *clients) IAM() iam.Clients {
 	return c.iam
-}
-
-func (c *clients) Tenant() tenant.Clients {
-	return c.tenant
 }
 
 func (c *clients) Registry() registry.Clients {

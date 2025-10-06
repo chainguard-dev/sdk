@@ -86,6 +86,18 @@ service Advisories {
       }
     };
   }
+
+  rpc UpdateAdvisoryEvent(AdvisoryEvent) returns (AdvisoryEvent) {
+    option (google.api.http) = {
+      put: "/vulnerabilities/v1/advisory_events/{id=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ADVISORIES_UPDATE]
+      }
+    };
+  }
 }
 
 // ReviewStatus represents the possible states of review for an advisory event
@@ -171,11 +183,14 @@ message Advisory {
   // For review process
   // author is the person who created this event
   string author = 16;
-  // reviewer is the person who reviewed this event
-  string reviewer = 17;
-  // status is the status of the review. Note that not all the entries need to
-  // get reviewed, so this is optional.
-  ReviewStatus status = 18;
+  // REMOVED: reviewer is the person who reviewed an event, not a property of
+  // and advisory. This field should not be used.
+  reserved 17;
+  reserved "reviewer";
+  // REMOVED: status is the status of the event review, not of an advisory. This
+  // field should not be used.
+  reserved 18;
+  reserved "status";
 
   // legacyAdvisoryID stores the advisory ID from the Github advisories repositories
   optional string legacyAdvisoryID = 19;
@@ -183,7 +198,7 @@ message Advisory {
 
 message AdvisoryEvent {
   // id is the UIDP of this event, child of Advisory UIDP it belongs to.
-  string id = 1;
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
 
   google.protobuf.Timestamp timestamp = 2;
 
@@ -325,6 +340,12 @@ message AdvisoryFilter {
   // specific team members.
   optional string event_author = 12;
 
+  // event_reviewer filters by event reviewer email
+  // When specified, only advisories containing at least one event reviewed by the specified
+  // author will be returned. This enables users to find their own events or events from
+  // specific team members.
+  optional string event_reviewer = 18;
+
   // event_types filters by event type
   // When specified, only advisories containing at least one event of any of the provided
   // types will be returned.
@@ -342,7 +363,7 @@ message AdvisoryFilter {
   // enabling them to review others' work without seeing their own submissions.
   optional string exclude_event_author = 15;
 
-  // next id: 18
+  // next id: 19
 }
 
 message AdvisoriesList {
@@ -371,7 +392,9 @@ message CreateAdvisoryRequest {
 message CreateAdvisoryEventRequest {
   // parent_id is the UIDP of the Advisory the events belong to.
   string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
-  repeated AdvisoryEvent items = 2;
+  reserved 2;
+  reserved "items";
+  AdvisoryEvent advisory_event = 3;
 }
 
 message AdvisoryEventFilter {

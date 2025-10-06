@@ -4,25 +4,9 @@ option go_package = "chainguard.dev/sdk/proto/platform/tenant/v1";
 
 package chainguard.platform.tenant;
 
-import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-import "annotations/auth.proto";
 import "platform/common/v1/uidp.platform.proto";
 import "sbom.platform.proto";
-
-service VulnReports {
-  rpc List(VulnReportFilter) returns (VulnReportList) {
-    option (google.api.http) = {
-      get: "/tenant/v1/vulnreports"
-    };
-    option (chainguard.annotations.iam) = {
-      enabled: {
-        capabilities: [CAP_TENANT_VULN_REPORTS_LIST]
-        unscoped: true
-      }
-    };
-  }
-}
 
 message VulnReport {
     // id, The VulnReport UIDP at which this VulnReport resides.

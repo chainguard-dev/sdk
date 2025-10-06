@@ -90,6 +90,12 @@ var (
 		// NB: The org must also be entitled to the ecosystem to pull artifacts.
 		LibrariesJavaPullCaps, LibrariesPythonPullCaps, LibrariesJavascriptPullCaps)
 
+	RegistryRepoAdminCaps = SortCaps([]Capability{
+		Capability_CAP_REPO_CREATE,
+		Capability_CAP_REPO_UPDATE,
+		Capability_CAP_REPO_DELETE,
+	}, RegistryPullCaps)
+
 	RegistryPullCaps = SortCaps([]Capability{
 		Capability_CAP_IAM_GROUPS_LIST,
 

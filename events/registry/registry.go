@@ -72,6 +72,9 @@ type PushEvent struct {
 	// Tag holds the tag being pushed, if there is one.
 	Tag string `json:"tag,omitempty"`
 
+	// TagPreviousDigest holds the previous digest of the tag being pushed, if any.
+	TagPreviousDigest string `json:"tag_previous_digest,omitempty"`
+
 	// Digest holds the digest being pushed.
 	// Digest will hold the sha256 of the content being pushed, whether that is
 	// a blob or a manifest.
