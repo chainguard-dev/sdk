@@ -162,6 +162,11 @@ enum Capability {
   CAP_ADVISORIES_DELETE   = 1903 [(name) = "advisories.delete", (bit) = 92];
   CAP_ADVISORIES_APPROVE  = 1904 [(name) = "advisories.approve", (bit) = 93];
 
+  // Registry Deployments
+  CAP_REGISTRY_DEPLOYMENTS_CREATE = 1950 [(name) = "registry.deployments.create", (bit) = 98];
+  CAP_REGISTRY_DEPLOYMENTS_UPDATE = 1951 [(name) = "registry.deployments.update", (bit) = 99];
+  CAP_REGISTRY_DEPLOYMENTS_LIST   = 1952 [(name) = "registry.deployments.list", (bit) = 100];
+
   // This is orthogonal enough that we should leave
   // it somewhat separate, so add new capabilities above.
   // TODO(mattmoor): Think about whether we can encode specific
@@ -171,5 +176,5 @@ enum Capability {
   CAP_GULFSTREAM = 10000 [(name) = "gulfstream", (bit) = 47];
 
   reserved 1;
-  // next bit: 96
+  // next bit: 101
 }

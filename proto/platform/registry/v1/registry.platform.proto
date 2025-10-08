@@ -330,6 +330,41 @@ service Registry {
       }
     };
   }
+
+  rpc CreateDeployment(CreateDeploymentRequest) returns (Deployment) {
+    option (google.api.http) = {
+      post: "/registry/v1/repos/{parent_id=**}/deployment"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_DEPLOYMENTS_CREATE]
+      }
+    };
+  }
+
+  rpc UpdateDeployment(UpdateDeploymentRequest) returns (Deployment) {
+    option (google.api.http) = {
+      put: "/registry/v1/repos/{repo_id=**}/deployment"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_DEPLOYMENTS_UPDATE]
+      }
+    };
+  }
+
+  rpc GetDeployment(GetDeploymentRequest) returns (Deployment) {
+    option (google.api.http) = {
+      get: "/registry/v1/repos/{repo_id=**}/deployment"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_DEPLOYMENTS_LIST]
+      }
+    };
+  }
 }
 
 message Repo {
@@ -1040,4 +1075,43 @@ message Helm {
   string chart_digest = 4;
   // Additional values.
   string values = 5;
+}
+
+// Deployment configuration for a repository
+message Deployment {
+  // id is the identifier of this deployment, same as parent Repo UIDP.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // Helm chart configurations for this deployment.
+  repeated HelmChart charts = 2;
+}
+
+// Helm chart configuration
+message HelmChart {
+  // source is an optional link to the source code (e.g., GitHub repository URL).
+  optional string source = 1;
+
+  // repo is the Helm chart repository URL.
+  string repo = 2;
+}
+
+message CreateDeploymentRequest {
+  // parent_id is the Repo UIDP under which to create the deployment.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // Helm chart configurations for this deployment.
+  repeated HelmChart charts = 2;
+}
+
+message UpdateDeploymentRequest {
+  // repo_id is the Repo UIDP to update deployment for.
+  string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // Helm chart configurations for this deployment.
+  repeated HelmChart charts = 2;
+}
+
+message GetDeploymentRequest {
+  // repo_id is the Repo UIDP to get deployment for.
+  string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
 }
