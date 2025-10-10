@@ -617,6 +617,7 @@ message TagList {
 
 message EolTagList {
   repeated EolTag items = 1;
+  string next_page_token = 2;
 }
 
 message TagHistoryFilter {
