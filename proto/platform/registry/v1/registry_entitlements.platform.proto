@@ -178,6 +178,7 @@ message CreateEntitlementRequest {
 }
 
 message DeleteEntitlementRequest {
-  string id = 1;
-  string parent = 2 [(chainguard.annotations.iam_scope) = true];
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  reserved 2; // previously 'parent' field
 }
