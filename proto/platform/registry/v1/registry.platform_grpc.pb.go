@@ -46,6 +46,9 @@ const (
 	Registry_GetBuildStatus_FullMethodName            = "/chainguard.platform.registry.Registry/GetBuildStatus"
 	Registry_GetUpdateStatus_FullMethodName           = "/chainguard.platform.registry.Registry/GetUpdateStatus"
 	Registry_GetSyncStatus_FullMethodName             = "/chainguard.platform.registry.Registry/GetSyncStatus"
+	Registry_CreateDeployment_FullMethodName          = "/chainguard.platform.registry.Registry/CreateDeployment"
+	Registry_UpdateDeployment_FullMethodName          = "/chainguard.platform.registry.Registry/UpdateDeployment"
+	Registry_GetDeployment_FullMethodName             = "/chainguard.platform.registry.Registry/GetDeployment"
 )
 
 // RegistryClient is the client API for Registry service.
@@ -79,6 +82,9 @@ type RegistryClient interface {
 	GetBuildStatus(ctx context.Context, in *BuildReportFilter, opts ...grpc.CallOption) (*BuildStatus, error)
 	GetUpdateStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*UpdateStatus, error)
 	GetSyncStatus(ctx context.Context, in *GetSyncStatusRequest, opts ...grpc.CallOption) (*SyncStatus, error)
+	CreateDeployment(ctx context.Context, in *CreateDeploymentRequest, opts ...grpc.CallOption) (*Deployment, error)
+	UpdateDeployment(ctx context.Context, in *UpdateDeploymentRequest, opts ...grpc.CallOption) (*Deployment, error)
+	GetDeployment(ctx context.Context, in *GetDeploymentRequest, opts ...grpc.CallOption) (*Deployment, error)
 }
 
 type registryClient struct {
@@ -339,6 +345,36 @@ func (c *registryClient) GetSyncStatus(ctx context.Context, in *GetSyncStatusReq
 	return out, nil
 }
 
+func (c *registryClient) CreateDeployment(ctx context.Context, in *CreateDeploymentRequest, opts ...grpc.CallOption) (*Deployment, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Deployment)
+	err := c.cc.Invoke(ctx, Registry_CreateDeployment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *registryClient) UpdateDeployment(ctx context.Context, in *UpdateDeploymentRequest, opts ...grpc.CallOption) (*Deployment, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Deployment)
+	err := c.cc.Invoke(ctx, Registry_UpdateDeployment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *registryClient) GetDeployment(ctx context.Context, in *GetDeploymentRequest, opts ...grpc.CallOption) (*Deployment, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Deployment)
+	err := c.cc.Invoke(ctx, Registry_GetDeployment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RegistryServer is the server API for Registry service.
 // All implementations must embed UnimplementedRegistryServer
 // for forward compatibility.
@@ -370,6 +406,9 @@ type RegistryServer interface {
 	GetBuildStatus(context.Context, *BuildReportFilter) (*BuildStatus, error)
 	GetUpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatus, error)
 	GetSyncStatus(context.Context, *GetSyncStatusRequest) (*SyncStatus, error)
+	CreateDeployment(context.Context, *CreateDeploymentRequest) (*Deployment, error)
+	UpdateDeployment(context.Context, *UpdateDeploymentRequest) (*Deployment, error)
+	GetDeployment(context.Context, *GetDeploymentRequest) (*Deployment, error)
 	mustEmbedUnimplementedRegistryServer()
 }
 
@@ -454,6 +493,15 @@ func (UnimplementedRegistryServer) GetUpdateStatus(context.Context, *UpdateStatu
 }
 func (UnimplementedRegistryServer) GetSyncStatus(context.Context, *GetSyncStatusRequest) (*SyncStatus, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSyncStatus not implemented")
+}
+func (UnimplementedRegistryServer) CreateDeployment(context.Context, *CreateDeploymentRequest) (*Deployment, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateDeployment not implemented")
+}
+func (UnimplementedRegistryServer) UpdateDeployment(context.Context, *UpdateDeploymentRequest) (*Deployment, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateDeployment not implemented")
+}
+func (UnimplementedRegistryServer) GetDeployment(context.Context, *GetDeploymentRequest) (*Deployment, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDeployment not implemented")
 }
 func (UnimplementedRegistryServer) mustEmbedUnimplementedRegistryServer() {}
 func (UnimplementedRegistryServer) testEmbeddedByValue()                  {}
@@ -926,6 +974,60 @@ func _Registry_GetSyncStatus_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Registry_CreateDeployment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateDeploymentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).CreateDeployment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_CreateDeployment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).CreateDeployment(ctx, req.(*CreateDeploymentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Registry_UpdateDeployment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateDeploymentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).UpdateDeployment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_UpdateDeployment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).UpdateDeployment(ctx, req.(*UpdateDeploymentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Registry_GetDeployment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDeploymentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).GetDeployment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_GetDeployment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).GetDeployment(ctx, req.(*GetDeploymentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Registry_ServiceDesc is the grpc.ServiceDesc for Registry service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1032,6 +1134,18 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSyncStatus",
 			Handler:    _Registry_GetSyncStatus_Handler,
+		},
+		{
+			MethodName: "CreateDeployment",
+			Handler:    _Registry_CreateDeployment_Handler,
+		},
+		{
+			MethodName: "UpdateDeployment",
+			Handler:    _Registry_UpdateDeployment_Handler,
+		},
+		{
+			MethodName: "GetDeployment",
+			Handler:    _Registry_GetDeployment_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
