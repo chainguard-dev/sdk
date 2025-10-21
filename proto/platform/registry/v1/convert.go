@@ -74,6 +74,7 @@ func pbGroups(groups []apkotypes.Group) []*ApkoConfig_Accounts_Group {
 		pbGroups[i] = &ApkoConfig_Accounts_Group{
 			Gid:       g.GID,
 			GroupName: g.GroupName,
+			Members:   g.Members,
 		}
 	}
 	return pbGroups
@@ -201,6 +202,7 @@ func apkoGroups(groups []*ApkoConfig_Accounts_Group) []apkotypes.Group {
 		apkoGroups[i] = apkotypes.Group{
 			GID:       g.Gid,
 			GroupName: g.GroupName,
+			Members:   g.Members,
 		}
 	}
 	return apkoGroups
