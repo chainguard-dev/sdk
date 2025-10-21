@@ -60,6 +60,8 @@ func pbUsers(users []apkotypes.User) []*ApkoConfig_Accounts_User {
 			Uid:      u.UID,
 			UserName: u.UserName,
 			Gid:      u.GID,
+			Shell:    u.Shell,
+			HomeDir:  u.HomeDir,
 		}
 	}
 	return pbUsers
@@ -188,6 +190,8 @@ func apkoUsers(users []*ApkoConfig_Accounts_User) []apkotypes.User {
 			UID:      u.Uid,
 			UserName: u.UserName,
 			GID:      u.Gid,
+			Shell:    u.Shell,
+			HomeDir:  u.HomeDir,
 		}
 	}
 	return apkoUsers
