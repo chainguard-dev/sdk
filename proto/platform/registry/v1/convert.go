@@ -60,6 +60,8 @@ func pbUsers(users []apkotypes.User) []*ApkoConfig_Accounts_User {
 			Uid:      u.UID,
 			UserName: u.UserName,
 			Gid:      u.GID,
+			Shell:    u.Shell,
+			HomeDir:  u.HomeDir,
 		}
 	}
 	return pbUsers
@@ -74,6 +76,7 @@ func pbGroups(groups []apkotypes.Group) []*ApkoConfig_Accounts_Group {
 		pbGroups[i] = &ApkoConfig_Accounts_Group{
 			Gid:       g.GID,
 			GroupName: g.GroupName,
+			Members:   g.Members,
 		}
 	}
 	return pbGroups
@@ -187,6 +190,8 @@ func apkoUsers(users []*ApkoConfig_Accounts_User) []apkotypes.User {
 			UID:      u.Uid,
 			UserName: u.UserName,
 			GID:      u.Gid,
+			Shell:    u.Shell,
+			HomeDir:  u.HomeDir,
 		}
 	}
 	return apkoUsers
@@ -201,6 +206,7 @@ func apkoGroups(groups []*ApkoConfig_Accounts_Group) []apkotypes.Group {
 		apkoGroups[i] = apkotypes.Group{
 			GID:       g.Gid,
 			GroupName: g.GroupName,
+			Members:   g.Members,
 		}
 	}
 	return apkoGroups

@@ -59,6 +59,7 @@ message ApkoConfig {
     message Group {
       uint32 gid = 1;
       string group_name = 2;
+      repeated string members = 3;
     };
     repeated Group groups = 1;
     message User {
@@ -66,6 +67,8 @@ message ApkoConfig {
       string user_name = 2;
       optional uint32 gid = 3;
       string group_name = 4;
+      string shell = 5;
+      string home_dir = 6;
     };
     repeated User users = 2;
     string run_as = 3;

@@ -37,6 +37,7 @@ var (
 		Capability_CAP_LIBRARIES_ARTIFACTS_LIST,
 
 		Capability_CAP_REGISTRY_ENTITLEMENTS_LIST,
+		Capability_CAP_REGISTRY_DEPLOYMENTS_LIST,
 	},
 		// Viewers can also list repos and tags, and pull images.
 		RegistryPullCaps, APKPullCaps)
@@ -107,8 +108,6 @@ var (
 		Capability_CAP_TENANT_RECORD_SIGNATURES_LIST,
 		Capability_CAP_TENANT_SBOMS_LIST,
 		Capability_CAP_TENANT_VULN_REPORTS_LIST,
-
-		Capability_CAP_REGISTRY_DEPLOYMENTS_LIST,
 	})
 
 	RegistryPushCaps = SortCaps([]Capability{

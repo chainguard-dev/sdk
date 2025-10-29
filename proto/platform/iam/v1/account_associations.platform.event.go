@@ -36,6 +36,6 @@ func (x *DeleteAccountAssociationsRequest) CloudEventsSubject() string {
 }
 
 // CloudEventsRedact implements chainguard.dev/sdk/events/Redactable.Redact.
-func (x *DeleteAccountAssociationsRequest) CloudEventsRedact() interface{} {
+func (x *DeleteAccountAssociationsRequest) CloudEventsRedact() any {
 	return nil
 }

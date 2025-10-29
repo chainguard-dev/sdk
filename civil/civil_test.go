@@ -490,7 +490,7 @@ func TestDateTimeIsZero(t *testing.T) {
 
 func TestMarshalJSON(t *testing.T) {
 	for _, test := range []struct {
-		value interface{}
+		value any
 		want  string
 	}{
 		{Date{1987, 4, 15}, `"1987-04-15"`},
@@ -513,8 +513,8 @@ func TestUnmarshalJSON(t *testing.T) {
 	var dt DateTime
 	for _, test := range []struct {
 		data string
-		ptr  interface{}
-		want interface{}
+		ptr  any
+		want any
 	}{
 		{`"1987-04-15"`, &d, &Date{1987, 4, 15}},
 		{`"1987-04-\u0031\u0035"`, &d, &Date{1987, 4, 15}},

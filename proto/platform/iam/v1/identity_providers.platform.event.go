@@ -25,7 +25,7 @@ func (x *IdentityProvider) CloudEventsSubject() string {
 }
 
 // CloudEventsRedact implements chainguard.dev/sdk/events/Redactable.CloudEventsRedact.
-func (x *IdentityProvider) CloudEventsRedact() interface{} {
+func (x *IdentityProvider) CloudEventsRedact() any {
 	idp := &IdentityProvider{
 		Id:          x.Id,
 		Name:        x.Name,
