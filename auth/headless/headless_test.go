@@ -143,7 +143,6 @@ func testIDToken(length int) []byte {
 }
 
 func TestDecrypt(t *testing.T) {
-	t.Skip("TODO")
 	for _, tt := range []struct {
 		name    string
 		key     []byte
