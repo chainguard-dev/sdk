@@ -10,7 +10,7 @@ type Occurrence struct {
 	Actor *Actor `json:"actor,omitempty"`
 
 	// Body is the resource that was created.
-	Body interface{} `json:"body,omitempty"`
+	Body any `json:"body,omitempty"`
 }
 
 // Actor is the event payload form of which identity was responsible for the
@@ -37,5 +37,5 @@ type Extendable interface {
 }
 
 type Redactable interface {
-	CloudEventsRedact() interface{}
+	CloudEventsRedact() any
 }

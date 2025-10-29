@@ -25,7 +25,7 @@ func (x *GroupInvite) CloudEventsSubject() string {
 }
 
 // CloudEventsRedact implements chainguard.dev/sdk/events/Redactable.CloudEventsRedact.
-func (x *GroupInvite) CloudEventsRedact() interface{} {
+func (x *GroupInvite) CloudEventsRedact() any {
 	return &GroupInvite{
 		Id:         x.Id,
 		Expiration: x.Expiration,

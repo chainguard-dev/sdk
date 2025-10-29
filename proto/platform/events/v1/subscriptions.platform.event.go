@@ -40,6 +40,6 @@ func (x *DeleteSubscriptionRequest) CloudEventsSubject() string {
 }
 
 // CloudEventsRedact implements chainguard.dev/sdk/events/Redactable.Redact.
-func (x *DeleteSubscriptionRequest) CloudEventsRedact() interface{} {
+func (x *DeleteSubscriptionRequest) CloudEventsRedact() any {
 	return nil
 }
