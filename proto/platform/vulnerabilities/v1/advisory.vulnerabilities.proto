@@ -363,7 +363,12 @@ message AdvisoryFilter {
   // enabling them to review others' work without seeing their own submissions.
   optional string exclude_event_author = 15;
 
-  // next id: 19
+  // latest_event_type filters out advisories where the _most recent approved event_ is
+  // of the given type. This is useful to find advisories which are currently detected,
+  // fixed, patched, etc.
+  optional EventTypeFilter latest_event_type = 19;
+
+  // next id: 20
 }
 
 message AdvisoriesList {
