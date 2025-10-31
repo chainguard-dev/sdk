@@ -88,7 +88,7 @@ type RegistryClient interface {
 	UpdateDeployment(ctx context.Context, in *UpdateDeploymentRequest, opts ...grpc.CallOption) (*Deployment, error)
 	GetDeployment(ctx context.Context, in *GetDeploymentRequest, opts ...grpc.CallOption) (*Deployment, error)
 	GetRegistrySettings(ctx context.Context, in *GetRegistrySettingsRequest, opts ...grpc.CallOption) (*RegistrySettings, error)
-	UpdateRegistrySettings(ctx context.Context, in *UpdateRegistrySettingsRequest, opts ...grpc.CallOption) (*RegistrySettings, error)
+	UpdateRegistrySettings(ctx context.Context, in *RegistrySettings, opts ...grpc.CallOption) (*RegistrySettings, error)
 }
 
 type registryClient struct {
@@ -389,7 +389,7 @@ func (c *registryClient) GetRegistrySettings(ctx context.Context, in *GetRegistr
 	return out, nil
 }
 
-func (c *registryClient) UpdateRegistrySettings(ctx context.Context, in *UpdateRegistrySettingsRequest, opts ...grpc.CallOption) (*RegistrySettings, error) {
+func (c *registryClient) UpdateRegistrySettings(ctx context.Context, in *RegistrySettings, opts ...grpc.CallOption) (*RegistrySettings, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RegistrySettings)
 	err := c.cc.Invoke(ctx, Registry_UpdateRegistrySettings_FullMethodName, in, out, cOpts...)
@@ -434,7 +434,7 @@ type RegistryServer interface {
 	UpdateDeployment(context.Context, *UpdateDeploymentRequest) (*Deployment, error)
 	GetDeployment(context.Context, *GetDeploymentRequest) (*Deployment, error)
 	GetRegistrySettings(context.Context, *GetRegistrySettingsRequest) (*RegistrySettings, error)
-	UpdateRegistrySettings(context.Context, *UpdateRegistrySettingsRequest) (*RegistrySettings, error)
+	UpdateRegistrySettings(context.Context, *RegistrySettings) (*RegistrySettings, error)
 	mustEmbedUnimplementedRegistryServer()
 }
 
@@ -532,7 +532,7 @@ func (UnimplementedRegistryServer) GetDeployment(context.Context, *GetDeployment
 func (UnimplementedRegistryServer) GetRegistrySettings(context.Context, *GetRegistrySettingsRequest) (*RegistrySettings, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRegistrySettings not implemented")
 }
-func (UnimplementedRegistryServer) UpdateRegistrySettings(context.Context, *UpdateRegistrySettingsRequest) (*RegistrySettings, error) {
+func (UnimplementedRegistryServer) UpdateRegistrySettings(context.Context, *RegistrySettings) (*RegistrySettings, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateRegistrySettings not implemented")
 }
 func (UnimplementedRegistryServer) mustEmbedUnimplementedRegistryServer() {}
@@ -1079,7 +1079,7 @@ func _Registry_GetRegistrySettings_Handler(srv interface{}, ctx context.Context,
 }
 
 func _Registry_UpdateRegistrySettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateRegistrySettingsRequest)
+	in := new(RegistrySettings)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1091,7 +1091,7 @@ func _Registry_UpdateRegistrySettings_Handler(srv interface{}, ctx context.Conte
 		FullMethod: Registry_UpdateRegistrySettings_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RegistryServer).UpdateRegistrySettings(ctx, req.(*UpdateRegistrySettingsRequest))
+		return srv.(RegistryServer).UpdateRegistrySettings(ctx, req.(*RegistrySettings))
 	}
 	return interceptor(ctx, in, info, handler)
 }

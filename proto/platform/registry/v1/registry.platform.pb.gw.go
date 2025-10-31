@@ -1787,10 +1787,10 @@ func local_request_Registry_GetRegistrySettings_0(ctx context.Context, marshaler
 }
 
 func request_Registry_UpdateRegistrySettings_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateRegistrySettingsRequest
+	var protoReq RegistrySettings
 	var metadata runtime.ServerMetadata
 
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.RegistrySettings); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -1801,14 +1801,14 @@ func request_Registry_UpdateRegistrySettings_0(ctx context.Context, marshaler ru
 		_   = err
 	)
 
-	val, ok = pathParams["registry_settings.registry_id"]
+	val, ok = pathParams["registry_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "registry_settings.registry_id")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "registry_id")
 	}
 
-	err = runtime.PopulateFieldFromPath(&protoReq, "registry_settings.registry_id", val)
+	protoReq.RegistryId, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "registry_settings.registry_id", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "registry_id", err)
 	}
 
 	msg, err := client.UpdateRegistrySettings(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -1817,10 +1817,10 @@ func request_Registry_UpdateRegistrySettings_0(ctx context.Context, marshaler ru
 }
 
 func local_request_Registry_UpdateRegistrySettings_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateRegistrySettingsRequest
+	var protoReq RegistrySettings
 	var metadata runtime.ServerMetadata
 
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.RegistrySettings); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -1831,14 +1831,14 @@ func local_request_Registry_UpdateRegistrySettings_0(ctx context.Context, marsha
 		_   = err
 	)
 
-	val, ok = pathParams["registry_settings.registry_id"]
+	val, ok = pathParams["registry_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "registry_settings.registry_id")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "registry_id")
 	}
 
-	err = runtime.PopulateFieldFromPath(&protoReq, "registry_settings.registry_id", val)
+	protoReq.RegistryId, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "registry_settings.registry_id", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "registry_id", err)
 	}
 
 	msg, err := server.UpdateRegistrySettings(ctx, &protoReq)
@@ -2586,7 +2586,7 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/UpdateRegistrySettings", runtime.WithHTTPPathPattern("/registry/v1/settings/{registry_settings.registry_id=**}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/UpdateRegistrySettings", runtime.WithHTTPPathPattern("/registry/v1/settings/{registry_id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -3288,7 +3288,7 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/UpdateRegistrySettings", runtime.WithHTTPPathPattern("/registry/v1/settings/{registry_settings.registry_id=**}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/UpdateRegistrySettings", runtime.WithHTTPPathPattern("/registry/v1/settings/{registry_id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -3366,7 +3366,7 @@ var (
 
 	pattern_Registry_GetRegistrySettings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "settings", "registry_id"}, ""))
 
-	pattern_Registry_UpdateRegistrySettings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "settings", "registry_settings.registry_id"}, ""))
+	pattern_Registry_UpdateRegistrySettings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "settings", "registry_id"}, ""))
 )
 
 var (

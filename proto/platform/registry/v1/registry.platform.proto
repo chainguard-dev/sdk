@@ -377,10 +377,10 @@ service Registry {
     };
   }
 
-  rpc UpdateRegistrySettings(UpdateRegistrySettingsRequest) returns (RegistrySettings) {
+  rpc UpdateRegistrySettings(RegistrySettings) returns (RegistrySettings) {
     option (google.api.http) = {
-      put: "/registry/v1/settings/{registry_settings.registry_id=**}"
-      body: "registry_settings"
+      put: "/registry/v1/settings/{registry_id=**}"
+      body: "*"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
@@ -1154,9 +1154,4 @@ message RegistrySettings {
 message GetRegistrySettingsRequest {
   // registry_id is the UIDP of the root group to get settings for.
   string registry_id = 1 [(chainguard.annotations.iam_scope) = true];
-}
-
-message UpdateRegistrySettingsRequest {
-  // registry_settings contains the settings to update.
-  RegistrySettings registry_settings = 1;
 }
