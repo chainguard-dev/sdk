@@ -20,6 +20,7 @@ import (
 
 // OpenBrowserError wraps the error returned from browser.OpenURL,
 // since this can take a few different forms depending on the OS.
+//
 // Deprecated: use Error.
 type OpenBrowserError struct {
 	error
