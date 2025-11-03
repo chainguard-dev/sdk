@@ -38,6 +38,8 @@ var (
 
 		Capability_CAP_REGISTRY_ENTITLEMENTS_LIST,
 		Capability_CAP_REGISTRY_DEPLOYMENTS_LIST,
+
+		Capability_CAP_REGISTRY_SETTINGS_LIST,
 	},
 		// Viewers can also list repos and tags, and pull images.
 		RegistryPullCaps, APKPullCaps)
