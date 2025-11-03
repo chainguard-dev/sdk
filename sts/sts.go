@@ -13,15 +13,10 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"runtime"
-	"sync"
 	"time"
 
-	"chainguard.dev/sdk/auth"
 	oidc "chainguard.dev/sdk/proto/platform/oidc/v1"
-	"github.com/chainguard-dev/clog"
 	"golang.org/x/oauth2"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
@@ -99,10 +94,6 @@ func ExchangePair(ctx context.Context, issuer, audience, idToken string, exchang
 
 type impl struct {
 	opts options
-
-	once    sync.Once
-	clients oidc.Clients
-	err     error
 }
 
 type options struct {
@@ -122,34 +113,6 @@ var _ Exchanger = (*impl)(nil)
 // Stubbed when testing
 var oidcNewClients = oidc.NewClients
 
-func (i *impl) newClients() (oidc.Clients, error) {
-	i.once.Do(func() {
-		i.clients, i.err = oidcNewClients(i.opts.issuer, oidc.WithUserAgent(i.opts.userAgent))
-
-		// This is dumb, but we've already exposed an API everywhere that is really hard to change.
-		// Rather than making everyone defer xch.Close() on an Exchanger, we'll just attempt to rely
-		// on the runtime to close the client whenever this impl goes out of scope.
-		//
-		// We wrap this thing in numerous interfaces that don't expose a Close() method like ggcr's
-		// keychain or oauth2.TokenSource, so we really don't have a better option.
-		runtime.AddCleanup(i, func(clients oidc.Clients) {
-			defer clients.Close()
-		}, i.clients)
-	})
-
-	return i.clients, i.err
-}
-
-func (i *impl) callOpts(ctx context.Context, token string) []grpc.CallOption {
-	// TODO: we may want to require transport security at some future point.
-	if cred := auth.NewFromToken(ctx, fmt.Sprintf("Bearer %s", token), false); cred != nil {
-		return []grpc.CallOption{grpc.PerRPCCredentials(cred)}
-	}
-
-	clog.FromContext(ctx).Warn("No authentication provided, this may end badly.")
-	return []grpc.CallOption{}
-}
-
 // Exchange implements Exchanger
 func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOption) (TokenPair, error) {
 	o := i.opts
@@ -157,10 +120,11 @@ func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOpti
 		opt(&o)
 	}
 
-	c, err := i.newClients()
+	c, err := oidcNewClients(ctx, o.issuer, fmt.Sprintf("Bearer %s", token), oidc.WithUserAgent(o.userAgent))
 	if err != nil {
 		return TokenPair{}, err
 	}
+	defer c.Close()
 
 	resp, err := c.STS().Exchange(ctx, &oidc.ExchangeRequest{
 		Aud:              []string{o.audience},
@@ -169,7 +133,7 @@ func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOpti
 		Identity:         o.identity,
 		Cap:              o.capabilities,
 		IdentityProvider: o.identityProvider,
-	}, i.callOpts(ctx, token)...)
+	})
 	if err != nil {
 		return TokenPair{}, err
 	}
@@ -188,17 +152,18 @@ func (i *impl) Refresh(ctx context.Context, token string, opts ...ExchangerOptio
 		opt(&o)
 	}
 
-	c, err := i.newClients()
+	c, err := oidcNewClients(ctx, o.issuer, fmt.Sprintf("Bearer %s", token), oidc.WithUserAgent(o.userAgent))
 	if err != nil {
 		return "", "", err
 	}
+	defer c.Close()
 
 	resp, err := c.STS().ExchangeRefreshToken(ctx, &oidc.ExchangeRefreshTokenRequest{
 		Aud:    []string{o.audience},
 		Scope:  o.firstScope, //nolint:staticcheck // Populating for backward compatibility
 		Scopes: o.scope,
 		Cap:    o.capabilities,
-	}, i.callOpts(ctx, token)...)
+	})
 	if err != nil {
 		return "", "", err
 	}
