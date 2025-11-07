@@ -11,8 +11,9 @@ import (
 )
 
 var (
-	// ViewerCaps are read-only capabilities that do not affect state.
-	ViewerCaps = SortCaps([]Capability{
+	// ConsoleViewerCaps are read-only API capabilities that do not affect state,
+	// and cannot pull artifacts from registries.
+	ConsoleViewerCaps = SortCaps([]Capability{
 		Capability_CAP_EVENTS_SUBSCRIPTION_LIST,
 
 		Capability_CAP_IAM_ACCOUNT_ASSOCIATIONS_LIST,
@@ -40,7 +41,11 @@ var (
 		Capability_CAP_REGISTRY_DEPLOYMENTS_LIST,
 
 		Capability_CAP_REGISTRY_SETTINGS_LIST,
-	},
+	})
+
+	// ViewerCaps are read-only capabilities that do not affect state,
+	// and allow pulling from registries.
+	ViewerCaps = SortCaps(ConsoleViewerCaps,
 		// Viewers can also list repos and tags, and pull images.
 		RegistryPullCaps, APKPullCaps)
 
