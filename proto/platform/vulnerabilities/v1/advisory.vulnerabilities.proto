@@ -310,8 +310,12 @@ message AdvisoryFilter {
   optional string artifact_type = 2;
   // artifact filters by artifact name
   optional string artifact_name = 3;
-  // artifact_namespace filters by artifact namespace
-  optional string artifact_namespace = 4;
+
+  // artifact_namespace is unused and was mistakenly ported from
+  // legacy advisories.
+  reserved 4;
+  reserved "artifact_namespace";
+
   // component_name filters by component name
   optional string component_name = 5;
   // component_type filters by component type
