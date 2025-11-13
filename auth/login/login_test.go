@@ -102,51 +102,54 @@ func TestBuildHeadlessURL(t *testing.T) {
 		opts    []Option
 		want    string
 		wantErr string
-	}{
-		{
-			name: "no code, error",
-			opts: []Option{
-				WithIssuer("https://issuer.chaintest.net"),
-				WithIdentityProvider("deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"),
-			},
-			wantErr: "headless code is required",
+	}{{
+		name: "no code, error",
+		opts: []Option{
+			WithIssuer("https://issuer.chaintest.net"),
+			WithIdentityProvider("deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"),
 		},
-		{
-			name: "has code, no idp",
-			opts: []Option{
-				WithHeadlessCode("code"),
-				WithIssuer("https://issuer.chaintest.net"),
-			},
-			want: "https://issuer.chaintest.net/oauth?headless_code=code",
+		wantErr: "headless code is required",
+	}, {
+		name: "has code, no idp",
+		opts: []Option{
+			WithHeadlessCode("code"),
+			WithIssuer("https://issuer.chaintest.net"),
 		},
-		{
-			name: "has code, has idp",
-			opts: []Option{
-				WithHeadlessCode("code"),
-				WithIssuer("https://issuer.chaintest.net"),
-				WithIdentityProvider("deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"),
-			},
-			want: "https://issuer.chaintest.net/oauth?headless_code=code&idp_id=deadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+		want: "https://issuer.chaintest.net/oauth?headless_code=code",
+	}, {
+		name: "has code, has idp",
+		opts: []Option{
+			WithHeadlessCode("code"),
+			WithIssuer("https://issuer.chaintest.net"),
+			WithIdentityProvider("deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"),
 		},
-		{
-			name: "has code, has connection",
-			opts: []Option{
-				WithHeadlessCode("code"),
-				WithIssuer("https://issuer.chaintest.net"),
-				WithAuth0Connection("google-oauth2"),
-			},
-			want: "https://issuer.chaintest.net/oauth?connection=google-oauth2&headless_code=code",
+		want: "https://issuer.chaintest.net/oauth?headless_code=code&idp_id=deadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+	}, {
+		name: "has code, has connection",
+		opts: []Option{
+			WithHeadlessCode("code"),
+			WithIssuer("https://issuer.chaintest.net"),
+			WithAuth0Connection("google-oauth2"),
 		},
-		{
-			name: "has code, has org name",
-			opts: []Option{
-				WithHeadlessCode("code"),
-				WithIssuer(orgServer.URL),
-				WithOrgName("my-org"),
-			},
-			want: orgServer.URL + "/oauth?headless_code=code&idp_id=my-org",
+		want: "https://issuer.chaintest.net/oauth?connection=google-oauth2&headless_code=code",
+	}, {
+		name: "has code, has connection and client id",
+		opts: []Option{
+			WithHeadlessCode("code"),
+			WithIssuer("https://issuer.chaintest.net"),
+			WithAuth0Connection("email"),
+			WithClientID("clientid"),
 		},
-	} {
+		want: "https://issuer.chaintest.net/oauth?client_id=clientid&connection=email&headless_code=code",
+	}, {
+		name: "has code, has org name",
+		opts: []Option{
+			WithHeadlessCode("code"),
+			WithIssuer(orgServer.URL),
+			WithOrgName("my-org"),
+		},
+		want: orgServer.URL + "/oauth?headless_code=code&idp_id=my-org",
+	}} {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := BuildHeadlessURL(tt.opts...)
 			if tt.wantErr != "" {

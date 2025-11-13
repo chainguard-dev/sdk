@@ -100,6 +100,22 @@ func TestConfFromOptions(t *testing.T) {
 			},
 			WantErr: true,
 		},
+		"Headless code; IDP and ClientID both set errors": {
+			Options: []Option{
+				WithHeadlessCode("code"),
+				WithIdentityProvider(id),
+				WithClientID("client_id"),
+			},
+			WantErr: true,
+		},
+		"Headless code; Org name and ClientID both set errors": {
+			Options: []Option{
+				WithHeadlessCode("code"),
+				WithOrgName("org"),
+				WithClientID("client_id"),
+			},
+			WantErr: true,
+		},
 		"Invalid scope": {
 			Options: []Option{
 				WithScope("not:a:uidp:or:name"),

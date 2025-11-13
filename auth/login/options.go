@@ -120,11 +120,17 @@ func (c *config) valid() error {
 		if c.Auth0Connection != "" {
 			return errors.New("identity provider ID and Auth0 connection are mutually exclusive")
 		}
+		if c.ClientID != "" {
+			return errors.New("identity provider ID and client ID are mutually exclusive")
+		}
 		return nil
 
 	case c.OrgName != "":
 		if c.Auth0Connection != "" {
 			return errors.New("organization name and Auth0 connection are mutually exclusive")
+		}
+		if c.ClientID != "" {
+			return errors.New("organization name and client ID are mutually exclusive")
 		}
 
 		verified, err := orgCheck(c.OrgName, c.Issuer)

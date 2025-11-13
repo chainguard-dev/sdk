@@ -82,15 +82,22 @@ func BuildHeadlessURL(opts ...Option) (u string, err error) {
 	}
 	params := make(url.Values)
 	params.Set("headless_code", conf.HeadlessCode)
-	switch {
-	case conf.IDP != "":
+
+	// NB: conf.valid() ensures that only one of {IDP|OrgName} is populated.
+	if conf.IDP != "" {
 		params.Set("idp_id", conf.IDP)
-	case conf.OrgName != "":
+	}
+	if conf.OrgName != "" {
 		// Verified org single sign-on – reuse idp_id for org name.
 		params.Set("idp_id", conf.OrgName)
-	case conf.Auth0Connection != "":
-		// The connection param is only for Auth0 social logins.
+	}
+	if conf.Auth0Connection != "" {
+		// The connection param is only for Auth0 social or email/password logins.
 		params.Set("connection", conf.Auth0Connection)
+	}
+	if conf.ClientID != "" {
+		// Client ID is passed explicitly for email/password logins
+		params.Set("client_id", conf.ClientID)
 	}
 	return fmt.Sprintf("%s/oauth?%s", conf.Issuer, params.Encode()), nil
 }
