@@ -133,12 +133,12 @@ func (c *config) valid() error {
 			return errors.New("organization name and client ID are mutually exclusive")
 		}
 
-		verified, err := orgCheck(c.OrgName, c.Issuer)
+		valid, err := orgCheck(c.OrgName, c.Issuer)
 		if err != nil {
-			return fmt.Errorf("error checking if organization is verified: %w", err)
+			return fmt.Errorf("error checking if organization is verified with an IDP: %w", err)
 		}
-		if !verified {
-			return errors.New("organization is not verified must use identity provider ID to log in")
+		if !valid {
+			return fmt.Errorf("organization %s not found, is not verified, or does not have an IDP configured; use identity provider ID to log in", c.OrgName)
 		}
 
 		return nil
