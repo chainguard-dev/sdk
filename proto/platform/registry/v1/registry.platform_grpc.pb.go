@@ -49,6 +49,8 @@ const (
 	Registry_CreateDeployment_FullMethodName          = "/chainguard.platform.registry.Registry/CreateDeployment"
 	Registry_UpdateDeployment_FullMethodName          = "/chainguard.platform.registry.Registry/UpdateDeployment"
 	Registry_GetDeployment_FullMethodName             = "/chainguard.platform.registry.Registry/GetDeployment"
+	Registry_GetRegistrySettings_FullMethodName       = "/chainguard.platform.registry.Registry/GetRegistrySettings"
+	Registry_UpdateRegistrySettings_FullMethodName    = "/chainguard.platform.registry.Registry/UpdateRegistrySettings"
 )
 
 // RegistryClient is the client API for Registry service.
@@ -85,6 +87,8 @@ type RegistryClient interface {
 	CreateDeployment(ctx context.Context, in *CreateDeploymentRequest, opts ...grpc.CallOption) (*Deployment, error)
 	UpdateDeployment(ctx context.Context, in *UpdateDeploymentRequest, opts ...grpc.CallOption) (*Deployment, error)
 	GetDeployment(ctx context.Context, in *GetDeploymentRequest, opts ...grpc.CallOption) (*Deployment, error)
+	GetRegistrySettings(ctx context.Context, in *GetRegistrySettingsRequest, opts ...grpc.CallOption) (*RegistrySettings, error)
+	UpdateRegistrySettings(ctx context.Context, in *RegistrySettings, opts ...grpc.CallOption) (*RegistrySettings, error)
 }
 
 type registryClient struct {
@@ -375,6 +379,26 @@ func (c *registryClient) GetDeployment(ctx context.Context, in *GetDeploymentReq
 	return out, nil
 }
 
+func (c *registryClient) GetRegistrySettings(ctx context.Context, in *GetRegistrySettingsRequest, opts ...grpc.CallOption) (*RegistrySettings, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RegistrySettings)
+	err := c.cc.Invoke(ctx, Registry_GetRegistrySettings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *registryClient) UpdateRegistrySettings(ctx context.Context, in *RegistrySettings, opts ...grpc.CallOption) (*RegistrySettings, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RegistrySettings)
+	err := c.cc.Invoke(ctx, Registry_UpdateRegistrySettings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RegistryServer is the server API for Registry service.
 // All implementations must embed UnimplementedRegistryServer
 // for forward compatibility.
@@ -409,6 +433,8 @@ type RegistryServer interface {
 	CreateDeployment(context.Context, *CreateDeploymentRequest) (*Deployment, error)
 	UpdateDeployment(context.Context, *UpdateDeploymentRequest) (*Deployment, error)
 	GetDeployment(context.Context, *GetDeploymentRequest) (*Deployment, error)
+	GetRegistrySettings(context.Context, *GetRegistrySettingsRequest) (*RegistrySettings, error)
+	UpdateRegistrySettings(context.Context, *RegistrySettings) (*RegistrySettings, error)
 	mustEmbedUnimplementedRegistryServer()
 }
 
@@ -502,6 +528,12 @@ func (UnimplementedRegistryServer) UpdateDeployment(context.Context, *UpdateDepl
 }
 func (UnimplementedRegistryServer) GetDeployment(context.Context, *GetDeploymentRequest) (*Deployment, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDeployment not implemented")
+}
+func (UnimplementedRegistryServer) GetRegistrySettings(context.Context, *GetRegistrySettingsRequest) (*RegistrySettings, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRegistrySettings not implemented")
+}
+func (UnimplementedRegistryServer) UpdateRegistrySettings(context.Context, *RegistrySettings) (*RegistrySettings, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateRegistrySettings not implemented")
 }
 func (UnimplementedRegistryServer) mustEmbedUnimplementedRegistryServer() {}
 func (UnimplementedRegistryServer) testEmbeddedByValue()                  {}
@@ -1028,6 +1060,42 @@ func _Registry_GetDeployment_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Registry_GetRegistrySettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRegistrySettingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).GetRegistrySettings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_GetRegistrySettings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).GetRegistrySettings(ctx, req.(*GetRegistrySettingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Registry_UpdateRegistrySettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegistrySettings)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).UpdateRegistrySettings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_UpdateRegistrySettings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).UpdateRegistrySettings(ctx, req.(*RegistrySettings))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Registry_ServiceDesc is the grpc.ServiceDesc for Registry service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1146,6 +1214,14 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetDeployment",
 			Handler:    _Registry_GetDeployment_Handler,
+		},
+		{
+			MethodName: "GetRegistrySettings",
+			Handler:    _Registry_GetRegistrySettings_Handler,
+		},
+		{
+			MethodName: "UpdateRegistrySettings",
+			Handler:    _Registry_UpdateRegistrySettings_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

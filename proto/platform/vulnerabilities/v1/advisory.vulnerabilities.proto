@@ -310,8 +310,12 @@ message AdvisoryFilter {
   optional string artifact_type = 2;
   // artifact filters by artifact name
   optional string artifact_name = 3;
-  // artifact_namespace filters by artifact namespace
-  optional string artifact_namespace = 4;
+
+  // artifact_namespace is unused and was mistakenly ported from
+  // legacy advisories.
+  reserved 4;
+  reserved "artifact_namespace";
+
   // component_name filters by component name
   optional string component_name = 5;
   // component_type filters by component type
@@ -363,7 +367,12 @@ message AdvisoryFilter {
   // enabling them to review others' work without seeing their own submissions.
   optional string exclude_event_author = 15;
 
-  // next id: 19
+  // latest_event_type filters out advisories where the _most recent approved event_ is
+  // of the given type. This is useful to find advisories which are currently detected,
+  // fixed, patched, etc.
+  optional EventTypeFilter latest_event_type = 19;
+
+  // next id: 20
 }
 
 message AdvisoriesList {

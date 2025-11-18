@@ -15,7 +15,7 @@ import (
 
 func splitKey(key string, sep string) []string {
 	parts := make([]string, 0, strings.Count(key, sep)+1)
-	for _, part := range strings.Split(key, sep) {
+	for part := range strings.SplitSeq(key, sep) {
 		if part != "" {
 			parts = append(parts, part)
 		}

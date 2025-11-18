@@ -147,6 +147,10 @@ enum Capability {
   CAP_REGISTRY_ENTITLEMENTS_CREATE = 1681 [(name) = "registry.entitlements.create", (bit) = 96];
   CAP_REGISTRY_ENTITLEMENTS_DELETE = 1682 [(name) = "registry.entitlements.delete", (bit) = 97];
 
+  // Registry Settings
+  CAP_REGISTRY_SETTINGS_LIST = 1683 [(name) = "registry.settings.list", (bit) = 101];
+  CAP_REGISTRY_SETTINGS_UPDATE = 1684 [(name) = "registry.settings.update", (bit) = 102];
+
   // Sigstore-aas
 
   CAP_SIGSTORE_CREATE   = 1701 [(name) = "sigstore.create", (bit) = 42, deprecated = true];
@@ -176,5 +180,5 @@ enum Capability {
   CAP_GULFSTREAM = 10000 [(name) = "gulfstream", (bit) = 47];
 
   reserved 1;
-  // next bit: 101
+  // next bit: 103
 }

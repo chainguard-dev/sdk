@@ -120,19 +120,25 @@ func (c *config) valid() error {
 		if c.Auth0Connection != "" {
 			return errors.New("identity provider ID and Auth0 connection are mutually exclusive")
 		}
+		if c.ClientID != "" {
+			return errors.New("identity provider ID and client ID are mutually exclusive")
+		}
 		return nil
 
 	case c.OrgName != "":
 		if c.Auth0Connection != "" {
 			return errors.New("organization name and Auth0 connection are mutually exclusive")
 		}
-
-		verified, err := orgCheck(c.OrgName, c.Issuer)
-		if err != nil {
-			return fmt.Errorf("error checking if organization is verified: %w", err)
+		if c.ClientID != "" {
+			return errors.New("organization name and client ID are mutually exclusive")
 		}
-		if !verified {
-			return errors.New("organization is not verified must use identity provider ID to log in")
+
+		valid, err := orgCheck(c.OrgName, c.Issuer)
+		if err != nil {
+			return fmt.Errorf("error checking if organization is verified with an IDP: %w", err)
+		}
+		if !valid {
+			return fmt.Errorf("organization %s not found, is not verified, or does not have an IDP configured; use identity provider ID to log in", c.OrgName)
 		}
 
 		return nil

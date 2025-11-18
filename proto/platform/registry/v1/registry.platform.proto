@@ -365,6 +365,29 @@ service Registry {
       }
     };
   }
+
+  rpc GetRegistrySettings(GetRegistrySettingsRequest) returns (RegistrySettings) {
+    option (google.api.http) = {
+      get: "/registry/v1/settings/{registry_id=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_SETTINGS_LIST]
+      }
+    };
+  }
+
+  rpc UpdateRegistrySettings(RegistrySettings) returns (RegistrySettings) {
+    option (google.api.http) = {
+      put: "/registry/v1/settings/{registry_id=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_SETTINGS_UPDATE]
+      }
+    };
+  }
 }
 
 message Repo {
@@ -1118,4 +1141,17 @@ message UpdateDeploymentRequest {
 message GetDeploymentRequest {
   // repo_id is the Repo UIDP to get deployment for.
   string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message RegistrySettings {
+  // registry_id is the UIDP of the root group (e.g., cgr.dev/<uidp>/...).
+  string registry_id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // unique_tags controls whether exported tags will be uniquely labeled by default.
+  bool unique_tags = 2;
+}
+
+message GetRegistrySettingsRequest {
+  // registry_id is the UIDP of the root group to get settings for.
+  string registry_id = 1 [(chainguard.annotations.iam_scope) = true];
 }
