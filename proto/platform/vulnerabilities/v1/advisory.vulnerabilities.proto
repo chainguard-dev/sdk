@@ -121,8 +121,11 @@ enum OrderBy {
   CREATED_AT_ASC = 3;
   // Sort by creation time in descending order (newest first)
   CREATED_AT_DESC = 4;
+  // Sort by aliases to group related advisories in ascending order
+  ALIASES_ASC = 5;
+  // Sort by aliases to group related advisories in descending order
+  ALIASES_DESC = 6;
 }
-
 
 // EventTypeFilter represents the event types that can be used for filtering
 // These map to the event type values used in the system
