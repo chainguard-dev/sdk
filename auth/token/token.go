@@ -12,6 +12,8 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
+	"sort"
 	"strings"
 	"time"
 
@@ -27,15 +29,41 @@ const (
 
 var (
 	AllKinds = []Kind{KindAccess, KindRefresh}
-)
 
-var (
 	parentDir = "chainguard"
 )
 
+type token struct {
+	alias string
+}
+
+type Option func(*token)
+
+// WithAlias allows callers to organize tokens into subdirectories
+// under an audience to manage multiple tokens for the same audience
+// without overwriting.
+func WithAlias(a string) Option {
+	return func(token *token) {
+		token.alias = a
+	}
+}
+
+func newToken(opts ...Option) token {
+	t := token{}
+	for _, o := range opts {
+		o(&t)
+	}
+	return t
+}
+
 // Save saves the given token to cache/audience
-func Save(token []byte, kind Kind, audience string) error {
-	path, err := Path(kind, audience)
+func Save(token []byte, kind Kind, audience string, opts ...Option) error {
+	t := newToken(opts...)
+	return t.save(token, kind, audience)
+}
+
+func (t token) save(token []byte, kind Kind, audience string) error {
+	path, err := t.path(kind, audience)
 	if err != nil {
 		return err
 	}
@@ -48,8 +76,13 @@ func Save(token []byte, kind Kind, audience string) error {
 
 // Load returns the token for the given audience if it exists,
 // or an error if it doesn't.
-func Load(kind Kind, audience string) ([]byte, error) {
-	path, err := Path(kind, audience)
+func Load(kind Kind, audience string, opts ...Option) ([]byte, error) {
+	t := newToken(opts...)
+	return t.load(kind, audience)
+}
+
+func (t token) load(kind Kind, audience string) ([]byte, error) {
+	path, err := t.path(kind, audience)
 	if err != nil {
 		return nil, err
 	}
@@ -63,8 +96,13 @@ func Load(kind Kind, audience string) ([]byte, error) {
 
 // Delete removes the token for the given audience, if it exists.
 // No error is returned if the token doesn't exist.
-func Delete(kind Kind, audience string) error {
-	path, err := Path(kind, audience)
+func Delete(kind Kind, audience string, opts ...Option) error {
+	t := newToken(opts...)
+	return t.delete(kind, audience)
+}
+
+func (t token) delete(kind Kind, audience string) error {
+	path, err := t.path(kind, audience)
 	if err != nil {
 		return err
 	}
@@ -81,41 +119,74 @@ func DeleteAll() error {
 	if err != nil {
 		return fmt.Errorf("error locating Chainguard token dir: %w", err)
 	}
-	files, err := os.ReadDir(base)
-	if err != nil {
-		return fmt.Errorf("error reading Chainguard token dir: %w", err)
-	}
+
 	// Token directory is expected to be structured as group of audience-specific
-	// directories, with a single file containing the token
+	// directories, with token files (oidc-token, refresh-token) or alias directories
+	// nested within.
 	//
 	//  $ tree ~/Library/Caches/chainguard
 	// /Users/foo/Library/Caches/chainguard
 	// ├── https:--console-api.enforce.dev
-	// │   └── oidc-token
-	// ├── https:--cgr.dev
-	//    └── oidc-token
-	for _, file := range files {
-		if !file.IsDir() {
-			// Encountered a file in the directory. Skip.
-			continue
+	// │   ├── oidc-token
+	// │   ├── refresh-token
+	// │   └── foo
+	// │       ├── oidc-token
+	// │       └── refresh-token
+	// ├── cgr.dev
+	//     └── oidc-token
+	var dirs []string
+	if err = filepath.WalkDir(base, func(path string, d fs.DirEntry, err error) error {
+		// Return errors encountered reading the base directory.
+		if err != nil {
+			return err
 		}
-		for _, kind := range AllKinds {
-			// Try to remove a token, ignore file not exist errors
-			tokenFile := filepath.Join(base, file.Name(), string(kind))
-			if err := os.Remove(tokenFile); err != nil && !errors.Is(err, fs.ErrNotExist) {
-				return fmt.Errorf("failed to remove %s: %w", tokenFile, err)
+
+		switch {
+		case path == base:
+			// Skip the base directory, we don't want to remove it
+		case d.IsDir():
+			// Keep track of directories we'll want to delete, if they end up empty.
+			dirs = append(dirs, path)
+		case slices.Contains(AllKinds, Kind(d.Name())):
+			// Remove recognized token files.
+			if err := os.Remove(path); err != nil {
+				return fmt.Errorf("removing file %s: %w", path, err)
 			}
 		}
-		// Remove the (hopefully empty) audience directory.
-		// Ignore failures since other tools may have stored files in this cache.
-		dir := filepath.Join(base, file.Name())
-		_ = os.Remove(dir)
+		return nil
+	}); err != nil {
+		return err
 	}
+
+	// Sort directories from longest to shortest to remove nested dirs first.
+	sort.Slice(dirs, func(i, j int) bool {
+		return len(dirs[i]) > len(dirs[j])
+	})
+
+	// Remove empty directories
+	for _, d := range dirs {
+		ents, err := os.ReadDir(d)
+		if err != nil {
+			return fmt.Errorf("reading %s: %w", d, err)
+		}
+		// Remove the directory if it is empty
+		if len(ents) == 0 {
+			if err := os.Remove(d); err != nil {
+				return fmt.Errorf("removing directory %s: %w", d, err)
+			}
+		}
+	}
+
 	return nil
 }
 
 // Path is the filepath of the token for the given audience.
-func Path(kind Kind, audience string) (string, error) {
+func Path(kind Kind, audience string, opts ...Option) (string, error) {
+	t := newToken(opts...)
+	return t.path(kind, audience)
+}
+
+func (t token) path(kind Kind, audience string) (string, error) {
 	a := strings.ReplaceAll(audience, "/", "-")
 	// Windows does not allow : as a valid character for directory names.
 	// For backwards compatibility, keep : in directory names for non-Windows systems.
@@ -123,14 +194,21 @@ func Path(kind Kind, audience string) (string, error) {
 	if runtime.GOOS == "windows" {
 		a = strings.ReplaceAll(a, ":", "-")
 	}
-	fp := filepath.Join(a, string(kind))
+	// NB: empty elements in Join are ignored, so we don't need to
+	// check the existence of t.alias here.
+	fp := filepath.Join(a, t.alias, string(kind))
 	return cacheFilePath(fp)
 }
 
 // RemainingLife returns the amount of time remaining before the token for
 // the given audience expires. Returns 0 for expired and non-existent tokens.
-func RemainingLife(kind Kind, audience string, less time.Duration) time.Duration {
-	tok, err := Load(kind, audience)
+func RemainingLife(kind Kind, audience string, less time.Duration, opts ...Option) time.Duration {
+	t := newToken(opts...)
+	return t.remainingLife(kind, audience, less)
+}
+
+func (t token) remainingLife(kind Kind, audience string, less time.Duration) time.Duration {
+	tok, err := t.load(kind, audience)
 	if err != nil {
 		// Not a big deal, life is zero.
 		return 0
@@ -156,10 +234,7 @@ var timeUntil = time.Until
 // Safe calculation for duration remaining from a given time, less the given duration.
 func subtractOrZero(expiry time.Time, less time.Duration) time.Duration {
 	life := timeUntil(expiry.Add(less * -1))
-	if life < 0 {
-		return 0
-	}
-	return life
+	return max(0, life)
 }
 
 func cacheFilePath(file string) (string, error) {
