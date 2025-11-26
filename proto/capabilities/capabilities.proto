@@ -142,6 +142,12 @@ enum Capability {
   CAP_LIBRARIES_JAVA_LIST = 1820 [(name) = "libraries.java.list", (bit) = 86];
   CAP_LIBRARIES_JAVASCRIPT_LIST = 1830 [(name) = "libraries.javascript.list", (bit) = 88];
 
+  // Rebuilder API capabilities
+  CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE = 1840 [(name) = "libraries.rebuilder.requests.create", (bit) = 103];
+  CAP_LIBRARIES_REBUILDER_REQUESTS_LIST = 1841 [(name) = "libraries.rebuilder.requests.list", (bit) = 104];
+  CAP_LIBRARIES_REBUILDER_REQUESTS_CANCEL = 1842 [(name) = "libraries.rebuilder.requests.cancel", (bit) = 105];
+  CAP_LIBRARIES_REBUILDER_ARTIFACTS_INVALIDATE = 1850 [(name) = "libraries.rebuilder.artifacts.invalidate", (bit) = 106];
+
   // Registry Entitlements
   CAP_REGISTRY_ENTITLEMENTS_LIST = 1680 [(name) = "registry.entitlements.list", (bit) = 87];
   CAP_REGISTRY_ENTITLEMENTS_CREATE = 1681 [(name) = "registry.entitlements.create", (bit) = 96];
@@ -180,5 +186,5 @@ enum Capability {
   CAP_GULFSTREAM = 10000 [(name) = "gulfstream", (bit) = 47];
 
   reserved 1;
-  // next bit: 103
+  // next bit: 107
 }

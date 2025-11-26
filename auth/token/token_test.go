@@ -67,6 +67,7 @@ func TestSave(t *testing.T) {
 		name     string
 		kind     Kind
 		audience string
+		opts     []Option
 		wantPath string
 	}{{
 		name:     "sans audience",
@@ -83,13 +84,19 @@ func TestSave(t *testing.T) {
 		kind:     KindRefresh,
 		audience: "https://audience.unit.test",
 		wantPath: filepath.Join(cacheDir, parentDir, "https:--audience.unit.test", string(KindRefresh)),
+	}, {
+		name:     "with alias",
+		kind:     KindAccess,
+		audience: "audience",
+		opts:     []Option{WithAlias("alias")},
+		wantPath: filepath.Join(cacheDir, parentDir, "audience", "alias", string(KindAccess)),
 	}}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			// Save a token
 			tokenContents := []byte("mytoken")
-			if err := Save(tokenContents, test.kind, test.audience); err != nil {
+			if err := Save(tokenContents, test.kind, test.audience, test.opts...); err != nil {
 				t.Fatalf("Save() unexpected error=%v", err)
 			}
 
@@ -122,6 +129,7 @@ func TestLoad(t *testing.T) {
 		name     string
 		kind     Kind
 		audience string
+		alias    string
 	}{{
 		name:     "sans audience",
 		kind:     KindAccess,
@@ -134,6 +142,11 @@ func TestLoad(t *testing.T) {
 		name:     "with audience (with replacement)",
 		kind:     KindRefresh,
 		audience: "https://audience.unit.test",
+	}, {
+		name:     "with alias",
+		kind:     KindAccess,
+		audience: "audience",
+		alias:    "alias",
 	}}
 
 	for _, test := range tests {
@@ -141,7 +154,7 @@ func TestLoad(t *testing.T) {
 			// Manually save a token
 			tokenContents := []byte("mytoken")
 			mutatedAud := strings.ReplaceAll(test.audience, "/", "-")
-			path := filepath.Join(cacheDir, parentDir, mutatedAud)
+			path := filepath.Join(cacheDir, parentDir, mutatedAud, test.alias)
 			if err := os.MkdirAll(path, 0777); err != nil {
 				t.Fatalf("Unexpected error creating temp dir: %v", err)
 			}
@@ -150,7 +163,8 @@ func TestLoad(t *testing.T) {
 			}
 
 			// Load the token, check its contents
-			got, err := Load(test.kind, test.audience)
+			// NB: WithAlias("") is a no-op.
+			got, err := Load(test.kind, test.audience, WithAlias(test.alias))
 			if err != nil {
 				t.Fatalf("Load() unexpected error=%v", err)
 			}
@@ -171,6 +185,7 @@ func TestDelete(t *testing.T) {
 	tests := []struct {
 		name     string
 		audience string
+		alias    string
 		kind     Kind
 		exists   bool
 		wantErr  bool
@@ -191,6 +206,13 @@ func TestDelete(t *testing.T) {
 		exists:   true,
 		kind:     KindAccess,
 		wantErr:  false,
+	}, {
+		name:     "with alias",
+		audience: "audience",
+		alias:    "alias",
+		exists:   true,
+		kind:     KindAccess,
+		wantErr:  false,
 	}}
 
 	for _, test := range tests {
@@ -198,7 +220,7 @@ func TestDelete(t *testing.T) {
 			// Manually save a token if it should exist
 			if test.exists {
 				tokenContents := []byte("mytoken")
-				path := filepath.Join(cacheDir, parentDir, test.audience)
+				path := filepath.Join(cacheDir, parentDir, test.audience, test.alias)
 				if err := os.MkdirAll(path, 0777); err != nil {
 					t.Fatalf("Unexpected error creating temp dir: %v", err)
 				}
@@ -208,7 +230,8 @@ func TestDelete(t *testing.T) {
 			}
 
 			// Attempt to delete the token.
-			err := Delete(test.kind, test.audience)
+			// NB: WithAlias("") is a no-op.
+			err := Delete(test.kind, test.audience, WithAlias(test.alias))
 			if (err != nil) != test.wantErr {
 				t.Fatalf("Delete() error return mismatch, want=%t got=%v", test.wantErr, err)
 			}
@@ -222,6 +245,7 @@ func TestDeleteAll(t *testing.T) {
 		auds           []string // Create sub-dirs for each of these in cacheDir
 		audsWithTokens []string // Dirs from above that should also have a token (subset of auds)
 		extraFiles     []string // Any extra files outside of audience dirs to include (in root of cacheDir)
+		alias          string
 		wantErr        bool
 	}{{
 		name:           "no tokens, no extra files/dirs",
@@ -259,6 +283,13 @@ func TestDeleteAll(t *testing.T) {
 		audsWithTokens: []string{"audience1", "audience2"},
 		extraFiles:     []string{filepath.Join("audience1", "extra1"), filepath.Join("some-dir", "extra2")},
 		wantErr:        false,
+	}, {
+		name:           "with alias",
+		auds:           []string{"audience1", "audience2"},
+		audsWithTokens: []string{"audience1", "audience2"},
+		alias:          "alias",
+		extraFiles:     nil,
+		wantErr:        false,
 	}}
 
 	for _, test := range tests {
@@ -276,7 +307,7 @@ func TestDeleteAll(t *testing.T) {
 			}
 			// Create audience directories
 			for _, aud := range test.auds {
-				dir := filepath.Join(cacheDir, aud)
+				dir := filepath.Join(cacheDir, aud, test.alias)
 				if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 					t.Fatalf("failed to create dir %s: %s", dir, err.Error())
 				}
@@ -287,6 +318,12 @@ func TestDeleteAll(t *testing.T) {
 					tok := filepath.Join(cacheDir, aud, string(kind))
 					if _, err := os.Create(tok); err != nil {
 						t.Fatalf("failed to create fake token %s: %s", tok, err.Error())
+					}
+					if test.alias != "" {
+						tok := filepath.Join(cacheDir, aud, test.alias, string(kind))
+						if _, err := os.Create(tok); err != nil {
+							t.Fatalf("failed to create fake token %s: %s", tok, err.Error())
+						}
 					}
 				}
 			}

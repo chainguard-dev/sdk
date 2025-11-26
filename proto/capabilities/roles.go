@@ -189,6 +189,18 @@ var (
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
 		Capability_CAP_LIBRARIES_JAVASCRIPT_LIST,
 	})
+
+	LibrariesRebuilderRequestsCreateCaps = SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE,
+		Capability_CAP_LIBRARIES_REBUILDER_REQUESTS_LIST,
+	})
+
+	LibrariesRebuilderAdminCaps = SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE,
+		Capability_CAP_LIBRARIES_REBUILDER_REQUESTS_LIST,
+		Capability_CAP_LIBRARIES_REBUILDER_REQUESTS_CANCEL,
+		Capability_CAP_LIBRARIES_REBUILDER_ARTIFACTS_INVALIDATE,
+	})
 )
 
 func SortCaps(caps ...[]Capability) []Capability {

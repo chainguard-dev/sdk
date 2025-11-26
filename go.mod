@@ -3,12 +3,12 @@ module chainguard.dev/sdk
 go 1.24.6
 
 require (
-	chainguard.dev/apko v0.30.22
+	chainguard.dev/apko v0.30.24
 	chainguard.dev/go-grpc-kit v0.17.15
 	chainguard.dev/go-oidctest v0.4.0
 	cloud.google.com/go/compute/metadata v0.9.0
 	github.com/aws/aws-sdk-go-v2 v1.39.6
-	github.com/bits-and-blooms/bitset v1.24.3
+	github.com/bits-and-blooms/bitset v1.24.4
 	github.com/chainguard-dev/clog v1.7.0
 	github.com/cloudevents/sdk-go/v2 v2.16.2
 	github.com/coreos/go-oidc/v3 v3.16.0
@@ -24,11 +24,11 @@ require (
 	golang.org/x/exp v0.0.0-20250620022241-b7579e27df2b
 	golang.org/x/oauth2 v0.33.0
 	google.golang.org/api v0.256.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20250929231259-57b25ae835d4
-	google.golang.org/grpc v1.76.0
+	google.golang.org/genproto/googleapis/api v0.0.0-20251022142026-3a174f9686a8
+	google.golang.org/grpc v1.77.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1
 	google.golang.org/protobuf v1.36.10
-	k8s.io/apimachinery v0.34.1
+	k8s.io/apimachinery v0.34.2
 )
 
 require (
@@ -87,7 +87,7 @@ require (
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966 // indirect
 	github.com/vbatts/tar-split v0.12.1 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
-	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
+	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.63.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.63.0 // indirect
 	go.opentelemetry.io/otel v1.38.0 // indirect
@@ -97,7 +97,7 @@ require (
 	go.uber.org/zap v1.27.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.44.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/sync v0.18.0 // indirect
 	golang.org/x/sys v0.38.0 // indirect

@@ -1149,6 +1149,10 @@ message RegistrySettings {
 
   // unique_tags controls whether exported tags will be uniquely labeled by default.
   bool unique_tags = 2;
+
+  // eol_grace_period controls whether to support EOL grace period by default for repos in this registry.
+  // When enabled, EOL-tagged images are shipped to users during their grace period.
+  bool eol_grace_period = 3;
 }
 
 message GetRegistrySettingsRequest {
