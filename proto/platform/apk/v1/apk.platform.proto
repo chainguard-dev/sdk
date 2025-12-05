@@ -38,6 +38,10 @@ message APKFilter {
 
   // Only return the most recently updated version of each package/architecture.
   bool most_recently_updated = 4;
+
+  // Filter by origin package. Returns all packages (including subpackages)
+  // that have this origin. For origin packages, origin equals package_name.
+  string origin = 5;
 }
 
 // APKList is a list of APKs.
