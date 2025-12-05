@@ -21,6 +21,7 @@ service Artifacts {
       }
     };
   }
+
   rpc ListVersions(ArtifactVersionFilter) returns (ArtifactVersionList) {
     option (google.api.http) = {
       get: "/libraries/v1/artifacts/{id=*}/versions"
@@ -95,6 +96,10 @@ message ArtifactFilter {
   // A string to search artifacts by. If empty, all artifacts
   // from the given ecosystem will be returned.
   string query = 2;
+  // Specify the cuda version of the packages to return from the python ecosystem
+  string cuda_version = 3;
+  // Flag to return only remediated packages for the ecosystems
+  bool remediated = 4;
 
   // Pagination options
 

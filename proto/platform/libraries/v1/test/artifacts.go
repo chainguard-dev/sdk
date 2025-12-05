@@ -9,11 +9,10 @@ import (
 	"context"
 	"fmt"
 
+	libraries "chainguard.dev/sdk/proto/platform/libraries/v1"
 	"github.com/google/go-cmp/cmp"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/testing/protocmp"
-
-	libraries "chainguard.dev/sdk/proto/platform/libraries/v1"
 )
 
 var _ libraries.ArtifactsClient = (*MockArtifactsClient)(nil)
