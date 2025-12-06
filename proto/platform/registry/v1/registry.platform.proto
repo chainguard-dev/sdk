@@ -10,6 +10,7 @@ import "google/protobuf/timestamp.proto";
 import "annotations/auth.proto";
 import "annotations/events.proto";
 import "platform/common/v1/uidp.platform.proto";
+import "apko.platform.proto";
 import "vuln.platform.proto";
 import "sbom.platform.proto";
 
@@ -479,6 +480,9 @@ message CustomOverlay {
   map<string, string> environment = 2;
 
   map<string, string> annotations = 3;
+
+  // Additional account customizations applied during rebuilds.
+  ApkoConfig.Accounts accounts = 4;
 }
 
 message ImageContents {
