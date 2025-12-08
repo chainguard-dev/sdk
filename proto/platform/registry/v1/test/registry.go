@@ -76,6 +76,7 @@ type MockRegistryClient struct {
 	OnGetArchs                  []ArchsOnGet
 	OnGetSize                   []SizeOnGet
 	OnGetHelm                   []HelmOnGet
+	OnGetRegistrySettings       []RegistrySettingsOnGet
 }
 
 type ReposOnCreate struct {
@@ -211,6 +212,12 @@ type HelmOnGet struct {
 type EolTagOnList struct {
 	Given *registry.EolTagFilter
 	Get   *registry.EolTagList
+	Error error
+}
+
+type RegistrySettingsOnGet struct {
+	Given *registry.GetRegistrySettingsRequest
+	Get   *registry.RegistrySettings
 	Error error
 }
 
@@ -416,6 +423,15 @@ func (m MockRegistryClient) GetHelm(_ context.Context, given *registry.HelmReque
 
 func (m MockRegistryClient) ListEolTags(_ context.Context, given *registry.EolTagFilter, _ ...grpc.CallOption) (*registry.EolTagList, error) {
 	for _, o := range m.OnListEolTags {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Get, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockRegistryClient) GetRegistrySettings(_ context.Context, given *registry.GetRegistrySettingsRequest, _ ...grpc.CallOption) (*registry.RegistrySettings, error) {
+	for _, o := range m.OnGetRegistrySettings {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Get, o.Error
 		}
