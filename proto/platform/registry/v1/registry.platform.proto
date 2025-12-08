@@ -1124,6 +1124,9 @@ message HelmChart {
 
   // repo is the Helm chart repository URL.
   string repo = 2;
+
+  // chart is the specific chart that is used from a repo.
+  optional string chart = 3;
 }
 
 message CreateDeploymentRequest {
