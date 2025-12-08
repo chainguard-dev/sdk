@@ -303,6 +303,9 @@ message AdvisoryFilter {
   // advisory_id filters by advisory ID (e.g., CGA-xvgw-cvr7-9g2q)
   string advisory_id = 1;
 
+  // advisory_id in the v1 system (e.g., CGA-abcd-efgh-ijkl)
+  string legacy_advisory_id = 21;
+
   // id is the exact UID of the record.
   string id = 17;
 
@@ -323,6 +326,8 @@ message AdvisoryFilter {
   optional string component_name = 5;
   // component_type filters by component type
   optional string component_type = 6;
+  // component_location filters by component locations (IE ./PKGINFO)
+  repeated string component_location = 20;
   // aliases filters by alias name (CVE, GHSA, etc.)
   repeated string aliases = 7;
   // artifact_architecture filters by architecture (e.g., x86_64, aarch64)
@@ -375,7 +380,7 @@ message AdvisoryFilter {
   // fixed, patched, etc.
   optional EventTypeFilter latest_event_type = 19;
 
-  // next id: 20
+  // next id: 22
 }
 
 message AdvisoriesList {
