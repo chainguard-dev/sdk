@@ -3,7 +3,7 @@ module chainguard.dev/sdk
 go 1.24.6
 
 require (
-	chainguard.dev/apko v0.30.28
+	chainguard.dev/apko v0.30.29
 	chainguard.dev/go-grpc-kit v0.17.15
 	chainguard.dev/go-oidctest v0.4.0
 	cloud.google.com/go/compute/metadata v0.9.0
