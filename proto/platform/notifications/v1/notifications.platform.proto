@@ -1,0 +1,135 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/notifications/v1";
+
+package chainguard.platform.notifications;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "annotations/auth.proto";
+
+service Notifications {
+  rpc List(NotificationsFilter) returns (NotificationsList) {
+    option (google.api.http) = {
+      get: "/notifications/v1/notifications"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_GROUPS_LIST, CAP_REPO_LIST]
+        unscoped: true
+      }
+    };
+  }
+}
+
+message NotificationsList {
+  repeated Notification items = 1;
+}
+
+message Notification {
+  // id is the identifier of this specific notification.
+  string id = 1;
+
+  // when the notification was created.
+  google.protobuf.Timestamp created_at = 2;
+
+  // when the notification was last updated.
+  google.protobuf.Timestamp updated_at = 3;
+
+  // id of the category the notification belongs to.
+  string category_id = 4;
+
+  // subject or title of the notification.
+  string subject = 5;
+
+  // the body of the notification.
+  string note = 6;
+
+  // date when the notification was created.
+  google.protobuf.Timestamp note_date = 7;
+
+  // tags associated with the notification.
+  repeated string tags = 8;
+
+  // account associated with the notification.
+  Account account = 9;
+
+  // author associated with the notification.
+  Author author = 10;
+
+  // account id associated with the notification.
+  string account_id = 11;
+
+  // author id associated with the notification.
+  string author_id = 12;
+
+  // traits associated with the notification.
+  Traits traits = 13;
+}
+
+message Traits {
+  // expiration date of the notification.
+  google.protobuf.Timestamp expires = 1;
+
+  // show notification in console.
+  bool console = 2;
+
+  // show notification in directory.
+  bool directory = 3;
+
+  // start date of the notification.
+  google.protobuf.Timestamp starts = 4;
+
+  // whether or not notification has been approved.
+  bool approved = 5;
+
+  // show notification for chainctl users.
+  bool chainctl = 6;
+}
+
+message Account {
+  // id of the account.
+  string id = 1;
+
+  // when the account was created.
+  google.protobuf.Timestamp created_at = 2;
+
+  // when the account was last updated.
+  google.protobuf.Timestamp updated_at = 3;
+
+  // name of the account.
+  string name = 4;
+}
+
+message Author {
+  // id of the author.
+  string id = 1;
+
+  // name of the author.
+  string name = 2;
+
+  // email of the author.
+  string email = 3;
+}
+
+message NotificationsFilter {
+  // The id of the notification.
+  string id = 1;
+
+  // Location of where notifications are displayed.
+  Location location = 2;
+
+  enum Location {
+    // The "unset" value.
+    UNSPECIFIED = 0;
+
+    // Console.
+    CONSOLE = 1;
+
+    // Directory.
+    DIRECTORY = 2;
+
+    // Chainctl.
+    CHAINCTL = 3;
+  }
+}

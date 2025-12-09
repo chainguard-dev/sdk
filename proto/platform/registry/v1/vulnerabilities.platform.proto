@@ -1,0 +1,250 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/registry/v1";
+
+package chainguard.platform.registry;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "annotations/auth.proto";
+
+service Vulnerabilities {
+  rpc ListVulnReports(VulnReportFilter) returns (VulnReportList) {
+    option (google.api.http) = {
+      get: "/registry/v1/vuln_reports"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_VULN_REPORT_LIST]
+        unscoped: true,
+      }
+    };
+  }
+
+  rpc GetRawVulnReport(GetRawVulnReportRequest) returns (RawVulnReport) {
+    option (google.api.http) = {
+      get: "/registry/v1/vuln_reports/raw"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_VULN_REPORT_LIST]
+        unscoped: true,
+      }
+    };
+  }
+
+  rpc ListVulnCountReports(VulnCountReportFilter) returns (VulnCountReportList) {
+    option (google.api.http) = {
+      get: "/registry/v1/vuln_reports/counts"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_VULN_REPORT_LIST]
+        unscoped: true,
+      }
+    };
+  }
+
+  rpc ListCumulativeVulnCountReports(VulnCountReportFilter) returns (VulnCountReportList) {
+    option (google.api.http) = {
+      get: "/registry/v1/vuln_reports/counts_cumulative"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_VULN_REPORT_LIST]
+        unscoped: true,
+      }
+    };
+  }
+}
+
+message RepoTagReference {
+  // repo is the name of the repo
+  string repo = 1;
+  // tag is the version of the image
+  string tag = 2;
+}
+
+message VulnCountReportFilter {
+  // repo is the name of the repo to retrieve vulnerability summaries for
+  string repo = 1;
+  // tag is the version of the image to retrieve vulnerability summaries for.
+  string tag = 2;
+  // from defines the beginning of the date range of vulnerability summaries, inclusive.
+  google.protobuf.Timestamp from = 3;
+  // end defines the end of the date range of vulnerability summaries, inclusive.
+  google.protobuf.Timestamp to = 4;
+  // references is an array of repo+tag pairs to retrieve vulnerability summaries for
+  // If provided, this takes precedence over the individual repo and tag fields
+  repeated RepoTagReference references = 5;
+}
+
+message VulnCountReportList {
+  repeated VulnCountReport items = 1;
+}
+
+message VulnCountReport {
+  // repo is the name of the image scanned.
+  string repo = 1;
+  // tag is the version of the image scanned.
+  string tag = 2;
+  // date is when the image was scanned.
+  google.protobuf.Timestamp date = 3;
+  // vuln_counts enumerate the number of each CVE per severity found.
+  repeated VulnCount vuln_counts = 4;
+  // size_bytes is the size in bytes of the image at scan time.
+  int64 size_bytes = 5;
+  // cve_ids is a list of cumulative CVE IDs found in the image.
+  repeated string cve_ids = 6;
+  // low_cve_ids is a list of cumulative CVE IDs found in the image with a low severity.
+  repeated string low_cve_ids = 7;
+  // med_cve_ids is a list of cumulative CVE IDs found in the image with a medium severity.
+  repeated string med_cve_ids = 8;
+  // high_cve_ids is a list of cumulative CVE IDs found in the image with a high severity.
+  repeated string high_cve_ids = 9;
+  // crit_cve_ids is a list of cumulative CVE IDs found in the image with a critical severity.
+  repeated string crit_cve_ids = 10;
+  // negligible_cve_ids is a list of cumulative CVE IDs found in the image with a negligible severity.
+  repeated string negligible_cve_ids = 11;
+  // unknown_cve_ids is a list of cumulative CVE IDs found in the image with an unknown severity.
+  repeated string unknown_cve_ids = 12;
+}
+
+message VulnCount {
+  // severity is the CVE severity being enumerated
+  Vulnerability.Severity severity = 1;
+  // count is the number of CVEs at this severity detected.
+  int32 count = 2;
+}
+
+message GetRawVulnReportRequest {
+  // digest is the exact digest of the image to request the raw scan result of.
+  string digest = 1;
+  // scanner is the scanner to request the raw report from.
+  Scanner.Name scanner = 2;
+  // created_at is an optional timestamp to retrieve a scan report for.
+  // If not given, the latest report is returned.
+  google.protobuf.Timestamp created_at = 3;
+}
+
+message RawVulnReport {
+  // digest is the exact digest of the scanned image.
+  string digest = 1;
+  // scanner is the details of the scanner that generated this report.
+  Scanner scanner = 2;
+  // created_at is the time the report was generated.
+  google.protobuf.Timestamp created_at = 3;
+  // raw_report is a JSON string of the raw report output from the scanner.
+  // This is only populated for reports with size less than the maximum allowed.
+  string raw_report = 4;
+  // raw_report_url is an expiring URL for a direct download of the
+  // raw scan report.
+  string raw_report_url = 5;
+}
+
+message VulnReport {
+  // digest is the exact digest of the scanned image.
+  string digest = 1;
+  // scanner is the details of the scanner used to generate the report.
+  Scanner scanner = 2;
+  // created_at is the time the report was generated.
+  google.protobuf.Timestamp created_at = 3;
+  // vulnerabilities are the found vulns in the scanned image.
+  // For Create
+  repeated Vulnerability vulnerabilities = 4;
+}
+
+message Scanner {
+  // name is the name of the scanner.
+  Name name = 1;
+  // scanner_version is the version of the scanner used to generate the report.
+  string version = 2;
+  // db_build_time is the time the vulnerability database was built that was used
+  // to generate the report.
+  google.protobuf.Timestamp db_build_time = 3;
+
+  enum Name {
+    UNKNOWN = 0;
+    GRYPE   = 1;
+    TRIVY   = 2;
+  }
+}
+
+message VulnReportFilter {
+  // repo_id is the UIDP of the repo to list reports for.
+  // One of repo_id and digest are required.
+  string repo_id = 1;
+  // digest is the exact digest of the image to list reports for.
+  // One of repo_id and digest are required. If populated, digest takes precedence over repo_id.
+  string digest = 2;
+  // tag is the optional name of the tag to pull reports for.
+  // Ignored if digest is populated.
+  string tag = 3;
+  // scanner is the optional scanner to limit vuln reports to.
+  // If not provided, reports from all scanners will be included.
+  Scanner scanner = 4;
+  // created_since returns reports that have been created
+  // after the given time.
+  google.protobuf.Timestamp created_since = 5;
+}
+
+message VulnReportList {
+  repeated VulnReport items = 1;
+}
+
+message Vulnerability {
+  // The unique identifier for the vulnerability.
+  // e.g. CVE-2024-12345
+  string id = 1;
+  // aliases are other identifiers for this vulnerability.
+  repeated string aliases = 2;
+  // purls are the package URLs of the affected packages.
+  repeated string purls = 3;
+  // description is a short description of the vulnerability.
+  string description = 4;
+  // details give additional textual details about the vulnerability.
+  string details = 5;
+  // severity is the value representing the severity of the vulnerability.
+  Severity severity = 6;
+
+  enum Severity {
+    UNKNOWN = 0;
+    LOW = 1;
+    MEDIUM = 2;
+    HIGH = 3;
+    CRITICAL = 4;
+    NEGLIGIBLE = 5;
+  }
+
+  // List of CVSS information about the exploitability of the vulnerability.
+  repeated CVSS cvss = 7;
+
+  message CVSS {
+    // score is on a scale of 0 - 10 where 0 indicates low severity and 10 indicates high severity.
+    string score = 1;
+    // version used to populate score and severity.
+    string version = 2;
+  }
+
+  // fix is the version and state of a potential fix for this vulnerability.
+  Fix fix = 8;
+
+  message Fix {
+    // List of in versions of the package on which the vulnerability has been solved.
+    repeated string versions = 1;
+    // state reflects the state of the fix, e.g. fixed, unknown, not-fixed, won't-fix.
+    State state = 2;
+
+    enum State {
+      UNKNOWN = 0;
+      FIXED = 1;
+      NOT_FIXED = 2;
+      WONT_FIX = 3;
+    }
+  }
+
+  // URLs related to this vulnerability.
+  repeated string related_urls = 9;
+  // locations are paths affected by the vulnerability.
+  repeated string locations = 10;
+}

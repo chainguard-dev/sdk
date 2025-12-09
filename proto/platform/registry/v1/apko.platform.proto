@@ -1,0 +1,142 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/registry/v1";
+
+package chainguard.platform.registry;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "annotations/auth.proto";
+
+service Apko {
+  rpc ResolveConfig(ResolveConfigRequest) returns (ApkoConfig) {
+    option (google.api.http) = {
+      post : "/apko/v1/resolve/{repo_uidp=**}"
+      body : "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled : {
+        // To resolve the config, we need to list the available APKs.
+        capabilities : [ CAP_APK_LIST ]
+      }
+    };
+  }
+  rpc BuildImage(BuildImageRequest) returns (BuildImageResponse) {
+    option (google.api.http) = {
+      post : "/apko/v1/build/{repo_uidp=**}"
+      body : "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled : {
+        // To build the image, we need to resolve APKs and push images.
+        capabilities : [ CAP_APK_LIST, CAP_MANIFEST_CREATE, CAP_REPO_UPDATE ]
+      }
+    };
+  }
+}
+
+message ResolveConfigRequest {
+  ApkoConfig config = 1;
+
+  // The repository context in which to perform the resolution.
+  // This is relevant for how we authenticate for APK access.
+  string repo_uidp = 2 [ (chainguard.annotations.iam_scope) = true ];
+}
+
+message ApkoConfig {
+  message Contents {
+    repeated string repositories = 1;
+    repeated string build_repositories = 2;
+    repeated string runtime_repositories = 5;
+    repeated string keyring = 3;
+    repeated string packages = 4;
+  };
+  Contents contents = 1;
+
+  map<string, string> environment = 2;
+
+  message Accounts {
+    message Group {
+      uint32 gid = 1;
+      string group_name = 2;
+      repeated string members = 3;
+    };
+    repeated Group groups = 1;
+    message User {
+      uint32 uid = 1;
+      string user_name = 2;
+      optional uint32 gid = 3;
+      string group_name = 4;
+      string shell = 5;
+      string home_dir = 6;
+    };
+    repeated User users = 2;
+    string run_as = 3;
+  };
+  Accounts accounts = 3;
+
+  message Entrypoint {
+    string type = 1;
+    string command = 2;
+    string shell_fragment = 3;
+    map<string, string> services = 4;
+  }
+  Entrypoint entrypoint = 4;
+  string cmd = 5;
+  string work_dir = 6;
+
+  map<string, string> annotations = 7;
+
+  message PathMutation {
+    string path = 1;
+    string type = 2;
+    uint32 uid = 3;
+    uint32 gid = 4;
+    uint32 permissions = 5;
+    string source = 6;
+    bool recursive = 7;
+  };
+  repeated PathMutation paths = 8;
+  repeated string archs = 9;
+
+  // These are unused, and only provided for compatibility with
+  // ImageConfiguration.
+  repeated string volumes = 10;
+  string include = 11;
+  string stop_signal = 12;
+  string vcs_url = 13;
+
+  message Layering {
+    string strategy = 1;
+    int64 budget = 2;
+  };
+  Layering layering = 14;
+}
+
+message BuildImageRequest {
+  // Config to build. It must be resolved before it can be built.
+  ApkoConfig config = 1;
+
+  // Repo UIDP to push to.
+  string repo_uidp = 2 [ (chainguard.annotations.iam_scope) = true ];
+
+  // The media type of the layer to build.
+  string media_type = 3;
+}
+
+message BuildImageResponse {
+  // Digest of the built image.
+  string digest = 1;
+
+  // The "build date epoch" of the produced image.
+  google.protobuf.Timestamp build_date_epoch = 2;
+
+  // The user error message, if any.
+  // This is to distinguish between an error in the build process
+  // and an error in the user's configuration (like accessing a
+  // non-existent package).
+  string user_error = 3;
+
+  // The ID of the Build Report.
+  string build_report_id = 4;
+}
