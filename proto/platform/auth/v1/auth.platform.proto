@@ -1,0 +1,165 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/auth/v1";
+
+package chainguard.platform.auth;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "annotations/auth.proto";
+import "annotations/events.proto";
+import "platform/iam/v1/group.platform.proto";
+import "platform/iam/v1/role.platform.proto";
+import "google/protobuf/timestamp.proto";
+
+service Auth {
+  rpc Validate(google.protobuf.Empty) returns (WhoAmI) {
+    option (google.api.http) = {
+      get: "/auth/v1/ok"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        // This API requires no capabilities, it simply
+        // validates the token.
+      }
+    };
+  }
+
+  rpc Register(RegistrationRequest) returns (Session) {
+    option (google.api.http) = {
+      post: "/auth/v1/register"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      // This method accepts non-Chainguard tokens and
+      // uses them to register a new user so that the
+      // tokens can be sent through our STS.
+      disabled: {}
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.auth.registered.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  rpc GetHeadlessSession(GetHeadlessSessionRequest) returns (HeadlessSession) {
+    option (google.api.http) = {
+      get: "/sts/headless_sessions"
+    };
+  }
+
+  rpc Delete(DeletionRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/auth/v1/delete/{id=*}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        // This API requires no capabilities, anyone is allowed
+        // to delete their own identity.
+      }
+    };
+  }
+}
+
+message DeletionRequest {
+  // id is the exact UID of the identity to be deleted from the platform.
+  // It must be a root identity, and the UID must match the subject
+  // of the token.
+  string id = 1;
+}
+
+message RegistrationRequest {
+  // code is an optional encoded invite code, which allows us to register
+  // the caller's identity as a member of a particular group as a particular
+  // role.
+  // +optional
+  string code = 1;
+
+  // DEPRECATED: cluster_id is an optional cluster id, which simultaneously registers
+  // a Cluster with the Identity.  This path must specify an invite code, so
+  // we know where in the IAM hierarchy to link the cluster.
+  // string cluster_id = 2;
+  reserved 2;
+
+  // identity_id is an optional identity id. If the user already exists, this
+  // by-passes identity registration and continues on to cluster registration
+  // (if applicable)
+  string identity_id = 3;
+
+  // DEPRECATED: cluster_name is an optional name to give the cluster when one is
+  // registered as part of the registration flow.
+  // string cluster_name = 4;
+  reserved 4;
+
+  // DEPRECATED: cluster_description is an optional description to give the cluster
+  // when one is registered as part of the registration flow.
+  // string cluster_description = 5;
+  reserved 5;
+
+  // DEPRECATED: enforcer_options defines the enforcer options.
+  // chainguard.platform.tenant.Cluster.EnforcerOptions enforcer_options = 6;
+  reserved 6;
+}
+
+message Session {
+  // identity, the Chainguard identity id.
+  string identity = 1;
+  // group, the group this identity has joined by invitation, when an invite
+  // code was supplied.
+  string group = 2;
+}
+
+message WhoAmI {
+  // Issuer is the issuer of the token.
+  string issuer = 1;
+  // The subject of the token.
+  string subject = 2;
+  // Audience is who the token is intended for.
+  repeated string audience = 3;
+  // When the token expires.
+  google.protobuf.Timestamp expiry = 4;
+  // With the token was issued.
+  google.protobuf.Timestamp issued_at = 5;
+
+  // --- Upstream fields ---
+  message Capability {
+    // group of the bound role.
+    chainguard.platform.iam.Group group = 1;
+    // role of the bound identity.
+    chainguard.platform.iam.Role role = 2;
+  }
+  // The capabilities referenced in the token.
+  repeated Capability capabilities = 101;
+  // The upstream email for this token.
+  string email = 102;
+}
+
+message GetHeadlessSessionRequest {
+  string code = 1;
+}
+
+message HeadlessSession {
+  // When establishing a headless session, the client must first provide
+  // their ECDH public key. The server will then generate an ephemeral
+  // ECHD keypair and use the client's public key to establish a symmetric
+  // key.
+  //
+  // This symmetric key will be used to encrypt the idtoken and stored the
+  // encrypted idtoken in the database for a short period, as well as
+  // returning it to the client.
+  //
+  // After the idtoken is encrypted, the server will discard both the shared
+  // symmetric key and the ephemeral ECDH private key. The server ECDH will
+  // be sent back to the client.
+  //
+  // The client, with their private key, can use this public key to
+  // establish the same symmetric key, which can be used to decrypt
+  // the idtoken.
+  //
+  // echd_public_key is the client's ECDH public key.
+  bytes ecdh_public_key = 1;
+
+  // encrypted_idtoken is the encrypted idtoken.
+  bytes encrypted_idtoken = 2;
+}

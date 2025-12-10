@@ -1,0 +1,87 @@
+# Copyright 2023 Chainguard, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+name: Verify
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+  push:
+    branches:
+      - 'main'
+
+permissions: {}
+
+jobs:
+
+  verify:
+    name: Verify Codegen
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    env:
+      GOPATH: ${{ github.workspace }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          path: ./src/github.com/${{ github.repository }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
+        with:
+          go-version-file: './src/github.com/${{ github.repository }}/go.mod'
+          check-latest: true
+          cache: false
+
+      # https://github.com/mvdan/github-actions-golang#how-do-i-set-up-caching-between-builds
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          # In order:
+          # * Module download cache
+          # * Build cache (Linux)
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      #- name: Install protoc
+      #  uses: arduino/setup-protoc@v1.1.2
+      # arduino/setup-protoc@v1.1.2 can't install latest releases of protoc due
+      # to protoc changing their version naming scheme:
+      # https://github.com/arduino/setup-protoc/issues/33
+      - name: Install Protoc
+        run: |
+          cd "$(mktemp -d)"
+          wget -O protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v29.3/protoc-29.3-linux-x86_64.zip
+          unzip protoc.zip -d .
+          chmod +x ./bin/protoc
+          echo "$(pwd)/bin" >> "$GITHUB_PATH"
+
+      - name: Install Dependencies
+        run: |
+          cd $(mktemp -d)
+          go install github.com/google/go-licenses@ceb292363ec84358c9a276ef23aa0de893e59b84
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.2
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
+          go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.22.0
+          go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.22.0
+
+      - name: Update Codegen
+        shell: bash
+        working-directory: ./src/github.com/${{ github.repository }}
+        run: |
+          ./hack/update-codegen.sh
+
+      - name: Verify
+        uses: chainguard-dev/actions/nodiff@3e8a2a226fad9e1ecbf2d359b8a7697554a4ac6d # v1.5.10
+        with:
+          path: ./src/github.com/${{ github.repository }}
+          fixup-command: "./hack/update-codegen.sh"
