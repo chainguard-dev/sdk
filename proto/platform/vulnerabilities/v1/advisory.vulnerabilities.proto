@@ -380,7 +380,12 @@ message AdvisoryFilter {
   // fixed, patched, etc.
   optional EventTypeFilter latest_event_type = 19;
 
-  // next id: 22
+  // origin filters by origin package. Returns all advisories for packages
+  // (including subpackages) that have this origin. For origin packages, origin equals package_name.
+  // When specified, artifact_name filter is ignored as subpackage names are resolved server-side.
+  optional string origin = 22;
+
+  // next id: 23
 }
 
 message AdvisoriesList {
