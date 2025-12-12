@@ -24,13 +24,14 @@ func ToApkoProto(ic apkotypes.ImageConfiguration) *ApkoConfig {
 			Groups: pbGroups(ic.Accounts.Groups),
 			RunAs:  ic.Accounts.RunAs,
 		},
-		Annotations: ic.Annotations,
-		Paths:       pbPaths(ic.Paths),
-		Entrypoint:  pbEntrypoint(ic.Entrypoint),
-		Cmd:         ic.Cmd,
-		WorkDir:     ic.WorkDir,
-		Archs:       pbArchs(ic.Archs),
-		Layering:    pbLayering(ic.Layering),
+		Annotations:  ic.Annotations,
+		Paths:        pbPaths(ic.Paths),
+		Entrypoint:   pbEntrypoint(ic.Entrypoint),
+		Cmd:          ic.Cmd,
+		WorkDir:      ic.WorkDir,
+		Archs:        pbArchs(ic.Archs),
+		Layering:     pbLayering(ic.Layering),
+		Certificates: pbCertificates(ic.Certificates),
 
 		// These are unused.
 		Volumes:    ic.Volumes,
@@ -120,22 +121,43 @@ func pbLayering(layering *apkotypes.Layering) *ApkoConfig_Layering {
 	}
 }
 
+func pbCertificates(certs *apkotypes.ImageCertificates) *ApkoConfig_Certificates {
+	if certs == nil {
+		return nil
+	}
+
+	var additional []*ApkoConfig_Certificates_AdditionalEntry
+	if len(certs.Additional) > 0 {
+		additional = make([]*ApkoConfig_Certificates_AdditionalEntry, 0, len(certs.Additional))
+		for _, cert := range certs.Additional {
+			additional = append(additional, &ApkoConfig_Certificates_AdditionalEntry{
+				Name:    cert.Name,
+				Content: cert.Content,
+			})
+		}
+	}
+	return &ApkoConfig_Certificates{
+		Additional: additional,
+	}
+}
+
 func ToApkoNative(cfg *ApkoConfig) apkotypes.ImageConfiguration {
 	if cfg == nil {
 		return apkotypes.ImageConfiguration{}
 	}
 
 	return apkotypes.ImageConfiguration{
-		Contents:    apkoContents(cfg.Contents),
-		Environment: cfg.Environment,
-		Accounts:    apkoAccounts(cfg.Accounts),
-		Annotations: cfg.Annotations,
-		Paths:       apkoPaths(cfg.Paths),
-		Entrypoint:  apkoEntrypoint(cfg.Entrypoint),
-		Cmd:         cfg.Cmd,
-		WorkDir:     cfg.WorkDir,
-		Archs:       apkoArchs(cfg.Archs),
-		Layering:    apkoLayering(cfg.Layering),
+		Contents:     apkoContents(cfg.Contents),
+		Environment:  cfg.Environment,
+		Accounts:     apkoAccounts(cfg.Accounts),
+		Annotations:  cfg.Annotations,
+		Paths:        apkoPaths(cfg.Paths),
+		Entrypoint:   apkoEntrypoint(cfg.Entrypoint),
+		Cmd:          cfg.Cmd,
+		WorkDir:      cfg.WorkDir,
+		Archs:        apkoArchs(cfg.Archs),
+		Layering:     apkoLayering(cfg.Layering),
+		Certificates: apkoCertificates(cfg.Certificates),
 
 		// These are unused.
 		Volumes:    cfg.Volumes,
@@ -250,5 +272,25 @@ func apkoLayering(layering *ApkoConfig_Layering) *apkotypes.Layering {
 	return &apkotypes.Layering{
 		Strategy: layering.Strategy,
 		Budget:   int(layering.Budget),
+	}
+}
+
+func apkoCertificates(certs *ApkoConfig_Certificates) *apkotypes.ImageCertificates {
+	if certs == nil {
+		return nil
+	}
+
+	var additional []apkotypes.AdditionalCertificateEntry
+	if len(certs.Additional) > 0 {
+		additional = make([]apkotypes.AdditionalCertificateEntry, 0, len(certs.Additional))
+		for _, cert := range certs.Additional {
+			additional = append(additional, apkotypes.AdditionalCertificateEntry{
+				Name:    cert.Name,
+				Content: cert.Content,
+			})
+		}
+	}
+	return &apkotypes.ImageCertificates{
+		Additional: additional,
 	}
 }
