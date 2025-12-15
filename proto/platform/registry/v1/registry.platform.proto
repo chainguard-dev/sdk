@@ -494,6 +494,15 @@ message CustomOverlay {
 
   // Additional account customizations applied during rebuilds.
   ApkoConfig.Accounts accounts = 4;
+
+  message Certificates {
+    message AdditionalEntry {
+      string name = 1;
+      string content = 2;
+    }
+    repeated AdditionalEntry additional = 1;
+  }
+  Certificates certificates = 15;
 }
 
 message ImageContents {
