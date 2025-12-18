@@ -99,11 +99,12 @@ var (
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_DELETE,
 		Capability_CAP_REPO_UPDATE,
 	}, EditorCaps,
-		// Owners can also push and delete images, subject to the identity allowlist.
-		RegistryPushCaps, APKPushCaps,
+		// Owners can also push and delete OCI, APK and JavaScript artifacts, subject to the identity allowlist.
+		RegistryPushCaps, APKPushCaps, LibrariesJavascriptPushCaps,
 		// Owners can pull artifacts from ecosystem libraries and grant this role to others in their org.
 		// NB: The org must also be entitled to the ecosystem to pull artifacts.
-		LibrariesJavaPullCaps, LibrariesPythonPullCaps, LibrariesJavascriptPullCaps)
+		LibrariesJavaPullCaps, LibrariesPythonPullCaps, LibrariesJavascriptPullCaps,
+	)
 
 	RegistryRepoAdminCaps = SortCaps([]Capability{
 		Capability_CAP_REPO_CREATE,
@@ -199,6 +200,11 @@ var (
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
 		Capability_CAP_LIBRARIES_JAVASCRIPT_LIST,
 	})
+
+	LibrariesJavascriptPushCaps = SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
+		Capability_CAP_LIBRARIES_JAVASCRIPT_CREATE,
+	}, LibrariesJavascriptPullCaps)
 
 	LibrariesRebuilderRequestsCreateCaps = SortCaps([]Capability{
 		Capability_CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE,
