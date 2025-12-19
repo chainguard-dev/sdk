@@ -76,6 +76,7 @@ type MockRegistryClient struct {
 	OnGetArchs                  []ArchsOnGet
 	OnGetSize                   []SizeOnGet
 	OnGetHelm                   []HelmOnGet
+	OnGetChart                  []ChartOnGet
 	OnGetRegistrySettings       []RegistrySettingsOnGet
 	OnGetSyncStatus             []SyncStatusOnGet
 }
@@ -207,6 +208,12 @@ type SizeOnGet struct {
 type HelmOnGet struct {
 	Given *registry.HelmRequest
 	Get   *registry.Helm
+	Error error
+}
+
+type ChartOnGet struct {
+	Given *registry.GetChartRequest
+	Get   *registry.Chart
 	Error error
 }
 
@@ -421,6 +428,15 @@ func (m MockRegistryClient) GetSize(_ context.Context, given *registry.SizeReque
 
 func (m MockRegistryClient) GetHelm(_ context.Context, given *registry.HelmRequest, _ ...grpc.CallOption) (*registry.Helm, error) {
 	for _, o := range m.OnGetHelm {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Get, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockRegistryClient) GetChart(_ context.Context, given *registry.GetChartRequest, _ ...grpc.CallOption) (*registry.Chart, error) {
+	for _, o := range m.OnGetChart {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Get, o.Error
 		}
