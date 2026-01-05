@@ -100,6 +100,11 @@ enum Capability {
   reserved 1601; // CAP_REGISTRY_PULL
   reserved 1602; // CAP_REGISTRY_PUSH
 
+  // repo.blobs.get is a capability required to pull container images.
+  // We explicitly define this to distinguish roles that allow browsing/viewing
+  // metadata associated with images vs pulling the image itself.
+  CAP_REPO_BLOBS_GET = 1600 [(name) = "repo.blobs.get", (bit) = 107];
+
   CAP_REPO_CREATE = 1603 [(name) = "repo.create", (bit) = 56];
   CAP_REPO_UPDATE = 1604 [(name) = "repo.update", (bit) = 57];
   CAP_REPO_LIST   = 1605 [(name) = "repo.list",   (bit) = 58];
@@ -116,6 +121,11 @@ enum Capability {
   CAP_TAG_DELETE = 1614 [(name) = "tag.delete", (bit) = 67];
 
   CAP_MANIFEST_METADATA_LIST = 1615 [(name) = "manifest.metadata.list", (bit) = 72];
+
+  // apk.blobs.get is a capability required to pull APKs.
+  // We explicitly define this to distinguish roles that allow browsing/viewing
+  // metadata associated with APKs vs pulling the APK itself.
+  CAP_APK_BLOBS_GET = 1655 [(name) = "apk.blobs.get", (bit) = 108];
 
   CAP_APK_CREATE = 1650 [(name) = "apk.create", (bit) = 73];
   CAP_APK_UPDATE = 1651 [(name) = "apk.update", (bit) = 74];
@@ -141,6 +151,7 @@ enum Capability {
   CAP_LIBRARIES_PYTHON_LIST = 1810 [(name) = "libraries.python.list", (bit) = 85];
   CAP_LIBRARIES_JAVA_LIST = 1820 [(name) = "libraries.java.list", (bit) = 86];
   CAP_LIBRARIES_JAVASCRIPT_LIST = 1830 [(name) = "libraries.javascript.list", (bit) = 88];
+  CAP_LIBRARIES_JAVASCRIPT_CREATE = 1831 [(name) = "libraries.javascript.create", (bit) = 109];
 
   // Rebuilder API capabilities
   CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE = 1840 [(name) = "libraries.rebuilder.requests.create", (bit) = 103];
@@ -186,5 +197,5 @@ enum Capability {
   CAP_GULFSTREAM = 10000 [(name) = "gulfstream", (bit) = 47];
 
   reserved 1;
-  // next bit: 107
+  // next bit: 110
 }

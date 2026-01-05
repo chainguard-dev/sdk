@@ -24,6 +24,12 @@ var (
 		Capability_CAP_IAM_IDENTITY_LIST,
 		Capability_CAP_IAM_IDENTITY_PROVIDERS_LIST,
 
+		Capability_CAP_REPO_LIST,
+		Capability_CAP_MANIFEST_LIST,
+		Capability_CAP_TAG_LIST,
+		Capability_CAP_MANIFEST_METADATA_LIST,
+		Capability_CAP_APK_LIST,
+
 		Capability_CAP_TENANT_RECORD_SIGNATURES_LIST,
 		Capability_CAP_TENANT_SBOMS_LIST,
 		Capability_CAP_TENANT_VULN_REPORTS_LIST,
@@ -44,9 +50,10 @@ var (
 	})
 
 	// ViewerCaps are read-only capabilities that do not affect state,
-	// and allow pulling from registries.
+	// but are allowed to pull from container and apk registries.
 	ViewerCaps = SortCaps(ConsoleViewerCaps,
-		// Viewers can also list repos and tags, and pull images.
+		// Any additional capabilities needed to specifically pull from
+		// the container or apk registries.
 		RegistryPullCaps, APKPullCaps)
 
 	// EditorCaps can modify state, but not grant roles/permissions.
@@ -92,11 +99,12 @@ var (
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_DELETE,
 		Capability_CAP_REPO_UPDATE,
 	}, EditorCaps,
-		// Owners can also push and delete images, subject to the identity allowlist.
-		RegistryPushCaps, APKPushCaps,
+		// Owners can also push and delete OCI, APK and JavaScript artifacts, subject to the identity allowlist.
+		RegistryPushCaps, APKPushCaps, LibrariesJavascriptPushCaps,
 		// Owners can pull artifacts from ecosystem libraries and grant this role to others in their org.
 		// NB: The org must also be entitled to the ecosystem to pull artifacts.
-		LibrariesJavaPullCaps, LibrariesPythonPullCaps, LibrariesJavascriptPullCaps)
+		LibrariesJavaPullCaps, LibrariesPythonPullCaps, LibrariesJavascriptPullCaps,
+	)
 
 	RegistryRepoAdminCaps = SortCaps([]Capability{
 		Capability_CAP_REPO_CREATE,
@@ -105,6 +113,8 @@ var (
 	}, RegistryPullCaps)
 
 	RegistryPullCaps = SortCaps([]Capability{
+		Capability_CAP_REPO_BLOBS_GET,
+
 		Capability_CAP_IAM_GROUPS_LIST,
 
 		Capability_CAP_REPO_LIST,
@@ -148,6 +158,7 @@ var (
 	RegistryPullTokenCreatorCaps = SortCaps(PullTokenCreatorCaps, RegistryPullCaps, APKPullCaps)
 
 	APKPullCaps = SortCaps([]Capability{
+		Capability_CAP_APK_BLOBS_GET,
 		Capability_CAP_IAM_GROUPS_LIST,
 		Capability_CAP_APK_LIST,
 	})
@@ -189,6 +200,11 @@ var (
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
 		Capability_CAP_LIBRARIES_JAVASCRIPT_LIST,
 	})
+
+	LibrariesJavascriptPushCaps = SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
+		Capability_CAP_LIBRARIES_JAVASCRIPT_CREATE,
+	}, LibrariesJavascriptPullCaps)
 
 	LibrariesRebuilderRequestsCreateCaps = SortCaps([]Capability{
 		Capability_CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE,

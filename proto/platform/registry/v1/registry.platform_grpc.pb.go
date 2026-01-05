@@ -34,6 +34,7 @@ const (
 	Registry_ListTagHistory_FullMethodName            = "/chainguard.platform.registry.Registry/ListTagHistory"
 	Registry_GetSbom_FullMethodName                   = "/chainguard.platform.registry.Registry/GetSbom"
 	Registry_GetHelm_FullMethodName                   = "/chainguard.platform.registry.Registry/GetHelm"
+	Registry_GetChart_FullMethodName                  = "/chainguard.platform.registry.Registry/GetChart"
 	Registry_GetImageConfig_FullMethodName            = "/chainguard.platform.registry.Registry/GetImageConfig"
 	Registry_GetArchs_FullMethodName                  = "/chainguard.platform.registry.Registry/GetArchs"
 	Registry_GetSize_FullMethodName                   = "/chainguard.platform.registry.Registry/GetSize"
@@ -71,6 +72,7 @@ type RegistryClient interface {
 	// Deprecated
 	GetSbom(ctx context.Context, in *SbomRequest, opts ...grpc.CallOption) (*v1.Sbom2, error)
 	GetHelm(ctx context.Context, in *HelmRequest, opts ...grpc.CallOption) (*Helm, error)
+	GetChart(ctx context.Context, in *GetChartRequest, opts ...grpc.CallOption) (*Chart, error)
 	GetImageConfig(ctx context.Context, in *ImageConfigRequest, opts ...grpc.CallOption) (*ImageConfig, error)
 	GetArchs(ctx context.Context, in *ArchRequest, opts ...grpc.CallOption) (*Archs, error)
 	GetSize(ctx context.Context, in *SizeRequest, opts ...grpc.CallOption) (*Size, error)
@@ -223,6 +225,16 @@ func (c *registryClient) GetHelm(ctx context.Context, in *HelmRequest, opts ...g
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Helm)
 	err := c.cc.Invoke(ctx, Registry_GetHelm_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *registryClient) GetChart(ctx context.Context, in *GetChartRequest, opts ...grpc.CallOption) (*Chart, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Chart)
+	err := c.cc.Invoke(ctx, Registry_GetChart_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -417,6 +429,7 @@ type RegistryServer interface {
 	// Deprecated
 	GetSbom(context.Context, *SbomRequest) (*v1.Sbom2, error)
 	GetHelm(context.Context, *HelmRequest) (*Helm, error)
+	GetChart(context.Context, *GetChartRequest) (*Chart, error)
 	GetImageConfig(context.Context, *ImageConfigRequest) (*ImageConfig, error)
 	GetArchs(context.Context, *ArchRequest) (*Archs, error)
 	GetSize(context.Context, *SizeRequest) (*Size, error)
@@ -483,6 +496,9 @@ func (UnimplementedRegistryServer) GetSbom(context.Context, *SbomRequest) (*v1.S
 }
 func (UnimplementedRegistryServer) GetHelm(context.Context, *HelmRequest) (*Helm, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHelm not implemented")
+}
+func (UnimplementedRegistryServer) GetChart(context.Context, *GetChartRequest) (*Chart, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetChart not implemented")
 }
 func (UnimplementedRegistryServer) GetImageConfig(context.Context, *ImageConfigRequest) (*ImageConfig, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetImageConfig not implemented")
@@ -786,6 +802,24 @@ func _Registry_GetHelm_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RegistryServer).GetHelm(ctx, req.(*HelmRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Registry_GetChart_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetChartRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).GetChart(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_GetChart_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).GetChart(ctx, req.(*GetChartRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1154,6 +1188,10 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetHelm",
 			Handler:    _Registry_GetHelm_Handler,
+		},
+		{
+			MethodName: "GetChart",
+			Handler:    _Registry_GetChart_Handler,
 		},
 		{
 			MethodName: "GetImageConfig",

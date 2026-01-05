@@ -76,7 +76,9 @@ type MockRegistryClient struct {
 	OnGetArchs                  []ArchsOnGet
 	OnGetSize                   []SizeOnGet
 	OnGetHelm                   []HelmOnGet
+	OnGetChart                  []ChartOnGet
 	OnGetRegistrySettings       []RegistrySettingsOnGet
+	OnGetSyncStatus             []SyncStatusOnGet
 }
 
 type ReposOnCreate struct {
@@ -209,6 +211,12 @@ type HelmOnGet struct {
 	Error error
 }
 
+type ChartOnGet struct {
+	Given *registry.GetChartRequest
+	Get   *registry.Chart
+	Error error
+}
+
 type EolTagOnList struct {
 	Given *registry.EolTagFilter
 	Get   *registry.EolTagList
@@ -218,6 +226,12 @@ type EolTagOnList struct {
 type RegistrySettingsOnGet struct {
 	Given *registry.GetRegistrySettingsRequest
 	Get   *registry.RegistrySettings
+	Error error
+}
+
+type SyncStatusOnGet struct {
+	Given *registry.GetSyncStatusRequest
+	Get   *registry.SyncStatus
 	Error error
 }
 
@@ -421,6 +435,15 @@ func (m MockRegistryClient) GetHelm(_ context.Context, given *registry.HelmReque
 	return nil, fmt.Errorf("mock not found for %v", given)
 }
 
+func (m MockRegistryClient) GetChart(_ context.Context, given *registry.GetChartRequest, _ ...grpc.CallOption) (*registry.Chart, error) {
+	for _, o := range m.OnGetChart {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Get, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
 func (m MockRegistryClient) ListEolTags(_ context.Context, given *registry.EolTagFilter, _ ...grpc.CallOption) (*registry.EolTagList, error) {
 	for _, o := range m.OnListEolTags {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
@@ -432,6 +455,15 @@ func (m MockRegistryClient) ListEolTags(_ context.Context, given *registry.EolTa
 
 func (m MockRegistryClient) GetRegistrySettings(_ context.Context, given *registry.GetRegistrySettingsRequest, _ ...grpc.CallOption) (*registry.RegistrySettings, error) {
 	for _, o := range m.OnGetRegistrySettings {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Get, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockRegistryClient) GetSyncStatus(_ context.Context, given *registry.GetSyncStatusRequest, _ ...grpc.CallOption) (*registry.SyncStatus, error) {
+	for _, o := range m.OnGetSyncStatus {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Get, o.Error
 		}

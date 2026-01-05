@@ -30,6 +30,18 @@ const (
 	// to the event.
 	ImageKey = "image"
 
+	// DigestKey is the CloudEvents extension name to store the full digest
+	// reference (e.g., "registry.example.com/repo@sha256:...") for registry events.
+	DigestKey = "digest"
+
+	// MediaTypeKey is the CloudEvents extension name to store the media type
+	// of the object being pushed (e.g., "application/vnd.oci.image.manifest.v1+json").
+	MediaTypeKey = "mediatype"
+
+	// APKURLKey is the CloudEvents extension name to store the full APK URL
+	// (e.g., "apk.cgr.dev/{uidp}/{arch}/{pkg}-{version}.apk") for APK events.
+	APKURLKey = "apkurl"
+
 	// AudienceKey labels an event for its intended audience ["internal", "customer"].
 	AudienceKey = "audience"
 	// AudienceInternal are events intended for the internal platform.

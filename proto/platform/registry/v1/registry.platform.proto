@@ -196,6 +196,17 @@ service Registry {
     };
   }
 
+  rpc GetChart(GetChartRequest) returns (Chart) {
+    option (google.api.http) = {
+      get: "/registry/v1/repos/{repo_id=**}/digests/{digest=*}/chart"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST, CAP_MANIFEST_LIST]
+      }
+    };
+  }
+
   rpc GetImageConfig(ImageConfigRequest) returns (ImageConfig) {
     option (google.api.http) = {
       get: "/registry/v1/repos/{repo_id=**}/digests/{digest=*}/imageconfig"
@@ -483,6 +494,15 @@ message CustomOverlay {
 
   // Additional account customizations applied during rebuilds.
   ApkoConfig.Accounts accounts = 4;
+
+  message Certificates {
+    message AdditionalEntry {
+      string name = 1;
+      string content = 2;
+    }
+    repeated AdditionalEntry additional = 1;
+  }
+  Certificates certificates = 15;
 }
 
 message ImageContents {
@@ -1106,6 +1126,57 @@ message Helm {
   string chart_digest = 4;
   // Additional values.
   string values = 5;
+}
+
+message GetChartRequest {
+  // The UIDP of the chart repo.
+  string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
+  // The digest of the chart.
+  string digest = 2;
+}
+
+// Chart contains metadata parsed from a Helm chart's Chart.yaml.
+message Chart {
+  // The name of the chart.
+  string name = 1;
+  // The version of the chart.
+  string version = 2;
+  // The version of the app contained in the chart.
+  string app_version = 3;
+  // A description of the chart.
+  string description = 4;
+  // The chart's dependencies.
+  repeated ChartDependency dependencies = 5;
+  // Annotations from Chart.yaml.
+  map<string, string> annotations = 6;
+
+  // Chainguard-specific fields below
+
+  // Images used by the chart, parsed from annotations["images"].
+  repeated ChartImage images = 100;
+  // Raw Chart.yaml content.
+  string raw = 101;
+}
+
+// ChartDependency represents a dependency of a Helm chart.
+message ChartDependency {
+  // The name of the dependency chart.
+  string name = 1;
+  // The version of the dependency chart.
+  string version = 2;
+  // The repository URL of the dependency chart.
+  string repository = 3;
+}
+
+// ChartImage represents an image used by a Helm chart.
+// This is loosely based off of
+// https://github.com/helm/community/blob/main/hips/hip-0015.md, but changed
+// to be a simpler schema adopted by more of the community.
+message ChartImage {
+  // The name/alias of the image.
+  string name = 1;
+  // The image reference.
+  string image = 2;
 }
 
 // Deployment configuration for a repository

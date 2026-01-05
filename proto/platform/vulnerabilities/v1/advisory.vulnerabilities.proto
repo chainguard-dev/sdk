@@ -125,6 +125,15 @@ enum OrderBy {
   ALIASES_ASC = 5;
   // Sort by aliases to group related advisories in descending order
   ALIASES_DESC = 6;
+  // Sort by delete time in ascending order (oldest first)
+  UPDATED_AT_ASC = 7;
+  // Sort by update time in descending order (newest first)
+  UPDATED_AT_DESC = 8;
+  // Sort by delete time in ascending order (oldest first)
+  DELETED_AT_ASC = 9;
+  // Sort by delete time in descending order (newest first)
+  DELETED_AT_DESC = 10;
+
 }
 
 // EventTypeFilter represents the event types that can be used for filtering
@@ -313,9 +322,9 @@ message AdvisoryFilter {
   chainguard.platform.common.UIDPFilter uidp = 16;
 
   // artifact_type filters by artifact type
-  optional string artifact_type = 2;
+  repeated string artifact_type = 2;
   // artifact filters by artifact name
-  optional string artifact_name = 3;
+  repeated string artifact_name = 3;
 
   // artifact_namespace is unused and was mistakenly ported from
   // legacy advisories.
@@ -323,15 +332,15 @@ message AdvisoryFilter {
   reserved "artifact_namespace";
 
   // component_name filters by component name
-  optional string component_name = 5;
+  repeated string component_name = 5;
   // component_type filters by component type
-  optional string component_type = 6;
+  repeated string component_type = 6;
   // component_location filters by component locations (IE ./PKGINFO)
   repeated string component_location = 20;
   // aliases filters by alias name (CVE, GHSA, etc.)
   repeated string aliases = 7;
   // artifact_architecture filters by architecture (e.g., x86_64, aarch64)
-  optional string artifact_architecture = 8;
+  repeated string artifact_architecture = 8;
   // Pagination
   string page_token = 9;
   int64 page_size = 10;
@@ -380,7 +389,12 @@ message AdvisoryFilter {
   // fixed, patched, etc.
   optional EventTypeFilter latest_event_type = 19;
 
-  // next id: 22
+  // origin filters by origin package. Returns all advisories for packages
+  // (including subpackages) that have this origin. For origin packages, origin equals package_name.
+  // When specified, artifact_name filter is ignored as subpackage names are resolved server-side.
+  optional string origin = 22;
+
+  // next id: 23
 }
 
 message AdvisoriesList {

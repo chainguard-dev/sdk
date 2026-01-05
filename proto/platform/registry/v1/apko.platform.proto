@@ -111,6 +111,15 @@ message ApkoConfig {
     int64 budget = 2;
   };
   Layering layering = 14;
+
+  message Certificates {
+    message AdditionalEntry {
+      string name = 1;
+      string content = 2;
+    }
+    repeated AdditionalEntry additional = 1;
+  }
+  Certificates certificates = 15;
 }
 
 message BuildImageRequest {
