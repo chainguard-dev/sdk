@@ -149,7 +149,9 @@ enum Capability {
 
   // Ecosystems specific capabilities
   CAP_LIBRARIES_PYTHON_LIST = 1810 [(name) = "libraries.python.list", (bit) = 85];
+  CAP_LIBRARIES_PYTHON_CREATE = 1811 [(name) = "libraries.python.create", (bit) = 111];
   CAP_LIBRARIES_JAVA_LIST = 1820 [(name) = "libraries.java.list", (bit) = 86];
+  CAP_LIBRARIES_JAVA_CREATE = 1821 [(name) = "libraries.java.create", (bit) = 110];
   CAP_LIBRARIES_JAVASCRIPT_LIST = 1830 [(name) = "libraries.javascript.list", (bit) = 88];
   CAP_LIBRARIES_JAVASCRIPT_CREATE = 1831 [(name) = "libraries.javascript.create", (bit) = 109];
 
@@ -197,5 +199,5 @@ enum Capability {
   CAP_GULFSTREAM = 10000 [(name) = "gulfstream", (bit) = 47];
 
   reserved 1;
-  // next bit: 110
+  // next bit: 112
 }
