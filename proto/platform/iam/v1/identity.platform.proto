@@ -95,6 +95,7 @@ enum ServicePrincipal {
   APKO_BUILDER   = 4;
   ENTITLEMENT_SYNCER = 5;
   TENANT_SCANNER = 6;
+  SEDIMENTOLOGY  = 7;
 }
 
 message Identity {
