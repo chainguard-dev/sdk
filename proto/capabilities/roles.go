@@ -99,8 +99,8 @@ var (
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_DELETE,
 		Capability_CAP_REPO_UPDATE,
 	}, EditorCaps,
-		// Owners can also push and delete OCI, APK and JavaScript artifacts, subject to the identity allowlist.
-		RegistryPushCaps, APKPushCaps, LibrariesJavascriptPushCaps,
+		// Owners can also push and delete OCI, APK Java, JavaScript, and Python artifacts, subject to the identity allowlist.
+		RegistryPushCaps, APKPushCaps, LibrariesJavaPushCaps, LibrariesJavascriptPushCaps, LibrariesPythonPushCaps,
 		// Owners can pull artifacts from ecosystem libraries and grant this role to others in their org.
 		// NB: The org must also be entitled to the ecosystem to pull artifacts.
 		LibrariesJavaPullCaps, LibrariesPythonPullCaps, LibrariesJavascriptPullCaps,
@@ -191,10 +191,20 @@ var (
 		Capability_CAP_LIBRARIES_JAVA_LIST,
 	})
 
+	LibrariesJavaPushCaps = SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
+		Capability_CAP_LIBRARIES_JAVA_CREATE,
+	}, LibrariesJavaPullCaps)
+
 	LibrariesPythonPullCaps = SortCaps([]Capability{
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
 		Capability_CAP_LIBRARIES_PYTHON_LIST,
 	})
+
+	LibrariesPythonPushCaps = SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
+		Capability_CAP_LIBRARIES_PYTHON_CREATE,
+	}, LibrariesPythonPullCaps)
 
 	LibrariesJavascriptPullCaps = SortCaps([]Capability{
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,

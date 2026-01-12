@@ -14,7 +14,7 @@ code.
 
 ### Prerequisites
 
-Install `protoc`: https://grpc.io/docs/protoc-installation/
+Install `protoc` [v5.29.3](https://github.com/protocolbuffers/protobuf/releases/download/v29.3/protoc-29.3-linux-x86_64.zip): https://grpc.io/docs/protoc-installation/
 
 Example for MacOS:
 
