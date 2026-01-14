@@ -41,10 +41,6 @@ func Parse(r io.Reader) (*Mapping, error) {
 		return nil, fmt.Errorf("parsing image mapping: %w", err)
 	}
 
-	if len(m.Images) == 0 {
-		return nil, fmt.Errorf("missing or empty 'images' field")
-	}
-
 	for id, img := range m.Images {
 		if img == nil {
 			return nil, fmt.Errorf("image %q: nil definition", id)
