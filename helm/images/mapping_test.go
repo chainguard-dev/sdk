@@ -119,21 +119,21 @@ func TestParse(t *testing.T) {
 			wantErr: "parsing image mapping",
 		},
 
-		// Missing/empty images
+		// Empty images (valid)
 		{
-			name:    "missing images field",
-			input:   `{}`,
-			wantErr: "missing or empty 'images'",
+			name:  "missing images field",
+			input: `{}`,
+			want:  &Mapping{},
 		},
 		{
-			name:    "empty images",
-			input:   `{"images": {}}`,
-			wantErr: "missing or empty 'images'",
+			name:  "empty images",
+			input: `{"images": {}}`,
+			want:  &Mapping{Images: map[string]*Image{}},
 		},
 		{
-			name:    "null images",
-			input:   `{"images": null}`,
-			wantErr: "missing or empty 'images'",
+			name:  "null images",
+			input: `{"images": null}`,
+			want:  &Mapping{},
 		},
 
 		// Invalid image definitions
