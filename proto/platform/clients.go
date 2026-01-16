@@ -42,6 +42,10 @@ type Clients interface {
 	Libraries() libraries.Clients
 	Vulnerabilities() vulnerabilities.Clients
 
+	// Connection returns the underlying gRPC connection for creating additional clients.
+	// This is useful for internal consumers that need access to experimental APIs.
+	Connection() *grpc.ClientConn
+
 	Close() error
 }
 
@@ -110,6 +114,10 @@ type clients struct {
 
 func (c *clients) IAM() iam.Clients {
 	return c.iam
+}
+
+func (c *clients) Connection() *grpc.ClientConn {
+	return c.conn
 }
 
 func (c *clients) Registry() registry.Clients {
