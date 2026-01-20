@@ -33,14 +33,14 @@ jobs:
           persist-credentials: false
 
       - name: Set up Go
-        uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
+        uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
         with:
           go-version-file: './src/github.com/${{ github.repository }}/go.mod'
           check-latest: true
           cache: false
 
       # https://github.com/mvdan/github-actions-golang#how-do-i-set-up-caching-between-builds
-      - uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      - uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
         with:
           # In order:
           # * Module download cache
@@ -82,7 +82,7 @@ jobs:
           ./hack/update-codegen.sh
 
       - name: Verify
-        uses: chainguard-dev/actions/nodiff@3e8a2a226fad9e1ecbf2d359b8a7697554a4ac6d # v1.5.10
+        uses: chainguard-dev/actions/nodiff@f77a7c3431f961556be5a41e2602c450a590f3e5 # v1.5.12
         with:
           path: ./src/github.com/${{ github.repository }}
           fixup-command: "./hack/update-codegen.sh"
