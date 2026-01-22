@@ -1156,6 +1156,8 @@ message Chart {
   repeated ChartImage images = 100;
   // Raw Chart.yaml content.
   string raw = 101;
+  // Raw values.yaml content (default values).
+  string values = 102;
 }
 
 // ChartDependency represents a dependency of a Helm chart.
