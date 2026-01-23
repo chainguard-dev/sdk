@@ -17,11 +17,10 @@ import (
 type OCIRef struct {
 	Registry     string // Registry host, e.g., "cgr.dev"
 	Repo         string // Repository path without registry, e.g., "chainguard/nginx"
-	Tag          string // OCI tag, e.g., "latest"
-	Digest       string // OCI digest, e.g., "sha256:abc123..."
+	Tag          string // OCI tag, e.g., "latest" (may be empty)
+	Digest       string // OCI digest, e.g., "sha256:abc123..." (may be empty)
 	RegistryRepo string // Combined registry/repo, e.g., "cgr.dev/chainguard/nginx"
-	PseudoTag    string // Tag with digest, or "unused@digest" if no tag
-	FullRef      string // Full reference, e.g., "cgr.dev/chainguard/nginx:latest@sha256:abc123..."
+	FullRef      string // Full reference with tag and/or digest as available
 }
 
 // NewRef parses and validates an OCI reference string.
@@ -56,17 +55,6 @@ func NewRef(reference string) (OCIRef, error) {
 		}
 	}
 
-	if digest == "" {
-		return OCIRef{}, fmt.Errorf("reference %q must include a digest", reference)
-	}
-
-	var pseudoTag string
-	if tag == "" {
-		pseudoTag = "unused@" + digest
-	} else {
-		pseudoTag = tag + "@" + digest
-	}
-
 	fullRef := registryRepo
 	if tag != "" {
 		fullRef += ":" + tag
@@ -81,7 +69,6 @@ func NewRef(reference string) (OCIRef, error) {
 		Tag:          tag,
 		Digest:       digest,
 		RegistryRepo: registryRepo,
-		PseudoTag:    pseudoTag,
 		FullRef:      fullRef,
 	}, nil
 }
@@ -113,7 +100,14 @@ func Resolve(refs map[string]OCIRef) WalkFunc {
 				case Digest:
 					val = ref.Digest
 				case PseudoTag:
-					val = ref.PseudoTag
+					if ref.Digest == "" {
+						return nil, fmt.Errorf("cannot resolve ${pseudo_tag} for image %q: no digest available", imageID)
+					}
+					if ref.Tag == "" {
+						val = "unused@" + ref.Digest
+					} else {
+						val = ref.Tag + "@" + ref.Digest
+					}
 				case Ref:
 					val = ref.FullRef
 				}

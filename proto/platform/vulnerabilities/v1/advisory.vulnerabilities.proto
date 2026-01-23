@@ -310,10 +310,14 @@ message AdvisoryEvent {
 
 message AdvisoryFilter {
   // advisory_id filters by advisory ID (e.g., CGA-xvgw-cvr7-9g2q)
-  string advisory_id = 1;
+  reserved 1;
+  reserved "advisory_id";
+  repeated string advisory_ids = 23;
 
   // advisory_id in the v1 system (e.g., CGA-abcd-efgh-ijkl)
-  string legacy_advisory_id = 21;
+  reserved 21;
+  reserved "legacy_advisory_id";
+  repeated string legacy_advisory_ids = 24;
 
   // id is the exact UID of the record.
   string id = 17;
@@ -359,13 +363,13 @@ message AdvisoryFilter {
   // When specified, only advisories containing at least one event created by the specified
   // author will be returned. This enables users to find their own events or events from
   // specific team members.
-  optional string event_author = 12;
+  repeated string event_author = 12;
 
   // event_reviewer filters by event reviewer email
   // When specified, only advisories containing at least one event reviewed by the specified
   // author will be returned. This enables users to find their own events or events from
   // specific team members.
-  optional string event_reviewer = 18;
+  repeated string event_reviewer = 18;
 
   // event_types filters by event type
   // When specified, only advisories containing at least one event of any of the provided
@@ -382,7 +386,7 @@ message AdvisoryFilter {
   // When specified, advisories containing events by this author will be excluded from results.
   // This is useful for review workflows where users want to see all pending events except their own,
   // enabling them to review others' work without seeing their own submissions.
-  optional string exclude_event_author = 15;
+  repeated string exclude_event_author = 15;
 
   // latest_event_type filters out advisories where the _most recent approved event_ is
   // of the given type. This is useful to find advisories which are currently detected,

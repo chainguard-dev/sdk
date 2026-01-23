@@ -6,6 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 package test
 
 import (
+	"google.golang.org/grpc"
+
 	"chainguard.dev/sdk/proto/platform"
 	advisory "chainguard.dev/sdk/proto/platform/advisory/v1"
 	advisorytest "chainguard.dev/sdk/proto/platform/advisory/v1/test"
@@ -35,6 +37,7 @@ var _ platform.Clients = (*MockPlatformClients)(nil)
 
 type MockPlatformClients struct {
 	OnError error
+	Conn    *grpc.ClientConn
 
 	IAMClient             iamtest.MockIAMClient
 	RegistryClient        registrytest.MockRegistryClients
@@ -53,6 +56,10 @@ func (m MockPlatformClients) Close() error {
 
 func (m MockPlatformClients) IAM() iam.Clients {
 	return m.IAMClient
+}
+
+func (m MockPlatformClients) Connection() *grpc.ClientConn {
+	return m.Conn
 }
 
 func (m MockPlatformClients) Registry() registry.Clients {
