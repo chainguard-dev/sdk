@@ -227,6 +227,7 @@ message AdvisoryEvent {
   }
 
   message Detection {
+    // NOTE: detection events dont have notes
     oneof type {
       NVDAPI nvdapi = 1;
       Manual manual = 2;
@@ -253,6 +254,7 @@ message AdvisoryEvent {
 
   message Fixed {
     string fixed_version = 1;
+    string note = 2;
   }
 
   message TruePositiveDetermination {
