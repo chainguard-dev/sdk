@@ -21,6 +21,8 @@ import (
 	iamtest "chainguard.dev/sdk/proto/platform/iam/v1/test"
 	libraries "chainguard.dev/sdk/proto/platform/libraries/v1"
 	librariestest "chainguard.dev/sdk/proto/platform/libraries/v1/test"
+	matcher "chainguard.dev/sdk/proto/platform/matcher/v1"
+	matchertest "chainguard.dev/sdk/proto/platform/matcher/v1/test"
 	notifications "chainguard.dev/sdk/proto/platform/notifications/v1"
 	notificationstest "chainguard.dev/sdk/proto/platform/notifications/v1/test"
 	oidc "chainguard.dev/sdk/proto/platform/oidc/v1"
@@ -48,6 +50,7 @@ type MockPlatformClients struct {
 	EcosystemsClient      ecosystemstest.MockEcosystemsClients
 	LibrariesClient       librariestest.MockLibrariesClients
 	VulnerabilitiesClient vulnerabilitiestest.MockVulnerabilitiesClients
+	ImageMatcherClient    matchertest.MockImageMatcherClients
 }
 
 func (m MockPlatformClients) Close() error {
@@ -92,6 +95,10 @@ func (m MockPlatformClients) Libraries() libraries.Clients {
 
 func (m MockPlatformClients) Vulnerabilities() vulnerabilities.Clients {
 	return m.VulnerabilitiesClient
+}
+
+func (m MockPlatformClients) ImageMatcher() matcher.Clients {
+	return m.ImageMatcherClient
 }
 
 var _ platform.OIDCClients = (*MockOIDCClients)(nil)

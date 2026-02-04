@@ -1,0 +1,71 @@
+/*
+Copyright 2026 Chainguard, Inc.
+SPDX-License-Identifier: Apache-2.0
+*/
+
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/matcher/v1";
+
+package chainguard.platform.matcher;
+
+import "google/api/annotations.proto";
+import "annotations/auth.proto";
+
+// ImageMatcher (code name Crystal Ball) recommends chainguard images equivalent to popular images
+service ImageMatcher {
+  // MatchImage takes an sbom and returns a list of chainguard
+  // images ranked by sbom similarity
+  rpc MatchImage(MatchImageRequest) returns (MatchedImages) {
+    option (google.api.http) = {
+      get: "/image-recommendation/v1/match"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST]
+      }
+    };
+  }
+}
+
+message MatchImageRequest {
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+  SBOM sbom = 2;
+}
+
+message SBOM {
+  // individaul sbom entries
+  repeated SBOMComponent sbom_components = 1;
+}
+
+message SBOMComponent {
+  // single item within the package
+  string type = 1;
+  string purl = 2;
+  string name = 3;
+  string cpe = 4;
+  string bomref = 5;
+  string version = 6;
+}
+
+message MatchedImages {
+  // matching chainguard images ordered by descending score
+  repeated ImageMatch images = 1;
+}
+
+message ImageMatch {
+  // ImageMatch represents a single image match
+  string image_ref = 1;
+  repeated PackageWithScore satisfied_packages = 2;
+  repeated PackageWithScore missing_packages = 3;
+  repeated PackageWithScore extra_packages = 4;
+  double probability_score = 5;
+  double overall_score = 6;
+}
+
+message PackageWithScore {
+  // PackageWithScore represents a package name with its associated weight/score
+  string name = 1;
+  double score = 2;
+  repeated string external_package_names = 3;
+}

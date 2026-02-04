@@ -21,6 +21,7 @@ import (
 	ecosystems "chainguard.dev/sdk/proto/platform/ecosystems/v1"
 	iam "chainguard.dev/sdk/proto/platform/iam/v1"
 	libraries "chainguard.dev/sdk/proto/platform/libraries/v1"
+	matcher "chainguard.dev/sdk/proto/platform/matcher/v1"
 	notifications "chainguard.dev/sdk/proto/platform/notifications/v1"
 	platformoidc "chainguard.dev/sdk/proto/platform/oidc/v1"
 	ping "chainguard.dev/sdk/proto/platform/ping/v1"
@@ -41,6 +42,7 @@ type Clients interface {
 	Ecosystems() ecosystems.Clients
 	Libraries() libraries.Clients
 	Vulnerabilities() vulnerabilities.Clients
+	ImageMatcher() matcher.Clients
 
 	// Connection returns the underlying gRPC connection for creating additional clients.
 	// This is useful for internal consumers that need access to experimental APIs.
@@ -94,6 +96,7 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 		ecosystems:      ecosystems.NewClientsFromConnection(conn),
 		libraries:       libraries.NewClientsFromConnection(conn),
 		vulnerabilities: vulnerabilities.NewClientsFromConnection(conn),
+		matcher:         matcher.NewClientsFromConnection(conn),
 		conn:            conn,
 	}, nil
 }
@@ -108,6 +111,7 @@ type clients struct {
 	ecosystems      ecosystems.Clients
 	libraries       libraries.Clients
 	vulnerabilities vulnerabilities.Clients
+	matcher         matcher.Clients
 
 	conn *grpc.ClientConn
 }
@@ -150,6 +154,10 @@ func (c *clients) Libraries() libraries.Clients {
 
 func (c *clients) Vulnerabilities() vulnerabilities.Clients {
 	return c.vulnerabilities
+}
+
+func (c *clients) ImageMatcher() matcher.Clients {
+	return c.matcher
 }
 
 func (c *clients) Close() error {
