@@ -34,7 +34,7 @@ const (
 type ImageMatcherClient interface {
 	// MatchImage takes an sbom and returns a list of chainguard
 	// images ranked by sbom similarity
-	MatchImage(ctx context.Context, in *MatchImageRequest, opts ...grpc.CallOption) (*MatchedImages, error)
+	MatchImage(ctx context.Context, in *MatchImageRequest, opts ...grpc.CallOption) (*MatchImageResponse, error)
 }
 
 type imageMatcherClient struct {
@@ -45,9 +45,9 @@ func NewImageMatcherClient(cc grpc.ClientConnInterface) ImageMatcherClient {
 	return &imageMatcherClient{cc}
 }
 
-func (c *imageMatcherClient) MatchImage(ctx context.Context, in *MatchImageRequest, opts ...grpc.CallOption) (*MatchedImages, error) {
+func (c *imageMatcherClient) MatchImage(ctx context.Context, in *MatchImageRequest, opts ...grpc.CallOption) (*MatchImageResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MatchedImages)
+	out := new(MatchImageResponse)
 	err := c.cc.Invoke(ctx, ImageMatcher_MatchImage_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func (c *imageMatcherClient) MatchImage(ctx context.Context, in *MatchImageReque
 type ImageMatcherServer interface {
 	// MatchImage takes an sbom and returns a list of chainguard
 	// images ranked by sbom similarity
-	MatchImage(context.Context, *MatchImageRequest) (*MatchedImages, error)
+	MatchImage(context.Context, *MatchImageRequest) (*MatchImageResponse, error)
 	mustEmbedUnimplementedImageMatcherServer()
 }
 
@@ -74,7 +74,7 @@ type ImageMatcherServer interface {
 // pointer dereference when methods are called.
 type UnimplementedImageMatcherServer struct{}
 
-func (UnimplementedImageMatcherServer) MatchImage(context.Context, *MatchImageRequest) (*MatchedImages, error) {
+func (UnimplementedImageMatcherServer) MatchImage(context.Context, *MatchImageRequest) (*MatchImageResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MatchImage not implemented")
 }
 func (UnimplementedImageMatcherServer) mustEmbedUnimplementedImageMatcherServer() {}

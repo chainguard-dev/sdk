@@ -16,7 +16,7 @@ import "annotations/auth.proto";
 service ImageMatcher {
   // MatchImage takes an sbom and returns a list of chainguard
   // images ranked by sbom similarity
-  rpc MatchImage(MatchImageRequest) returns (MatchedImages) {
+  rpc MatchImage(MatchImageRequest) returns (MatchImageResponse) {
     option (google.api.http) = {
       get: "/image-recommendation/v1/match"
     };
@@ -29,8 +29,26 @@ service ImageMatcher {
 }
 
 message MatchImageRequest {
+  // parent_id is the group id of the caller making the request
   string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // sbom is the SBOM data
   SBOM sbom = 2;
+
+  // dist_name is the distribution name (e.g., "debian", "ubuntu", "alpine", "wolfi")
+  optional string dist_name = 3;
+
+  // dist_version is the distribution version (e.g., "bookworm", "jammy")
+  optional string dist_version = 4;
+
+  // arch is the architecture (e.g., "amd64", "arm64")
+  optional string arch = 5;
+
+  // top_n is the maximum number of recommendations to return (default: 10)
+  optional int32 count = 6;
+
+  // threshold is the minimum probability score (0-100) to report images (default: 50.0)
+  optional double threshold = 7;
 }
 
 message SBOM {
@@ -48,24 +66,68 @@ message SBOMComponent {
   string version = 6;
 }
 
-message MatchedImages {
+message MatchImageResponse {
   // matching chainguard images ordered by descending score
   repeated ImageMatch images = 1;
+
+  // total_external_packages is the total number of external packages in the SBOM
+  int32 total_external_packages = 2;
+
+  // required_apks is the list of required APK package names
+  repeated string required_apks = 3;
+
+  // unmatched_external_pkgs is the list of external packages that couldn't be matched
+  repeated string unmatched_external_pkgs = 4;
 }
 
 message ImageMatch {
-  // ImageMatch represents a single image match
+  // image_ref is the image reference (e.g., "cgr.dev/chainguard/python:latest")
   string image_ref = 1;
-  repeated PackageWithScore satisfied_packages = 2;
-  repeated PackageWithScore missing_packages = 3;
-  repeated PackageWithScore extra_packages = 4;
-  double probability_score = 5;
-  double overall_score = 6;
+
+  // digest is the image digest
+  string digest = 2;
+
+  // coverage is the percentage of required packages in the image (0.0 to 1.0)
+  double coverage = 3;
+
+  // satisfied_packages are the required packages found in the image
+  repeated PackageWithScore satisfied_packages = 4;
+
+  // satisfied_count is the number of required packages found
+  int32 satisfied_count = 5;
+
+  // total_required is the total number of packages needed
+  int32 total_required = 6;
+
+  // missing_packages are the required packages not in the image
+  repeated PackageWithScore missing_packages = 7;
+
+  // extra_packages is the count of packages in the image not required
+  int32 extra_packages = 8;
+
+  // extra_packages_with_score are the extra packages with their weights
+  repeated PackageWithScore extra_packages_with_score = 9;
+
+  // satisfied_score is the weighted score for satisfied packages
+  double satisfied_score = 10;
+
+  // missing_score is the weighted score for missing packages
+  double missing_score = 11;
+
+  // extra_score is the weighted score for extra packages
+  double extra_score = 12;
+
+  // probability_score is the probability score (0-100) indicating match accuracy
+  double probability_score = 13;
+
+  // overall_score is the overall weighted score
+  double overall_score = 14;
 }
 
 message PackageWithScore {
   // PackageWithScore represents a package name with its associated weight/score
   string name = 1;
   double score = 2;
+  // TODO do we want to remove this, as it isn't in image_recommendation.proto
   repeated string external_package_names = 3;
 }

@@ -40,11 +40,11 @@ type MockImageMatcherClient struct {
 
 type MatchImageOnMatch struct {
 	Given    *matcher.MatchImageRequest
-	Response *matcher.MatchedImages
+	Response *matcher.MatchImageResponse
 	Error    error
 }
 
-func (m MockImageMatcherClient) MatchImage(_ context.Context, given *matcher.MatchImageRequest, _ ...grpc.CallOption) (*matcher.MatchedImages, error) { //nolint: revive
+func (m MockImageMatcherClient) MatchImage(_ context.Context, given *matcher.MatchImageRequest, _ ...grpc.CallOption) (*matcher.MatchImageResponse, error) { //nolint: revive
 	for _, o := range m.OnMatchImage {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Response, o.Error
