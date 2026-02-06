@@ -42,12 +42,43 @@ message APKFilter {
   // Filter by origin package. Returns all packages (including subpackages)
   // that have this origin. For origin packages, origin equals package_name.
   string origin = 5;
+
+  // Pagination: Maximum number of results to return per page.
+  // When set to 0 and page_token is empty, all results are returned (backward compatible).
+  // Default: 50, Maximum: 200
+  int32 page_size = 6;
+
+  // Pagination: Opaque token for retrieving the next page of results.
+  // Use the value from next_page_token in the previous response.
+  string page_token = 7;
+
+  // Order results by field. Format: "field [asc|desc]"
+  // Supported fields: "uid", "package_name", "build_time"
+  // Examples: "package_name asc", "build_time desc"
+  // Default: sorted by uid
+  string order_by = 8;
+
+  // Number of results to skip (for random-access pagination).
+  // Applied after cursor positioning.
+  int32 skip = 9;
 }
 
 // APKList is a list of APKs.
 message APKList {
   // The APKs returned by the list request.
   repeated APKPackage items = 1;
+
+  // Pagination: Token for retrieving the next page of results.
+  // Empty if there are no more results.
+  string next_page_token = 2;
+
+  // Total number of APKs matching the filter.
+  // Useful for displaying "Page 1 of N" in UIs.
+  int64 total_count = 3;
+
+  // Number of results that were skipped to reach this page.
+  // This accumulates across pages when using skip parameter.
+  int32 skipped = 4;
 }
 
 // APKPackage is an APK package and its metadata.
