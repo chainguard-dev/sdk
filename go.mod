@@ -3,7 +3,7 @@ module chainguard.dev/sdk
 go 1.25.0
 
 require (
-	chainguard.dev/apko v1.1.3
+	chainguard.dev/apko v1.1.6
 	chainguard.dev/go-grpc-kit v0.17.15
 	chainguard.dev/go-oidctest v0.4.0
 	cloud.google.com/go/compute/metadata v0.9.0
@@ -24,7 +24,7 @@ require (
 	github.com/sigstore/sigstore v1.9.5
 	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546
 	golang.org/x/oauth2 v0.34.0
-	google.golang.org/api v0.264.0
+	google.golang.org/api v0.265.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20251202230838-ff82c1b0f217
 	google.golang.org/grpc v1.78.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1
