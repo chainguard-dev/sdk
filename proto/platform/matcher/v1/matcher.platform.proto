@@ -18,7 +18,8 @@ service ImageMatcher {
   // images ranked by sbom similarity
   rpc MatchImage(MatchImageRequest) returns (MatchImageResponse) {
     option (google.api.http) = {
-      get: "/image-recommendation/v1/match"
+      post: "/image-recommendation/v1/match"
+      body: "*"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
@@ -38,7 +39,7 @@ message MatchImageRequest {
   // dist_name is the distribution name (e.g., "debian", "ubuntu", "alpine", "wolfi")
   optional string dist_name = 3;
 
-  // dist_version is the distribution version (e.g., "bookworm", "jammy")
+  // dist_version is the distribution version (e.g., "1.2.3", "2.0-r2")
   optional string dist_version = 4;
 
   // arch is the architecture (e.g., "amd64", "arm64")
