@@ -137,11 +137,17 @@ func walkValue(v any, fn func(string) (any, error)) (any, error) {
 	case map[string]any:
 		result := make(map[string]any, len(val))
 		for k, v := range val {
+			if v == nil {
+				result[k] = nil
+				continue
+			}
 			transformed, err := walkValue(v, fn)
 			if err != nil {
 				return nil, err
 			}
-			result[k] = transformed
+			if transformed != nil {
+				result[k] = transformed
+			}
 		}
 		return result, nil
 	case []any:
@@ -183,7 +189,7 @@ func merge(dst, src map[string]any) error {
 }
 
 // Resolve resolves the mapping with refs and merges into valuesr, preserving
-// comments
+// comments.
 func (m *Mapping) Resolve(refs map[string]string, valuesr io.Reader) ([]byte, error) {
 	original, err := io.ReadAll(valuesr)
 	if err != nil {

@@ -74,10 +74,10 @@ func (n *Node) print(w io.Writer, prefix string, po PrintOption) {
 	// Adjust prefix for the next generation line(s), if necessary
 	// "├ " is replaced with "│ "
 	// "└ " is replaced with "  "
-	if strings.HasSuffix(prefix, teeSpace) {
-		prefix = strings.TrimSuffix(prefix, teeSpace) + pipeSpace
-	} else if strings.HasSuffix(prefix, elbowSpace) {
-		prefix = strings.TrimSuffix(prefix, elbowSpace) + spaceSpace
+	if p, ok := strings.CutSuffix(prefix, teeSpace); ok {
+		prefix = p + pipeSpace
+	} else if p, ok := strings.CutSuffix(prefix, elbowSpace); ok {
+		prefix = p + spaceSpace
 	}
 
 	children := sortNodes(n.children, po)
