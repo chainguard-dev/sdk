@@ -21,11 +21,27 @@ import (
 )
 
 const (
-	OctoSTSEndpoint = "https://octo-sts.dev"
+	OctoSTSEndpoint        = "https://octo-sts.dev"
+	defaultExchangeTimeout = 67 * time.Second
 )
+
+func exchangeTimeout() time.Duration {
+	if v := os.Getenv("EXCHANGE_TIMEOUT"); v != "" {
+		if d, err := time.ParseDuration(v); err == nil {
+			return d
+		}
+	}
+	return defaultExchangeTimeout
+}
 
 // Token mints a new octo sts token based on the policy for a given repo.
 func Token(ctx context.Context, policyName, org, repo string) (string, error) {
+	if _, ok := ctx.Deadline(); !ok {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, exchangeTimeout())
+		defer cancel()
+	}
+
 	// To help enable local development, we allow the use of a GitHub token,
 	// but *only when not running on GCE*.
 	if tok := os.Getenv("GH_TOKEN"); tok != "" && !metadata.OnGCE() {
