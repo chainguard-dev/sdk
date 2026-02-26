@@ -12,6 +12,7 @@ var _ libraries.Clients = (*MockLibrariesClients)(nil)
 type MockLibrariesClients struct {
 	ArtifactsClient    MockArtifactsClient
 	EntitlementsClient MockEntitlementsClient
+	NpmPackagesClient  MockNpmPackagesClient
 
 	OnClose error
 }
@@ -22,6 +23,10 @@ func (m MockLibrariesClients) Artifacts() libraries.ArtifactsClient {
 
 func (m MockLibrariesClients) Entitlements() libraries.EntitlementsClient {
 	return &m.EntitlementsClient
+}
+
+func (m MockLibrariesClients) NpmPackages() libraries.NpmPackagesClient {
+	return &m.NpmPackagesClient
 }
 
 func (m MockLibrariesClients) Close() error {

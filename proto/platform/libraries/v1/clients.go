@@ -20,6 +20,7 @@ import (
 type Clients interface {
 	Artifacts() ArtifactsClient
 	Entitlements() EntitlementsClient
+	NpmPackages() NpmPackagesClient
 
 	Close() error
 }
@@ -55,6 +56,7 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 	return &clients{
 		artifacts:    NewArtifactsClient(conn),
 		entitlements: NewEntitlementsClient(conn),
+		npmPackages:  NewNpmPackagesClient(conn),
 
 		// conn is not set, this client struct does not own closing it.
 	}
@@ -63,6 +65,7 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 type clients struct {
 	artifacts    ArtifactsClient
 	entitlements EntitlementsClient
+	npmPackages  NpmPackagesClient
 
 	conn *grpc.ClientConn
 }
@@ -73,6 +76,10 @@ func (c *clients) Artifacts() ArtifactsClient {
 
 func (c *clients) Entitlements() EntitlementsClient {
 	return c.entitlements
+}
+
+func (c *clients) NpmPackages() NpmPackagesClient {
+	return c.npmPackages
 }
 
 func (c *clients) Close() error {
