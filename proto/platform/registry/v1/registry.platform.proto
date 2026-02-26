@@ -343,6 +343,17 @@ service Registry {
     };
   }
 
+  rpc ListSyncStatuses(ListSyncStatusesRequest) returns (SyncStatusList) {
+    option (google.api.http) = {
+      get: "/registry/v1/syncstatuses"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST]
+      }
+    };
+  }
+
   rpc CreateDeployment(CreateDeploymentRequest) returns (Deployment) {
     option (google.api.http) = {
       post: "/registry/v1/repos/{parent_id=**}/deployment"
@@ -1089,6 +1100,11 @@ message GetSyncStatusRequest {
   string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
 }
 
+message ListSyncStatusesRequest {
+  // The UIDP of the registry to list the SyncStatus for.
+  string registry_id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
 // SyncStatus is the sync status of a repo in the workqueue.
 message SyncStatus {
   enum Status {
@@ -1103,6 +1119,17 @@ message SyncStatus {
 
   // The time when the task was created in the workqueue.
   google.protobuf.Timestamp create_time = 2;
+}
+
+// RepoSyncStatus is repo_id correlated with the repo's sync status.
+message RepoSyncStatus {
+    string repo_id = 1;
+    SyncStatus repo_status = 2;
+}
+
+// SyncStatusList is the sync status of all repos for a given registry_id.
+message SyncStatusList {
+  repeated RepoSyncStatus items = 1;
 }
 
 message HelmRequest {
