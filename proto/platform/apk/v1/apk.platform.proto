@@ -25,8 +25,6 @@ service APK {
 }
 
 // APKFilter is a filter for APKs.
-//
-// At a minimum the uidp and arch must be set.
 message APKFilter {
   chainguard.platform.common.UIDPFilter uidp = 1;
 
@@ -61,6 +59,12 @@ message APKFilter {
   // Number of results to skip (for random-access pagination).
   // Applied after cursor positioning.
   int32 skip = 9;
+
+  // When set, deduplicate results across architectures: packages available for
+  // multiple architectures are returned only once, with the architecture field
+  // containing a comma-separated list of all architectures (e.g. "aarch64, x86_64").
+  // Has no effect when architecture is already set.
+  bool deduplicate_architectures = 10;
 }
 
 // APKList is a list of APKs.
