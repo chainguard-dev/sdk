@@ -162,6 +162,7 @@ enum Capability {
   CAP_LIBRARIES_REBUILDER_REQUESTS_GROUP_UPDATE = 1843 [(name) = "libraries.rebuilder.requests.group.update", (bit) = 121];
   CAP_LIBRARIES_REBUILDER_ARTIFACTS_INVALIDATE = 1850 [(name) = "libraries.rebuilder.artifacts.invalidate", (bit) = 106];
   CAP_LIBRARIES_REBUILDER_EXCLUSIONS_MANAGE = 1851 [(name) = "libraries.rebuilder.exclusions.manage", (bit) = 112];
+  CAP_LIBRARIES_REBUILDER_BUILDS_READ = 1852 [(name) = "libraries.rebuilder.builds.read", (bit) = 122];
 
   // Registry Entitlements
   CAP_REGISTRY_ENTITLEMENTS_LIST = 1680 [(name) = "registry.entitlements.list", (bit) = 87];
@@ -212,5 +213,5 @@ enum Capability {
   CAP_GULFSTREAM = 10000 [(name) = "gulfstream", (bit) = 47];
 
   reserved 1;
-  // next bit: 122
+  // next bit: 123
 }
