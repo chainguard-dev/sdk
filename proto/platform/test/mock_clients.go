@@ -29,6 +29,8 @@ import (
 	oidctest "chainguard.dev/sdk/proto/platform/oidc/v1/test"
 	ping "chainguard.dev/sdk/proto/platform/ping/v1"
 	pingtest "chainguard.dev/sdk/proto/platform/ping/v1/test"
+	policygates "chainguard.dev/sdk/proto/platform/policygates/v1"
+	policygatestest "chainguard.dev/sdk/proto/platform/policygates/v1/test"
 	registry "chainguard.dev/sdk/proto/platform/registry/v1"
 	registrytest "chainguard.dev/sdk/proto/platform/registry/v1/test"
 	vulnerabilities "chainguard.dev/sdk/proto/platform/vulnerabilities/v1"
@@ -51,6 +53,7 @@ type MockPlatformClients struct {
 	LibrariesClient       librariestest.MockLibrariesClients
 	VulnerabilitiesClient vulnerabilitiestest.MockVulnerabilitiesClients
 	ImageMatcherClient    matchertest.MockImageMatcherClients
+	PolicyGatesClient     policygatestest.MockPolicyGatesClients
 }
 
 func (m MockPlatformClients) Close() error {
@@ -99,6 +102,10 @@ func (m MockPlatformClients) Vulnerabilities() vulnerabilities.Clients {
 
 func (m MockPlatformClients) ImageMatcher() matcher.Clients {
 	return m.ImageMatcherClient
+}
+
+func (m MockPlatformClients) PolicyGates() policygates.Clients {
+	return m.PolicyGatesClient
 }
 
 var _ platform.OIDCClients = (*MockOIDCClients)(nil)

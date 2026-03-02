@@ -79,6 +79,7 @@ type MockRegistryClient struct {
 	OnGetChart                  []ChartOnGet
 	OnGetRegistrySettings       []RegistrySettingsOnGet
 	OnGetSyncStatus             []SyncStatusOnGet
+	OnListSyncStatuses          []SyncStatusOnList
 }
 
 type ReposOnCreate struct {
@@ -232,6 +233,12 @@ type RegistrySettingsOnGet struct {
 type SyncStatusOnGet struct {
 	Given *registry.GetSyncStatusRequest
 	Get   *registry.SyncStatus
+	Error error
+}
+
+type SyncStatusOnList struct {
+	Given *registry.ListSyncStatusesRequest
+	Get   *registry.SyncStatusList
 	Error error
 }
 
@@ -464,6 +471,15 @@ func (m MockRegistryClient) GetRegistrySettings(_ context.Context, given *regist
 
 func (m MockRegistryClient) GetSyncStatus(_ context.Context, given *registry.GetSyncStatusRequest, _ ...grpc.CallOption) (*registry.SyncStatus, error) {
 	for _, o := range m.OnGetSyncStatus {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Get, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockRegistryClient) ListSyncStatuses(_ context.Context, given *registry.ListSyncStatusesRequest, _ ...grpc.CallOption) (*registry.SyncStatusList, error) {
+	for _, o := range m.OnListSyncStatuses {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Get, o.Error
 		}

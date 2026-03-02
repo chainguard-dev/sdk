@@ -159,7 +159,10 @@ enum Capability {
   CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE = 1840 [(name) = "libraries.rebuilder.requests.create", (bit) = 103];
   CAP_LIBRARIES_REBUILDER_REQUESTS_LIST = 1841 [(name) = "libraries.rebuilder.requests.list", (bit) = 104];
   CAP_LIBRARIES_REBUILDER_REQUESTS_CANCEL = 1842 [(name) = "libraries.rebuilder.requests.cancel", (bit) = 105];
+  CAP_LIBRARIES_REBUILDER_REQUESTS_GROUP_UPDATE = 1843 [(name) = "libraries.rebuilder.requests.group.update", (bit) = 121];
   CAP_LIBRARIES_REBUILDER_ARTIFACTS_INVALIDATE = 1850 [(name) = "libraries.rebuilder.artifacts.invalidate", (bit) = 106];
+  CAP_LIBRARIES_REBUILDER_EXCLUSIONS_MANAGE = 1851 [(name) = "libraries.rebuilder.exclusions.manage", (bit) = 112];
+  CAP_LIBRARIES_REBUILDER_BUILDS_READ = 1852 [(name) = "libraries.rebuilder.builds.read", (bit) = 122];
 
   // Registry Entitlements
   CAP_REGISTRY_ENTITLEMENTS_LIST = 1680 [(name) = "registry.entitlements.list", (bit) = 87];
@@ -190,6 +193,17 @@ enum Capability {
   CAP_REGISTRY_DEPLOYMENTS_UPDATE = 1951 [(name) = "registry.deployments.update", (bit) = 99];
   CAP_REGISTRY_DEPLOYMENTS_LIST   = 1952 [(name) = "registry.deployments.list", (bit) = 100];
 
+  // Policy Gates
+  CAP_POLICY_GATES_POLICY_CREATE = 2001 [(name) = "policy_gates.policies.create", (bit) = 113];
+  CAP_POLICY_GATES_POLICY_UPDATE = 2002 [(name) = "policy_gates.policies.update", (bit) = 114];
+  CAP_POLICY_GATES_POLICY_LIST   = 2003 [(name) = "policy_gates.policies.list",   (bit) = 115];
+  CAP_POLICY_GATES_POLICY_DELETE = 2004 [(name) = "policy_gates.policies.delete", (bit) = 116];
+
+  CAP_POLICY_GATES_BINDING_CREATE = 2011 [(name) = "policy_gates.bindings.create", (bit) = 117];
+  CAP_POLICY_GATES_BINDING_UPDATE = 2012 [(name) = "policy_gates.bindings.update", (bit) = 118];
+  CAP_POLICY_GATES_BINDING_LIST   = 2013 [(name) = "policy_gates.bindings.list",   (bit) = 119];
+  CAP_POLICY_GATES_BINDING_DELETE = 2014 [(name) = "policy_gates.bindings.delete", (bit) = 120];
+
   // This is orthogonal enough that we should leave
   // it somewhat separate, so add new capabilities above.
   // TODO(mattmoor): Think about whether we can encode specific
@@ -199,5 +213,5 @@ enum Capability {
   CAP_GULFSTREAM = 10000 [(name) = "gulfstream", (bit) = 47];
 
   reserved 1;
-  // next bit: 112
+  // next bit: 123
 }

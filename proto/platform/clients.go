@@ -25,6 +25,7 @@ import (
 	notifications "chainguard.dev/sdk/proto/platform/notifications/v1"
 	platformoidc "chainguard.dev/sdk/proto/platform/oidc/v1"
 	ping "chainguard.dev/sdk/proto/platform/ping/v1"
+	policygates "chainguard.dev/sdk/proto/platform/policygates/v1"
 	registry "chainguard.dev/sdk/proto/platform/registry/v1"
 	vulnerabilities "chainguard.dev/sdk/proto/platform/vulnerabilities/v1"
 	"github.com/chainguard-dev/clog"
@@ -43,6 +44,7 @@ type Clients interface {
 	Libraries() libraries.Clients
 	Vulnerabilities() vulnerabilities.Clients
 	ImageMatcher() matcher.Clients
+	PolicyGates() policygates.Clients
 
 	// Connection returns the underlying gRPC connection for creating additional clients.
 	// This is useful for internal consumers that need access to experimental APIs.
@@ -97,6 +99,7 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 		libraries:       libraries.NewClientsFromConnection(conn),
 		vulnerabilities: vulnerabilities.NewClientsFromConnection(conn),
 		matcher:         matcher.NewClientsFromConnection(conn),
+		policyGates:     policygates.NewClientsFromConnection(conn),
 		conn:            conn,
 	}, nil
 }
@@ -112,6 +115,7 @@ type clients struct {
 	libraries       libraries.Clients
 	vulnerabilities vulnerabilities.Clients
 	matcher         matcher.Clients
+	policyGates     policygates.Clients
 
 	conn *grpc.ClientConn
 }
@@ -158,6 +162,10 @@ func (c *clients) Vulnerabilities() vulnerabilities.Clients {
 
 func (c *clients) ImageMatcher() matcher.Clients {
 	return c.matcher
+}
+
+func (c *clients) PolicyGates() policygates.Clients {
+	return c.policyGates
 }
 
 func (c *clients) Close() error {
