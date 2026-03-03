@@ -47,6 +47,9 @@ var (
 		Capability_CAP_REGISTRY_DEPLOYMENTS_LIST,
 
 		Capability_CAP_REGISTRY_SETTINGS_LIST,
+
+		Capability_CAP_POLICY_GATES_POLICY_LIST,
+		Capability_CAP_POLICY_GATES_BINDING_LIST,
 	})
 
 	// ViewerCaps are read-only capabilities that do not affect state,
@@ -98,6 +101,10 @@ var (
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_CREATE,
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_DELETE,
 		Capability_CAP_REPO_UPDATE,
+
+		Capability_CAP_POLICY_GATES_BINDING_CREATE,
+		Capability_CAP_POLICY_GATES_BINDING_UPDATE,
+		Capability_CAP_POLICY_GATES_BINDING_DELETE,
 	}, EditorCaps,
 		// Owners can also push and delete OCI, APK Java, JavaScript, and Python artifacts, subject to the identity allowlist.
 		RegistryPushCaps, APKPushCaps, LibrariesJavaPushCaps, LibrariesJavascriptPushCaps, LibrariesPythonPushCaps,
