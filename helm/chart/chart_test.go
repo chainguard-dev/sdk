@@ -1,5 +1,5 @@
 /*
-Copyright 2025 Chainguard, Inc.
+Copyright 2026 Chainguard, Inc.
 SPDX-License-Identifier: Apache-2.0
 */
 
@@ -26,19 +26,16 @@ func TestReadValues(t *testing.T) {
 		hasValues bool
 		values    string
 		want      string
-	}{
-		{
-			name:      "with values.yaml",
-			hasValues: true,
-			values:    "image: nginx\n",
-			want:      "image: nginx\n",
-		},
-		{
-			name:      "without values.yaml",
-			hasValues: false,
-			want:      "",
-		},
-	}
+	}{{
+		name:      "with values.yaml",
+		hasValues: true,
+		values:    "image: nginx\n",
+		want:      "image: nginx\n",
+	}, {
+		name:      "without values.yaml",
+		hasValues: false,
+		want:      "",
+	}}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -55,7 +52,7 @@ func TestReadValues(t *testing.T) {
 			}
 
 			if string(got) != tt.want {
-				t.Errorf("ReadValues = %q, want %q", got, tt.want)
+				t.Errorf("ReadValues: got = %q, wanted = %q", got, tt.want)
 			}
 		})
 	}
@@ -92,7 +89,7 @@ func TestReplaceValues(t *testing.T) {
 
 	want := "image:\n  registry: my-registry.io\n  repository: my-group/nginx\n"
 	if string(got) != want {
-		t.Errorf("after ReplaceValues, ReadValues = %q, want %q", got, want)
+		t.Errorf("after ReplaceValues, ReadValues: got = %q, wanted = %q", got, want)
 	}
 }
 
@@ -164,20 +161,33 @@ func TestIsTopLevelValuesYAML(t *testing.T) {
 	tests := []struct {
 		path string
 		want bool
-	}{
-		{"chart/values.yaml", true},
-		{"my-chart/values.yaml", true},
-		{"values.yaml", false},
-		{"chart/charts/subchart/values.yaml", false},
-		{"chart/templates/values.yaml", false},
-		{"chart/values.yml", false},
-		{"a/b/c/values.yaml", false},
-	}
+	}{{
+		path: "chart/values.yaml",
+		want: true,
+	}, {
+		path: "my-chart/values.yaml",
+		want: true,
+	}, {
+		path: "values.yaml",
+		want: false,
+	}, {
+		path: "chart/charts/subchart/values.yaml",
+		want: false,
+	}, {
+		path: "chart/templates/values.yaml",
+		want: false,
+	}, {
+		path: "chart/values.yml",
+		want: false,
+	}, {
+		path: "a/b/c/values.yaml",
+		want: false,
+	}}
 
 	for _, tt := range tests {
 		t.Run(tt.path, func(t *testing.T) {
 			if got := isTopLevelValuesYAML(tt.path); got != tt.want {
-				t.Errorf("isTopLevelValuesYAML(%q) = %v, want %v", tt.path, got, tt.want)
+				t.Errorf("isTopLevelValuesYAML(%q): got = %v, wanted = %v", tt.path, got, tt.want)
 			}
 		})
 	}

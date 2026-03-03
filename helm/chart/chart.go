@@ -1,5 +1,5 @@
 /*
-Copyright 2025 Chainguard, Inc.
+Copyright 2026 Chainguard, Inc.
 SPDX-License-Identifier: Apache-2.0
 */
 
@@ -127,13 +127,13 @@ func writeValues(chart v1.Image, values []byte) (v1.Image, error) {
 		}
 
 		if header.Size > maxFileSize {
-			return nil, fmt.Errorf("file %s exceeds maximum size (%d > %d)", header.Name, header.Size, maxFileSize)
+			return nil, fmt.Errorf("file %q exceeds maximum size (%d > %d)", header.Name, header.Size, maxFileSize)
 		}
 		if err := tw.WriteHeader(header); err != nil {
-			return nil, fmt.Errorf("writing tar header for %s: %w", header.Name, err)
+			return nil, fmt.Errorf("writing tar header for %q: %w", header.Name, err)
 		}
 		if _, err := io.CopyN(tw, tr, header.Size); err != nil {
-			return nil, fmt.Errorf("copying file %s: %w", header.Name, err)
+			return nil, fmt.Errorf("copying file %q: %w", header.Name, err)
 		}
 	}
 
@@ -198,7 +198,7 @@ func getChartLayer(chart v1.Image) (v1.Layer, error) {
 		return nil, fmt.Errorf("getting layer media type: %w", err)
 	}
 	if mt != MediaType {
-		return nil, fmt.Errorf("expected layer media type %s, got %s", MediaType, mt)
+		return nil, fmt.Errorf("expected layer media type %q, got %q", MediaType, mt)
 	}
 
 	return layers[0], nil
