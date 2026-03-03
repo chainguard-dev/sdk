@@ -22,7 +22,7 @@ func TestNewRef(t *testing.T) {
 		want      OCIRef
 		wantErr   string
 	}{
-		// Success cases
+		// Success cases - with digest
 		{
 			name:      "tag and digest",
 			reference: fmt.Sprintf("cgr.dev/chainguard/nginx:latest@%s", validDigest),
@@ -32,7 +32,6 @@ func TestNewRef(t *testing.T) {
 				Tag:          "latest",
 				Digest:       validDigest,
 				RegistryRepo: "cgr.dev/chainguard/nginx",
-				PseudoTag:    fmt.Sprintf("latest@%s", validDigest),
 				FullRef:      fmt.Sprintf("cgr.dev/chainguard/nginx:latest@%s", validDigest),
 			},
 		},
@@ -44,7 +43,6 @@ func TestNewRef(t *testing.T) {
 				Repo:         "chainguard/nginx",
 				Digest:       validDigest,
 				RegistryRepo: "cgr.dev/chainguard/nginx",
-				PseudoTag:    fmt.Sprintf("unused@%s", validDigest),
 				FullRef:      fmt.Sprintf("cgr.dev/chainguard/nginx@%s", validDigest),
 			},
 		},
@@ -57,7 +55,6 @@ func TestNewRef(t *testing.T) {
 				Tag:          "latest",
 				Digest:       validDigest,
 				RegistryRepo: "cgr.dev/nginx",
-				PseudoTag:    fmt.Sprintf("latest@%s", validDigest),
 				FullRef:      fmt.Sprintf("cgr.dev/nginx:latest@%s", validDigest),
 			},
 		},
@@ -69,7 +66,6 @@ func TestNewRef(t *testing.T) {
 				Repo:         "chainguard/images/static",
 				Digest:       validDigest,
 				RegistryRepo: "cgr.dev/chainguard/images/static",
-				PseudoTag:    fmt.Sprintf("unused@%s", validDigest),
 				FullRef:      fmt.Sprintf("cgr.dev/chainguard/images/static@%s", validDigest),
 			},
 		},
@@ -81,7 +77,6 @@ func TestNewRef(t *testing.T) {
 				Repo:         "myimage",
 				Digest:       validDigest,
 				RegistryRepo: "localhost:5000/myimage",
-				PseudoTag:    fmt.Sprintf("unused@%s", validDigest),
 				FullRef:      fmt.Sprintf("localhost:5000/myimage@%s", validDigest),
 			},
 		},
@@ -93,7 +88,6 @@ func TestNewRef(t *testing.T) {
 				Repo:         "library/nginx",
 				Digest:       validDigest,
 				RegistryRepo: "index.docker.io/library/nginx",
-				PseudoTag:    fmt.Sprintf("unused@%s", validDigest),
 				FullRef:      fmt.Sprintf("index.docker.io/library/nginx@%s", validDigest),
 			},
 		},
@@ -106,7 +100,6 @@ func TestNewRef(t *testing.T) {
 				Tag:          "v1.25.0",
 				Digest:       validDigest,
 				RegistryRepo: "cgr.dev/nginx",
-				PseudoTag:    fmt.Sprintf("v1.25.0@%s", validDigest),
 				FullRef:      fmt.Sprintf("cgr.dev/nginx:v1.25.0@%s", validDigest),
 			},
 		},
@@ -119,36 +112,65 @@ func TestNewRef(t *testing.T) {
 				Tag:          "v1.25.0-alpine_3.18",
 				Digest:       validDigest,
 				RegistryRepo: "cgr.dev/nginx",
-				PseudoTag:    fmt.Sprintf("v1.25.0-alpine_3.18@%s", validDigest),
 				FullRef:      fmt.Sprintf("cgr.dev/nginx:v1.25.0-alpine_3.18@%s", validDigest),
 			},
 		},
 
-		// Error cases - missing digest
+		// Success cases - without digest
 		{
-			name:      "tag only - error",
+			name:      "tag only",
 			reference: "cgr.dev/chainguard/nginx:latest",
-			wantErr:   "must include a digest",
+			want: OCIRef{
+				Registry:     "cgr.dev",
+				Repo:         "chainguard/nginx",
+				Tag:          "latest",
+				RegistryRepo: "cgr.dev/chainguard/nginx",
+				FullRef:      "cgr.dev/chainguard/nginx:latest",
+			},
 		},
 		{
-			name:      "implicit latest tag - error",
+			name:      "implicit latest tag",
 			reference: "cgr.dev/chainguard/nginx",
-			wantErr:   "must include a digest",
+			want: OCIRef{
+				Registry:     "cgr.dev",
+				Repo:         "chainguard/nginx",
+				Tag:          "latest",
+				RegistryRepo: "cgr.dev/chainguard/nginx",
+				FullRef:      "cgr.dev/chainguard/nginx:latest",
+			},
 		},
 		{
-			name:      "nested repo path - error",
+			name:      "nested repo path with tag",
 			reference: "cgr.dev/chainguard/images/static:v1",
-			wantErr:   "must include a digest",
+			want: OCIRef{
+				Registry:     "cgr.dev",
+				Repo:         "chainguard/images/static",
+				Tag:          "v1",
+				RegistryRepo: "cgr.dev/chainguard/images/static",
+				FullRef:      "cgr.dev/chainguard/images/static:v1",
+			},
 		},
 		{
-			name:      "registry with port - error",
+			name:      "registry with port and tag",
 			reference: "localhost:5000/myimage:v1",
-			wantErr:   "must include a digest",
+			want: OCIRef{
+				Registry:     "localhost:5000",
+				Repo:         "myimage",
+				Tag:          "v1",
+				RegistryRepo: "localhost:5000/myimage",
+				FullRef:      "localhost:5000/myimage:v1",
+			},
 		},
 		{
-			name:      "docker hub - error",
+			name:      "docker hub with tag",
 			reference: "nginx:latest",
-			wantErr:   "must include a digest",
+			want: OCIRef{
+				Registry:     "index.docker.io",
+				Repo:         "library/nginx",
+				Tag:          "latest",
+				RegistryRepo: "index.docker.io/library/nginx",
+				FullRef:      "index.docker.io/library/nginx:latest",
+			},
 		},
 
 		// Error cases - invalid reference

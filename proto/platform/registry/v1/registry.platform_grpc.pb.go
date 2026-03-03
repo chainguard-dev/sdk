@@ -47,6 +47,7 @@ const (
 	Registry_GetBuildStatus_FullMethodName            = "/chainguard.platform.registry.Registry/GetBuildStatus"
 	Registry_GetUpdateStatus_FullMethodName           = "/chainguard.platform.registry.Registry/GetUpdateStatus"
 	Registry_GetSyncStatus_FullMethodName             = "/chainguard.platform.registry.Registry/GetSyncStatus"
+	Registry_ListSyncStatuses_FullMethodName          = "/chainguard.platform.registry.Registry/ListSyncStatuses"
 	Registry_CreateDeployment_FullMethodName          = "/chainguard.platform.registry.Registry/CreateDeployment"
 	Registry_UpdateDeployment_FullMethodName          = "/chainguard.platform.registry.Registry/UpdateDeployment"
 	Registry_GetDeployment_FullMethodName             = "/chainguard.platform.registry.Registry/GetDeployment"
@@ -86,6 +87,7 @@ type RegistryClient interface {
 	GetBuildStatus(ctx context.Context, in *BuildReportFilter, opts ...grpc.CallOption) (*BuildStatus, error)
 	GetUpdateStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*UpdateStatus, error)
 	GetSyncStatus(ctx context.Context, in *GetSyncStatusRequest, opts ...grpc.CallOption) (*SyncStatus, error)
+	ListSyncStatuses(ctx context.Context, in *ListSyncStatusesRequest, opts ...grpc.CallOption) (*SyncStatusList, error)
 	CreateDeployment(ctx context.Context, in *CreateDeploymentRequest, opts ...grpc.CallOption) (*Deployment, error)
 	UpdateDeployment(ctx context.Context, in *UpdateDeploymentRequest, opts ...grpc.CallOption) (*Deployment, error)
 	GetDeployment(ctx context.Context, in *GetDeploymentRequest, opts ...grpc.CallOption) (*Deployment, error)
@@ -361,6 +363,16 @@ func (c *registryClient) GetSyncStatus(ctx context.Context, in *GetSyncStatusReq
 	return out, nil
 }
 
+func (c *registryClient) ListSyncStatuses(ctx context.Context, in *ListSyncStatusesRequest, opts ...grpc.CallOption) (*SyncStatusList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SyncStatusList)
+	err := c.cc.Invoke(ctx, Registry_ListSyncStatuses_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *registryClient) CreateDeployment(ctx context.Context, in *CreateDeploymentRequest, opts ...grpc.CallOption) (*Deployment, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Deployment)
@@ -443,6 +455,7 @@ type RegistryServer interface {
 	GetBuildStatus(context.Context, *BuildReportFilter) (*BuildStatus, error)
 	GetUpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatus, error)
 	GetSyncStatus(context.Context, *GetSyncStatusRequest) (*SyncStatus, error)
+	ListSyncStatuses(context.Context, *ListSyncStatusesRequest) (*SyncStatusList, error)
 	CreateDeployment(context.Context, *CreateDeploymentRequest) (*Deployment, error)
 	UpdateDeployment(context.Context, *UpdateDeploymentRequest) (*Deployment, error)
 	GetDeployment(context.Context, *GetDeploymentRequest) (*Deployment, error)
@@ -535,6 +548,9 @@ func (UnimplementedRegistryServer) GetUpdateStatus(context.Context, *UpdateStatu
 }
 func (UnimplementedRegistryServer) GetSyncStatus(context.Context, *GetSyncStatusRequest) (*SyncStatus, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSyncStatus not implemented")
+}
+func (UnimplementedRegistryServer) ListSyncStatuses(context.Context, *ListSyncStatusesRequest) (*SyncStatusList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListSyncStatuses not implemented")
 }
 func (UnimplementedRegistryServer) CreateDeployment(context.Context, *CreateDeploymentRequest) (*Deployment, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateDeployment not implemented")
@@ -1040,6 +1056,24 @@ func _Registry_GetSyncStatus_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Registry_ListSyncStatuses_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListSyncStatusesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).ListSyncStatuses(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_ListSyncStatuses_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).ListSyncStatuses(ctx, req.(*ListSyncStatusesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Registry_CreateDeployment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateDeploymentRequest)
 	if err := dec(in); err != nil {
@@ -1240,6 +1274,10 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSyncStatus",
 			Handler:    _Registry_GetSyncStatus_Handler,
+		},
+		{
+			MethodName: "ListSyncStatuses",
+			Handler:    _Registry_ListSyncStatuses_Handler,
 		},
 		{
 			MethodName: "CreateDeployment",

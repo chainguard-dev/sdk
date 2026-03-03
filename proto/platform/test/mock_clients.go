@@ -6,6 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 package test
 
 import (
+	"google.golang.org/grpc"
+
 	"chainguard.dev/sdk/proto/platform"
 	advisory "chainguard.dev/sdk/proto/platform/advisory/v1"
 	advisorytest "chainguard.dev/sdk/proto/platform/advisory/v1/test"
@@ -19,12 +21,16 @@ import (
 	iamtest "chainguard.dev/sdk/proto/platform/iam/v1/test"
 	libraries "chainguard.dev/sdk/proto/platform/libraries/v1"
 	librariestest "chainguard.dev/sdk/proto/platform/libraries/v1/test"
+	matcher "chainguard.dev/sdk/proto/platform/matcher/v1"
+	matchertest "chainguard.dev/sdk/proto/platform/matcher/v1/test"
 	notifications "chainguard.dev/sdk/proto/platform/notifications/v1"
 	notificationstest "chainguard.dev/sdk/proto/platform/notifications/v1/test"
 	oidc "chainguard.dev/sdk/proto/platform/oidc/v1"
 	oidctest "chainguard.dev/sdk/proto/platform/oidc/v1/test"
 	ping "chainguard.dev/sdk/proto/platform/ping/v1"
 	pingtest "chainguard.dev/sdk/proto/platform/ping/v1/test"
+	policygates "chainguard.dev/sdk/proto/platform/policygates/v1"
+	policygatestest "chainguard.dev/sdk/proto/platform/policygates/v1/test"
 	registry "chainguard.dev/sdk/proto/platform/registry/v1"
 	registrytest "chainguard.dev/sdk/proto/platform/registry/v1/test"
 	vulnerabilities "chainguard.dev/sdk/proto/platform/vulnerabilities/v1"
@@ -35,6 +41,7 @@ var _ platform.Clients = (*MockPlatformClients)(nil)
 
 type MockPlatformClients struct {
 	OnError error
+	Conn    *grpc.ClientConn
 
 	IAMClient             iamtest.MockIAMClient
 	RegistryClient        registrytest.MockRegistryClients
@@ -45,6 +52,8 @@ type MockPlatformClients struct {
 	EcosystemsClient      ecosystemstest.MockEcosystemsClients
 	LibrariesClient       librariestest.MockLibrariesClients
 	VulnerabilitiesClient vulnerabilitiestest.MockVulnerabilitiesClients
+	ImageMatcherClient    matchertest.MockImageMatcherClients
+	PolicyGatesClient     policygatestest.MockPolicyGatesClients
 }
 
 func (m MockPlatformClients) Close() error {
@@ -53,6 +62,10 @@ func (m MockPlatformClients) Close() error {
 
 func (m MockPlatformClients) IAM() iam.Clients {
 	return m.IAMClient
+}
+
+func (m MockPlatformClients) Connection() *grpc.ClientConn {
+	return m.Conn
 }
 
 func (m MockPlatformClients) Registry() registry.Clients {
@@ -85,6 +98,14 @@ func (m MockPlatformClients) Libraries() libraries.Clients {
 
 func (m MockPlatformClients) Vulnerabilities() vulnerabilities.Clients {
 	return m.VulnerabilitiesClient
+}
+
+func (m MockPlatformClients) ImageMatcher() matcher.Clients {
+	return m.ImageMatcherClient
+}
+
+func (m MockPlatformClients) PolicyGates() policygates.Clients {
+	return m.PolicyGatesClient
 }
 
 var _ platform.OIDCClients = (*MockOIDCClients)(nil)

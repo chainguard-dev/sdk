@@ -1,0 +1,120 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/libraries/v1";
+
+package chainguard.platform.libraries;
+
+import "annotations/auth.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+service NpmPackages {
+  rpc List(NpmPackageFilter) returns (NpmPackageList) {
+    option (google.api.http) = {
+      get: "/libraries/v1/npm/packages"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_LIBRARIES_ARTIFACTS_LIST]
+        unscoped: true
+      }
+    };
+  }
+
+  rpc ListVersions(NpmPackageVersionFilter) returns (NpmPackageVersionList) {
+    option (google.api.http) = {
+      get: "/libraries/v1/npm/packages/versions"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_LIBRARIES_ARTIFACTS_LIST]
+        unscoped: true
+      }
+    };
+  }
+}
+
+// NpmPackage contains metadata about an npm package available in
+// Chainguard Libraries. The package name can be used to retrieve
+// version-level details via ListVersions.
+message NpmPackage {
+  // The npm package name (e.g. "react" or "@types/node").
+  string package_name = 1;
+  // The most recent version of this package available.
+  string latest_version = 2;
+  // A short description of the package.
+  string description = 3;
+  // The SPDX license identifier for this package.
+  string license = 4;
+  // The number of versions available for this package.
+  int64 version_count = 5;
+}
+
+// A collection of NpmPackages as returned by calls to List.
+// Contains pagination fields to allow callers to request additional
+// pages of results if the set exceeds the requested page size.
+message NpmPackageList {
+  // The list of npm packages matching the request.
+  repeated NpmPackage items = 1;
+  // A token that can be reused on subsequent requests to retrieve
+  // the next page of results. Other filter fields must match
+  // the call that provided this token.
+  string next_page_token = 2;
+  // The total number of packages matching the query.
+  int64 total_count = 3;
+}
+
+// Options to filter results of List.
+message NpmPackageFilter {
+  // A string to search packages by. If empty, all packages
+  // will be returned. When set, results are ranked by relevance.
+  string query = 1;
+  // The maximum number of packages to return per request.
+  // The service may return fewer than this value.
+  int64 page_size = 2;
+  // The token received from a previous call to List.
+  // Provide this to retrieve the subsequent page.
+  string page_token = 3;
+}
+
+// NpmPackageVersion contains metadata about a specific version of an
+// npm package available in Chainguard Libraries.
+message NpmPackageVersion {
+  // The npm package name (e.g. "react" or "@scope/lib").
+  string package_name = 1;
+  // The version string of this package version.
+  string version = 2;
+  // The SPDX license identifier for this version.
+  string license = 3;
+  // When this version was first published.
+  google.protobuf.Timestamp created_at = 4;
+  // The size of the package in bytes.
+  int64 file_size = 5;
+  // The number of files contained in the package.
+  int64 file_count = 6;
+}
+
+// A collection of NpmPackageVersions as returned by calls to ListVersions.
+// Contains pagination fields to allow callers to request additional
+// pages of results if the set exceeds the requested page size.
+message NpmPackageVersionList {
+  // The list of package versions matching the request.
+  repeated NpmPackageVersion items = 1;
+  // A token that can be reused on subsequent requests to retrieve
+  // the next page of results.
+  string next_page_token = 2;
+  // The total number of versions available for the package.
+  int64 total_count = 3;
+}
+
+// Options to filter results of ListVersions.
+message NpmPackageVersionFilter {
+  // The npm package name to list versions for (required).
+  string package_name = 1;
+  // The maximum number of versions to return per request.
+  // The service may return fewer than this value.
+  int64 page_size = 2;
+  // The token received from a previous call to ListVersions.
+  // Provide this to retrieve the subsequent page.
+  string page_token = 3;
+}

@@ -231,7 +231,6 @@ func TestWalk(t *testing.T) {
 		RegistryRepo: "cgr.dev/chainguard/nginx",
 		Tag:          "latest",
 		Digest:       validDigest,
-		PseudoTag:    fmt.Sprintf("latest@%s", validDigest),
 		FullRef:      fmt.Sprintf("cgr.dev/chainguard/nginx:latest@%s", validDigest),
 	}
 
@@ -708,12 +707,82 @@ image:
 				},
 			},
 			refs: map[string]string{
-				"nginx": "not-a-valid-ref",
+				"nginx": "@@@invalid",
 			},
 			valuesYAML: `image:
   registry: docker.io
 `,
-			wantErr: "must include a digest",
+			wantErr: "could not parse reference",
+		},
+		{
+			name: "pseudo_tag without digest returns error",
+			mapping: &Mapping{
+				Images: map[string]*Image{
+					"nginx": {Values: map[string]any{
+						"image": map[string]any{"pseudoTag": "${pseudo_tag}"},
+					}},
+				},
+			},
+			refs: map[string]string{
+				"nginx": "cgr.dev/chainguard/nginx:latest",
+			},
+			valuesYAML: `image:
+  pseudoTag: ""
+`,
+			wantErr: "cannot resolve ${pseudo_tag}",
+		},
+		{
+			name: "digest marker without digest returns error",
+			mapping: &Mapping{
+				Images: map[string]*Image{
+					"nginx": {Values: map[string]any{
+						"image": map[string]any{"digest": "${digest}"},
+					}},
+				},
+			},
+			refs: map[string]string{
+				"nginx": "cgr.dev/chainguard/nginx:latest",
+			},
+			valuesYAML: `image:
+  digest: ""
+`,
+			wantErr: "empty value",
+		},
+		{
+			name: "ref marker with tag-only ref works",
+			mapping: &Mapping{
+				Images: map[string]*Image{
+					"nginx": {Values: map[string]any{
+						"image": "${ref}",
+					}},
+				},
+			},
+			refs: map[string]string{
+				"nginx": "cgr.dev/chainguard/nginx:v1.0",
+			},
+			valuesYAML: `image: ""
+`,
+			want: `image: cgr.dev/chainguard/nginx:v1.0
+`,
+		},
+		{
+			name: "pseudo_tag with digest-only ref produces unused prefix",
+			mapping: &Mapping{
+				Images: map[string]*Image{
+					"nginx": {Values: map[string]any{
+						"image": map[string]any{"pseudoTag": "${pseudo_tag}"},
+					}},
+				},
+			},
+			refs: map[string]string{
+				"nginx": "cgr.dev/chainguard/nginx@sha256:abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234",
+			},
+			valuesYAML: `image:
+  pseudoTag: ""
+`,
+			want: `image:
+  pseudoTag: unused@sha256:abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234
+`,
 		},
 		{
 			name: "missing image ref returns error",

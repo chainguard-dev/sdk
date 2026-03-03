@@ -21,9 +21,11 @@ import (
 	ecosystems "chainguard.dev/sdk/proto/platform/ecosystems/v1"
 	iam "chainguard.dev/sdk/proto/platform/iam/v1"
 	libraries "chainguard.dev/sdk/proto/platform/libraries/v1"
+	matcher "chainguard.dev/sdk/proto/platform/matcher/v1"
 	notifications "chainguard.dev/sdk/proto/platform/notifications/v1"
 	platformoidc "chainguard.dev/sdk/proto/platform/oidc/v1"
 	ping "chainguard.dev/sdk/proto/platform/ping/v1"
+	policygates "chainguard.dev/sdk/proto/platform/policygates/v1"
 	registry "chainguard.dev/sdk/proto/platform/registry/v1"
 	vulnerabilities "chainguard.dev/sdk/proto/platform/vulnerabilities/v1"
 	"github.com/chainguard-dev/clog"
@@ -41,6 +43,12 @@ type Clients interface {
 	Ecosystems() ecosystems.Clients
 	Libraries() libraries.Clients
 	Vulnerabilities() vulnerabilities.Clients
+	ImageMatcher() matcher.Clients
+	PolicyGates() policygates.Clients
+
+	// Connection returns the underlying gRPC connection for creating additional clients.
+	// This is useful for internal consumers that need access to experimental APIs.
+	Connection() *grpc.ClientConn
 
 	Close() error
 }
@@ -90,6 +98,8 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 		ecosystems:      ecosystems.NewClientsFromConnection(conn),
 		libraries:       libraries.NewClientsFromConnection(conn),
 		vulnerabilities: vulnerabilities.NewClientsFromConnection(conn),
+		matcher:         matcher.NewClientsFromConnection(conn),
+		policyGates:     policygates.NewClientsFromConnection(conn),
 		conn:            conn,
 	}, nil
 }
@@ -104,12 +114,18 @@ type clients struct {
 	ecosystems      ecosystems.Clients
 	libraries       libraries.Clients
 	vulnerabilities vulnerabilities.Clients
+	matcher         matcher.Clients
+	policyGates     policygates.Clients
 
 	conn *grpc.ClientConn
 }
 
 func (c *clients) IAM() iam.Clients {
 	return c.iam
+}
+
+func (c *clients) Connection() *grpc.ClientConn {
+	return c.conn
 }
 
 func (c *clients) Registry() registry.Clients {
@@ -142,6 +158,14 @@ func (c *clients) Libraries() libraries.Clients {
 
 func (c *clients) Vulnerabilities() vulnerabilities.Clients {
 	return c.vulnerabilities
+}
+
+func (c *clients) ImageMatcher() matcher.Clients {
+	return c.matcher
+}
+
+func (c *clients) PolicyGates() policygates.Clients {
+	return c.policyGates
 }
 
 func (c *clients) Close() error {
