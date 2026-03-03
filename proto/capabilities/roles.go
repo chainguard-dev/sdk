@@ -221,6 +221,11 @@ var (
 		Capability_CAP_LIBRARIES_REBUILDER_REQUESTS_LIST,
 	})
 
+	LibrariesRebuilderViewerCaps = SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_REBUILDER_BUILDS_READ,
+		Capability_CAP_LIBRARIES_REBUILDER_REQUESTS_LIST,
+	})
+
 	LibrariesRebuilderAdminCaps = SortCaps([]Capability{
 		Capability_CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE,
 		Capability_CAP_LIBRARIES_REBUILDER_REQUESTS_LIST,
