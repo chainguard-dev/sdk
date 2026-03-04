@@ -47,9 +47,9 @@ func New(ctx context.Context, issuer, group string, fn Handler) (Handler, error)
 		if tok, err := verifier.Verify(ctx, auth); err != nil {
 			return cloudevents.NewHTTPResult(http.StatusForbidden, "unable to verify token: %w", err)
 		} else if !strings.HasPrefix(tok.Subject, "webhook:") {
-			return cloudevents.NewHTTPResult(http.StatusForbidden, "subject should be from the Chainguard webhook component, got: %s", tok.Subject)
+			return cloudevents.NewHTTPResult(http.StatusForbidden, "subject should be from the Chainguard webhook component, got: %q", tok.Subject)
 		} else if got := strings.TrimPrefix(tok.Subject, "webhook:"); got != group {
-			return cloudevents.NewHTTPResult(http.StatusForbidden, "this token is intended for %s, wanted one for %s", got, group)
+			return cloudevents.NewHTTPResult(http.StatusForbidden, "this token is intended for %q, wanted one for %q", got, group)
 		} else if err := tok.Claims(&claims); err != nil {
 			return cloudevents.NewHTTPResult(http.StatusForbidden, "this token does not contain the Chainguard custom webhook claims: %v", err)
 		}
@@ -58,7 +58,7 @@ func New(ctx context.Context, issuer, group string, fn Handler) (Handler, error)
 		h.Write(event.Data())
 		bs := h.Sum(nil)
 		if got, want := fmt.Sprintf("sha256:%x", bs), claims.Webhook.Digest; got != want {
-			return cloudevents.NewHTTPResult(http.StatusForbidden, "this token is intended for a message with digest %s, got message with digest %s", want, got)
+			return cloudevents.NewHTTPResult(http.StatusForbidden, "this token is intended for a message with digest %q, got message with digest %q", want, got)
 		}
 
 		return fn(ctx, event)
