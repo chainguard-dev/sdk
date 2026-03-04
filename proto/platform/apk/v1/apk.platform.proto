@@ -22,6 +22,20 @@ service APK {
       }
     };
   };
+
+  // ListAPKSummaries returns one summary entry per package name (latest version,
+  // all architectures aggregated). Supports prefix-match search via the query field.
+  rpc ListAPKSummaries(APKSummaryFilter) returns (APKPackageSummaryList) {
+    option (google.api.http) = {
+      get : "/apk/v1/package-summaries"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled : {
+        capabilities : [ CAP_APK_LIST ]
+        unscoped : true
+      }
+    };
+  };
 }
 
 // APKFilter is a filter for APKs.
@@ -60,11 +74,7 @@ message APKFilter {
   // Applied after cursor positioning.
   int32 skip = 9;
 
-  // When set, deduplicate results across architectures: packages available for
-  // multiple architectures are returned only once, with the architecture field
-  // containing a comma-separated list of all architectures (e.g. "aarch64, x86_64").
-  // Has no effect when architecture is already set.
-  bool deduplicate_architectures = 10;
+
 }
 
 // APKList is a list of APKs.
@@ -150,4 +160,79 @@ message APKPackage {
 
   // Package install if, the conditions under which the package is installed.
   repeated string install_if = 26;
+}
+
+// APKSummaryFilter is the request message for ListAPKSummaries.
+message APKSummaryFilter {
+  chainguard.platform.common.UIDPFilter uidp = 1;
+
+  // query is a prefix match on package_name (e.g. "bash" matches "bash",
+  // "bash-completion", etc.). When empty, all packages are returned.
+  string query = 2;
+
+  // architecture optionally restricts results to a specific architecture.
+  string architecture = 3;
+
+  // origin optionally restricts results to packages with the given origin.
+  string origin = 4;
+
+  // page_size is the maximum number of summaries to return per page.
+  // Default: 50, Maximum: 200.
+  int32 page_size = 5;
+
+  // page_token is the opaque token returned by a previous ListAPKSummaries
+  // call. Provide it to retrieve the next page of results.
+  string page_token = 6;
+
+  // order_by controls the sort order. Format: "field [asc|desc]".
+  // Supported fields: "package_name", "build_time".
+  // Default: "package_name asc".
+  string order_by = 7;
+
+  // Number of results to skip (for random-access pagination).
+  // Applied after cursor positioning.
+  int32 skip = 8;
+}
+
+// APKPackageSummary is a single entry in a ListAPKSummaries response.
+// It describes one package name with its most recently updated version.
+message APKPackageSummary {
+  // package_name is the base package name (e.g. "bash").
+  string package_name = 1;
+
+  // latest_version is the version string of the most recently updated version.
+  string latest_version = 2;
+
+  // architectures is a comma-separated list of all architectures available
+  // for the latest version (e.g. "aarch64, x86_64").
+  string architectures = 3;
+
+  // description is a short human-readable description of the package.
+  string description = 4;
+
+  // license is the SPDX license identifier for the package.
+  string license = 5;
+
+  // origin is the origin package name (equals package_name for main packages).
+  string origin = 6;
+
+  // build_time is the build timestamp of the latest version.
+  google.protobuf.Timestamp build_time = 7;
+}
+
+// APKPackageSummaryList is the response message for ListAPKSummaries.
+message APKPackageSummaryList {
+  // items is the list of package summaries matching the request.
+  repeated APKPackageSummary items = 1;
+
+  // next_page_token is the token for retrieving the next page of results.
+  // Empty if there are no more results.
+  string next_page_token = 2;
+
+  // total_count is the total number of packages matching the filter.
+  int64 total_count = 3;
+
+  // skipped is the total number of results skipped to reach this page.
+  // This accumulates across pages when using the skip parameter.
+  int32 skipped = 4;
 }
