@@ -7,9 +7,9 @@ package receiver_test
 
 import (
 	"context"
-	"log"
 
 	"chainguard.dev/sdk/events/receiver"
+	"github.com/chainguard-dev/clog"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 )
 
@@ -21,24 +21,24 @@ func Example() {
 	// Create a receiver that verifies events from Chainguard's issuer
 	// and ensures they are intended for your group.
 	handler, err := receiver.New(ctx, "https://issuer.enforce.dev", "my-group-id",
-		func(_ context.Context, event cloudevents.Event) error {
+		func(ctx context.Context, event cloudevents.Event) error {
 			// Process the verified event
-			log.Printf("Received event: %s", event.Type())
+			clog.InfoContextf(ctx, "Received event: %s", event.Type())
 			return nil
 		})
 	if err != nil {
-		log.Fatalf("failed to create receiver: %v", err)
+		clog.FatalContextf(ctx, "failed to create receiver: %v", err)
 	}
 
 	// Use the handler with CloudEvents HTTP receiver
 	c, err := cloudevents.NewClientHTTP()
 	if err != nil {
-		log.Fatalf("failed to create client: %v", err)
+		clog.FatalContextf(ctx, "failed to create client: %v", err)
 	}
 
 	// Start receiving events
 	if err := c.StartReceiver(ctx, handler); err != nil {
-		log.Fatalf("failed to start receiver: %v", err)
+		clog.FatalContextf(ctx, "failed to start receiver: %v", err)
 	}
 }
 
@@ -48,28 +48,28 @@ func Example_customHandler() {
 	ctx := context.Background()
 
 	handler, err := receiver.New(ctx, "https://issuer.enforce.dev", "my-group-id",
-		func(_ context.Context, event cloudevents.Event) error {
+		func(ctx context.Context, event cloudevents.Event) error {
 			// Handle different event types
 			switch event.Type() {
 			case "dev.chainguard.image.created":
-				log.Printf("New image created: %s", event.Subject())
+				clog.InfoContextf(ctx, "New image created: %s", event.Subject())
 			case "dev.chainguard.policy.violated":
-				log.Printf("Policy violation detected: %s", event.Subject())
+				clog.InfoContextf(ctx, "Policy violation detected: %s", event.Subject())
 			default:
-				log.Printf("Unknown event type: %s", event.Type())
+				clog.InfoContextf(ctx, "Unknown event type: %s", event.Type())
 			}
 			return nil
 		})
 	if err != nil {
-		log.Fatalf("failed to create receiver: %v", err)
+		clog.FatalContextf(ctx, "failed to create receiver: %v", err)
 	}
 
 	c, err := cloudevents.NewClientHTTP()
 	if err != nil {
-		log.Fatalf("failed to create client: %v", err)
+		clog.FatalContextf(ctx, "failed to create client: %v", err)
 	}
 
 	if err := c.StartReceiver(ctx, handler); err != nil {
-		log.Fatalf("failed to start receiver: %v", err)
+		clog.FatalContextf(ctx, "failed to start receiver: %v", err)
 	}
 }
