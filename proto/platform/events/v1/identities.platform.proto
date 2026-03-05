@@ -8,12 +8,22 @@ import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "annotations/auth.proto";
 import "annotations/events.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 service Identities {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    description: "Event Identities API"
+    name: "EventIdentities" // Override the tag name
+  };
+
+
   rpc Create(Identity) returns (Identity) {
     option (google.api.http) = {
       post: "/iam/v1/identities"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "EventIdentities"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
@@ -31,6 +41,9 @@ service Identities {
     option (google.api.http) = {
       patch: "/iam/v1/identities/metadata"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "EventIdentities"
     };
     option (chainguard.annotations.iam) = {
 			// Authentication will be implicit in the handler - the updated identity
