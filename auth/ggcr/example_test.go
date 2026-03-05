@@ -29,8 +29,7 @@ func ExampleKeychain() {
 	}
 
 	// Create the keychain for a specific Chainguard identity
-	identity := "my-identity-uidp"
-	kc := ggcr.Keychain(identity, ts)
+	kc := ggcr.Keychain("my-identity-uidp", ts)
 
 	// Use the keychain to pull an image from cgr.dev
 	ref, err := name.ParseReference("cgr.dev/my/image:latest")
