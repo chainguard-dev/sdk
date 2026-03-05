@@ -119,15 +119,15 @@ func TestRefresh(t *testing.T) {
 			}
 
 			exch := New(test.issuer, test.audience, test.newOpts...)
-			token, refreshToken, gotErr := exch.Refresh(context.Background(), "foo", test.exchangeOpts...)
-			if gotErr != nil && !test.wantErr {
-				t.Error("got err: ", gotErr, "and expected no error")
+			token, refreshToken, gotErr := exch.Refresh(t.Context(), "foo", test.exchangeOpts...)
+			if (gotErr != nil) != test.wantErr {
+				t.Fatalf("Refresh() error = %v, wantErr = %v", gotErr, test.wantErr)
 			}
-			if diff := cmp.Diff(token, test.wantToken); diff != "" {
-				t.Error("Got unexpected diff in token: ", diff)
+			if diff := cmp.Diff(test.wantToken, token); diff != "" {
+				t.Errorf("token mismatch (-want, +got):\n%s", diff)
 			}
-			if diff := cmp.Diff(refreshToken, test.wantRefreshToken); diff != "" {
-				t.Error("Got unexpected diff in refresh token: ", diff)
+			if diff := cmp.Diff(test.wantRefreshToken, refreshToken); diff != "" {
+				t.Errorf("refreshToken mismatch (-want, +got):\n%s", diff)
 			}
 		})
 	}
@@ -264,12 +264,12 @@ func TestImplExchange(t *testing.T) {
 			}
 
 			exch := New(test.issuer, test.audience, test.newOpts...)
-			gotTok, gotErr := exch.Exchange(context.Background(), "foo", test.exchangeOpts...)
-			if gotErr != nil && !test.wantErr {
-				t.Error("got err: ", gotErr, "and expected no error")
+			gotTok, gotErr := exch.Exchange(t.Context(), "foo", test.exchangeOpts...)
+			if (gotErr != nil) != test.wantErr {
+				t.Fatalf("error = %v, wantErr = %v", gotErr, test.wantErr)
 			}
 			if diff := cmp.Diff(test.wantToken, gotTok); diff != "" {
-				t.Error("Got unexpected diff in token: ", diff)
+				t.Errorf("token mismatch (-want, +got):\n%s", diff)
 			}
 		})
 	}
@@ -424,12 +424,12 @@ func TestExchange(t *testing.T) {
 				return test.clientMock, nil
 			}
 
-			gotTok, gotErr := ExchangePair(context.Background(), test.issuer, test.audience, "foo", test.exchangeOpts...)
-			if gotErr != nil && !test.wantErr {
-				t.Error("got err: ", gotErr, "and expected no error")
+			gotTok, gotErr := ExchangePair(t.Context(), test.issuer, test.audience, "foo", test.exchangeOpts...)
+			if (gotErr != nil) != test.wantErr {
+				t.Fatalf("error = %v, wantErr = %v", gotErr, test.wantErr)
 			}
 			if diff := cmp.Diff(test.wantToken, gotTok); diff != "" {
-				t.Error("Got unexpected diff in token: ", diff)
+				t.Errorf("token mismatch (-want, +got):\n%s", diff)
 			}
 		})
 	}
