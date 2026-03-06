@@ -78,14 +78,9 @@ func ExampleClients() {
 	defer clients.Close()
 
 	// Access individual service clients
-	artifactsClient := clients.Artifacts()
-	entitlementsClient := clients.Entitlements()
-	npmPackagesClient := clients.NpmPackages()
-
-	// Use the service clients to make API calls
-	_ = artifactsClient
-	_ = entitlementsClient
-	_ = npmPackagesClient
+	_ = clients.Artifacts()
+	_ = clients.Entitlements()
+	_ = clients.NpmPackages()
 
 	fmt.Println("Using Clients interface")
 	// Output: Using Clients interface
