@@ -10,13 +10,22 @@ import "registry.platform.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "annotations/auth.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 // Entitlements is a service for viewing configuration and features enabled on a registry.
 // NOTE: This API is EARLY ACCESS and is subject to change without notice.
 service Entitlements {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    description: "Registry Entitlements API"
+    name: "RegistryEntitlements" // Override the tag name
+  };
+
   rpc ListEntitlements(EntitlementFilter) returns (EntitlementList) {
     option (google.api.http) = {
       get: "/registry/v1/entitlements/{parent=**}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "RegistryEntitlements"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
@@ -27,6 +36,9 @@ service Entitlements {
   rpc ListEntitlementImages(EntitlementImagesFilter) returns (EntitlementImagesList) {
     option (google.api.http) = {
       get: "/registry/v1/entitlements/{parent=**}/images"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "RegistryEntitlements"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
@@ -41,6 +53,9 @@ service Entitlements {
     option (google.api.http) = {
       get: "/registry/v1/entitlements/{parent=**}/catalog-images"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "RegistryEntitlements"
+    };
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [CAP_REGISTRY_ENTITLEMENTS_LIST]
@@ -53,6 +68,9 @@ service Entitlements {
     option (google.api.http) = {
       get: "/registry/v1/entitlements/{parent=**}:summary"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "RegistryEntitlements"
+    };
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [CAP_REGISTRY_ENTITLEMENTS_LIST]
@@ -63,6 +81,9 @@ service Entitlements {
   rpc GetFeatures (GetFeaturesRequest) returns (GetFeaturesResponse) {
     option (google.api.http) = {
       get: "/registry/v1/entitlements/{parent=**}:features"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "RegistryEntitlements"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
@@ -76,6 +97,9 @@ service Entitlements {
       post: "/registry/v1/entitlements/{parent=**}"
       body: "entitlement"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "RegistryEntitlements"
+    };
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [CAP_REGISTRY_ENTITLEMENTS_CREATE]
@@ -86,6 +110,9 @@ service Entitlements {
   rpc DeleteEntitlement (DeleteEntitlementRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/registry/v1/entitlements/{id=**}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "RegistryEntitlements"
     };
     option (chainguard.annotations.iam) = {
       enabled: {

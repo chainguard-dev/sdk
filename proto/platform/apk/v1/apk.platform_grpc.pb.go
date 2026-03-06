@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	APK_ListAPKs_FullMethodName = "/chainguard.platform.apk.APK/ListAPKs"
+	APK_ListAPKs_FullMethodName         = "/chainguard.platform.apk.APK/ListAPKs"
+	APK_ListAPKSummaries_FullMethodName = "/chainguard.platform.apk.APK/ListAPKSummaries"
 )
 
 // APKClient is the client API for APK service.
@@ -28,6 +29,9 @@ const (
 type APKClient interface {
 	// ListAPKs lists all APKs that match the filter.
 	ListAPKs(ctx context.Context, in *APKFilter, opts ...grpc.CallOption) (*APKList, error)
+	// ListAPKSummaries returns one summary entry per package name (latest version,
+	// all architectures aggregated). Supports prefix-match search via the query field.
+	ListAPKSummaries(ctx context.Context, in *APKSummaryFilter, opts ...grpc.CallOption) (*APKPackageSummaryList, error)
 }
 
 type aPKClient struct {
@@ -48,12 +52,25 @@ func (c *aPKClient) ListAPKs(ctx context.Context, in *APKFilter, opts ...grpc.Ca
 	return out, nil
 }
 
+func (c *aPKClient) ListAPKSummaries(ctx context.Context, in *APKSummaryFilter, opts ...grpc.CallOption) (*APKPackageSummaryList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(APKPackageSummaryList)
+	err := c.cc.Invoke(ctx, APK_ListAPKSummaries_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // APKServer is the server API for APK service.
 // All implementations must embed UnimplementedAPKServer
 // for forward compatibility.
 type APKServer interface {
 	// ListAPKs lists all APKs that match the filter.
 	ListAPKs(context.Context, *APKFilter) (*APKList, error)
+	// ListAPKSummaries returns one summary entry per package name (latest version,
+	// all architectures aggregated). Supports prefix-match search via the query field.
+	ListAPKSummaries(context.Context, *APKSummaryFilter) (*APKPackageSummaryList, error)
 	mustEmbedUnimplementedAPKServer()
 }
 
@@ -66,6 +83,9 @@ type UnimplementedAPKServer struct{}
 
 func (UnimplementedAPKServer) ListAPKs(context.Context, *APKFilter) (*APKList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAPKs not implemented")
+}
+func (UnimplementedAPKServer) ListAPKSummaries(context.Context, *APKSummaryFilter) (*APKPackageSummaryList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListAPKSummaries not implemented")
 }
 func (UnimplementedAPKServer) mustEmbedUnimplementedAPKServer() {}
 func (UnimplementedAPKServer) testEmbeddedByValue()             {}
@@ -106,6 +126,24 @@ func _APK_ListAPKs_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _APK_ListAPKSummaries_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(APKSummaryFilter)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APKServer).ListAPKSummaries(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: APK_ListAPKSummaries_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APKServer).ListAPKSummaries(ctx, req.(*APKSummaryFilter))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // APK_ServiceDesc is the grpc.ServiceDesc for APK service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -116,6 +154,10 @@ var APK_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListAPKs",
 			Handler:    _APK_ListAPKs_Handler,
+		},
+		{
+			MethodName: "ListAPKSummaries",
+			Handler:    _APK_ListAPKSummaries_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

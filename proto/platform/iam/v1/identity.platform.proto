@@ -10,12 +10,21 @@ import "google/protobuf/empty.proto";
 import "annotations/auth.proto";
 import "annotations/events.proto";
 import "platform/common/v1/uidp.platform.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 service Identities {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    description: "IAM Identities API"
+    name: "IAMIdentities" // Override the tag name
+  };
+
   rpc Create(CreateIdentityRequest) returns (Identity) {
     option (google.api.http) = {
       post: "/iam/v1/identities/{parent_id=**}"
       body: "identity"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "IAMIdentities"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
@@ -34,6 +43,9 @@ service Identities {
       put: "/iam/v1/identities/{id=**}"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "IAMIdentities"
+    };
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [CAP_IAM_IDENTITY_UPDATE]
@@ -50,6 +62,9 @@ service Identities {
     option (google.api.http) = {
       get: "/iam/v1/identities"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "IAMIdentities"
+    };
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [CAP_IAM_IDENTITY_LIST]
@@ -62,6 +77,9 @@ service Identities {
     option (google.api.http) = {
       get: "/iam/v1/identities/lookup"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "IAMIdentities"
+    };
     option (chainguard.annotations.iam) = {
       enabled: {
         unscoped: true
@@ -72,6 +90,9 @@ service Identities {
   rpc Delete(DeleteIdentityRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/iam/v1/identities/{id=**}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "IAMIdentities"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
@@ -191,6 +212,7 @@ message Identity {
     // issuer_keys is JWKS-formatted public keys for the issuer.
     // Required, otherwise use Literal.
     string issuer_keys = 4;
+
 
     // expiration is the time when the issuer_keys will expire.
     // Defaults to / Maximum of 30 days after creation time.

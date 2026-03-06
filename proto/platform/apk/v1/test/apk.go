@@ -36,7 +36,8 @@ var _ apk.APKClient = (*MockAPKClient)(nil)
 type MockAPKClient struct {
 	apk.APKClient
 
-	OnListAPKs []APKsOnList
+	OnListAPKs         []APKsOnList
+	OnListAPKSummaries []APKSummariesOnList
 }
 
 type APKsOnList struct {
@@ -45,8 +46,23 @@ type APKsOnList struct {
 	Error error
 }
 
+type APKSummariesOnList struct {
+	Given *apk.APKSummaryFilter
+	List  *apk.APKPackageSummaryList
+	Error error
+}
+
 func (m MockAPKClient) ListAPKs(_ context.Context, given *apk.APKFilter, _ ...grpc.CallOption) (*apk.APKList, error) {
 	for _, o := range m.OnListAPKs {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.List, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockAPKClient) ListAPKSummaries(_ context.Context, given *apk.APKSummaryFilter, _ ...grpc.CallOption) (*apk.APKPackageSummaryList, error) {
+	for _, o := range m.OnListAPKSummaries {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.List, o.Error
 		}

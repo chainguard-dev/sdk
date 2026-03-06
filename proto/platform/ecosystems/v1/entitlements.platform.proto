@@ -8,12 +8,21 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "annotations/auth.proto";
 import "annotations/events.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 service Entitlements {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    description: "Ecosystem Entitlements API"
+    name: "EcosystemsEntitlements" // Override the tag name
+  };
+
   rpc Create(CreateEntitlementRequest) returns (Entitlement) {
     option (google.api.http) = {
       post: "/ecosystems/v1/entitlements/{parent_id=**}"
       body: "ecosystem"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "EcosystemsEntitlements"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
@@ -31,6 +40,9 @@ service Entitlements {
     option (google.api.http) = {
       get: "/ecosystems/v1/entitlements"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "EcosystemsEntitlements"
+    };
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [CAP_LIBRARIES_ENTITLEMENTS_LIST]
@@ -42,6 +54,9 @@ service Entitlements {
   rpc Delete(DeleteEntitlementRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/ecosystems/v1/entitlements/{id=**}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "EcosystemsEntitlements"
     };
     option (chainguard.annotations.iam) = {
       enabled: {

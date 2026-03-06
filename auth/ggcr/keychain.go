@@ -32,14 +32,14 @@ const (
 //
 //	img, err := remote.Image("cgr.dev/my/image", remote.WithAuth(kc))
 func Keychain(identity string, base oauth2.TokenSource) authn.Keychain {
-	exch := sts.New(issuer, aud, sts.WithIdentity(identity))
-	ts := oauth2.ReuseTokenSource(nil, sts.NewTokenSource(base, exch))
-	return cgKeychain{ts}
+	return cgKeychain{oauth2.ReuseTokenSource(nil, sts.NewTokenSource(base, sts.New(issuer, aud, sts.WithIdentity(identity))))}
 }
 
 type cgKeychain struct {
 	ts oauth2.TokenSource
 }
+
+var _ authn.Keychain = (*cgKeychain)(nil)
 
 func (k cgKeychain) Resolve(res authn.Resource) (authn.Authenticator, error) {
 	if res.RegistryStr() != aud {
