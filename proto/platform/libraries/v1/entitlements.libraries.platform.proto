@@ -77,6 +77,8 @@ message Entitlement {
   string id = 1 [(chainguard.annotations.iam_scope) = true];
   // ecosystem is the language ecosystem this entitlement grants access to.
   Ecosystem ecosystem = 2;
+  // policy is the libraries policy for this entitlement.
+  Policy policy = 3;
 }
 
 message EntitlementList {
@@ -91,11 +93,20 @@ enum Ecosystem {
   JAVASCRIPT = 3;
 }
 
+// Policy controls which package sources are available for an entitlement.
+enum Policy {
+  POLICY_UNKNOWN = 0;                 // defaults to CHAINGUARD behavior
+  POLICY_CHAINGUARD = 1;              // internal packages only
+  POLICY_CHAINGUARD_AND_UPSTREAM = 2; // internal + upstream (with cooldown)
+}
+
 message CreateEntitlementRequest {
   // parent_id is the group to create the entitlement for.
   string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
   // ecosystem is the language ecosystem to entitle this group to.
   Ecosystem ecosystem = 2;
+  // policy is the libraries policy for this entitlement.
+  Policy policy = 3;
 }
 
 message EntitlementFilter {
