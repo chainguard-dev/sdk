@@ -136,6 +136,7 @@ message Entitlement {
       TRIAL = 1;
       PRODUCTION = 2;
       EXTRA = 3;
+      STARTER = 4;
   }
   Type type = 6;
 
