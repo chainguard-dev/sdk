@@ -8,8 +8,8 @@ package v1_test
 import (
 	"context"
 	"fmt"
-	"log"
 
+	"github.com/chainguard-dev/clog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -24,7 +24,7 @@ func ExampleNewClients() {
 	// Create clients with the ecosystems service URL and auth token
 	clients, err := v1.NewClients(ctx, "https://console-api.enforce.dev", "your-auth-token")
 	if err != nil {
-		log.Fatalf("failed to create clients: %v", err)
+		clog.FatalContextf(ctx, "failed to create clients: %v", err)
 	}
 	defer clients.Close()
 
@@ -40,13 +40,15 @@ func ExampleNewClients() {
 // ExampleNewClientsFromConnection demonstrates creating clients
 // from an existing gRPC connection.
 func ExampleNewClientsFromConnection() {
+	ctx := context.Background()
+
 	// Create a gRPC connection (example uses insecure for demonstration)
 	conn, err := grpc.NewClient(
 		"console-api.enforce.dev:443",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
-		log.Fatalf("failed to create connection: %v", err)
+		clog.FatalContextf(ctx, "failed to create connection: %v", err)
 	}
 	defer conn.Close()
 
@@ -73,7 +75,7 @@ func ExampleClients() {
 
 	clients, err := v1.NewClients(ctx, "https://console-api.enforce.dev", "your-auth-token")
 	if err != nil {
-		log.Fatalf("failed to create clients: %v", err)
+		clog.FatalContextf(ctx, "failed to create clients: %v", err)
 	}
 	defer clients.Close()
 
