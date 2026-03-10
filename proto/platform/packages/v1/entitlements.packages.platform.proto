@@ -35,15 +35,15 @@ service Entitlements {
 
 // PackageTier represents the package tier an org can be entitled to.
 enum PackageTier {
-  UNKNOWN = 0;
-  BASE    = 1;
-  FIPS    = 2;
+  PACKAGE_TIER_UNSPECIFIED = 0;
+  PACKAGE_TIER_BASE        = 1;
+  PACKAGE_TIER_FIPS        = 2;
 }
 
 // PackageEntitlement maps an org to a package tier they are entitled to.
 message PackageEntitlement {
   // id is the uidp of the entitlement, a child of a group.
-  string id = 1 [(chainguard.annotations.iam_scope) = true];
+  string id = 1;
   // tier is the package tier this entitlement grants access to.
   PackageTier tier = 2;
 }
