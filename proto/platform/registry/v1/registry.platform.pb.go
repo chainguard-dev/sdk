@@ -5297,6 +5297,76 @@ func (x *GetRegistrySettingsRequest) GetRegistryId() string {
 	return ""
 }
 
+// PolicyInput represents the set of attributes available for policy evaluation
+// on an image.
+type PolicyInput struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// The name of the image's main package.
+	MainPackage string `protobuf:"bytes,1,opt,name=main_package,json=mainPackage,proto3" json:"main_package,omitempty"`
+	// Version metadata for the image's main package.
+	MainPackageVersion *PackageVersion `protobuf:"bytes,2,opt,name=main_package_version,json=mainPackageVersion,proto3" json:"main_package_version,omitempty"`
+	// When the image was created.
+	// Derived from package build timestamps to ensure reproducibility.
+	// Consistent with the org.opencontainers.image.created annotation on the image.
+	CreateTime *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+}
+
+func (x *PolicyInput) Reset() {
+	*x = PolicyInput{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_registry_platform_proto_msgTypes[75]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PolicyInput) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PolicyInput) ProtoMessage() {}
+
+func (x *PolicyInput) ProtoReflect() protoreflect.Message {
+	mi := &file_registry_platform_proto_msgTypes[75]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PolicyInput.ProtoReflect.Descriptor instead.
+func (*PolicyInput) Descriptor() ([]byte, []int) {
+	return file_registry_platform_proto_rawDescGZIP(), []int{75}
+}
+
+func (x *PolicyInput) GetMainPackage() string {
+	if x != nil {
+		return x.MainPackage
+	}
+	return ""
+}
+
+func (x *PolicyInput) GetMainPackageVersion() *PackageVersion {
+	if x != nil {
+		return x.MainPackageVersion
+	}
+	return nil
+}
+
+func (x *PolicyInput) GetCreateTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreateTime
+	}
+	return nil
+}
+
 type CustomOverlay_Certificates struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -5308,7 +5378,7 @@ type CustomOverlay_Certificates struct {
 func (x *CustomOverlay_Certificates) Reset() {
 	*x = CustomOverlay_Certificates{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_registry_platform_proto_msgTypes[77]
+		mi := &file_registry_platform_proto_msgTypes[78]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5321,7 +5391,7 @@ func (x *CustomOverlay_Certificates) String() string {
 func (*CustomOverlay_Certificates) ProtoMessage() {}
 
 func (x *CustomOverlay_Certificates) ProtoReflect() protoreflect.Message {
-	mi := &file_registry_platform_proto_msgTypes[77]
+	mi := &file_registry_platform_proto_msgTypes[78]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5356,7 +5426,7 @@ type CustomOverlay_Certificates_AdditionalEntry struct {
 func (x *CustomOverlay_Certificates_AdditionalEntry) Reset() {
 	*x = CustomOverlay_Certificates_AdditionalEntry{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_registry_platform_proto_msgTypes[78]
+		mi := &file_registry_platform_proto_msgTypes[79]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5369,7 +5439,7 @@ func (x *CustomOverlay_Certificates_AdditionalEntry) String() string {
 func (*CustomOverlay_Certificates_AdditionalEntry) ProtoMessage() {}
 
 func (x *CustomOverlay_Certificates_AdditionalEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_registry_platform_proto_msgTypes[78]
+	mi := &file_registry_platform_proto_msgTypes[79]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5409,7 +5479,7 @@ type ImageConfig_ExposedPort struct {
 func (x *ImageConfig_ExposedPort) Reset() {
 	*x = ImageConfig_ExposedPort{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_registry_platform_proto_msgTypes[79]
+		mi := &file_registry_platform_proto_msgTypes[80]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5422,7 +5492,7 @@ func (x *ImageConfig_ExposedPort) String() string {
 func (*ImageConfig_ExposedPort) ProtoMessage() {}
 
 func (x *ImageConfig_ExposedPort) ProtoReflect() protoreflect.Message {
-	mi := &file_registry_platform_proto_msgTypes[79]
+	mi := &file_registry_platform_proto_msgTypes[80]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5447,7 +5517,7 @@ type ImageConfig_Volume struct {
 func (x *ImageConfig_Volume) Reset() {
 	*x = ImageConfig_Volume{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_registry_platform_proto_msgTypes[81]
+		mi := &file_registry_platform_proto_msgTypes[82]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5460,7 +5530,7 @@ func (x *ImageConfig_Volume) String() string {
 func (*ImageConfig_Volume) ProtoMessage() {}
 
 func (x *ImageConfig_Volume) ProtoReflect() protoreflect.Message {
-	mi := &file_registry_platform_proto_msgTypes[81]
+	mi := &file_registry_platform_proto_msgTypes[82]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5489,7 +5559,7 @@ type PackagesDiff_ChangedPackageReference struct {
 func (x *PackagesDiff_ChangedPackageReference) Reset() {
 	*x = PackagesDiff_ChangedPackageReference{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_registry_platform_proto_msgTypes[84]
+		mi := &file_registry_platform_proto_msgTypes[85]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5502,7 +5572,7 @@ func (x *PackagesDiff_ChangedPackageReference) String() string {
 func (*PackagesDiff_ChangedPackageReference) ProtoMessage() {}
 
 func (x *PackagesDiff_ChangedPackageReference) ProtoReflect() protoreflect.Message {
-	mi := &file_registry_platform_proto_msgTypes[84]
+	mi := &file_registry_platform_proto_msgTypes[85]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5551,7 +5621,7 @@ type PackageVersion_VersionSource struct {
 func (x *PackageVersion_VersionSource) Reset() {
 	*x = PackageVersion_VersionSource{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_registry_platform_proto_msgTypes[85]
+		mi := &file_registry_platform_proto_msgTypes[86]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5564,7 +5634,7 @@ func (x *PackageVersion_VersionSource) String() string {
 func (*PackageVersion_VersionSource) ProtoMessage() {}
 
 func (x *PackageVersion_VersionSource) ProtoReflect() protoreflect.Message {
-	mi := &file_registry_platform_proto_msgTypes[85]
+	mi := &file_registry_platform_proto_msgTypes[86]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5608,7 +5678,7 @@ type BuildStatus_Failures struct {
 func (x *BuildStatus_Failures) Reset() {
 	*x = BuildStatus_Failures{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_registry_platform_proto_msgTypes[86]
+		mi := &file_registry_platform_proto_msgTypes[87]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5621,7 +5691,7 @@ func (x *BuildStatus_Failures) String() string {
 func (*BuildStatus_Failures) ProtoMessage() {}
 
 func (x *BuildStatus_Failures) ProtoReflect() protoreflect.Message {
-	mi := &file_registry_platform_proto_msgTypes[86]
+	mi := &file_registry_platform_proto_msgTypes[87]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6431,7 +6501,20 @@ var file_registry_platform_proto_rawDesc = []byte{
 	0x53, 0x65, 0x74, 0x74, 0x69, 0x6e, 0x67, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
 	0x27, 0x0a, 0x0b, 0x72, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x79, 0x5f, 0x69, 0x64, 0x18, 0x01,
 	0x20, 0x01, 0x28, 0x09, 0x42, 0x06, 0x90, 0xaf, 0xa8, 0xd2, 0x05, 0x01, 0x52, 0x0a, 0x72, 0x65,
-	0x67, 0x69, 0x73, 0x74, 0x72, 0x79, 0x49, 0x64, 0x2a, 0x6b, 0x0a, 0x0b, 0x43, 0x61, 0x74, 0x61,
+	0x67, 0x69, 0x73, 0x74, 0x72, 0x79, 0x49, 0x64, 0x22, 0xcd, 0x01, 0x0a, 0x0b, 0x50, 0x6f, 0x6c,
+	0x69, 0x63, 0x79, 0x49, 0x6e, 0x70, 0x75, 0x74, 0x12, 0x21, 0x0a, 0x0c, 0x6d, 0x61, 0x69, 0x6e,
+	0x5f, 0x70, 0x61, 0x63, 0x6b, 0x61, 0x67, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b,
+	0x6d, 0x61, 0x69, 0x6e, 0x50, 0x61, 0x63, 0x6b, 0x61, 0x67, 0x65, 0x12, 0x5e, 0x0a, 0x14, 0x6d,
+	0x61, 0x69, 0x6e, 0x5f, 0x70, 0x61, 0x63, 0x6b, 0x61, 0x67, 0x65, 0x5f, 0x76, 0x65, 0x72, 0x73,
+	0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x2c, 0x2e, 0x63, 0x68, 0x61, 0x69,
+	0x6e, 0x67, 0x75, 0x61, 0x72, 0x64, 0x2e, 0x70, 0x6c, 0x61, 0x74, 0x66, 0x6f, 0x72, 0x6d, 0x2e,
+	0x72, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x79, 0x2e, 0x50, 0x61, 0x63, 0x6b, 0x61, 0x67, 0x65,
+	0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x52, 0x12, 0x6d, 0x61, 0x69, 0x6e, 0x50, 0x61, 0x63,
+	0x6b, 0x61, 0x67, 0x65, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x12, 0x3b, 0x0a, 0x0b, 0x63,
+	0x72, 0x65, 0x61, 0x74, 0x65, 0x5f, 0x74, 0x69, 0x6d, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62,
+	0x75, 0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x52, 0x0a, 0x63, 0x72,
+	0x65, 0x61, 0x74, 0x65, 0x54, 0x69, 0x6d, 0x65, 0x2a, 0x6b, 0x0a, 0x0b, 0x43, 0x61, 0x74, 0x61,
 	0x6c, 0x6f, 0x67, 0x54, 0x69, 0x65, 0x72, 0x12, 0x0b, 0x0a, 0x07, 0x55, 0x4e, 0x4b, 0x4e, 0x4f,
 	0x57, 0x4e, 0x10, 0x00, 0x12, 0x0f, 0x0a, 0x0b, 0x41, 0x50, 0x50, 0x4c, 0x49, 0x43, 0x41, 0x54,
 	0x49, 0x4f, 0x4e, 0x10, 0x04, 0x12, 0x08, 0x0a, 0x04, 0x42, 0x41, 0x53, 0x45, 0x10, 0x05, 0x12,
@@ -6836,7 +6919,7 @@ func file_registry_platform_proto_rawDescGZIP() []byte {
 }
 
 var file_registry_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_registry_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 88)
+var file_registry_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 89)
 var file_registry_platform_proto_goTypes = []any{
 	(CatalogTier)(0),                                   // 0: chainguard.platform.registry.CatalogTier
 	(EolTagStatus)(0),                                  // 1: chainguard.platform.registry.EolTagStatus
@@ -6918,170 +7001,173 @@ var file_registry_platform_proto_goTypes = []any{
 	(*GetDeploymentRequest)(nil),                       // 77: chainguard.platform.registry.GetDeploymentRequest
 	(*RegistrySettings)(nil),                           // 78: chainguard.platform.registry.RegistrySettings
 	(*GetRegistrySettingsRequest)(nil),                 // 79: chainguard.platform.registry.GetRegistrySettingsRequest
-	nil,                                                // 80: chainguard.platform.registry.CustomOverlay.EnvironmentEntry
-	nil,                                                // 81: chainguard.platform.registry.CustomOverlay.AnnotationsEntry
-	(*CustomOverlay_Certificates)(nil),                 // 82: chainguard.platform.registry.CustomOverlay.Certificates
-	(*CustomOverlay_Certificates_AdditionalEntry)(nil), // 83: chainguard.platform.registry.CustomOverlay.Certificates.AdditionalEntry
-	(*ImageConfig_ExposedPort)(nil),                    // 84: chainguard.platform.registry.ImageConfig.ExposedPort
-	nil,                                                // 85: chainguard.platform.registry.ImageConfig.ExposedPortsEntry
-	(*ImageConfig_Volume)(nil),                         // 86: chainguard.platform.registry.ImageConfig.Volume
-	nil,                                                // 87: chainguard.platform.registry.ImageConfig.VolumesEntry
-	nil,                                                // 88: chainguard.platform.registry.ImageConfig.LabelsEntry
-	(*PackagesDiff_ChangedPackageReference)(nil),       // 89: chainguard.platform.registry.PackagesDiff.ChangedPackageReference
-	(*PackageVersion_VersionSource)(nil),               // 90: chainguard.platform.registry.PackageVersion.VersionSource
-	(*BuildStatus_Failures)(nil),                       // 91: chainguard.platform.registry.BuildStatus.Failures
-	nil,                                                // 92: chainguard.platform.registry.Chart.AnnotationsEntry
-	(*timestamppb.Timestamp)(nil),                      // 93: google.protobuf.Timestamp
-	(*ApkoConfig_Accounts)(nil),                        // 94: chainguard.platform.registry.ApkoConfig.Accounts
-	(*v1.UIDPFilter)(nil),                              // 95: chainguard.platform.common.UIDPFilter
-	(*v11.Scanner)(nil),                                // 96: chainguard.platform.tenant.Scanner
-	(*emptypb.Empty)(nil),                              // 97: google.protobuf.Empty
-	(*v11.Sbom2)(nil),                                  // 98: chainguard.platform.tenant.Sbom2
-	(*v11.VulnReport)(nil),                             // 99: chainguard.platform.tenant.VulnReport
+	(*PolicyInput)(nil),                                // 80: chainguard.platform.registry.PolicyInput
+	nil,                                                // 81: chainguard.platform.registry.CustomOverlay.EnvironmentEntry
+	nil,                                                // 82: chainguard.platform.registry.CustomOverlay.AnnotationsEntry
+	(*CustomOverlay_Certificates)(nil),                 // 83: chainguard.platform.registry.CustomOverlay.Certificates
+	(*CustomOverlay_Certificates_AdditionalEntry)(nil), // 84: chainguard.platform.registry.CustomOverlay.Certificates.AdditionalEntry
+	(*ImageConfig_ExposedPort)(nil),                    // 85: chainguard.platform.registry.ImageConfig.ExposedPort
+	nil,                                                // 86: chainguard.platform.registry.ImageConfig.ExposedPortsEntry
+	(*ImageConfig_Volume)(nil),                         // 87: chainguard.platform.registry.ImageConfig.Volume
+	nil,                                                // 88: chainguard.platform.registry.ImageConfig.VolumesEntry
+	nil,                                                // 89: chainguard.platform.registry.ImageConfig.LabelsEntry
+	(*PackagesDiff_ChangedPackageReference)(nil),       // 90: chainguard.platform.registry.PackagesDiff.ChangedPackageReference
+	(*PackageVersion_VersionSource)(nil),               // 91: chainguard.platform.registry.PackageVersion.VersionSource
+	(*BuildStatus_Failures)(nil),                       // 92: chainguard.platform.registry.BuildStatus.Failures
+	nil,                                                // 93: chainguard.platform.registry.Chart.AnnotationsEntry
+	(*timestamppb.Timestamp)(nil),                      // 94: google.protobuf.Timestamp
+	(*ApkoConfig_Accounts)(nil),                        // 95: chainguard.platform.registry.ApkoConfig.Accounts
+	(*v1.UIDPFilter)(nil),                              // 96: chainguard.platform.common.UIDPFilter
+	(*v11.Scanner)(nil),                                // 97: chainguard.platform.tenant.Scanner
+	(*emptypb.Empty)(nil),                              // 98: google.protobuf.Empty
+	(*v11.Sbom2)(nil),                                  // 99: chainguard.platform.tenant.Sbom2
+	(*v11.VulnReport)(nil),                             // 100: chainguard.platform.tenant.VulnReport
 }
 var file_registry_platform_proto_depIdxs = []int32{
 	0,   // 0: chainguard.platform.registry.Repo.catalog_tier:type_name -> chainguard.platform.registry.CatalogTier
 	6,   // 1: chainguard.platform.registry.Repo.sync_config:type_name -> chainguard.platform.registry.SyncConfig
 	7,   // 2: chainguard.platform.registry.Repo.custom_overlay:type_name -> chainguard.platform.registry.CustomOverlay
-	93,  // 3: chainguard.platform.registry.Repo.create_time:type_name -> google.protobuf.Timestamp
-	93,  // 4: chainguard.platform.registry.SyncConfig.expiration:type_name -> google.protobuf.Timestamp
+	94,  // 3: chainguard.platform.registry.Repo.create_time:type_name -> google.protobuf.Timestamp
+	94,  // 4: chainguard.platform.registry.SyncConfig.expiration:type_name -> google.protobuf.Timestamp
 	8,   // 5: chainguard.platform.registry.CustomOverlay.contents:type_name -> chainguard.platform.registry.ImageContents
-	80,  // 6: chainguard.platform.registry.CustomOverlay.environment:type_name -> chainguard.platform.registry.CustomOverlay.EnvironmentEntry
-	81,  // 7: chainguard.platform.registry.CustomOverlay.annotations:type_name -> chainguard.platform.registry.CustomOverlay.AnnotationsEntry
-	94,  // 8: chainguard.platform.registry.CustomOverlay.accounts:type_name -> chainguard.platform.registry.ApkoConfig.Accounts
-	82,  // 9: chainguard.platform.registry.CustomOverlay.certificates:type_name -> chainguard.platform.registry.CustomOverlay.Certificates
+	81,  // 6: chainguard.platform.registry.CustomOverlay.environment:type_name -> chainguard.platform.registry.CustomOverlay.EnvironmentEntry
+	82,  // 7: chainguard.platform.registry.CustomOverlay.annotations:type_name -> chainguard.platform.registry.CustomOverlay.AnnotationsEntry
+	95,  // 8: chainguard.platform.registry.CustomOverlay.accounts:type_name -> chainguard.platform.registry.ApkoConfig.Accounts
+	83,  // 9: chainguard.platform.registry.CustomOverlay.certificates:type_name -> chainguard.platform.registry.CustomOverlay.Certificates
 	5,   // 10: chainguard.platform.registry.CreateRepoRequest.repo:type_name -> chainguard.platform.registry.Repo
 	5,   // 11: chainguard.platform.registry.RepoList.items:type_name -> chainguard.platform.registry.Repo
-	95,  // 12: chainguard.platform.registry.RepoFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	96,  // 12: chainguard.platform.registry.RepoFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
 	17,  // 13: chainguard.platform.registry.CreateTagRequest.tag:type_name -> chainguard.platform.registry.Tag
-	93,  // 14: chainguard.platform.registry.Tag.last_updated:type_name -> google.protobuf.Timestamp
+	94,  // 14: chainguard.platform.registry.Tag.last_updated:type_name -> google.protobuf.Timestamp
 	1,   // 15: chainguard.platform.registry.EolTag.tag_status:type_name -> chainguard.platform.registry.EolTagStatus
 	55,  // 16: chainguard.platform.registry.EolTag.main_package_version:type_name -> chainguard.platform.registry.PackageVersion
 	2,   // 17: chainguard.platform.registry.EolTag.grace_status:type_name -> chainguard.platform.registry.EolGracePeriodStatus
-	93,  // 18: chainguard.platform.registry.EolTag.grace_period_expiry_date:type_name -> google.protobuf.Timestamp
-	95,  // 19: chainguard.platform.registry.TagFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	93,  // 20: chainguard.platform.registry.TagFilter.updated_since:type_name -> google.protobuf.Timestamp
-	95,  // 21: chainguard.platform.registry.EolTagFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	94,  // 18: chainguard.platform.registry.EolTag.grace_period_expiry_date:type_name -> google.protobuf.Timestamp
+	96,  // 19: chainguard.platform.registry.TagFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	94,  // 20: chainguard.platform.registry.TagFilter.updated_since:type_name -> google.protobuf.Timestamp
+	96,  // 21: chainguard.platform.registry.EolTagFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
 	17,  // 22: chainguard.platform.registry.TagList.items:type_name -> chainguard.platform.registry.Tag
 	18,  // 23: chainguard.platform.registry.EolTagList.items:type_name -> chainguard.platform.registry.EolTag
-	93,  // 24: chainguard.platform.registry.TagHistoryFilter.start:type_name -> google.protobuf.Timestamp
-	93,  // 25: chainguard.platform.registry.TagHistoryFilter.end:type_name -> google.protobuf.Timestamp
+	94,  // 24: chainguard.platform.registry.TagHistoryFilter.start:type_name -> google.protobuf.Timestamp
+	94,  // 25: chainguard.platform.registry.TagHistoryFilter.end:type_name -> google.protobuf.Timestamp
 	25,  // 26: chainguard.platform.registry.TagHistoryList.items:type_name -> chainguard.platform.registry.TagHistory
-	93,  // 27: chainguard.platform.registry.TagHistory.update_timestamp:type_name -> google.protobuf.Timestamp
+	94,  // 27: chainguard.platform.registry.TagHistory.update_timestamp:type_name -> google.protobuf.Timestamp
 	33,  // 28: chainguard.platform.registry.DiffImageResponse.packages:type_name -> chainguard.platform.registry.PackagesDiff
 	36,  // 29: chainguard.platform.registry.DiffImageResponse.vulnerabilities:type_name -> chainguard.platform.registry.VulnerabilitiesDiff
-	85,  // 30: chainguard.platform.registry.ImageConfig.exposed_ports:type_name -> chainguard.platform.registry.ImageConfig.ExposedPortsEntry
-	87,  // 31: chainguard.platform.registry.ImageConfig.volumes:type_name -> chainguard.platform.registry.ImageConfig.VolumesEntry
-	88,  // 32: chainguard.platform.registry.ImageConfig.labels:type_name -> chainguard.platform.registry.ImageConfig.LabelsEntry
+	86,  // 30: chainguard.platform.registry.ImageConfig.exposed_ports:type_name -> chainguard.platform.registry.ImageConfig.ExposedPortsEntry
+	88,  // 31: chainguard.platform.registry.ImageConfig.volumes:type_name -> chainguard.platform.registry.ImageConfig.VolumesEntry
+	89,  // 32: chainguard.platform.registry.ImageConfig.labels:type_name -> chainguard.platform.registry.ImageConfig.LabelsEntry
 	35,  // 33: chainguard.platform.registry.PackagesDiff.added:type_name -> chainguard.platform.registry.PackageReference
 	35,  // 34: chainguard.platform.registry.PackagesDiff.removed:type_name -> chainguard.platform.registry.PackageReference
-	89,  // 35: chainguard.platform.registry.PackagesDiff.changed:type_name -> chainguard.platform.registry.PackagesDiff.ChangedPackageReference
+	90,  // 35: chainguard.platform.registry.PackagesDiff.changed:type_name -> chainguard.platform.registry.PackagesDiff.ChangedPackageReference
 	38,  // 36: chainguard.platform.registry.VulnerabilitiesDiff.added:type_name -> chainguard.platform.registry.VulnerabilityReference
 	38,  // 37: chainguard.platform.registry.VulnerabilitiesDiff.removed:type_name -> chainguard.platform.registry.VulnerabilityReference
 	37,  // 38: chainguard.platform.registry.VulnerabilitiesDiff.metadata:type_name -> chainguard.platform.registry.ScannerMetadata
-	96,  // 39: chainguard.platform.registry.ScannerMetadata.scanner:type_name -> chainguard.platform.tenant.Scanner
-	93,  // 40: chainguard.platform.registry.ScannerMetadata.vulnerability_db_last_build_time:type_name -> google.protobuf.Timestamp
+	97,  // 39: chainguard.platform.registry.ScannerMetadata.scanner:type_name -> chainguard.platform.tenant.Scanner
+	94,  // 40: chainguard.platform.registry.ScannerMetadata.vulnerability_db_last_build_time:type_name -> google.protobuf.Timestamp
 	45,  // 41: chainguard.platform.registry.ManifestMetadataFilterEntry.index_filter:type_name -> chainguard.platform.registry.ManifestMetadataIndexFilter
 	46,  // 42: chainguard.platform.registry.ManifestMetadataFilter.items:type_name -> chainguard.platform.registry.ManifestMetadataFilterEntry
-	93,  // 43: chainguard.platform.registry.PkgMetadata.eol_date:type_name -> google.protobuf.Timestamp
-	93,  // 44: chainguard.platform.registry.PkgMetadata.build_timestamp:type_name -> google.protobuf.Timestamp
+	94,  // 43: chainguard.platform.registry.PkgMetadata.eol_date:type_name -> google.protobuf.Timestamp
+	94,  // 44: chainguard.platform.registry.PkgMetadata.build_timestamp:type_name -> google.protobuf.Timestamp
 	48,  // 45: chainguard.platform.registry.ManifestMetadata.pkg_metadata:type_name -> chainguard.platform.registry.PkgMetadata
 	49,  // 46: chainguard.platform.registry.ManifestMetadataList.items:type_name -> chainguard.platform.registry.ManifestMetadata
 	55,  // 47: chainguard.platform.registry.PackageVersionMetadata.eolVersions:type_name -> chainguard.platform.registry.PackageVersion
 	55,  // 48: chainguard.platform.registry.PackageVersionMetadata.versions:type_name -> chainguard.platform.registry.PackageVersion
-	90,  // 49: chainguard.platform.registry.PackageVersion.versionSource:type_name -> chainguard.platform.registry.PackageVersion.VersionSource
-	95,  // 50: chainguard.platform.registry.BuildReportFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	93,  // 51: chainguard.platform.registry.BuildReportFilter.started_since:type_name -> google.protobuf.Timestamp
-	93,  // 52: chainguard.platform.registry.BuildReportFilter.started_before:type_name -> google.protobuf.Timestamp
+	91,  // 49: chainguard.platform.registry.PackageVersion.versionSource:type_name -> chainguard.platform.registry.PackageVersion.VersionSource
+	96,  // 50: chainguard.platform.registry.BuildReportFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	94,  // 51: chainguard.platform.registry.BuildReportFilter.started_since:type_name -> google.protobuf.Timestamp
+	94,  // 52: chainguard.platform.registry.BuildReportFilter.started_before:type_name -> google.protobuf.Timestamp
 	3,   // 53: chainguard.platform.registry.BuildReport.result:type_name -> chainguard.platform.registry.BuildReport.Result
-	93,  // 54: chainguard.platform.registry.BuildReport.started_at:type_name -> google.protobuf.Timestamp
-	93,  // 55: chainguard.platform.registry.BuildReport.completed_at:type_name -> google.protobuf.Timestamp
+	94,  // 54: chainguard.platform.registry.BuildReport.started_at:type_name -> google.protobuf.Timestamp
+	94,  // 55: chainguard.platform.registry.BuildReport.completed_at:type_name -> google.protobuf.Timestamp
 	57,  // 56: chainguard.platform.registry.BuildReportList.reports:type_name -> chainguard.platform.registry.BuildReport
-	91,  // 57: chainguard.platform.registry.BuildStatus.failures:type_name -> chainguard.platform.registry.BuildStatus.Failures
+	92,  // 57: chainguard.platform.registry.BuildStatus.failures:type_name -> chainguard.platform.registry.BuildStatus.Failures
 	4,   // 58: chainguard.platform.registry.SyncStatus.status:type_name -> chainguard.platform.registry.SyncStatus.Status
-	93,  // 59: chainguard.platform.registry.SyncStatus.create_time:type_name -> google.protobuf.Timestamp
+	94,  // 59: chainguard.platform.registry.SyncStatus.create_time:type_name -> google.protobuf.Timestamp
 	64,  // 60: chainguard.platform.registry.RepoSyncStatus.repo_status:type_name -> chainguard.platform.registry.SyncStatus
 	65,  // 61: chainguard.platform.registry.SyncStatusList.items:type_name -> chainguard.platform.registry.RepoSyncStatus
 	71,  // 62: chainguard.platform.registry.Chart.dependencies:type_name -> chainguard.platform.registry.ChartDependency
-	92,  // 63: chainguard.platform.registry.Chart.annotations:type_name -> chainguard.platform.registry.Chart.AnnotationsEntry
+	93,  // 63: chainguard.platform.registry.Chart.annotations:type_name -> chainguard.platform.registry.Chart.AnnotationsEntry
 	72,  // 64: chainguard.platform.registry.Chart.images:type_name -> chainguard.platform.registry.ChartImage
 	74,  // 65: chainguard.platform.registry.Deployment.charts:type_name -> chainguard.platform.registry.HelmChart
 	74,  // 66: chainguard.platform.registry.CreateDeploymentRequest.charts:type_name -> chainguard.platform.registry.HelmChart
 	74,  // 67: chainguard.platform.registry.UpdateDeploymentRequest.charts:type_name -> chainguard.platform.registry.HelmChart
-	83,  // 68: chainguard.platform.registry.CustomOverlay.Certificates.additional:type_name -> chainguard.platform.registry.CustomOverlay.Certificates.AdditionalEntry
-	84,  // 69: chainguard.platform.registry.ImageConfig.ExposedPortsEntry.value:type_name -> chainguard.platform.registry.ImageConfig.ExposedPort
-	86,  // 70: chainguard.platform.registry.ImageConfig.VolumesEntry.value:type_name -> chainguard.platform.registry.ImageConfig.Volume
-	34,  // 71: chainguard.platform.registry.PackagesDiff.ChangedPackageReference.current:type_name -> chainguard.platform.registry.VersionReference
-	34,  // 72: chainguard.platform.registry.PackagesDiff.ChangedPackageReference.previous:type_name -> chainguard.platform.registry.VersionReference
-	9,   // 73: chainguard.platform.registry.Registry.CreateRepo:input_type -> chainguard.platform.registry.CreateRepoRequest
-	5,   // 74: chainguard.platform.registry.Registry.UpdateRepo:input_type -> chainguard.platform.registry.Repo
-	14,  // 75: chainguard.platform.registry.Registry.ListRepos:input_type -> chainguard.platform.registry.RepoFilter
-	10,  // 76: chainguard.platform.registry.Registry.GetRepoCountBySource:input_type -> chainguard.platform.registry.GetRepoCountBySourceRequest
-	12,  // 77: chainguard.platform.registry.Registry.DeleteRepo:input_type -> chainguard.platform.registry.DeleteRepoRequest
-	15,  // 78: chainguard.platform.registry.Registry.CreateTag:input_type -> chainguard.platform.registry.CreateTagRequest
-	17,  // 79: chainguard.platform.registry.Registry.UpdateTag:input_type -> chainguard.platform.registry.Tag
-	16,  // 80: chainguard.platform.registry.Registry.DeleteTag:input_type -> chainguard.platform.registry.DeleteTagRequest
-	19,  // 81: chainguard.platform.registry.Registry.ListTags:input_type -> chainguard.platform.registry.TagFilter
-	20,  // 82: chainguard.platform.registry.Registry.ListEolTags:input_type -> chainguard.platform.registry.EolTagFilter
-	23,  // 83: chainguard.platform.registry.Registry.ListTagHistory:input_type -> chainguard.platform.registry.TagHistoryFilter
-	27,  // 84: chainguard.platform.registry.Registry.GetSbom:input_type -> chainguard.platform.registry.SbomRequest
-	67,  // 85: chainguard.platform.registry.Registry.GetHelm:input_type -> chainguard.platform.registry.HelmRequest
-	69,  // 86: chainguard.platform.registry.Registry.GetChart:input_type -> chainguard.platform.registry.GetChartRequest
-	42,  // 87: chainguard.platform.registry.Registry.GetImageConfig:input_type -> chainguard.platform.registry.ImageConfigRequest
-	40,  // 88: chainguard.platform.registry.Registry.GetArchs:input_type -> chainguard.platform.registry.ArchRequest
-	41,  // 89: chainguard.platform.registry.Registry.GetSize:input_type -> chainguard.platform.registry.SizeRequest
-	43,  // 90: chainguard.platform.registry.Registry.GetRawSbom:input_type -> chainguard.platform.registry.RawSbomRequest
-	44,  // 91: chainguard.platform.registry.Registry.GetVulnReport:input_type -> chainguard.platform.registry.VulnReportRequest
-	47,  // 92: chainguard.platform.registry.Registry.ListManifestMetadata:input_type -> chainguard.platform.registry.ManifestMetadataFilter
-	51,  // 93: chainguard.platform.registry.Registry.GetManifestDigestCount:input_type -> chainguard.platform.registry.ManifestDigestCountFilter
-	28,  // 94: chainguard.platform.registry.Registry.GetPackageVersionMetadata:input_type -> chainguard.platform.registry.PackageVersionMetadataRequest
-	56,  // 95: chainguard.platform.registry.Registry.ListBuildReports:input_type -> chainguard.platform.registry.BuildReportFilter
-	56,  // 96: chainguard.platform.registry.Registry.GetBuildStatus:input_type -> chainguard.platform.registry.BuildReportFilter
-	60,  // 97: chainguard.platform.registry.Registry.GetUpdateStatus:input_type -> chainguard.platform.registry.UpdateStatusRequest
-	62,  // 98: chainguard.platform.registry.Registry.GetSyncStatus:input_type -> chainguard.platform.registry.GetSyncStatusRequest
-	63,  // 99: chainguard.platform.registry.Registry.ListSyncStatuses:input_type -> chainguard.platform.registry.ListSyncStatusesRequest
-	75,  // 100: chainguard.platform.registry.Registry.CreateDeployment:input_type -> chainguard.platform.registry.CreateDeploymentRequest
-	76,  // 101: chainguard.platform.registry.Registry.UpdateDeployment:input_type -> chainguard.platform.registry.UpdateDeploymentRequest
-	77,  // 102: chainguard.platform.registry.Registry.GetDeployment:input_type -> chainguard.platform.registry.GetDeploymentRequest
-	79,  // 103: chainguard.platform.registry.Registry.GetRegistrySettings:input_type -> chainguard.platform.registry.GetRegistrySettingsRequest
-	78,  // 104: chainguard.platform.registry.Registry.UpdateRegistrySettings:input_type -> chainguard.platform.registry.RegistrySettings
-	5,   // 105: chainguard.platform.registry.Registry.CreateRepo:output_type -> chainguard.platform.registry.Repo
-	5,   // 106: chainguard.platform.registry.Registry.UpdateRepo:output_type -> chainguard.platform.registry.Repo
-	13,  // 107: chainguard.platform.registry.Registry.ListRepos:output_type -> chainguard.platform.registry.RepoList
-	11,  // 108: chainguard.platform.registry.Registry.GetRepoCountBySource:output_type -> chainguard.platform.registry.RepoCount
-	97,  // 109: chainguard.platform.registry.Registry.DeleteRepo:output_type -> google.protobuf.Empty
-	17,  // 110: chainguard.platform.registry.Registry.CreateTag:output_type -> chainguard.platform.registry.Tag
-	17,  // 111: chainguard.platform.registry.Registry.UpdateTag:output_type -> chainguard.platform.registry.Tag
-	97,  // 112: chainguard.platform.registry.Registry.DeleteTag:output_type -> google.protobuf.Empty
-	21,  // 113: chainguard.platform.registry.Registry.ListTags:output_type -> chainguard.platform.registry.TagList
-	22,  // 114: chainguard.platform.registry.Registry.ListEolTags:output_type -> chainguard.platform.registry.EolTagList
-	24,  // 115: chainguard.platform.registry.Registry.ListTagHistory:output_type -> chainguard.platform.registry.TagHistoryList
-	98,  // 116: chainguard.platform.registry.Registry.GetSbom:output_type -> chainguard.platform.tenant.Sbom2
-	68,  // 117: chainguard.platform.registry.Registry.GetHelm:output_type -> chainguard.platform.registry.Helm
-	70,  // 118: chainguard.platform.registry.Registry.GetChart:output_type -> chainguard.platform.registry.Chart
-	32,  // 119: chainguard.platform.registry.Registry.GetImageConfig:output_type -> chainguard.platform.registry.ImageConfig
-	29,  // 120: chainguard.platform.registry.Registry.GetArchs:output_type -> chainguard.platform.registry.Archs
-	31,  // 121: chainguard.platform.registry.Registry.GetSize:output_type -> chainguard.platform.registry.Size
-	53,  // 122: chainguard.platform.registry.Registry.GetRawSbom:output_type -> chainguard.platform.registry.RawSbom
-	99,  // 123: chainguard.platform.registry.Registry.GetVulnReport:output_type -> chainguard.platform.tenant.VulnReport
-	50,  // 124: chainguard.platform.registry.Registry.ListManifestMetadata:output_type -> chainguard.platform.registry.ManifestMetadataList
-	52,  // 125: chainguard.platform.registry.Registry.GetManifestDigestCount:output_type -> chainguard.platform.registry.ManifestDigestCount
-	54,  // 126: chainguard.platform.registry.Registry.GetPackageVersionMetadata:output_type -> chainguard.platform.registry.PackageVersionMetadata
-	58,  // 127: chainguard.platform.registry.Registry.ListBuildReports:output_type -> chainguard.platform.registry.BuildReportList
-	59,  // 128: chainguard.platform.registry.Registry.GetBuildStatus:output_type -> chainguard.platform.registry.BuildStatus
-	61,  // 129: chainguard.platform.registry.Registry.GetUpdateStatus:output_type -> chainguard.platform.registry.UpdateStatus
-	64,  // 130: chainguard.platform.registry.Registry.GetSyncStatus:output_type -> chainguard.platform.registry.SyncStatus
-	66,  // 131: chainguard.platform.registry.Registry.ListSyncStatuses:output_type -> chainguard.platform.registry.SyncStatusList
-	73,  // 132: chainguard.platform.registry.Registry.CreateDeployment:output_type -> chainguard.platform.registry.Deployment
-	73,  // 133: chainguard.platform.registry.Registry.UpdateDeployment:output_type -> chainguard.platform.registry.Deployment
-	73,  // 134: chainguard.platform.registry.Registry.GetDeployment:output_type -> chainguard.platform.registry.Deployment
-	78,  // 135: chainguard.platform.registry.Registry.GetRegistrySettings:output_type -> chainguard.platform.registry.RegistrySettings
-	78,  // 136: chainguard.platform.registry.Registry.UpdateRegistrySettings:output_type -> chainguard.platform.registry.RegistrySettings
-	105, // [105:137] is the sub-list for method output_type
-	73,  // [73:105] is the sub-list for method input_type
-	73,  // [73:73] is the sub-list for extension type_name
-	73,  // [73:73] is the sub-list for extension extendee
-	0,   // [0:73] is the sub-list for field type_name
+	55,  // 68: chainguard.platform.registry.PolicyInput.main_package_version:type_name -> chainguard.platform.registry.PackageVersion
+	94,  // 69: chainguard.platform.registry.PolicyInput.create_time:type_name -> google.protobuf.Timestamp
+	84,  // 70: chainguard.platform.registry.CustomOverlay.Certificates.additional:type_name -> chainguard.platform.registry.CustomOverlay.Certificates.AdditionalEntry
+	85,  // 71: chainguard.platform.registry.ImageConfig.ExposedPortsEntry.value:type_name -> chainguard.platform.registry.ImageConfig.ExposedPort
+	87,  // 72: chainguard.platform.registry.ImageConfig.VolumesEntry.value:type_name -> chainguard.platform.registry.ImageConfig.Volume
+	34,  // 73: chainguard.platform.registry.PackagesDiff.ChangedPackageReference.current:type_name -> chainguard.platform.registry.VersionReference
+	34,  // 74: chainguard.platform.registry.PackagesDiff.ChangedPackageReference.previous:type_name -> chainguard.platform.registry.VersionReference
+	9,   // 75: chainguard.platform.registry.Registry.CreateRepo:input_type -> chainguard.platform.registry.CreateRepoRequest
+	5,   // 76: chainguard.platform.registry.Registry.UpdateRepo:input_type -> chainguard.platform.registry.Repo
+	14,  // 77: chainguard.platform.registry.Registry.ListRepos:input_type -> chainguard.platform.registry.RepoFilter
+	10,  // 78: chainguard.platform.registry.Registry.GetRepoCountBySource:input_type -> chainguard.platform.registry.GetRepoCountBySourceRequest
+	12,  // 79: chainguard.platform.registry.Registry.DeleteRepo:input_type -> chainguard.platform.registry.DeleteRepoRequest
+	15,  // 80: chainguard.platform.registry.Registry.CreateTag:input_type -> chainguard.platform.registry.CreateTagRequest
+	17,  // 81: chainguard.platform.registry.Registry.UpdateTag:input_type -> chainguard.platform.registry.Tag
+	16,  // 82: chainguard.platform.registry.Registry.DeleteTag:input_type -> chainguard.platform.registry.DeleteTagRequest
+	19,  // 83: chainguard.platform.registry.Registry.ListTags:input_type -> chainguard.platform.registry.TagFilter
+	20,  // 84: chainguard.platform.registry.Registry.ListEolTags:input_type -> chainguard.platform.registry.EolTagFilter
+	23,  // 85: chainguard.platform.registry.Registry.ListTagHistory:input_type -> chainguard.platform.registry.TagHistoryFilter
+	27,  // 86: chainguard.platform.registry.Registry.GetSbom:input_type -> chainguard.platform.registry.SbomRequest
+	67,  // 87: chainguard.platform.registry.Registry.GetHelm:input_type -> chainguard.platform.registry.HelmRequest
+	69,  // 88: chainguard.platform.registry.Registry.GetChart:input_type -> chainguard.platform.registry.GetChartRequest
+	42,  // 89: chainguard.platform.registry.Registry.GetImageConfig:input_type -> chainguard.platform.registry.ImageConfigRequest
+	40,  // 90: chainguard.platform.registry.Registry.GetArchs:input_type -> chainguard.platform.registry.ArchRequest
+	41,  // 91: chainguard.platform.registry.Registry.GetSize:input_type -> chainguard.platform.registry.SizeRequest
+	43,  // 92: chainguard.platform.registry.Registry.GetRawSbom:input_type -> chainguard.platform.registry.RawSbomRequest
+	44,  // 93: chainguard.platform.registry.Registry.GetVulnReport:input_type -> chainguard.platform.registry.VulnReportRequest
+	47,  // 94: chainguard.platform.registry.Registry.ListManifestMetadata:input_type -> chainguard.platform.registry.ManifestMetadataFilter
+	51,  // 95: chainguard.platform.registry.Registry.GetManifestDigestCount:input_type -> chainguard.platform.registry.ManifestDigestCountFilter
+	28,  // 96: chainguard.platform.registry.Registry.GetPackageVersionMetadata:input_type -> chainguard.platform.registry.PackageVersionMetadataRequest
+	56,  // 97: chainguard.platform.registry.Registry.ListBuildReports:input_type -> chainguard.platform.registry.BuildReportFilter
+	56,  // 98: chainguard.platform.registry.Registry.GetBuildStatus:input_type -> chainguard.platform.registry.BuildReportFilter
+	60,  // 99: chainguard.platform.registry.Registry.GetUpdateStatus:input_type -> chainguard.platform.registry.UpdateStatusRequest
+	62,  // 100: chainguard.platform.registry.Registry.GetSyncStatus:input_type -> chainguard.platform.registry.GetSyncStatusRequest
+	63,  // 101: chainguard.platform.registry.Registry.ListSyncStatuses:input_type -> chainguard.platform.registry.ListSyncStatusesRequest
+	75,  // 102: chainguard.platform.registry.Registry.CreateDeployment:input_type -> chainguard.platform.registry.CreateDeploymentRequest
+	76,  // 103: chainguard.platform.registry.Registry.UpdateDeployment:input_type -> chainguard.platform.registry.UpdateDeploymentRequest
+	77,  // 104: chainguard.platform.registry.Registry.GetDeployment:input_type -> chainguard.platform.registry.GetDeploymentRequest
+	79,  // 105: chainguard.platform.registry.Registry.GetRegistrySettings:input_type -> chainguard.platform.registry.GetRegistrySettingsRequest
+	78,  // 106: chainguard.platform.registry.Registry.UpdateRegistrySettings:input_type -> chainguard.platform.registry.RegistrySettings
+	5,   // 107: chainguard.platform.registry.Registry.CreateRepo:output_type -> chainguard.platform.registry.Repo
+	5,   // 108: chainguard.platform.registry.Registry.UpdateRepo:output_type -> chainguard.platform.registry.Repo
+	13,  // 109: chainguard.platform.registry.Registry.ListRepos:output_type -> chainguard.platform.registry.RepoList
+	11,  // 110: chainguard.platform.registry.Registry.GetRepoCountBySource:output_type -> chainguard.platform.registry.RepoCount
+	98,  // 111: chainguard.platform.registry.Registry.DeleteRepo:output_type -> google.protobuf.Empty
+	17,  // 112: chainguard.platform.registry.Registry.CreateTag:output_type -> chainguard.platform.registry.Tag
+	17,  // 113: chainguard.platform.registry.Registry.UpdateTag:output_type -> chainguard.platform.registry.Tag
+	98,  // 114: chainguard.platform.registry.Registry.DeleteTag:output_type -> google.protobuf.Empty
+	21,  // 115: chainguard.platform.registry.Registry.ListTags:output_type -> chainguard.platform.registry.TagList
+	22,  // 116: chainguard.platform.registry.Registry.ListEolTags:output_type -> chainguard.platform.registry.EolTagList
+	24,  // 117: chainguard.platform.registry.Registry.ListTagHistory:output_type -> chainguard.platform.registry.TagHistoryList
+	99,  // 118: chainguard.platform.registry.Registry.GetSbom:output_type -> chainguard.platform.tenant.Sbom2
+	68,  // 119: chainguard.platform.registry.Registry.GetHelm:output_type -> chainguard.platform.registry.Helm
+	70,  // 120: chainguard.platform.registry.Registry.GetChart:output_type -> chainguard.platform.registry.Chart
+	32,  // 121: chainguard.platform.registry.Registry.GetImageConfig:output_type -> chainguard.platform.registry.ImageConfig
+	29,  // 122: chainguard.platform.registry.Registry.GetArchs:output_type -> chainguard.platform.registry.Archs
+	31,  // 123: chainguard.platform.registry.Registry.GetSize:output_type -> chainguard.platform.registry.Size
+	53,  // 124: chainguard.platform.registry.Registry.GetRawSbom:output_type -> chainguard.platform.registry.RawSbom
+	100, // 125: chainguard.platform.registry.Registry.GetVulnReport:output_type -> chainguard.platform.tenant.VulnReport
+	50,  // 126: chainguard.platform.registry.Registry.ListManifestMetadata:output_type -> chainguard.platform.registry.ManifestMetadataList
+	52,  // 127: chainguard.platform.registry.Registry.GetManifestDigestCount:output_type -> chainguard.platform.registry.ManifestDigestCount
+	54,  // 128: chainguard.platform.registry.Registry.GetPackageVersionMetadata:output_type -> chainguard.platform.registry.PackageVersionMetadata
+	58,  // 129: chainguard.platform.registry.Registry.ListBuildReports:output_type -> chainguard.platform.registry.BuildReportList
+	59,  // 130: chainguard.platform.registry.Registry.GetBuildStatus:output_type -> chainguard.platform.registry.BuildStatus
+	61,  // 131: chainguard.platform.registry.Registry.GetUpdateStatus:output_type -> chainguard.platform.registry.UpdateStatus
+	64,  // 132: chainguard.platform.registry.Registry.GetSyncStatus:output_type -> chainguard.platform.registry.SyncStatus
+	66,  // 133: chainguard.platform.registry.Registry.ListSyncStatuses:output_type -> chainguard.platform.registry.SyncStatusList
+	73,  // 134: chainguard.platform.registry.Registry.CreateDeployment:output_type -> chainguard.platform.registry.Deployment
+	73,  // 135: chainguard.platform.registry.Registry.UpdateDeployment:output_type -> chainguard.platform.registry.Deployment
+	73,  // 136: chainguard.platform.registry.Registry.GetDeployment:output_type -> chainguard.platform.registry.Deployment
+	78,  // 137: chainguard.platform.registry.Registry.GetRegistrySettings:output_type -> chainguard.platform.registry.RegistrySettings
+	78,  // 138: chainguard.platform.registry.Registry.UpdateRegistrySettings:output_type -> chainguard.platform.registry.RegistrySettings
+	107, // [107:139] is the sub-list for method output_type
+	75,  // [75:107] is the sub-list for method input_type
+	75,  // [75:75] is the sub-list for extension type_name
+	75,  // [75:75] is the sub-list for extension extendee
+	0,   // [0:75] is the sub-list for field type_name
 }
 
 func init() { file_registry_platform_proto_init() }
@@ -7991,8 +8077,8 @@ func file_registry_platform_proto_init() {
 				return nil
 			}
 		}
-		file_registry_platform_proto_msgTypes[77].Exporter = func(v any, i int) any {
-			switch v := v.(*CustomOverlay_Certificates); i {
+		file_registry_platform_proto_msgTypes[75].Exporter = func(v any, i int) any {
+			switch v := v.(*PolicyInput); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -8004,7 +8090,7 @@ func file_registry_platform_proto_init() {
 			}
 		}
 		file_registry_platform_proto_msgTypes[78].Exporter = func(v any, i int) any {
-			switch v := v.(*CustomOverlay_Certificates_AdditionalEntry); i {
+			switch v := v.(*CustomOverlay_Certificates); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -8016,6 +8102,18 @@ func file_registry_platform_proto_init() {
 			}
 		}
 		file_registry_platform_proto_msgTypes[79].Exporter = func(v any, i int) any {
+			switch v := v.(*CustomOverlay_Certificates_AdditionalEntry); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_registry_platform_proto_msgTypes[80].Exporter = func(v any, i int) any {
 			switch v := v.(*ImageConfig_ExposedPort); i {
 			case 0:
 				return &v.state
@@ -8027,7 +8125,7 @@ func file_registry_platform_proto_init() {
 				return nil
 			}
 		}
-		file_registry_platform_proto_msgTypes[81].Exporter = func(v any, i int) any {
+		file_registry_platform_proto_msgTypes[82].Exporter = func(v any, i int) any {
 			switch v := v.(*ImageConfig_Volume); i {
 			case 0:
 				return &v.state
@@ -8039,7 +8137,7 @@ func file_registry_platform_proto_init() {
 				return nil
 			}
 		}
-		file_registry_platform_proto_msgTypes[84].Exporter = func(v any, i int) any {
+		file_registry_platform_proto_msgTypes[85].Exporter = func(v any, i int) any {
 			switch v := v.(*PackagesDiff_ChangedPackageReference); i {
 			case 0:
 				return &v.state
@@ -8051,7 +8149,7 @@ func file_registry_platform_proto_init() {
 				return nil
 			}
 		}
-		file_registry_platform_proto_msgTypes[85].Exporter = func(v any, i int) any {
+		file_registry_platform_proto_msgTypes[86].Exporter = func(v any, i int) any {
 			switch v := v.(*PackageVersion_VersionSource); i {
 			case 0:
 				return &v.state
@@ -8063,7 +8161,7 @@ func file_registry_platform_proto_init() {
 				return nil
 			}
 		}
-		file_registry_platform_proto_msgTypes[86].Exporter = func(v any, i int) any {
+		file_registry_platform_proto_msgTypes[87].Exporter = func(v any, i int) any {
 			switch v := v.(*BuildStatus_Failures); i {
 			case 0:
 				return &v.state
@@ -8087,7 +8185,7 @@ func file_registry_platform_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_registry_platform_proto_rawDesc,
 			NumEnums:      5,
-			NumMessages:   88,
+			NumMessages:   89,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
