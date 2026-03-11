@@ -17,8 +17,8 @@ import (
 // ExampleMockPackagesClients demonstrates creating a mock Packages client.
 func ExampleMockPackagesClients() {
 	mock := test.MockPackagesClients{
-		EntitlementsOnClient: test.MockEntitlementsClient{
-			OnList: []test.OnListEntitlements{{
+		EntitlementsClient: test.MockEntitlementsClient{
+			OnList: []test.EntitlementsOnList{{
 				Given: &packages.PackageEntitlementFilter{
 					ParentId: "group-123",
 				},
@@ -83,7 +83,7 @@ func ExampleMockPackagesClients_closeError() {
 // ExampleMockEntitlementsClient demonstrates mocking the Entitlements service.
 func ExampleMockEntitlementsClient() {
 	mock := test.MockEntitlementsClient{
-		OnList: []test.OnListEntitlements{{
+		OnList: []test.EntitlementsOnList{{
 			Given: &packages.PackageEntitlementFilter{
 				ParentId: "group-456",
 			},
@@ -121,7 +121,7 @@ func ExampleMockEntitlementsClient() {
 // ExampleMockEntitlementsClient_error demonstrates simulating a List error.
 func ExampleMockEntitlementsClient_error() {
 	mock := test.MockEntitlementsClient{
-		OnList: []test.OnListEntitlements{{
+		OnList: []test.EntitlementsOnList{{
 			Given: &packages.PackageEntitlementFilter{
 				ParentId: "group-789",
 			},

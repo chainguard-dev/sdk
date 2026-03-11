@@ -18,8 +18,8 @@ func ExampleClients() {
 	// In production, use packages.NewClients() with a real API URL and token.
 	// Here we use a mock for demonstration.
 	var clients packages.Clients = test.MockPackagesClients{
-		EntitlementsOnClient: test.MockEntitlementsClient{
-			OnList: []test.OnListEntitlements{{
+		EntitlementsClient: test.MockEntitlementsClient{
+			OnList: []test.EntitlementsOnList{{
 				Given: &packages.PackageEntitlementFilter{
 					ParentId: "group-123",
 				},
@@ -133,8 +133,8 @@ func ExampleNewClientsFromConnection() {
 // Example_listEntitlements demonstrates listing entitlements via the mock.
 func Example_listEntitlements() {
 	mock := test.MockPackagesClients{
-		EntitlementsOnClient: test.MockEntitlementsClient{
-			OnList: []test.OnListEntitlements{{
+		EntitlementsClient: test.MockEntitlementsClient{
+			OnList: []test.EntitlementsOnList{{
 				Given: &packages.PackageEntitlementFilter{
 					ParentId: "group-789",
 				},
