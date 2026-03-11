@@ -19,13 +19,13 @@ import (
 var _ packages.Clients = (*MockPackagesClients)(nil)
 
 type MockPackagesClients struct {
-	EntitlementsOnClient MockEntitlementsClient
+	EntitlementsClient MockEntitlementsClient
 
 	OnClose error
 }
 
 func (m MockPackagesClients) Entitlements() packages.EntitlementsClient {
-	return &m.EntitlementsOnClient
+	return &m.EntitlementsClient
 }
 
 func (m MockPackagesClients) Close() error {
@@ -38,10 +38,10 @@ var _ packages.EntitlementsClient = (*MockEntitlementsClient)(nil)
 type MockEntitlementsClient struct {
 	packages.EntitlementsClient
 
-	OnList []OnListEntitlements
+	OnList []EntitlementsOnList
 }
 
-type OnListEntitlements struct {
+type EntitlementsOnList struct {
 	Given *packages.PackageEntitlementFilter
 	List  *packages.PackageEntitlementList
 	Error error
