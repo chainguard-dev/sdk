@@ -513,6 +513,7 @@ message CustomOverlay {
       string content = 2;
     }
     repeated AdditionalEntry additional = 1;
+    repeated string providers = 2;
   }
   Certificates certificates = 15;
 }
