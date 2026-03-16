@@ -463,6 +463,7 @@ enum CatalogTier {
   FIPS = 6;
   AI = 7;
   DEVTOOLS = 8;
+  COMMERCIAL = 9;
 }
 
 message SyncConfig {
@@ -512,6 +513,7 @@ message CustomOverlay {
       string content = 2;
     }
     repeated AdditionalEntry additional = 1;
+    repeated string providers = 2;
   }
   Certificates certificates = 15;
 }
@@ -1265,4 +1267,19 @@ message RegistrySettings {
 message GetRegistrySettingsRequest {
   // registry_id is the UIDP of the root group to get settings for.
   string registry_id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+// PolicyInput represents the set of attributes available for policy evaluation
+// on an image.
+message PolicyInput {
+  // The name of the image's main package.
+  string main_package = 1;
+
+  // Version metadata for the image's main package.
+  PackageVersion main_package_version = 2;
+
+  // When the image was created.
+  // Derived from package build timestamps to ensure reproducibility.
+  // Consistent with the org.opencontainers.image.created annotation on the image.
+  google.protobuf.Timestamp create_time = 3;
 }

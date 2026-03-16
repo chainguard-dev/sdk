@@ -1,0 +1,58 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/packages/v1";
+
+package chainguard.platform.packages;
+
+import "google/api/annotations.proto";
+import "annotations/auth.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+service Entitlements {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    description: "Packages Entitlements API"
+    name: "PackagesEntitlements" // Override the tag name
+  };
+
+  rpc List(PackageEntitlementFilter) returns (PackageEntitlementList) {
+    option (google.api.http) = {
+      get: "/packages/v1/entitlements"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "PackagesEntitlements"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_PACKAGES_ENTITLEMENTS_LIST]
+        unscoped: true
+      }
+    };
+  }
+}
+
+// PackageTier represents the package tier an org can be entitled to.
+enum PackageTier {
+  PACKAGE_TIER_UNSPECIFIED = 0;
+  PACKAGE_TIER_BASE        = 1;
+  PACKAGE_TIER_FIPS        = 2;
+}
+
+// PackageEntitlement maps an org to a package tier they are entitled to.
+message PackageEntitlement {
+  // id is the uidp of the entitlement, a child of a group.
+  string id = 1;
+  // tier is the package tier this entitlement grants access to.
+  PackageTier tier = 2;
+}
+
+message PackageEntitlementList {
+  repeated PackageEntitlement items = 1;
+}
+
+message PackageEntitlementFilter {
+  // parent_id is the group to list entitlements for. Required.
+  string parent_id = 1;
+}

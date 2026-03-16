@@ -27,6 +27,8 @@ import (
 	notificationstest "chainguard.dev/sdk/proto/platform/notifications/v1/test"
 	oidc "chainguard.dev/sdk/proto/platform/oidc/v1"
 	oidctest "chainguard.dev/sdk/proto/platform/oidc/v1/test"
+	packages "chainguard.dev/sdk/proto/platform/packages/v1"
+	packagestest "chainguard.dev/sdk/proto/platform/packages/v1/test"
 	ping "chainguard.dev/sdk/proto/platform/ping/v1"
 	pingtest "chainguard.dev/sdk/proto/platform/ping/v1/test"
 	policygates "chainguard.dev/sdk/proto/platform/policygates/v1"
@@ -51,6 +53,7 @@ type MockPlatformClients struct {
 	APKClient             apktest.MockAPKClients
 	EcosystemsClient      ecosystemstest.MockEcosystemsClients
 	LibrariesClient       librariestest.MockLibrariesClients
+	PackagesClient        packagestest.MockPackagesClients
 	VulnerabilitiesClient vulnerabilitiestest.MockVulnerabilitiesClients
 	ImageMatcherClient    matchertest.MockImageMatcherClients
 	PolicyGatesClient     policygatestest.MockPolicyGatesClients
@@ -94,6 +97,10 @@ func (m MockPlatformClients) Ecosystems() ecosystems.Clients {
 
 func (m MockPlatformClients) Libraries() libraries.Clients {
 	return m.LibrariesClient
+}
+
+func (m MockPlatformClients) Packages() packages.Clients {
+	return m.PackagesClient
 }
 
 func (m MockPlatformClients) Vulnerabilities() vulnerabilities.Clients {

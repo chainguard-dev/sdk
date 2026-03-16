@@ -204,6 +204,8 @@ enum Capability {
   CAP_POLICY_GATES_BINDING_LIST   = 2013 [(name) = "policy_gates.bindings.list",   (bit) = 119];
   CAP_POLICY_GATES_BINDING_DELETE = 2014 [(name) = "policy_gates.bindings.delete", (bit) = 120];
 
+  CAP_PACKAGES_ENTITLEMENTS_LIST = 2100 [(name) = "packages.entitlements.list", (bit) = 123];
+
   // This is orthogonal enough that we should leave
   // it somewhat separate, so add new capabilities above.
   // TODO(mattmoor): Think about whether we can encode specific
@@ -213,5 +215,5 @@ enum Capability {
   CAP_GULFSTREAM = 10000 [(name) = "gulfstream", (bit) = 47];
 
   reserved 1;
-  // next bit: 123
+  // next bit: 124
 }

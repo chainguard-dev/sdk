@@ -24,6 +24,7 @@ import (
 	matcher "chainguard.dev/sdk/proto/platform/matcher/v1"
 	notifications "chainguard.dev/sdk/proto/platform/notifications/v1"
 	platformoidc "chainguard.dev/sdk/proto/platform/oidc/v1"
+	packages "chainguard.dev/sdk/proto/platform/packages/v1"
 	ping "chainguard.dev/sdk/proto/platform/ping/v1"
 	policygates "chainguard.dev/sdk/proto/platform/policygates/v1"
 	registry "chainguard.dev/sdk/proto/platform/registry/v1"
@@ -42,6 +43,7 @@ type Clients interface {
 	APK() apk.Clients
 	Ecosystems() ecosystems.Clients
 	Libraries() libraries.Clients
+	Packages() packages.Clients
 	Vulnerabilities() vulnerabilities.Clients
 	ImageMatcher() matcher.Clients
 	PolicyGates() policygates.Clients
@@ -97,6 +99,7 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 		apk:             apk.NewClientsFromConnection(conn),
 		ecosystems:      ecosystems.NewClientsFromConnection(conn),
 		libraries:       libraries.NewClientsFromConnection(conn),
+		packages:        packages.NewClientsFromConnection(conn),
 		vulnerabilities: vulnerabilities.NewClientsFromConnection(conn),
 		matcher:         matcher.NewClientsFromConnection(conn),
 		policyGates:     policygates.NewClientsFromConnection(conn),
@@ -113,6 +116,7 @@ type clients struct {
 	apk             apk.Clients
 	ecosystems      ecosystems.Clients
 	libraries       libraries.Clients
+	packages        packages.Clients
 	vulnerabilities vulnerabilities.Clients
 	matcher         matcher.Clients
 	policyGates     policygates.Clients
@@ -154,6 +158,10 @@ func (c *clients) Ecosystems() ecosystems.Clients {
 
 func (c *clients) Libraries() libraries.Clients {
 	return c.libraries
+}
+
+func (c *clients) Packages() packages.Clients {
+	return c.packages
 }
 
 func (c *clients) Vulnerabilities() vulnerabilities.Clients {
