@@ -77,6 +77,14 @@ message NpmPackageFilter {
   string page_token = 3;
 }
 
+// NpmSourceType indicates the origin of a package version.
+enum NpmSourceType {
+  NPM_SOURCE_TYPE_UNKNOWN = 0;
+  NPM_SOURCE_TYPE_INTERNAL = 1;
+  NPM_SOURCE_TYPE_INTERNAL_REMEDIATED = 2;
+  NPM_SOURCE_TYPE_UPSTREAM_REGISTRY = 3;
+}
+
 // NpmPackageVersion contains metadata about a specific version of an
 // npm package available in Chainguard Libraries.
 message NpmPackageVersion {
@@ -92,6 +100,8 @@ message NpmPackageVersion {
   int64 file_size = 5;
   // The number of files contained in the package.
   int64 file_count = 6;
+  // The origin of this package version.
+  NpmSourceType source_type = 7;
 }
 
 // A collection of NpmPackageVersions as returned by calls to ListVersions.
