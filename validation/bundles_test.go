@@ -15,6 +15,7 @@ func TestValidateBundles(t *testing.T) {
 		Expect bool
 	}{
 		"valid":                   {[]string{"application"}, true},
+		"valid commercial":        {[]string{"commercial"}, true},
 		"not allowed":             {[]string{"kubernetes"}, false},
 		"start with colon":        {[]string{":featured"}, false},
 		"end with colon":          {[]string{"featured:"}, false},
