@@ -23,8 +23,8 @@ import (
 )
 
 type TokenPair struct {
-	AccessToken  string
-	RefreshToken string
+	AccessToken  string //nolint:gosec // G117: struct field name for STS token response, not a hardcoded secret
+	RefreshToken string //nolint:gosec // G117: struct field name for STS token response, not a hardcoded secret
 	Expiry       time.Time
 }
 
@@ -281,7 +281,7 @@ func (i *HTTP1DowngradeExchanger) doHTTP1(ctx context.Context,
 			Source: oauth2.StaticTokenSource(&oauth2.Token{AccessToken: auth}),
 		},
 	}
-	resp, err := client.Do(req)
+	resp, err := client.Do(req) //nolint:gosec // G704: URL from internal STS config
 	if err != nil {
 		return err
 	}

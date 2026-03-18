@@ -92,7 +92,7 @@ func Revoke(ctx context.Context, tok string) error {
 	req = req.WithContext(ctx)
 	req.Header.Add("Authorization", "Bearer "+tok)
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := http.DefaultClient.Do(req) //nolint:gosec // G704: URL from GitHub API
 	if err != nil {
 		return fmt.Errorf("making request: %w", err)
 	}

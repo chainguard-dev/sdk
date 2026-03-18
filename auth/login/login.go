@@ -153,9 +153,9 @@ func Login(ctx context.Context, opts ...Option) (token string, refreshToken stri
 	u := fmt.Sprintf("%s/oauth?%s", conf.Issuer, params.Encode())
 	clog.DebugContext(ctx, "Authenticating", "url", u)
 	if conf.SkipBrowser {
-		fmt.Fprintf(conf.MessageWriter, "Please open a browser to %s\n", u)
+		fmt.Fprintf(conf.MessageWriter, "Please open a browser to %s\n", u) //nolint:gosec // G705: writing to HTTP response in local auth server
 	} else {
-		fmt.Fprintf(conf.MessageWriter, "Opening browser to %s\n", u)
+		fmt.Fprintf(conf.MessageWriter, "Opening browser to %s\n", u) //nolint:gosec // G705: writing to HTTP response in local auth server
 		err = browser.OpenURL(u)
 		if err != nil {
 			return "", "", &Error{Details: openBrowserError, Err: err}
