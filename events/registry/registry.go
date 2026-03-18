@@ -63,11 +63,17 @@ type PullEvent struct {
 
 // PushEvent describes an item being pushed to the registry.
 type PushEvent struct {
-	// Repository identifies the repository being pushed
+	// Repository identifies the repository being pushed. This is the value
+	// from the request path — it may be a human-readable name (e.g.,
+	// "chainguard/nginx") or a UIDP when the push is from an internal service.
 	Repository string `json:"repository"`
 
-	// RepoID identifies the UIDP of the repository being pushed
+	// RepoID identifies the UIDP of the repository being pushed.
 	RepoID string `json:"repo_id"`
+
+	// DisplayName is the human-readable name of the repository (e.g., "nginx").
+	// Always populated regardless of how the push was initiated.
+	DisplayName string `json:"display_name,omitempty"`
 
 	// Tag holds the tag being pushed, if there is one.
 	Tag string `json:"tag,omitempty"`
