@@ -17,6 +17,3 @@ spec:
     - key:
         # Allow commits signed by Github (merge commits)
         kms: https://github.com/web-flow.gpg
-  # Allow Github verified ssh, gpg, and smime signatures
-  github:
-    verified: true
