@@ -5,6 +5,7 @@ package v1
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -19,357 +20,289 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = errors.New
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_Advisories_Create_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisoriesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateAdvisoryRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateAdvisoryRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.Create(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Advisories_Create_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisoriesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateAdvisoryRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateAdvisoryRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.Create(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_Advisories_List_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
+var filter_Advisories_List_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_Advisories_List_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisoriesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AdvisoryFilter
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq AdvisoryFilter
+		metadata runtime.ServerMetadata
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Advisories_List_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.List(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Advisories_List_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisoriesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AdvisoryFilter
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq AdvisoryFilter
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Advisories_List_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.List(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Advisories_Update_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisoriesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq Advisory
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq Advisory
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["id"]
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
 	msg, err := client.Update(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Advisories_Update_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisoriesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq Advisory
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq Advisory
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["id"]
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
 	msg, err := server.Update(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Advisories_Delete_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisoriesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteAdvisoryRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq DeleteAdvisoryRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["id"]
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
 	msg, err := client.Delete(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Advisories_Delete_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisoriesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteAdvisoryRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq DeleteAdvisoryRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["id"]
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
 	msg, err := server.Delete(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Advisories_CreateAdvisoryEvent_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisoriesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateAdvisoryEventRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateAdvisoryEventRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["parent_id"]
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["parent_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent_id")
 	}
-
 	protoReq.ParentId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent_id", err)
 	}
-
 	msg, err := client.CreateAdvisoryEvent(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Advisories_CreateAdvisoryEvent_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisoriesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateAdvisoryEventRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateAdvisoryEventRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["parent_id"]
+	val, ok := pathParams["parent_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent_id")
 	}
-
 	protoReq.ParentId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent_id", err)
 	}
-
 	msg, err := server.CreateAdvisoryEvent(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Advisories_ListAdvisoryEvents_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisoriesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AdvisoryEventFilter
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq AdvisoryEventFilter
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["parent_id"]
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["parent_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent_id")
 	}
-
 	protoReq.ParentId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent_id", err)
 	}
-
 	msg, err := client.ListAdvisoryEvents(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Advisories_ListAdvisoryEvents_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisoriesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AdvisoryEventFilter
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq AdvisoryEventFilter
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["parent_id"]
+	val, ok := pathParams["parent_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent_id")
 	}
-
 	protoReq.ParentId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent_id", err)
 	}
-
 	msg, err := server.ListAdvisoryEvents(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Advisories_UpdateAdvisoryEvent_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisoriesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AdvisoryEvent
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq AdvisoryEvent
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["id"]
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
 	msg, err := client.UpdateAdvisoryEvent(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Advisories_UpdateAdvisoryEvent_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisoriesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AdvisoryEvent
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq AdvisoryEvent
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["id"]
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
 	msg, err := server.UpdateAdvisoryEvent(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterAdvisoriesHandlerServer registers the http handlers for service Advisories to "mux".
@@ -378,16 +311,13 @@ func local_request_Advisories_UpdateAdvisoryEvent_0(ctx context.Context, marshal
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAdvisoriesHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterAdvisoriesHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AdvisoriesServer) error {
-
-	mux.Handle("POST", pattern_Advisories_Create_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_Advisories_Create_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/Create", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/Create", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -399,20 +329,15 @@ func RegisterAdvisoriesHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Advisories_Create_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_Advisories_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_Advisories_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/List", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/List", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -424,20 +349,15 @@ func RegisterAdvisoriesHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Advisories_List_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PUT", pattern_Advisories_Update_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_Advisories_Update_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/Update", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{id=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/Update", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -449,20 +369,15 @@ func RegisterAdvisoriesHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Advisories_Update_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("DELETE", pattern_Advisories_Delete_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_Advisories_Delete_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/Delete", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{id=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/Delete", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -474,20 +389,15 @@ func RegisterAdvisoriesHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Advisories_Delete_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_Advisories_CreateAdvisoryEvent_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_Advisories_CreateAdvisoryEvent_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/CreateAdvisoryEvent", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{parent_id=**}/events"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/CreateAdvisoryEvent", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{parent_id=**}/events"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -499,20 +409,15 @@ func RegisterAdvisoriesHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Advisories_CreateAdvisoryEvent_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_Advisories_ListAdvisoryEvents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_Advisories_ListAdvisoryEvents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/ListAdvisoryEvents", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{parent_id=**}/events"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/ListAdvisoryEvents", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{parent_id=**}/events"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -524,20 +429,15 @@ func RegisterAdvisoriesHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Advisories_ListAdvisoryEvents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PUT", pattern_Advisories_UpdateAdvisoryEvent_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_Advisories_UpdateAdvisoryEvent_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/UpdateAdvisoryEvent", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisory_events/{id=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/UpdateAdvisoryEvent", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisory_events/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -549,9 +449,7 @@ func RegisterAdvisoriesHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Advisories_UpdateAdvisoryEvent_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -578,7 +476,6 @@ func RegisterAdvisoriesHandlerFromEndpoint(ctx context.Context, mux *runtime.Ser
 			}
 		}()
 	}()
-
 	return RegisterAdvisoriesHandler(ctx, mux, conn)
 }
 
@@ -594,14 +491,11 @@ func RegisterAdvisoriesHandler(ctx context.Context, mux *runtime.ServeMux, conn 
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "AdvisoriesClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterAdvisoriesHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AdvisoriesClient) error {
-
-	mux.Handle("POST", pattern_Advisories_Create_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_Advisories_Create_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/Create", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/Create", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -612,18 +506,13 @@ func RegisterAdvisoriesHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Advisories_Create_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_Advisories_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_Advisories_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/List", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/List", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -634,18 +523,13 @@ func RegisterAdvisoriesHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Advisories_List_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PUT", pattern_Advisories_Update_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_Advisories_Update_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/Update", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{id=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/Update", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -656,18 +540,13 @@ func RegisterAdvisoriesHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Advisories_Update_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("DELETE", pattern_Advisories_Delete_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_Advisories_Delete_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/Delete", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{id=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/Delete", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -678,18 +557,13 @@ func RegisterAdvisoriesHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Advisories_Delete_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_Advisories_CreateAdvisoryEvent_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_Advisories_CreateAdvisoryEvent_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/CreateAdvisoryEvent", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{parent_id=**}/events"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/CreateAdvisoryEvent", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{parent_id=**}/events"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -700,18 +574,13 @@ func RegisterAdvisoriesHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Advisories_CreateAdvisoryEvent_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_Advisories_ListAdvisoryEvents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_Advisories_ListAdvisoryEvents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/ListAdvisoryEvents", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{parent_id=**}/events"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/ListAdvisoryEvents", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisories/{parent_id=**}/events"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -722,18 +591,13 @@ func RegisterAdvisoriesHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Advisories_ListAdvisoryEvents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PUT", pattern_Advisories_UpdateAdvisoryEvent_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_Advisories_UpdateAdvisoryEvent_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/UpdateAdvisoryEvent", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisory_events/{id=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v1.Advisories/UpdateAdvisoryEvent", runtime.WithHTTPPathPattern("/vulnerabilities/v1/advisory_events/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -744,42 +608,27 @@ func RegisterAdvisoriesHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Advisories_UpdateAdvisoryEvent_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
-	pattern_Advisories_Create_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"vulnerabilities", "v1", "advisories"}, ""))
-
-	pattern_Advisories_List_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"vulnerabilities", "v1", "advisories"}, ""))
-
-	pattern_Advisories_Update_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"vulnerabilities", "v1", "advisories", "id"}, ""))
-
-	pattern_Advisories_Delete_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"vulnerabilities", "v1", "advisories", "id"}, ""))
-
+	pattern_Advisories_Create_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"vulnerabilities", "v1", "advisories"}, ""))
+	pattern_Advisories_List_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"vulnerabilities", "v1", "advisories"}, ""))
+	pattern_Advisories_Update_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"vulnerabilities", "v1", "advisories", "id"}, ""))
+	pattern_Advisories_Delete_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"vulnerabilities", "v1", "advisories", "id"}, ""))
 	pattern_Advisories_CreateAdvisoryEvent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4}, []string{"vulnerabilities", "v1", "advisories", "parent_id", "events"}, ""))
-
-	pattern_Advisories_ListAdvisoryEvents_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4}, []string{"vulnerabilities", "v1", "advisories", "parent_id", "events"}, ""))
-
+	pattern_Advisories_ListAdvisoryEvents_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4}, []string{"vulnerabilities", "v1", "advisories", "parent_id", "events"}, ""))
 	pattern_Advisories_UpdateAdvisoryEvent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"vulnerabilities", "v1", "advisory_events", "id"}, ""))
 )
 
 var (
-	forward_Advisories_Create_0 = runtime.ForwardResponseMessage
-
-	forward_Advisories_List_0 = runtime.ForwardResponseMessage
-
-	forward_Advisories_Update_0 = runtime.ForwardResponseMessage
-
-	forward_Advisories_Delete_0 = runtime.ForwardResponseMessage
-
+	forward_Advisories_Create_0              = runtime.ForwardResponseMessage
+	forward_Advisories_List_0                = runtime.ForwardResponseMessage
+	forward_Advisories_Update_0              = runtime.ForwardResponseMessage
+	forward_Advisories_Delete_0              = runtime.ForwardResponseMessage
 	forward_Advisories_CreateAdvisoryEvent_0 = runtime.ForwardResponseMessage
-
-	forward_Advisories_ListAdvisoryEvents_0 = runtime.ForwardResponseMessage
-
+	forward_Advisories_ListAdvisoryEvents_0  = runtime.ForwardResponseMessage
 	forward_Advisories_UpdateAdvisoryEvent_0 = runtime.ForwardResponseMessage
 )

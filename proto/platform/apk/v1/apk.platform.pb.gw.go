@@ -5,6 +5,7 @@ package v1
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -19,83 +20,84 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
-
 var (
-	filter_APK_ListAPKs_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = errors.New
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
 )
 
-func request_APK_ListAPKs_0(ctx context.Context, marshaler runtime.Marshaler, client APKClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq APKFilter
-	var metadata runtime.ServerMetadata
+var filter_APK_ListAPKs_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
+func request_APK_ListAPKs_0(ctx context.Context, marshaler runtime.Marshaler, client APKClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq APKFilter
+		metadata runtime.ServerMetadata
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APK_ListAPKs_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.ListAPKs(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_APK_ListAPKs_0(ctx context.Context, marshaler runtime.Marshaler, server APKServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq APKFilter
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq APKFilter
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APK_ListAPKs_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.ListAPKs(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_APK_ListAPKSummaries_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
+var filter_APK_ListAPKSummaries_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_APK_ListAPKSummaries_0(ctx context.Context, marshaler runtime.Marshaler, client APKClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq APKSummaryFilter
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq APKSummaryFilter
+		metadata runtime.ServerMetadata
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APK_ListAPKSummaries_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.ListAPKSummaries(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_APK_ListAPKSummaries_0(ctx context.Context, marshaler runtime.Marshaler, server APKServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq APKSummaryFilter
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq APKSummaryFilter
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APK_ListAPKSummaries_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.ListAPKSummaries(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterAPKHandlerServer registers the http handlers for service APK to "mux".
@@ -104,16 +106,13 @@ func local_request_APK_ListAPKSummaries_0(ctx context.Context, marshaler runtime
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAPKHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterAPKHandlerServer(ctx context.Context, mux *runtime.ServeMux, server APKServer) error {
-
-	mux.Handle("GET", pattern_APK_ListAPKs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APK_ListAPKs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.apk.APK/ListAPKs", runtime.WithHTTPPathPattern("/apk/v1/packages"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.apk.APK/ListAPKs", runtime.WithHTTPPathPattern("/apk/v1/packages"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -125,20 +124,15 @@ func RegisterAPKHandlerServer(ctx context.Context, mux *runtime.ServeMux, server
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_APK_ListAPKs_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_APK_ListAPKSummaries_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APK_ListAPKSummaries_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.apk.APK/ListAPKSummaries", runtime.WithHTTPPathPattern("/apk/v1/package-summaries"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.apk.APK/ListAPKSummaries", runtime.WithHTTPPathPattern("/apk/v1/package-summaries"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -150,9 +144,7 @@ func RegisterAPKHandlerServer(ctx context.Context, mux *runtime.ServeMux, server
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_APK_ListAPKSummaries_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -179,7 +171,6 @@ func RegisterAPKHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, 
 			}
 		}()
 	}()
-
 	return RegisterAPKHandler(ctx, mux, conn)
 }
 
@@ -195,14 +186,11 @@ func RegisterAPKHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.C
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "APKClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterAPKHandlerClient(ctx context.Context, mux *runtime.ServeMux, client APKClient) error {
-
-	mux.Handle("GET", pattern_APK_ListAPKs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APK_ListAPKs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.apk.APK/ListAPKs", runtime.WithHTTPPathPattern("/apk/v1/packages"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.apk.APK/ListAPKs", runtime.WithHTTPPathPattern("/apk/v1/packages"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -213,18 +201,13 @@ func RegisterAPKHandlerClient(ctx context.Context, mux *runtime.ServeMux, client
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_APK_ListAPKs_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_APK_ListAPKSummaries_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_APK_ListAPKSummaries_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.apk.APK/ListAPKSummaries", runtime.WithHTTPPathPattern("/apk/v1/package-summaries"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.apk.APK/ListAPKSummaries", runtime.WithHTTPPathPattern("/apk/v1/package-summaries"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -235,22 +218,17 @@ func RegisterAPKHandlerClient(ctx context.Context, mux *runtime.ServeMux, client
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_APK_ListAPKSummaries_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
-	pattern_APK_ListAPKs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"apk", "v1", "packages"}, ""))
-
+	pattern_APK_ListAPKs_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"apk", "v1", "packages"}, ""))
 	pattern_APK_ListAPKSummaries_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"apk", "v1", "package-summaries"}, ""))
 )
 
 var (
-	forward_APK_ListAPKs_0 = runtime.ForwardResponseMessage
-
+	forward_APK_ListAPKs_0         = runtime.ForwardResponseMessage
 	forward_APK_ListAPKSummaries_0 = runtime.ForwardResponseMessage
 )
