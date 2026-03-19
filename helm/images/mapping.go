@@ -14,8 +14,8 @@ import (
 	yamlpatch "github.com/palantir/pkg/yamlpatch"
 )
 
-// Mapping is the top-level schema for chart image values mappings.
-// This is the structure of values.images.json embedded in chart APKs.
+// Mapping is the top-level schema for chart image value mappings,
+// parsed from the cg.json file embedded in Chainguard chart APKs.
 type Mapping struct {
 	Images map[string]*Image `json:"images"`
 }
@@ -188,8 +188,8 @@ func merge(dst, src map[string]any) error {
 	return nil
 }
 
-// Resolve resolves the mapping with refs and merges into valuesr, preserving
-// comments.
+// Resolve resolves all image references in the mapping and patches the results
+// into the provided values.yaml content, preserving YAML comments and formatting.
 func (m *Mapping) Resolve(refs map[string]string, valuesr io.Reader) ([]byte, error) {
 	original, err := io.ReadAll(valuesr)
 	if err != nil {

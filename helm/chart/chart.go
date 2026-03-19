@@ -27,7 +27,7 @@ const MediaType types.MediaType = "application/vnd.cncf.helm.chart.content.v1.ta
 // maxFileSize is the maximum size of any single file in a Helm chart (10 MB).
 const maxFileSize = 10 * 1024 * 1024
 
-// ReadValues extracts the top-level values.yaml from a Helm chart OCI image.
+// ReadValues extracts the top-level values.yaml from a Helm chart OCI artifact.
 // Returns nil, nil if the chart has no values.yaml.
 func ReadValues(chart v1.Image) ([]byte, error) {
 	layer, err := getChartLayer(chart)
@@ -63,8 +63,9 @@ func ReadValues(chart v1.Image) ([]byte, error) {
 	return nil, nil
 }
 
-// ReplaceValues returns a new Helm chart image with the top-level values.yaml
-// transformed by applying the given mapping template with the provided image refs.
+// ReplaceValues returns a new Helm chart OCI artifact with the top-level
+// values.yaml transformed by applying the given mapping template with the
+// provided image refs.
 func ReplaceValues(chart v1.Image, m *images.Mapping, refs map[string]string) (v1.Image, error) {
 	values, err := ReadValues(chart)
 	if err != nil {

@@ -23,9 +23,9 @@ type OCIRef struct {
 	FullRef      string // Full reference with tag and/or digest as available
 }
 
-// NewRef parses and validates an OCI reference string.
-// NOTE: This is relatively custom because we try to preserve the tag in
-// "pseduo_tag", which ggcr trims (for good reason).
+// NewRef parses an OCI reference string into its components. Unlike
+// [github.com/google/go-containerregistry/pkg/name.ParseReference], it
+// preserves the tag from tag@digest references for use with [PseudoTag].
 func NewRef(reference string) (OCIRef, error) {
 	ref, err := name.ParseReference(reference)
 	if err != nil {
