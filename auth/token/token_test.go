@@ -3,7 +3,7 @@ Copyright 2023 Chainguard, Inc.
 SPDX-License-Identifier: Apache-2.0
 */
 
-package token //nolint:revive // var-naming: established package name, renaming would break API
+package token //nolint:revive // redefines-builtin-id: collides with go/token, but renaming would break API
 
 import (
 	"encoding/base64"
