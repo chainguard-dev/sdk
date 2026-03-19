@@ -3,7 +3,7 @@ Copyright 2023 Chainguard, Inc.
 SPDX-License-Identifier: Apache-2.0
 */
 
-package token
+package token //nolint:revive // redefines-builtin-id: collides with go/token, but renaming would break API
 
 import (
 	"errors"
@@ -149,7 +149,7 @@ func DeleteAll() error {
 			dirs = append(dirs, path)
 		case slices.Contains(AllKinds, Kind(d.Name())):
 			// Remove recognized token files.
-			if err := os.Remove(path); err != nil {
+			if err := os.Remove(path); err != nil { //nolint:gosec // G122: walking user's own token directory
 				return fmt.Errorf("removing file %s: %w", path, err)
 			}
 		}

@@ -75,7 +75,8 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				fmt.Fprint(w, "Account not found, registration required")
 				s.err = errors.New("account not found")
 			default:
-				fmt.Fprintf(w, "%d %s", statusCode, errMessage)
+				w.Header().Set("Content-Type", "text/plain")
+				fmt.Fprintf(w, "%d %s", statusCode, errMessage) //nolint:gosec // G705: writing to HTTP response in local auth server
 				// Wrap the error message in Error so callers can distinguish server
 				// errors from account not found errors.
 				s.err = &Error{Details: remoteServerError, Err: errors.New(errMessage)}

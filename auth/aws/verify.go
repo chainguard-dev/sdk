@@ -89,7 +89,7 @@ func VerifyToken(ctx context.Context, token string, opts ...VerifyOption) (*Veri
 		return nil, ErrTokenExpired
 	}
 
-	resp, err := http.DefaultClient.Do(req.WithContext(ctx))
+	resp, err := http.DefaultClient.Do(req.WithContext(ctx)) //nolint:gosec // G704: URL from trusted AWS STS config
 	if err != nil {
 		clog.FromContext(ctx).Errorf("verification failed because of failure to make AWS STS request: %v", err)
 		return nil, fmt.Errorf("failed to reach AWS STS endpoint: %w", err)
