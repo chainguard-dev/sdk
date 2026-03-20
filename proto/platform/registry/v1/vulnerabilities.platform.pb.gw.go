@@ -5,7 +5,6 @@ package v1
 
 import (
 	"context"
-	"errors"
 	"io"
 	"net/http"
 
@@ -20,154 +19,155 @@ import (
 )
 
 // Suppress "imported and not used" errors
+var _ codes.Code
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
+
 var (
-	_ codes.Code
-	_ io.Reader
-	_ status.Status
-	_ = errors.New
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
+	filter_Vulnerabilities_ListVulnReports_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 )
 
-var filter_Vulnerabilities_ListVulnReports_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-
 func request_Vulnerabilities_ListVulnReports_0(ctx context.Context, marshaler runtime.Marshaler, client VulnerabilitiesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq VulnReportFilter
-		metadata runtime.ServerMetadata
-	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
+	var protoReq VulnReportFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Vulnerabilities_ListVulnReports_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.ListVulnReports(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Vulnerabilities_ListVulnReports_0(ctx context.Context, marshaler runtime.Marshaler, server VulnerabilitiesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq VulnReportFilter
-		metadata runtime.ServerMetadata
-	)
+	var protoReq VulnReportFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Vulnerabilities_ListVulnReports_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.ListVulnReports(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_Vulnerabilities_GetRawVulnReport_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var (
+	filter_Vulnerabilities_GetRawVulnReport_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
 
 func request_Vulnerabilities_GetRawVulnReport_0(ctx context.Context, marshaler runtime.Marshaler, client VulnerabilitiesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq GetRawVulnReportRequest
-		metadata runtime.ServerMetadata
-	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
+	var protoReq GetRawVulnReportRequest
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Vulnerabilities_GetRawVulnReport_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.GetRawVulnReport(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Vulnerabilities_GetRawVulnReport_0(ctx context.Context, marshaler runtime.Marshaler, server VulnerabilitiesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq GetRawVulnReportRequest
-		metadata runtime.ServerMetadata
-	)
+	var protoReq GetRawVulnReportRequest
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Vulnerabilities_GetRawVulnReport_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.GetRawVulnReport(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_Vulnerabilities_ListVulnCountReports_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var (
+	filter_Vulnerabilities_ListVulnCountReports_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
 
 func request_Vulnerabilities_ListVulnCountReports_0(ctx context.Context, marshaler runtime.Marshaler, client VulnerabilitiesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq VulnCountReportFilter
-		metadata runtime.ServerMetadata
-	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
+	var protoReq VulnCountReportFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Vulnerabilities_ListVulnCountReports_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.ListVulnCountReports(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Vulnerabilities_ListVulnCountReports_0(ctx context.Context, marshaler runtime.Marshaler, server VulnerabilitiesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq VulnCountReportFilter
-		metadata runtime.ServerMetadata
-	)
+	var protoReq VulnCountReportFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Vulnerabilities_ListVulnCountReports_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.ListVulnCountReports(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_Vulnerabilities_ListCumulativeVulnCountReports_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var (
+	filter_Vulnerabilities_ListCumulativeVulnCountReports_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
 
 func request_Vulnerabilities_ListCumulativeVulnCountReports_0(ctx context.Context, marshaler runtime.Marshaler, client VulnerabilitiesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq VulnCountReportFilter
-		metadata runtime.ServerMetadata
-	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
+	var protoReq VulnCountReportFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Vulnerabilities_ListCumulativeVulnCountReports_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.ListCumulativeVulnCountReports(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Vulnerabilities_ListCumulativeVulnCountReports_0(ctx context.Context, marshaler runtime.Marshaler, server VulnerabilitiesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq VulnCountReportFilter
-		metadata runtime.ServerMetadata
-	)
+	var protoReq VulnCountReportFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Vulnerabilities_ListCumulativeVulnCountReports_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.ListCumulativeVulnCountReports(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterVulnerabilitiesHandlerServer registers the http handlers for service Vulnerabilities to "mux".
@@ -176,13 +176,16 @@ func local_request_Vulnerabilities_ListCumulativeVulnCountReports_0(ctx context.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterVulnerabilitiesHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterVulnerabilitiesHandlerServer(ctx context.Context, mux *runtime.ServeMux, server VulnerabilitiesServer) error {
-	mux.Handle(http.MethodGet, pattern_Vulnerabilities_ListVulnReports_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Vulnerabilities_ListVulnReports_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Vulnerabilities/ListVulnReports", runtime.WithHTTPPathPattern("/registry/v1/vuln_reports"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Vulnerabilities/ListVulnReports", runtime.WithHTTPPathPattern("/registry/v1/vuln_reports"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -194,15 +197,20 @@ func RegisterVulnerabilitiesHandlerServer(ctx context.Context, mux *runtime.Serv
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Vulnerabilities_ListVulnReports_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Vulnerabilities_GetRawVulnReport_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Vulnerabilities_GetRawVulnReport_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Vulnerabilities/GetRawVulnReport", runtime.WithHTTPPathPattern("/registry/v1/vuln_reports/raw"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Vulnerabilities/GetRawVulnReport", runtime.WithHTTPPathPattern("/registry/v1/vuln_reports/raw"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -214,15 +222,20 @@ func RegisterVulnerabilitiesHandlerServer(ctx context.Context, mux *runtime.Serv
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Vulnerabilities_GetRawVulnReport_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Vulnerabilities_ListVulnCountReports_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Vulnerabilities_ListVulnCountReports_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Vulnerabilities/ListVulnCountReports", runtime.WithHTTPPathPattern("/registry/v1/vuln_reports/counts"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Vulnerabilities/ListVulnCountReports", runtime.WithHTTPPathPattern("/registry/v1/vuln_reports/counts"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -234,15 +247,20 @@ func RegisterVulnerabilitiesHandlerServer(ctx context.Context, mux *runtime.Serv
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Vulnerabilities_ListVulnCountReports_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Vulnerabilities_ListCumulativeVulnCountReports_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Vulnerabilities_ListCumulativeVulnCountReports_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Vulnerabilities/ListCumulativeVulnCountReports", runtime.WithHTTPPathPattern("/registry/v1/vuln_reports/counts_cumulative"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Vulnerabilities/ListCumulativeVulnCountReports", runtime.WithHTTPPathPattern("/registry/v1/vuln_reports/counts_cumulative"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -254,7 +272,9 @@ func RegisterVulnerabilitiesHandlerServer(ctx context.Context, mux *runtime.Serv
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Vulnerabilities_ListCumulativeVulnCountReports_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -281,6 +301,7 @@ func RegisterVulnerabilitiesHandlerFromEndpoint(ctx context.Context, mux *runtim
 			}
 		}()
 	}()
+
 	return RegisterVulnerabilitiesHandler(ctx, mux, conn)
 }
 
@@ -296,11 +317,14 @@ func RegisterVulnerabilitiesHandler(ctx context.Context, mux *runtime.ServeMux, 
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "VulnerabilitiesClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterVulnerabilitiesHandlerClient(ctx context.Context, mux *runtime.ServeMux, client VulnerabilitiesClient) error {
-	mux.Handle(http.MethodGet, pattern_Vulnerabilities_ListVulnReports_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Vulnerabilities_ListVulnReports_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Vulnerabilities/ListVulnReports", runtime.WithHTTPPathPattern("/registry/v1/vuln_reports"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Vulnerabilities/ListVulnReports", runtime.WithHTTPPathPattern("/registry/v1/vuln_reports"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -311,13 +335,18 @@ func RegisterVulnerabilitiesHandlerClient(ctx context.Context, mux *runtime.Serv
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Vulnerabilities_ListVulnReports_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Vulnerabilities_GetRawVulnReport_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Vulnerabilities_GetRawVulnReport_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Vulnerabilities/GetRawVulnReport", runtime.WithHTTPPathPattern("/registry/v1/vuln_reports/raw"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Vulnerabilities/GetRawVulnReport", runtime.WithHTTPPathPattern("/registry/v1/vuln_reports/raw"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -328,13 +357,18 @@ func RegisterVulnerabilitiesHandlerClient(ctx context.Context, mux *runtime.Serv
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Vulnerabilities_GetRawVulnReport_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Vulnerabilities_ListVulnCountReports_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Vulnerabilities_ListVulnCountReports_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Vulnerabilities/ListVulnCountReports", runtime.WithHTTPPathPattern("/registry/v1/vuln_reports/counts"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Vulnerabilities/ListVulnCountReports", runtime.WithHTTPPathPattern("/registry/v1/vuln_reports/counts"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -345,13 +379,18 @@ func RegisterVulnerabilitiesHandlerClient(ctx context.Context, mux *runtime.Serv
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Vulnerabilities_ListVulnCountReports_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Vulnerabilities_ListCumulativeVulnCountReports_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Vulnerabilities_ListCumulativeVulnCountReports_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Vulnerabilities/ListCumulativeVulnCountReports", runtime.WithHTTPPathPattern("/registry/v1/vuln_reports/counts_cumulative"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Vulnerabilities/ListCumulativeVulnCountReports", runtime.WithHTTPPathPattern("/registry/v1/vuln_reports/counts_cumulative"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -362,21 +401,30 @@ func RegisterVulnerabilitiesHandlerClient(ctx context.Context, mux *runtime.Serv
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Vulnerabilities_ListCumulativeVulnCountReports_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
+
 	return nil
 }
 
 var (
-	pattern_Vulnerabilities_ListVulnReports_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"registry", "v1", "vuln_reports"}, ""))
-	pattern_Vulnerabilities_GetRawVulnReport_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"registry", "v1", "vuln_reports", "raw"}, ""))
-	pattern_Vulnerabilities_ListVulnCountReports_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"registry", "v1", "vuln_reports", "counts"}, ""))
+	pattern_Vulnerabilities_ListVulnReports_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"registry", "v1", "vuln_reports"}, ""))
+
+	pattern_Vulnerabilities_GetRawVulnReport_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"registry", "v1", "vuln_reports", "raw"}, ""))
+
+	pattern_Vulnerabilities_ListVulnCountReports_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"registry", "v1", "vuln_reports", "counts"}, ""))
+
 	pattern_Vulnerabilities_ListCumulativeVulnCountReports_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"registry", "v1", "vuln_reports", "counts_cumulative"}, ""))
 )
 
 var (
-	forward_Vulnerabilities_ListVulnReports_0                = runtime.ForwardResponseMessage
-	forward_Vulnerabilities_GetRawVulnReport_0               = runtime.ForwardResponseMessage
-	forward_Vulnerabilities_ListVulnCountReports_0           = runtime.ForwardResponseMessage
+	forward_Vulnerabilities_ListVulnReports_0 = runtime.ForwardResponseMessage
+
+	forward_Vulnerabilities_GetRawVulnReport_0 = runtime.ForwardResponseMessage
+
+	forward_Vulnerabilities_ListVulnCountReports_0 = runtime.ForwardResponseMessage
+
 	forward_Vulnerabilities_ListCumulativeVulnCountReports_0 = runtime.ForwardResponseMessage
 )
