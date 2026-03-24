@@ -60,8 +60,8 @@ jobs:
       - name: Install Protoc
         run: |
           cd "$(mktemp -d)"
-          wget -O protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v29.3/protoc-29.3-linux-x86_64.zip
-          echo "3e866620c5be27664f3d2fa2d656b5f3e09b5152b42f1bedbf427b333e90021a  protoc.zip" | sha256sum -c -
+          wget -O protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v34.0/protoc-34.0-linux-x86_64.zip
+          echo "e9a91b6fcfe4177ec2cd35fc8f15c1e811fa0ecdef9372755cd6d3513d5faaab  protoc.zip" | sha256sum -c -
           unzip protoc.zip -d .
           chmod +x ./bin/protoc
           echo "$(pwd)/bin" >> "$GITHUB_PATH"
@@ -70,8 +70,8 @@ jobs:
         run: |
           cd $(mktemp -d)
           go install github.com/google/go-licenses@ceb292363ec84358c9a276ef23aa0de893e59b84
-          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.2
-          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.1
           go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.22.0
           go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.22.0
 
