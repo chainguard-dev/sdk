@@ -3,7 +3,6 @@ Copyright 2025 Chainguard, Inc.
 SPDX-License-Identifier: Apache-2.0
 */
 
-// Package v1 contains types for chart-lock data.
 package v1
 
 import (

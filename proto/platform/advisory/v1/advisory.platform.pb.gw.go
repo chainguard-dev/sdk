@@ -5,7 +5,6 @@ package v1
 
 import (
 	"context"
-	"errors"
 	"io"
 	"net/http"
 
@@ -20,119 +19,119 @@ import (
 )
 
 // Suppress "imported and not used" errors
+var _ codes.Code
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
+
 var (
-	_ codes.Code
-	_ io.Reader
-	_ status.Status
-	_ = errors.New
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
+	filter_SecurityAdvisory_ListDocuments_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 )
 
-var filter_SecurityAdvisory_ListDocuments_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-
 func request_SecurityAdvisory_ListDocuments_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityAdvisoryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq DocumentFilter
-		metadata runtime.ServerMetadata
-	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
+	var protoReq DocumentFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SecurityAdvisory_ListDocuments_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.ListDocuments(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_SecurityAdvisory_ListDocuments_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityAdvisoryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq DocumentFilter
-		metadata runtime.ServerMetadata
-	)
+	var protoReq DocumentFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SecurityAdvisory_ListDocuments_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.ListDocuments(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_SecurityAdvisory_ListVulnerabilityMetadata_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var (
+	filter_SecurityAdvisory_ListVulnerabilityMetadata_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
 
 func request_SecurityAdvisory_ListVulnerabilityMetadata_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityAdvisoryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq VulnerabilityMetadataFilter
-		metadata runtime.ServerMetadata
-	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
+	var protoReq VulnerabilityMetadataFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SecurityAdvisory_ListVulnerabilityMetadata_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.ListVulnerabilityMetadata(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_SecurityAdvisory_ListVulnerabilityMetadata_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityAdvisoryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq VulnerabilityMetadataFilter
-		metadata runtime.ServerMetadata
-	)
+	var protoReq VulnerabilityMetadataFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SecurityAdvisory_ListVulnerabilityMetadata_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.ListVulnerabilityMetadata(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_SecurityAdvisory_ListResolvedVulnsReports_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var (
+	filter_SecurityAdvisory_ListResolvedVulnsReports_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
 
 func request_SecurityAdvisory_ListResolvedVulnsReports_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityAdvisoryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq ResolvedVulnsReportFilter
-		metadata runtime.ServerMetadata
-	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
+	var protoReq ResolvedVulnsReportFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SecurityAdvisory_ListResolvedVulnsReports_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.ListResolvedVulnsReports(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_SecurityAdvisory_ListResolvedVulnsReports_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityAdvisoryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq ResolvedVulnsReportFilter
-		metadata runtime.ServerMetadata
-	)
+	var protoReq ResolvedVulnsReportFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SecurityAdvisory_ListResolvedVulnsReports_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.ListResolvedVulnsReports(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterSecurityAdvisoryHandlerServer registers the http handlers for service SecurityAdvisory to "mux".
@@ -141,13 +140,16 @@ func local_request_SecurityAdvisory_ListResolvedVulnsReports_0(ctx context.Conte
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterSecurityAdvisoryHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterSecurityAdvisoryHandlerServer(ctx context.Context, mux *runtime.ServeMux, server SecurityAdvisoryServer) error {
-	mux.Handle(http.MethodGet, pattern_SecurityAdvisory_ListDocuments_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_SecurityAdvisory_ListDocuments_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.advisory.SecurityAdvisory/ListDocuments", runtime.WithHTTPPathPattern("/advisory/v1/documents"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.advisory.SecurityAdvisory/ListDocuments", runtime.WithHTTPPathPattern("/advisory/v1/documents"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -159,15 +161,20 @@ func RegisterSecurityAdvisoryHandlerServer(ctx context.Context, mux *runtime.Ser
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_SecurityAdvisory_ListDocuments_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_SecurityAdvisory_ListVulnerabilityMetadata_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_SecurityAdvisory_ListVulnerabilityMetadata_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.advisory.SecurityAdvisory/ListVulnerabilityMetadata", runtime.WithHTTPPathPattern("/advisory/v1/metadata"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.advisory.SecurityAdvisory/ListVulnerabilityMetadata", runtime.WithHTTPPathPattern("/advisory/v1/metadata"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -179,15 +186,20 @@ func RegisterSecurityAdvisoryHandlerServer(ctx context.Context, mux *runtime.Ser
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_SecurityAdvisory_ListVulnerabilityMetadata_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_SecurityAdvisory_ListResolvedVulnsReports_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_SecurityAdvisory_ListResolvedVulnsReports_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.advisory.SecurityAdvisory/ListResolvedVulnsReports", runtime.WithHTTPPathPattern("/advisory/v1/images/resolved_vulns"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.advisory.SecurityAdvisory/ListResolvedVulnsReports", runtime.WithHTTPPathPattern("/advisory/v1/images/resolved_vulns"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -199,7 +211,9 @@ func RegisterSecurityAdvisoryHandlerServer(ctx context.Context, mux *runtime.Ser
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_SecurityAdvisory_ListResolvedVulnsReports_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -226,6 +240,7 @@ func RegisterSecurityAdvisoryHandlerFromEndpoint(ctx context.Context, mux *runti
 			}
 		}()
 	}()
+
 	return RegisterSecurityAdvisoryHandler(ctx, mux, conn)
 }
 
@@ -241,11 +256,14 @@ func RegisterSecurityAdvisoryHandler(ctx context.Context, mux *runtime.ServeMux,
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "SecurityAdvisoryClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterSecurityAdvisoryHandlerClient(ctx context.Context, mux *runtime.ServeMux, client SecurityAdvisoryClient) error {
-	mux.Handle(http.MethodGet, pattern_SecurityAdvisory_ListDocuments_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_SecurityAdvisory_ListDocuments_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.advisory.SecurityAdvisory/ListDocuments", runtime.WithHTTPPathPattern("/advisory/v1/documents"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.advisory.SecurityAdvisory/ListDocuments", runtime.WithHTTPPathPattern("/advisory/v1/documents"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -256,13 +274,18 @@ func RegisterSecurityAdvisoryHandlerClient(ctx context.Context, mux *runtime.Ser
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_SecurityAdvisory_ListDocuments_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_SecurityAdvisory_ListVulnerabilityMetadata_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_SecurityAdvisory_ListVulnerabilityMetadata_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.advisory.SecurityAdvisory/ListVulnerabilityMetadata", runtime.WithHTTPPathPattern("/advisory/v1/metadata"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.advisory.SecurityAdvisory/ListVulnerabilityMetadata", runtime.WithHTTPPathPattern("/advisory/v1/metadata"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -273,13 +296,18 @@ func RegisterSecurityAdvisoryHandlerClient(ctx context.Context, mux *runtime.Ser
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_SecurityAdvisory_ListVulnerabilityMetadata_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_SecurityAdvisory_ListResolvedVulnsReports_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_SecurityAdvisory_ListResolvedVulnsReports_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.advisory.SecurityAdvisory/ListResolvedVulnsReports", runtime.WithHTTPPathPattern("/advisory/v1/images/resolved_vulns"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.advisory.SecurityAdvisory/ListResolvedVulnsReports", runtime.WithHTTPPathPattern("/advisory/v1/images/resolved_vulns"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -290,19 +318,26 @@ func RegisterSecurityAdvisoryHandlerClient(ctx context.Context, mux *runtime.Ser
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_SecurityAdvisory_ListResolvedVulnsReports_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
+
 	return nil
 }
 
 var (
-	pattern_SecurityAdvisory_ListDocuments_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"advisory", "v1", "documents"}, ""))
+	pattern_SecurityAdvisory_ListDocuments_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"advisory", "v1", "documents"}, ""))
+
 	pattern_SecurityAdvisory_ListVulnerabilityMetadata_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"advisory", "v1", "metadata"}, ""))
-	pattern_SecurityAdvisory_ListResolvedVulnsReports_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"advisory", "v1", "images", "resolved_vulns"}, ""))
+
+	pattern_SecurityAdvisory_ListResolvedVulnsReports_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"advisory", "v1", "images", "resolved_vulns"}, ""))
 )
 
 var (
-	forward_SecurityAdvisory_ListDocuments_0             = runtime.ForwardResponseMessage
+	forward_SecurityAdvisory_ListDocuments_0 = runtime.ForwardResponseMessage
+
 	forward_SecurityAdvisory_ListVulnerabilityMetadata_0 = runtime.ForwardResponseMessage
-	forward_SecurityAdvisory_ListResolvedVulnsReports_0  = runtime.ForwardResponseMessage
+
+	forward_SecurityAdvisory_ListResolvedVulnsReports_0 = runtime.ForwardResponseMessage
 )

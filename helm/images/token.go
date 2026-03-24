@@ -25,14 +25,15 @@ type RefField string
 
 func (RefField) token() {}
 
+// RefField constants for the supported image reference components.
 const (
-	Registry     RefField = "registry"
-	Repo         RefField = "repo"
-	RegistryRepo RefField = "registry_repo"
-	Tag          RefField = "tag"
-	Digest       RefField = "digest"
-	PseudoTag    RefField = "pseudo_tag"
-	Ref          RefField = "ref"
+	Registry     RefField = "registry"      // Registry host, e.g., "cgr.dev"
+	Repo         RefField = "repo"          // Repository without registry, e.g., "chainguard/nginx"
+	RegistryRepo RefField = "registry_repo" // Registry and repo combined, e.g., "cgr.dev/chainguard/nginx"
+	Tag          RefField = "tag"           // OCI tag, e.g., "latest"
+	Digest       RefField = "digest"        // OCI digest, e.g., "sha256:abc..."
+	PseudoTag    RefField = "pseudo_tag"    // Tag and digest as "tag@digest"
+	Ref          RefField = "ref"           // Full reference with tag and/or digest
 )
 
 var knownFields = map[string]RefField{
@@ -48,7 +49,8 @@ var knownFields = map[string]RefField{
 // TokenList is a sequence of tokens from lexing a value string.
 type TokenList []token
 
-// Map applies fn to each RefField, preserves literals, returns parts.
+// Map applies fn to each [RefField] in the token list, preserving literal
+// string segments as-is. Returns a slice with one entry per token.
 func (t TokenList) Map(fn func(RefField) any) []any {
 	parts := make([]any, len(t))
 	for i, tok := range t {

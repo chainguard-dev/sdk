@@ -5,7 +5,6 @@ package v1
 
 import (
 	"context"
-	"errors"
 	"io"
 	"net/http"
 
@@ -20,1520 +19,1939 @@ import (
 )
 
 // Suppress "imported and not used" errors
+var _ codes.Code
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
+
 var (
-	_ codes.Code
-	_ io.Reader
-	_ status.Status
-	_ = errors.New
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
+	filter_Registry_CreateRepo_0 = &utilities.DoubleArray{Encoding: map[string]int{"repo": 0, "parent_id": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
 )
 
-var filter_Registry_CreateRepo_0 = &utilities.DoubleArray{Encoding: map[string]int{"repo": 0, "parent_id": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
-
 func request_Registry_CreateRepo_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq CreateRepoRequest
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.Repo); err != nil && !errors.Is(err, io.EOF) {
+	var protoReq CreateRepoRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.Repo); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["parent_id"]
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["parent_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent_id")
 	}
+
 	protoReq.ParentId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent_id", err)
 	}
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_CreateRepo_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.CreateRepo(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_CreateRepo_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq CreateRepoRequest
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.Repo); err != nil && !errors.Is(err, io.EOF) {
+	var protoReq CreateRepoRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.Repo); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["parent_id"]
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["parent_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent_id")
 	}
+
 	protoReq.ParentId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent_id", err)
 	}
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_CreateRepo_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.CreateRepo(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Registry_UpdateRepo_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq Repo
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+	var protoReq Repo
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["id"]
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
+
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
+
 	msg, err := client.UpdateRepo(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_UpdateRepo_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq Repo
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+	var protoReq Repo
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["id"]
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
+
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
+
 	msg, err := server.UpdateRepo(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_Registry_ListRepos_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var (
+	filter_Registry_ListRepos_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
 
 func request_Registry_ListRepos_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq RepoFilter
-		metadata runtime.ServerMetadata
-	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
+	var protoReq RepoFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_ListRepos_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.ListRepos(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_ListRepos_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq RepoFilter
-		metadata runtime.ServerMetadata
-	)
+	var protoReq RepoFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_ListRepos_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.ListRepos(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Registry_GetRepoCountBySource_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetRepoCountBySourceRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq GetRepoCountBySourceRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["id"]
+
+	val, ok = pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
+
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
+
 	msg, err := client.GetRepoCountBySource(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_GetRepoCountBySource_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetRepoCountBySourceRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq GetRepoCountBySourceRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	val, ok := pathParams["id"]
+
+	val, ok = pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
+
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
+
 	msg, err := server.GetRepoCountBySource(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Registry_DeleteRepo_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq DeleteRepoRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq DeleteRepoRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["id"]
+
+	val, ok = pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
+
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
+
 	msg, err := client.DeleteRepo(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_DeleteRepo_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq DeleteRepoRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq DeleteRepoRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	val, ok := pathParams["id"]
+
+	val, ok = pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
+
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
+
 	msg, err := server.DeleteRepo(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Registry_CreateTag_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq CreateTagRequest
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.Tag); err != nil && !errors.Is(err, io.EOF) {
+	var protoReq CreateTagRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.Tag); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["repo_id"]
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	msg, err := client.CreateTag(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_CreateTag_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq CreateTagRequest
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.Tag); err != nil && !errors.Is(err, io.EOF) {
+	var protoReq CreateTagRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.Tag); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["repo_id"]
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	msg, err := server.CreateTag(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Registry_UpdateTag_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq Tag
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+	var protoReq Tag
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["id"]
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
+
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
+
 	msg, err := client.UpdateTag(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_UpdateTag_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq Tag
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+	var protoReq Tag
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["id"]
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
+
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
+
 	msg, err := server.UpdateTag(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Registry_DeleteTag_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq DeleteTagRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq DeleteTagRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["id"]
+
+	val, ok = pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
+
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
+
 	msg, err := client.DeleteTag(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_DeleteTag_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq DeleteTagRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq DeleteTagRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	val, ok := pathParams["id"]
+
+	val, ok = pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
+
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
+
 	msg, err := server.DeleteTag(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_Registry_ListTags_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var (
+	filter_Registry_ListTags_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
 
 func request_Registry_ListTags_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq TagFilter
-		metadata runtime.ServerMetadata
-	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
+	var protoReq TagFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_ListTags_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.ListTags(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_ListTags_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq TagFilter
-		metadata runtime.ServerMetadata
-	)
+	var protoReq TagFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_ListTags_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.ListTags(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_Registry_ListEolTags_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var (
+	filter_Registry_ListEolTags_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
 
 func request_Registry_ListEolTags_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq EolTagFilter
-		metadata runtime.ServerMetadata
-	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
+	var protoReq EolTagFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_ListEolTags_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.ListEolTags(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_ListEolTags_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq EolTagFilter
-		metadata runtime.ServerMetadata
-	)
+	var protoReq EolTagFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_ListEolTags_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.ListEolTags(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_Registry_ListTagHistory_0 = &utilities.DoubleArray{Encoding: map[string]int{"parent_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+var (
+	filter_Registry_ListTagHistory_0 = &utilities.DoubleArray{Encoding: map[string]int{"parent_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+)
 
 func request_Registry_ListTagHistory_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq TagHistoryFilter
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq TagHistoryFilter
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["parent_id"]
+
+	val, ok = pathParams["parent_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent_id")
 	}
+
 	protoReq.ParentId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent_id", err)
 	}
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_ListTagHistory_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.ListTagHistory(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_ListTagHistory_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq TagHistoryFilter
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq TagHistoryFilter
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	val, ok := pathParams["parent_id"]
+
+	val, ok = pathParams["parent_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent_id")
 	}
+
 	protoReq.ParentId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent_id", err)
 	}
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_ListTagHistory_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.ListTagHistory(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_Registry_GetSbom_0 = &utilities.DoubleArray{Encoding: map[string]int{"repo_id": 0, "digest": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
+var (
+	filter_Registry_GetSbom_0 = &utilities.DoubleArray{Encoding: map[string]int{"repo_id": 0, "digest": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
+)
 
 func request_Registry_GetSbom_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq SbomRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq SbomRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	val, ok = pathParams["digest"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "digest")
 	}
+
 	protoReq.Digest, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "digest", err)
 	}
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_GetSbom_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.GetSbom(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_GetSbom_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq SbomRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq SbomRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	val, ok = pathParams["digest"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "digest")
 	}
+
 	protoReq.Digest, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "digest", err)
 	}
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_GetSbom_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.GetSbom(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_Registry_GetHelm_0 = &utilities.DoubleArray{Encoding: map[string]int{"repo_id": 0, "digest": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
+var (
+	filter_Registry_GetHelm_0 = &utilities.DoubleArray{Encoding: map[string]int{"repo_id": 0, "digest": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
+)
 
 func request_Registry_GetHelm_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq HelmRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq HelmRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	val, ok = pathParams["digest"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "digest")
 	}
+
 	protoReq.Digest, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "digest", err)
 	}
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_GetHelm_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.GetHelm(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_GetHelm_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq HelmRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq HelmRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	val, ok = pathParams["digest"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "digest")
 	}
+
 	protoReq.Digest, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "digest", err)
 	}
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_GetHelm_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.GetHelm(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Registry_GetChart_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetChartRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq GetChartRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	val, ok = pathParams["digest"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "digest")
 	}
+
 	protoReq.Digest, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "digest", err)
 	}
+
 	msg, err := client.GetChart(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_GetChart_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetChartRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq GetChartRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	val, ok = pathParams["digest"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "digest")
 	}
+
 	protoReq.Digest, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "digest", err)
 	}
+
 	msg, err := server.GetChart(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_Registry_GetImageConfig_0 = &utilities.DoubleArray{Encoding: map[string]int{"repo_id": 0, "digest": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
+var (
+	filter_Registry_GetImageConfig_0 = &utilities.DoubleArray{Encoding: map[string]int{"repo_id": 0, "digest": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
+)
 
 func request_Registry_GetImageConfig_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ImageConfigRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq ImageConfigRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	val, ok = pathParams["digest"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "digest")
 	}
+
 	protoReq.Digest, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "digest", err)
 	}
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_GetImageConfig_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.GetImageConfig(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_GetImageConfig_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ImageConfigRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq ImageConfigRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	val, ok = pathParams["digest"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "digest")
 	}
+
 	protoReq.Digest, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "digest", err)
 	}
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_GetImageConfig_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.GetImageConfig(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Registry_GetArchs_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ArchRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq ArchRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	val, ok = pathParams["digest"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "digest")
 	}
+
 	protoReq.Digest, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "digest", err)
 	}
+
 	msg, err := client.GetArchs(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_GetArchs_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ArchRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq ArchRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	val, ok = pathParams["digest"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "digest")
 	}
+
 	protoReq.Digest, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "digest", err)
 	}
+
 	msg, err := server.GetArchs(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_Registry_GetSize_0 = &utilities.DoubleArray{Encoding: map[string]int{"repo_id": 0, "digest": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
+var (
+	filter_Registry_GetSize_0 = &utilities.DoubleArray{Encoding: map[string]int{"repo_id": 0, "digest": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
+)
 
 func request_Registry_GetSize_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq SizeRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq SizeRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	val, ok = pathParams["digest"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "digest")
 	}
+
 	protoReq.Digest, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "digest", err)
 	}
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_GetSize_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.GetSize(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_GetSize_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq SizeRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq SizeRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	val, ok = pathParams["digest"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "digest")
 	}
+
 	protoReq.Digest, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "digest", err)
 	}
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_GetSize_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.GetSize(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_Registry_GetRawSbom_0 = &utilities.DoubleArray{Encoding: map[string]int{"repo_id": 0, "digest": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
+var (
+	filter_Registry_GetRawSbom_0 = &utilities.DoubleArray{Encoding: map[string]int{"repo_id": 0, "digest": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
+)
 
 func request_Registry_GetRawSbom_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq RawSbomRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq RawSbomRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	val, ok = pathParams["digest"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "digest")
 	}
+
 	protoReq.Digest, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "digest", err)
 	}
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_GetRawSbom_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.GetRawSbom(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_GetRawSbom_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq RawSbomRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq RawSbomRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	val, ok = pathParams["digest"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "digest")
 	}
+
 	protoReq.Digest, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "digest", err)
 	}
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_GetRawSbom_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.GetRawSbom(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Registry_GetVulnReport_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq VulnReportRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq VulnReportRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	val, ok = pathParams["digest"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "digest")
 	}
+
 	protoReq.Digest, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "digest", err)
 	}
+
 	msg, err := client.GetVulnReport(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_GetVulnReport_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq VulnReportRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq VulnReportRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	val, ok = pathParams["digest"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "digest")
 	}
+
 	protoReq.Digest, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "digest", err)
 	}
+
 	msg, err := server.GetVulnReport(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_Registry_ListManifestMetadata_0 = &utilities.DoubleArray{Encoding: map[string]int{"repo_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+var (
+	filter_Registry_ListManifestMetadata_0 = &utilities.DoubleArray{Encoding: map[string]int{"repo_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+)
 
 func request_Registry_ListManifestMetadata_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ManifestMetadataFilter
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq ManifestMetadataFilter
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_ListManifestMetadata_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.ListManifestMetadata(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_ListManifestMetadata_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ManifestMetadataFilter
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq ManifestMetadataFilter
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_ListManifestMetadata_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.ListManifestMetadata(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Registry_GetManifestDigestCount_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ManifestDigestCountFilter
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq ManifestDigestCountFilter
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["parent_id"]
+
+	val, ok = pathParams["parent_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent_id")
 	}
+
 	protoReq.ParentId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent_id", err)
 	}
+
 	msg, err := client.GetManifestDigestCount(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_GetManifestDigestCount_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ManifestDigestCountFilter
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq ManifestDigestCountFilter
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	val, ok := pathParams["parent_id"]
+
+	val, ok = pathParams["parent_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent_id")
 	}
+
 	protoReq.ParentId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent_id", err)
 	}
+
 	msg, err := server.GetManifestDigestCount(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Registry_GetPackageVersionMetadata_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq PackageVersionMetadataRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq PackageVersionMetadataRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["package"]
+
+	val, ok = pathParams["package"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "package")
 	}
+
 	protoReq.Package, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "package", err)
 	}
+
 	msg, err := client.GetPackageVersionMetadata(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_GetPackageVersionMetadata_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq PackageVersionMetadataRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq PackageVersionMetadataRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	val, ok := pathParams["package"]
+
+	val, ok = pathParams["package"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "package")
 	}
+
 	protoReq.Package, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "package", err)
 	}
+
 	msg, err := server.GetPackageVersionMetadata(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_Registry_ListBuildReports_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var (
+	filter_Registry_ListBuildReports_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
 
 func request_Registry_ListBuildReports_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq BuildReportFilter
-		metadata runtime.ServerMetadata
-	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
+	var protoReq BuildReportFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_ListBuildReports_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.ListBuildReports(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_ListBuildReports_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq BuildReportFilter
-		metadata runtime.ServerMetadata
-	)
+	var protoReq BuildReportFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_ListBuildReports_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.ListBuildReports(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_Registry_GetBuildStatus_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var (
+	filter_Registry_GetBuildStatus_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
 
 func request_Registry_GetBuildStatus_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq BuildReportFilter
-		metadata runtime.ServerMetadata
-	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
+	var protoReq BuildReportFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_GetBuildStatus_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.GetBuildStatus(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_GetBuildStatus_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq BuildReportFilter
-		metadata runtime.ServerMetadata
-	)
+	var protoReq BuildReportFilter
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_GetBuildStatus_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.GetBuildStatus(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Registry_GetUpdateStatus_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq UpdateStatusRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq UpdateStatusRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	msg, err := client.GetUpdateStatus(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_GetUpdateStatus_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq UpdateStatusRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq UpdateStatusRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	msg, err := server.GetUpdateStatus(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Registry_GetSyncStatus_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetSyncStatusRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq GetSyncStatusRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	msg, err := client.GetSyncStatus(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_GetSyncStatus_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetSyncStatusRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq GetSyncStatusRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	msg, err := server.GetSyncStatus(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_Registry_ListSyncStatuses_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var (
+	filter_Registry_ListSyncStatuses_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
 
 func request_Registry_ListSyncStatuses_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq ListSyncStatusesRequest
-		metadata runtime.ServerMetadata
-	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
+	var protoReq ListSyncStatusesRequest
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_ListSyncStatuses_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := client.ListSyncStatuses(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_ListSyncStatuses_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq ListSyncStatusesRequest
-		metadata runtime.ServerMetadata
-	)
+	var protoReq ListSyncStatusesRequest
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Registry_ListSyncStatuses_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	msg, err := server.ListSyncStatuses(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Registry_CreateDeployment_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq CreateDeploymentRequest
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+	var protoReq CreateDeploymentRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["parent_id"]
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["parent_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent_id")
 	}
+
 	protoReq.ParentId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent_id", err)
 	}
+
 	msg, err := client.CreateDeployment(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_CreateDeployment_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq CreateDeploymentRequest
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+	var protoReq CreateDeploymentRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["parent_id"]
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["parent_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent_id")
 	}
+
 	protoReq.ParentId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent_id", err)
 	}
+
 	msg, err := server.CreateDeployment(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Registry_UpdateDeployment_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq UpdateDeploymentRequest
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+	var protoReq UpdateDeploymentRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["repo_id"]
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	msg, err := client.UpdateDeployment(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_UpdateDeployment_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq UpdateDeploymentRequest
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+	var protoReq UpdateDeploymentRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["repo_id"]
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	msg, err := server.UpdateDeployment(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Registry_GetDeployment_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetDeploymentRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq GetDeploymentRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	msg, err := client.GetDeployment(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_GetDeployment_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetDeploymentRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq GetDeploymentRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	val, ok := pathParams["repo_id"]
+
+	val, ok = pathParams["repo_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_id")
 	}
+
 	protoReq.RepoId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_id", err)
 	}
+
 	msg, err := server.GetDeployment(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Registry_GetRegistrySettings_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetRegistrySettingsRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq GetRegistrySettingsRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["registry_id"]
+
+	val, ok = pathParams["registry_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "registry_id")
 	}
+
 	protoReq.RegistryId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "registry_id", err)
 	}
+
 	msg, err := client.GetRegistrySettings(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_GetRegistrySettings_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetRegistrySettingsRequest
+	var metadata runtime.ServerMetadata
+
 	var (
-		protoReq GetRegistrySettingsRequest
-		metadata runtime.ServerMetadata
-		err      error
+		val string
+		ok  bool
+		err error
+		_   = err
 	)
-	val, ok := pathParams["registry_id"]
+
+	val, ok = pathParams["registry_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "registry_id")
 	}
+
 	protoReq.RegistryId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "registry_id", err)
 	}
+
 	msg, err := server.GetRegistrySettings(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Registry_UpdateRegistrySettings_0(ctx context.Context, marshaler runtime.Marshaler, client RegistryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq RegistrySettings
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+	var protoReq RegistrySettings
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["registry_id"]
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["registry_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "registry_id")
 	}
+
 	protoReq.RegistryId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "registry_id", err)
 	}
+
 	msg, err := client.UpdateRegistrySettings(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Registry_UpdateRegistrySettings_0(ctx context.Context, marshaler runtime.Marshaler, server RegistryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq RegistrySettings
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+	var protoReq RegistrySettings
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["registry_id"]
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["registry_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "registry_id")
 	}
+
 	protoReq.RegistryId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "registry_id", err)
 	}
+
 	msg, err := server.UpdateRegistrySettings(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterRegistryHandlerServer registers the http handlers for service Registry to "mux".
@@ -1542,13 +1960,16 @@ func local_request_Registry_UpdateRegistrySettings_0(ctx context.Context, marsha
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterRegistryHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, server RegistryServer) error {
-	mux.Handle(http.MethodPost, pattern_Registry_CreateRepo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("POST", pattern_Registry_CreateRepo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/CreateRepo", runtime.WithHTTPPathPattern("/registry/v1/repos/{parent_id=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/CreateRepo", runtime.WithHTTPPathPattern("/registry/v1/repos/{parent_id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1560,15 +1981,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_CreateRepo_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodPut, pattern_Registry_UpdateRepo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("PUT", pattern_Registry_UpdateRepo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/UpdateRepo", runtime.WithHTTPPathPattern("/registry/v1/repos/{id=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/UpdateRepo", runtime.WithHTTPPathPattern("/registry/v1/repos/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1580,15 +2006,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_UpdateRepo_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_ListRepos_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_ListRepos_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListRepos", runtime.WithHTTPPathPattern("/registry/v1/repos"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListRepos", runtime.WithHTTPPathPattern("/registry/v1/repos"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1600,15 +2031,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_ListRepos_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetRepoCountBySource_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetRepoCountBySource_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetRepoCountBySource", runtime.WithHTTPPathPattern("/registry/v1/repocountbysource/{id=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetRepoCountBySource", runtime.WithHTTPPathPattern("/registry/v1/repocountbysource/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1620,15 +2056,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetRepoCountBySource_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodDelete, pattern_Registry_DeleteRepo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("DELETE", pattern_Registry_DeleteRepo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/DeleteRepo", runtime.WithHTTPPathPattern("/registry/v1/repos/{id=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/DeleteRepo", runtime.WithHTTPPathPattern("/registry/v1/repos/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1640,15 +2081,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_DeleteRepo_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodPost, pattern_Registry_CreateTag_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("POST", pattern_Registry_CreateTag_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/CreateTag", runtime.WithHTTPPathPattern("/registry/v1/tags/{repo_id=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/CreateTag", runtime.WithHTTPPathPattern("/registry/v1/tags/{repo_id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1660,15 +2106,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_CreateTag_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodPut, pattern_Registry_UpdateTag_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("PUT", pattern_Registry_UpdateTag_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/UpdateTag", runtime.WithHTTPPathPattern("/registry/v1/tags/{id=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/UpdateTag", runtime.WithHTTPPathPattern("/registry/v1/tags/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1680,15 +2131,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_UpdateTag_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodDelete, pattern_Registry_DeleteTag_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("DELETE", pattern_Registry_DeleteTag_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/DeleteTag", runtime.WithHTTPPathPattern("/registry/v1/tags/{id=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/DeleteTag", runtime.WithHTTPPathPattern("/registry/v1/tags/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1700,15 +2156,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_DeleteTag_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_ListTags_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_ListTags_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListTags", runtime.WithHTTPPathPattern("/registry/v1/tags"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListTags", runtime.WithHTTPPathPattern("/registry/v1/tags"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1720,15 +2181,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_ListTags_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_ListEolTags_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_ListEolTags_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListEolTags", runtime.WithHTTPPathPattern("/registry/v1/eoltags"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListEolTags", runtime.WithHTTPPathPattern("/registry/v1/eoltags"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1740,15 +2206,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_ListEolTags_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_ListTagHistory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_ListTagHistory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListTagHistory", runtime.WithHTTPPathPattern("/registry/v1/tags/{parent_id=**}/history"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListTagHistory", runtime.WithHTTPPathPattern("/registry/v1/tags/{parent_id=**}/history"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1760,15 +2231,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_ListTagHistory_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetSbom_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetSbom_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetSbom", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/sbom"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetSbom", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/sbom"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1780,15 +2256,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetSbom_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetHelm_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetHelm_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetHelm", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/helm"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetHelm", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/helm"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1800,15 +2281,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetHelm_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetChart_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetChart_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetChart", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/chart"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetChart", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/chart"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1820,15 +2306,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetChart_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetImageConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetImageConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetImageConfig", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/imageconfig"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetImageConfig", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/imageconfig"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1840,15 +2331,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetImageConfig_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetArchs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetArchs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetArchs", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/architectures"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetArchs", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/architectures"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1860,15 +2356,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetArchs_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetSize_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetSize_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetSize", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/size"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetSize", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/size"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1880,15 +2381,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetSize_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetRawSbom_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetRawSbom_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetRawSbom", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digest/{digest=*}/rawsbom"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetRawSbom", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digest/{digest=*}/rawsbom"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1900,15 +2406,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetRawSbom_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetVulnReport_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetVulnReport_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetVulnReport", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/vulnreport"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetVulnReport", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/vulnreport"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1920,15 +2431,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetVulnReport_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_ListManifestMetadata_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_ListManifestMetadata_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListManifestMetadata", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/manifestmetdata"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListManifestMetadata", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/manifestmetdata"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1940,15 +2456,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_ListManifestMetadata_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetManifestDigestCount_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetManifestDigestCount_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetManifestDigestCount", runtime.WithHTTPPathPattern("/registry/v1/digestcount/{parent_id=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetManifestDigestCount", runtime.WithHTTPPathPattern("/registry/v1/digestcount/{parent_id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1960,15 +2481,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetManifestDigestCount_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetPackageVersionMetadata_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetPackageVersionMetadata_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetPackageVersionMetadata", runtime.WithHTTPPathPattern("/registry/v1/versions/{package=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetPackageVersionMetadata", runtime.WithHTTPPathPattern("/registry/v1/versions/{package=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1980,15 +2506,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetPackageVersionMetadata_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_ListBuildReports_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_ListBuildReports_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListBuildReports", runtime.WithHTTPPathPattern("/registry/v1/buildreports"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListBuildReports", runtime.WithHTTPPathPattern("/registry/v1/buildreports"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2000,15 +2531,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_ListBuildReports_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetBuildStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetBuildStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetBuildStatus", runtime.WithHTTPPathPattern("/registry/v1/buildstatus"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetBuildStatus", runtime.WithHTTPPathPattern("/registry/v1/buildstatus"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2020,15 +2556,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetBuildStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetUpdateStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetUpdateStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetUpdateStatus", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}:updatestatus"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetUpdateStatus", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}:updatestatus"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2040,15 +2581,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetUpdateStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetSyncStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetSyncStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetSyncStatus", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}:syncstatus"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetSyncStatus", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}:syncstatus"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2060,15 +2606,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetSyncStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_ListSyncStatuses_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_ListSyncStatuses_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListSyncStatuses", runtime.WithHTTPPathPattern("/registry/v1/syncstatuses"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListSyncStatuses", runtime.WithHTTPPathPattern("/registry/v1/syncstatuses"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2080,15 +2631,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_ListSyncStatuses_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodPost, pattern_Registry_CreateDeployment_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("POST", pattern_Registry_CreateDeployment_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/CreateDeployment", runtime.WithHTTPPathPattern("/registry/v1/repos/{parent_id=**}/deployment"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/CreateDeployment", runtime.WithHTTPPathPattern("/registry/v1/repos/{parent_id=**}/deployment"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2100,15 +2656,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_CreateDeployment_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodPut, pattern_Registry_UpdateDeployment_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("PUT", pattern_Registry_UpdateDeployment_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/UpdateDeployment", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/deployment"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/UpdateDeployment", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/deployment"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2120,15 +2681,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_UpdateDeployment_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetDeployment_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetDeployment_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetDeployment", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/deployment"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetDeployment", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/deployment"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2140,15 +2706,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetDeployment_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetRegistrySettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetRegistrySettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetRegistrySettings", runtime.WithHTTPPathPattern("/registry/v1/settings/{registry_id=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetRegistrySettings", runtime.WithHTTPPathPattern("/registry/v1/settings/{registry_id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2160,15 +2731,20 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetRegistrySettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodPut, pattern_Registry_UpdateRegistrySettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("PUT", pattern_Registry_UpdateRegistrySettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/UpdateRegistrySettings", runtime.WithHTTPPathPattern("/registry/v1/settings/{registry_id=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Registry/UpdateRegistrySettings", runtime.WithHTTPPathPattern("/registry/v1/settings/{registry_id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2180,7 +2756,9 @@ func RegisterRegistryHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_UpdateRegistrySettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -2207,6 +2785,7 @@ func RegisterRegistryHandlerFromEndpoint(ctx context.Context, mux *runtime.Serve
 			}
 		}()
 	}()
+
 	return RegisterRegistryHandler(ctx, mux, conn)
 }
 
@@ -2222,11 +2801,14 @@ func RegisterRegistryHandler(ctx context.Context, mux *runtime.ServeMux, conn *g
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "RegistryClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, client RegistryClient) error {
-	mux.Handle(http.MethodPost, pattern_Registry_CreateRepo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("POST", pattern_Registry_CreateRepo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/CreateRepo", runtime.WithHTTPPathPattern("/registry/v1/repos/{parent_id=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/CreateRepo", runtime.WithHTTPPathPattern("/registry/v1/repos/{parent_id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2237,13 +2819,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_CreateRepo_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodPut, pattern_Registry_UpdateRepo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("PUT", pattern_Registry_UpdateRepo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/UpdateRepo", runtime.WithHTTPPathPattern("/registry/v1/repos/{id=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/UpdateRepo", runtime.WithHTTPPathPattern("/registry/v1/repos/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2254,13 +2841,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_UpdateRepo_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_ListRepos_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_ListRepos_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListRepos", runtime.WithHTTPPathPattern("/registry/v1/repos"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListRepos", runtime.WithHTTPPathPattern("/registry/v1/repos"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2271,13 +2863,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_ListRepos_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetRepoCountBySource_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetRepoCountBySource_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetRepoCountBySource", runtime.WithHTTPPathPattern("/registry/v1/repocountbysource/{id=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetRepoCountBySource", runtime.WithHTTPPathPattern("/registry/v1/repocountbysource/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2288,13 +2885,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetRepoCountBySource_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodDelete, pattern_Registry_DeleteRepo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("DELETE", pattern_Registry_DeleteRepo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/DeleteRepo", runtime.WithHTTPPathPattern("/registry/v1/repos/{id=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/DeleteRepo", runtime.WithHTTPPathPattern("/registry/v1/repos/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2305,13 +2907,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_DeleteRepo_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodPost, pattern_Registry_CreateTag_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("POST", pattern_Registry_CreateTag_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/CreateTag", runtime.WithHTTPPathPattern("/registry/v1/tags/{repo_id=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/CreateTag", runtime.WithHTTPPathPattern("/registry/v1/tags/{repo_id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2322,13 +2929,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_CreateTag_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodPut, pattern_Registry_UpdateTag_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("PUT", pattern_Registry_UpdateTag_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/UpdateTag", runtime.WithHTTPPathPattern("/registry/v1/tags/{id=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/UpdateTag", runtime.WithHTTPPathPattern("/registry/v1/tags/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2339,13 +2951,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_UpdateTag_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodDelete, pattern_Registry_DeleteTag_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("DELETE", pattern_Registry_DeleteTag_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/DeleteTag", runtime.WithHTTPPathPattern("/registry/v1/tags/{id=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/DeleteTag", runtime.WithHTTPPathPattern("/registry/v1/tags/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2356,13 +2973,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_DeleteTag_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_ListTags_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_ListTags_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListTags", runtime.WithHTTPPathPattern("/registry/v1/tags"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListTags", runtime.WithHTTPPathPattern("/registry/v1/tags"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2373,13 +2995,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_ListTags_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_ListEolTags_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_ListEolTags_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListEolTags", runtime.WithHTTPPathPattern("/registry/v1/eoltags"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListEolTags", runtime.WithHTTPPathPattern("/registry/v1/eoltags"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2390,13 +3017,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_ListEolTags_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_ListTagHistory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_ListTagHistory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListTagHistory", runtime.WithHTTPPathPattern("/registry/v1/tags/{parent_id=**}/history"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListTagHistory", runtime.WithHTTPPathPattern("/registry/v1/tags/{parent_id=**}/history"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2407,13 +3039,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_ListTagHistory_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetSbom_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetSbom_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetSbom", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/sbom"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetSbom", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/sbom"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2424,13 +3061,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetSbom_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetHelm_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetHelm_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetHelm", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/helm"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetHelm", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/helm"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2441,13 +3083,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetHelm_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetChart_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetChart_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetChart", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/chart"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetChart", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/chart"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2458,13 +3105,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetChart_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetImageConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetImageConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetImageConfig", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/imageconfig"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetImageConfig", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/imageconfig"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2475,13 +3127,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetImageConfig_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetArchs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetArchs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetArchs", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/architectures"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetArchs", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/architectures"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2492,13 +3149,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetArchs_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetSize_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetSize_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetSize", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/size"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetSize", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/size"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2509,13 +3171,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetSize_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetRawSbom_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetRawSbom_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetRawSbom", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digest/{digest=*}/rawsbom"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetRawSbom", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digest/{digest=*}/rawsbom"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2526,13 +3193,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetRawSbom_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetVulnReport_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetVulnReport_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetVulnReport", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/vulnreport"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetVulnReport", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/digests/{digest=*}/vulnreport"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2543,13 +3215,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetVulnReport_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_ListManifestMetadata_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_ListManifestMetadata_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListManifestMetadata", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/manifestmetdata"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListManifestMetadata", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/manifestmetdata"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2560,13 +3237,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_ListManifestMetadata_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetManifestDigestCount_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetManifestDigestCount_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetManifestDigestCount", runtime.WithHTTPPathPattern("/registry/v1/digestcount/{parent_id=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetManifestDigestCount", runtime.WithHTTPPathPattern("/registry/v1/digestcount/{parent_id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2577,13 +3259,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetManifestDigestCount_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetPackageVersionMetadata_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetPackageVersionMetadata_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetPackageVersionMetadata", runtime.WithHTTPPathPattern("/registry/v1/versions/{package=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetPackageVersionMetadata", runtime.WithHTTPPathPattern("/registry/v1/versions/{package=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2594,13 +3281,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetPackageVersionMetadata_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_ListBuildReports_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_ListBuildReports_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListBuildReports", runtime.WithHTTPPathPattern("/registry/v1/buildreports"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListBuildReports", runtime.WithHTTPPathPattern("/registry/v1/buildreports"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2611,13 +3303,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_ListBuildReports_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetBuildStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetBuildStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetBuildStatus", runtime.WithHTTPPathPattern("/registry/v1/buildstatus"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetBuildStatus", runtime.WithHTTPPathPattern("/registry/v1/buildstatus"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2628,13 +3325,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetBuildStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetUpdateStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetUpdateStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetUpdateStatus", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}:updatestatus"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetUpdateStatus", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}:updatestatus"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2645,13 +3347,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetUpdateStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetSyncStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetSyncStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetSyncStatus", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}:syncstatus"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetSyncStatus", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}:syncstatus"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2662,13 +3369,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetSyncStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_ListSyncStatuses_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_ListSyncStatuses_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListSyncStatuses", runtime.WithHTTPPathPattern("/registry/v1/syncstatuses"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/ListSyncStatuses", runtime.WithHTTPPathPattern("/registry/v1/syncstatuses"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2679,13 +3391,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_ListSyncStatuses_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodPost, pattern_Registry_CreateDeployment_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("POST", pattern_Registry_CreateDeployment_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/CreateDeployment", runtime.WithHTTPPathPattern("/registry/v1/repos/{parent_id=**}/deployment"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/CreateDeployment", runtime.WithHTTPPathPattern("/registry/v1/repos/{parent_id=**}/deployment"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2696,13 +3413,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_CreateDeployment_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodPut, pattern_Registry_UpdateDeployment_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("PUT", pattern_Registry_UpdateDeployment_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/UpdateDeployment", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/deployment"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/UpdateDeployment", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/deployment"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2713,13 +3435,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_UpdateDeployment_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetDeployment_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetDeployment_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetDeployment", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/deployment"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetDeployment", runtime.WithHTTPPathPattern("/registry/v1/repos/{repo_id=**}/deployment"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2730,13 +3457,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetDeployment_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodGet, pattern_Registry_GetRegistrySettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_Registry_GetRegistrySettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetRegistrySettings", runtime.WithHTTPPathPattern("/registry/v1/settings/{registry_id=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/GetRegistrySettings", runtime.WithHTTPPathPattern("/registry/v1/settings/{registry_id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2747,13 +3479,18 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_GetRegistrySettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodPut, pattern_Registry_UpdateRegistrySettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("PUT", pattern_Registry_UpdateRegistrySettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/UpdateRegistrySettings", runtime.WithHTTPPathPattern("/registry/v1/settings/{registry_id=**}"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Registry/UpdateRegistrySettings", runtime.WithHTTPPathPattern("/registry/v1/settings/{registry_id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2764,77 +3501,142 @@ func RegisterRegistryHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_Registry_UpdateRegistrySettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
+
 	return nil
 }
 
 var (
-	pattern_Registry_CreateRepo_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "repos", "parent_id"}, ""))
-	pattern_Registry_UpdateRepo_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "repos", "id"}, ""))
-	pattern_Registry_ListRepos_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"registry", "v1", "repos"}, ""))
-	pattern_Registry_GetRepoCountBySource_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "repocountbysource", "id"}, ""))
-	pattern_Registry_DeleteRepo_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "repos", "id"}, ""))
-	pattern_Registry_CreateTag_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "tags", "repo_id"}, ""))
-	pattern_Registry_UpdateTag_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "tags", "id"}, ""))
-	pattern_Registry_DeleteTag_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "tags", "id"}, ""))
-	pattern_Registry_ListTags_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"registry", "v1", "tags"}, ""))
-	pattern_Registry_ListEolTags_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"registry", "v1", "eoltags"}, ""))
-	pattern_Registry_ListTagHistory_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4}, []string{"registry", "v1", "tags", "parent_id", "history"}, ""))
-	pattern_Registry_GetSbom_0                   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"registry", "v1", "repos", "repo_id", "digests", "digest", "sbom"}, ""))
-	pattern_Registry_GetHelm_0                   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"registry", "v1", "repos", "repo_id", "digests", "digest", "helm"}, ""))
-	pattern_Registry_GetChart_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"registry", "v1", "repos", "repo_id", "digests", "digest", "chart"}, ""))
-	pattern_Registry_GetImageConfig_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"registry", "v1", "repos", "repo_id", "digests", "digest", "imageconfig"}, ""))
-	pattern_Registry_GetArchs_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"registry", "v1", "repos", "repo_id", "digests", "digest", "architectures"}, ""))
-	pattern_Registry_GetSize_0                   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"registry", "v1", "repos", "repo_id", "digests", "digest", "size"}, ""))
-	pattern_Registry_GetRawSbom_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"registry", "v1", "repos", "repo_id", "digest", "rawsbom"}, ""))
-	pattern_Registry_GetVulnReport_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"registry", "v1", "repos", "repo_id", "digests", "digest", "vulnreport"}, ""))
-	pattern_Registry_ListManifestMetadata_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4}, []string{"registry", "v1", "repos", "repo_id", "manifestmetdata"}, ""))
-	pattern_Registry_GetManifestDigestCount_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "digestcount", "parent_id"}, ""))
+	pattern_Registry_CreateRepo_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "repos", "parent_id"}, ""))
+
+	pattern_Registry_UpdateRepo_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "repos", "id"}, ""))
+
+	pattern_Registry_ListRepos_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"registry", "v1", "repos"}, ""))
+
+	pattern_Registry_GetRepoCountBySource_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "repocountbysource", "id"}, ""))
+
+	pattern_Registry_DeleteRepo_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "repos", "id"}, ""))
+
+	pattern_Registry_CreateTag_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "tags", "repo_id"}, ""))
+
+	pattern_Registry_UpdateTag_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "tags", "id"}, ""))
+
+	pattern_Registry_DeleteTag_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "tags", "id"}, ""))
+
+	pattern_Registry_ListTags_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"registry", "v1", "tags"}, ""))
+
+	pattern_Registry_ListEolTags_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"registry", "v1", "eoltags"}, ""))
+
+	pattern_Registry_ListTagHistory_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4}, []string{"registry", "v1", "tags", "parent_id", "history"}, ""))
+
+	pattern_Registry_GetSbom_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"registry", "v1", "repos", "repo_id", "digests", "digest", "sbom"}, ""))
+
+	pattern_Registry_GetHelm_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"registry", "v1", "repos", "repo_id", "digests", "digest", "helm"}, ""))
+
+	pattern_Registry_GetChart_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"registry", "v1", "repos", "repo_id", "digests", "digest", "chart"}, ""))
+
+	pattern_Registry_GetImageConfig_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"registry", "v1", "repos", "repo_id", "digests", "digest", "imageconfig"}, ""))
+
+	pattern_Registry_GetArchs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"registry", "v1", "repos", "repo_id", "digests", "digest", "architectures"}, ""))
+
+	pattern_Registry_GetSize_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"registry", "v1", "repos", "repo_id", "digests", "digest", "size"}, ""))
+
+	pattern_Registry_GetRawSbom_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"registry", "v1", "repos", "repo_id", "digest", "rawsbom"}, ""))
+
+	pattern_Registry_GetVulnReport_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"registry", "v1", "repos", "repo_id", "digests", "digest", "vulnreport"}, ""))
+
+	pattern_Registry_ListManifestMetadata_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4}, []string{"registry", "v1", "repos", "repo_id", "manifestmetdata"}, ""))
+
+	pattern_Registry_GetManifestDigestCount_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "digestcount", "parent_id"}, ""))
+
 	pattern_Registry_GetPackageVersionMetadata_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "versions", "package"}, ""))
-	pattern_Registry_ListBuildReports_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"registry", "v1", "buildreports"}, ""))
-	pattern_Registry_GetBuildStatus_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"registry", "v1", "buildstatus"}, ""))
-	pattern_Registry_GetUpdateStatus_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "repos", "repo_id"}, "updatestatus"))
-	pattern_Registry_GetSyncStatus_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "repos", "repo_id"}, "syncstatus"))
-	pattern_Registry_ListSyncStatuses_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"registry", "v1", "syncstatuses"}, ""))
-	pattern_Registry_CreateDeployment_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4}, []string{"registry", "v1", "repos", "parent_id", "deployment"}, ""))
-	pattern_Registry_UpdateDeployment_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4}, []string{"registry", "v1", "repos", "repo_id", "deployment"}, ""))
-	pattern_Registry_GetDeployment_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4}, []string{"registry", "v1", "repos", "repo_id", "deployment"}, ""))
-	pattern_Registry_GetRegistrySettings_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "settings", "registry_id"}, ""))
-	pattern_Registry_UpdateRegistrySettings_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "settings", "registry_id"}, ""))
+
+	pattern_Registry_ListBuildReports_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"registry", "v1", "buildreports"}, ""))
+
+	pattern_Registry_GetBuildStatus_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"registry", "v1", "buildstatus"}, ""))
+
+	pattern_Registry_GetUpdateStatus_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "repos", "repo_id"}, "updatestatus"))
+
+	pattern_Registry_GetSyncStatus_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "repos", "repo_id"}, "syncstatus"))
+
+	pattern_Registry_ListSyncStatuses_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"registry", "v1", "syncstatuses"}, ""))
+
+	pattern_Registry_CreateDeployment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4}, []string{"registry", "v1", "repos", "parent_id", "deployment"}, ""))
+
+	pattern_Registry_UpdateDeployment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4}, []string{"registry", "v1", "repos", "repo_id", "deployment"}, ""))
+
+	pattern_Registry_GetDeployment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4}, []string{"registry", "v1", "repos", "repo_id", "deployment"}, ""))
+
+	pattern_Registry_GetRegistrySettings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "settings", "registry_id"}, ""))
+
+	pattern_Registry_UpdateRegistrySettings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "settings", "registry_id"}, ""))
 )
 
 var (
-	forward_Registry_CreateRepo_0                = runtime.ForwardResponseMessage
-	forward_Registry_UpdateRepo_0                = runtime.ForwardResponseMessage
-	forward_Registry_ListRepos_0                 = runtime.ForwardResponseMessage
-	forward_Registry_GetRepoCountBySource_0      = runtime.ForwardResponseMessage
-	forward_Registry_DeleteRepo_0                = runtime.ForwardResponseMessage
-	forward_Registry_CreateTag_0                 = runtime.ForwardResponseMessage
-	forward_Registry_UpdateTag_0                 = runtime.ForwardResponseMessage
-	forward_Registry_DeleteTag_0                 = runtime.ForwardResponseMessage
-	forward_Registry_ListTags_0                  = runtime.ForwardResponseMessage
-	forward_Registry_ListEolTags_0               = runtime.ForwardResponseMessage
-	forward_Registry_ListTagHistory_0            = runtime.ForwardResponseMessage
-	forward_Registry_GetSbom_0                   = runtime.ForwardResponseMessage
-	forward_Registry_GetHelm_0                   = runtime.ForwardResponseMessage
-	forward_Registry_GetChart_0                  = runtime.ForwardResponseMessage
-	forward_Registry_GetImageConfig_0            = runtime.ForwardResponseMessage
-	forward_Registry_GetArchs_0                  = runtime.ForwardResponseMessage
-	forward_Registry_GetSize_0                   = runtime.ForwardResponseMessage
-	forward_Registry_GetRawSbom_0                = runtime.ForwardResponseMessage
-	forward_Registry_GetVulnReport_0             = runtime.ForwardResponseMessage
-	forward_Registry_ListManifestMetadata_0      = runtime.ForwardResponseMessage
-	forward_Registry_GetManifestDigestCount_0    = runtime.ForwardResponseMessage
+	forward_Registry_CreateRepo_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_UpdateRepo_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_ListRepos_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_GetRepoCountBySource_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_DeleteRepo_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_CreateTag_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_UpdateTag_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_DeleteTag_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_ListTags_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_ListEolTags_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_ListTagHistory_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_GetSbom_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_GetHelm_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_GetChart_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_GetImageConfig_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_GetArchs_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_GetSize_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_GetRawSbom_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_GetVulnReport_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_ListManifestMetadata_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_GetManifestDigestCount_0 = runtime.ForwardResponseMessage
+
 	forward_Registry_GetPackageVersionMetadata_0 = runtime.ForwardResponseMessage
-	forward_Registry_ListBuildReports_0          = runtime.ForwardResponseMessage
-	forward_Registry_GetBuildStatus_0            = runtime.ForwardResponseMessage
-	forward_Registry_GetUpdateStatus_0           = runtime.ForwardResponseMessage
-	forward_Registry_GetSyncStatus_0             = runtime.ForwardResponseMessage
-	forward_Registry_ListSyncStatuses_0          = runtime.ForwardResponseMessage
-	forward_Registry_CreateDeployment_0          = runtime.ForwardResponseMessage
-	forward_Registry_UpdateDeployment_0          = runtime.ForwardResponseMessage
-	forward_Registry_GetDeployment_0             = runtime.ForwardResponseMessage
-	forward_Registry_GetRegistrySettings_0       = runtime.ForwardResponseMessage
-	forward_Registry_UpdateRegistrySettings_0    = runtime.ForwardResponseMessage
+
+	forward_Registry_ListBuildReports_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_GetBuildStatus_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_GetUpdateStatus_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_GetSyncStatus_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_ListSyncStatuses_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_CreateDeployment_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_UpdateDeployment_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_GetDeployment_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_GetRegistrySettings_0 = runtime.ForwardResponseMessage
+
+	forward_Registry_UpdateRegistrySettings_0 = runtime.ForwardResponseMessage
 )
