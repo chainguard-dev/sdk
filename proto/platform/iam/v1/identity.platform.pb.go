@@ -750,7 +750,17 @@ type Identity_StaticKeys struct {
 	IssuerKeys string `protobuf:"bytes,4,opt,name=issuer_keys,json=issuerKeys,proto3" json:"issuer_keys,omitempty"`
 	// expiration is the time when the issuer_keys will expire.
 	// Defaults to / Maximum of 30 days after creation time.
-	Expiration    *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=expiration,proto3" json:"expiration,omitempty"`
+	Expiration *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=expiration,proto3" json:"expiration,omitempty"`
+	// audiences are the accepted OIDC token audiences for this identity.
+	// When set, the token's audience must match at least one value in this list.
+	// Mutually exclusive with the global AllowedAudiences — when set, only
+	// these values are checked and the global list is bypassed entirely.
+	// When empty, falls back to the global AllowedAudiences.
+	//
+	// NOTE: Currently only a single audience is supported. The field is
+	// repeated for forward compatibility — callers must specify exactly one
+	// value. This restriction may be relaxed in a future release.
+	Audiences     []string `protobuf:"bytes,6,rep,name=audiences,proto3" json:"audiences,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -809,6 +819,13 @@ func (x *Identity_StaticKeys) GetIssuerKeys() string {
 func (x *Identity_StaticKeys) GetExpiration() *timestamppb.Timestamp {
 	if x != nil {
 		return x.Expiration
+	}
+	return nil
+}
+
+func (x *Identity_StaticKeys) GetAudiences() []string {
+	if x != nil {
+		return x.Audiences
 	}
 	return nil
 }
@@ -963,7 +980,7 @@ var File_identity_platform_proto protoreflect.FileDescriptor
 
 const file_identity_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x17identity.platform.proto\x12\x17chainguard.platform.iam\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a&platform/common/v1/uidp.platform.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\xf3\v\n" +
+	"\x17identity.platform.proto\x12\x17chainguard.platform.iam\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a&platform/common/v1/uidp.platform.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x91\f\n" +
 	"\bIdentity\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -997,7 +1014,7 @@ const file_identity_platform_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x05\n" +
 	"\x03issB\x05\n" +
 	"\x03subB\x05\n" +
-	"\x03aud\x1a\x9b\x01\n" +
+	"\x03aud\x1a\xb9\x01\n" +
 	"\n" +
 	"StaticKeys\x12\x16\n" +
 	"\x06issuer\x18\x01 \x01(\tR\x06issuer\x12\x18\n" +
@@ -1006,7 +1023,8 @@ const file_identity_platform_proto_rawDesc = "" +
 	"issuerKeys\x12:\n" +
 	"\n" +
 	"expiration\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"expiration\x1a\xc4\x01\n" +
+	"expiration\x12\x1c\n" +
+	"\taudiences\x18\x06 \x03(\tR\taudiences\x1a\xc4\x01\n" +
 	"\vAWSIdentity\x12\x1f\n" +
 	"\vaws_account\x18\x01 \x01(\tR\n" +
 	"awsAccount\x12\x12\n" +

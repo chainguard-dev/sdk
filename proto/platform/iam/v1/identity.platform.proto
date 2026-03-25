@@ -217,6 +217,17 @@ message Identity {
     // expiration is the time when the issuer_keys will expire.
     // Defaults to / Maximum of 30 days after creation time.
     google.protobuf.Timestamp expiration = 5;
+
+    // audiences are the accepted OIDC token audiences for this identity.
+    // When set, the token's audience must match at least one value in this list.
+    // Mutually exclusive with the global AllowedAudiences — when set, only
+    // these values are checked and the global list is bypassed entirely.
+    // When empty, falls back to the global AllowedAudiences.
+    //
+    // NOTE: Currently only a single audience is supported. The field is
+    // repeated for forward compatibility — callers must specify exactly one
+    // value. This restriction may be relaxed in a future release.
+    repeated string audiences = 6;
   }
 
   message AWSIdentity {
