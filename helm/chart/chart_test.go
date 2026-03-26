@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	"chainguard.dev/sdk/helm/images"
+	"github.com/google/go-cmp/cmp"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/empty"
 	"github.com/google/go-containerregistry/pkg/v1/mutate"
@@ -190,6 +191,211 @@ func TestIsTopLevelValuesYAML(t *testing.T) {
 				t.Errorf("isTopLevelValuesYAML(%q): got = %v, wanted = %v", tt.path, got, tt.want)
 			}
 		})
+	}
+}
+
+func TestIsTopLevelChartYAML(t *testing.T) {
+	tests := []struct {
+		path string
+		want bool
+	}{{
+		path: "chart/Chart.yaml",
+		want: true,
+	}, {
+		path: "my-chart/Chart.yaml",
+		want: true,
+	}, {
+		path: "Chart.yaml",
+		want: false,
+	}, {
+		path: "chart/charts/subchart/Chart.yaml",
+		want: false,
+	}, {
+		path: "chart/templates/Chart.yaml",
+		want: false,
+	}, {
+		path: "chart/Chart.yml",
+		want: false,
+	}, {
+		path: "a/b/c/Chart.yaml",
+		want: false,
+	}}
+
+	for _, tt := range tests {
+		t.Run(tt.path, func(t *testing.T) {
+			if got := isTopLevelChartYAML(tt.path); got != tt.want {
+				t.Errorf("isTopLevelChartYAML(%q): got = %v, wanted = %v", tt.path, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestReadChartFile(t *testing.T) {
+	tests := []struct {
+		name        string
+		pathMatcher PathMatcher
+		want        string
+	}{{
+		name:        "read Chart.yaml",
+		pathMatcher: isTopLevelChartYAML,
+		want:        "apiVersion: v2\nname: my-chart\nversion: 1.0.0\n",
+	}, {
+		name:        "read values.yaml",
+		pathMatcher: isTopLevelValuesYAML,
+		want:        "image: nginx\n",
+	}}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			chart := createTestChart(t, "my-chart", "image: nginx\n")
+
+			got, err := readChartFile(chart, tt.pathMatcher)
+			if err != nil {
+				t.Fatalf("readChartFile: %v", err)
+			}
+
+			if string(got) != tt.want {
+				t.Errorf("readChartFile: got = %q, wanted = %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestReadChartMeta(t *testing.T) {
+	tests := []struct {
+		name  string
+		chart v1.Image
+		want  *Meta
+	}{{
+		name:  "valid Chart.yaml",
+		chart: createTestChart(t, "my-chart", "image: nginx\n"),
+		want: &Meta{
+			APIVersion: "v2",
+			Name:       "my-chart",
+			Version:    "1.0.0",
+		},
+	}}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			meta, err := ReadChartMeta(tt.chart)
+			if err != nil {
+				t.Fatalf("ReadChartMeta: %v", err)
+			}
+
+			if cmp.Diff(meta, tt.want) != "" {
+				t.Errorf("ReadChartMeta: got = %+v, wanted = %+v", meta, tt.want)
+			}
+		})
+	}
+}
+
+func TestReplaceChartMeta(t *testing.T) {
+	meta1 := &Meta{
+		APIVersion:  "v2",
+		Name:        "my-chart",
+		Version:     "2.0.0",
+		AppVersion:  "1.5.0",
+		Description: "Updated chart",
+	}
+	meta2 := &Meta{
+		APIVersion: "v2",
+		AppVersion: "1.5.0",
+	}
+
+	tests := []struct {
+		name         string
+		chart        v1.Image
+		newMeta      *Meta
+		expectedMeta *Meta
+	}{
+		{
+			name:         "replace Chart.yaml metadata full",
+			chart:        createTestChart(t, "test-chart", "image: nginx\n"),
+			newMeta:      meta1,
+			expectedMeta: meta1,
+		},
+		{
+			name:         "replace Chart.yaml metadata partial",
+			chart:        createTestChart(t, "test-chart", "image: nginx\n"),
+			newMeta:      meta2,
+			expectedMeta: meta2,
+		},
+		{
+			name:         "replace Chart.yaml metadata empty",
+			chart:        createTestChart(t, "test-chart", "image: nginx\n"),
+			newMeta:      &Meta{},
+			expectedMeta: &Meta{},
+		},
+		{
+			name:         "replace Chart.yaml metadata nil",
+			chart:        createTestChart(t, "test-chart", "image: nginx\n"),
+			newMeta:      nil,
+			expectedMeta: &Meta{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			patched, err := ReplaceChartMeta(tt.chart, tt.newMeta)
+			if err != nil {
+				t.Fatalf("ReplaceChartMeta: %v", err)
+			}
+
+			got, err := ReadChartMeta(patched)
+			if err != nil {
+				t.Fatalf("ReadChartMeta after replace: %v", err)
+			}
+
+			if cmp.Diff(got, tt.expectedMeta) != "" {
+				t.Errorf("ReadChartMeta: got = %+v, wanted = %+v", got, tt.newMeta)
+			}
+		})
+	}
+}
+
+func TestReplaceChartMeta_PreservesOtherFiles(t *testing.T) {
+	chart := createTestChart(t, "my-chart", "image: nginx\n")
+
+	newMeta := &Meta{
+		APIVersion: "v2",
+		Name:       "my-chart",
+		Version:    "2.0.0",
+	}
+
+	patched, err := ReplaceChartMeta(chart, newMeta)
+	if err != nil {
+		t.Fatalf("ReplaceChartMeta: %v", err)
+	}
+
+	layer, err := getChartLayer(patched)
+	if err != nil {
+		t.Fatalf("getChartLayer: %v", err)
+	}
+
+	rc, err := layer.Uncompressed()
+	if err != nil {
+		t.Fatalf("Uncompressed: %v", err)
+	}
+	defer rc.Close()
+
+	foundValuesYAML := false
+	tr := tar.NewReader(rc)
+	for {
+		header, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			t.Fatalf("reading tar: %v", err)
+		}
+		if header.Name == "my-chart/values.yaml" {
+			foundValuesYAML = true
+		}
+	}
+
+	if !foundValuesYAML {
+		t.Error("values.yaml not found in patched chart")
 	}
 }
 

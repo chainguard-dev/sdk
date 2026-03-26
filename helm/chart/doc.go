@@ -39,6 +39,27 @@ an expanded Chainguard chart APK), use [Read]:
 	}
 	// values is nil if the chart has no values.yaml
 
+# Reading and Modifying Chart.yaml Metadata
+
+To read and parse Chart.yaml metadata from an OCI artifact:
+
+	meta, err := chart.ReadChartMeta(img)
+	if err != nil {
+		return err
+	}
+	// meta contains APIVersion, Name, Version, AppVersion, Description, Dependencies
+
+To modify Chart.yaml metadata and create a new chart artifact:
+
+	meta.Version = "2.0.0"
+	meta.AppVersion = "1.5.0"
+
+	patched, err := chart.ReplaceChartMeta(img, meta)
+	if err != nil {
+		return err
+	}
+	// patched is a new OCI artifact with updated Chart.yaml
+
 # Patching Image References into a Chart
 
 To replace image references in a chart's values.yaml using a mapping template
