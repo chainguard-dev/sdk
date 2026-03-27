@@ -499,7 +499,7 @@ func TestWalk(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			cb := tc.callback
 			if cb == nil {
-				cb = Resolve(tc.refs)
+				cb = Resolve(tc.refs, &resolveConfig{omitDigests: false})
 			}
 			got, err := tc.mapping.Walk(cb)
 
@@ -528,6 +528,7 @@ func TestMapping_Resolve(t *testing.T) {
 		name       string
 		mapping    *Mapping
 		refs       map[string]string
+		opts       []ResolveOption
 		valuesYAML string
 		want       string
 		wantErr    string
@@ -940,11 +941,74 @@ baz~qux:
   tag: v1
 `,
 		},
+		{
+			name: "pseudo_tag with omitDigests=true omits digest",
+			mapping: &Mapping{
+				Images: map[string]*Image{
+					"app": {Values: map[string]any{
+						"image": map[string]any{"pseudoTag": "${pseudo_tag}"},
+					}},
+				},
+			},
+			refs: map[string]string{
+				"app": "cgr.dev/chainguard/app:v1.0@sha256:abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234",
+			},
+			opts: []ResolveOption{
+				WithOmitDigests(true),
+			},
+			valuesYAML: `image:
+  pseudoTag: ""
+`,
+			want: `image:
+  pseudoTag: v1.0
+`,
+		},
+		{
+			name: "pseudo_tag with omitDigests=false includes digest (default)",
+			mapping: &Mapping{
+				Images: map[string]*Image{
+					"app": {Values: map[string]any{
+						"image": map[string]any{"pseudoTag": "${pseudo_tag}"},
+					}},
+				},
+			},
+			refs: map[string]string{
+				"app": "cgr.dev/chainguard/app:v1.0@sha256:abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234",
+			},
+			valuesYAML: `image:
+  pseudoTag: ""
+`,
+			want: `image:
+  pseudoTag: v1.0@sha256:abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234
+`,
+		},
+		{
+			name: "pseudo_tag without digest and omitDigests=true works",
+			mapping: &Mapping{
+				Images: map[string]*Image{
+					"app": {Values: map[string]any{
+						"image": map[string]any{"pseudoTag": "${pseudo_tag}"},
+					}},
+				},
+			},
+			refs: map[string]string{
+				"app": "cgr.dev/chainguard/app:v1.0",
+			},
+			opts: []ResolveOption{
+				WithOmitDigests(true),
+			},
+			valuesYAML: `image:
+  pseudoTag: ""
+`,
+			want: `image:
+  pseudoTag: v1.0
+`,
+		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := tc.mapping.Resolve(tc.refs, strings.NewReader(tc.valuesYAML))
+			got, err := tc.mapping.Resolve(tc.refs, strings.NewReader(tc.valuesYAML), tc.opts...)
 			if tc.wantErr != "" {
 				if err == nil {
 					t.Fatalf("expected error containing %q, got nil", tc.wantErr)
