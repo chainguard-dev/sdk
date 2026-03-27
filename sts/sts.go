@@ -17,7 +17,9 @@ import (
 
 	oidc "chainguard.dev/sdk/proto/platform/oidc/v1"
 	"golang.org/x/oauth2"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
@@ -113,6 +115,30 @@ var _ Exchanger = (*impl)(nil)
 // Stubbed when testing
 var oidcNewClients = oidc.NewClients
 
+const (
+	// maxRetries is the maximum number of retry attempts for transient errors.
+	// With the initial attempt, this means up to 3 total attempts.
+	maxRetries = 2
+
+	// retryBackoff is the delay between retry attempts. Sized for sub-second
+	// transient network blips (TCP reset, DNS hiccup), not multi-second
+	// cold starts.
+	retryBackoff = 100 * time.Millisecond
+)
+
+// retryable returns true if the gRPC error code indicates a transient failure
+// that is safe to retry. Only codes.Unavailable is retried — codes.Internal
+// is excluded because it can indicate non-transient server bugs (nil-pointer
+// panics, DB inconsistency) that won't resolve on retry.
+func retryable(err error) bool {
+	switch status.Code(err) {
+	case codes.Unavailable:
+		return true
+	default:
+		return false
+	}
+}
+
 // Exchange implements Exchanger
 func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOption) (TokenPair, error) {
 	o := i.opts
@@ -120,29 +146,49 @@ func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOpti
 		opt(&o)
 	}
 
-	c, err := oidcNewClients(ctx, o.issuer, fmt.Sprintf("Bearer %s", token), oidc.WithUserAgent(o.userAgent))
-	if err != nil {
-		return TokenPair{}, err
-	}
-	defer c.Close()
+	var lastErr error
+	for attempt := range maxRetries + 1 {
+		if attempt > 0 {
+			select {
+			case <-ctx.Done():
+				return TokenPair{}, ctx.Err()
+			case <-time.After(retryBackoff):
+			}
+		}
 
-	resp, err := c.STS().Exchange(ctx, &oidc.ExchangeRequest{
-		Aud:              []string{o.audience},
-		Scope:            o.firstScope, //nolint:staticcheck // Populating for backward compatibility
-		Scopes:           o.scope,
-		Identity:         o.identity,
-		Cap:              o.capabilities,
-		IdentityProvider: o.identityProvider,
-	})
-	if err != nil {
-		return TokenPair{}, err
-	}
+		c, err := oidcNewClients(ctx, o.issuer, fmt.Sprintf("Bearer %s", token), oidc.WithUserAgent(o.userAgent))
+		if err != nil {
+			if retryable(err) {
+				lastErr = err
+				continue
+			}
+			return TokenPair{}, err
+		}
 
-	var expiry time.Time
-	if resp.GetExpiry() != nil {
-		expiry = resp.GetExpiry().AsTime()
+		resp, err := c.STS().Exchange(ctx, &oidc.ExchangeRequest{
+			Aud:              []string{o.audience},
+			Scope:            o.firstScope, //nolint:staticcheck // Populating for backward compatibility
+			Scopes:           o.scope,
+			Identity:         o.identity,
+			Cap:              o.capabilities,
+			IdentityProvider: o.identityProvider,
+		})
+		c.Close()
+		if err != nil {
+			if retryable(err) {
+				lastErr = err
+				continue
+			}
+			return TokenPair{}, err
+		}
+
+		var expiry time.Time
+		if resp.GetExpiry() != nil {
+			expiry = resp.GetExpiry().AsTime()
+		}
+		return TokenPair{AccessToken: resp.Token, RefreshToken: resp.RefreshToken, Expiry: expiry}, nil
 	}
-	return TokenPair{AccessToken: resp.Token, RefreshToken: resp.RefreshToken, Expiry: expiry}, nil
+	return TokenPair{}, lastErr
 }
 
 // Refresh implements Exchanger
@@ -152,22 +198,42 @@ func (i *impl) Refresh(ctx context.Context, token string, opts ...ExchangerOptio
 		opt(&o)
 	}
 
-	c, err := oidcNewClients(ctx, o.issuer, fmt.Sprintf("Bearer %s", token), oidc.WithUserAgent(o.userAgent))
-	if err != nil {
-		return "", "", err
-	}
-	defer c.Close()
+	var lastErr error
+	for attempt := range maxRetries + 1 {
+		if attempt > 0 {
+			select {
+			case <-ctx.Done():
+				return "", "", ctx.Err()
+			case <-time.After(retryBackoff):
+			}
+		}
 
-	resp, err := c.STS().ExchangeRefreshToken(ctx, &oidc.ExchangeRefreshTokenRequest{
-		Aud:    []string{o.audience},
-		Scope:  o.firstScope, //nolint:staticcheck // Populating for backward compatibility
-		Scopes: o.scope,
-		Cap:    o.capabilities,
-	})
-	if err != nil {
-		return "", "", err
+		c, err := oidcNewClients(ctx, o.issuer, fmt.Sprintf("Bearer %s", token), oidc.WithUserAgent(o.userAgent))
+		if err != nil {
+			if retryable(err) {
+				lastErr = err
+				continue
+			}
+			return "", "", err
+		}
+
+		resp, err := c.STS().ExchangeRefreshToken(ctx, &oidc.ExchangeRefreshTokenRequest{
+			Aud:    []string{o.audience},
+			Scope:  o.firstScope, //nolint:staticcheck // Populating for backward compatibility
+			Scopes: o.scope,
+			Cap:    o.capabilities,
+		})
+		c.Close()
+		if err != nil {
+			if retryable(err) {
+				lastErr = err
+				continue
+			}
+			return "", "", err
+		}
+		return resp.GetToken().GetToken(), resp.GetRefreshToken().GetToken(), nil
 	}
-	return resp.GetToken().GetToken(), resp.GetRefreshToken().GetToken(), err
+	return "", "", lastErr
 }
 
 // ExchangerOption is a way of customizing the behavior of the Exchanger

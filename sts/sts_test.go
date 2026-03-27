@@ -8,11 +8,14 @@ package sts
 import (
 	"context"
 	"errors"
+	"sync/atomic"
 	"testing"
 
 	oidc "chainguard.dev/sdk/proto/platform/oidc/v1"
 	"chainguard.dev/sdk/proto/platform/oidc/v1/test"
 	"github.com/google/go-cmp/cmp"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func TestRefresh(t *testing.T) {
@@ -430,6 +433,186 @@ func TestExchange(t *testing.T) {
 			}
 			if diff := cmp.Diff(test.wantToken, gotTok); diff != "" {
 				t.Errorf("token mismatch (-want, +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestExchangeRetry(t *testing.T) {
+	for _, tt := range []struct {
+		name string
+		// errors to return before succeeding; len determines how many attempts fail.
+		errors       []error
+		wantAttempts int
+		wantErr      bool
+	}{{
+		name:         "succeeds on first attempt",
+		wantAttempts: 1,
+	}, {
+		name:         "retries on Unavailable then succeeds",
+		errors:       []error{status.Error(codes.Unavailable, "service unavailable")},
+		wantAttempts: 2,
+	}, {
+		name:         "does not retry on Internal",
+		errors:       []error{status.Error(codes.Internal, "internal error")},
+		wantAttempts: 1,
+		wantErr:      true,
+	}, {
+		name: "retries twice then succeeds",
+		errors: []error{
+			status.Error(codes.Unavailable, "try 1"),
+			status.Error(codes.Unavailable, "try 2"),
+		},
+		wantAttempts: 3,
+	}, {
+		name: "exhausts retries and returns last error",
+		errors: []error{
+			status.Error(codes.Unavailable, "try 1"),
+			status.Error(codes.Unavailable, "try 2"),
+			status.Error(codes.Unavailable, "try 3"),
+		},
+		wantAttempts: 3,
+		wantErr:      true,
+	}, {
+		name:         "does not retry on PermissionDenied",
+		errors:       []error{status.Error(codes.PermissionDenied, "forbidden")},
+		wantAttempts: 1,
+		wantErr:      true,
+	}, {
+		name:         "does not retry on InvalidArgument",
+		errors:       []error{status.Error(codes.InvalidArgument, "bad request")},
+		wantAttempts: 1,
+		wantErr:      true,
+	}, {
+		name:         "does not retry on non-gRPC error",
+		errors:       []error{errors.New("unexpected EOF")},
+		wantAttempts: 1,
+		wantErr:      true,
+	}} {
+		t.Run(tt.name, func(t *testing.T) {
+			var attempts atomic.Int32
+			oidcNewClients = func(_ context.Context, _ string, _ string, _ ...oidc.ClientOption) (oidc.Clients, error) {
+				idx := int(attempts.Add(1)) - 1
+				if idx < len(tt.errors) {
+					return test.MockOIDCClient{
+						STSClient: test.MockSTSClient{
+							OnExchange: []test.STSOnExchange{{
+								Given: &oidc.ExchangeRequest{Aud: []string{"aud"}},
+								Error: tt.errors[idx],
+							}},
+						},
+					}, nil
+				}
+				return test.MockOIDCClient{
+					STSClient: test.MockSTSClient{
+						OnExchange: []test.STSOnExchange{{
+							Given:     &oidc.ExchangeRequest{Aud: []string{"aud"}},
+							Exchanged: &oidc.RawToken{Token: "ok"},
+						}},
+					},
+				}, nil
+			}
+
+			exch := New("issuer", "aud")
+			got, err := exch.Exchange(t.Context(), "tok")
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("Exchange() error = %v, wantErr = %v", err, tt.wantErr)
+			}
+			if !tt.wantErr && got.AccessToken != "ok" {
+				t.Errorf("Exchange() token = %q, want %q", got.AccessToken, "ok")
+			}
+			if gotAttempts := int(attempts.Load()); gotAttempts != tt.wantAttempts {
+				t.Errorf("Exchange() attempts = %d, want %d", gotAttempts, tt.wantAttempts)
+			}
+		})
+	}
+}
+
+func TestRefreshRetry(t *testing.T) {
+	for _, tt := range []struct {
+		name         string
+		errors       []error
+		wantAttempts int
+		wantErr      bool
+	}{{
+		name:         "succeeds on first attempt",
+		wantAttempts: 1,
+	}, {
+		name:         "retries on Unavailable then succeeds",
+		errors:       []error{status.Error(codes.Unavailable, "service unavailable")},
+		wantAttempts: 2,
+	}, {
+		name: "exhausts retries",
+		errors: []error{
+			status.Error(codes.Unavailable, "try 1"),
+			status.Error(codes.Unavailable, "try 2"),
+			status.Error(codes.Unavailable, "try 3"),
+		},
+		wantAttempts: 3,
+		wantErr:      true,
+	}, {
+		name:         "does not retry on PermissionDenied",
+		errors:       []error{status.Error(codes.PermissionDenied, "forbidden")},
+		wantAttempts: 1,
+		wantErr:      true,
+	}, {
+		name:         "does not retry on InvalidArgument",
+		errors:       []error{status.Error(codes.InvalidArgument, "bad request")},
+		wantAttempts: 1,
+		wantErr:      true,
+	}, {
+		name:         "does not retry on Internal",
+		errors:       []error{status.Error(codes.Internal, "internal error")},
+		wantAttempts: 1,
+		wantErr:      true,
+	}, {
+		name:         "does not retry on non-gRPC error",
+		errors:       []error{errors.New("unexpected EOF")},
+		wantAttempts: 1,
+		wantErr:      true,
+	}} {
+		t.Run(tt.name, func(t *testing.T) {
+			var attempts atomic.Int32
+			oidcNewClients = func(_ context.Context, _ string, _ string, _ ...oidc.ClientOption) (oidc.Clients, error) {
+				idx := int(attempts.Add(1)) - 1
+				if idx < len(tt.errors) {
+					return test.MockOIDCClient{
+						STSClient: test.MockSTSClient{
+							OnGetAccessToken: []test.STSOnGetAccessToken{{
+								Given: &oidc.ExchangeRefreshTokenRequest{Aud: []string{"aud"}},
+								Error: tt.errors[idx],
+							}},
+						},
+					}, nil
+				}
+				return test.MockOIDCClient{
+					STSClient: test.MockSTSClient{
+						OnGetAccessToken: []test.STSOnGetAccessToken{{
+							Given: &oidc.ExchangeRefreshTokenRequest{Aud: []string{"aud"}},
+							Exchanged: &oidc.TokenPair{
+								Token:        &oidc.RawToken{Token: "access"},
+								RefreshToken: &oidc.RawToken{Token: "refresh"},
+							},
+						}},
+					},
+				}, nil
+			}
+
+			exch := New("issuer", "aud")
+			gotAccess, gotRefresh, err := exch.Refresh(t.Context(), "tok")
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("Refresh() error = %v, wantErr = %v", err, tt.wantErr)
+			}
+			if !tt.wantErr {
+				if gotAccess != "access" {
+					t.Errorf("Refresh() access = %q, want %q", gotAccess, "access")
+				}
+				if gotRefresh != "refresh" {
+					t.Errorf("Refresh() refresh = %q, want %q", gotRefresh, "refresh")
+				}
+			}
+			if gotAttempts := int(attempts.Load()); gotAttempts != tt.wantAttempts {
+				t.Errorf("Refresh() attempts = %d, want %d", gotAttempts, tt.wantAttempts)
 			}
 		})
 	}
