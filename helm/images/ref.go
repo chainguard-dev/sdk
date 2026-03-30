@@ -101,22 +101,22 @@ func Resolve(refs map[string]OCIRef, cfg *resolveConfig) WalkFunc {
 					val = ref.Digest
 				case PseudoTag:
 					if ref.Digest == "" && !cfg.omitDigests {
-						// if pinning digests but no digest available, this is an error - we have no value to use for pseudo_tag
+						// if no digest and not omitting digests, we have no value to use for pseudo_tag
 						return nil, fmt.Errorf("cannot resolve ${pseudo_tag} for image %q: no digest available", imageID)
 					}
 					if ref.Tag == "" && cfg.omitDigests {
-						// if no tag and not pinning digests, this is an error - we have no value to use for pseudo_tag
+						// if no tag and omitting digests, we have no value to use for pseudo_tag
 						return nil, fmt.Errorf("cannot resolve ${pseudo_tag} for image %q: no tag available", imageID)
 					}
 					if ref.Tag == "" && ref.Digest == "" {
-						// if no tag and no digest, this is an error - we have no value to use for pseudo_tag
+						// if no tag and no digest, we have no value to use for pseudo_tag
 						return nil, fmt.Errorf("cannot resolve ${pseudo_tag} for image %q: no tag or digest available", imageID)
 					}
 					val = ref.Tag
 					if ref.Tag == "" {
 						val = "unused"
 					}
-					// Append digest if pinning is enabled and digest is available
+					// Append digest if not omitting digests
 					if !cfg.omitDigests {
 						val += "@" + ref.Digest
 					}

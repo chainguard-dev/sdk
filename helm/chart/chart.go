@@ -95,7 +95,7 @@ func readChartFile(chart v1.Image, pathMatcher PathMatcher) ([]byte, error) {
 // ReplaceValues returns a new Helm chart OCI artifact with the top-level
 // values.yaml transformed by applying the given mapping template with the
 // provided image refs.
-func ReplaceValues(chart v1.Image, m *images.Mapping, refs map[string]string) (v1.Image, error) {
+func ReplaceValues(chart v1.Image, m *images.Mapping, refs map[string]string, opts ...images.ResolveOption) (v1.Image, error) {
 	values, err := ReadValues(chart)
 	if err != nil {
 		return nil, fmt.Errorf("reading values: %w", err)
@@ -104,7 +104,7 @@ func ReplaceValues(chart v1.Image, m *images.Mapping, refs map[string]string) (v
 		return nil, fmt.Errorf("chart has no values.yaml")
 	}
 
-	newValues, err := m.Resolve(refs, bytes.NewReader(values))
+	newValues, err := m.Resolve(refs, bytes.NewReader(values), opts...)
 	if err != nil {
 		return nil, fmt.Errorf("resolving values: %w", err)
 	}
