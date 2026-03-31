@@ -1409,8 +1409,26 @@ func (x *DocumentList) GetItems() []*Document {
 
 type VulnerabilityMetadataFilter struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// id is the id of a vuln.
-	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// The exact id of a vuln (eg. CVE-1234).
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// A list of exact ids of vulns to fetch metadata for.
+	// This is restricted to 1000 unique ids per request.
+	Ids []string `protobuf:"bytes,2,rep,name=ids,proto3" json:"ids,omitempty"`
+	// Maximum number of results to return per page.
+	// Default: 50, Maximum: 200.
+	PageSize int32 `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// Page token from a previous List response for pagination.
+	// Opaque token with 3-day expiration.
+	PageToken string `protobuf:"bytes,11,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// Order results by field. Format: "field [asc|desc]"
+	// Default: "id asc"
+	// Note: Changing order_by between pages invalidates the page token.
+	OrderBy string `protobuf:"bytes,12,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
+	// Number of results to skip before returning.
+	// Used for random-access pagination (jumping to arbitrary pages).
+	// Can be combined with page_token to skip from cursor position.
+	// Must be non-negative.
+	Skip          int32 `protobuf:"varint,13,opt,name=skip,proto3" json:"skip,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1452,9 +1470,53 @@ func (x *VulnerabilityMetadataFilter) GetId() string {
 	return ""
 }
 
+func (x *VulnerabilityMetadataFilter) GetIds() []string {
+	if x != nil {
+		return x.Ids
+	}
+	return nil
+}
+
+func (x *VulnerabilityMetadataFilter) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *VulnerabilityMetadataFilter) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+func (x *VulnerabilityMetadataFilter) GetOrderBy() string {
+	if x != nil {
+		return x.OrderBy
+	}
+	return ""
+}
+
+func (x *VulnerabilityMetadataFilter) GetSkip() int32 {
+	if x != nil {
+		return x.Skip
+	}
+	return 0
+}
+
 type VulnerabilityMetadataList struct {
-	state         protoimpl.MessageState   `protogen:"open.v1"`
-	Items         []*VulnerabilityMetadata `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	state protoimpl.MessageState   `protogen:"open.v1"`
+	Items []*VulnerabilityMetadata `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	// Token for retrieving the next page of results.
+	// Empty if no more results.
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	// Total number of results matching the filter.
+	// Optional, provided for UI pagination.
+	TotalCount *int64 `protobuf:"varint,3,opt,name=total_count,json=totalCount,proto3,oneof" json:"total_count,omitempty"`
+	// Number of results that were skipped.
+	// Accumulates across paginated requests.
+	Skipped       int32 `protobuf:"varint,4,opt,name=skipped,proto3" json:"skipped,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1494,6 +1556,27 @@ func (x *VulnerabilityMetadataList) GetItems() []*VulnerabilityMetadata {
 		return x.Items
 	}
 	return nil
+}
+
+func (x *VulnerabilityMetadataList) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
+}
+
+func (x *VulnerabilityMetadataList) GetTotalCount() int64 {
+	if x != nil && x.TotalCount != nil {
+		return *x.TotalCount
+	}
+	return 0
+}
+
+func (x *VulnerabilityMetadataList) GetSkipped() int32 {
+	if x != nil {
+		return x.Skipped
+	}
+	return 0
 }
 
 type ResolvedVulnsReportFilter_ImageRef struct {
@@ -1735,7 +1818,7 @@ var File_advisory_platform_proto protoreflect.FileDescriptor
 
 const file_advisory_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x17advisory.platform.proto\x12\x1cchainguard.platform.advisory\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16annotations/auth.proto\"\x8c\x02\n" +
+	"\x17advisory.platform.proto\x12\x1cchainguard.platform.advisory\x1a\x16annotations/auth.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8c\x02\n" +
 	"\x19ResolvedVulnsReportFilter\x12_\n" +
 	"\n" +
 	"image_refs\x18\x01 \x03(\v2@.chainguard.platform.advisory.ResolvedVulnsReportFilter.ImageRefR\timageRefs\x12.\n" +
@@ -1854,11 +1937,23 @@ const file_advisory_platform_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04cves\x18\x02 \x03(\tR\x04cves\"L\n" +
 	"\fDocumentList\x12<\n" +
-	"\x05items\x18\x01 \x03(\v2&.chainguard.platform.advisory.DocumentR\x05items\"-\n" +
+	"\x05items\x18\x01 \x03(\v2&.chainguard.platform.advisory.DocumentR\x05items\"\xc2\x01\n" +
 	"\x1bVulnerabilityMetadataFilter\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"f\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x10\n" +
+	"\x03ids\x18\x02 \x03(\tR\x03ids\x12!\n" +
+	"\tpage_size\x18\n" +
+	" \x01(\x05B\x04\xe2A\x01\x01R\bpageSize\x12#\n" +
+	"\n" +
+	"page_token\x18\v \x01(\tB\x04\xe2A\x01\x01R\tpageToken\x12\x1f\n" +
+	"\border_by\x18\f \x01(\tB\x04\xe2A\x01\x01R\aorderBy\x12\x18\n" +
+	"\x04skip\x18\r \x01(\x05B\x04\xe2A\x01\x01R\x04skip\"\xde\x01\n" +
 	"\x19VulnerabilityMetadataList\x12I\n" +
-	"\x05items\x18\x01 \x03(\v23.chainguard.platform.advisory.VulnerabilityMetadataR\x05items2\xac\x04\n" +
+	"\x05items\x18\x01 \x03(\v23.chainguard.platform.advisory.VulnerabilityMetadataR\x05items\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12$\n" +
+	"\vtotal_count\x18\x03 \x01(\x03H\x00R\n" +
+	"totalCount\x88\x01\x01\x12\x18\n" +
+	"\askipped\x18\x04 \x01(\x05R\askippedB\x0e\n" +
+	"\f_total_count2\xac\x04\n" +
 	"\x10SecurityAdvisory\x12\x91\x01\n" +
 	"\rListDocuments\x12,.chainguard.platform.advisory.DocumentFilter\x1a*.chainguard.platform.advisory.DocumentList\"&\x82\xd3\xe4\x93\x02\x18\x12\x16/advisory/v1/documents\x8a\xaf\xa8\xd2\x05\x02\n" +
 	"\x00\x12\xb6\x01\n" +
@@ -1972,6 +2067,7 @@ func file_advisory_platform_proto_init() {
 		(*Detection_Manual)(nil),
 		(*Detection_Scanv1)(nil),
 	}
+	file_advisory_platform_proto_msgTypes[20].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

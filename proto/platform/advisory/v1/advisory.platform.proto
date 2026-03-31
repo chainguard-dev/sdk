@@ -1,18 +1,17 @@
 syntax = "proto3";
 
-option go_package = "chainguard.dev/sdk/proto/platform/advisory/v1";
-
 package chainguard.platform.advisory;
 
-import "google/api/annotations.proto";
-import "google/protobuf/timestamp.proto";
 import "annotations/auth.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "chainguard.dev/sdk/proto/platform/advisory/v1";
 
 service SecurityAdvisory {
   rpc ListDocuments(DocumentFilter) returns (DocumentList) {
-    option (google.api.http) = {
-      get: "/advisory/v1/documents"
-    };
+    option (google.api.http) = {get: "/advisory/v1/documents"};
     option (chainguard.annotations.iam) = {
       // This method doesn't require authentication.
       disabled: {}
@@ -20,9 +19,7 @@ service SecurityAdvisory {
   }
 
   rpc ListVulnerabilityMetadata(VulnerabilityMetadataFilter) returns (VulnerabilityMetadataList) {
-    option (google.api.http) = {
-      get: "/advisory/v1/metadata"
-    };
+    option (google.api.http) = {get: "/advisory/v1/metadata"};
     option (chainguard.annotations.iam) = {
       // This method doesn't require authentication.
       disabled: {}
@@ -30,13 +27,16 @@ service SecurityAdvisory {
   }
 
   rpc ListResolvedVulnsReports(ResolvedVulnsReportFilter) returns (ResolvedVulnsReportList) {
-    option (google.api.http) = {
-      get: "/advisory/v1/images/resolved_vulns"
-    };
+    option (google.api.http) = {get: "/advisory/v1/images/resolved_vulns"};
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [CAP_APK_LIST, CAP_REPO_LIST, CAP_MANIFEST_METADATA_LIST, CAP_TAG_LIST]
-        unscoped: true,
+        capabilities: [
+          CAP_APK_LIST,
+          CAP_REPO_LIST,
+          CAP_MANIFEST_METADATA_LIST,
+          CAP_TAG_LIST
+        ]
+        unscoped: true
       }
     };
   }
@@ -152,7 +152,7 @@ message Severity {
     CVSS_V3 = 2;
 
     // CVSS >= 4.0 and < 5.0
-    CVSS_V4	= 3;
+    CVSS_V4 = 3;
 
     UBUNTU = 4;
   }
@@ -287,10 +287,45 @@ message DocumentList {
 }
 
 message VulnerabilityMetadataFilter {
-  // id is the id of a vuln.
+  // The exact id of a vuln (eg. CVE-1234).
   string id = 1;
+
+  // A list of exact ids of vulns to fetch metadata for.
+  // This is restricted to 1000 unique ids per request.
+  repeated string ids = 2;
+
+  // Maximum number of results to return per page.
+  // Default: 50, Maximum: 200.
+  int32 page_size = 10 [(google.api.field_behavior) = OPTIONAL];
+
+  // Page token from a previous List response for pagination.
+  // Opaque token with 3-day expiration.
+  string page_token = 11 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order results by field. Format: "field [asc|desc]"
+  // Default: "id asc"
+  // Note: Changing order_by between pages invalidates the page token.
+  string order_by = 12 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of results to skip before returning.
+  // Used for random-access pagination (jumping to arbitrary pages).
+  // Can be combined with page_token to skip from cursor position.
+  // Must be non-negative.
+  int32 skip = 13 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message VulnerabilityMetadataList {
   repeated VulnerabilityMetadata items = 1;
+
+  // Token for retrieving the next page of results.
+  // Empty if no more results.
+  string next_page_token = 2;
+
+  // Total number of results matching the filter.
+  // Optional, provided for UI pagination.
+  optional int64 total_count = 3;
+
+  // Number of results that were skipped.
+  // Accumulates across paginated requests.
+  int32 skipped = 4;
 }
