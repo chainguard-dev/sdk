@@ -133,6 +133,14 @@ message Policy {
   // Custom policies may be created and modified by users with the relevant IAM permissions.
   PolicyType policy_type = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 
+  // The resource types this policy supports.
+  // Each value is a Chainguard API resource type with a version suffix
+  // (e.g. "registry.chainguard.dev/Repo@v1"). The version determines
+  // which PolicyInput schema is used when evaluating the policy expression.
+  // Supported resource types:
+  //   - registry.chainguard.dev/Repo@v1
+  repeated string supported_resource_types = 5;
+
   // The policy expression.
   string expression = 6;
 
@@ -211,6 +219,13 @@ message Binding {
 
   // PolicyMode defines how the policy is enforced.
   PolicyMode mode = 3;
+
+  // The resource types this binding applies to.
+  // Each value is a Chainguard API resource type
+  // (e.g. "registry.chainguard.dev/Repo").
+  // Supported resource types:
+  //   - registry.chainguard.dev/Repo
+  repeated string resource_types = 4;
 }
 
 message BindingList {

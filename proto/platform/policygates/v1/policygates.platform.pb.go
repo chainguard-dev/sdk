@@ -145,6 +145,13 @@ type Policy struct {
 	// System policies are created automatically by the system and may not be modified.
 	// Custom policies may be created and modified by users with the relevant IAM permissions.
 	PolicyType PolicyType `protobuf:"varint,4,opt,name=policy_type,json=policyType,proto3,enum=chainguard.platform.policygates.v1.PolicyType" json:"policy_type,omitempty"`
+	// The resource types this policy supports.
+	// Each value is a Chainguard API resource type with a version suffix
+	// (e.g. "registry.chainguard.dev/Repo@v1"). The version determines
+	// which PolicyInput schema is used when evaluating the policy expression.
+	// Supported resource types:
+	//   - registry.chainguard.dev/Repo@v1
+	SupportedResourceTypes []string `protobuf:"bytes,5,rep,name=supported_resource_types,json=supportedResourceTypes,proto3" json:"supported_resource_types,omitempty"`
 	// The policy expression.
 	Expression string `protobuf:"bytes,6,opt,name=expression,proto3" json:"expression,omitempty"`
 	// When the policy was created.
@@ -211,6 +218,13 @@ func (x *Policy) GetPolicyType() PolicyType {
 		return x.PolicyType
 	}
 	return PolicyType_POLICY_TYPE_UNSPECIFIED
+}
+
+func (x *Policy) GetSupportedResourceTypes() []string {
+	if x != nil {
+		return x.SupportedResourceTypes
+	}
+	return nil
 }
 
 func (x *Policy) GetExpression() string {
@@ -514,7 +528,13 @@ type Binding struct {
 	// The policy to apply
 	Policy string `protobuf:"bytes,2,opt,name=policy,proto3" json:"policy,omitempty"`
 	// PolicyMode defines how the policy is enforced.
-	Mode          PolicyMode `protobuf:"varint,3,opt,name=mode,proto3,enum=chainguard.platform.policygates.v1.PolicyMode" json:"mode,omitempty"`
+	Mode PolicyMode `protobuf:"varint,3,opt,name=mode,proto3,enum=chainguard.platform.policygates.v1.PolicyMode" json:"mode,omitempty"`
+	// The resource types this binding applies to.
+	// Each value is a Chainguard API resource type
+	// (e.g. "registry.chainguard.dev/Repo").
+	// Supported resource types:
+	//   - registry.chainguard.dev/Repo
+	ResourceTypes []string `protobuf:"bytes,4,rep,name=resource_types,json=resourceTypes,proto3" json:"resource_types,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -568,6 +588,13 @@ func (x *Binding) GetMode() PolicyMode {
 		return x.Mode
 	}
 	return PolicyMode_POLICY_MODE_UNSPECIFIED
+}
+
+func (x *Binding) GetResourceTypes() []string {
+	if x != nil {
+		return x.ResourceTypes
+	}
+	return nil
 }
 
 type BindingList struct {
@@ -831,13 +858,14 @@ var File_policygates_platform_proto protoreflect.FileDescriptor
 
 const file_policygates_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x1apolicygates.platform.proto\x12\"chainguard.platform.policygates.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16annotations/auth.proto\x1a&platform/common/v1/uidp.platform.proto\"\xcf\x02\n" +
+	"\x1apolicygates.platform.proto\x12\"chainguard.platform.policygates.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16annotations/auth.proto\x1a&platform/common/v1/uidp.platform.proto\"\x89\x03\n" +
 	"\x06Policy\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12U\n" +
 	"\vpolicy_type\x18\x04 \x01(\x0e2..chainguard.platform.policygates.v1.PolicyTypeB\x04\xe2A\x01\x03R\n" +
-	"policyType\x12\x1e\n" +
+	"policyType\x128\n" +
+	"\x18supported_resource_types\x18\x05 \x03(\tR\x16supportedResourceTypes\x12\x1e\n" +
 	"\n" +
 	"expression\x18\x06 \x01(\tR\n" +
 	"expression\x12?\n" +
@@ -864,11 +892,12 @@ const file_policygates_platform_proto_rawDesc = "" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12B\n" +
 	"\x06policy\x18\x02 \x01(\v2*.chainguard.platform.policygates.v1.PolicyR\x06policy\"-\n" +
 	"\x13DeletePolicyRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"}\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"\xa4\x01\n" +
 	"\aBinding\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x16\n" +
 	"\x06policy\x18\x02 \x01(\tR\x06policy\x12B\n" +
-	"\x04mode\x18\x03 \x01(\x0e2..chainguard.platform.policygates.v1.PolicyModeR\x04mode\"\xb3\x01\n" +
+	"\x04mode\x18\x03 \x01(\x0e2..chainguard.platform.policygates.v1.PolicyModeR\x04mode\x12%\n" +
+	"\x0eresource_types\x18\x04 \x03(\tR\rresourceTypes\"\xb3\x01\n" +
 	"\vBindingList\x12A\n" +
 	"\x05items\x18\x01 \x03(\v2+.chainguard.platform.policygates.v1.BindingR\x05items\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
