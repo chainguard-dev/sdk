@@ -180,6 +180,9 @@ message PolicyFilter {
   // Can be combined with page_token to skip from cursor position.
   // Must be non-negative.
   int32 skip = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // name is the exact name of the policy to filter by.
+  string name = 6;
 }
 
 message CreatePolicyRequest {
