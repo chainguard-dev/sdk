@@ -8,19 +8,25 @@ our services and packages to ease integration with the Chainguard platform.
 After updating a `*.proto` you'll need to update the corresponding generated go
 code.
 
+### Using Docker (recommended)
+
+Run codegen in an ephemeral container with all dependencies pre-installed:
+
+```shell
+./hack/update-codegen-docker.sh
+```
+
+This requires Docker but no local installation of `protoc` or its plugins.
+
+### Running locally
+
 ```shell
 ./hack/update-codegen.sh
 ```
 
-### Prerequisites
+#### Prerequisites
 
 Install `protoc` [v34.0](https://github.com/protocolbuffers/protobuf/releases/tag/v34.0): https://grpc.io/docs/protoc-installation/
-
-Example for MacOS:
-
-```shell
-brew install protobuf
-```
 
 We currently require `protoc` v34.0.
 
