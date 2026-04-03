@@ -121,6 +121,7 @@ enum Capability {
   CAP_TAG_DELETE = 1614 [(name) = "tag.delete", (bit) = 67];
 
   CAP_MANIFEST_METADATA_LIST = 1615 [(name) = "manifest.metadata.list", (bit) = 72];
+  CAP_REFERRERS_LIST         = 1616 [(name) = "referrers.list",         (bit) = 124];
 
   // apk.blobs.get is a capability required to pull APKs.
   // We explicitly define this to distinguish roles that allow browsing/viewing
@@ -215,5 +216,5 @@ enum Capability {
   CAP_GULFSTREAM = 10000 [(name) = "gulfstream", (bit) = 47];
 
   reserved 1;
-  // next bit: 124
+  // next bit: 125
 }

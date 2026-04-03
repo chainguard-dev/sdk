@@ -26,6 +26,7 @@ var (
 
 		Capability_CAP_REPO_LIST,
 		Capability_CAP_MANIFEST_LIST,
+		Capability_CAP_REFERRERS_LIST,
 		Capability_CAP_TAG_LIST,
 		Capability_CAP_MANIFEST_METADATA_LIST,
 		Capability_CAP_APK_LIST,
@@ -129,6 +130,7 @@ var (
 
 		Capability_CAP_REPO_LIST,
 		Capability_CAP_MANIFEST_LIST,
+		Capability_CAP_REFERRERS_LIST,
 		Capability_CAP_TAG_LIST,
 		Capability_CAP_MANIFEST_METADATA_LIST,
 
