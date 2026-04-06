@@ -79,6 +79,8 @@ message Entitlement {
   Ecosystem ecosystem = 2;
   // policy is the libraries policy for this entitlement.
   Policy policy = 3;
+  // source indicates how this entitlement was provisioned.
+  Source source = 4;
 }
 
 message EntitlementList {
@@ -100,6 +102,13 @@ enum Policy {
   POLICY_CHAINGUARD_AND_UPSTREAM = 2; // internal + upstream (with cooldown)
 }
 
+// Source indicates how an entitlement was created.
+enum Source {
+  SOURCE_UNKNOWN = 0; // default; treat as SOURCE_TRIAL for backwards compatibility
+  SOURCE_TRIAL = 1;   // self-service trial entitlement
+  SOURCE_SFDC = 2;    // created or managed via Salesforce
+}
+
 message CreateEntitlementRequest {
   // parent_id is the group to create the entitlement for.
   string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
@@ -107,6 +116,8 @@ message CreateEntitlementRequest {
   Ecosystem ecosystem = 2;
   // policy is the libraries policy for this entitlement.
   Policy policy = 3;
+  // source indicates how this entitlement is being provisioned.
+  Source source = 4;
 }
 
 message EntitlementFilter {
