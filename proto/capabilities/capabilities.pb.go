@@ -184,6 +184,9 @@ const (
 	Capability_CAP_POLICY_GATES_BINDING_LIST   Capability = 2013
 	Capability_CAP_POLICY_GATES_BINDING_DELETE Capability = 2014
 	Capability_CAP_PACKAGES_ENTITLEMENTS_LIST  Capability = 2100
+	// Terms
+	Capability_CAP_TERMS_ACCEPT Capability = 2201
+	Capability_CAP_TERMS_LIST   Capability = 2202
 	// This is orthogonal enough that we should leave
 	// it somewhat separate, so add new capabilities above.
 	// TODO(mattmoor): Think about whether we can encode specific
@@ -318,6 +321,8 @@ var (
 		2013:  "CAP_POLICY_GATES_BINDING_LIST",
 		2014:  "CAP_POLICY_GATES_BINDING_DELETE",
 		2100:  "CAP_PACKAGES_ENTITLEMENTS_LIST",
+		2201:  "CAP_TERMS_ACCEPT",
+		2202:  "CAP_TERMS_LIST",
 		10000: "CAP_GULFSTREAM",
 	}
 	Capability_value = map[string]int32{
@@ -443,6 +448,8 @@ var (
 		"CAP_POLICY_GATES_BINDING_LIST":                 2013,
 		"CAP_POLICY_GATES_BINDING_DELETE":               2014,
 		"CAP_PACKAGES_ENTITLEMENTS_LIST":                2100,
+		"CAP_TERMS_ACCEPT":                              2201,
+		"CAP_TERMS_LIST":                                2202,
 		"CAP_GULFSTREAM":                                10000,
 	}
 )
@@ -511,7 +518,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xdc=\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xb8>\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -650,7 +657,10 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x1fCAP_POLICY_GATES_BINDING_UPDATE\x10\xdc\x0f\x1a'\xa8ˑMv\x9a\xaf\xa8\xd2\x05\x1cpolicy_gates.bindings.update\x12I\n" +
 	"\x1dCAP_POLICY_GATES_BINDING_LIST\x10\xdd\x0f\x1a%\xa8ˑMw\x9a\xaf\xa8\xd2\x05\x1apolicy_gates.bindings.list\x12M\n" +
 	"\x1fCAP_POLICY_GATES_BINDING_DELETE\x10\xde\x0f\x1a'\xa8ˑMx\x9a\xaf\xa8\xd2\x05\x1cpolicy_gates.bindings.delete\x12J\n" +
-	"\x1eCAP_PACKAGES_ENTITLEMENTS_LIST\x10\xb4\x10\x1a%\xa8ˑM{\x9a\xaf\xa8\xd2\x05\x1apackages.entitlements.list\x12*\n" +
+	"\x1eCAP_PACKAGES_ENTITLEMENTS_LIST\x10\xb4\x10\x1a%\xa8ˑM{\x9a\xaf\xa8\xd2\x05\x1apackages.entitlements.list\x12.\n" +
+	"\x10CAP_TERMS_ACCEPT\x10\x99\x11\x1a\x17\xa8ˑM}\x9a\xaf\xa8\xd2\x05\fterms.accept\x12*\n" +
+	"\x0eCAP_TERMS_LIST\x10\x9a\x11\x1a\x15\xa8ˑM~\x9a\xaf\xa8\xd2\x05\n" +
+	"terms.list\x12*\n" +
 	"\x0eCAP_GULFSTREAM\x10\x90N\x1a\x15\xa8ˑM/\x9a\xaf\xa8\xd2\x05\n" +
 	"gulfstream\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +

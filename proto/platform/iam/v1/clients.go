@@ -30,6 +30,8 @@ type Clients interface {
 
 	AccountAssociations() GroupAccountAssociationsClient
 
+	Terms() TermsClient
+
 	Subscriptions() events.SubscriptionsClient
 
 	Close() error
@@ -66,6 +68,8 @@ func NewClients(ctx context.Context, iamURL string, token string) (Clients, erro
 
 		accountAssociations: NewGroupAccountAssociationsClient(conn),
 
+		terms: NewTermsClient(conn),
+
 		subscription: events.NewSubscriptionsClient(conn),
 
 		conn: conn,
@@ -84,6 +88,8 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 
 		accountAssociations: NewGroupAccountAssociationsClient(conn),
 
+		terms: NewTermsClient(conn),
+
 		subscription: events.NewSubscriptionsClient(conn),
 
 		// conn is not set, this client struct does not own closing it.
@@ -100,6 +106,8 @@ type clients struct {
 	identityProviders    IdentityProvidersClient
 
 	accountAssociations GroupAccountAssociationsClient
+
+	terms TermsClient
 
 	subscription events.SubscriptionsClient
 
@@ -136,6 +144,10 @@ func (c *clients) IdentityProviders() IdentityProvidersClient {
 
 func (c *clients) AccountAssociations() GroupAccountAssociationsClient {
 	return c.accountAssociations
+}
+
+func (c *clients) Terms() TermsClient {
+	return c.terms
 }
 
 func (c *clients) Subscriptions() events.SubscriptionsClient {

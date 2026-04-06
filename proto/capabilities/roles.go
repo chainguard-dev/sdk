@@ -109,6 +109,9 @@ var (
 		Capability_CAP_POLICY_GATES_BINDING_CREATE,
 		Capability_CAP_POLICY_GATES_BINDING_UPDATE,
 		Capability_CAP_POLICY_GATES_BINDING_DELETE,
+
+		Capability_CAP_TERMS_ACCEPT,
+		Capability_CAP_TERMS_LIST,
 	}, EditorCaps,
 		// Owners can also push and delete OCI, APK Java, JavaScript, and Python artifacts, subject to the identity allowlist.
 		RegistryPushCaps, APKPushCaps, LibrariesJavaPushCaps, LibrariesJavascriptPushCaps, LibrariesPythonPushCaps,
