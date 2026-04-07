@@ -95,9 +95,8 @@ message AccountAssociations {
   // google holds information associating a Google project with the group.
   Google google = 3;
 
-  // github holds information associating a GitHub installation with the group.
-  // Note: this AccountAssociation type is EXPERIMENTAL.
-  GitHubInstallation github = 6;
+  // github is reserved (field 6); the new field below uses the same name.
+  reserved 6;
 
   Chainguard chainguard = 7;
 
@@ -109,6 +108,9 @@ message AccountAssociations {
   // a short description of this association.
   string description = 5;
 
+  // github holds GitHub App installation associations for this group.
+  GitHub github = 9;
+
   message Amazon {
       string account = 1;
   }
@@ -118,18 +120,26 @@ message AccountAssociations {
     string project_number = 2;
   }
 
+  // GitHub holds GitHub App installation associations for a group.
+  message GitHub {
+    // app_installations maps app_id to the set of installations
+    // for that app associated with this group.
+    map<int64, GitHubAppInstallations> app_installations = 2;
+  }
+
+  // GitHubAppInstallations holds the installations for a single GitHub App.
+  message GitHubAppInstallations {
+    repeated GitHubInstallation installations = 1;
+  }
+
+  // GitHubInstallation is a single GitHub App installation.
   message GitHubInstallation {
-    // GitHub hostname app is associated with. Output only.
-    string host = 1;
+    // installation_id is the GitHub App installation ID.
+    int64 installation_id = 1;
 
-    // GitHub App ID. Output only.
-    int64 app_id = 2;
-
-    // GitHub App Installation ID. Takes precedence over name.
-    int64 installation_id = 3;
-
-    // GitHub user/org name the installation is installed on.
-    string name = 4;
+    // name is the GitHub user/org name this installation belongs to.
+    // Non-authoritative: stored for convenience only.
+    string name = 2;
   }
 
   message Chainguard {
@@ -158,7 +168,7 @@ message AccountAssociations {
     map<string, string> client_ids = 2;
   }
 
-  // next id: 9
+  // next id: 10
 }
 
 message AccountAssociationsList {

@@ -1,0 +1,451 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.vulnerabilities.v2beta1;
+
+import "annotations/auth.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/timestamp.proto";
+import "platform/common/v1/uidp.platform.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/vulnerabilities/v2beta1";
+option java_multiple_files = true;
+option java_outer_classname = "AdvisoriesProto";
+option java_package = "com.chainguard.platform.vulnerabilities.v2beta1";
+
+// AdvisoriesService manages security advisories.
+service AdvisoriesService {
+  // GetAdvisory retrieves a single advisory by UID.
+  rpc GetAdvisory(GetAdvisoryRequest) returns (Advisory) {
+    option (google.api.http) = {get: "/vulnerabilities/v2beta1/advisories/{uid=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ADVISORIES_LIST]
+      }
+    };
+  }
+
+  // ListAdvisories returns advisories based on filter criteria with pagination support.
+  rpc ListAdvisories(ListAdvisoriesRequest) returns (ListAdvisoriesResponse) {
+    option (google.api.http) = {get: "/vulnerabilities/v2beta1/advisories"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ADVISORIES_LIST]
+        unscoped: true
+      }
+    };
+  }
+}
+
+// Advisory is a security advisory the defines the relationship between a vulnerability and artifact.
+// (-- api-linter: core::0122::name-suffix=disabled
+//     aip.dev/not-precedent: name suffix for artifact_ and component_ fields adds clarity
+//     and distinguishes between the three related fields. --)
+message Advisory {
+  option (google.api.resource) = {
+    type: "vulnerabilities.chainguard.dev/Advisory"
+    pattern: "advisories/{advisory}"
+    singular: "advisory"
+    plural: "advisories"
+  };
+
+  // The unique identifier (UIDP) for the Advisory.
+  string uid = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // advisory_id is the CGA identifier for the advisory
+  string advisory_id = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // When the advisory was created.
+  google.protobuf.Timestamp create_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // When the advisory was last updated
+  google.protobuf.Timestamp update_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // When the advisory was deleted (if applicable).
+  optional google.protobuf.Timestamp delete_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The person or service account that created this advisory.
+  string author = 6 [(google.api.field_behavior) = REQUIRED];
+
+  // The artifact name (e.g., wheel, jar name)
+  string artifact_name = 7 [(google.api.field_behavior) = REQUIRED];
+  // The artifact type (e.g., apk, image, library)
+  string artifact_type = 8 [(google.api.field_behavior) = REQUIRED];
+  // The architecture of the artifact
+  string artifact_architecture = 9 [(google.api.field_behavior) = REQUIRED];
+
+  // The name of the component within the subpackage where the vulnerability was matched.
+  string component_name = 10 [(google.api.field_behavior) = REQUIRED];
+  // The filesystem location of the component
+  string component_location = 11 [(google.api.field_behavior) = REQUIRED];
+  // The language ecosystem (go-module, python, etc).
+  string component_type = 12 [(google.api.field_behavior) = REQUIRED];
+
+  // Other vulnerability identifiers this advisory applies to (CVE, GHSA, etc).
+  repeated string aliases = 13 [(google.api.field_behavior) = OPTIONAL];
+
+  // Advisory events associated with this advisory (detected, fixed, etc).
+  // (-- api-linter: core::0122::embedded-resource=disabled
+  //     aip.dev/not-precedent: Advisory events are tightly coupled to advisories, and permissions are not
+  //     handled separately for advisories vs advisory events. --)
+  repeated AdvisoryEvent events = 14 [(google.api.field_behavior) = OPTIONAL];
+
+  // The advisory ID from the GitHub advisories repositories, if this advisory was migrated.
+  optional string legacy_advisory_id = 15 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// AdvisoryEvent represents a change in state during the lifecycle of an advisory.
+message AdvisoryEvent {
+  option (google.api.resource) = {
+    type: "vulnerabilities.chainguard.dev/AdvisoryEvent"
+    pattern: "advisories/{advisory}/events/{event}"
+    singular: "advisoryEvent"
+    plural: "advisoryEvents"
+  };
+
+  // The unique identity (UIDP) of this event, a child of the advisory UIDP it belongs to.
+  string uid = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // The creation time of the event.
+  google.protobuf.Timestamp create_time = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The JSON-encoded struct containing vulnerability findings from a scanner.
+  bytes findings = 3;
+  // The person or service account who created this event.
+  string author = 4 [(google.api.field_behavior) = REQUIRED];
+  // The person who reviewed this event.
+  string reviewer = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // The state of review for the event.
+  // (-- api-linter: core::0216::state-field-output-only=disabled
+  //     aip.dev/not-precedent: Advisory event review state is set by the caller in response to their review.
+  //     This field is designed to mimic a code review state. --)
+  ReviewState review_state = 6 [(google.api.field_behavior) = REQUIRED];
+  // The original CVE Dashboard issue
+  optional string issue = 7 [(google.api.field_behavior) = OPTIONAL];
+
+  // Event specific data depending on the type of advisory event this is.
+  oneof type {
+    // Vulnerability detected by a scanner.
+    Detection detection = 10;
+    // The version at which a vulnerability is fixed.
+    Fixed fixed = 11;
+    // The vulnerability is determined not to affect the artifact.
+    FalsePositiveDetermination false_positive_determination = 12;
+    // Analysis of the vulnerability is not planned.
+    AnalysisNotPlanned analysis_not_planned = 13;
+    // No fix is planned for this vulnerability.
+    FixNotPlanned fix_not_planned = 14;
+    // A fix is pending on the upstream repository.
+    PendingUpstreamFix pending_upstream_fix = 15;
+    // The vulnerability has been determined to actively affect the artifact.
+    TruePositiveDetermination true_positive_determination = 16;
+    // A patch has been applied to the given versions to address the vulnerability.
+    Patched patched = 17;
+  }
+
+  // Detection and acknowledgement of a vulnerability via scanner, NVD API, or manually.
+  message Detection {
+    // Required, identifies the detection type and supplemental data.
+    oneof type {
+      // The vulnerability was detected via the NVD API.
+      NVDAPI nvdapi = 1;
+      // The vulnerability was detected manually.
+      Manual manual = 2;
+      // The vulnerability was detected by a scanner.
+      ScanV1 scanv1 = 3;
+    }
+
+    // The vulnerability as detected via the NVD API.
+    message NVDAPI {
+      // The name or keyword used to determine the vulnerability match.
+      string cpe_searched = 1;
+      // CPE found that matches the artifact this vulnerability affects.
+      string cpe_found = 2;
+    }
+
+    // The vulnerability was detected manually.
+    message Manual {}
+
+    // The vulnerability was detected by a scanner, with the given match data.
+    message ScanV1 {
+      // The scanner that detected the vulnerability.
+      string scanner = 1;
+      // The subpackage the vulnerability was detected in. Matches the artifact name of the advisory.
+      string subpackage = 2;
+      // A scanner determined ID for the component the vulnerability was detected in.
+      string component_id = 3;
+      // The name of the component within the subpackage the vulnerability was detected din.
+      string component = 4;
+      // The version of the matched component.
+      string component_version = 5;
+      // The type of the matched component.
+      string component_type = 6;
+      // The location within the subpackage of the matched component.
+      string component_location = 7;
+    }
+  }
+
+  // The vulnerability has been fixed at the given version.
+  message Fixed {
+    // The first version of the artifact in which the vulnerability is considered fixed.
+    string fixed_version = 1;
+    // Additional textual comments about the fix.
+    string note = 2;
+  }
+
+  // The vulnerability has been determined to affect the matched artifact.
+  message TruePositiveDetermination {
+    // Textual comments about why this vulnerability was determined to be a true positive.
+    string note = 1;
+  }
+
+  // The vulnerability has been determined to not affect the matched artifact,
+  // with reason and additional justification.
+  message FalsePositiveDetermination {
+    // The type of false positive this vulnerability was determined to be.
+    enum Type {
+      // The unset false positive type. This value is typically not valid for interactions
+      // with the API.
+      TYPE_UNSPECIFIED = 0;
+      // Indicates that the distro maintainers view the vulnerability record itself
+      // to be describing a behavior that is not a security concern or that
+      // misattributes security fault to the software in the distro package.
+      //
+      // VEX compatibility note: this type should be mapped to the
+      // "vulnerable_code_not_present" justification.
+      TYPE_VULNERABILITY_RECORD_ANALYSIS_CONTESTED = 1;
+      // Indicates that the component referred to by the vulnerability record is not
+      // the component found in the distribution package. (For example, perhaps a
+      // vulnerability scanner found a vulnerability for a package with the same name,
+      // but for a different language ecosystem.)
+      //
+      // VEX compatibility note: this type should be mapped to the
+      // "component_not_present" justification.
+      TYPE_COMPONENT_VULNERABILITY_MISMATCH = 2;
+      // Indicates that the vulnerability was correctly matched to the component, except
+      // that the version(s) of the component referred to by the vulnerability record have
+      // never been present in a release of the distribution package.
+      //
+      // VEX compatibility note: this type should be mapped to the
+      // "vulnerable_code_not_present" justification.
+      TYPE_VULNERABLE_CODE_VERSION_NOT_USED = 3;
+      // Indicates that the vulnerable code (e.g. a particular function) may have been
+      // available for use or retrieved during the package build process but ultimately
+      // was not included in the distro package.
+      //
+      // VEX compatibility note: this type should be mapped to the
+      // "vulnerable_code_not_present" justification.
+      TYPE_VULNERABLE_CODE_NOT_INCLUDED_IN_PACKAGE = 4;
+      // Indicates that the vulnerable code (e.g. a particular function) is present in
+      // the package, but it is impossible for this code to be executed in the package.
+      //
+      // VEX compatibility note: this type should be mapped to the
+      // "vulnerable_code_not_in_execute_path" justification.
+      TYPE_VULNERABLE_CODE_NOT_IN_EXECUTION_PATH = 5;
+      // Indicates that the vulnerable code is present and able to be executed, but
+      // not in a way that can be exploited by an adversary.
+      //
+      // VEX compatibility note: this type should be mapped to the
+      // "vulnerable_code_cannot_be_controlled_by_adversary" justification.
+      TYPE_VULNERABLE_CODE_CANNOT_BE_CONTROLLED_BY_ADVERSARY = 6;
+      // Indicates that the vulnerable code is present and able to be exploited by an
+      // adversary, but that the vulnerability is mitigated by other code in the package.
+      //
+      // VEX compatibility note: this type should be mapped to the
+      // "inline_mitigations_already_exist" justification.
+      TYPE_INLINE_MITIGATIONS_EXIST = 7;
+    }
+    // The type of false positive this vulnerability was determined to be.
+    Type type = 1;
+    // Additional textual comments about why this vulnerability was determined to be a false positive.
+    string note = 2;
+  }
+
+  // No analysis of the vulnerability is planned for the matched artifact.
+  message AnalysisNotPlanned {
+    // Textual comments about why analysis is not planned for the vulnerability.
+    string note = 1;
+  }
+
+  // A fix is not planned for the vulnerability in the matched artifact.
+  message FixNotPlanned {
+    // Textual comments about why a fix is not planned for the vulnerability.
+    string note = 1;
+  }
+
+  // A fix is pending on the upstream repository.
+  message PendingUpstreamFix {
+    // Textual comments about the upstream fix.
+    string note = 1;
+  }
+
+  // The vulnerability has been patched at the given versions of the artifact.
+  message Patched {
+    // The versions of the artifact that were patched to address the vulnerability.
+    repeated string patched_versions = 1;
+    // Textual comments about the patch applied to fix the vulnerability.
+    string note = 2;
+  }
+}
+
+// GetAdvisoryRequest is the request message for GetAdvisory.
+message GetAdvisoryRequest {
+  // UID of the advisory to retrieve.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// ListAdvisoriesRequest provides options to filter the results of ListAdvisories.
+message ListAdvisoriesRequest {
+  // Filters records based on their position in the group hierarchy.
+  chainguard.platform.common.UIDPFilter uidp = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // Exact advisory IDs (e.g., CGA-xvgw-cvr7-9g2q) to list.
+  repeated string advisory_ids = 2 [(google.api.field_behavior) = OPTIONAL];
+  // Exact advisory IDs (e.g., CGA-abcd-efgh-ijkl) as migrated from GitHub advisory repositories.
+  repeated string legacy_advisory_ids = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // List advisories for exact artifact names.
+  repeated string artifact_names = 4 [(google.api.field_behavior) = OPTIONAL];
+  // Restrict results to the given artifact type.
+  repeated string artifact_types = 5 [(google.api.field_behavior) = OPTIONAL];
+  // Restrict results to artifacts of the given architectures (e.g., x86_64, aarch64)
+  repeated string artifact_architectures = 6 [(google.api.field_behavior) = OPTIONAL];
+
+  // List advisories for exact component names.
+  repeated string component_names = 7 [(google.api.field_behavior) = OPTIONAL];
+  // Restrict results to the given component type.
+  repeated string component_types = 8 [(google.api.field_behavior) = OPTIONAL];
+  // List advisories with components found in the given locations (IE ./PKGINFO)
+  repeated string component_locations = 9 [(google.api.field_behavior) = OPTIONAL];
+
+  // List advisories that match the list of vulnerability aliases (CVE, GHSA, etc.).
+  repeated string aliases = 10 [(google.api.field_behavior) = OPTIONAL];
+  // origin filters by origin package. Returns all advisories for packages
+  // (including subpackages) that have this origin. For origin packages, origin equals package_name.
+  // When specified, artifact_name filter is ignored as subpackage names are resolved server-side.
+  optional string origin = 11 [(google.api.field_behavior) = OPTIONAL];
+
+  // (-- Event-level filters - only return advisories that have events matching these criteria
+  // These filters enable server-side filtering of advisories based on their event properties,
+  // reducing the amount of data transferred and improving query performance. --)
+
+  // List advisories that match the list of event review states (e.g., PENDING, REQUEST_CHANGES).
+  // When specified, only advisories containing at least one event with any of the provided
+  // statuses will be returned. This is useful for review workflows where users need to see
+  // only events requiring action.
+  // (-- api-linter: core::0216::state-field-output-only=disabled
+  //     aip.dev/not-precedent: Event review states are provided by the caller to filter
+  //     the response to list advisories. --)
+  repeated ReviewState event_review_states = 21 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filters by event author email
+  // When specified, only advisories containing at least one event created by the specified
+  // author will be returned. This enables users to find their own events or events from
+  // specific team members.
+  repeated string event_authors = 22 [(google.api.field_behavior) = OPTIONAL];
+
+  // exclude_event_author filters out advisories where any event was created by the specified author
+  // When specified, advisories containing events by this author will be excluded from results.
+  // This is useful for review workflows where users want to see all pending events except their own,
+  // enabling them to review others' work without seeing their own submissions.
+  repeated string exclude_event_authors = 23 [(google.api.field_behavior) = OPTIONAL];
+
+  // event_reviewer filters by event reviewer email
+  // When specified, only advisories containing at least one event reviewed by the specified
+  // author will be returned. This enables users to find their own events or events from
+  // specific team members.
+  repeated string event_reviewers = 24 [(google.api.field_behavior) = OPTIONAL];
+
+  // event_types filters by event type
+  // When specified, only advisories containing at least one event of any of the provided
+  // types will be returned.
+  repeated EventTypeFilter event_types = 25 [(google.api.field_behavior) = OPTIONAL];
+
+  // latest_event_type filters out advisories where the _most recent approved event_ is
+  // of the given type. This is useful to find advisories which are currently detected,
+  // fixed, patched, etc.
+  optional EventTypeFilter latest_event_type = 26 [(google.api.field_behavior) = OPTIONAL];
+
+  // Maximum number of results to return per page.
+  // Default: 50, Maximum: 200.
+  int32 page_size = 30 [(google.api.field_behavior) = OPTIONAL];
+
+  // Page token from a previous List response for pagination.
+  // Opaque token with 3-day expiration.
+  string page_token = 31 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order results by field. Format: "field [asc|desc]"
+  // Default: "uid asc"
+  // Note: Changing order_by between pages invalidates the page token.
+  string order_by = 32 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of results to skip before returning.
+  // Used for random-access pagination (jumping to arbitrary pages).
+  // Can be combined with page_token to skip from cursor position.
+  // Must be non-negative.
+  int32 skip = 34 [(google.api.field_behavior) = OPTIONAL];
+
+  // Free-text search query. Performs case-insensitive substring matching across
+  // artifact_name, component_name, and aliases. Results match if any of these
+  // fields contain the query string. Can be combined with other filters.
+  string query = 35 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListAdvisoriesResponse is the response to ListAdvisories.
+message ListAdvisoriesResponse {
+  // Advisories matching the filter criteria.
+  repeated Advisory advisories = 1;
+
+  // Token for retrieving the next page of results.
+  // Empty if no more results.
+  string next_page_token = 2;
+
+  // Total number of advisories matching the filter.
+  // Optional, provided for UI pagination.
+  optional int64 total_count = 3;
+
+  // Number of results that were skipped.
+  // Accumulates across paginated requests.
+  int32 skipped = 4;
+}
+
+// ReviewState represents the possible states of review for an advisory event
+enum ReviewState {
+  // Unknown/unspecified review status. This is not a valid status for an event.
+  REVIEW_STATE_UNSPECIFIED = 0;
+  // The event is pending review.
+  REVIEW_STATE_PENDING = 1;
+  // The event has been approved. This is a terminal state.
+  REVIEW_STATE_APPROVED = 2;
+  // Changes have been requested by a reviewer.
+  REVIEW_STATE_REQUEST_CHANGES = 3;
+  // The event has been rejected. This is a terminal state.
+  REVIEW_STATE_REJECTED = 4;
+}
+
+// EventTypeFilter represents the event types that can be used for filtering
+// These map to the event type values used in the system
+enum EventTypeFilter {
+  // Default/unspecified
+  EVENT_TYPE_FILTER_UNSPECIFIED = 0;
+  // Detection event
+  EVENT_TYPE_FILTER_DETECTION = 1;
+  // True positive determination
+  EVENT_TYPE_FILTER_TRUE_POSITIVE_DETERMINATION = 2;
+  // Fixed event
+  EVENT_TYPE_FILTER_FIXED = 3;
+  // False positive determination
+  EVENT_TYPE_FILTER_FALSE_POSITIVE_DETERMINATION = 4;
+  // Analysis not planned
+  EVENT_TYPE_FILTER_ANALYSIS_NOT_PLANNED = 5;
+  // Fix not planned
+  EVENT_TYPE_FILTER_FIX_NOT_PLANNED = 6;
+  // Pending upstream fix
+  EVENT_TYPE_FILTER_PENDING_UPSTREAM_FIX = 7;
+  // Patched event
+  EVENT_TYPE_FILTER_PATCHED = 8;
+}

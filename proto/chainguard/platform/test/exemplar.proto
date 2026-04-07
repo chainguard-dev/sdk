@@ -1,0 +1,35 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.test;
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/test";
+
+// Exemplar is a test-only resource message for unit testing pagination,
+// iteration, and other generic SDK utilities.
+message Exemplar {
+  // A unique identifier.
+  string uid = 1;
+  // A human-friendly descriptor.
+  string name = 2;
+}
+
+// ListExemplarsRequest is a test-only paginated list request.
+message ListExemplarsRequest {
+  // The parent resource to list from.
+  string parent = 1;
+  // The size of pages returned by this call.
+  int32 page_size = 2;
+  // A page token returned from a previous call.
+  string page_token = 3;
+}
+
+// ListExemplarsResponse is a test-only paginated list response.
+message ListExemplarsResponse {
+  // Exemplars matched by the given request.
+  repeated Exemplar exemplars = 1;
+  // The token to retrieve the next page.
+  string next_page_token = 2;
+}
