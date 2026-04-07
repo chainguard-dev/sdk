@@ -157,6 +157,8 @@ enum EventTypeFilter {
   EVENT_TYPE_FILTER_PENDING_UPSTREAM_FIX = 7;
   // Patched event
   EVENT_TYPE_FILTER_PATCHED = 8;
+  // Component location changed event
+  EVENT_TYPE_FILTER_COMPONENT_LOCATION_CHANGED = 9;
 }
 
 message Advisory {
@@ -224,6 +226,7 @@ message AdvisoryEvent {
     PendingUpstreamFix pending_upstream_fix = 8;
     TruePositiveDetermination true_positive_determination = 9;
     Patched patched = 15;
+    ComponentLocationChanged component_location_changed = 16;
   }
 
   message Detection {
@@ -295,6 +298,12 @@ message AdvisoryEvent {
     string note = 2;
   }
 
+  message ComponentLocationChanged {
+    string previous_location = 1;
+    string new_location = 2;
+    string note = 3;
+  }
+
   // findings is the JSON-encoded struct containing vulnerability findings
   bytes findings = 10;
   // author is the person who created this event
@@ -306,7 +315,7 @@ message AdvisoryEvent {
   // issue is the original CVE Dashboard issue
   optional string issue = 14;
 
-  // next id: 16
+  // next id: 17
 }
 
 

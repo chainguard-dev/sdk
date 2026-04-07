@@ -113,6 +113,7 @@ const (
 	Capability_CAP_TAG_LIST               Capability = 1613
 	Capability_CAP_TAG_DELETE             Capability = 1614
 	Capability_CAP_MANIFEST_METADATA_LIST Capability = 1615
+	Capability_CAP_REFERRERS_LIST         Capability = 1616
 	// apk.blobs.get is a capability required to pull APKs.
 	// We explicitly define this to distinguish roles that allow browsing/viewing
 	// metadata associated with APKs vs pulling the APK itself.
@@ -183,6 +184,9 @@ const (
 	Capability_CAP_POLICY_GATES_BINDING_LIST   Capability = 2013
 	Capability_CAP_POLICY_GATES_BINDING_DELETE Capability = 2014
 	Capability_CAP_PACKAGES_ENTITLEMENTS_LIST  Capability = 2100
+	// Terms
+	Capability_CAP_TERMS_ACCEPT Capability = 2201
+	Capability_CAP_TERMS_LIST   Capability = 2202
 	// This is orthogonal enough that we should leave
 	// it somewhat separate, so add new capabilities above.
 	// TODO(mattmoor): Think about whether we can encode specific
@@ -262,6 +266,7 @@ var (
 		1613:  "CAP_TAG_LIST",
 		1614:  "CAP_TAG_DELETE",
 		1615:  "CAP_MANIFEST_METADATA_LIST",
+		1616:  "CAP_REFERRERS_LIST",
 		1655:  "CAP_APK_BLOBS_GET",
 		1650:  "CAP_APK_CREATE",
 		1651:  "CAP_APK_UPDATE",
@@ -316,6 +321,8 @@ var (
 		2013:  "CAP_POLICY_GATES_BINDING_LIST",
 		2014:  "CAP_POLICY_GATES_BINDING_DELETE",
 		2100:  "CAP_PACKAGES_ENTITLEMENTS_LIST",
+		2201:  "CAP_TERMS_ACCEPT",
+		2202:  "CAP_TERMS_LIST",
 		10000: "CAP_GULFSTREAM",
 	}
 	Capability_value = map[string]int32{
@@ -386,6 +393,7 @@ var (
 		"CAP_TAG_LIST":                                  1613,
 		"CAP_TAG_DELETE":                                1614,
 		"CAP_MANIFEST_METADATA_LIST":                    1615,
+		"CAP_REFERRERS_LIST":                            1616,
 		"CAP_APK_BLOBS_GET":                             1655,
 		"CAP_APK_CREATE":                                1650,
 		"CAP_APK_UPDATE":                                1651,
@@ -440,6 +448,8 @@ var (
 		"CAP_POLICY_GATES_BINDING_LIST":                 2013,
 		"CAP_POLICY_GATES_BINDING_DELETE":               2014,
 		"CAP_PACKAGES_ENTITLEMENTS_LIST":                2100,
+		"CAP_TERMS_ACCEPT":                              2201,
+		"CAP_TERMS_LIST":                                2202,
 		"CAP_GULFSTREAM":                                10000,
 	}
 )
@@ -508,7 +518,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xa8=\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xb8>\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -589,7 +599,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"\fCAP_TAG_LIST\x10\xcd\f\x1a\x13\xa8ˑMB\x9a\xaf\xa8\xd2\x05\btag.list\x12*\n" +
 	"\x0eCAP_TAG_DELETE\x10\xce\f\x1a\x15\xa8ˑMC\x9a\xaf\xa8\xd2\x05\n" +
 	"tag.delete\x12B\n" +
-	"\x1aCAP_MANIFEST_METADATA_LIST\x10\xcf\f\x1a!\xa8ˑMH\x9a\xaf\xa8\xd2\x05\x16manifest.metadata.list\x120\n" +
+	"\x1aCAP_MANIFEST_METADATA_LIST\x10\xcf\f\x1a!\xa8ˑMH\x9a\xaf\xa8\xd2\x05\x16manifest.metadata.list\x122\n" +
+	"\x12CAP_REFERRERS_LIST\x10\xd0\f\x1a\x19\xa8ˑM|\x9a\xaf\xa8\xd2\x05\x0ereferrers.list\x120\n" +
 	"\x11CAP_APK_BLOBS_GET\x10\xf7\f\x1a\x18\xa8ˑMl\x9a\xaf\xa8\xd2\x05\rapk.blobs.get\x12*\n" +
 	"\x0eCAP_APK_CREATE\x10\xf2\f\x1a\x15\xa8ˑMI\x9a\xaf\xa8\xd2\x05\n" +
 	"apk.create\x12*\n" +
@@ -646,7 +657,10 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x1fCAP_POLICY_GATES_BINDING_UPDATE\x10\xdc\x0f\x1a'\xa8ˑMv\x9a\xaf\xa8\xd2\x05\x1cpolicy_gates.bindings.update\x12I\n" +
 	"\x1dCAP_POLICY_GATES_BINDING_LIST\x10\xdd\x0f\x1a%\xa8ˑMw\x9a\xaf\xa8\xd2\x05\x1apolicy_gates.bindings.list\x12M\n" +
 	"\x1fCAP_POLICY_GATES_BINDING_DELETE\x10\xde\x0f\x1a'\xa8ˑMx\x9a\xaf\xa8\xd2\x05\x1cpolicy_gates.bindings.delete\x12J\n" +
-	"\x1eCAP_PACKAGES_ENTITLEMENTS_LIST\x10\xb4\x10\x1a%\xa8ˑM{\x9a\xaf\xa8\xd2\x05\x1apackages.entitlements.list\x12*\n" +
+	"\x1eCAP_PACKAGES_ENTITLEMENTS_LIST\x10\xb4\x10\x1a%\xa8ˑM{\x9a\xaf\xa8\xd2\x05\x1apackages.entitlements.list\x12.\n" +
+	"\x10CAP_TERMS_ACCEPT\x10\x99\x11\x1a\x17\xa8ˑM}\x9a\xaf\xa8\xd2\x05\fterms.accept\x12*\n" +
+	"\x0eCAP_TERMS_LIST\x10\x9a\x11\x1a\x15\xa8ˑM~\x9a\xaf\xa8\xd2\x05\n" +
+	"terms.list\x12*\n" +
 	"\x0eCAP_GULFSTREAM\x10\x90N\x1a\x15\xa8ˑM/\x9a\xaf\xa8\xd2\x05\n" +
 	"gulfstream\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +

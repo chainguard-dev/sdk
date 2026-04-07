@@ -21,6 +21,7 @@ type MockIAMClient struct {
 	DeprecatedIdentitiesClient     MockDeprecatedIdentitiesClient
 	IdentityProvidersClient        MockIdentityProvidersClient
 	GroupAccountAssociationsClient MockGroupAccountAssociationsClient
+	TermsClient                    MockTermsClient
 	SubscriptionsClient            MockSubscriptionsClient
 }
 
@@ -56,6 +57,10 @@ func (m MockIAMClient) IdentityProviders() iam.IdentityProvidersClient {
 
 func (m MockIAMClient) AccountAssociations() iam.GroupAccountAssociationsClient {
 	return &m.GroupAccountAssociationsClient
+}
+
+func (m MockIAMClient) Terms() iam.TermsClient {
+	return &m.TermsClient
 }
 
 func (m MockIAMClient) Subscriptions() events.SubscriptionsClient {

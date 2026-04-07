@@ -103,6 +103,124 @@ func TestReplaceValues_ErrorWithoutValues(t *testing.T) {
 	}
 }
 
+func TestReplaceValues_WithOmitDigests(t *testing.T) {
+	tests := []struct {
+		name       string
+		valuesYAML string
+		mapping    *images.Mapping
+		refs       map[string]string
+		opts       []images.ResolveOption
+		want       string
+		wantErr    bool
+	}{
+		{
+			name:       "default includes digest in pseudo_tag",
+			valuesYAML: "image:\n  pseudoTag: \"\"\n",
+			mapping: &images.Mapping{
+				Images: map[string]*images.Image{
+					"app": {
+						Values: map[string]any{
+							"image": map[string]any{
+								"pseudoTag": "${pseudo_tag}",
+							},
+						},
+					},
+				},
+			},
+			refs: map[string]string{
+				"app": "cgr.dev/chainguard/app:v1.0.0@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+			},
+			opts: nil,
+			want: "image:\n  pseudoTag: v1.0.0@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\n",
+		},
+		{
+			name:       "WithOmitDigests(false) includes digest in pseudo_tag",
+			valuesYAML: "image:\n  pseudoTag: \"\"\n",
+			mapping: &images.Mapping{
+				Images: map[string]*images.Image{
+					"app": {
+						Values: map[string]any{
+							"image": map[string]any{
+								"pseudoTag": "${pseudo_tag}",
+							},
+						},
+					},
+				},
+			},
+			refs: map[string]string{
+				"app": "cgr.dev/chainguard/app:v1.0.0@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+			},
+			opts: []images.ResolveOption{images.WithOmitDigests(false)},
+			want: "image:\n  pseudoTag: v1.0.0@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\n",
+		},
+		{
+			name:       "WithOmitDigests(true) omits digest from pseudo_tag",
+			valuesYAML: "image:\n  pseudoTag: \"\"\n",
+			mapping: &images.Mapping{
+				Images: map[string]*images.Image{
+					"app": {
+						Values: map[string]any{
+							"image": map[string]any{
+								"pseudoTag": "${pseudo_tag}",
+							},
+						},
+					},
+				},
+			},
+			refs: map[string]string{
+				"app": "cgr.dev/chainguard/app:v1.0.0@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+			},
+			opts: []images.ResolveOption{images.WithOmitDigests(true)},
+			want: "image:\n  pseudoTag: v1.0.0\n",
+		},
+		{
+			name:       "WithOmitDigests(true) with multiple fields",
+			valuesYAML: "image:\n  registry: \"\"\n  repo: \"\"\n  pseudoTag: \"\"\n",
+			mapping: &images.Mapping{
+				Images: map[string]*images.Image{
+					"nginx": {
+						Values: map[string]any{
+							"image": map[string]any{
+								"registry":  "${registry}",
+								"repo":      "${repo}",
+								"pseudoTag": "${pseudo_tag}",
+							},
+						},
+					},
+				},
+			},
+			refs: map[string]string{
+				"nginx": "my-registry.io/my-group/nginx:latest@sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+			},
+			opts: []images.ResolveOption{images.WithOmitDigests(true)},
+			want: "image:\n  registry: my-registry.io\n  repo: my-group/nginx\n  pseudoTag: latest\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			chart := createTestChart(t, "my-chart", tt.valuesYAML)
+
+			patched, err := ReplaceValues(chart, tt.mapping, tt.refs, tt.opts...)
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("ReplaceValues() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if tt.wantErr {
+				return
+			}
+
+			got, err := ReadValues(patched)
+			if err != nil {
+				t.Fatalf("ReadValues: %v", err)
+			}
+
+			if string(got) != tt.want {
+				t.Errorf("after ReplaceValues, ReadValues:\ngot  = %q\nwant = %q", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestReplaceValues_PreservesOtherFiles(t *testing.T) {
 	chart := createTestChart(t, "my-chart", "image:\n  registry: cgr.dev\n  repository: chainguard/nginx\n")
 

@@ -14,6 +14,21 @@ import (
 	yamlpatch "github.com/palantir/pkg/yamlpatch"
 )
 
+// ResolveOption allows customizing the resolution process.
+type ResolveOption func(*resolveConfig)
+
+// resolveConfig holds configuration for the Resolve method, including the resolver function.
+type resolveConfig struct {
+	omitDigests bool
+}
+
+// WithOmitDigests allows users to customize the pinning behavior. Default is false.
+func WithOmitDigests(omitDigests bool) ResolveOption {
+	return func(cfg *resolveConfig) {
+		cfg.omitDigests = omitDigests
+	}
+}
+
 // Mapping is the top-level schema for chart image value mappings,
 // parsed from the cg.json file embedded in Chainguard chart APKs.
 type Mapping struct {
@@ -190,7 +205,7 @@ func merge(dst, src map[string]any) error {
 
 // Resolve resolves all image references in the mapping and patches the results
 // into the provided values.yaml content, preserving YAML comments and formatting.
-func (m *Mapping) Resolve(refs map[string]string, valuesr io.Reader) ([]byte, error) {
+func (m *Mapping) Resolve(refs map[string]string, valuesr io.Reader, opts ...ResolveOption) ([]byte, error) {
 	original, err := io.ReadAll(valuesr)
 	if err != nil {
 		return nil, fmt.Errorf("reading values: %w", err)
@@ -198,6 +213,12 @@ func (m *Mapping) Resolve(refs map[string]string, valuesr io.Reader) ([]byte, er
 
 	if m == nil || len(refs) == 0 {
 		return original, nil
+	}
+
+	// Apply options
+	cfg := &resolveConfig{}
+	for _, opt := range opts {
+		opt(cfg)
 	}
 
 	ociRefs := make(map[string]OCIRef, len(refs))
@@ -209,7 +230,7 @@ func (m *Mapping) Resolve(refs map[string]string, valuesr io.Reader) ([]byte, er
 		ociRefs[id] = ociRef
 	}
 
-	imageValues, err := m.Walk(Resolve(ociRefs))
+	imageValues, err := m.Walk(Resolve(ociRefs, cfg))
 	if err != nil {
 		return nil, err
 	}

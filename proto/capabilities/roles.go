@@ -26,6 +26,7 @@ var (
 
 		Capability_CAP_REPO_LIST,
 		Capability_CAP_MANIFEST_LIST,
+		Capability_CAP_REFERRERS_LIST,
 		Capability_CAP_TAG_LIST,
 		Capability_CAP_MANIFEST_METADATA_LIST,
 		Capability_CAP_APK_LIST,
@@ -108,6 +109,9 @@ var (
 		Capability_CAP_POLICY_GATES_BINDING_CREATE,
 		Capability_CAP_POLICY_GATES_BINDING_UPDATE,
 		Capability_CAP_POLICY_GATES_BINDING_DELETE,
+
+		Capability_CAP_TERMS_ACCEPT,
+		Capability_CAP_TERMS_LIST,
 	}, EditorCaps,
 		// Owners can also push and delete OCI, APK Java, JavaScript, and Python artifacts, subject to the identity allowlist.
 		RegistryPushCaps, APKPushCaps, LibrariesJavaPushCaps, LibrariesJavascriptPushCaps, LibrariesPythonPushCaps,
@@ -129,6 +133,7 @@ var (
 
 		Capability_CAP_REPO_LIST,
 		Capability_CAP_MANIFEST_LIST,
+		Capability_CAP_REFERRERS_LIST,
 		Capability_CAP_TAG_LIST,
 		Capability_CAP_MANIFEST_METADATA_LIST,
 

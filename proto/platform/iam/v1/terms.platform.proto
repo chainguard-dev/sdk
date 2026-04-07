@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/iam/v1";
+
+package chainguard.platform.iam;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "annotations/auth.proto";
+
+service Terms {
+  // AcceptTerms records that the group has accepted one or more legal
+  // documents. Called by chainctl after the user completes the acceptance flow.
+  rpc AcceptTerms(AcceptTermsRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/iam/v1/terms/{group=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TERMS_ACCEPT]
+      }
+    };
+  }
+
+  // ListAccepted returns the legal documents that the group has accepted.
+  rpc ListAccepted(TermsFilter) returns (TermsList) {
+    option (google.api.http) = {
+      get: "/iam/v1/terms/{group=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TERMS_LIST]
+      }
+    };
+  }
+}
+
+message AcceptTermsRequest {
+  // group is the UIDP of the org on whose behalf legal docs are being accepted.
+  string group = 1 [(chainguard.annotations.iam_scope) = true];
+  // document_ids are the IDs of the documents being accepted.
+  repeated string document_ids = 2;
+}
+
+message TermsFilter {
+  // group is the UIDP of the org to list documents for.
+  string group = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+// TermsDocumentStatus records an acceptance event for a single document.
+message TermsDocumentStatus {
+  // doc_id is the stable identifier for the accepted document.
+  string doc_id = 1;
+  // accepted_by is the identity (subject) that accepted the document.
+  string accepted_by = 2;
+  // accepted_at is when the document was accepted.
+  google.protobuf.Timestamp accepted_at = 3;
+}
+
+message TermsList {
+  repeated TermsDocumentStatus items = 1;
+}
+
+// MissingDocument describes a required legal document that has not been accepted.
+message MissingDocument {
+  string id = 1;
+  string label = 2;
+  string url = 3;
+}
+
+// TermsNotAcceptedDetail is attached to gRPC FailedPrecondition errors when
+// the group has not accepted all required legal documents.
+message TermsNotAcceptedDetail {
+  repeated MissingDocument missing = 1;
+}

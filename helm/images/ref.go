@@ -74,7 +74,7 @@ func NewRef(reference string) (OCIRef, error) {
 }
 
 // Resolve returns a WalkFunc that resolves tokens to strings using refs.
-func Resolve(refs map[string]OCIRef) WalkFunc {
+func Resolve(refs map[string]OCIRef, cfg *resolveConfig) WalkFunc {
 	return func(imageID string, tokens TokenList) (any, error) {
 		ref, ok := refs[imageID]
 		if !ok {
@@ -100,13 +100,25 @@ func Resolve(refs map[string]OCIRef) WalkFunc {
 				case Digest:
 					val = ref.Digest
 				case PseudoTag:
-					if ref.Digest == "" {
+					if ref.Digest == "" && !cfg.omitDigests {
+						// if no digest and not omitting digests, we have no value to use for pseudo_tag
 						return nil, fmt.Errorf("cannot resolve ${pseudo_tag} for image %q: no digest available", imageID)
 					}
+					if ref.Tag == "" && cfg.omitDigests {
+						// if no tag and omitting digests, we have no value to use for pseudo_tag
+						return nil, fmt.Errorf("cannot resolve ${pseudo_tag} for image %q: no tag available", imageID)
+					}
+					if ref.Tag == "" && ref.Digest == "" {
+						// if no tag and no digest, we have no value to use for pseudo_tag
+						return nil, fmt.Errorf("cannot resolve ${pseudo_tag} for image %q: no tag or digest available", imageID)
+					}
+					val = ref.Tag
 					if ref.Tag == "" {
-						val = "unused@" + ref.Digest
-					} else {
-						val = ref.Tag + "@" + ref.Digest
+						val = "unused"
+					}
+					// Append digest if not omitting digests
+					if !cfg.omitDigests {
+						val += "@" + ref.Digest
 					}
 				case Ref:
 					val = ref.FullRef

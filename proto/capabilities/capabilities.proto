@@ -121,6 +121,7 @@ enum Capability {
   CAP_TAG_DELETE = 1614 [(name) = "tag.delete", (bit) = 67];
 
   CAP_MANIFEST_METADATA_LIST = 1615 [(name) = "manifest.metadata.list", (bit) = 72];
+  CAP_REFERRERS_LIST         = 1616 [(name) = "referrers.list",         (bit) = 124];
 
   // apk.blobs.get is a capability required to pull APKs.
   // We explicitly define this to distinguish roles that allow browsing/viewing
@@ -206,6 +207,10 @@ enum Capability {
 
   CAP_PACKAGES_ENTITLEMENTS_LIST = 2100 [(name) = "packages.entitlements.list", (bit) = 123];
 
+  // Terms
+  CAP_TERMS_ACCEPT     = 2201 [(name) = "terms.accept", (bit) = 125];
+  CAP_TERMS_LIST       = 2202 [(name) = "terms.list", (bit) = 126];
+
   // This is orthogonal enough that we should leave
   // it somewhat separate, so add new capabilities above.
   // TODO(mattmoor): Think about whether we can encode specific
@@ -215,5 +220,5 @@ enum Capability {
   CAP_GULFSTREAM = 10000 [(name) = "gulfstream", (bit) = 47];
 
   reserved 1;
-  // next bit: 124
+  // next bit: 127
 }

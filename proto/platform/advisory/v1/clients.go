@@ -7,14 +7,16 @@ package v1
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/url"
 
-	delegate "chainguard.dev/go-grpc-kit/pkg/options"
-	"github.com/chainguard-dev/clog"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/proto"
 
+	delegate "chainguard.dev/go-grpc-kit/pkg/options"
 	"chainguard.dev/sdk/auth"
+	"github.com/chainguard-dev/clog"
 )
 
 type Clients interface {
@@ -72,4 +74,37 @@ func (c *clients) Close() error {
 		return c.conn.Close()
 	}
 	return nil
+}
+
+// ListVulnerabilityMetadataAll is a helper to fetch all vulnerability metadata that matches the given filter, handling
+// pagination for the caller and returning the final slice of *VulnerabilityMetadata. Note that for large result
+// sets this may incur a high memory cost, consider paginating manually in these cases.
+func (c *clients) ListVulnerabilityMetadataAll(ctx context.Context, filter *VulnerabilityMetadataFilter) ([]*VulnerabilityMetadata, error) {
+	if filter == nil {
+		return nil, errors.New("at least one vulnerability ID is required")
+	}
+	f := proto.Clone(filter).(*VulnerabilityMetadataFilter)
+	if f.GetPageSize() == 0 {
+		f.PageSize = 50
+	}
+
+	all := make([]*VulnerabilityMetadata, 0, f.PageSize)
+
+	for {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+
+		res, err := c.advisory.ListVulnerabilityMetadata(ctx, f)
+		if err != nil {
+			return nil, err
+		}
+		all = append(all, res.Items...)
+
+		if res.NextPageToken == "" {
+			return all, nil
+		}
+
+		f.PageToken = res.NextPageToken
+	}
 }
