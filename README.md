@@ -26,9 +26,9 @@ This requires Docker but no local installation of `protoc` or its plugins.
 
 #### Prerequisites
 
-Install `protoc` [v34.0](https://github.com/protocolbuffers/protobuf/releases/tag/v34.0): https://grpc.io/docs/protoc-installation/
+Install `protoc` [v34.1](https://github.com/protocolbuffers/protobuf/releases/tag/v34.1): https://grpc.io/docs/protoc-installation/
 
-We currently require `protoc` v34.0.
+We currently require `protoc` v34.1.
 
 Install `protoc` codegen dependencies:
 
@@ -40,4 +40,5 @@ go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.22.
 ```
 
 ## Breaking Changes
+
 While we make every effort to maintain backward compatibility and avoid breaking changes, we cannot guarantee that future updates to this SDK will be entirely non-breaking. As our platform evolves and new features are added, some modifications to the API surface may be necessary. We recommend pinning to specific versions in production environments and thoroughly testing updates before deployment.
