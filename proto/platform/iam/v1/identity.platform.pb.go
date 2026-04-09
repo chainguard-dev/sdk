@@ -38,6 +38,8 @@ const (
 	ServicePrincipal_ENTITLEMENT_SYNCER ServicePrincipal = 5
 	ServicePrincipal_TENANT_SCANNER     ServicePrincipal = 6
 	ServicePrincipal_SEDIMENTOLOGY      ServicePrincipal = 7
+	ServicePrincipal_SKILLUP            ServicePrincipal = 8
+	ServicePrincipal_MATERIALIZER       ServicePrincipal = 9
 )
 
 // Enum value maps for ServicePrincipal.
@@ -51,6 +53,8 @@ var (
 		5: "ENTITLEMENT_SYNCER",
 		6: "TENANT_SCANNER",
 		7: "SEDIMENTOLOGY",
+		8: "SKILLUP",
+		9: "MATERIALIZER",
 	}
 	ServicePrincipal_value = map[string]int32{
 		"UNKNOWN":            0,
@@ -61,6 +65,8 @@ var (
 		"ENTITLEMENT_SYNCER": 5,
 		"TENANT_SCANNER":     6,
 		"SEDIMENTOLOGY":      7,
+		"SKILLUP":            8,
+		"MATERIALIZER":       9,
 	}
 )
 
@@ -1048,7 +1054,7 @@ const file_identity_platform_proto_rawDesc = "" +
 	"\x02id\x18\x02 \x01(\tR\x02id\"A\n" +
 	"\rLookupRequest\x12\x16\n" +
 	"\x06issuer\x18\x01 \x01(\tR\x06issuer\x12\x18\n" +
-	"\asubject\x18\x02 \x01(\tR\asubject*\xa0\x01\n" +
+	"\asubject\x18\x02 \x01(\tR\asubject*\xbf\x01\n" +
 	"\x10ServicePrincipal\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\f\n" +
 	"\bCOSIGNED\x10\x01\x12\f\n" +
@@ -1057,7 +1063,9 @@ const file_identity_platform_proto_rawDesc = "" +
 	"\fAPKO_BUILDER\x10\x04\x12\x16\n" +
 	"\x12ENTITLEMENT_SYNCER\x10\x05\x12\x12\n" +
 	"\x0eTENANT_SCANNER\x10\x06\x12\x11\n" +
-	"\rSEDIMENTOLOGY\x10\a2\xec\a\n" +
+	"\rSEDIMENTOLOGY\x10\a\x12\v\n" +
+	"\aSKILLUP\x10\b\x12\x10\n" +
+	"\fMATERIALIZER\x10\t2\xec\a\n" +
 	"\n" +
 	"Identities\x12\xea\x01\n" +
 	"\x06Create\x12..chainguard.platform.iam.CreateIdentityRequest\x1a!.chainguard.platform.iam.Identity\"\x8c\x01\x92A\x0f\n" +

@@ -111,6 +111,10 @@ const (
 	ServicePrincipal_SERVICE_PRINCIPAL_TENANT_SCANNER ServicePrincipal = 6
 	// Sedimentology service for data analysis.
 	ServicePrincipal_SERVICE_PRINCIPAL_SEDIMENTOLOGY ServicePrincipal = 7
+	// Skillup service for fixing repository skill violations.
+	ServicePrincipal_SERVICE_PRINCIPAL_SKILLUP ServicePrincipal = 8
+	// Materializer service for materializing solutions from problem statements.
+	ServicePrincipal_SERVICE_PRINCIPAL_MATERIALIZER ServicePrincipal = 9
 )
 
 // Enum value maps for ServicePrincipal.
@@ -124,6 +128,8 @@ var (
 		5: "SERVICE_PRINCIPAL_ENTITLEMENT_SYNCER",
 		6: "SERVICE_PRINCIPAL_TENANT_SCANNER",
 		7: "SERVICE_PRINCIPAL_SEDIMENTOLOGY",
+		8: "SERVICE_PRINCIPAL_SKILLUP",
+		9: "SERVICE_PRINCIPAL_MATERIALIZER",
 	}
 	ServicePrincipal_value = map[string]int32{
 		"SERVICE_PRINCIPAL_UNSPECIFIED":        0,
@@ -134,6 +140,8 @@ var (
 		"SERVICE_PRINCIPAL_ENTITLEMENT_SYNCER": 5,
 		"SERVICE_PRINCIPAL_TENANT_SCANNER":     6,
 		"SERVICE_PRINCIPAL_SEDIMENTOLOGY":      7,
+		"SERVICE_PRINCIPAL_SKILLUP":            8,
+		"SERVICE_PRINCIPAL_MATERIALIZER":       9,
 	}
 )
 
@@ -1296,7 +1304,7 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\x1dRELATIONSHIP_TYPE_CLAIM_MATCH\x10\x01\x12\x1c\n" +
 	"\x18RELATIONSHIP_TYPE_STATIC\x10\x02\x12\"\n" +
 	"\x1eRELATIONSHIP_TYPE_AWS_IDENTITY\x10\x03\x12'\n" +
-	"#RELATIONSHIP_TYPE_SERVICE_PRINCIPAL\x10\x04*\xb4\x02\n" +
+	"#RELATIONSHIP_TYPE_SERVICE_PRINCIPAL\x10\x04*\xf7\x02\n" +
 	"\x10ServicePrincipal\x12!\n" +
 	"\x1dSERVICE_PRINCIPAL_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aSERVICE_PRINCIPAL_COSIGNED\x10\x01\x12\x1e\n" +
@@ -1305,7 +1313,9 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\x1eSERVICE_PRINCIPAL_APKO_BUILDER\x10\x04\x12(\n" +
 	"$SERVICE_PRINCIPAL_ENTITLEMENT_SYNCER\x10\x05\x12$\n" +
 	" SERVICE_PRINCIPAL_TENANT_SCANNER\x10\x06\x12#\n" +
-	"\x1fSERVICE_PRINCIPAL_SEDIMENTOLOGY\x10\a2\xaf\b\n" +
+	"\x1fSERVICE_PRINCIPAL_SEDIMENTOLOGY\x10\a\x12\x1d\n" +
+	"\x19SERVICE_PRINCIPAL_SKILLUP\x10\b\x12\"\n" +
+	"\x1eSERVICE_PRINCIPAL_MATERIALIZER\x10\t2\xaf\b\n" +
 	"\x11IdentitiesService\x12\xf1\x01\n" +
 	"\x0eCreateIdentity\x126.chainguard.platform.iam.v2beta1.CreateIdentityRequest\x1a).chainguard.platform.iam.v2beta1.Identity\"|\x82\xd3\xe4\x93\x02/:\bidentity\"#/iam/v2beta1/identities/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x85\a\xc2\xf0\x8e\xfc\v5\n" +

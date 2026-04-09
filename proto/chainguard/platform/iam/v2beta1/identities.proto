@@ -361,4 +361,8 @@ enum ServicePrincipal {
   SERVICE_PRINCIPAL_TENANT_SCANNER = 6;
   // Sedimentology service for data analysis.
   SERVICE_PRINCIPAL_SEDIMENTOLOGY = 7;
+  // Skillup service for fixing repository skill violations.
+  SERVICE_PRINCIPAL_SKILLUP = 8;
+  // Materializer service for materializing solutions from problem statements.
+  SERVICE_PRINCIPAL_MATERIALIZER = 9;
 }
