@@ -68,6 +68,8 @@ var (
 		Capability_CAP_EVENTS_SUBSCRIPTION_CREATE,
 		Capability_CAP_EVENTS_SUBSCRIPTION_DELETE,
 		Capability_CAP_EVENTS_SUBSCRIPTION_UPDATE,
+
+		Capability_CAP_GUARDENER_DFC_CONVERT,
 	}, ViewerCaps)
 
 	// OwnerCaps includes all capabilities possible by a user.
