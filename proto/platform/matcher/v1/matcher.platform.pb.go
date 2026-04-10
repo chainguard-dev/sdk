@@ -31,15 +31,15 @@ type MatchImageRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// parent_id is the group id of the caller making the request
 	ParentId string `protobuf:"bytes,1,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
-	// sbom is the SBOM data
+	// sbom is the SBOM components
 	Sbom *SBOM `protobuf:"bytes,2,opt,name=sbom,proto3" json:"sbom,omitempty"`
-	// dist_name is the distribution name (e.g., "debian", "ubuntu", "alpine", "wolfi")
+	// dist_name is the distribution name ("debian", "ubuntu", "alpine", "redhat", "suse", "amazon-linux")
 	DistName *string `protobuf:"bytes,3,opt,name=dist_name,json=distName,proto3,oneof" json:"dist_name,omitempty"`
-	// dist_version is the distribution version (e.g., "1.2.3", "2.0-r2")
+	// dist_version is the distribution version (e.g., "13", "24.04", "3.22", "10", "16.0", "2023")
 	DistVersion *string `protobuf:"bytes,4,opt,name=dist_version,json=distVersion,proto3,oneof" json:"dist_version,omitempty"`
-	// arch is the architecture (e.g., "amd64", "arm64")
+	// arch is the architecture ("x86_64")
 	Arch *string `protobuf:"bytes,5,opt,name=arch,proto3,oneof" json:"arch,omitempty"`
-	// top_n is the maximum number of recommendations to return (default: 10)
+	// count is the maximum number of recommendations to return (default: 10)
 	Count *int32 `protobuf:"varint,6,opt,name=count,proto3,oneof" json:"count,omitempty"`
 	// threshold is the minimum probability score (0-100) to report images (default: 50.0)
 	Threshold     *float64 `protobuf:"fixed64,7,opt,name=threshold,proto3,oneof" json:"threshold,omitempty"`
@@ -128,7 +128,7 @@ func (x *MatchImageRequest) GetThreshold() float64 {
 
 type SBOM struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// individaul sbom entries
+	// individaul sbom components
 	SbomComponents []*SBOMComponent `protobuf:"bytes,1,rep,name=sbom_components,json=sbomComponents,proto3" json:"sbom_components,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -493,9 +493,8 @@ func (x *ImageMatch) GetOverallScore() float64 {
 type PackageWithScore struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// PackageWithScore represents a package name with its associated weight/score
-	Name  string  `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Score float64 `protobuf:"fixed64,2,opt,name=score,proto3" json:"score,omitempty"`
-	// TODO do we want to remove this, as it isn't in image_recommendation.proto
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Score                float64  `protobuf:"fixed64,2,opt,name=score,proto3" json:"score,omitempty"`
 	ExternalPackageNames []string `protobuf:"bytes,3,rep,name=external_package_names,json=externalPackageNames,proto3" json:"external_package_names,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
