@@ -196,6 +196,8 @@ const (
 	Capability_CAP_GULFSTREAM Capability = 10000
 	// Guardener
 	Capability_CAP_GUARDENER_DFC_CONVERT Capability = 2301
+	// MCP tool calls
+	Capability_CAP_MCP_TOOL_CALL Capability = 2401
 )
 
 // Enum value maps for Capability.
@@ -327,6 +329,7 @@ var (
 		2202:  "CAP_TERMS_LIST",
 		10000: "CAP_GULFSTREAM",
 		2301:  "CAP_GUARDENER_DFC_CONVERT",
+		2401:  "CAP_MCP_TOOL_CALL",
 	}
 	Capability_value = map[string]int32{
 		"UNKNOWN":                                       0,
@@ -455,6 +458,7 @@ var (
 		"CAP_TERMS_LIST":                                2202,
 		"CAP_GULFSTREAM":                                10000,
 		"CAP_GUARDENER_DFC_CONVERT":                     2301,
+		"CAP_MCP_TOOL_CALL":                             2401,
 	}
 )
 
@@ -522,7 +526,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xfa>\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xad?\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -667,7 +671,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"terms.list\x12*\n" +
 	"\x0eCAP_GULFSTREAM\x10\x90N\x1a\x15\xa8ˑM/\x9a\xaf\xa8\xd2\x05\n" +
 	"gulfstream\x12@\n" +
-	"\x19CAP_GUARDENER_DFC_CONVERT\x10\xfd\x11\x1a \xa8ˑM\x7f\x9a\xaf\xa8\xd2\x05\x15guardener.dfc.convert\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x04\b\x01\x10\x01:8\n" +
+	"\x19CAP_GUARDENER_DFC_CONVERT\x10\xfd\x11\x1a \xa8ˑM\x7f\x9a\xaf\xa8\xd2\x05\x15guardener.dfc.convert\x121\n" +
+	"\x11CAP_MCP_TOOL_CALL\x10\xe1\x12\x1a\x19\xa8ˑM\x80\x01\x9a\xaf\xa8\xd2\x05\rmcp.tool.call\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +
 	"\x03bit\x12!.google.protobuf.EnumValueOptions\x18\xb5\x99\xd2\t \x01(\rR\x03bitB'Z%chainguard.dev/sdk/proto/capabilitiesb\x06proto3"
 
