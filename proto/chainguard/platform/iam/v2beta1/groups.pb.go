@@ -30,6 +30,67 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// OrgKind is the kind of organization the group belongs to.
+type OrgKind int32
+
+const (
+	// Organization kind is not yet set.
+	OrgKind_ORG_KIND_UNSPECIFIED OrgKind = 0
+	// Free catalog starter organizations.
+	OrgKind_ORG_KIND_STARTER OrgKind = 1
+	// Paid customer organizations.
+	OrgKind_ORG_KIND_CUSTOMER OrgKind = 2
+	// Personal developer organizations.
+	OrgKind_ORG_KIND_DEV OrgKind = 3
+	// Organizations that are used for infrastructure or automation.
+	OrgKind_ORG_KIND_INFRA OrgKind = 4
+)
+
+// Enum value maps for OrgKind.
+var (
+	OrgKind_name = map[int32]string{
+		0: "ORG_KIND_UNSPECIFIED",
+		1: "ORG_KIND_STARTER",
+		2: "ORG_KIND_CUSTOMER",
+		3: "ORG_KIND_DEV",
+		4: "ORG_KIND_INFRA",
+	}
+	OrgKind_value = map[string]int32{
+		"ORG_KIND_UNSPECIFIED": 0,
+		"ORG_KIND_STARTER":     1,
+		"ORG_KIND_CUSTOMER":    2,
+		"ORG_KIND_DEV":         3,
+		"ORG_KIND_INFRA":       4,
+	}
+)
+
+func (x OrgKind) Enum() *OrgKind {
+	p := new(OrgKind)
+	*p = x
+	return p
+}
+
+func (x OrgKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (OrgKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_chainguard_platform_iam_v2beta1_groups_proto_enumTypes[0].Descriptor()
+}
+
+func (OrgKind) Type() protoreflect.EnumType {
+	return &file_chainguard_platform_iam_v2beta1_groups_proto_enumTypes[0]
+}
+
+func (x OrgKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use OrgKind.Descriptor instead.
+func (OrgKind) EnumDescriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_groups_proto_rawDescGZIP(), []int{0}
+}
+
 // Group represents an IAM group (organization or folder).
 type Group struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -50,7 +111,10 @@ type Group struct {
 	// When the group was created.
 	CreateTime *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
 	// When the group was last updated.
-	UpdateTime    *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+	// The organization kind. Required when creating a verified root group.
+	// For subgroups, kind is inherited from the root group and cannot be set.
+	Kind          OrgKind `protobuf:"varint,8,opt,name=kind,proto3,enum=chainguard.platform.iam.v2beta1.OrgKind" json:"kind,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -132,6 +196,13 @@ func (x *Group) GetUpdateTime() *timestamppb.Timestamp {
 		return x.UpdateTime
 	}
 	return nil
+}
+
+func (x *Group) GetKind() OrgKind {
+	if x != nil {
+		return x.Kind
+	}
+	return OrgKind_ORG_KIND_UNSPECIFIED
 }
 
 // GetGroupRequest is the request message for GetGroup.
@@ -518,7 +589,7 @@ var File_chainguard_platform_iam_v2beta1_groups_proto protoreflect.FileDescripto
 
 const file_chainguard_platform_iam_v2beta1_groups_proto_rawDesc = "" +
 	"\n" +
-	",chainguard/platform/iam/v2beta1/groups.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xfb\x03\n" +
+	",chainguard/platform/iam/v2beta1/groups.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xbf\x04\n" +
 	"\x05Group\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
@@ -529,7 +600,8 @@ const file_chainguard_platform_iam_v2beta1_groups_proto_rawDesc = "" +
 	"\vcreate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
 	"createTime\x12A\n" +
 	"\vupdate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
-	"updateTime\x1aA\n" +
+	"updateTime\x12B\n" +
+	"\x04kind\x18\b \x01(\x0e2(.chainguard.platform.iam.v2beta1.OrgKindB\x04\xe2A\x01\x01R\x04kind\x1aA\n" +
 	"\x13ResourceLimitsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\x05R\x05value:\x028\x01:<\xeaA9\n" +
@@ -562,7 +634,13 @@ const file_chainguard_platform_iam_v2beta1_groups_proto_rawDesc = "" +
 	"\x05group\x18\x01 \x01(\v2&.chainguard.platform.iam.v2beta1.GroupB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x05group\x12A\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x04\xe2A\x01\x01R\n" +
-	"updateMask2\xd4\a\n" +
+	"updateMask*v\n" +
+	"\aOrgKind\x12\x18\n" +
+	"\x14ORG_KIND_UNSPECIFIED\x10\x00\x12\x14\n" +
+	"\x10ORG_KIND_STARTER\x10\x01\x12\x15\n" +
+	"\x11ORG_KIND_CUSTOMER\x10\x02\x12\x10\n" +
+	"\fORG_KIND_DEV\x10\x03\x12\x12\n" +
+	"\x0eORG_KIND_INFRA\x10\x042\xd4\a\n" +
 	"\rGroupsService\x12\x95\x01\n" +
 	"\bGetGroup\x120.chainguard.platform.iam.v2beta1.GetGroupRequest\x1a&.chainguard.platform.iam.v2beta1.Group\"/\x82\xd3\xe4\x93\x02\x1e\x12\x1c/iam/v2beta1/groups/{uid=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
 	"\x01g\x12\xc3\x01\n" +
@@ -592,45 +670,48 @@ func file_chainguard_platform_iam_v2beta1_groups_proto_rawDescGZIP() []byte {
 	return file_chainguard_platform_iam_v2beta1_groups_proto_rawDescData
 }
 
+var file_chainguard_platform_iam_v2beta1_groups_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_chainguard_platform_iam_v2beta1_groups_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_chainguard_platform_iam_v2beta1_groups_proto_goTypes = []any{
-	(*Group)(nil),                 // 0: chainguard.platform.iam.v2beta1.Group
-	(*GetGroupRequest)(nil),       // 1: chainguard.platform.iam.v2beta1.GetGroupRequest
-	(*DeleteGroupRequest)(nil),    // 2: chainguard.platform.iam.v2beta1.DeleteGroupRequest
-	(*ListGroupsRequest)(nil),     // 3: chainguard.platform.iam.v2beta1.ListGroupsRequest
-	(*ListGroupsResponse)(nil),    // 4: chainguard.platform.iam.v2beta1.ListGroupsResponse
-	(*CreateGroupRequest)(nil),    // 5: chainguard.platform.iam.v2beta1.CreateGroupRequest
-	(*UpdateGroupRequest)(nil),    // 6: chainguard.platform.iam.v2beta1.UpdateGroupRequest
-	nil,                           // 7: chainguard.platform.iam.v2beta1.Group.ResourceLimitsEntry
-	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
-	(*v1.UIDPFilter)(nil),         // 9: chainguard.platform.common.UIDPFilter
-	(*fieldmaskpb.FieldMask)(nil), // 10: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),         // 11: google.protobuf.Empty
+	(OrgKind)(0),                  // 0: chainguard.platform.iam.v2beta1.OrgKind
+	(*Group)(nil),                 // 1: chainguard.platform.iam.v2beta1.Group
+	(*GetGroupRequest)(nil),       // 2: chainguard.platform.iam.v2beta1.GetGroupRequest
+	(*DeleteGroupRequest)(nil),    // 3: chainguard.platform.iam.v2beta1.DeleteGroupRequest
+	(*ListGroupsRequest)(nil),     // 4: chainguard.platform.iam.v2beta1.ListGroupsRequest
+	(*ListGroupsResponse)(nil),    // 5: chainguard.platform.iam.v2beta1.ListGroupsResponse
+	(*CreateGroupRequest)(nil),    // 6: chainguard.platform.iam.v2beta1.CreateGroupRequest
+	(*UpdateGroupRequest)(nil),    // 7: chainguard.platform.iam.v2beta1.UpdateGroupRequest
+	nil,                           // 8: chainguard.platform.iam.v2beta1.Group.ResourceLimitsEntry
+	(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),         // 10: chainguard.platform.common.UIDPFilter
+	(*fieldmaskpb.FieldMask)(nil), // 11: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),         // 12: google.protobuf.Empty
 }
 var file_chainguard_platform_iam_v2beta1_groups_proto_depIdxs = []int32{
-	7,  // 0: chainguard.platform.iam.v2beta1.Group.resource_limits:type_name -> chainguard.platform.iam.v2beta1.Group.ResourceLimitsEntry
-	8,  // 1: chainguard.platform.iam.v2beta1.Group.create_time:type_name -> google.protobuf.Timestamp
-	8,  // 2: chainguard.platform.iam.v2beta1.Group.update_time:type_name -> google.protobuf.Timestamp
-	9,  // 3: chainguard.platform.iam.v2beta1.ListGroupsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	0,  // 4: chainguard.platform.iam.v2beta1.ListGroupsResponse.groups:type_name -> chainguard.platform.iam.v2beta1.Group
-	0,  // 5: chainguard.platform.iam.v2beta1.CreateGroupRequest.group:type_name -> chainguard.platform.iam.v2beta1.Group
-	0,  // 6: chainguard.platform.iam.v2beta1.UpdateGroupRequest.group:type_name -> chainguard.platform.iam.v2beta1.Group
-	10, // 7: chainguard.platform.iam.v2beta1.UpdateGroupRequest.update_mask:type_name -> google.protobuf.FieldMask
-	1,  // 8: chainguard.platform.iam.v2beta1.GroupsService.GetGroup:input_type -> chainguard.platform.iam.v2beta1.GetGroupRequest
-	2,  // 9: chainguard.platform.iam.v2beta1.GroupsService.DeleteGroup:input_type -> chainguard.platform.iam.v2beta1.DeleteGroupRequest
-	3,  // 10: chainguard.platform.iam.v2beta1.GroupsService.ListGroups:input_type -> chainguard.platform.iam.v2beta1.ListGroupsRequest
-	5,  // 11: chainguard.platform.iam.v2beta1.GroupsService.CreateGroup:input_type -> chainguard.platform.iam.v2beta1.CreateGroupRequest
-	6,  // 12: chainguard.platform.iam.v2beta1.GroupsService.UpdateGroup:input_type -> chainguard.platform.iam.v2beta1.UpdateGroupRequest
-	0,  // 13: chainguard.platform.iam.v2beta1.GroupsService.GetGroup:output_type -> chainguard.platform.iam.v2beta1.Group
-	11, // 14: chainguard.platform.iam.v2beta1.GroupsService.DeleteGroup:output_type -> google.protobuf.Empty
-	4,  // 15: chainguard.platform.iam.v2beta1.GroupsService.ListGroups:output_type -> chainguard.platform.iam.v2beta1.ListGroupsResponse
-	0,  // 16: chainguard.platform.iam.v2beta1.GroupsService.CreateGroup:output_type -> chainguard.platform.iam.v2beta1.Group
-	0,  // 17: chainguard.platform.iam.v2beta1.GroupsService.UpdateGroup:output_type -> chainguard.platform.iam.v2beta1.Group
-	13, // [13:18] is the sub-list for method output_type
-	8,  // [8:13] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	8,  // 0: chainguard.platform.iam.v2beta1.Group.resource_limits:type_name -> chainguard.platform.iam.v2beta1.Group.ResourceLimitsEntry
+	9,  // 1: chainguard.platform.iam.v2beta1.Group.create_time:type_name -> google.protobuf.Timestamp
+	9,  // 2: chainguard.platform.iam.v2beta1.Group.update_time:type_name -> google.protobuf.Timestamp
+	0,  // 3: chainguard.platform.iam.v2beta1.Group.kind:type_name -> chainguard.platform.iam.v2beta1.OrgKind
+	10, // 4: chainguard.platform.iam.v2beta1.ListGroupsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	1,  // 5: chainguard.platform.iam.v2beta1.ListGroupsResponse.groups:type_name -> chainguard.platform.iam.v2beta1.Group
+	1,  // 6: chainguard.platform.iam.v2beta1.CreateGroupRequest.group:type_name -> chainguard.platform.iam.v2beta1.Group
+	1,  // 7: chainguard.platform.iam.v2beta1.UpdateGroupRequest.group:type_name -> chainguard.platform.iam.v2beta1.Group
+	11, // 8: chainguard.platform.iam.v2beta1.UpdateGroupRequest.update_mask:type_name -> google.protobuf.FieldMask
+	2,  // 9: chainguard.platform.iam.v2beta1.GroupsService.GetGroup:input_type -> chainguard.platform.iam.v2beta1.GetGroupRequest
+	3,  // 10: chainguard.platform.iam.v2beta1.GroupsService.DeleteGroup:input_type -> chainguard.platform.iam.v2beta1.DeleteGroupRequest
+	4,  // 11: chainguard.platform.iam.v2beta1.GroupsService.ListGroups:input_type -> chainguard.platform.iam.v2beta1.ListGroupsRequest
+	6,  // 12: chainguard.platform.iam.v2beta1.GroupsService.CreateGroup:input_type -> chainguard.platform.iam.v2beta1.CreateGroupRequest
+	7,  // 13: chainguard.platform.iam.v2beta1.GroupsService.UpdateGroup:input_type -> chainguard.platform.iam.v2beta1.UpdateGroupRequest
+	1,  // 14: chainguard.platform.iam.v2beta1.GroupsService.GetGroup:output_type -> chainguard.platform.iam.v2beta1.Group
+	12, // 15: chainguard.platform.iam.v2beta1.GroupsService.DeleteGroup:output_type -> google.protobuf.Empty
+	5,  // 16: chainguard.platform.iam.v2beta1.GroupsService.ListGroups:output_type -> chainguard.platform.iam.v2beta1.ListGroupsResponse
+	1,  // 17: chainguard.platform.iam.v2beta1.GroupsService.CreateGroup:output_type -> chainguard.platform.iam.v2beta1.Group
+	1,  // 18: chainguard.platform.iam.v2beta1.GroupsService.UpdateGroup:output_type -> chainguard.platform.iam.v2beta1.Group
+	14, // [14:19] is the sub-list for method output_type
+	9,  // [9:14] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_iam_v2beta1_groups_proto_init() }
@@ -644,13 +725,14 @@ func file_chainguard_platform_iam_v2beta1_groups_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_iam_v2beta1_groups_proto_rawDesc), len(file_chainguard_platform_iam_v2beta1_groups_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_chainguard_platform_iam_v2beta1_groups_proto_goTypes,
 		DependencyIndexes: file_chainguard_platform_iam_v2beta1_groups_proto_depIdxs,
+		EnumInfos:         file_chainguard_platform_iam_v2beta1_groups_proto_enumTypes,
 		MessageInfos:      file_chainguard_platform_iam_v2beta1_groups_proto_msgTypes,
 	}.Build()
 	File_chainguard_platform_iam_v2beta1_groups_proto = out.File

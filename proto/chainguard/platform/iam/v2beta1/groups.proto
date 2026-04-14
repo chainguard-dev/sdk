@@ -134,6 +134,10 @@ message Group {
 
   // When the group was last updated.
   google.protobuf.Timestamp update_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The organization kind. Required when creating a verified root group.
+  // For subgroups, kind is inherited from the root group and cannot be set.
+  OrgKind kind = 8 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // GetGroupRequest is the request message for GetGroup.
@@ -223,4 +227,18 @@ message UpdateGroupRequest {
   // (have non-default values). * is supported and interpreted as a full
   // replacement with the given field values.
   google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// OrgKind is the kind of organization the group belongs to.
+enum OrgKind {
+  // Organization kind is not yet set.
+  ORG_KIND_UNSPECIFIED = 0;
+  // Free catalog starter organizations.
+  ORG_KIND_STARTER = 1;
+  // Paid customer organizations.
+  ORG_KIND_CUSTOMER = 2;
+  // Personal developer organizations.
+  ORG_KIND_DEV = 3;
+  // Organizations that are used for infrastructure or automation.
+  ORG_KIND_INFRA = 4;
 }
