@@ -219,6 +219,12 @@ enum Capability {
   // capability?
   CAP_GULFSTREAM = 10000 [(name) = "gulfstream", (bit) = 47];
 
+  // Guardener
+  CAP_GUARDENER_DFC_CONVERT = 2301 [(name) = "guardener.dfc.convert", (bit) = 127];
+
+  // MCP tool calls
+  CAP_MCP_TOOL_CALL = 2401 [(name) = "mcp.tool.call", (bit) = 128];
+
   reserved 1;
-  // next bit: 127
+  // next bit: 129
 }

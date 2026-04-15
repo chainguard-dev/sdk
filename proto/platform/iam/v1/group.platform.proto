@@ -92,10 +92,26 @@ message Group {
   // - If verified is set, the organizations name field must be globally unique
   // - If verified is set the organizations name should be a domain name
   bool verified = 5;
+  // kind is the organization kind. For root groups this is their own kind;
+  // for subgroups it is inherited from the root group.
+  OrgKind kind = 6;
+}
+
+// OrgKind is the kind of organization the group belongs to.
+enum OrgKind {
+  ORG_KIND_UNSPECIFIED = 0;
+  // Free catalog starter organizations.
+  ORG_KIND_STARTER = 1;
+  // Paid customer organizations.
+  ORG_KIND_CUSTOMER = 2;
+  // Personal developer organizations.
+  ORG_KIND_DEV = 3;
+  // Organizations that are used for infrastructure or automation.
+  ORG_KIND_INFRA = 4;
 }
 
 message GroupList {
-    repeated Group items = 1;
+  repeated Group items = 1;
 }
 
 message GroupFilter {

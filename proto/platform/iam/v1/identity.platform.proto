@@ -117,6 +117,8 @@ enum ServicePrincipal {
   ENTITLEMENT_SYNCER = 5;
   TENANT_SCANNER = 6;
   SEDIMENTOLOGY  = 7;
+  SKILLUP        = 8;
+  MATERIALIZER   = 9;
 }
 
 message Identity {

@@ -1,0 +1,284 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.iam.v2beta1;
+
+import "annotations/auth.proto";
+import "annotations/events.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+import "platform/common/v1/uidp.platform.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1";
+option java_multiple_files = true;
+option java_outer_classname = "AccountAssociationsProto";
+option java_package = "com.chainguard.platform.iam.v2beta1";
+
+// AccountAssociationsService manages cloud provider account associations for groups.
+service AccountAssociationsService {
+  // GetAccountAssociation retrieves a single account association by group UID.
+  rpc GetAccountAssociation(GetAccountAssociationRequest) returns (AccountAssociation) {
+    option (google.api.http) = {get: "/iam/v2beta1/accountAssociations/{uid=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_ACCOUNT_ASSOCIATIONS_LIST]
+      }
+    };
+  }
+
+  // CreateAccountAssociation creates a new account association under a parent group.
+  rpc CreateAccountAssociation(CreateAccountAssociationRequest) returns (AccountAssociation) {
+    option (google.api.http) = {
+      post: "/iam/v2beta1/accountAssociations/{parent=**}"
+      body: "account_association"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_ACCOUNT_ASSOCIATIONS_CREATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.account_associations.created.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  // DeleteAccountAssociation deletes an account association by UID.
+  // Idempotent: returns success if the account association does not exist (AIP-135).
+  rpc DeleteAccountAssociation(DeleteAccountAssociationRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/iam/v2beta1/accountAssociations/{uid=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_ACCOUNT_ASSOCIATIONS_DELETE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.account_associations.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  // ListAccountAssociations returns account associations with pagination support.
+  rpc ListAccountAssociations(ListAccountAssociationsRequest) returns (ListAccountAssociationsResponse) {
+    option (google.api.http) = {get: "/iam/v2beta1/accountAssociations"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_ACCOUNT_ASSOCIATIONS_LIST]
+        unscoped: true
+      }
+    };
+  }
+
+  // UpdateAccountAssociation updates an account association's fields.
+  rpc UpdateAccountAssociation(UpdateAccountAssociationRequest) returns (AccountAssociation) {
+    option (google.api.http) = {
+      patch: "/iam/v2beta1/accountAssociations/{account_association.uid=**}"
+      body: "account_association"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_ACCOUNT_ASSOCIATIONS_UPDATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.account_associations.updated.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+}
+
+// AccountAssociation represents cloud provider account associations for a group.
+message AccountAssociation {
+  option (google.api.resource) = {
+    type: "iam.chainguard.dev/AccountAssociation"
+    pattern: "accountAssociations/{account_association}"
+    singular: "accountAssociation"
+    plural: "accountAssociations"
+  };
+
+  // Unique identifier (the group UIDP this association belongs to).
+  string uid = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Human-readable name of the association.
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Optional description of the association.
+  string description = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Amazon account association metadata.
+  Amazon amazon = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Google Cloud project association metadata.
+  Google google = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // github is reserved (field 6); the new field below uses the same name.
+  reserved 6;
+
+  // Chainguard service principal bindings.
+  Chainguard chainguard = 7 [(google.api.field_behavior) = OPTIONAL];
+
+  // Azure tenant and client association metadata.
+  Azure azure = 8 [(google.api.field_behavior) = OPTIONAL];
+
+  // When the association was created.
+  google.protobuf.Timestamp create_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // When the association was last updated.
+  google.protobuf.Timestamp update_time = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // github holds GitHub App installation associations for this group.
+  GitHub github = 11 [(google.api.field_behavior) = OPTIONAL];
+
+  // Amazon account association.
+  message Amazon {
+    // AWS account number.
+    string account = 1 [(google.api.field_behavior) = REQUIRED];
+  }
+
+  // Google Cloud project association.
+  message Google {
+    // GCP project ID.
+    string project_id = 1 [(google.api.field_behavior) = REQUIRED];
+    // GCP project number.
+    string project_number = 2 [(google.api.field_behavior) = REQUIRED];
+  }
+
+  // GitHub holds GitHub App installation associations for a group.
+  message GitHub {
+    // app_installations maps app_id to the set of installations
+    // for that app associated with this group.
+    map<int64, GitHubAppInstallations> app_installations = 2 [(google.api.field_behavior) = OPTIONAL];
+  }
+
+  // GitHubAppInstallations holds the installations for a single GitHub App.
+  message GitHubAppInstallations {
+    // installations is the list of GitHub App installations.
+    repeated GitHubInstallation installations = 1 [(google.api.field_behavior) = OPTIONAL];
+  }
+
+  // GitHubInstallation is a single GitHub App installation.
+  message GitHubInstallation {
+    // installation_id is the GitHub App installation ID.
+    int64 installation_id = 1 [(google.api.field_behavior) = REQUIRED];
+    // name is the GitHub user/org name this installation belongs to.
+    // Non-authoritative: stored for convenience only.
+    string name = 2 [(google.api.field_behavior) = OPTIONAL];
+  }
+
+  // Chainguard service principal bindings.
+  message Chainguard {
+    // Map from Chainguard service principal name to the UIDP of the identity
+    // that service should assume.
+    map<string, string> service_bindings = 1 [(google.api.field_behavior) = REQUIRED];
+  }
+
+  // Azure tenant and client association.
+  message Azure {
+    // Azure tenant ID (Microsoft Entra ID).
+    string tenant_id = 1 [(google.api.field_behavior) = REQUIRED];
+    // Map from component name to Azure client ID (application ID).
+    map<string, string> client_ids = 2 [(google.api.field_behavior) = REQUIRED];
+  }
+}
+
+// GetAccountAssociationRequest is the request message for GetAccountAssociation.
+message GetAccountAssociationRequest {
+  // UID (group UIDP) of the account association to retrieve.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// ListAccountAssociationsRequest is the request message for ListAccountAssociations.
+message ListAccountAssociationsRequest {
+  // Optional UIDP-based filter for hierarchy navigation.
+  chainguard.platform.common.UIDPFilter uidp = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional exact name to filter by.
+  string name = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Maximum number of results to return per page.
+  // Default: 50, Maximum: 200.
+  int32 page_size = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Page token from a previous List response for pagination.
+  // Opaque token with 3-day expiration.
+  string page_token = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order results by field. Format: "field [asc|desc]"
+  // Default: "group asc"
+  // Note: Changing order_by between pages invalidates the page token.
+  string order_by = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of results to skip before returning.
+  // Used for random-access pagination (jumping to arbitrary pages).
+  // Must be non-negative.
+  int32 skip = 6 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// CreateAccountAssociationRequest is the request message for CreateAccountAssociation.
+message CreateAccountAssociationRequest {
+  // Parent group UIDP under which the account association will be created.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The account association to create.
+  AccountAssociation account_association = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// DeleteAccountAssociationRequest is the request message for DeleteAccountAssociation.
+message DeleteAccountAssociationRequest {
+  // UID (group UIDP) of the account association to delete.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// ListAccountAssociationsResponse is the response message for ListAccountAssociations.
+message ListAccountAssociationsResponse {
+  // Account associations matching the filter criteria.
+  repeated AccountAssociation account_associations = 1;
+
+  // Token for retrieving the next page of results.
+  // Empty if no more results.
+  string next_page_token = 2;
+
+  // Total number of account associations matching the filter.
+  // Optional, provided for UI pagination.
+  optional int64 total_count = 3;
+
+  // Number of results that were skipped.
+  // Accumulates across paginated requests.
+  int32 skipped = 4;
+}
+
+// UpdateAccountAssociationRequest is the request message for UpdateAccountAssociation.
+message UpdateAccountAssociationRequest {
+  // The account association to update.
+  AccountAssociation account_association = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The list of fields to update. If not provided, an implied
+  // field mask is used equivalent to all fields that are populated
+  // (have non-default values). * is supported and interpreted as a full
+  // replacement with the given field values.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}

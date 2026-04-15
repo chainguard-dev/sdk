@@ -68,6 +68,8 @@ var (
 		Capability_CAP_EVENTS_SUBSCRIPTION_CREATE,
 		Capability_CAP_EVENTS_SUBSCRIPTION_DELETE,
 		Capability_CAP_EVENTS_SUBSCRIPTION_UPDATE,
+
+		Capability_CAP_GUARDENER_DFC_CONVERT,
 	}, ViewerCaps)
 
 	// OwnerCaps includes all capabilities possible by a user.
@@ -112,6 +114,8 @@ var (
 
 		Capability_CAP_TERMS_ACCEPT,
 		Capability_CAP_TERMS_LIST,
+
+		Capability_CAP_MCP_TOOL_CALL,
 	}, EditorCaps,
 		// Owners can also push and delete OCI, APK Java, JavaScript, and Python artifacts, subject to the identity allowlist.
 		RegistryPushCaps, APKPushCaps, LibrariesJavaPushCaps, LibrariesJavascriptPushCaps, LibrariesPythonPushCaps,
@@ -249,6 +253,10 @@ var (
 		Capability_CAP_LIBRARIES_REBUILDER_ARTIFACTS_INVALIDATE,
 		Capability_CAP_LIBRARIES_REBUILDER_EXCLUSIONS_MANAGE,
 		Capability_CAP_LIBRARIES_REBUILDER_BUILDS_READ,
+	})
+
+	MCPToolUserCaps = SortCaps([]Capability{
+		Capability_CAP_MCP_TOOL_CALL,
 	})
 )
 

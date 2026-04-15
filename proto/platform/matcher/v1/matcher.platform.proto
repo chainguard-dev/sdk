@@ -14,8 +14,8 @@ import "annotations/auth.proto";
 
 // ImageMatcher (code name Crystal Ball) recommends chainguard images equivalent to popular images
 service ImageMatcher {
-  // MatchImage takes an sbom and returns a list of chainguard
-  // images ranked by sbom similarity
+  // MatchImage takes a list of SBOM components and returns a list of Chainguard
+  // images ranked by similarity to original SBOM components
   rpc MatchImage(MatchImageRequest) returns (MatchImageResponse) {
     option (google.api.http) = {
       post: "/image-recommendation/v1/match"
@@ -33,19 +33,19 @@ message MatchImageRequest {
   // parent_id is the group id of the caller making the request
   string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
 
-  // sbom is the SBOM data
+  // sbom is the SBOM components
   SBOM sbom = 2;
 
-  // dist_name is the distribution name (e.g., "debian", "ubuntu", "alpine", "wolfi")
+  // dist_name is the distribution name ("debian", "ubuntu", "alpine", "redhat", "suse", "amazon-linux")
   optional string dist_name = 3;
 
-  // dist_version is the distribution version (e.g., "1.2.3", "2.0-r2")
+  // dist_version is the distribution version (e.g., "13", "24.04", "3.22", "10", "16.0", "2023")
   optional string dist_version = 4;
 
-  // arch is the architecture (e.g., "amd64", "arm64")
+  // arch is the architecture ("x86_64")
   optional string arch = 5;
 
-  // top_n is the maximum number of recommendations to return (default: 10)
+  // count is the maximum number of recommendations to return (default: 10)
   optional int32 count = 6;
 
   // threshold is the minimum probability score (0-100) to report images (default: 50.0)
@@ -53,7 +53,7 @@ message MatchImageRequest {
 }
 
 message SBOM {
-  // individaul sbom entries
+  // individaul sbom components
   repeated SBOMComponent sbom_components = 1;
 }
 
@@ -129,6 +129,5 @@ message PackageWithScore {
   // PackageWithScore represents a package name with its associated weight/score
   string name = 1;
   double score = 2;
-  // TODO do we want to remove this, as it isn't in image_recommendation.proto
   repeated string external_package_names = 3;
 }
