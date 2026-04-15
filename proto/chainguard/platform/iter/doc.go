@@ -4,7 +4,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 /*
-Package iter provides generic pagination iterators for v2alpha1 APIs.
+Package iter provides generic pagination iterators for v2 APIs.
 
 # Overview
 
@@ -15,7 +15,7 @@ can use the iterators to process items one at a time in a for-range loop.
 
 # Features
 
-  - Generic pagination support for any v2alpha1 List endpoint
+  - Generic pagination support for any v2 List endpoint
   - Automatic cursor-based pagination handling
   - Context-aware cancellation support
   - Clean error handling with resource-specific error messages
@@ -27,8 +27,8 @@ The primary function is List, which creates an iterator for any paginated
 API endpoint. You provide a fetch function that retrieves a single page,
 and List handles the pagination logic:
 
-	for group, err := range iter.List(ctx, "groups", func(pageToken string) ([]*v2alpha1.Group, string, error) {
-		resp, err := client.ListGroups(ctx, &v2alpha1.ListGroupsRequest{
+	for group, err := range iter.List(ctx, "groups", func(pageToken string) ([]*iamv2.Group, string, error) {
+		resp, err := client.ListGroups(ctx, &iamv2.ListGroupsRequest{
 			PageToken: pageToken,
 			PageSize:  iter.DefaultPageSize,
 		})
@@ -51,14 +51,14 @@ The iterator automatically:
 
 # Integration Patterns
 
-The package is designed to work with v2alpha1 API clients. The typical
+The package is designed to work with v2 API clients. The typical
 integration pattern is to wrap the client's List method in a fetch function
 that extracts the items and next page token from the response.
 
 For services with multiple list endpoints, create helper functions:
 
-	func ListGroups(ctx context.Context, client *Client, req *v2alpha1.ListGroupsRequest) iter.Seq2[*v2alpha1.Group, error] {
-		return iter.List(ctx, "groups", func(pageToken string) ([]*v2alpha1.Group, string, error) {
+	func ListGroups(ctx context.Context, client *Client, req *iamv2.ListGroupsRequest) iter.Seq2[*iamv2.Group, error] {
+		return iter.List(ctx, "groups", func(pageToken string) ([]*iamv2.Group, string, error) {
 			req.PageToken = pageToken
 			resp, err := client.ListGroups(ctx, req)
 			if err != nil {
