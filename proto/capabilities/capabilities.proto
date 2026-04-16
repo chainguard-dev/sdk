@@ -155,6 +155,10 @@ enum Capability {
   CAP_LIBRARIES_JAVA_CREATE = 1821 [(name) = "libraries.java.create", (bit) = 110];
   CAP_LIBRARIES_JAVASCRIPT_LIST = 1830 [(name) = "libraries.javascript.list", (bit) = 88];
   CAP_LIBRARIES_JAVASCRIPT_CREATE = 1831 [(name) = "libraries.javascript.create", (bit) = 109];
+  // Cache invalidation capability for the libraries cache (covers all ecosystems).
+  // Granted to org owners and account admins; not to regular developer members.
+  CAP_LIBRARIES_CACHE_INVALIDATE = 1860 [(name) = "libraries.cache.invalidate", (bit) = 129];
+
 
   // Rebuilder API capabilities
   CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE = 1840 [(name) = "libraries.rebuilder.requests.create", (bit) = 103];
@@ -226,5 +230,5 @@ enum Capability {
   CAP_MCP_TOOL_CALL = 2401 [(name) = "mcp.tool.call", (bit) = 128];
 
   reserved 1;
-  // next bit: 129
+  // next bit: 130
 }
