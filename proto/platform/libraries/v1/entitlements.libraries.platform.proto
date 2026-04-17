@@ -81,6 +81,10 @@ message Entitlement {
   Policy policy = 3;
   // source indicates how this entitlement was provisioned.
   Source source = 4;
+  // cooldown_days is the number of days an upstream package version must have
+  // been published before it is served. 0 means use the system default (7 days).
+  // Must be between 3 and 3650 when set.
+  int32 cooldown_days = 5;
 }
 
 message EntitlementList {
@@ -118,6 +122,10 @@ message CreateEntitlementRequest {
   Policy policy = 3;
   // source indicates how this entitlement is being provisioned.
   Source source = 4;
+  // cooldown_days is the number of days an upstream package version must have
+  // been published before it is served. 0 means use the system default (7 days).
+  // Must be between 3 and 3650 when set.
+  int32 cooldown_days = 5;
 }
 
 message EntitlementFilter {

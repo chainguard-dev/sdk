@@ -3,7 +3,7 @@ Copyright 2026 Chainguard, Inc.
 SPDX-License-Identifier: Apache-2.0
 */
 
-// Package iter provides generic pagination iterators for v2alpha1 APIs.
+// Package iter provides generic pagination iterators for v2 APIs.
 package iter //nolint:revive // redefines-builtin-id: collides with stdlib iter, but renaming would break API
 
 import (
@@ -91,7 +91,7 @@ func All[T any](seq iter.Seq2[T, error]) ([]T, error) {
 	return result, nil
 }
 
-// List is a low-level generic pagination iterator for any v2alpha1 List endpoint.
+// List is a low-level generic pagination iterator for any v2 List endpoint.
 // It handles cursor-based pagination automatically, yielding items one at a time.
 // Most callers should use Paginate instead, which also handles request setup.
 func List[T any](ctx context.Context, resourceName string, fetch func(pageToken string) ([]T, string, error)) iter.Seq2[T, error] {
