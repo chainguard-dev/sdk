@@ -67,7 +67,7 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 	if cred != nil {
 		opts = append(opts, grpc.WithPerRPCCredentials(cred))
 	} else {
-		clog.FromContext(ctx).Warn("No authentication provided, this may end badly.")
+		clog.WarnContext(ctx, "No authentication provided, this may end badly.")
 	}
 	if ua := GetUserAgent(ctx); ua != "" {
 		opts = append(opts, grpc.WithUserAgent(ua))
@@ -200,7 +200,7 @@ func NewOIDCClients(ctx context.Context, issuerURL string, cred credentials.PerR
 	if cred != nil {
 		opts = append(opts, grpc.WithPerRPCCredentials(cred))
 	} else {
-		clog.FromContext(ctx).Warn("No authentication provided, this may end badly.")
+		clog.WarnContext(ctx, "No authentication provided, this may end badly.")
 	}
 	if ua := GetUserAgent(ctx); ua != "" {
 		opts = append(opts, grpc.WithUserAgent(ua))

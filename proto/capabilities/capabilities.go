@@ -129,7 +129,7 @@ func Parse(name string) (Capability, error) {
 			if perror == nil {
 				nameCapabilityMap[scap] = Capability(capability)
 			} else {
-				clog.FromContext(context.Background()).Errorf("Failed to stringify capability %d, error: %v",
+				clog.ErrorContextf(context.Background(), "Failed to stringify capability %d, error: %v",
 					capability, perror)
 			}
 		}

@@ -38,7 +38,7 @@ func (fa *fileAuth) GetRequestMetadata(ctx context.Context, uri ...string) (map[
 	// expiration before it is refreshed is 2 minutes.  Use 1 minute to give
 	// us wiggle room, but we should have 2 minutes to validate the token.
 	if time.Since(fa.lastUpdated) < time.Minute {
-		clog.FromContext(ctx).Infof("Using cached token, last refreshed %v", fa.lastUpdated)
+		clog.InfoContextf(ctx, "Using cached token, last refreshed %v", fa.lastUpdated)
 		return map[string]string{
 			"Authorization": string(fa.cache),
 		}, nil
@@ -50,7 +50,7 @@ func (fa *fileAuth) GetRequestMetadata(ctx context.Context, uri ...string) (map[
 	}
 	fa.cache = b
 	fa.lastUpdated = time.Now()
-	clog.FromContext(ctx).Info("Using fresh token.")
+	clog.InfoContext(ctx, "Using fresh token.")
 	return map[string]string{
 		"Authorization": string(b),
 	}, nil
