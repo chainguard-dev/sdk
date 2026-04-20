@@ -25,6 +25,59 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// OrgStatus is the provisioning status of an organization.
+type OrgStatus int32
+
+const (
+	// Organization status is not yet set.
+	OrgStatus_ORG_STATUS_UNSPECIFIED OrgStatus = 0
+	// The organization is awaiting provisioning setup by a reconciler.
+	OrgStatus_ORG_STATUS_INITIALIZING OrgStatus = 1
+	// The organization is fully provisioned and ready to use.
+	OrgStatus_ORG_STATUS_READY OrgStatus = 2
+)
+
+// Enum value maps for OrgStatus.
+var (
+	OrgStatus_name = map[int32]string{
+		0: "ORG_STATUS_UNSPECIFIED",
+		1: "ORG_STATUS_INITIALIZING",
+		2: "ORG_STATUS_READY",
+	}
+	OrgStatus_value = map[string]int32{
+		"ORG_STATUS_UNSPECIFIED":  0,
+		"ORG_STATUS_INITIALIZING": 1,
+		"ORG_STATUS_READY":        2,
+	}
+)
+
+func (x OrgStatus) Enum() *OrgStatus {
+	p := new(OrgStatus)
+	*p = x
+	return p
+}
+
+func (x OrgStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (OrgStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_group_platform_proto_enumTypes[0].Descriptor()
+}
+
+func (OrgStatus) Type() protoreflect.EnumType {
+	return &file_group_platform_proto_enumTypes[0]
+}
+
+func (x OrgStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use OrgStatus.Descriptor instead.
+func (OrgStatus) EnumDescriptor() ([]byte, []int) {
+	return file_group_platform_proto_rawDescGZIP(), []int{0}
+}
+
 // OrgKind is the kind of organization the group belongs to.
 type OrgKind int32
 
@@ -69,11 +122,11 @@ func (x OrgKind) String() string {
 }
 
 func (OrgKind) Descriptor() protoreflect.EnumDescriptor {
-	return file_group_platform_proto_enumTypes[0].Descriptor()
+	return file_group_platform_proto_enumTypes[1].Descriptor()
 }
 
 func (OrgKind) Type() protoreflect.EnumType {
-	return &file_group_platform_proto_enumTypes[0]
+	return &file_group_platform_proto_enumTypes[1]
 }
 
 func (x OrgKind) Number() protoreflect.EnumNumber {
@@ -82,7 +135,7 @@ func (x OrgKind) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use OrgKind.Descriptor instead.
 func (OrgKind) EnumDescriptor() ([]byte, []int) {
-	return file_group_platform_proto_rawDescGZIP(), []int{0}
+	return file_group_platform_proto_rawDescGZIP(), []int{1}
 }
 
 type Group struct {
@@ -103,7 +156,9 @@ type Group struct {
 	Verified bool `protobuf:"varint,5,opt,name=verified,proto3" json:"verified,omitempty"`
 	// kind is the organization kind. For root groups this is their own kind;
 	// for subgroups it is inherited from the root group.
-	Kind          OrgKind `protobuf:"varint,6,opt,name=kind,proto3,enum=chainguard.platform.iam.OrgKind" json:"kind,omitempty"`
+	Kind OrgKind `protobuf:"varint,6,opt,name=kind,proto3,enum=chainguard.platform.iam.OrgKind" json:"kind,omitempty"`
+	// status is the provisioning status of the organization.
+	Status        OrgStatus `protobuf:"varint,7,opt,name=status,proto3,enum=chainguard.platform.iam.OrgStatus" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -178,6 +233,13 @@ func (x *Group) GetKind() OrgKind {
 		return x.Kind
 	}
 	return OrgKind_ORG_KIND_UNSPECIFIED
+}
+
+func (x *Group) GetStatus() OrgStatus {
+	if x != nil {
+		return x.Status
+	}
+	return OrgStatus_ORG_STATUS_UNSPECIFIED
 }
 
 type GroupList struct {
@@ -394,14 +456,15 @@ var File_group_platform_proto protoreflect.FileDescriptor
 
 const file_group_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x14group.platform.proto\x12\x17chainguard.platform.iam\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a&platform/common/v1/uidp.platform.proto\"\xc7\x02\n" +
+	"\x14group.platform.proto\x12\x17chainguard.platform.iam\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a&platform/common/v1/uidp.platform.proto\"\x83\x03\n" +
 	"\x05Group\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12[\n" +
 	"\x0fresource_limits\x18\x04 \x03(\v22.chainguard.platform.iam.Group.ResourceLimitsEntryR\x0eresourceLimits\x12\x1a\n" +
 	"\bverified\x18\x05 \x01(\bR\bverified\x124\n" +
-	"\x04kind\x18\x06 \x01(\x0e2 .chainguard.platform.iam.OrgKindR\x04kind\x1aA\n" +
+	"\x04kind\x18\x06 \x01(\x0e2 .chainguard.platform.iam.OrgKindR\x04kind\x12:\n" +
+	"\x06status\x18\a \x01(\x0e2\".chainguard.platform.iam.OrgStatusR\x06status\x1aA\n" +
 	"\x13ResourceLimitsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\x05R\x05value:\x028\x01\"A\n" +
@@ -415,7 +478,11 @@ const file_group_platform_proto_rawDesc = "" +
 	"\x06parent\x18\x01 \x01(\tR\x06parent\x124\n" +
 	"\x05group\x18\x02 \x01(\v2\x1e.chainguard.platform.iam.GroupR\x05group\",\n" +
 	"\x12DeleteGroupRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id*v\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id*Z\n" +
+	"\tOrgStatus\x12\x1a\n" +
+	"\x16ORG_STATUS_UNSPECIFIED\x10\x00\x12\x1b\n" +
+	"\x17ORG_STATUS_INITIALIZING\x10\x01\x12\x14\n" +
+	"\x10ORG_STATUS_READY\x10\x02*v\n" +
 	"\aOrgKind\x12\x18\n" +
 	"\x14ORG_KIND_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10ORG_KIND_STARTER\x10\x01\x12\x15\n" +
@@ -447,38 +514,40 @@ func file_group_platform_proto_rawDescGZIP() []byte {
 	return file_group_platform_proto_rawDescData
 }
 
-var file_group_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_group_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_group_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_group_platform_proto_goTypes = []any{
-	(OrgKind)(0),               // 0: chainguard.platform.iam.OrgKind
-	(*Group)(nil),              // 1: chainguard.platform.iam.Group
-	(*GroupList)(nil),          // 2: chainguard.platform.iam.GroupList
-	(*GroupFilter)(nil),        // 3: chainguard.platform.iam.GroupFilter
-	(*CreateGroupRequest)(nil), // 4: chainguard.platform.iam.CreateGroupRequest
-	(*DeleteGroupRequest)(nil), // 5: chainguard.platform.iam.DeleteGroupRequest
-	nil,                        // 6: chainguard.platform.iam.Group.ResourceLimitsEntry
-	(*v1.UIDPFilter)(nil),      // 7: chainguard.platform.common.UIDPFilter
-	(*emptypb.Empty)(nil),      // 8: google.protobuf.Empty
+	(OrgStatus)(0),             // 0: chainguard.platform.iam.OrgStatus
+	(OrgKind)(0),               // 1: chainguard.platform.iam.OrgKind
+	(*Group)(nil),              // 2: chainguard.platform.iam.Group
+	(*GroupList)(nil),          // 3: chainguard.platform.iam.GroupList
+	(*GroupFilter)(nil),        // 4: chainguard.platform.iam.GroupFilter
+	(*CreateGroupRequest)(nil), // 5: chainguard.platform.iam.CreateGroupRequest
+	(*DeleteGroupRequest)(nil), // 6: chainguard.platform.iam.DeleteGroupRequest
+	nil,                        // 7: chainguard.platform.iam.Group.ResourceLimitsEntry
+	(*v1.UIDPFilter)(nil),      // 8: chainguard.platform.common.UIDPFilter
+	(*emptypb.Empty)(nil),      // 9: google.protobuf.Empty
 }
 var file_group_platform_proto_depIdxs = []int32{
-	6, // 0: chainguard.platform.iam.Group.resource_limits:type_name -> chainguard.platform.iam.Group.ResourceLimitsEntry
-	0, // 1: chainguard.platform.iam.Group.kind:type_name -> chainguard.platform.iam.OrgKind
-	1, // 2: chainguard.platform.iam.GroupList.items:type_name -> chainguard.platform.iam.Group
-	7, // 3: chainguard.platform.iam.GroupFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	1, // 4: chainguard.platform.iam.CreateGroupRequest.group:type_name -> chainguard.platform.iam.Group
-	4, // 5: chainguard.platform.iam.Groups.Create:input_type -> chainguard.platform.iam.CreateGroupRequest
-	1, // 6: chainguard.platform.iam.Groups.Update:input_type -> chainguard.platform.iam.Group
-	3, // 7: chainguard.platform.iam.Groups.List:input_type -> chainguard.platform.iam.GroupFilter
-	5, // 8: chainguard.platform.iam.Groups.Delete:input_type -> chainguard.platform.iam.DeleteGroupRequest
-	1, // 9: chainguard.platform.iam.Groups.Create:output_type -> chainguard.platform.iam.Group
-	1, // 10: chainguard.platform.iam.Groups.Update:output_type -> chainguard.platform.iam.Group
-	2, // 11: chainguard.platform.iam.Groups.List:output_type -> chainguard.platform.iam.GroupList
-	8, // 12: chainguard.platform.iam.Groups.Delete:output_type -> google.protobuf.Empty
-	9, // [9:13] is the sub-list for method output_type
-	5, // [5:9] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	7,  // 0: chainguard.platform.iam.Group.resource_limits:type_name -> chainguard.platform.iam.Group.ResourceLimitsEntry
+	1,  // 1: chainguard.platform.iam.Group.kind:type_name -> chainguard.platform.iam.OrgKind
+	0,  // 2: chainguard.platform.iam.Group.status:type_name -> chainguard.platform.iam.OrgStatus
+	2,  // 3: chainguard.platform.iam.GroupList.items:type_name -> chainguard.platform.iam.Group
+	8,  // 4: chainguard.platform.iam.GroupFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	2,  // 5: chainguard.platform.iam.CreateGroupRequest.group:type_name -> chainguard.platform.iam.Group
+	5,  // 6: chainguard.platform.iam.Groups.Create:input_type -> chainguard.platform.iam.CreateGroupRequest
+	2,  // 7: chainguard.platform.iam.Groups.Update:input_type -> chainguard.platform.iam.Group
+	4,  // 8: chainguard.platform.iam.Groups.List:input_type -> chainguard.platform.iam.GroupFilter
+	6,  // 9: chainguard.platform.iam.Groups.Delete:input_type -> chainguard.platform.iam.DeleteGroupRequest
+	2,  // 10: chainguard.platform.iam.Groups.Create:output_type -> chainguard.platform.iam.Group
+	2,  // 11: chainguard.platform.iam.Groups.Update:output_type -> chainguard.platform.iam.Group
+	3,  // 12: chainguard.platform.iam.Groups.List:output_type -> chainguard.platform.iam.GroupList
+	9,  // 13: chainguard.platform.iam.Groups.Delete:output_type -> google.protobuf.Empty
+	10, // [10:14] is the sub-list for method output_type
+	6,  // [6:10] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_group_platform_proto_init() }
@@ -491,7 +560,7 @@ func file_group_platform_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_group_platform_proto_rawDesc), len(file_group_platform_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      2,
 			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,

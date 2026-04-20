@@ -138,6 +138,10 @@ message Group {
   // The organization kind. Required when creating a verified root group.
   // For subgroups, kind is inherited from the root group and cannot be set.
   OrgKind kind = 8 [(google.api.field_behavior) = OPTIONAL];
+
+  // The provisioning status of the organization. Subgroups inherit the
+  // status from the root group they are a descendant of.
+  OrgStatus status = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // GetGroupRequest is the request message for GetGroup.
@@ -241,4 +245,14 @@ enum OrgKind {
   ORG_KIND_DEV = 3;
   // Organizations that are used for infrastructure or automation.
   ORG_KIND_INFRA = 4;
+}
+
+// OrgStatus is the provisioning status of an organization.
+enum OrgStatus {
+  // Organization status is not yet set.
+  ORG_STATUS_UNSPECIFIED = 0;
+  // The organization is awaiting provisioning setup by a reconciler.
+  ORG_STATUS_INITIALIZING = 1;
+  // The organization is fully provisioned and ready to use.
+  ORG_STATUS_READY = 2;
 }

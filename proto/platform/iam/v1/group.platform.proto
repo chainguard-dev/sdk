@@ -1,14 +1,14 @@
 syntax = "proto3";
 
-option go_package = "chainguard.dev/sdk/proto/platform/iam/v1";
-
 package chainguard.platform.iam;
 
-import "google/api/annotations.proto";
-import "google/protobuf/empty.proto";
 import "annotations/auth.proto";
 import "annotations/events.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 import "platform/common/v1/uidp.platform.proto";
+
+option go_package = "chainguard.dev/sdk/proto/platform/iam/v1";
 
 service Groups {
   rpc Create(CreateGroupRequest) returns (Group) {
@@ -49,9 +49,7 @@ service Groups {
   }
 
   rpc List(GroupFilter) returns (GroupList) {
-    option (google.api.http) = {
-      get: "/iam/v1/groups"
-    };
+    option (google.api.http) = {get: "/iam/v1/groups"};
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [CAP_IAM_GROUPS_LIST]
@@ -61,9 +59,7 @@ service Groups {
   }
 
   rpc Delete(DeleteGroupRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/iam/v1/groups/{id=**}"
-    };
+    option (google.api.http) = {delete: "/iam/v1/groups/{id=**}"};
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [CAP_IAM_GROUPS_DELETE]
@@ -95,19 +91,8 @@ message Group {
   // kind is the organization kind. For root groups this is their own kind;
   // for subgroups it is inherited from the root group.
   OrgKind kind = 6;
-}
-
-// OrgKind is the kind of organization the group belongs to.
-enum OrgKind {
-  ORG_KIND_UNSPECIFIED = 0;
-  // Free catalog starter organizations.
-  ORG_KIND_STARTER = 1;
-  // Paid customer organizations.
-  ORG_KIND_CUSTOMER = 2;
-  // Personal developer organizations.
-  ORG_KIND_DEV = 3;
-  // Organizations that are used for infrastructure or automation.
-  ORG_KIND_INFRA = 4;
+  // status is the provisioning status of the organization.
+  OrgStatus status = 7;
 }
 
 message GroupList {
@@ -137,4 +122,27 @@ message CreateGroupRequest {
 message DeleteGroupRequest {
   // id is the exact UIDP of the record.
   string id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+// OrgStatus is the provisioning status of an organization.
+enum OrgStatus {
+  // Organization status is not yet set.
+  ORG_STATUS_UNSPECIFIED = 0;
+  // The organization is awaiting provisioning setup by a reconciler.
+  ORG_STATUS_INITIALIZING = 1;
+  // The organization is fully provisioned and ready to use.
+  ORG_STATUS_READY = 2;
+}
+
+// OrgKind is the kind of organization the group belongs to.
+enum OrgKind {
+  ORG_KIND_UNSPECIFIED = 0;
+  // Free catalog starter organizations.
+  ORG_KIND_STARTER = 1;
+  // Paid customer organizations.
+  ORG_KIND_CUSTOMER = 2;
+  // Personal developer organizations.
+  ORG_KIND_DEV = 3;
+  // Organizations that are used for infrastructure or automation.
+  ORG_KIND_INFRA = 4;
 }
