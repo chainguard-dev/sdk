@@ -44,6 +44,8 @@ const (
 	CatalogTier_CATALOG_TIER_AI CatalogTier = 4
 	// Developer tools images tier.
 	CatalogTier_CATALOG_TIER_DEVTOOLS CatalogTier = 5
+	// Commercial images tier.
+	CatalogTier_CATALOG_TIER_COMMERCIAL CatalogTier = 6
 )
 
 // Enum value maps for CatalogTier.
@@ -55,6 +57,7 @@ var (
 		3: "CATALOG_TIER_FIPS",
 		4: "CATALOG_TIER_AI",
 		5: "CATALOG_TIER_DEVTOOLS",
+		6: "CATALOG_TIER_COMMERCIAL",
 	}
 	CatalogTier_value = map[string]int32{
 		"CATALOG_TIER_UNSPECIFIED": 0,
@@ -63,6 +66,7 @@ var (
 		"CATALOG_TIER_FIPS":        3,
 		"CATALOG_TIER_AI":          4,
 		"CATALOG_TIER_DEVTOOLS":    5,
+		"CATALOG_TIER_COMMERCIAL":  6,
 	}
 )
 
@@ -1128,14 +1132,15 @@ const file_chainguard_platform_registry_v2beta1_repos_proto_rawDesc = "" +
 	"\vtotal_count\x18\x03 \x01(\x03H\x00R\n" +
 	"totalCount\x88\x01\x01\x12\x18\n" +
 	"\askipped\x18\x04 \x01(\x05R\askippedB\x0e\n" +
-	"\f_total_count*\xa7\x01\n" +
+	"\f_total_count*\xc4\x01\n" +
 	"\vCatalogTier\x12\x1c\n" +
 	"\x18CATALOG_TIER_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18CATALOG_TIER_APPLICATION\x10\x01\x12\x15\n" +
 	"\x11CATALOG_TIER_BASE\x10\x02\x12\x15\n" +
 	"\x11CATALOG_TIER_FIPS\x10\x03\x12\x13\n" +
 	"\x0fCATALOG_TIER_AI\x10\x04\x12\x19\n" +
-	"\x15CATALOG_TIER_DEVTOOLS\x10\x052\xe0\x02\n" +
+	"\x15CATALOG_TIER_DEVTOOLS\x10\x05\x12\x1b\n" +
+	"\x17CATALOG_TIER_COMMERCIAL\x10\x062\xe0\x02\n" +
 	"\fReposService\x12\xa1\x01\n" +
 	"\aGetRepo\x124.chainguard.platform.registry.v2beta1.GetRepoRequest\x1a*.chainguard.platform.registry.v2beta1.Repo\"4\x82\xd3\xe4\x93\x02\"\x12 /registry/v2beta1/repos/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xc5\f\x12\xab\x01\n" +

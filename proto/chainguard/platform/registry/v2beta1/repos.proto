@@ -283,4 +283,7 @@ enum CatalogTier {
 
   // Developer tools images tier.
   CATALOG_TIER_DEVTOOLS = 5;
+
+  // Commercial images tier.
+  CATALOG_TIER_COMMERCIAL = 6;
 }
