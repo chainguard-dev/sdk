@@ -1,0 +1,35 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.ping.v2beta1;
+
+import "annotations/auth.proto";
+import "google/api/annotations.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/ping/v2beta1";
+option java_multiple_files = true;
+option java_outer_classname = "PingProto";
+option java_package = "com.chainguard.platform.ping.v2beta1";
+
+// PingService provides a health check endpoint.
+service PingService {
+  // Ping checks API availability. No authentication required.
+  rpc Ping(PingRequest) returns (PingResponse) {
+    option (google.api.http) = {get: "/ping/v2beta1/ping"};
+    option (chainguard.annotations.iam) = {
+      // This method doesn't require authentication.
+      disabled: {}
+    };
+  }
+}
+
+// PingRequest is the request message for Ping.
+message PingRequest {}
+
+// PingResponse is the response message for Ping.
+message PingResponse {
+  // Server response message.
+  string response = 1;
+}
