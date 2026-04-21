@@ -78,6 +78,22 @@ service Entitlements {
     };
   }
 
+  // GetEffectiveEntitlements returns the summarized effective entitlement state
+  // for an organization, including plan, active tiers, entitled images, and quotas.
+  rpc GetEffectiveEntitlements(GetEffectiveEntitlementsRequest) returns (GetEffectiveEntitlementsResponse) {
+    option (google.api.http) = {
+      get: "/registry/v1/entitlements/{parent=**}:effective"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "RegistryEntitlements"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_ENTITLEMENTS_LIST]
+      }
+    };
+  }
+
   rpc GetFeatures (GetFeaturesRequest) returns (GetFeaturesResponse) {
     option (google.api.http) = {
       get: "/registry/v1/entitlements/{parent=**}:features"
@@ -209,4 +225,43 @@ message DeleteEntitlementRequest {
   string id = 1 [(chainguard.annotations.iam_scope) = true];
 
   reserved 2; // previously 'parent' field
+}
+
+// Plan describes the entitlement plan for an organization.
+enum Plan {
+  PLAN_UNSPECIFIED = 0;
+  PER_IMAGE = 1;
+  CATALOG = 2;
+  STARTER = 3;
+}
+
+// EntitledImage is an image that an organization is currently entitled to access.
+message EntitledImage {
+  // The catalog image repository UIDP.
+  string id = 1;
+  // Human-readable image name.
+  string name = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // The catalog tier of the image.
+  CatalogTier catalog_tier = 3;
+  // The entitlement type that granted access to this image.
+  Entitlement.Type type = 4;
+  // When access to this image expires. Unset means no expiration.
+  google.protobuf.Timestamp expiration_time = 5;
+}
+
+message GetEffectiveEntitlementsRequest {
+  string parent = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message GetEffectiveEntitlementsResponse {
+  // The resolved entitlement plan for the organization.
+  Plan plan = 1;
+  // Catalog tiers with unlimited (AYCE) access.
+  repeated CatalogTier active_tiers = 2;
+  // Images the organization is currently entitled to, deduplicated
+  // across entitlements with the latest expiration retained.
+  repeated EntitledImage active_images = 3;
+  // Aggregated quota usage per tier. Keys are CatalogTier string names.
+  map<string, ImageQuota> quota = 4;
+  // TODO: int32 max_total_images = 5;
 }
