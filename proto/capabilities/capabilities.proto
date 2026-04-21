@@ -170,6 +170,7 @@ enum Capability {
   CAP_LIBRARIES_REBUILDER_BUILDS_READ = 1852 [(name) = "libraries.rebuilder.builds.read", (bit) = 122];
   CAP_LIBRARIES_REBUILDER_BUILDS_TOKENS_FETCH = 1853 [(name) = "libraries.rebuilder.builds.tokens.fetch", (bit) = 130];
   CAP_LIBRARIES_REBUILDER_BUILDS_UNTRUSTED = 1854 [(name) = "libraries.rebuilder.builds.untrusted", (bit) = 131];
+  CAP_LIBRARIES_REBUILDER_REMEDIATED_ARTIFACTS_READ = 1855 [(name) = "libraries.rebuilder.remediated_artifacts.read", (bit) = 132];
 
   // Registry Entitlements
   CAP_REGISTRY_ENTITLEMENTS_LIST = 1680 [(name) = "registry.entitlements.list", (bit) = 87];
