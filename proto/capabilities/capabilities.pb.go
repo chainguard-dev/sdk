@@ -151,6 +151,8 @@ const (
 	Capability_CAP_LIBRARIES_REBUILDER_ARTIFACTS_INVALIDATE  Capability = 1850
 	Capability_CAP_LIBRARIES_REBUILDER_EXCLUSIONS_MANAGE     Capability = 1851
 	Capability_CAP_LIBRARIES_REBUILDER_BUILDS_READ           Capability = 1852
+	Capability_CAP_LIBRARIES_REBUILDER_BUILDS_TOKENS_FETCH   Capability = 1853
+	Capability_CAP_LIBRARIES_REBUILDER_BUILDS_UNTRUSTED      Capability = 1854
 	// Registry Entitlements
 	Capability_CAP_REGISTRY_ENTITLEMENTS_LIST   Capability = 1680
 	Capability_CAP_REGISTRY_ENTITLEMENTS_CREATE Capability = 1681
@@ -302,6 +304,8 @@ var (
 		1850:  "CAP_LIBRARIES_REBUILDER_ARTIFACTS_INVALIDATE",
 		1851:  "CAP_LIBRARIES_REBUILDER_EXCLUSIONS_MANAGE",
 		1852:  "CAP_LIBRARIES_REBUILDER_BUILDS_READ",
+		1853:  "CAP_LIBRARIES_REBUILDER_BUILDS_TOKENS_FETCH",
+		1854:  "CAP_LIBRARIES_REBUILDER_BUILDS_UNTRUSTED",
 		1680:  "CAP_REGISTRY_ENTITLEMENTS_LIST",
 		1681:  "CAP_REGISTRY_ENTITLEMENTS_CREATE",
 		1682:  "CAP_REGISTRY_ENTITLEMENTS_DELETE",
@@ -432,6 +436,8 @@ var (
 		"CAP_LIBRARIES_REBUILDER_ARTIFACTS_INVALIDATE":  1850,
 		"CAP_LIBRARIES_REBUILDER_EXCLUSIONS_MANAGE":     1851,
 		"CAP_LIBRARIES_REBUILDER_BUILDS_READ":           1852,
+		"CAP_LIBRARIES_REBUILDER_BUILDS_TOKENS_FETCH":   1853,
+		"CAP_LIBRARIES_REBUILDER_BUILDS_UNTRUSTED":      1854,
 		"CAP_REGISTRY_ENTITLEMENTS_LIST":                1680,
 		"CAP_REGISTRY_ENTITLEMENTS_CREATE":              1681,
 		"CAP_REGISTRY_ENTITLEMENTS_DELETE":              1682,
@@ -531,7 +537,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xfa?\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xc2A\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -644,7 +650,9 @@ const file_capabilities_proto_rawDesc = "" +
 	"-CAP_LIBRARIES_REBUILDER_REQUESTS_GROUP_UPDATE\x10\xb3\x0e\x1a4\xa8ˑMy\x9a\xaf\xa8\xd2\x05)libraries.rebuilder.requests.group.update\x12f\n" +
 	",CAP_LIBRARIES_REBUILDER_ARTIFACTS_INVALIDATE\x10\xba\x0e\x1a3\xa8ˑMj\x9a\xaf\xa8\xd2\x05(libraries.rebuilder.artifacts.invalidate\x12`\n" +
 	")CAP_LIBRARIES_REBUILDER_EXCLUSIONS_MANAGE\x10\xbb\x0e\x1a0\xa8ˑMp\x9a\xaf\xa8\xd2\x05%libraries.rebuilder.exclusions.manage\x12T\n" +
-	"#CAP_LIBRARIES_REBUILDER_BUILDS_READ\x10\xbc\x0e\x1a*\xa8ˑMz\x9a\xaf\xa8\xd2\x05\x1flibraries.rebuilder.builds.read\x12J\n" +
+	"#CAP_LIBRARIES_REBUILDER_BUILDS_READ\x10\xbc\x0e\x1a*\xa8ˑMz\x9a\xaf\xa8\xd2\x05\x1flibraries.rebuilder.builds.read\x12e\n" +
+	"+CAP_LIBRARIES_REBUILDER_BUILDS_TOKENS_FETCH\x10\xbd\x0e\x1a3\xa8ˑM\x82\x01\x9a\xaf\xa8\xd2\x05'libraries.rebuilder.builds.tokens.fetch\x12_\n" +
+	"(CAP_LIBRARIES_REBUILDER_BUILDS_UNTRUSTED\x10\xbe\x0e\x1a0\xa8ˑM\x83\x01\x9a\xaf\xa8\xd2\x05$libraries.rebuilder.builds.untrusted\x12J\n" +
 	"\x1eCAP_REGISTRY_ENTITLEMENTS_LIST\x10\x90\r\x1a%\xa8ˑMW\x9a\xaf\xa8\xd2\x05\x1aregistry.entitlements.list\x12N\n" +
 	" CAP_REGISTRY_ENTITLEMENTS_CREATE\x10\x91\r\x1a'\xa8ˑM`\x9a\xaf\xa8\xd2\x05\x1cregistry.entitlements.create\x12N\n" +
 	" CAP_REGISTRY_ENTITLEMENTS_DELETE\x10\x92\r\x1a'\xa8ˑMa\x9a\xaf\xa8\xd2\x05\x1cregistry.entitlements.delete\x12B\n" +
