@@ -176,6 +176,7 @@ enum Capability {
   CAP_REGISTRY_ENTITLEMENTS_LIST = 1680 [(name) = "registry.entitlements.list", (bit) = 87];
   CAP_REGISTRY_ENTITLEMENTS_CREATE = 1681 [(name) = "registry.entitlements.create", (bit) = 96];
   CAP_REGISTRY_ENTITLEMENTS_DELETE = 1682 [(name) = "registry.entitlements.delete", (bit) = 97];
+  CAP_REGISTRY_ENTITLEMENTS_IMAGES_ADD = 1685 [(name) = "registry.entitlements.images.add", (bit) = 133];
 
   // Registry Settings
   CAP_REGISTRY_SETTINGS_LIST = 1683 [(name) = "registry.settings.list", (bit) = 101];
