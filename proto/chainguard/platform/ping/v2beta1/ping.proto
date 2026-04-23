@@ -6,6 +6,7 @@ syntax = "proto3";
 package chainguard.platform.ping.v2beta1;
 
 import "annotations/auth.proto";
+import "annotations/mcp.proto";
 import "google/api/annotations.proto";
 
 option go_package = "chainguard.dev/sdk/proto/chainguard/platform/ping/v2beta1";
@@ -21,6 +22,9 @@ service PingService {
     option (chainguard.annotations.iam) = {
       // This method doesn't require authentication.
       disabled: {}
+    };
+    option (chainguard.annotations.mcp) = {
+      hidden: true
     };
   }
 }

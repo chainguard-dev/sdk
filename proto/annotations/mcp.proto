@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/annotations";
+
+package chainguard.annotations;
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.MethodOptions {
+  MCP mcp = 189350643;
+}
+
+message MCP {
+  // Human-readable description surfaced as the MCP tool description.
+  string description = 1;
+
+  // When true, the method is excluded from the MCP tool surface.
+  bool hidden = 2;
+}
