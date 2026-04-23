@@ -708,11 +708,11 @@ const file_chainguard_platform_iam_v2beta1_groups_proto_rawDesc = "" +
 	"\tOrgStatus\x12\x1a\n" +
 	"\x16ORG_STATUS_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17ORG_STATUS_INITIALIZING\x10\x01\x12\x14\n" +
-	"\x10ORG_STATUS_READY\x10\x022\xfa\b\n" +
-	"\rGroupsService\x12\xce\x01\n" +
-	"\bGetGroup\x120.chainguard.platform.iam.v2beta1.GetGroupRequest\x1a&.chainguard.platform.iam.v2beta1.Group\"h\x82\xd3\xe4\x93\x02\x1e\x12\x1c/iam/v2beta1/groups/{uid=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
-	"\x01g\x9a\xaf\xa8\xd2\x053\n" +
-	"1Get a group (organization or folder) by its UIDP.\x12\xc3\x01\n" +
+	"\x10ORG_STATUS_READY\x10\x022\x82\t\n" +
+	"\rGroupsService\x12\xd6\x01\n" +
+	"\bGetGroup\x120.chainguard.platform.iam.v2beta1.GetGroupRequest\x1a&.chainguard.platform.iam.v2beta1.Group\"p\x82\xd3\xe4\x93\x02\x1e\x12\x1c/iam/v2beta1/groups/{uid=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
+	"\x01g\x9a\xaf\xa8\xd2\x05;\n" +
+	"1Get a group (organization or folder) by its UIDP.\x18\x01 \x00(\x010\x00\x12\xc3\x01\n" +
 	"\vDeleteGroup\x123.chainguard.platform.iam.v2beta1.DeleteGroupRequest\x1a\x16.google.protobuf.Empty\"g\x82\xd3\xe4\x93\x02\x1e*\x1c/iam/v2beta1/groups/{uid=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
 	"\x01h\xc2\xf0\x8e\xfc\v2\n" +
 	"'dev.chainguard.api.iam.group.deleted.v1\x12\x05group\x18\x01\x12\x8c\x02\n" +

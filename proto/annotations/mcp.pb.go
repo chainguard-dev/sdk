@@ -27,7 +27,17 @@ type MCP struct {
 	// Human-readable description surfaced as the MCP tool description.
 	Description string `protobuf:"bytes,1,opt,name=description,proto3" json:"description,omitempty"`
 	// When true, the method is excluded from the MCP tool surface.
-	Hidden        bool `protobuf:"varint,2,opt,name=hidden,proto3" json:"hidden,omitempty"`
+	Hidden bool `protobuf:"varint,2,opt,name=hidden,proto3" json:"hidden,omitempty"`
+	// Tool does not modify any state (e.g. Get, List).
+	ReadOnly bool `protobuf:"varint,3,opt,name=read_only,json=readOnly,proto3" json:"read_only,omitempty"`
+	// Tool may cause irreversible changes (e.g. Delete).
+	// Optional: unset means "assume destructive" per MCP spec.
+	Destructive *bool `protobuf:"varint,4,opt,name=destructive,proto3,oneof" json:"destructive,omitempty"`
+	// Repeated calls with the same arguments have the same effect as one call.
+	Idempotent bool `protobuf:"varint,5,opt,name=idempotent,proto3" json:"idempotent,omitempty"`
+	// Tool interacts with external systems beyond the immediate context.
+	// Optional: unset means "assume open-world" per MCP spec.
+	OpenWorld     *bool `protobuf:"varint,6,opt,name=open_world,json=openWorld,proto3,oneof" json:"open_world,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -76,6 +86,34 @@ func (x *MCP) GetHidden() bool {
 	return false
 }
 
+func (x *MCP) GetReadOnly() bool {
+	if x != nil {
+		return x.ReadOnly
+	}
+	return false
+}
+
+func (x *MCP) GetDestructive() bool {
+	if x != nil && x.Destructive != nil {
+		return *x.Destructive
+	}
+	return false
+}
+
+func (x *MCP) GetIdempotent() bool {
+	if x != nil {
+		return x.Idempotent
+	}
+	return false
+}
+
+func (x *MCP) GetOpenWorld() bool {
+	if x != nil && x.OpenWorld != nil {
+		return *x.OpenWorld
+	}
+	return false
+}
+
 var file_mcp_proto_extTypes = []protoimpl.ExtensionInfo{
 	{
 		ExtendedType:  (*descriptorpb.MethodOptions)(nil),
@@ -97,10 +135,19 @@ var File_mcp_proto protoreflect.FileDescriptor
 
 const file_mcp_proto_rawDesc = "" +
 	"\n" +
-	"\tmcp.proto\x12\x16chainguard.annotations\x1a google/protobuf/descriptor.proto\"?\n" +
+	"\tmcp.proto\x12\x16chainguard.annotations\x1a google/protobuf/descriptor.proto\"\xe6\x01\n" +
 	"\x03MCP\x12 \n" +
 	"\vdescription\x18\x01 \x01(\tR\vdescription\x12\x16\n" +
-	"\x06hidden\x18\x02 \x01(\bR\x06hidden:P\n" +
+	"\x06hidden\x18\x02 \x01(\bR\x06hidden\x12\x1b\n" +
+	"\tread_only\x18\x03 \x01(\bR\breadOnly\x12%\n" +
+	"\vdestructive\x18\x04 \x01(\bH\x00R\vdestructive\x88\x01\x01\x12\x1e\n" +
+	"\n" +
+	"idempotent\x18\x05 \x01(\bR\n" +
+	"idempotent\x12\"\n" +
+	"\n" +
+	"open_world\x18\x06 \x01(\bH\x01R\topenWorld\x88\x01\x01B\x0e\n" +
+	"\f_destructiveB\r\n" +
+	"\v_open_world:P\n" +
 	"\x03mcp\x12\x1e.google.protobuf.MethodOptions\x18\xf3\x85\xa5Z \x01(\v2\x1b.chainguard.annotations.MCPR\x03mcpB&Z$chainguard.dev/sdk/proto/annotationsb\x06proto3"
 
 var (
@@ -135,6 +182,7 @@ func file_mcp_proto_init() {
 	if File_mcp_proto != nil {
 		return
 	}
+	file_mcp_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

@@ -31,7 +31,13 @@ service GroupsService {
         capabilities: [CAP_IAM_GROUPS_LIST]
       }
     };
-    option (chainguard.annotations.mcp) = {description: "Get a group (organization or folder) by its UIDP."};
+    option (chainguard.annotations.mcp) = {
+      description: "Get a group (organization or folder) by its UIDP."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
   }
 
   // DeleteGroup deletes a group by UID.
