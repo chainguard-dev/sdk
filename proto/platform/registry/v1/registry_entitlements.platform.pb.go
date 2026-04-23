@@ -1131,7 +1131,12 @@ type AddEntitlementImagesResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The images that were added. Excludes requested images that were
 	// found on
-	Images        []*EntitledImage `protobuf:"bytes,1,rep,name=images,proto3" json:"images,omitempty"`
+	Images []*EntitledImage `protobuf:"bytes,1,rep,name=images,proto3" json:"images,omitempty"`
+	// The customer org UIDP that received the images. Set by the backend
+	// to the resolved parent of the target entitlement, regardless of
+	// whether the request selected by parent or by entitlement id. Used
+	// as the CloudEvents subject for downstream subscribers.
+	Parent        string `protobuf:"bytes,2,opt,name=parent,proto3" json:"parent,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1173,11 +1178,18 @@ func (x *AddEntitlementImagesResponse) GetImages() []*EntitledImage {
 	return nil
 }
 
+func (x *AddEntitlementImagesResponse) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
 var File_registry_entitlements_platform_proto protoreflect.FileDescriptor
 
 const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\n" +
-	"$registry_entitlements.platform.proto\x12\x1cchainguard.platform.registry\x1a\x16annotations/auth.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17registry.platform.proto\"\xfa\x04\n" +
+	"$registry_entitlements.platform.proto\x12\x1cchainguard.platform.registry\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17registry.platform.proto\"\xfa\x04\n" +
 	"\vEntitlement\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1f\n" +
 	"\vexternal_id\x18\x02 \x01(\tR\n" +
@@ -1260,14 +1272,15 @@ const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\x02id\x18\x02 \x01(\tH\x00R\x02id\x12\x1f\n" +
 	"\vimage_names\x18\x03 \x03(\tR\n" +
 	"imageNamesB\r\n" +
-	"\ventitlement\"c\n" +
+	"\ventitlement\"\x81\x01\n" +
 	"\x1cAddEntitlementImagesResponse\x12C\n" +
-	"\x06images\x18\x01 \x03(\v2+.chainguard.platform.registry.EntitledImageR\x06images*E\n" +
+	"\x06images\x18\x01 \x03(\v2+.chainguard.platform.registry.EntitledImageR\x06images\x12\x1c\n" +
+	"\x06parent\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x06parent*E\n" +
 	"\x04Plan\x12\x14\n" +
 	"\x10PLAN_UNSPECIFIED\x10\x00\x12\r\n" +
 	"\tPER_IMAGE\x10\x01\x12\v\n" +
 	"\aCATALOG\x10\x02\x12\v\n" +
-	"\aSTARTER\x10\x032\x88\x10\n" +
+	"\aSTARTER\x10\x032\xcf\x10\n" +
 	"\fEntitlements\x12\xc6\x01\n" +
 	"\x10ListEntitlements\x12/.chainguard.platform.registry.EntitlementFilter\x1a-.chainguard.platform.registry.EntitlementList\"R\x92A\x16\n" +
 	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x02'\x12%/registry/v1/entitlements/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
@@ -1292,10 +1305,11 @@ const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\x02\x91\r\x12\xb3\x01\n" +
 	"\x11DeleteEntitlement\x126.chainguard.platform.registry.DeleteEntitlementRequest\x1a\x16.google.protobuf.Empty\"N\x92A\x16\n" +
 	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x02#*!/registry/v1/entitlements/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\x92\r\x12\xf0\x01\n" +
-	"\x14AddEntitlementImages\x129.chainguard.platform.registry.AddEntitlementImagesRequest\x1a:.chainguard.platform.registry.AddEntitlementImagesResponse\"a\x92A\x16\n" +
+	"\x02\x92\r\x12\xb7\x02\n" +
+	"\x14AddEntitlementImages\x129.chainguard.platform.registry.AddEntitlementImagesRequest\x1a:.chainguard.platform.registry.AddEntitlementImagesResponse\"\xa7\x01\x92A\x16\n" +
 	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x024:\x01*\"//registry/v1/entitlements/{parent=**}:addImages\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x02\x95\r\x10\x01\x1a4\x92A1\n" +
+	"\x02\x95\r\x10\x01\xc2\xf0\x8e\xfc\v@\n" +
+	"7dev.chainguard.api.registry.entitlement.images.added.v1\x12\x05group\x1a4\x92A1\n" +
 	"\x14RegistryEntitlements\x12\x19Registry Entitlements APIB/Z-chainguard.dev/sdk/proto/platform/registry/v1b\x06proto3"
 
 var (

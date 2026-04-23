@@ -3,6 +3,7 @@ syntax = "proto3";
 package chainguard.platform.registry;
 
 import "annotations/auth.proto";
+import "annotations/events.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/empty.proto";
@@ -122,6 +123,11 @@ service Entitlements {
         capabilities: [CAP_REGISTRY_ENTITLEMENTS_IMAGES_ADD]
         unscoped: true
       }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.registry.entitlement.images.added.v1"
+      extensions: ["group"]
+      audience: INTERNAL
     };
   }
 }
@@ -275,4 +281,10 @@ message AddEntitlementImagesResponse {
   // The images that were added. Excludes requested images that were
   // found on
   repeated EntitledImage images = 1;
+
+  // The customer org UIDP that received the images. Set by the backend
+  // to the resolved parent of the target entitlement, regardless of
+  // whether the request selected by parent or by entitlement id. Used
+  // as the CloudEvents subject for downstream subscribers.
+  string parent = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
