@@ -138,6 +138,7 @@ func pbCertificates(certs *apkotypes.ImageCertificates) *ApkoConfig_Certificates
 	}
 	return &ApkoConfig_Certificates{
 		Additional: additional,
+		Providers:  certs.Providers,
 	}
 }
 
@@ -292,5 +293,6 @@ func apkoCertificates(certs *ApkoConfig_Certificates) *apkotypes.ImageCertificat
 	}
 	return &apkotypes.ImageCertificates{
 		Additional: additional,
+		Providers:  certs.Providers,
 	}
 }
