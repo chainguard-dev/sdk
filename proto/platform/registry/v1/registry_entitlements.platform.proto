@@ -251,7 +251,9 @@ message GetEffectiveEntitlementsResponse {
   repeated EntitledImage active_images = 3;
   // Aggregated quota usage per tier. Keys are CatalogTier string names.
   map<string, ImageQuota> quota = 4;
-  // TODO: int32 max_total_images = 5;
+  // Maximum number of images that can be entitled to this organization.
+  // A value of -1 means this organization has no maximum quota enforced.
+  int32 max_total_images = 5;
 }
 
 message AddEntitlementImagesRequest {

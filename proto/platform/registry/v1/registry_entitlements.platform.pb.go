@@ -956,9 +956,12 @@ type GetEffectiveEntitlementsResponse struct {
 	// across entitlements with the latest expiration retained.
 	ActiveImages []*EntitledImage `protobuf:"bytes,3,rep,name=active_images,json=activeImages,proto3" json:"active_images,omitempty"`
 	// Aggregated quota usage per tier. Keys are CatalogTier string names.
-	Quota         map[string]*ImageQuota `protobuf:"bytes,4,rep,name=quota,proto3" json:"quota,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // TODO: int32 max_total_images = 5;
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Quota map[string]*ImageQuota `protobuf:"bytes,4,rep,name=quota,proto3" json:"quota,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Maximum number of images that can be entitled to this organization.
+	// A value of -1 means this organization has no maximum quota enforced.
+	MaxTotalImages int32 `protobuf:"varint,5,opt,name=max_total_images,json=maxTotalImages,proto3" json:"max_total_images,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *GetEffectiveEntitlementsResponse) Reset() {
@@ -1017,6 +1020,13 @@ func (x *GetEffectiveEntitlementsResponse) GetQuota() map[string]*ImageQuota {
 		return x.Quota
 	}
 	return nil
+}
+
+func (x *GetEffectiveEntitlementsResponse) GetMaxTotalImages() int32 {
+	if x != nil {
+		return x.MaxTotalImages
+	}
+	return 0
 }
 
 type AddEntitlementImagesRequest struct {
@@ -1234,12 +1244,13 @@ const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\x04type\x18\x04 \x01(\x0e2..chainguard.platform.registry.Entitlement.TypeR\x04type\x12C\n" +
 	"\x0fexpiration_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x0eexpirationTime\"A\n" +
 	"\x1fGetEffectiveEntitlementsRequest\x12\x1e\n" +
-	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\xbf\x03\n" +
+	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\xe9\x03\n" +
 	" GetEffectiveEntitlementsResponse\x126\n" +
 	"\x04plan\x18\x01 \x01(\x0e2\".chainguard.platform.registry.PlanR\x04plan\x12L\n" +
 	"\factive_tiers\x18\x02 \x03(\x0e2).chainguard.platform.registry.CatalogTierR\vactiveTiers\x12P\n" +
 	"\ractive_images\x18\x03 \x03(\v2+.chainguard.platform.registry.EntitledImageR\factiveImages\x12_\n" +
-	"\x05quota\x18\x04 \x03(\v2I.chainguard.platform.registry.GetEffectiveEntitlementsResponse.QuotaEntryR\x05quota\x1ab\n" +
+	"\x05quota\x18\x04 \x03(\v2I.chainguard.platform.registry.GetEffectiveEntitlementsResponse.QuotaEntryR\x05quota\x12(\n" +
+	"\x10max_total_images\x18\x05 \x01(\x05R\x0emaxTotalImages\x1ab\n" +
 	"\n" +
 	"QuotaEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12>\n" +
