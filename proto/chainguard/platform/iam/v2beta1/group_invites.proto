@@ -7,6 +7,7 @@ package chainguard.platform.iam.v2beta1;
 
 import "annotations/auth.proto";
 import "annotations/events.proto";
+import "capabilities/capabilities.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
@@ -98,13 +99,13 @@ message GroupInvite {
   ];
 
   // The role UIDP to assign when the invite is accepted.
-  // Follow-up: add an OUTPUT_ONLY Role field (field 10) for v1 parity.
-  // v1 embeds a full Role object so the console doesn't need a second
-  // GetRole round-trip. The core layer already fetches the role during
-  // Create (for authz), so Create can return it cheaply. For Get/List,
-  // either JOIN in the datastore query or batch-fetch roles in the
-  // handler to avoid N+1 queries.
+  // Set this field when creating a group invite.
   string role_uid = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The role associated with this invite, hydrated with name/description/capabilities.
+  // Populated by the server on Get/List/Create responses.
+  // May be absent if the referenced role has been deleted.
+  GroupInviteRole role = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Email address that is allowed to accept this invite code.
   // If blank, anyone with the invite code can accept.
@@ -131,6 +132,18 @@ message GroupInvite {
 
   // When the invite was created.
   google.protobuf.Timestamp create_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// GroupInviteRole contains role details for a group invite.
+message GroupInviteRole {
+  // Unique identifier for the role.
+  string uid = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Human-readable name of the role.
+  string name = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Optional description of the role.
+  string description = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Capabilities granted by this role.
+  repeated chainguard.capabilities.Capability capabilities = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // CreateGroupInviteRequest is the request message for CreateGroupInvite.
