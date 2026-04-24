@@ -393,7 +393,7 @@ var File_chainguard_platform_registry_v2beta1_tags_proto protoreflect.FileDescri
 
 const file_chainguard_platform_registry_v2beta1_tags_proto_rawDesc = "" +
 	"\n" +
-	"/chainguard/platform/registry/v2beta1/tags.proto\x12$chainguard.platform.registry.v2beta1\x1a\x16annotations/auth.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\x96\x02\n" +
+	"/chainguard/platform/registry/v2beta1/tags.proto\x12$chainguard.platform.registry.v2beta1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\x96\x02\n" +
 	"\x03Tag\x12\x16\n" +
 	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12\x18\n" +
 	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x04name\x12\x1c\n" +
@@ -429,12 +429,14 @@ const file_chainguard_platform_registry_v2beta1_tags_proto_rawDesc = "" +
 	"\vtotal_count\x18\x03 \x01(\x03H\x00R\n" +
 	"totalCount\x88\x01\x01\x12\x18\n" +
 	"\askipped\x18\x04 \x01(\x05R\askippedB\x0e\n" +
-	"\f_total_count2\xd7\x02\n" +
-	"\vTagsService\x12\x9d\x01\n" +
-	"\x06GetTag\x123.chainguard.platform.registry.v2beta1.GetTagRequest\x1a).chainguard.platform.registry.v2beta1.Tag\"3\x82\xd3\xe4\x93\x02!\x12\x1f/registry/v2beta1/tags/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xcd\f\x12\xa7\x01\n" +
-	"\bListTags\x125.chainguard.platform.registry.v2beta1.ListTagsRequest\x1a6.chainguard.platform.registry.v2beta1.ListTagsResponse\",\x82\xd3\xe4\x93\x02\x18\x12\x16/registry/v2beta1/tags\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x02\xcd\f\x10\x01Bv\n" +
+	"\f_total_count2\x85\x04\n" +
+	"\vTagsService\x12\xd3\x01\n" +
+	"\x06GetTag\x123.chainguard.platform.registry.v2beta1.GetTagRequest\x1a).chainguard.platform.registry.v2beta1.Tag\"i\x82\xd3\xe4\x93\x02!\x12\x1f/registry/v2beta1/tags/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xcd\f\x9a\xaf\xa8\xd2\x050\n" +
+	"&Get a container image tag by its UIDP.\x18\x01 \x00(\x010\x00\x12\x9f\x02\n" +
+	"\bListTags\x125.chainguard.platform.registry.v2beta1.ListTagsRequest\x1a6.chainguard.platform.registry.v2beta1.ListTagsResponse\"\xa3\x01\x82\xd3\xe4\x93\x02\x18\x12\x16/registry/v2beta1/tags\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02\xcd\f\x10\x01\x9a\xaf\xa8\xd2\x05q\n" +
+	"gList container image tags the caller has access to. Supports filtering by name, digest, and date range.\x18\x01 \x00(\x010\x00Bv\n" +
 	"(com.chainguard.platform.registry.v2beta1B\tTagsProtoP\x01Z=chainguard.dev/sdk/proto/chainguard/platform/registry/v2beta1b\x06proto3"
 
 var (

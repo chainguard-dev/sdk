@@ -891,7 +891,7 @@ var File_chainguard_platform_iam_v2beta1_account_associations_proto protoreflect
 
 const file_chainguard_platform_iam_v2beta1_account_associations_proto_rawDesc = "" +
 	"\n" +
-	":chainguard/platform/iam/v2beta1/account_associations.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\x96\x0f\n" +
+	":chainguard/platform/iam/v2beta1/account_associations.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\x96\x0f\n" +
 	"\x12AccountAssociation\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
@@ -968,21 +968,25 @@ const file_chainguard_platform_iam_v2beta1_account_associations_proto_rawDesc = 
 	"\x13account_association\x18\x01 \x01(\v23.chainguard.platform.iam.v2beta1.AccountAssociationB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x12accountAssociation\x12A\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x04\xe2A\x01\x01R\n" +
-	"updateMask2\xb5\n" +
-	"\n" +
-	"\x1aAccountAssociationsService\x12\xca\x01\n" +
-	"\x15GetAccountAssociation\x12=.chainguard.platform.iam.v2beta1.GetAccountAssociationRequest\x1a3.chainguard.platform.iam.v2beta1.AccountAssociation\"=\x82\xd3\xe4\x93\x02+\x12)/iam/v2beta1/accountAssociations/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xbf\x05\x12\xb0\x02\n" +
-	"\x18CreateAccountAssociation\x12@.chainguard.platform.iam.v2beta1.CreateAccountAssociationRequest\x1a3.chainguard.platform.iam.v2beta1.AccountAssociation\"\x9c\x01\x82\xd3\xe4\x93\x02C:\x13account_association\",/iam/v2beta1/accountAssociations/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xbd\x05\xc2\xf0\x8e\xfc\vA\n" +
-	"6dev.chainguard.api.iam.account_associations.created.v1\x12\x05group\x18\x01\x12\xfb\x01\n" +
-	"\x18DeleteAccountAssociation\x12@.chainguard.platform.iam.v2beta1.DeleteAccountAssociationRequest\x1a\x16.google.protobuf.Empty\"\x84\x01\x82\xd3\xe4\x93\x02+*)/iam/v2beta1/accountAssociations/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xc0\x05\xc2\xf0\x8e\xfc\vA\n" +
-	"6dev.chainguard.api.iam.account_associations.deleted.v1\x12\x05group\x18\x01\x12\xd4\x01\n" +
-	"\x17ListAccountAssociations\x12?.chainguard.platform.iam.v2beta1.ListAccountAssociationsRequest\x1a@.chainguard.platform.iam.v2beta1.ListAccountAssociationsResponse\"6\x82\xd3\xe4\x93\x02\"\x12 /iam/v2beta1/accountAssociations\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x02\xbf\x05\x10\x01\x12\xc1\x02\n" +
-	"\x18UpdateAccountAssociation\x12@.chainguard.platform.iam.v2beta1.UpdateAccountAssociationRequest\x1a3.chainguard.platform.iam.v2beta1.AccountAssociation\"\xad\x01\x82\xd3\xe4\x93\x02T:\x13account_association2=/iam/v2beta1/accountAssociations/{account_association.uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xbe\x05\xc2\xf0\x8e\xfc\vA\n" +
+	"updateMask2\xe9\r\n" +
+	"\x1aAccountAssociationsService\x12\x90\x02\n" +
+	"\x15GetAccountAssociation\x12=.chainguard.platform.iam.v2beta1.GetAccountAssociationRequest\x1a3.chainguard.platform.iam.v2beta1.AccountAssociation\"\x82\x01\x82\xd3\xe4\x93\x02+\x12)/iam/v2beta1/accountAssociations/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xbf\x05\x9a\xaf\xa8\xd2\x05?\n" +
+	"5Get a cloud provider account association by its UIDP.\x18\x01 \x00(\x010\x00\x12\x8c\x03\n" +
+	"\x18CreateAccountAssociation\x12@.chainguard.platform.iam.v2beta1.CreateAccountAssociationRequest\x1a3.chainguard.platform.iam.v2beta1.AccountAssociation\"\xf8\x01\x82\xd3\xe4\x93\x02C:\x13account_association\",/iam/v2beta1/accountAssociations/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xbd\x05\x9a\xaf\xa8\xd2\x05V\n" +
+	"PCreate a new cloud provider account association (AWS, GCP, Azure) under a group. \x000\x00\xc2\xf0\x8e\xfc\vA\n" +
+	"6dev.chainguard.api.iam.account_associations.created.v1\x12\x05group\x18\x01\x12\xc1\x02\n" +
+	"\x18DeleteAccountAssociation\x12@.chainguard.platform.iam.v2beta1.DeleteAccountAssociationRequest\x1a\x16.google.protobuf.Empty\"\xca\x01\x82\xd3\xe4\x93\x02+*)/iam/v2beta1/accountAssociations/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xc0\x05\x9a\xaf\xa8\xd2\x05@\n" +
+	"8Delete a cloud provider account association by its UIDP. \x01(\x010\x00\xc2\xf0\x8e\xfc\vA\n" +
+	"6dev.chainguard.api.iam.account_associations.deleted.v1\x12\x05group\x18\x01\x12\xdd\x02\n" +
+	"\x17ListAccountAssociations\x12?.chainguard.platform.iam.v2beta1.ListAccountAssociationsRequest\x1a@.chainguard.platform.iam.v2beta1.ListAccountAssociationsResponse\"\xbe\x01\x82\xd3\xe4\x93\x02\"\x12 /iam/v2beta1/accountAssociations\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02\xbf\x05\x10\x01\x9a\xaf\xa8\xd2\x05\x81\x01\n" +
+	"wList cloud provider account associations (AWS, GCP, Azure) the caller has access to. Supports filtering and pagination.\x18\x01 \x00(\x010\x00\x12\x84\x03\n" +
+	"\x18UpdateAccountAssociation\x12@.chainguard.platform.iam.v2beta1.UpdateAccountAssociationRequest\x1a3.chainguard.platform.iam.v2beta1.AccountAssociation\"\xf0\x01\x82\xd3\xe4\x93\x02T:\x13account_association2=/iam/v2beta1/accountAssociations/{account_association.uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xbe\x05\x9a\xaf\xa8\xd2\x05=\n" +
+	"5Update a cloud provider account association's fields. \x00(\x010\x00\xc2\xf0\x8e\xfc\vA\n" +
 	"6dev.chainguard.api.iam.account_associations.updated.v1\x12\x05group\x18\x01B{\n" +
 	"#com.chainguard.platform.iam.v2beta1B\x18AccountAssociationsProtoP\x01Z8chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1b\x06proto3"
 

@@ -6,6 +6,7 @@ syntax = "proto3";
 package chainguard.platform.iam.v2beta1;
 
 import "annotations/auth.proto";
+import "annotations/mcp.proto";
 import "capabilities/capabilities.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
@@ -33,6 +34,13 @@ service RolesService {
         unscoped: true
       }
     };
+    option (chainguard.annotations.mcp) = {
+      description: "Get an IAM role by its UIDP, including managed (built-in) and custom roles."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
   }
 
   // ListRoles returns roles based on filter criteria with pagination support.
@@ -43,6 +51,13 @@ service RolesService {
         capabilities: [CAP_IAM_ROLES_LIST]
         unscoped: true
       }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List IAM roles (managed and custom) the caller has access to. Supports filtering and pagination."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
     };
   }
 
@@ -56,6 +71,13 @@ service RolesService {
       enabled: {
         capabilities: [CAP_IAM_ROLES_CREATE]
       }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Create a new custom IAM role with a specified set of capabilities under a group."
+      read_only: false
+      destructive: false
+      idempotent: false
+      open_world: false
     };
   }
 
@@ -71,6 +93,13 @@ service RolesService {
         capabilities: [CAP_IAM_ROLES_UPDATE]
       }
     };
+    option (chainguard.annotations.mcp) = {
+      description: "Update a custom IAM role's name, description, or capabilities."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
   }
 
   // DeleteRole deletes a custom role by UID.
@@ -82,6 +111,13 @@ service RolesService {
       enabled: {
         capabilities: [CAP_IAM_ROLES_DELETE]
       }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Delete a custom IAM role by its UIDP. Fails if the role is still bound to any identities."
+      read_only: false
+      destructive: true
+      idempotent: true
+      open_world: false
     };
   }
 }

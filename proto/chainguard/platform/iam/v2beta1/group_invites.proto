@@ -7,6 +7,7 @@ package chainguard.platform.iam.v2beta1;
 
 import "annotations/auth.proto";
 import "annotations/events.proto";
+import "annotations/mcp.proto";
 import "capabilities/capabilities.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
@@ -43,6 +44,13 @@ service GroupInvitesService {
       extensions: ["group"]
       audience: CUSTOMER
     };
+    option (chainguard.annotations.mcp) = {
+      description: "Create a new group invite code that allows identities to join a group with a specified role."
+      read_only: false
+      destructive: false
+      idempotent: false
+      open_world: false
+    };
   }
 
   // GetGroupInvite retrieves a single group invite by UID.
@@ -52,6 +60,13 @@ service GroupInvitesService {
       enabled: {
         capabilities: [CAP_IAM_GROUP_INVITES_LIST]
       }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get a group invite by its UIDP."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
     };
   }
 
@@ -68,6 +83,13 @@ service GroupInvitesService {
       extensions: ["group"]
       audience: CUSTOMER
     };
+    option (chainguard.annotations.mcp) = {
+      description: "Delete a group invite by its UIDP, revoking the invite code."
+      read_only: false
+      destructive: true
+      idempotent: true
+      open_world: false
+    };
   }
 
   // ListGroupInvites returns group invites based on filter criteria with pagination support.
@@ -78,6 +100,13 @@ service GroupInvitesService {
         capabilities: [CAP_IAM_GROUP_INVITES_LIST]
         unscoped: true
       }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List group invites the caller has access to. Supports filtering and pagination."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
     };
   }
 }

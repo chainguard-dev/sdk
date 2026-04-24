@@ -507,7 +507,7 @@ var File_chainguard_platform_iam_v2beta1_roles_proto protoreflect.FileDescriptor
 
 const file_chainguard_platform_iam_v2beta1_roles_proto_rawDesc = "" +
 	"\n" +
-	"+chainguard/platform/iam/v2beta1/roles.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x1fcapabilities/capabilities.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xf4\x02\n" +
+	"+chainguard/platform/iam/v2beta1/roles.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1fcapabilities/capabilities.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xf4\x02\n" +
 	"\x04Role\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
@@ -548,21 +548,26 @@ const file_chainguard_platform_iam_v2beta1_roles_proto_rawDesc = "" +
 	"updateMask\"1\n" +
 	"\x11DeleteRoleRequest\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid2\x9a\x06\n" +
-	"\fRolesService\x12\x94\x01\n" +
-	"\aGetRole\x12/.chainguard.platform.iam.v2beta1.GetRoleRequest\x1a%.chainguard.platform.iam.v2beta1.Role\"1\x82\xd3\xe4\x93\x02\x1d\x12\x1b/iam/v2beta1/roles/{uid=**}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x02\xaf\x02\x10\x01\x12\x9c\x01\n" +
-	"\tListRoles\x121.chainguard.platform.iam.v2beta1.ListRolesRequest\x1a2.chainguard.platform.iam.v2beta1.ListRolesResponse\"(\x82\xd3\xe4\x93\x02\x14\x12\x12/iam/v2beta1/roles\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x02\xaf\x02\x10\x01\x12\xa1\x01\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid2\xf9\t\n" +
+	"\fRolesService\x12\xf0\x01\n" +
+	"\aGetRole\x12/.chainguard.platform.iam.v2beta1.GetRoleRequest\x1a%.chainguard.platform.iam.v2beta1.Role\"\x8c\x01\x82\xd3\xe4\x93\x02\x1d\x12\x1b/iam/v2beta1/roles/{uid=**}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02\xaf\x02\x10\x01\x9a\xaf\xa8\xd2\x05U\n" +
+	"KGet an IAM role by its UIDP, including managed (built-in) and custom roles.\x18\x01 \x00(\x010\x00\x12\x8d\x02\n" +
+	"\tListRoles\x121.chainguard.platform.iam.v2beta1.ListRolesRequest\x1a2.chainguard.platform.iam.v2beta1.ListRolesResponse\"\x98\x01\x82\xd3\xe4\x93\x02\x14\x12\x12/iam/v2beta1/roles\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02\xaf\x02\x10\x01\x9a\xaf\xa8\xd2\x05j\n" +
+	"`List IAM roles (managed and custom) the caller has access to. Supports filtering and pagination.\x18\x01 \x00(\x010\x00\x12\xfe\x01\n" +
 	"\n" +
-	"CreateRole\x122.chainguard.platform.iam.v2beta1.CreateRoleRequest\x1a%.chainguard.platform.iam.v2beta1.Role\"8\x82\xd3\xe4\x93\x02&:\x04role\"\x1e/iam/v2beta1/roles/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xad\x02\x12\xa3\x01\n" +
+	"CreateRole\x122.chainguard.platform.iam.v2beta1.CreateRoleRequest\x1a%.chainguard.platform.iam.v2beta1.Role\"\x94\x01\x82\xd3\xe4\x93\x02&:\x04role\"\x1e/iam/v2beta1/roles/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xad\x02\x9a\xaf\xa8\xd2\x05V\n" +
+	"PCreate a new custom IAM role with a specified set of capabilities under a group. \x000\x00\x12\xf0\x01\n" +
 	"\n" +
-	"UpdateRole\x122.chainguard.platform.iam.v2beta1.UpdateRoleRequest\x1a%.chainguard.platform.iam.v2beta1.Role\":\x82\xd3\xe4\x93\x02(:\x04role2 /iam/v2beta1/roles/{role.uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xae\x02\x12\x89\x01\n" +
+	"UpdateRole\x122.chainguard.platform.iam.v2beta1.UpdateRoleRequest\x1a%.chainguard.platform.iam.v2beta1.Role\"\x86\x01\x82\xd3\xe4\x93\x02(:\x04role2 /iam/v2beta1/roles/{role.uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xae\x02\x9a\xaf\xa8\xd2\x05F\n" +
+	">Update a custom IAM role's name, description, or capabilities. \x00(\x010\x00\x12\xf1\x01\n" +
 	"\n" +
-	"DeleteRole\x122.chainguard.platform.iam.v2beta1.DeleteRoleRequest\x1a\x16.google.protobuf.Empty\"/\x82\xd3\xe4\x93\x02\x1d*\x1b/iam/v2beta1/roles/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xb0\x02Bm\n" +
+	"DeleteRole\x122.chainguard.platform.iam.v2beta1.DeleteRoleRequest\x1a\x16.google.protobuf.Empty\"\x96\x01\x82\xd3\xe4\x93\x02\x1d*\x1b/iam/v2beta1/roles/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xb0\x02\x9a\xaf\xa8\xd2\x05a\n" +
+	"YDelete a custom IAM role by its UIDP. Fails if the role is still bound to any identities. \x01(\x010\x00Bm\n" +
 	"#com.chainguard.platform.iam.v2beta1B\n" +
 	"RolesProtoP\x01Z8chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1b\x06proto3"
 

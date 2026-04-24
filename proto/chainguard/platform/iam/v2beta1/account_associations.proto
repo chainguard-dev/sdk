@@ -7,6 +7,7 @@ package chainguard.platform.iam.v2beta1;
 
 import "annotations/auth.proto";
 import "annotations/events.proto";
+import "annotations/mcp.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
@@ -30,6 +31,13 @@ service AccountAssociationsService {
         capabilities: [CAP_IAM_ACCOUNT_ASSOCIATIONS_LIST]
       }
     };
+    option (chainguard.annotations.mcp) = {
+      description: "Get a cloud provider account association by its UIDP."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
   }
 
   // CreateAccountAssociation creates a new account association under a parent group.
@@ -48,6 +56,13 @@ service AccountAssociationsService {
       extensions: ["group"]
       audience: CUSTOMER
     };
+    option (chainguard.annotations.mcp) = {
+      description: "Create a new cloud provider account association (AWS, GCP, Azure) under a group."
+      read_only: false
+      destructive: false
+      idempotent: false
+      open_world: false
+    };
   }
 
   // DeleteAccountAssociation deletes an account association by UID.
@@ -64,6 +79,13 @@ service AccountAssociationsService {
       extensions: ["group"]
       audience: CUSTOMER
     };
+    option (chainguard.annotations.mcp) = {
+      description: "Delete a cloud provider account association by its UIDP."
+      read_only: false
+      destructive: true
+      idempotent: true
+      open_world: false
+    };
   }
 
   // ListAccountAssociations returns account associations with pagination support.
@@ -74,6 +96,13 @@ service AccountAssociationsService {
         capabilities: [CAP_IAM_ACCOUNT_ASSOCIATIONS_LIST]
         unscoped: true
       }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List cloud provider account associations (AWS, GCP, Azure) the caller has access to. Supports filtering and pagination."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
     };
   }
 
@@ -92,6 +121,13 @@ service AccountAssociationsService {
       type: "dev.chainguard.api.iam.account_associations.updated.v1"
       extensions: ["group"]
       audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Update a cloud provider account association's fields."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
     };
   }
 }

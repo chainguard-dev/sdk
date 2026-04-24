@@ -7,6 +7,7 @@ package chainguard.platform.iam.v2beta1;
 
 import "annotations/auth.proto";
 import "annotations/events.proto";
+import "annotations/mcp.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
@@ -38,6 +39,13 @@ service IdentitiesService {
       extensions: ["group"]
       audience: CUSTOMER
     };
+    option (chainguard.annotations.mcp) = {
+      description: "Create a new IAM identity (OIDC claim match, static keys, AWS IAM, or service principal) under a group."
+      read_only: false
+      destructive: false
+      idempotent: false
+      open_world: false
+    };
   }
 
   // GetIdentity retrieves a single identity by UID.
@@ -47,6 +55,13 @@ service IdentitiesService {
       enabled: {
         capabilities: [CAP_IAM_IDENTITY_LIST]
       }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get an IAM identity by its UIDP."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
     };
   }
 
@@ -62,6 +77,13 @@ service IdentitiesService {
       type: "dev.chainguard.api.iam.identity.deleted.v1"
       extensions: ["group"]
       audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Delete an IAM identity by its UIDP."
+      read_only: false
+      destructive: true
+      idempotent: true
+      open_world: false
     };
   }
 
@@ -82,6 +104,13 @@ service IdentitiesService {
       extensions: ["group"]
       audience: CUSTOMER
     };
+    option (chainguard.annotations.mcp) = {
+      description: "Update an IAM identity's name, description, or relationship configuration."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
   }
 
   // ListIdentities returns identities based on filter criteria with pagination support.
@@ -92,6 +121,13 @@ service IdentitiesService {
         capabilities: [CAP_IAM_IDENTITY_LIST]
         unscoped: true
       }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List IAM identities the caller has access to. Supports filtering by name, relationship type, and pagination."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
     };
   }
 }

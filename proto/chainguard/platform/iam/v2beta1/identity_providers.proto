@@ -7,6 +7,7 @@ package chainguard.platform.iam.v2beta1;
 
 import "annotations/auth.proto";
 import "annotations/events.proto";
+import "annotations/mcp.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
@@ -31,6 +32,13 @@ service IdentityProvidersService {
         unscoped: true
       }
     };
+    option (chainguard.annotations.mcp) = {
+      description: "List external identity providers (OIDC) the caller has access to. Supports filtering and pagination."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
   }
 
   // GetIdentityProvider retrieves a single identity provider by UID.
@@ -40,6 +48,13 @@ service IdentityProvidersService {
       enabled: {
         capabilities: [CAP_IAM_IDENTITY_PROVIDERS_LIST]
       }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get an external identity provider by its UIDP."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
     };
   }
 
@@ -66,6 +81,13 @@ service IdentityProvidersService {
       extensions: ["group"]
       audience: CUSTOMER
     };
+    option (chainguard.annotations.mcp) = {
+      description: "Create a new external identity provider (OIDC) for a group, enabling SSO authentication."
+      read_only: false
+      destructive: false
+      idempotent: false
+      open_world: false
+    };
   }
 
   // UpdateIdentityProvider updates an identity provider.
@@ -91,6 +113,13 @@ service IdentityProvidersService {
       extensions: ["group"]
       audience: CUSTOMER
     };
+    option (chainguard.annotations.mcp) = {
+      description: "Update an external identity provider's configuration, including OIDC settings and default role."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
   }
 
   // DeleteIdentityProvider deletes an identity provider by UID.
@@ -105,6 +134,13 @@ service IdentityProvidersService {
       type: "dev.chainguard.api.iam.identity_providers.deleted.v1"
       extensions: ["group"]
       audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Delete an external identity provider by its UIDP, disabling SSO for that provider."
+      read_only: false
+      destructive: true
+      idempotent: true
+      open_world: false
     };
   }
 }
