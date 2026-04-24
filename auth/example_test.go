@@ -12,15 +12,6 @@ import (
 	"chainguard.dev/sdk/auth"
 )
 
-// ExampleWithToken demonstrates storing a token in a context and retrieving it.
-func ExampleWithToken() {
-	ctx := context.Background()
-	ctx = auth.WithToken(ctx, "my-token")
-	fmt.Println(auth.GetToken(ctx))
-	// Output:
-	// my-token
-}
-
 // ExampleGetToken demonstrates retrieving a token from a context that has none.
 func ExampleGetToken() {
 	ctx := context.Background()
