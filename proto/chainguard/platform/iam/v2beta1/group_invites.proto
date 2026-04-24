@@ -7,6 +7,8 @@ package chainguard.platform.iam.v2beta1;
 
 import "annotations/auth.proto";
 import "annotations/events.proto";
+import "annotations/mcp.proto";
+import "capabilities/capabilities.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
@@ -42,6 +44,13 @@ service GroupInvitesService {
       extensions: ["group"]
       audience: CUSTOMER
     };
+    option (chainguard.annotations.mcp) = {
+      description: "Create a new group invite code that allows identities to join a group with a specified role."
+      read_only: false
+      destructive: false
+      idempotent: false
+      open_world: false
+    };
   }
 
   // GetGroupInvite retrieves a single group invite by UID.
@@ -51,6 +60,13 @@ service GroupInvitesService {
       enabled: {
         capabilities: [CAP_IAM_GROUP_INVITES_LIST]
       }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get a group invite by its UIDP."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
     };
   }
 
@@ -67,6 +83,13 @@ service GroupInvitesService {
       extensions: ["group"]
       audience: CUSTOMER
     };
+    option (chainguard.annotations.mcp) = {
+      description: "Delete a group invite by its UIDP, revoking the invite code."
+      read_only: false
+      destructive: true
+      idempotent: true
+      open_world: false
+    };
   }
 
   // ListGroupInvites returns group invites based on filter criteria with pagination support.
@@ -77,6 +100,13 @@ service GroupInvitesService {
         capabilities: [CAP_IAM_GROUP_INVITES_LIST]
         unscoped: true
       }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List group invites the caller has access to. Supports filtering and pagination."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
     };
   }
 }
@@ -98,13 +128,13 @@ message GroupInvite {
   ];
 
   // The role UIDP to assign when the invite is accepted.
-  // Follow-up: add an OUTPUT_ONLY Role field (field 10) for v1 parity.
-  // v1 embeds a full Role object so the console doesn't need a second
-  // GetRole round-trip. The core layer already fetches the role during
-  // Create (for authz), so Create can return it cheaply. For Get/List,
-  // either JOIN in the datastore query or batch-fetch roles in the
-  // handler to avoid N+1 queries.
+  // Set this field when creating a group invite.
   string role_uid = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The role associated with this invite, hydrated with name/description/capabilities.
+  // Populated by the server on Get/List/Create responses.
+  // May be absent if the referenced role has been deleted.
+  GroupInviteRole role = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Email address that is allowed to accept this invite code.
   // If blank, anyone with the invite code can accept.
@@ -131,6 +161,18 @@ message GroupInvite {
 
   // When the invite was created.
   google.protobuf.Timestamp create_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// GroupInviteRole contains role details for a group invite.
+message GroupInviteRole {
+  // Unique identifier for the role.
+  string uid = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Human-readable name of the role.
+  string name = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Optional description of the role.
+  string description = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Capabilities granted by this role.
+  repeated chainguard.capabilities.Capability capabilities = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // CreateGroupInviteRequest is the request message for CreateGroupInvite.

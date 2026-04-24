@@ -26,6 +26,59 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Plan describes the entitlement plan for an organization.
+type Plan int32
+
+const (
+	Plan_PLAN_UNSPECIFIED Plan = 0
+	Plan_PER_IMAGE        Plan = 1
+	Plan_CATALOG          Plan = 2
+	Plan_STARTER          Plan = 3
+)
+
+// Enum value maps for Plan.
+var (
+	Plan_name = map[int32]string{
+		0: "PLAN_UNSPECIFIED",
+		1: "PER_IMAGE",
+		2: "CATALOG",
+		3: "STARTER",
+	}
+	Plan_value = map[string]int32{
+		"PLAN_UNSPECIFIED": 0,
+		"PER_IMAGE":        1,
+		"CATALOG":          2,
+		"STARTER":          3,
+	}
+)
+
+func (x Plan) Enum() *Plan {
+	p := new(Plan)
+	*p = x
+	return p
+}
+
+func (x Plan) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Plan) Descriptor() protoreflect.EnumDescriptor {
+	return file_registry_entitlements_platform_proto_enumTypes[0].Descriptor()
+}
+
+func (Plan) Type() protoreflect.EnumType {
+	return &file_registry_entitlements_platform_proto_enumTypes[0]
+}
+
+func (x Plan) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Plan.Descriptor instead.
+func (Plan) EnumDescriptor() ([]byte, []int) {
+	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{0}
+}
+
 type Entitlement_Type int32
 
 const (
@@ -65,11 +118,11 @@ func (x Entitlement_Type) String() string {
 }
 
 func (Entitlement_Type) Descriptor() protoreflect.EnumDescriptor {
-	return file_registry_entitlements_platform_proto_enumTypes[0].Descriptor()
+	return file_registry_entitlements_platform_proto_enumTypes[1].Descriptor()
 }
 
 func (Entitlement_Type) Type() protoreflect.EnumType {
-	return &file_registry_entitlements_platform_proto_enumTypes[0]
+	return &file_registry_entitlements_platform_proto_enumTypes[1]
 }
 
 func (x Entitlement_Type) Number() protoreflect.EnumNumber {
@@ -767,11 +820,376 @@ func (x *DeleteEntitlementRequest) GetId() string {
 	return ""
 }
 
+// EntitledImage is an image that an organization is currently entitled to access.
+type EntitledImage struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The catalog image repository UIDP.
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Human-readable image name.
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// The catalog tier of the image.
+	CatalogTier CatalogTier `protobuf:"varint,3,opt,name=catalog_tier,json=catalogTier,proto3,enum=chainguard.platform.registry.CatalogTier" json:"catalog_tier,omitempty"`
+	// The entitlement type that granted access to this image.
+	Type Entitlement_Type `protobuf:"varint,4,opt,name=type,proto3,enum=chainguard.platform.registry.Entitlement_Type" json:"type,omitempty"`
+	// When access to this image expires. Unset means no expiration.
+	ExpirationTime *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=expiration_time,json=expirationTime,proto3" json:"expiration_time,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *EntitledImage) Reset() {
+	*x = EntitledImage{}
+	mi := &file_registry_entitlements_platform_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EntitledImage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EntitledImage) ProtoMessage() {}
+
+func (x *EntitledImage) ProtoReflect() protoreflect.Message {
+	mi := &file_registry_entitlements_platform_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EntitledImage.ProtoReflect.Descriptor instead.
+func (*EntitledImage) Descriptor() ([]byte, []int) {
+	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *EntitledImage) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *EntitledImage) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *EntitledImage) GetCatalogTier() CatalogTier {
+	if x != nil {
+		return x.CatalogTier
+	}
+	return CatalogTier_UNKNOWN
+}
+
+func (x *EntitledImage) GetType() Entitlement_Type {
+	if x != nil {
+		return x.Type
+	}
+	return Entitlement_UNKNOWN
+}
+
+func (x *EntitledImage) GetExpirationTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpirationTime
+	}
+	return nil
+}
+
+type GetEffectiveEntitlementsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Parent        string                 `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetEffectiveEntitlementsRequest) Reset() {
+	*x = GetEffectiveEntitlementsRequest{}
+	mi := &file_registry_entitlements_platform_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetEffectiveEntitlementsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetEffectiveEntitlementsRequest) ProtoMessage() {}
+
+func (x *GetEffectiveEntitlementsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_registry_entitlements_platform_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetEffectiveEntitlementsRequest.ProtoReflect.Descriptor instead.
+func (*GetEffectiveEntitlementsRequest) Descriptor() ([]byte, []int) {
+	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GetEffectiveEntitlementsRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
+type GetEffectiveEntitlementsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The resolved entitlement plan for the organization.
+	Plan Plan `protobuf:"varint,1,opt,name=plan,proto3,enum=chainguard.platform.registry.Plan" json:"plan,omitempty"`
+	// Catalog tiers with unlimited (AYCE) access.
+	ActiveTiers []CatalogTier `protobuf:"varint,2,rep,packed,name=active_tiers,json=activeTiers,proto3,enum=chainguard.platform.registry.CatalogTier" json:"active_tiers,omitempty"`
+	// Images the organization is currently entitled to, deduplicated
+	// across entitlements with the latest expiration retained.
+	ActiveImages []*EntitledImage `protobuf:"bytes,3,rep,name=active_images,json=activeImages,proto3" json:"active_images,omitempty"`
+	// Aggregated quota usage per tier. Keys are CatalogTier string names.
+	Quota map[string]*ImageQuota `protobuf:"bytes,4,rep,name=quota,proto3" json:"quota,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Maximum number of images that can be entitled to this organization.
+	// A value of -1 means this organization has no maximum quota enforced.
+	MaxTotalImages int32 `protobuf:"varint,5,opt,name=max_total_images,json=maxTotalImages,proto3" json:"max_total_images,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *GetEffectiveEntitlementsResponse) Reset() {
+	*x = GetEffectiveEntitlementsResponse{}
+	mi := &file_registry_entitlements_platform_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetEffectiveEntitlementsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetEffectiveEntitlementsResponse) ProtoMessage() {}
+
+func (x *GetEffectiveEntitlementsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_registry_entitlements_platform_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetEffectiveEntitlementsResponse.ProtoReflect.Descriptor instead.
+func (*GetEffectiveEntitlementsResponse) Descriptor() ([]byte, []int) {
+	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *GetEffectiveEntitlementsResponse) GetPlan() Plan {
+	if x != nil {
+		return x.Plan
+	}
+	return Plan_PLAN_UNSPECIFIED
+}
+
+func (x *GetEffectiveEntitlementsResponse) GetActiveTiers() []CatalogTier {
+	if x != nil {
+		return x.ActiveTiers
+	}
+	return nil
+}
+
+func (x *GetEffectiveEntitlementsResponse) GetActiveImages() []*EntitledImage {
+	if x != nil {
+		return x.ActiveImages
+	}
+	return nil
+}
+
+func (x *GetEffectiveEntitlementsResponse) GetQuota() map[string]*ImageQuota {
+	if x != nil {
+		return x.Quota
+	}
+	return nil
+}
+
+func (x *GetEffectiveEntitlementsResponse) GetMaxTotalImages() int32 {
+	if x != nil {
+		return x.MaxTotalImages
+	}
+	return 0
+}
+
+type AddEntitlementImagesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Specify how to select an entitlement to add images to.
+	// Callers must have scope over the id in the provided field.
+	//
+	// Types that are valid to be assigned to Entitlement:
+	//
+	//	*AddEntitlementImagesRequest_Parent
+	//	*AddEntitlementImagesRequest_Id
+	Entitlement isAddEntitlementImagesRequest_Entitlement `protobuf_oneof:"entitlement"`
+	// Catalog image names to add (e.g., "nginx", "redis").
+	// Resolved against the catalog by exact name match.
+	ImageNames    []string `protobuf:"bytes,3,rep,name=image_names,json=imageNames,proto3" json:"image_names,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AddEntitlementImagesRequest) Reset() {
+	*x = AddEntitlementImagesRequest{}
+	mi := &file_registry_entitlements_platform_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddEntitlementImagesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddEntitlementImagesRequest) ProtoMessage() {}
+
+func (x *AddEntitlementImagesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_registry_entitlements_platform_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddEntitlementImagesRequest.ProtoReflect.Descriptor instead.
+func (*AddEntitlementImagesRequest) Descriptor() ([]byte, []int) {
+	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *AddEntitlementImagesRequest) GetEntitlement() isAddEntitlementImagesRequest_Entitlement {
+	if x != nil {
+		return x.Entitlement
+	}
+	return nil
+}
+
+func (x *AddEntitlementImagesRequest) GetParent() string {
+	if x != nil {
+		if x, ok := x.Entitlement.(*AddEntitlementImagesRequest_Parent); ok {
+			return x.Parent
+		}
+	}
+	return ""
+}
+
+func (x *AddEntitlementImagesRequest) GetId() string {
+	if x != nil {
+		if x, ok := x.Entitlement.(*AddEntitlementImagesRequest_Id); ok {
+			return x.Id
+		}
+	}
+	return ""
+}
+
+func (x *AddEntitlementImagesRequest) GetImageNames() []string {
+	if x != nil {
+		return x.ImageNames
+	}
+	return nil
+}
+
+type isAddEntitlementImagesRequest_Entitlement interface {
+	isAddEntitlementImagesRequest_Entitlement()
+}
+
+type AddEntitlementImagesRequest_Parent struct {
+	// The organization to add images to. The newest eligible entitlement
+	// with matching tier capacity is selected.
+	Parent string `protobuf:"bytes,1,opt,name=parent,proto3,oneof"`
+}
+
+type AddEntitlementImagesRequest_Id struct {
+	// The exact id of the entitlement to add images to.
+	Id string `protobuf:"bytes,2,opt,name=id,proto3,oneof"`
+}
+
+func (*AddEntitlementImagesRequest_Parent) isAddEntitlementImagesRequest_Entitlement() {}
+
+func (*AddEntitlementImagesRequest_Id) isAddEntitlementImagesRequest_Entitlement() {}
+
+type AddEntitlementImagesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The images that were added. Excludes requested images that were
+	// found on
+	Images []*EntitledImage `protobuf:"bytes,1,rep,name=images,proto3" json:"images,omitempty"`
+	// The customer org UIDP that received the images. Set by the backend
+	// to the resolved parent of the target entitlement, regardless of
+	// whether the request selected by parent or by entitlement id. Used
+	// as the CloudEvents subject for downstream subscribers.
+	Parent        string `protobuf:"bytes,2,opt,name=parent,proto3" json:"parent,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AddEntitlementImagesResponse) Reset() {
+	*x = AddEntitlementImagesResponse{}
+	mi := &file_registry_entitlements_platform_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddEntitlementImagesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddEntitlementImagesResponse) ProtoMessage() {}
+
+func (x *AddEntitlementImagesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_registry_entitlements_platform_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddEntitlementImagesResponse.ProtoReflect.Descriptor instead.
+func (*AddEntitlementImagesResponse) Descriptor() ([]byte, []int) {
+	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *AddEntitlementImagesResponse) GetImages() []*EntitledImage {
+	if x != nil {
+		return x.Images
+	}
+	return nil
+}
+
+func (x *AddEntitlementImagesResponse) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
 var File_registry_entitlements_platform_proto protoreflect.FileDescriptor
 
 const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\n" +
-	"$registry_entitlements.platform.proto\x12\x1cchainguard.platform.registry\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x17registry.platform.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x16annotations/auth.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\xfa\x04\n" +
+	"$registry_entitlements.platform.proto\x12\x1cchainguard.platform.registry\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17registry.platform.proto\"\xfa\x04\n" +
 	"\vEntitlement\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1f\n" +
 	"\vexternal_id\x18\x02 \x01(\tR\n" +
@@ -830,7 +1248,39 @@ const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12K\n" +
 	"\ventitlement\x18\x02 \x01(\v2).chainguard.platform.registry.EntitlementR\ventitlement\"8\n" +
 	"\x18DeleteEntitlementRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02idJ\x04\b\x02\x10\x032\x9b\f\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02idJ\x04\b\x02\x10\x03\"\x90\x02\n" +
+	"\rEntitledImage\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
+	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x04name\x12L\n" +
+	"\fcatalog_tier\x18\x03 \x01(\x0e2).chainguard.platform.registry.CatalogTierR\vcatalogTier\x12B\n" +
+	"\x04type\x18\x04 \x01(\x0e2..chainguard.platform.registry.Entitlement.TypeR\x04type\x12C\n" +
+	"\x0fexpiration_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x0eexpirationTime\"A\n" +
+	"\x1fGetEffectiveEntitlementsRequest\x12\x1e\n" +
+	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\xe9\x03\n" +
+	" GetEffectiveEntitlementsResponse\x126\n" +
+	"\x04plan\x18\x01 \x01(\x0e2\".chainguard.platform.registry.PlanR\x04plan\x12L\n" +
+	"\factive_tiers\x18\x02 \x03(\x0e2).chainguard.platform.registry.CatalogTierR\vactiveTiers\x12P\n" +
+	"\ractive_images\x18\x03 \x03(\v2+.chainguard.platform.registry.EntitledImageR\factiveImages\x12_\n" +
+	"\x05quota\x18\x04 \x03(\v2I.chainguard.platform.registry.GetEffectiveEntitlementsResponse.QuotaEntryR\x05quota\x12(\n" +
+	"\x10max_total_images\x18\x05 \x01(\x05R\x0emaxTotalImages\x1ab\n" +
+	"\n" +
+	"QuotaEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12>\n" +
+	"\x05value\x18\x02 \x01(\v2(.chainguard.platform.registry.ImageQuotaR\x05value:\x028\x01\"y\n" +
+	"\x1bAddEntitlementImagesRequest\x12\x18\n" +
+	"\x06parent\x18\x01 \x01(\tH\x00R\x06parent\x12\x10\n" +
+	"\x02id\x18\x02 \x01(\tH\x00R\x02id\x12\x1f\n" +
+	"\vimage_names\x18\x03 \x03(\tR\n" +
+	"imageNamesB\r\n" +
+	"\ventitlement\"\x81\x01\n" +
+	"\x1cAddEntitlementImagesResponse\x12C\n" +
+	"\x06images\x18\x01 \x03(\v2+.chainguard.platform.registry.EntitledImageR\x06images\x12\x1c\n" +
+	"\x06parent\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x06parent*E\n" +
+	"\x04Plan\x12\x14\n" +
+	"\x10PLAN_UNSPECIFIED\x10\x00\x12\r\n" +
+	"\tPER_IMAGE\x10\x01\x12\v\n" +
+	"\aCATALOG\x10\x02\x12\v\n" +
+	"\aSTARTER\x10\x032\xcf\x10\n" +
 	"\fEntitlements\x12\xc6\x01\n" +
 	"\x10ListEntitlements\x12/.chainguard.platform.registry.EntitlementFilter\x1a-.chainguard.platform.registry.EntitlementList\"R\x92A\x16\n" +
 	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x02'\x12%/registry/v1/entitlements/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
@@ -843,6 +1293,9 @@ const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\x02\x90\r\x12\xd8\x01\n" +
 	"\aSummary\x127.chainguard.platform.registry.EntitlementSummaryRequest\x1a8.chainguard.platform.registry.EntitlementSummaryResponse\"Z\x92A\x16\n" +
 	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x02/\x12-/registry/v1/entitlements/{parent=**}:summary\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\x90\r\x12\xf7\x01\n" +
+	"\x18GetEffectiveEntitlements\x12=.chainguard.platform.registry.GetEffectiveEntitlementsRequest\x1a>.chainguard.platform.registry.GetEffectiveEntitlementsResponse\"\\\x92A\x16\n" +
+	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x021\x12//registry/v1/entitlements/{parent=**}:effective\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x90\r\x12\xcf\x01\n" +
 	"\vGetFeatures\x120.chainguard.platform.registry.GetFeaturesRequest\x1a1.chainguard.platform.registry.GetFeaturesResponse\"[\x92A\x16\n" +
 	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x020\x12./registry/v1/entitlements/{parent=**}:features\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
@@ -852,7 +1305,11 @@ const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\x02\x91\r\x12\xb3\x01\n" +
 	"\x11DeleteEntitlement\x126.chainguard.platform.registry.DeleteEntitlementRequest\x1a\x16.google.protobuf.Empty\"N\x92A\x16\n" +
 	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x02#*!/registry/v1/entitlements/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\x92\r\x1a4\x92A1\n" +
+	"\x02\x92\r\x12\xb7\x02\n" +
+	"\x14AddEntitlementImages\x129.chainguard.platform.registry.AddEntitlementImagesRequest\x1a:.chainguard.platform.registry.AddEntitlementImagesResponse\"\xa7\x01\x92A\x16\n" +
+	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x024:\x01*\"//registry/v1/entitlements/{parent=**}:addImages\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02\x95\r\x10\x01\xc2\xf0\x8e\xfc\v@\n" +
+	"7dev.chainguard.api.registry.entitlement.images.added.v1\x12\x05group\x1a4\x92A1\n" +
 	"\x14RegistryEntitlements\x12\x19Registry Entitlements APIB/Z-chainguard.dev/sdk/proto/platform/registry/v1b\x06proto3"
 
 var (
@@ -867,63 +1324,83 @@ func file_registry_entitlements_platform_proto_rawDescGZIP() []byte {
 	return file_registry_entitlements_platform_proto_rawDescData
 }
 
-var file_registry_entitlements_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_registry_entitlements_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_registry_entitlements_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_registry_entitlements_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
 var file_registry_entitlements_platform_proto_goTypes = []any{
-	(Entitlement_Type)(0),              // 0: chainguard.platform.registry.Entitlement.Type
-	(*Entitlement)(nil),                // 1: chainguard.platform.registry.Entitlement
-	(*ImageQuota)(nil),                 // 2: chainguard.platform.registry.ImageQuota
-	(*EntitlementFilter)(nil),          // 3: chainguard.platform.registry.EntitlementFilter
-	(*EntitlementList)(nil),            // 4: chainguard.platform.registry.EntitlementList
-	(*EntitlementImage)(nil),           // 5: chainguard.platform.registry.EntitlementImage
-	(*EntitlementImagesFilter)(nil),    // 6: chainguard.platform.registry.EntitlementImagesFilter
-	(*EntitlementImagesList)(nil),      // 7: chainguard.platform.registry.EntitlementImagesList
-	(*EntitlementSummaryRequest)(nil),  // 8: chainguard.platform.registry.EntitlementSummaryRequest
-	(*EntitlementSummaryResponse)(nil), // 9: chainguard.platform.registry.EntitlementSummaryResponse
-	(*GetFeaturesRequest)(nil),         // 10: chainguard.platform.registry.GetFeaturesRequest
-	(*GetFeaturesResponse)(nil),        // 11: chainguard.platform.registry.GetFeaturesResponse
-	(*CreateEntitlementRequest)(nil),   // 12: chainguard.platform.registry.CreateEntitlementRequest
-	(*DeleteEntitlementRequest)(nil),   // 13: chainguard.platform.registry.DeleteEntitlementRequest
-	nil,                                // 14: chainguard.platform.registry.Entitlement.QuotaEntry
-	nil,                                // 15: chainguard.platform.registry.EntitlementSummaryResponse.QuotaEntry
-	(*timestamppb.Timestamp)(nil),      // 16: google.protobuf.Timestamp
-	(CatalogTier)(0),                   // 17: chainguard.platform.registry.CatalogTier
-	(*emptypb.Empty)(nil),              // 18: google.protobuf.Empty
+	(Plan)(0),                                // 0: chainguard.platform.registry.Plan
+	(Entitlement_Type)(0),                    // 1: chainguard.platform.registry.Entitlement.Type
+	(*Entitlement)(nil),                      // 2: chainguard.platform.registry.Entitlement
+	(*ImageQuota)(nil),                       // 3: chainguard.platform.registry.ImageQuota
+	(*EntitlementFilter)(nil),                // 4: chainguard.platform.registry.EntitlementFilter
+	(*EntitlementList)(nil),                  // 5: chainguard.platform.registry.EntitlementList
+	(*EntitlementImage)(nil),                 // 6: chainguard.platform.registry.EntitlementImage
+	(*EntitlementImagesFilter)(nil),          // 7: chainguard.platform.registry.EntitlementImagesFilter
+	(*EntitlementImagesList)(nil),            // 8: chainguard.platform.registry.EntitlementImagesList
+	(*EntitlementSummaryRequest)(nil),        // 9: chainguard.platform.registry.EntitlementSummaryRequest
+	(*EntitlementSummaryResponse)(nil),       // 10: chainguard.platform.registry.EntitlementSummaryResponse
+	(*GetFeaturesRequest)(nil),               // 11: chainguard.platform.registry.GetFeaturesRequest
+	(*GetFeaturesResponse)(nil),              // 12: chainguard.platform.registry.GetFeaturesResponse
+	(*CreateEntitlementRequest)(nil),         // 13: chainguard.platform.registry.CreateEntitlementRequest
+	(*DeleteEntitlementRequest)(nil),         // 14: chainguard.platform.registry.DeleteEntitlementRequest
+	(*EntitledImage)(nil),                    // 15: chainguard.platform.registry.EntitledImage
+	(*GetEffectiveEntitlementsRequest)(nil),  // 16: chainguard.platform.registry.GetEffectiveEntitlementsRequest
+	(*GetEffectiveEntitlementsResponse)(nil), // 17: chainguard.platform.registry.GetEffectiveEntitlementsResponse
+	(*AddEntitlementImagesRequest)(nil),      // 18: chainguard.platform.registry.AddEntitlementImagesRequest
+	(*AddEntitlementImagesResponse)(nil),     // 19: chainguard.platform.registry.AddEntitlementImagesResponse
+	nil,                                      // 20: chainguard.platform.registry.Entitlement.QuotaEntry
+	nil,                                      // 21: chainguard.platform.registry.EntitlementSummaryResponse.QuotaEntry
+	nil,                                      // 22: chainguard.platform.registry.GetEffectiveEntitlementsResponse.QuotaEntry
+	(*timestamppb.Timestamp)(nil),            // 23: google.protobuf.Timestamp
+	(CatalogTier)(0),                         // 24: chainguard.platform.registry.CatalogTier
+	(*emptypb.Empty)(nil),                    // 25: google.protobuf.Empty
 }
 var file_registry_entitlements_platform_proto_depIdxs = []int32{
-	16, // 0: chainguard.platform.registry.Entitlement.create_time:type_name -> google.protobuf.Timestamp
-	16, // 1: chainguard.platform.registry.Entitlement.update_time:type_name -> google.protobuf.Timestamp
-	16, // 2: chainguard.platform.registry.Entitlement.expiration_time:type_name -> google.protobuf.Timestamp
-	0,  // 3: chainguard.platform.registry.Entitlement.type:type_name -> chainguard.platform.registry.Entitlement.Type
-	14, // 4: chainguard.platform.registry.Entitlement.quota:type_name -> chainguard.platform.registry.Entitlement.QuotaEntry
-	17, // 5: chainguard.platform.registry.Entitlement.tiers:type_name -> chainguard.platform.registry.CatalogTier
-	1,  // 6: chainguard.platform.registry.EntitlementList.items:type_name -> chainguard.platform.registry.Entitlement
-	17, // 7: chainguard.platform.registry.EntitlementImage.tier:type_name -> chainguard.platform.registry.CatalogTier
-	5,  // 8: chainguard.platform.registry.EntitlementImagesList.images:type_name -> chainguard.platform.registry.EntitlementImage
-	15, // 9: chainguard.platform.registry.EntitlementSummaryResponse.quota:type_name -> chainguard.platform.registry.EntitlementSummaryResponse.QuotaEntry
-	16, // 10: chainguard.platform.registry.EntitlementSummaryResponse.last_updated_time:type_name -> google.protobuf.Timestamp
-	1,  // 11: chainguard.platform.registry.CreateEntitlementRequest.entitlement:type_name -> chainguard.platform.registry.Entitlement
-	2,  // 12: chainguard.platform.registry.Entitlement.QuotaEntry.value:type_name -> chainguard.platform.registry.ImageQuota
-	2,  // 13: chainguard.platform.registry.EntitlementSummaryResponse.QuotaEntry.value:type_name -> chainguard.platform.registry.ImageQuota
-	3,  // 14: chainguard.platform.registry.Entitlements.ListEntitlements:input_type -> chainguard.platform.registry.EntitlementFilter
-	6,  // 15: chainguard.platform.registry.Entitlements.ListEntitlementImages:input_type -> chainguard.platform.registry.EntitlementImagesFilter
-	6,  // 16: chainguard.platform.registry.Entitlements.ListEntitlementCatalogImages:input_type -> chainguard.platform.registry.EntitlementImagesFilter
-	8,  // 17: chainguard.platform.registry.Entitlements.Summary:input_type -> chainguard.platform.registry.EntitlementSummaryRequest
-	10, // 18: chainguard.platform.registry.Entitlements.GetFeatures:input_type -> chainguard.platform.registry.GetFeaturesRequest
-	12, // 19: chainguard.platform.registry.Entitlements.CreateEntitlement:input_type -> chainguard.platform.registry.CreateEntitlementRequest
-	13, // 20: chainguard.platform.registry.Entitlements.DeleteEntitlement:input_type -> chainguard.platform.registry.DeleteEntitlementRequest
-	4,  // 21: chainguard.platform.registry.Entitlements.ListEntitlements:output_type -> chainguard.platform.registry.EntitlementList
-	7,  // 22: chainguard.platform.registry.Entitlements.ListEntitlementImages:output_type -> chainguard.platform.registry.EntitlementImagesList
-	7,  // 23: chainguard.platform.registry.Entitlements.ListEntitlementCatalogImages:output_type -> chainguard.platform.registry.EntitlementImagesList
-	9,  // 24: chainguard.platform.registry.Entitlements.Summary:output_type -> chainguard.platform.registry.EntitlementSummaryResponse
-	11, // 25: chainguard.platform.registry.Entitlements.GetFeatures:output_type -> chainguard.platform.registry.GetFeaturesResponse
-	1,  // 26: chainguard.platform.registry.Entitlements.CreateEntitlement:output_type -> chainguard.platform.registry.Entitlement
-	18, // 27: chainguard.platform.registry.Entitlements.DeleteEntitlement:output_type -> google.protobuf.Empty
-	21, // [21:28] is the sub-list for method output_type
-	14, // [14:21] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	23, // 0: chainguard.platform.registry.Entitlement.create_time:type_name -> google.protobuf.Timestamp
+	23, // 1: chainguard.platform.registry.Entitlement.update_time:type_name -> google.protobuf.Timestamp
+	23, // 2: chainguard.platform.registry.Entitlement.expiration_time:type_name -> google.protobuf.Timestamp
+	1,  // 3: chainguard.platform.registry.Entitlement.type:type_name -> chainguard.platform.registry.Entitlement.Type
+	20, // 4: chainguard.platform.registry.Entitlement.quota:type_name -> chainguard.platform.registry.Entitlement.QuotaEntry
+	24, // 5: chainguard.platform.registry.Entitlement.tiers:type_name -> chainguard.platform.registry.CatalogTier
+	2,  // 6: chainguard.platform.registry.EntitlementList.items:type_name -> chainguard.platform.registry.Entitlement
+	24, // 7: chainguard.platform.registry.EntitlementImage.tier:type_name -> chainguard.platform.registry.CatalogTier
+	6,  // 8: chainguard.platform.registry.EntitlementImagesList.images:type_name -> chainguard.platform.registry.EntitlementImage
+	21, // 9: chainguard.platform.registry.EntitlementSummaryResponse.quota:type_name -> chainguard.platform.registry.EntitlementSummaryResponse.QuotaEntry
+	23, // 10: chainguard.platform.registry.EntitlementSummaryResponse.last_updated_time:type_name -> google.protobuf.Timestamp
+	2,  // 11: chainguard.platform.registry.CreateEntitlementRequest.entitlement:type_name -> chainguard.platform.registry.Entitlement
+	24, // 12: chainguard.platform.registry.EntitledImage.catalog_tier:type_name -> chainguard.platform.registry.CatalogTier
+	1,  // 13: chainguard.platform.registry.EntitledImage.type:type_name -> chainguard.platform.registry.Entitlement.Type
+	23, // 14: chainguard.platform.registry.EntitledImage.expiration_time:type_name -> google.protobuf.Timestamp
+	0,  // 15: chainguard.platform.registry.GetEffectiveEntitlementsResponse.plan:type_name -> chainguard.platform.registry.Plan
+	24, // 16: chainguard.platform.registry.GetEffectiveEntitlementsResponse.active_tiers:type_name -> chainguard.platform.registry.CatalogTier
+	15, // 17: chainguard.platform.registry.GetEffectiveEntitlementsResponse.active_images:type_name -> chainguard.platform.registry.EntitledImage
+	22, // 18: chainguard.platform.registry.GetEffectiveEntitlementsResponse.quota:type_name -> chainguard.platform.registry.GetEffectiveEntitlementsResponse.QuotaEntry
+	15, // 19: chainguard.platform.registry.AddEntitlementImagesResponse.images:type_name -> chainguard.platform.registry.EntitledImage
+	3,  // 20: chainguard.platform.registry.Entitlement.QuotaEntry.value:type_name -> chainguard.platform.registry.ImageQuota
+	3,  // 21: chainguard.platform.registry.EntitlementSummaryResponse.QuotaEntry.value:type_name -> chainguard.platform.registry.ImageQuota
+	3,  // 22: chainguard.platform.registry.GetEffectiveEntitlementsResponse.QuotaEntry.value:type_name -> chainguard.platform.registry.ImageQuota
+	4,  // 23: chainguard.platform.registry.Entitlements.ListEntitlements:input_type -> chainguard.platform.registry.EntitlementFilter
+	7,  // 24: chainguard.platform.registry.Entitlements.ListEntitlementImages:input_type -> chainguard.platform.registry.EntitlementImagesFilter
+	7,  // 25: chainguard.platform.registry.Entitlements.ListEntitlementCatalogImages:input_type -> chainguard.platform.registry.EntitlementImagesFilter
+	9,  // 26: chainguard.platform.registry.Entitlements.Summary:input_type -> chainguard.platform.registry.EntitlementSummaryRequest
+	16, // 27: chainguard.platform.registry.Entitlements.GetEffectiveEntitlements:input_type -> chainguard.platform.registry.GetEffectiveEntitlementsRequest
+	11, // 28: chainguard.platform.registry.Entitlements.GetFeatures:input_type -> chainguard.platform.registry.GetFeaturesRequest
+	13, // 29: chainguard.platform.registry.Entitlements.CreateEntitlement:input_type -> chainguard.platform.registry.CreateEntitlementRequest
+	14, // 30: chainguard.platform.registry.Entitlements.DeleteEntitlement:input_type -> chainguard.platform.registry.DeleteEntitlementRequest
+	18, // 31: chainguard.platform.registry.Entitlements.AddEntitlementImages:input_type -> chainguard.platform.registry.AddEntitlementImagesRequest
+	5,  // 32: chainguard.platform.registry.Entitlements.ListEntitlements:output_type -> chainguard.platform.registry.EntitlementList
+	8,  // 33: chainguard.platform.registry.Entitlements.ListEntitlementImages:output_type -> chainguard.platform.registry.EntitlementImagesList
+	8,  // 34: chainguard.platform.registry.Entitlements.ListEntitlementCatalogImages:output_type -> chainguard.platform.registry.EntitlementImagesList
+	10, // 35: chainguard.platform.registry.Entitlements.Summary:output_type -> chainguard.platform.registry.EntitlementSummaryResponse
+	17, // 36: chainguard.platform.registry.Entitlements.GetEffectiveEntitlements:output_type -> chainguard.platform.registry.GetEffectiveEntitlementsResponse
+	12, // 37: chainguard.platform.registry.Entitlements.GetFeatures:output_type -> chainguard.platform.registry.GetFeaturesResponse
+	2,  // 38: chainguard.platform.registry.Entitlements.CreateEntitlement:output_type -> chainguard.platform.registry.Entitlement
+	25, // 39: chainguard.platform.registry.Entitlements.DeleteEntitlement:output_type -> google.protobuf.Empty
+	19, // 40: chainguard.platform.registry.Entitlements.AddEntitlementImages:output_type -> chainguard.platform.registry.AddEntitlementImagesResponse
+	32, // [32:41] is the sub-list for method output_type
+	23, // [23:32] is the sub-list for method input_type
+	23, // [23:23] is the sub-list for extension type_name
+	23, // [23:23] is the sub-list for extension extendee
+	0,  // [0:23] is the sub-list for field type_name
 }
 
 func init() { file_registry_entitlements_platform_proto_init() }
@@ -932,13 +1409,17 @@ func file_registry_entitlements_platform_proto_init() {
 		return
 	}
 	file_registry_platform_proto_init()
+	file_registry_entitlements_platform_proto_msgTypes[16].OneofWrappers = []any{
+		(*AddEntitlementImagesRequest_Parent)(nil),
+		(*AddEntitlementImagesRequest_Id)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_registry_entitlements_platform_proto_rawDesc), len(file_registry_entitlements_platform_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   15,
+			NumEnums:      2,
+			NumMessages:   21,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

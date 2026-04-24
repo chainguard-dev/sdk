@@ -67,7 +67,7 @@ func NewClients(ctx context.Context, apiURL string, cred credentials.PerRPCCrede
 	if cred != nil {
 		opts = append(opts, grpc.WithPerRPCCredentials(cred))
 	} else {
-		clog.FromContext(ctx).Warn("No authentication provided, this may end badly.")
+		clog.WarnContext(ctx, "No authentication provided, this may end badly.")
 	}
 	opts = append(opts, addlOpts...)
 

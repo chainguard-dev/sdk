@@ -10,8 +10,9 @@ Package v2beta1 provides Go clients for the Chainguard IAM v2beta1 API.
 
 This package contains generated protobuf types and gRPC clients for managing
 Chainguard IAM resources including groups, identities, roles, role bindings,
-and account associations. It provides a unified Clients interface for accessing
-all IAM services with built-in pagination support.
+account associations, group invites, and identity providers. It provides a
+unified Clients interface for accessing all IAM services with built-in
+pagination support.
 
 # Features
 
@@ -21,17 +22,23 @@ all IAM services with built-in pagination support.
   - RoleBindings: Associate identities with roles within group scopes
   - AccountAssociations: Manage cloud provider account associations for groups
   - GroupInvites: Manage group invitations with role assignment and email notification
+  - IdentityProviders: Manage external OIDC identity providers for SSO authentication
   - Pagination: Iterator-based and slice-based pagination helpers
 
 # Services
 
 GroupsService provides operations for managing IAM groups:
+  - CreateGroup: Create a new group (organization or folder)
   - GetGroup: Retrieve a single group by UID
-  - ListGroups: List groups with filtering and pagination
   - UpdateGroup: Update group properties
+  - DeleteGroup: Delete a group by UID
+  - ListGroups: List groups with filtering and pagination
 
 IdentitiesService provides operations for managing IAM identities:
+  - CreateIdentity: Create a new identity
   - GetIdentity: Retrieve a single identity by UID
+  - DeleteIdentity: Delete an identity by UID
+  - UpdateIdentity: Update an identity's properties
   - ListIdentities: List identities with filtering and pagination
 
 RolesService provides operations for managing IAM roles:
@@ -46,10 +53,12 @@ RoleBindingsService provides operations for managing role bindings:
   - CreateRoleBinding: Create a new role binding (identity + role + group)
   - DeleteRoleBinding: Delete a role binding by UID (idempotent)
   - ListRoleBindings: List role bindings with filtering and pagination
+  - UpdateRoleBinding: Update a role binding's identity or role assignment
 
 AccountAssociationsService provides operations for managing cloud provider associations:
   - GetAccountAssociation: Retrieve a single account association by group UID
   - CreateAccountAssociation: Create a new account association for a group
+  - UpdateAccountAssociation: Update an account association's fields
   - DeleteAccountAssociation: Delete an account association by group UID (idempotent)
   - ListAccountAssociations: List account associations with filtering and pagination
 
@@ -58,6 +67,13 @@ GroupInvitesService provides operations for managing group invitations:
   - GetGroupInvite: Retrieve a single group invite by UID
   - DeleteGroupInvite: Delete a group invite by UID (idempotent)
   - ListGroupInvites: List group invites with filtering and pagination
+
+IdentityProvidersService provides operations for managing external identity providers:
+  - ListIdentityProviders: List identity providers with filtering and pagination
+  - GetIdentityProvider: Retrieve a single identity provider by UID
+  - CreateIdentityProvider: Create a new OIDC identity provider for SSO
+  - UpdateIdentityProvider: Update an identity provider's configuration
+  - DeleteIdentityProvider: Delete an identity provider by UID
 
 # Usage
 

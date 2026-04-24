@@ -762,7 +762,7 @@ var File_chainguard_platform_iam_v2beta1_role_bindings_proto protoreflect.FileDe
 
 const file_chainguard_platform_iam_v2beta1_role_bindings_proto_rawDesc = "" +
 	"\n" +
-	"3chainguard/platform/iam/v2beta1/role_bindings.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\x88\x04\n" +
+	"3chainguard/platform/iam/v2beta1/role_bindings.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\x88\x04\n" +
 	"\vRoleBinding\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12V\n" +
@@ -820,20 +820,25 @@ const file_chainguard_platform_iam_v2beta1_role_bindings_proto_rawDesc = "" +
 	"\frole_binding\x18\x01 \x01(\v2,.chainguard.platform.iam.v2beta1.RoleBindingB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\vroleBinding\x12A\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x04\xe2A\x01\x01R\n" +
-	"updateMask2\xfb\b\n" +
-	"\x13RoleBindingsService\x12\xae\x01\n" +
-	"\x0eGetRoleBinding\x126.chainguard.platform.iam.v2beta1.GetRoleBindingRequest\x1a,.chainguard.platform.iam.v2beta1.RoleBinding\"6\x82\xd3\xe4\x93\x02$\x12\"/iam/v2beta1/roleBindings/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\x93\x03\x12\x85\x02\n" +
-	"\x11CreateRoleBinding\x129.chainguard.platform.iam.v2beta1.CreateRoleBindingRequest\x1a,.chainguard.platform.iam.v2beta1.RoleBinding\"\x86\x01\x82\xd3\xe4\x93\x025:\frole_binding\"%/iam/v2beta1/roleBindings/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\x91\x03\xc2\xf0\x8e\xfc\v9\n" +
-	".dev.chainguard.api.iam.rolebindings.created.v1\x12\x05group\x18\x01\x12\xdd\x01\n" +
-	"\x11DeleteRoleBinding\x129.chainguard.platform.iam.v2beta1.DeleteRoleBindingRequest\x1a\x16.google.protobuf.Empty\"u\x82\xd3\xe4\x93\x02$*\"/iam/v2beta1/roleBindings/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\x94\x03\xc2\xf0\x8e\xfc\v9\n" +
-	".dev.chainguard.api.iam.rolebindings.deleted.v1\x12\x05group\x18\x01\x12\xb8\x01\n" +
-	"\x10ListRoleBindings\x128.chainguard.platform.iam.v2beta1.ListRoleBindingsRequest\x1a9.chainguard.platform.iam.v2beta1.ListRoleBindingsResponse\"/\x82\xd3\xe4\x93\x02\x1b\x12\x19/iam/v2beta1/roleBindings\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x02\x93\x03\x10\x01\x12\x8f\x02\n" +
-	"\x11UpdateRoleBinding\x129.chainguard.platform.iam.v2beta1.UpdateRoleBindingRequest\x1a,.chainguard.platform.iam.v2beta1.RoleBinding\"\x90\x01\x82\xd3\xe4\x93\x02?:\frole_binding2//iam/v2beta1/roleBindings/{role_binding.uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\x92\x03\xc2\xf0\x8e\xfc\v9\n" +
+	"updateMask2\xb5\f\n" +
+	"\x13RoleBindingsService\x12\xe2\x01\n" +
+	"\x0eGetRoleBinding\x126.chainguard.platform.iam.v2beta1.GetRoleBindingRequest\x1a,.chainguard.platform.iam.v2beta1.RoleBinding\"j\x82\xd3\xe4\x93\x02$\x12\"/iam/v2beta1/roleBindings/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\x93\x03\x9a\xaf\xa8\xd2\x05.\n" +
+	"$Get an IAM role binding by its UIDP.\x18\x01 \x00(\x010\x00\x12\xe1\x02\n" +
+	"\x11CreateRoleBinding\x129.chainguard.platform.iam.v2beta1.CreateRoleBindingRequest\x1a,.chainguard.platform.iam.v2beta1.RoleBinding\"\xe2\x01\x82\xd3\xe4\x93\x025:\frole_binding\"%/iam/v2beta1/roleBindings/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\x91\x03\x9a\xaf\xa8\xd2\x05V\n" +
+	"PCreate a new IAM role binding, granting an identity a role within a group scope. \x000\x00\xc2\xf0\x8e\xfc\v9\n" +
+	".dev.chainguard.api.iam.rolebindings.created.v1\x12\x05group\x18\x01\x12\xc2\x02\n" +
+	"\x11DeleteRoleBinding\x129.chainguard.platform.iam.v2beta1.DeleteRoleBindingRequest\x1a\x16.google.protobuf.Empty\"\xd9\x01\x82\xd3\xe4\x93\x02$*\"/iam/v2beta1/roleBindings/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\x94\x03\x9a\xaf\xa8\xd2\x05^\n" +
+	"VDelete an IAM role binding by its UIDP, revoking the identity's role within the group. \x01(\x010\x00\xc2\xf0\x8e\xfc\v9\n" +
+	".dev.chainguard.api.iam.rolebindings.deleted.v1\x12\x05group\x18\x01\x12\xb6\x02\n" +
+	"\x10ListRoleBindings\x128.chainguard.platform.iam.v2beta1.ListRoleBindingsRequest\x1a9.chainguard.platform.iam.v2beta1.ListRoleBindingsResponse\"\xac\x01\x82\xd3\xe4\x93\x02\x1b\x12\x19/iam/v2beta1/roleBindings\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02\x93\x03\x10\x01\x9a\xaf\xa8\xd2\x05w\n" +
+	"mList IAM role bindings the caller has access to. Supports filtering by identity, group, role, and pagination.\x18\x01 \x00(\x010\x00\x12\xd6\x02\n" +
+	"\x11UpdateRoleBinding\x129.chainguard.platform.iam.v2beta1.UpdateRoleBindingRequest\x1a,.chainguard.platform.iam.v2beta1.RoleBinding\"\xd7\x01\x82\xd3\xe4\x93\x02?:\frole_binding2//iam/v2beta1/roleBindings/{role_binding.uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\x92\x03\x9a\xaf\xa8\xd2\x05A\n" +
+	"9Update an IAM role binding's identity or role assignment. \x00(\x010\x00\xc2\xf0\x8e\xfc\v9\n" +
 	".dev.chainguard.api.iam.rolebindings.updated.v1\x12\x05group\x18\x01Bt\n" +
 	"#com.chainguard.platform.iam.v2beta1B\x11RoleBindingsProtoP\x01Z8chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1b\x06proto3"
 

@@ -168,11 +168,15 @@ enum Capability {
   CAP_LIBRARIES_REBUILDER_ARTIFACTS_INVALIDATE = 1850 [(name) = "libraries.rebuilder.artifacts.invalidate", (bit) = 106];
   CAP_LIBRARIES_REBUILDER_EXCLUSIONS_MANAGE = 1851 [(name) = "libraries.rebuilder.exclusions.manage", (bit) = 112];
   CAP_LIBRARIES_REBUILDER_BUILDS_READ = 1852 [(name) = "libraries.rebuilder.builds.read", (bit) = 122];
+  CAP_LIBRARIES_REBUILDER_BUILDS_TOKENS_FETCH = 1853 [(name) = "libraries.rebuilder.builds.tokens.fetch", (bit) = 130];
+  CAP_LIBRARIES_REBUILDER_BUILDS_UNTRUSTED = 1854 [(name) = "libraries.rebuilder.builds.untrusted", (bit) = 131];
+  CAP_LIBRARIES_REBUILDER_REMEDIATED_ARTIFACTS_READ = 1855 [(name) = "libraries.rebuilder.remediated_artifacts.read", (bit) = 132];
 
   // Registry Entitlements
   CAP_REGISTRY_ENTITLEMENTS_LIST = 1680 [(name) = "registry.entitlements.list", (bit) = 87];
   CAP_REGISTRY_ENTITLEMENTS_CREATE = 1681 [(name) = "registry.entitlements.create", (bit) = 96];
   CAP_REGISTRY_ENTITLEMENTS_DELETE = 1682 [(name) = "registry.entitlements.delete", (bit) = 97];
+  CAP_REGISTRY_ENTITLEMENTS_IMAGES_ADD = 1685 [(name) = "registry.entitlements.images.add", (bit) = 133];
 
   // Registry Settings
   CAP_REGISTRY_SETTINGS_LIST = 1683 [(name) = "registry.settings.list", (bit) = 101];
@@ -230,5 +234,5 @@ enum Capability {
   CAP_MCP_TOOL_CALL = 2401 [(name) = "mcp.tool.call", (bit) = 128];
 
   reserved 1;
-  // next bit: 130
+  // next bit: 132
 }

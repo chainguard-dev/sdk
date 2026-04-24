@@ -22,7 +22,7 @@ import (
 // Returns nil if not found.
 func NewFromFile(ctx context.Context, path string, requireTransportSecurity bool) credentials.PerRPCCredentials {
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
-		clog.FromContext(ctx).Infof("Using OIDC token from %s to authenticate requests.", path)
+		clog.InfoContextf(ctx, "Using OIDC token from %s to authenticate requests.", path)
 		return &fileAuth{
 			file:   path,
 			secure: requireTransportSecurity,

@@ -44,6 +44,8 @@ const (
 	CatalogTier_CATALOG_TIER_AI CatalogTier = 4
 	// Developer tools images tier.
 	CatalogTier_CATALOG_TIER_DEVTOOLS CatalogTier = 5
+	// Commercial images tier.
+	CatalogTier_CATALOG_TIER_COMMERCIAL CatalogTier = 6
 )
 
 // Enum value maps for CatalogTier.
@@ -55,6 +57,7 @@ var (
 		3: "CATALOG_TIER_FIPS",
 		4: "CATALOG_TIER_AI",
 		5: "CATALOG_TIER_DEVTOOLS",
+		6: "CATALOG_TIER_COMMERCIAL",
 	}
 	CatalogTier_value = map[string]int32{
 		"CATALOG_TIER_UNSPECIFIED": 0,
@@ -63,6 +66,7 @@ var (
 		"CATALOG_TIER_FIPS":        3,
 		"CATALOG_TIER_AI":          4,
 		"CATALOG_TIER_DEVTOOLS":    5,
+		"CATALOG_TIER_COMMERCIAL":  6,
 	}
 )
 
@@ -1039,7 +1043,7 @@ var File_chainguard_platform_registry_v2beta1_repos_proto protoreflect.FileDescr
 
 const file_chainguard_platform_registry_v2beta1_repos_proto_rawDesc = "" +
 	"\n" +
-	"0chainguard/platform/registry/v2beta1/repos.proto\x12$chainguard.platform.registry.v2beta1\x1a\x16annotations/auth.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xc1\x05\n" +
+	"0chainguard/platform/registry/v2beta1/repos.proto\x12$chainguard.platform.registry.v2beta1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xc1\x05\n" +
 	"\x04Repo\x12\x16\n" +
 	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12\x18\n" +
 	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x04name\x12&\n" +
@@ -1128,19 +1132,22 @@ const file_chainguard_platform_registry_v2beta1_repos_proto_rawDesc = "" +
 	"\vtotal_count\x18\x03 \x01(\x03H\x00R\n" +
 	"totalCount\x88\x01\x01\x12\x18\n" +
 	"\askipped\x18\x04 \x01(\x05R\askippedB\x0e\n" +
-	"\f_total_count*\xa7\x01\n" +
+	"\f_total_count*\xc4\x01\n" +
 	"\vCatalogTier\x12\x1c\n" +
 	"\x18CATALOG_TIER_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18CATALOG_TIER_APPLICATION\x10\x01\x12\x15\n" +
 	"\x11CATALOG_TIER_BASE\x10\x02\x12\x15\n" +
 	"\x11CATALOG_TIER_FIPS\x10\x03\x12\x13\n" +
 	"\x0fCATALOG_TIER_AI\x10\x04\x12\x19\n" +
-	"\x15CATALOG_TIER_DEVTOOLS\x10\x052\xe0\x02\n" +
-	"\fReposService\x12\xa1\x01\n" +
-	"\aGetRepo\x124.chainguard.platform.registry.v2beta1.GetRepoRequest\x1a*.chainguard.platform.registry.v2beta1.Repo\"4\x82\xd3\xe4\x93\x02\"\x12 /registry/v2beta1/repos/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xc5\f\x12\xab\x01\n" +
-	"\tListRepos\x126.chainguard.platform.registry.v2beta1.ListReposRequest\x1a7.chainguard.platform.registry.v2beta1.ListReposResponse\"-\x82\xd3\xe4\x93\x02\x19\x12\x17/registry/v2beta1/repos\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x02\xc5\f\x10\x01Bw\n" +
+	"\x15CATALOG_TIER_DEVTOOLS\x10\x05\x12\x1b\n" +
+	"\x17CATALOG_TIER_COMMERCIAL\x10\x062\x94\x04\n" +
+	"\fReposService\x12\xde\x01\n" +
+	"\aGetRepo\x124.chainguard.platform.registry.v2beta1.GetRepoRequest\x1a*.chainguard.platform.registry.v2beta1.Repo\"q\x82\xd3\xe4\x93\x02\"\x12 /registry/v2beta1/repos/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xc5\f\x9a\xaf\xa8\xd2\x057\n" +
+	"-Get a container image repository by its UIDP.\x18\x01 \x00(\x010\x00\x12\xa2\x02\n" +
+	"\tListRepos\x126.chainguard.platform.registry.v2beta1.ListReposRequest\x1a7.chainguard.platform.registry.v2beta1.ListReposResponse\"\xa3\x01\x82\xd3\xe4\x93\x02\x19\x12\x17/registry/v2beta1/repos\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02\xc5\f\x10\x01\x9a\xaf\xa8\xd2\x05p\n" +
+	"fList container image repositories the caller has access to. Supports filtering by name and pagination.\x18\x01 \x00(\x010\x00Bw\n" +
 	"(com.chainguard.platform.registry.v2beta1B\n" +
 	"ReposProtoP\x01Z=chainguard.dev/sdk/proto/chainguard/platform/registry/v2beta1b\x06proto3"
 

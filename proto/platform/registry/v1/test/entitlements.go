@@ -25,6 +25,8 @@ type MockEntitlementsClient struct {
 	OnListEntitlementCatalogImages []EntitlementCatalogImagesOnList
 	OnGetEntitlementSummary        []EntitlementSummaryOnGet
 	OnGetFeatures                  []FeaturesOnGet
+	OnGetEffectiveEntitlements     []EffectiveEntitlementsOnGet
+	OnAddEntitlementImages         []AddEntitlementImagesOnAdd
 }
 
 type EntitlementsOnList struct {
@@ -55,6 +57,18 @@ type FeaturesOnGet struct {
 	Given *registry.GetFeaturesRequest
 	Get   *registry.GetFeaturesResponse
 	Error error
+}
+
+type EffectiveEntitlementsOnGet struct {
+	Given *registry.GetEffectiveEntitlementsRequest
+	Get   *registry.GetEffectiveEntitlementsResponse
+	Error error
+}
+
+type AddEntitlementImagesOnAdd struct {
+	Given    *registry.AddEntitlementImagesRequest
+	Response *registry.AddEntitlementImagesResponse
+	Error    error
 }
 
 func (m *MockEntitlementsClient) ListEntitlements(_ context.Context, given *registry.EntitlementFilter, _ ...grpc.CallOption) (*registry.EntitlementList, error) {
@@ -97,6 +111,24 @@ func (m *MockEntitlementsClient) GetFeatures(_ context.Context, given *registry.
 	for _, o := range m.OnGetFeatures {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Get, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m *MockEntitlementsClient) GetEffectiveEntitlements(_ context.Context, given *registry.GetEffectiveEntitlementsRequest, _ ...grpc.CallOption) (*registry.GetEffectiveEntitlementsResponse, error) {
+	for _, o := range m.OnGetEffectiveEntitlements {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Get, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m *MockEntitlementsClient) AddEntitlementImages(_ context.Context, given *registry.AddEntitlementImagesRequest, _ ...grpc.CallOption) (*registry.AddEntitlementImagesResponse, error) {
+	for _, o := range m.OnAddEntitlementImages {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)

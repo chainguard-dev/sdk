@@ -35,7 +35,7 @@ func NewClients(ctx context.Context, addr string, token string) (Clients, error)
 	if cred := auth.NewFromToken(ctx, token, false); cred != nil {
 		opts = append(opts, grpc.WithPerRPCCredentials(cred))
 	} else {
-		clog.FromContext(ctx).Warn("No authentication provided, this may end badly.")
+		clog.WarnContext(ctx, "No authentication provided, this may end badly.")
 	}
 
 	conn, err := grpc.NewClient(target, opts...)

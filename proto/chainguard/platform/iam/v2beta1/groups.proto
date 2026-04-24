@@ -7,6 +7,7 @@ package chainguard.platform.iam.v2beta1;
 
 import "annotations/auth.proto";
 import "annotations/events.proto";
+import "annotations/mcp.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
@@ -30,6 +31,13 @@ service GroupsService {
         capabilities: [CAP_IAM_GROUPS_LIST]
       }
     };
+    option (chainguard.annotations.mcp) = {
+      description: "Get a group (organization or folder) by its UIDP."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
   }
 
   // DeleteGroup deletes a group by UID.
@@ -46,6 +54,13 @@ service GroupsService {
       extensions: ["group"]
       audience: CUSTOMER
     };
+    option (chainguard.annotations.mcp) = {
+      description: "Delete a group (organization or folder) by its UIDP. Fails if the group has child resources."
+      read_only: false
+      destructive: true
+      idempotent: true
+      open_world: false
+    };
   }
 
   // ListGroups returns groups based on filter criteria with pagination support.
@@ -56,6 +71,13 @@ service GroupsService {
         capabilities: [CAP_IAM_GROUPS_LIST]
         unscoped: true
       }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List groups (organizations and folders) the caller has access to. Supports filtering and pagination."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
     };
   }
 
@@ -76,6 +98,13 @@ service GroupsService {
       extensions: ["group"]
       audience: CUSTOMER
     };
+    option (chainguard.annotations.mcp) = {
+      description: "Create a new group (organization or folder) under an optional parent group."
+      read_only: false
+      destructive: false
+      idempotent: false
+      open_world: false
+    };
   }
 
   // UpdateGroup updates the given Group according to the provided field mask.
@@ -94,6 +123,13 @@ service GroupsService {
       type: "dev.chainguard.api.iam.group.updated.v1"
       extensions: ["group"]
       audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Update a group's name, description, or other mutable fields."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
     };
   }
 }

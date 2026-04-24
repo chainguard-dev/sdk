@@ -6,6 +6,7 @@ syntax = "proto3";
 package chainguard.platform.vulnerabilities.v2beta1;
 
 import "annotations/auth.proto";
+import "annotations/mcp.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
@@ -27,6 +28,13 @@ service AdvisoriesService {
         capabilities: [CAP_ADVISORIES_LIST]
       }
     };
+    option (chainguard.annotations.mcp) = {
+      description: "Get a security advisory by its UIDP."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
   }
 
   // ListAdvisories returns advisories based on filter criteria with pagination support.
@@ -37,6 +45,13 @@ service AdvisoriesService {
         capabilities: [CAP_ADVISORIES_LIST]
         unscoped: true
       }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List security advisories the caller has access to. Supports filtering by artifact, component, vulnerability, and pagination."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
     };
   }
 }

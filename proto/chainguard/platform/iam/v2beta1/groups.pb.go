@@ -652,7 +652,7 @@ var File_chainguard_platform_iam_v2beta1_groups_proto protoreflect.FileDescripto
 
 const file_chainguard_platform_iam_v2beta1_groups_proto_rawDesc = "" +
 	"\n" +
-	",chainguard/platform/iam/v2beta1/groups.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\x89\x05\n" +
+	",chainguard/platform/iam/v2beta1/groups.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\x89\x05\n" +
 	"\x05Group\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
@@ -708,21 +708,26 @@ const file_chainguard_platform_iam_v2beta1_groups_proto_rawDesc = "" +
 	"\tOrgStatus\x12\x1a\n" +
 	"\x16ORG_STATUS_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17ORG_STATUS_INITIALIZING\x10\x01\x12\x14\n" +
-	"\x10ORG_STATUS_READY\x10\x022\xd4\a\n" +
-	"\rGroupsService\x12\x95\x01\n" +
-	"\bGetGroup\x120.chainguard.platform.iam.v2beta1.GetGroupRequest\x1a&.chainguard.platform.iam.v2beta1.Group\"/\x82\xd3\xe4\x93\x02\x1e\x12\x1c/iam/v2beta1/groups/{uid=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
-	"\x01g\x12\xc3\x01\n" +
-	"\vDeleteGroup\x123.chainguard.platform.iam.v2beta1.DeleteGroupRequest\x1a\x16.google.protobuf.Empty\"g\x82\xd3\xe4\x93\x02\x1e*\x1c/iam/v2beta1/groups/{uid=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
-	"\x01h\xc2\xf0\x8e\xfc\v2\n" +
-	"'dev.chainguard.api.iam.group.deleted.v1\x12\x05group\x18\x01\x12\x9f\x01\n" +
+	"\x10ORG_STATUS_READY\x10\x022\x98\v\n" +
+	"\rGroupsService\x12\xd6\x01\n" +
+	"\bGetGroup\x120.chainguard.platform.iam.v2beta1.GetGroupRequest\x1a&.chainguard.platform.iam.v2beta1.Group\"p\x82\xd3\xe4\x93\x02\x1e\x12\x1c/iam/v2beta1/groups/{uid=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
+	"\x01g\x9a\xaf\xa8\xd2\x05;\n" +
+	"1Get a group (organization or folder) by its UIDP.\x18\x01 \x00(\x010\x00\x12\xae\x02\n" +
+	"\vDeleteGroup\x123.chainguard.platform.iam.v2beta1.DeleteGroupRequest\x1a\x16.google.protobuf.Empty\"\xd1\x01\x82\xd3\xe4\x93\x02\x1e*\x1c/iam/v2beta1/groups/{uid=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
+	"\x01h\x9a\xaf\xa8\xd2\x05d\n" +
+	"\\Delete a group (organization or folder) by its UIDP. Fails if the group has child resources. \x01(\x010\x00\xc2\xf0\x8e\xfc\v2\n" +
+	"'dev.chainguard.api.iam.group.deleted.v1\x12\x05group\x18\x01\x12\x94\x02\n" +
 	"\n" +
-	"ListGroups\x122.chainguard.platform.iam.v2beta1.ListGroupsRequest\x1a3.chainguard.platform.iam.v2beta1.ListGroupsResponse\"(\x82\xd3\xe4\x93\x02\x15\x12\x13/iam/v2beta1/groups\x8a\xaf\xa8\xd2\x05\a\x12\x05\n" +
-	"\x01g\x10\x01\x12\xdf\x01\n" +
-	"\vCreateGroup\x123.chainguard.platform.iam.v2beta1.CreateGroupRequest\x1a&.chainguard.platform.iam.v2beta1.Group\"s\x82\xd3\xe4\x93\x02(:\x05group\"\x1f/iam/v2beta1/groups/{parent=**}\x8a\xaf\xa8\xd2\x05\a\x12\x05\n" +
-	"\x01e\x10\x01\xc2\xf0\x8e\xfc\v2\n" +
-	"'dev.chainguard.api.iam.group.created.v1\x12\x05group\x18\x01\x12\xe0\x01\n" +
-	"\vUpdateGroup\x123.chainguard.platform.iam.v2beta1.UpdateGroupRequest\x1a&.chainguard.platform.iam.v2beta1.Group\"t\x82\xd3\xe4\x93\x02+:\x05group2\"/iam/v2beta1/groups/{group.uid=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
-	"\x01f\xc2\xf0\x8e\xfc\v2\n" +
+	"ListGroups\x122.chainguard.platform.iam.v2beta1.ListGroupsRequest\x1a3.chainguard.platform.iam.v2beta1.ListGroupsResponse\"\x9c\x01\x82\xd3\xe4\x93\x02\x15\x12\x13/iam/v2beta1/groups\x8a\xaf\xa8\xd2\x05\a\x12\x05\n" +
+	"\x01g\x10\x01\x9a\xaf\xa8\xd2\x05n\n" +
+	"dList groups (organizations and folders) the caller has access to. Supports filtering and pagination.\x18\x01 \x00(\x010\x00\x12\xb7\x02\n" +
+	"\vCreateGroup\x123.chainguard.platform.iam.v2beta1.CreateGroupRequest\x1a&.chainguard.platform.iam.v2beta1.Group\"\xca\x01\x82\xd3\xe4\x93\x02(:\x05group\"\x1f/iam/v2beta1/groups/{parent=**}\x8a\xaf\xa8\xd2\x05\a\x12\x05\n" +
+	"\x01e\x10\x01\x9a\xaf\xa8\xd2\x05Q\n" +
+	"KCreate a new group (organization or folder) under an optional parent group. \x000\x00\xc2\xf0\x8e\xfc\v2\n" +
+	"'dev.chainguard.api.iam.group.created.v1\x12\x05group\x18\x01\x12\xab\x02\n" +
+	"\vUpdateGroup\x123.chainguard.platform.iam.v2beta1.UpdateGroupRequest\x1a&.chainguard.platform.iam.v2beta1.Group\"\xbe\x01\x82\xd3\xe4\x93\x02+:\x05group2\"/iam/v2beta1/groups/{group.uid=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
+	"\x01f\x9a\xaf\xa8\xd2\x05D\n" +
+	"<Update a group's name, description, or other mutable fields. \x00(\x010\x00\xc2\xf0\x8e\xfc\v2\n" +
 	"'dev.chainguard.api.iam.group.updated.v1\x12\x05group\x18\x01Bn\n" +
 	"#com.chainguard.platform.iam.v2beta1B\vGroupsProtoP\x01Z8chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1b\x06proto3"
 

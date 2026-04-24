@@ -39,7 +39,7 @@ type VerifiedClaims struct {
 func VerifyToken(ctx context.Context, token string, opts ...VerifyOption) (*VerifiedClaims, error) {
 	conf, err := newConfigFromOptions(opts...)
 	if err != nil {
-		clog.FromContext(ctx).Errorf("invalid verification configuration: %v", err)
+		clog.ErrorContextf(ctx, "invalid verification configuration: %v", err)
 		return nil, ErrInvalidVerificationConfiguration
 	}
 
@@ -66,17 +66,17 @@ func VerifyToken(ctx context.Context, token string, opts ...VerifyOption) (*Veri
 	}
 
 	if got := req.Header.Get(audHeader); !conf.allowedAudiences.Has(got) {
-		clog.FromContext(ctx).With("received", got).Warn("verification failed with audience mismatch")
+		clog.WarnContext(ctx, "verification failed with audience mismatch", "received", got)
 		return nil, ErrInvalidAudience
 	}
 	if got := req.Header.Get(idHeader); got != conf.identity {
-		clog.FromContext(ctx).With("wanted", conf.identity, "received", got).Warn("verification failed with identity mismatch")
+		clog.WarnContext(ctx, "verification failed with identity mismatch", "wanted", conf.identity, "received", got)
 		return nil, ErrInvalidIdentity
 	}
 
 	timestamp, err := time.Parse("20060102T150405Z", req.Header.Get("X-Amz-Date"))
 	if err != nil {
-		clog.FromContext(ctx).Warnf("verification failed because of a poorly formatted x-amz-date header format: %v", err)
+		clog.WarnContextf(ctx, "verification failed because of a poorly formatted x-amz-date header format: %v", err)
 		return nil, ErrInvalidEncoding
 	}
 	expiry, now := timestamp.Add(15*time.Minute), conf.time()
@@ -85,13 +85,13 @@ func VerifyToken(ctx context.Context, token string, opts ...VerifyOption) (*Veri
 		// > The signed portions (using AWS Signatures) of requests are valid within 15 minutes of the timestamp in the request.
 		// If the signature timestamp is already older than 15 minutes the token is expired and we reject it.
 		// c.f https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-authenticating-requests.html
-		clog.FromContext(ctx).Error("verification failed because of expired token")
+		clog.ErrorContext(ctx, "verification failed because of expired token")
 		return nil, ErrTokenExpired
 	}
 
 	resp, err := http.DefaultClient.Do(req.WithContext(ctx)) //nolint:gosec // G704: URL from trusted AWS STS config
 	if err != nil {
-		clog.FromContext(ctx).Errorf("verification failed because of failure to make AWS STS request: %v", err)
+		clog.ErrorContextf(ctx, "verification failed because of failure to make AWS STS request: %v", err)
 		return nil, fmt.Errorf("failed to reach AWS STS endpoint: %w", err)
 	}
 	defer resp.Body.Close()
@@ -101,7 +101,7 @@ func VerifyToken(ctx context.Context, token string, opts ...VerifyOption) (*Veri
 		if err != nil {
 			return nil, fmt.Errorf("failed to read response body from AWS STS endpoint: %w", err)
 		}
-		clog.FromContext(ctx).With("response_code", resp.StatusCode, "response", string(body)).Error("verification failed because it was rejected by AWS STS endpoint")
+		clog.ErrorContext(ctx, "verification failed because it was rejected by AWS STS endpoint", "response_code", resp.StatusCode, "response", string(body))
 		return nil, ErrTokenRejected
 	}
 
@@ -111,7 +111,7 @@ func VerifyToken(ctx context.Context, token string, opts ...VerifyOption) (*Veri
 		}
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		clog.FromContext(ctx).Errorf("verification failed because json parsing err in response: %v", err)
+		clog.ErrorContextf(ctx, "verification failed because json parsing err in response: %v", err)
 		return nil, fmt.Errorf("failed to parse json from AWS STS response %w", err)
 	}
 

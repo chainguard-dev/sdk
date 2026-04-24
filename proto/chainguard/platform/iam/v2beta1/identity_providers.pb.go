@@ -618,7 +618,7 @@ var File_chainguard_platform_iam_v2beta1_identity_providers_proto protoreflect.F
 
 const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = "" +
 	"\n" +
-	"8chainguard/platform/iam/v2beta1/identity_providers.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\x9e\x05\n" +
+	"8chainguard/platform/iam/v2beta1/identity_providers.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\x9e\x05\n" +
 	"\x10IdentityProvider\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
@@ -667,26 +667,30 @@ const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = ""
 	"updateMask\"=\n" +
 	"\x1dDeleteIdentityProviderRequest\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid2\x85\n" +
-	"\n" +
-	"\x18IdentityProvidersService\x12\xcc\x01\n" +
-	"\x15ListIdentityProviders\x12=.chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest\x1a>.chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse\"4\x82\xd3\xe4\x93\x02 \x12\x1e/iam/v2beta1/identityProviders\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid2\xe9\r\n" +
+	"\x18IdentityProvidersService\x12\xc1\x02\n" +
+	"\x15ListIdentityProviders\x12=.chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest\x1a>.chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse\"\xa8\x01\x82\xd3\xe4\x93\x02 \x12\x1e/iam/v2beta1/identityProviders\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\x97\n" +
-	"\x10\x01\x12\xc2\x01\n" +
-	"\x13GetIdentityProvider\x12;.chainguard.platform.iam.v2beta1.GetIdentityProviderRequest\x1a1.chainguard.platform.iam.v2beta1.IdentityProvider\";\x82\xd3\xe4\x93\x02)\x12'/iam/v2beta1/identityProviders/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x10\x01\x9a\xaf\xa8\xd2\x05n\n" +
+	"dList external identity providers (OIDC) the caller has access to. Supports filtering and pagination.\x18\x01 \x00(\x010\x00\x12\x80\x02\n" +
+	"\x13GetIdentityProvider\x12;.chainguard.platform.iam.v2beta1.GetIdentityProviderRequest\x1a1.chainguard.platform.iam.v2beta1.IdentityProvider\"y\x82\xd3\xe4\x93\x02)\x12'/iam/v2beta1/identityProviders/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x97\n" +
-	"\x12\xa6\x02\n" +
-	"\x16CreateIdentityProvider\x12>.chainguard.platform.iam.v2beta1.CreateIdentityProviderRequest\x1a1.chainguard.platform.iam.v2beta1.IdentityProvider\"\x98\x01\x82\xd3\xe4\x93\x02?:\x11identity_provider\"*/iam/v2beta1/identityProviders/{parent=**}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x9a\xaf\xa8\xd2\x058\n" +
+	".Get an external identity provider by its UIDP.\x18\x01 \x00(\x010\x00\x12\x8a\x03\n" +
+	"\x16CreateIdentityProvider\x12>.chainguard.platform.iam.v2beta1.CreateIdentityProviderRequest\x1a1.chainguard.platform.iam.v2beta1.IdentityProvider\"\xfc\x01\x82\xd3\xe4\x93\x02?:\x11identity_provider\"*/iam/v2beta1/identityProviders/{parent=**}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x04\x95\n" +
-	"\x91\x03\xc2\xf0\x8e\xfc\v?\n" +
-	"4dev.chainguard.api.iam.identity_providers.created.v1\x12\x05group\x18\x01\x12\xb5\x02\n" +
-	"\x16UpdateIdentityProvider\x12>.chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest\x1a1.chainguard.platform.iam.v2beta1.IdentityProvider\"\xa7\x01\x82\xd3\xe4\x93\x02N:\x11identity_provider29/iam/v2beta1/identityProviders/{identity_provider.uid=**}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x91\x03\x9a\xaf\xa8\xd2\x05^\n" +
+	"XCreate a new external identity provider (OIDC) for a group, enabling SSO authentication. \x000\x00\xc2\xf0\x8e\xfc\v?\n" +
+	"4dev.chainguard.api.iam.identity_providers.created.v1\x12\x05group\x18\x01\x12\xa2\x03\n" +
+	"\x16UpdateIdentityProvider\x12>.chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest\x1a1.chainguard.platform.iam.v2beta1.IdentityProvider\"\x94\x02\x82\xd3\xe4\x93\x02N:\x11identity_provider29/iam/v2beta1/identityProviders/{identity_provider.uid=**}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x04\x96\n" +
-	"\x91\x03\xc2\xf0\x8e\xfc\v?\n" +
-	"4dev.chainguard.api.iam.identity_providers.updated.v1\x12\x05group\x18\x01\x12\xf3\x01\n" +
-	"\x16DeleteIdentityProvider\x12>.chainguard.platform.iam.v2beta1.DeleteIdentityProviderRequest\x1a\x16.google.protobuf.Empty\"\x80\x01\x82\xd3\xe4\x93\x02)*'/iam/v2beta1/identityProviders/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x91\x03\x9a\xaf\xa8\xd2\x05g\n" +
+	"_Update an external identity provider's configuration, including OIDC settings and default role. \x00(\x010\x00\xc2\xf0\x8e\xfc\v?\n" +
+	"4dev.chainguard.api.iam.identity_providers.updated.v1\x12\x05group\x18\x01\x12\xd3\x02\n" +
+	"\x16DeleteIdentityProvider\x12>.chainguard.platform.iam.v2beta1.DeleteIdentityProviderRequest\x1a\x16.google.protobuf.Empty\"\xe0\x01\x82\xd3\xe4\x93\x02)*'/iam/v2beta1/identityProviders/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x98\n" +
-	"\xc2\xf0\x8e\xfc\v?\n" +
+	"\x9a\xaf\xa8\xd2\x05Z\n" +
+	"RDelete an external identity provider by its UIDP, disabling SSO for that provider. \x01(\x010\x00\xc2\xf0\x8e\xfc\v?\n" +
 	"4dev.chainguard.api.iam.identity_providers.deleted.v1\x12\x05group\x18\x01By\n" +
 	"#com.chainguard.platform.iam.v2beta1B\x16IdentityProvidersProtoP\x01Z8chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1b\x06proto3"
 

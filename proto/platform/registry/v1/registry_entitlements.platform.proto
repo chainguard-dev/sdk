@@ -1,16 +1,17 @@
 syntax = "proto3";
 
-option go_package = "chainguard.dev/sdk/proto/platform/registry/v1";
-
 package chainguard.platform.registry;
 
-import "google/protobuf/timestamp.proto";
-import "google/protobuf/empty.proto";
-import "registry.platform.proto";
+import "annotations/auth.proto";
+import "annotations/events.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
-import "annotations/auth.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "registry.platform.proto";
+
+option go_package = "chainguard.dev/sdk/proto/platform/registry/v1";
 
 // Entitlements is a service for viewing configuration and features enabled on a registry.
 // NOTE: This API is EARLY ACCESS and is subject to change without notice.
@@ -21,12 +22,8 @@ service Entitlements {
   };
 
   rpc ListEntitlements(EntitlementFilter) returns (EntitlementList) {
-    option (google.api.http) = {
-      get: "/registry/v1/entitlements/{parent=**}"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "RegistryEntitlements"
-    };
+    option (google.api.http) = {get: "/registry/v1/entitlements/{parent=**}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {tags: "RegistryEntitlements"};
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [CAP_REGISTRY_ENTITLEMENTS_LIST]
@@ -34,12 +31,8 @@ service Entitlements {
     };
   }
   rpc ListEntitlementImages(EntitlementImagesFilter) returns (EntitlementImagesList) {
-    option (google.api.http) = {
-      get: "/registry/v1/entitlements/{parent=**}/images"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "RegistryEntitlements"
-    };
+    option (google.api.http) = {get: "/registry/v1/entitlements/{parent=**}/images"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {tags: "RegistryEntitlements"};
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [CAP_REGISTRY_ENTITLEMENTS_LIST]
@@ -50,12 +43,8 @@ service Entitlements {
   // ListEntitlementCatalogImages returns catalog images for per-repo entitlements only.
   // AYCE entitlements return empty list since access is captured in parent Entitlement.
   rpc ListEntitlementCatalogImages(EntitlementImagesFilter) returns (EntitlementImagesList) {
-    option (google.api.http) = {
-      get: "/registry/v1/entitlements/{parent=**}/catalog-images"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "RegistryEntitlements"
-    };
+    option (google.api.http) = {get: "/registry/v1/entitlements/{parent=**}/catalog-images"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {tags: "RegistryEntitlements"};
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [CAP_REGISTRY_ENTITLEMENTS_LIST]
@@ -65,12 +54,8 @@ service Entitlements {
 
   // Summary provides a group-level summary of entitlements.
   rpc Summary(EntitlementSummaryRequest) returns (EntitlementSummaryResponse) {
-    option (google.api.http) = {
-      get: "/registry/v1/entitlements/{parent=**}:summary"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "RegistryEntitlements"
-    };
+    option (google.api.http) = {get: "/registry/v1/entitlements/{parent=**}:summary"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {tags: "RegistryEntitlements"};
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [CAP_REGISTRY_ENTITLEMENTS_LIST]
@@ -78,13 +63,11 @@ service Entitlements {
     };
   }
 
-  rpc GetFeatures (GetFeaturesRequest) returns (GetFeaturesResponse) {
-    option (google.api.http) = {
-      get: "/registry/v1/entitlements/{parent=**}:features"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "RegistryEntitlements"
-    };
+  // GetEffectiveEntitlements returns the summarized effective entitlement state
+  // for an organization, including plan, active tiers, entitled images, and quotas.
+  rpc GetEffectiveEntitlements(GetEffectiveEntitlementsRequest) returns (GetEffectiveEntitlementsResponse) {
+    option (google.api.http) = {get: "/registry/v1/entitlements/{parent=**}:effective"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {tags: "RegistryEntitlements"};
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [CAP_REGISTRY_ENTITLEMENTS_LIST]
@@ -92,14 +75,22 @@ service Entitlements {
     };
   }
 
-  rpc CreateEntitlement (CreateEntitlementRequest) returns (Entitlement) {
+  rpc GetFeatures(GetFeaturesRequest) returns (GetFeaturesResponse) {
+    option (google.api.http) = {get: "/registry/v1/entitlements/{parent=**}:features"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {tags: "RegistryEntitlements"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_ENTITLEMENTS_LIST]
+      }
+    };
+  }
+
+  rpc CreateEntitlement(CreateEntitlementRequest) returns (Entitlement) {
     option (google.api.http) = {
       post: "/registry/v1/entitlements/{parent=**}"
       body: "entitlement"
     };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "RegistryEntitlements"
-    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {tags: "RegistryEntitlements"};
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [CAP_REGISTRY_ENTITLEMENTS_CREATE]
@@ -107,17 +98,36 @@ service Entitlements {
     };
   }
 
-  rpc DeleteEntitlement (DeleteEntitlementRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/registry/v1/entitlements/{id=**}"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "RegistryEntitlements"
-    };
+  rpc DeleteEntitlement(DeleteEntitlementRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/registry/v1/entitlements/{id=**}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {tags: "RegistryEntitlements"};
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [CAP_REGISTRY_ENTITLEMENTS_DELETE]
       }
+    };
+  }
+
+  // AddEntitlementImages adds catalog images to an organization's entitlements.
+  // Images are specified by name and resolved against the catalog.
+  // The backend selects an eligible entitlement with matching tier capacity,
+  // preferring the newest, unless an explicit entitlement_id is provided.
+  rpc AddEntitlementImages(AddEntitlementImagesRequest) returns (AddEntitlementImagesResponse) {
+    option (google.api.http) = {
+      post: "/registry/v1/entitlements/{parent=**}:addImages"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {tags: "RegistryEntitlements"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_ENTITLEMENTS_IMAGES_ADD]
+        unscoped: true
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.registry.entitlement.images.added.v1"
+      extensions: ["group"]
+      audience: INTERNAL
     };
   }
 }
@@ -132,11 +142,11 @@ message Entitlement {
   google.protobuf.Timestamp expiration_time = 5;
 
   enum Type {
-      UNKNOWN = 0;
-      TRIAL = 1;
-      PRODUCTION = 2;
-      EXTRA = 3;
-      STARTER = 4;
+    UNKNOWN = 0;
+    TRIAL = 1;
+    PRODUCTION = 2;
+    EXTRA = 3;
+    STARTER = 4;
   }
   Type type = 6;
 
@@ -163,7 +173,7 @@ message EntitlementList {
 
 message EntitlementImage {
   // The image repository UID.
-  string id = 1 ;
+  string id = 1;
   // The image repository catalog tier the image is associated with.
   chainguard.platform.registry.CatalogTier tier = 2;
 
@@ -209,4 +219,72 @@ message DeleteEntitlementRequest {
   string id = 1 [(chainguard.annotations.iam_scope) = true];
 
   reserved 2; // previously 'parent' field
+}
+
+// Plan describes the entitlement plan for an organization.
+enum Plan {
+  PLAN_UNSPECIFIED = 0;
+  PER_IMAGE = 1;
+  CATALOG = 2;
+  STARTER = 3;
+}
+
+// EntitledImage is an image that an organization is currently entitled to access.
+message EntitledImage {
+  // The catalog image repository UIDP.
+  string id = 1;
+  // Human-readable image name.
+  string name = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // The catalog tier of the image.
+  CatalogTier catalog_tier = 3;
+  // The entitlement type that granted access to this image.
+  Entitlement.Type type = 4;
+  // When access to this image expires. Unset means no expiration.
+  google.protobuf.Timestamp expiration_time = 5;
+}
+
+message GetEffectiveEntitlementsRequest {
+  string parent = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message GetEffectiveEntitlementsResponse {
+  // The resolved entitlement plan for the organization.
+  Plan plan = 1;
+  // Catalog tiers with unlimited (AYCE) access.
+  repeated CatalogTier active_tiers = 2;
+  // Images the organization is currently entitled to, deduplicated
+  // across entitlements with the latest expiration retained.
+  repeated EntitledImage active_images = 3;
+  // Aggregated quota usage per tier. Keys are CatalogTier string names.
+  map<string, ImageQuota> quota = 4;
+  // Maximum number of images that can be entitled to this organization.
+  // A value of -1 means this organization has no maximum quota enforced.
+  int32 max_total_images = 5;
+}
+
+message AddEntitlementImagesRequest {
+  // Specify how to select an entitlement to add images to.
+  // Callers must have scope over the id in the provided field.
+  oneof entitlement {
+    // The organization to add images to. The newest eligible entitlement
+    // with matching tier capacity is selected.
+    string parent = 1;
+    // The exact id of the entitlement to add images to.
+    string id = 2;
+  }
+  // Catalog image names to add (e.g., "nginx", "redis").
+  // Resolved against the catalog by exact name match.
+  repeated string image_names = 3;
+}
+
+message AddEntitlementImagesResponse {
+  // The images that were added. Excludes requested images that were
+  // found on
+  repeated EntitledImage images = 1;
+
+  // The customer org UIDP that received the images. Set by the backend
+  // to the resolved parent of the target entitlement, regardless of
+  // whether the request selected by parent or by entitlement id. Used
+  // as the CloudEvents subject for downstream subscribers.
+  string parent = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }

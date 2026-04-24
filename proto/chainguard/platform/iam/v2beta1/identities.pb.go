@@ -1205,7 +1205,7 @@ var File_chainguard_platform_iam_v2beta1_identities_proto protoreflect.FileDescr
 
 const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\n" +
-	"0chainguard/platform/iam/v2beta1/identities.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xf0\x0e\n" +
+	"0chainguard/platform/iam/v2beta1/identities.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xf0\x0e\n" +
 	"\bIdentity\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
@@ -1315,21 +1315,26 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	" SERVICE_PRINCIPAL_TENANT_SCANNER\x10\x06\x12#\n" +
 	"\x1fSERVICE_PRINCIPAL_SEDIMENTOLOGY\x10\a\x12\x1d\n" +
 	"\x19SERVICE_PRINCIPAL_SKILLUP\x10\b\x12\"\n" +
-	"\x1eSERVICE_PRINCIPAL_MATERIALIZER\x10\t2\xaf\b\n" +
-	"\x11IdentitiesService\x12\xf1\x01\n" +
-	"\x0eCreateIdentity\x126.chainguard.platform.iam.v2beta1.CreateIdentityRequest\x1a).chainguard.platform.iam.v2beta1.Identity\"|\x82\xd3\xe4\x93\x02/:\bidentity\"#/iam/v2beta1/identities/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\x85\a\xc2\xf0\x8e\xfc\v5\n" +
-	"*dev.chainguard.api.iam.identity.created.v1\x12\x05group\x18\x01\x12\xa3\x01\n" +
-	"\vGetIdentity\x123.chainguard.platform.iam.v2beta1.GetIdentityRequest\x1a).chainguard.platform.iam.v2beta1.Identity\"4\x82\xd3\xe4\x93\x02\"\x12 /iam/v2beta1/identities/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\x87\a\x12\xd1\x01\n" +
-	"\x0eDeleteIdentity\x126.chainguard.platform.iam.v2beta1.DeleteIdentityRequest\x1a\x16.google.protobuf.Empty\"o\x82\xd3\xe4\x93\x02\"* /iam/v2beta1/identities/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\x88\a\xc2\xf0\x8e\xfc\v5\n" +
-	"*dev.chainguard.api.iam.identity.deleted.v1\x12\x05group\x18\x01\x12\xf8\x01\n" +
-	"\x0eUpdateIdentity\x126.chainguard.platform.iam.v2beta1.UpdateIdentityRequest\x1a).chainguard.platform.iam.v2beta1.Identity\"\x82\x01\x82\xd3\xe4\x93\x025:\bidentity2)/iam/v2beta1/identities/{identity.uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\x86\a\xc2\xf0\x8e\xfc\v5\n" +
-	"*dev.chainguard.api.iam.identity.updated.v1\x12\x05group\x18\x01\x12\xb0\x01\n" +
-	"\x0eListIdentities\x126.chainguard.platform.iam.v2beta1.ListIdentitiesRequest\x1a7.chainguard.platform.iam.v2beta1.ListIdentitiesResponse\"-\x82\xd3\xe4\x93\x02\x19\x12\x17/iam/v2beta1/identities\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x02\x87\a\x10\x01Br\n" +
+	"\x1eSERVICE_PRINCIPAL_MATERIALIZER\x10\t2\xda\v\n" +
+	"\x11IdentitiesService\x12\xe5\x02\n" +
+	"\x0eCreateIdentity\x126.chainguard.platform.iam.v2beta1.CreateIdentityRequest\x1a).chainguard.platform.iam.v2beta1.Identity\"\xef\x01\x82\xd3\xe4\x93\x02/:\bidentity\"#/iam/v2beta1/identities/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\x85\a\x9a\xaf\xa8\xd2\x05m\n" +
+	"gCreate a new IAM identity (OIDC claim match, static keys, AWS IAM, or service principal) under a group. \x000\x00\xc2\xf0\x8e\xfc\v5\n" +
+	"*dev.chainguard.api.iam.identity.created.v1\x12\x05group\x18\x01\x12\xd3\x01\n" +
+	"\vGetIdentity\x123.chainguard.platform.iam.v2beta1.GetIdentityRequest\x1a).chainguard.platform.iam.v2beta1.Identity\"d\x82\xd3\xe4\x93\x02\"\x12 /iam/v2beta1/identities/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\x87\a\x9a\xaf\xa8\xd2\x05*\n" +
+	" Get an IAM identity by its UIDP.\x18\x01 \x00(\x010\x00\x12\x83\x02\n" +
+	"\x0eDeleteIdentity\x126.chainguard.platform.iam.v2beta1.DeleteIdentityRequest\x1a\x16.google.protobuf.Empty\"\xa0\x01\x82\xd3\xe4\x93\x02\"* /iam/v2beta1/identities/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\x88\a\x9a\xaf\xa8\xd2\x05+\n" +
+	"#Delete an IAM identity by its UIDP. \x01(\x010\x00\xc2\xf0\x8e\xfc\v5\n" +
+	"*dev.chainguard.api.iam.identity.deleted.v1\x12\x05group\x18\x01\x12\xd0\x02\n" +
+	"\x0eUpdateIdentity\x126.chainguard.platform.iam.v2beta1.UpdateIdentityRequest\x1a).chainguard.platform.iam.v2beta1.Identity\"\xda\x01\x82\xd3\xe4\x93\x025:\bidentity2)/iam/v2beta1/identities/{identity.uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\x86\a\x9a\xaf\xa8\xd2\x05R\n" +
+	"JUpdate an IAM identity's name, description, or relationship configuration. \x00(\x010\x00\xc2\xf0\x8e\xfc\v5\n" +
+	"*dev.chainguard.api.iam.identity.updated.v1\x12\x05group\x18\x01\x12\xad\x02\n" +
+	"\x0eListIdentities\x126.chainguard.platform.iam.v2beta1.ListIdentitiesRequest\x1a7.chainguard.platform.iam.v2beta1.ListIdentitiesResponse\"\xa9\x01\x82\xd3\xe4\x93\x02\x19\x12\x17/iam/v2beta1/identities\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02\x87\a\x10\x01\x9a\xaf\xa8\xd2\x05v\n" +
+	"lList IAM identities the caller has access to. Supports filtering by name, relationship type, and pagination.\x18\x01 \x00(\x010\x00Br\n" +
 	"#com.chainguard.platform.iam.v2beta1B\x0fIdentitiesProtoP\x01Z8chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1b\x06proto3"
 
 var (

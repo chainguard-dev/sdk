@@ -243,7 +243,21 @@ var (
 
 	LibrariesRebuilderViewerCaps = SortCaps([]Capability{
 		Capability_CAP_LIBRARIES_REBUILDER_BUILDS_READ,
+		Capability_CAP_LIBRARIES_REBUILDER_REMEDIATED_ARTIFACTS_READ,
 		Capability_CAP_LIBRARIES_REBUILDER_REQUESTS_LIST,
+	})
+
+	// LibrariesRebuilderTrustedCaps is for the trusted SA (e.g. prepare phase) that
+	// can fetch build-scoped JWT tokens.
+	LibrariesRebuilderTrustedCaps = SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_REBUILDER_BUILDS_TOKENS_FETCH,
+		Capability_CAP_LIBRARIES_REBUILDER_BUILDS_READ,
+	})
+
+	// LibrariesRebuilderUntrustedCaps is for untrusted build/test pods. They combine
+	// this Chainguard identity check with a per-build JWT token for defence in depth.
+	LibrariesRebuilderUntrustedCaps = SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_REBUILDER_BUILDS_UNTRUSTED,
 	})
 
 	LibrariesRebuilderAdminCaps = SortCaps([]Capability{
@@ -254,6 +268,8 @@ var (
 		Capability_CAP_LIBRARIES_REBUILDER_ARTIFACTS_INVALIDATE,
 		Capability_CAP_LIBRARIES_REBUILDER_EXCLUSIONS_MANAGE,
 		Capability_CAP_LIBRARIES_REBUILDER_BUILDS_READ,
+		Capability_CAP_LIBRARIES_REBUILDER_BUILDS_TOKENS_FETCH,
+		Capability_CAP_LIBRARIES_REBUILDER_REMEDIATED_ARTIFACTS_READ,
 	})
 
 	MCPToolUserCaps = SortCaps([]Capability{

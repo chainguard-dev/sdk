@@ -6,6 +6,7 @@ syntax = "proto3";
 package chainguard.platform.registry.v2beta1;
 
 import "annotations/auth.proto";
+import "annotations/mcp.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
@@ -27,6 +28,13 @@ service ReposService {
         capabilities: [CAP_REPO_LIST]
       }
     };
+    option (chainguard.annotations.mcp) = {
+      description: "Get a container image repository by its UIDP."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
   }
 
   // ListRepos returns repositories based on filter criteria with pagination support.
@@ -37,6 +45,13 @@ service ReposService {
         capabilities: [CAP_REPO_LIST]
         unscoped: true
       }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List container image repositories the caller has access to. Supports filtering by name and pagination."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
     };
   }
 }
@@ -283,4 +298,7 @@ enum CatalogTier {
 
   // Developer tools images tier.
   CATALOG_TIER_DEVTOOLS = 5;
+
+  // Commercial images tier.
+  CATALOG_TIER_COMMERCIAL = 6;
 }

@@ -6,6 +6,7 @@ syntax = "proto3";
 package chainguard.platform.registry.v2beta1;
 
 import "annotations/auth.proto";
+import "annotations/mcp.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
@@ -27,6 +28,13 @@ service TagsService {
         capabilities: [CAP_TAG_LIST]
       }
     };
+    option (chainguard.annotations.mcp) = {
+      description: "Get a container image tag by its UIDP."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
   }
 
   // ListTags returns tags based on filter criteria with pagination support.
@@ -37,6 +45,13 @@ service TagsService {
         capabilities: [CAP_TAG_LIST]
         unscoped: true
       }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List container image tags the caller has access to. Supports filtering by name, digest, and date range."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
     };
   }
 }

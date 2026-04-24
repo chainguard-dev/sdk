@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/annotations";
+
+package chainguard.annotations;
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.MethodOptions {
+  MCP mcp = 189350643;
+}
+
+message MCP {
+  // Human-readable description surfaced as the MCP tool description.
+  string description = 1;
+
+  // When true, the method is excluded from the MCP tool surface.
+  bool hidden = 2;
+
+  // Tool does not modify any state (e.g. Get, List).
+  bool read_only = 3;
+
+  // Tool may cause irreversible changes (e.g. Delete).
+  // Optional: unset means "assume destructive" per MCP spec.
+  optional bool destructive = 4;
+
+  // Repeated calls with the same arguments have the same effect as one call.
+  bool idempotent = 5;
+
+  // Tool interacts with external systems beyond the immediate context.
+  // Optional: unset means "assume open-world" per MCP spec.
+  optional bool open_world = 6;
+}
