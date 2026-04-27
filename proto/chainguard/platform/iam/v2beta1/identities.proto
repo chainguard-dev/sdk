@@ -241,6 +241,14 @@ message Identity {
     // When the issuer_keys expire.
     // Defaults to / Maximum of 365 days after creation.
     google.protobuf.Timestamp expiration_time = 4 [(google.api.field_behavior) = OPTIONAL];
+
+    // Accepted OIDC token audiences for this identity.
+    // When set, only these values are checked and the global allowed
+    // audiences are bypassed entirely.
+    // When empty, falls back to the global allowed audiences.
+    // Currently only a single audience is supported — callers must specify
+    // exactly one value. The field is repeated for forward compatibility.
+    repeated string audiences = 5 [(google.api.field_behavior) = OPTIONAL];
   }
 
   // AWSIdentity matches AWS IAM users and roles.
