@@ -291,4 +291,6 @@ enum OrgStatus {
   ORG_STATUS_INITIALIZING = 1;
   // The organization is fully provisioned and ready to use.
   ORG_STATUS_READY = 2;
+  // The organization is suspended and unavailable to its members.
+  ORG_STATUS_SUSPENDED = 3;
 }

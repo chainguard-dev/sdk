@@ -101,6 +101,8 @@ const (
 	OrgStatus_ORG_STATUS_INITIALIZING OrgStatus = 1
 	// The organization is fully provisioned and ready to use.
 	OrgStatus_ORG_STATUS_READY OrgStatus = 2
+	// The organization is suspended and unavailable to its members.
+	OrgStatus_ORG_STATUS_SUSPENDED OrgStatus = 3
 )
 
 // Enum value maps for OrgStatus.
@@ -109,11 +111,13 @@ var (
 		0: "ORG_STATUS_UNSPECIFIED",
 		1: "ORG_STATUS_INITIALIZING",
 		2: "ORG_STATUS_READY",
+		3: "ORG_STATUS_SUSPENDED",
 	}
 	OrgStatus_value = map[string]int32{
 		"ORG_STATUS_UNSPECIFIED":  0,
 		"ORG_STATUS_INITIALIZING": 1,
 		"ORG_STATUS_READY":        2,
+		"ORG_STATUS_SUSPENDED":    3,
 	}
 )
 
@@ -704,11 +708,12 @@ const file_chainguard_platform_iam_v2beta1_groups_proto_rawDesc = "" +
 	"\x10ORG_KIND_STARTER\x10\x01\x12\x15\n" +
 	"\x11ORG_KIND_CUSTOMER\x10\x02\x12\x10\n" +
 	"\fORG_KIND_DEV\x10\x03\x12\x12\n" +
-	"\x0eORG_KIND_INFRA\x10\x04*Z\n" +
+	"\x0eORG_KIND_INFRA\x10\x04*t\n" +
 	"\tOrgStatus\x12\x1a\n" +
 	"\x16ORG_STATUS_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17ORG_STATUS_INITIALIZING\x10\x01\x12\x14\n" +
-	"\x10ORG_STATUS_READY\x10\x022\x98\v\n" +
+	"\x10ORG_STATUS_READY\x10\x02\x12\x18\n" +
+	"\x14ORG_STATUS_SUSPENDED\x10\x032\x98\v\n" +
 	"\rGroupsService\x12\xd6\x01\n" +
 	"\bGetGroup\x120.chainguard.platform.iam.v2beta1.GetGroupRequest\x1a&.chainguard.platform.iam.v2beta1.Group\"p\x82\xd3\xe4\x93\x02\x1e\x12\x1c/iam/v2beta1/groups/{uid=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
 	"\x01g\x9a\xaf\xa8\xd2\x05;\n" +
