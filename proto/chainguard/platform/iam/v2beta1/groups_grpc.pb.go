@@ -23,11 +23,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	GroupsService_GetGroup_FullMethodName    = "/chainguard.platform.iam.v2beta1.GroupsService/GetGroup"
-	GroupsService_DeleteGroup_FullMethodName = "/chainguard.platform.iam.v2beta1.GroupsService/DeleteGroup"
-	GroupsService_ListGroups_FullMethodName  = "/chainguard.platform.iam.v2beta1.GroupsService/ListGroups"
-	GroupsService_CreateGroup_FullMethodName = "/chainguard.platform.iam.v2beta1.GroupsService/CreateGroup"
-	GroupsService_UpdateGroup_FullMethodName = "/chainguard.platform.iam.v2beta1.GroupsService/UpdateGroup"
+	GroupsService_GetGroup_FullMethodName           = "/chainguard.platform.iam.v2beta1.GroupsService/GetGroup"
+	GroupsService_DeleteGroup_FullMethodName        = "/chainguard.platform.iam.v2beta1.GroupsService/DeleteGroup"
+	GroupsService_ListGroups_FullMethodName         = "/chainguard.platform.iam.v2beta1.GroupsService/ListGroups"
+	GroupsService_CreateGroup_FullMethodName        = "/chainguard.platform.iam.v2beta1.GroupsService/CreateGroup"
+	GroupsService_UpdateGroup_FullMethodName        = "/chainguard.platform.iam.v2beta1.GroupsService/UpdateGroup"
+	GroupsService_LookupGroup_FullMethodName        = "/chainguard.platform.iam.v2beta1.GroupsService/LookupGroup"
+	GroupsService_RequestGroupAccess_FullMethodName = "/chainguard.platform.iam.v2beta1.GroupsService/RequestGroupAccess"
 )
 
 // GroupsServiceClient is the client API for GroupsService service.
@@ -48,6 +50,39 @@ type GroupsServiceClient interface {
 	// UpdateGroup updates the given Group according to the provided field mask.
 	// The fully populated Group is returned.
 	UpdateGroup(ctx context.Context, in *UpdateGroupRequest, opts ...grpc.CallOption) (*Group, error)
+	// LookupGroup returns the verified root group whose name matches the email
+	// domain on the caller's token, when the token comes from a trusted upstream
+	// identity provider that performs its own email verification. The request is
+	// intentionally empty: the lookup is driven entirely by the caller's token.
+	//
+	// Returns NOT_FOUND when:
+	//   - no verified root group matches the caller's email domain;
+	//   - the caller's token is not from a trusted upstream identity provider; or
+	//   - the caller's email domain is on the blocked-domains list (free email,
+	//     known competitor, etc.).
+	//
+	// These cases are intentionally collapsed into a single response so callers
+	// cannot distinguish "no such org" from "you're not allowed to know."
+	LookupGroup(ctx context.Context, in *LookupGroupRequest, opts ...grpc.CallOption) (*LookupGroupResponse, error)
+	// RequestGroupAccess sends an access request from the caller to the owners
+	// of the given verified root group. The group's name must match the email
+	// domain on the caller's token, and the token must come from a trusted
+	// upstream identity provider that performs its own email verification.
+	// The notification itself is fire-and-forget; this RPC returns OK once the
+	// request has been validated and dispatched.
+	//
+	// Returns NOT_FOUND when the supplied group_uid does not resolve to the
+	// verified root group matching the caller's email domain — either because
+	// no such group exists, the group_uid is wrong, or the caller is not on a
+	// trusted upstream identity provider. Like LookupGroup, these cases are
+	// intentionally collapsed.
+	//
+	// Returns RESOURCE_EXHAUSTED (HTTP 429) when the same caller has recently
+	// requested access to the same group; callers should surface a "request
+	// already sent" message rather than retrying.
+	//
+	// Returns INVALID_ARGUMENT when group_uid is empty.
+	RequestGroupAccess(ctx context.Context, in *RequestGroupAccessRequest, opts ...grpc.CallOption) (*RequestGroupAccessResponse, error)
 }
 
 type groupsServiceClient struct {
@@ -108,6 +143,26 @@ func (c *groupsServiceClient) UpdateGroup(ctx context.Context, in *UpdateGroupRe
 	return out, nil
 }
 
+func (c *groupsServiceClient) LookupGroup(ctx context.Context, in *LookupGroupRequest, opts ...grpc.CallOption) (*LookupGroupResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LookupGroupResponse)
+	err := c.cc.Invoke(ctx, GroupsService_LookupGroup_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *groupsServiceClient) RequestGroupAccess(ctx context.Context, in *RequestGroupAccessRequest, opts ...grpc.CallOption) (*RequestGroupAccessResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RequestGroupAccessResponse)
+	err := c.cc.Invoke(ctx, GroupsService_RequestGroupAccess_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GroupsServiceServer is the server API for GroupsService service.
 // All implementations must embed UnimplementedGroupsServiceServer
 // for forward compatibility.
@@ -126,6 +181,39 @@ type GroupsServiceServer interface {
 	// UpdateGroup updates the given Group according to the provided field mask.
 	// The fully populated Group is returned.
 	UpdateGroup(context.Context, *UpdateGroupRequest) (*Group, error)
+	// LookupGroup returns the verified root group whose name matches the email
+	// domain on the caller's token, when the token comes from a trusted upstream
+	// identity provider that performs its own email verification. The request is
+	// intentionally empty: the lookup is driven entirely by the caller's token.
+	//
+	// Returns NOT_FOUND when:
+	//   - no verified root group matches the caller's email domain;
+	//   - the caller's token is not from a trusted upstream identity provider; or
+	//   - the caller's email domain is on the blocked-domains list (free email,
+	//     known competitor, etc.).
+	//
+	// These cases are intentionally collapsed into a single response so callers
+	// cannot distinguish "no such org" from "you're not allowed to know."
+	LookupGroup(context.Context, *LookupGroupRequest) (*LookupGroupResponse, error)
+	// RequestGroupAccess sends an access request from the caller to the owners
+	// of the given verified root group. The group's name must match the email
+	// domain on the caller's token, and the token must come from a trusted
+	// upstream identity provider that performs its own email verification.
+	// The notification itself is fire-and-forget; this RPC returns OK once the
+	// request has been validated and dispatched.
+	//
+	// Returns NOT_FOUND when the supplied group_uid does not resolve to the
+	// verified root group matching the caller's email domain — either because
+	// no such group exists, the group_uid is wrong, or the caller is not on a
+	// trusted upstream identity provider. Like LookupGroup, these cases are
+	// intentionally collapsed.
+	//
+	// Returns RESOURCE_EXHAUSTED (HTTP 429) when the same caller has recently
+	// requested access to the same group; callers should surface a "request
+	// already sent" message rather than retrying.
+	//
+	// Returns INVALID_ARGUMENT when group_uid is empty.
+	RequestGroupAccess(context.Context, *RequestGroupAccessRequest) (*RequestGroupAccessResponse, error)
 	mustEmbedUnimplementedGroupsServiceServer()
 }
 
@@ -150,6 +238,12 @@ func (UnimplementedGroupsServiceServer) CreateGroup(context.Context, *CreateGrou
 }
 func (UnimplementedGroupsServiceServer) UpdateGroup(context.Context, *UpdateGroupRequest) (*Group, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateGroup not implemented")
+}
+func (UnimplementedGroupsServiceServer) LookupGroup(context.Context, *LookupGroupRequest) (*LookupGroupResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method LookupGroup not implemented")
+}
+func (UnimplementedGroupsServiceServer) RequestGroupAccess(context.Context, *RequestGroupAccessRequest) (*RequestGroupAccessResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RequestGroupAccess not implemented")
 }
 func (UnimplementedGroupsServiceServer) mustEmbedUnimplementedGroupsServiceServer() {}
 func (UnimplementedGroupsServiceServer) testEmbeddedByValue()                       {}
@@ -262,6 +356,42 @@ func _GroupsService_UpdateGroup_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GroupsService_LookupGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LookupGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupsServiceServer).LookupGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupsService_LookupGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupsServiceServer).LookupGroup(ctx, req.(*LookupGroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GroupsService_RequestGroupAccess_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestGroupAccessRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupsServiceServer).RequestGroupAccess(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupsService_RequestGroupAccess_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupsServiceServer).RequestGroupAccess(ctx, req.(*RequestGroupAccessRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GroupsService_ServiceDesc is the grpc.ServiceDesc for GroupsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -288,6 +418,14 @@ var GroupsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateGroup",
 			Handler:    _GroupsService_UpdateGroup_Handler,
+		},
+		{
+			MethodName: "LookupGroup",
+			Handler:    _GroupsService_LookupGroup_Handler,
+		},
+		{
+			MethodName: "RequestGroupAccess",
+			Handler:    _GroupsService_RequestGroupAccess_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
