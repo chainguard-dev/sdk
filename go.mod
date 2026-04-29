@@ -18,7 +18,7 @@ require (
 	github.com/google/gofuzz v1.2.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.28.0
 	github.com/microcosm-cc/bluemonday v1.0.27
-	github.com/palantir/pkg/yamlpatch v1.4.0
+	github.com/palantir/pkg/yamlpatch v1.5.0
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/sigstore/sigstore v1.10.4
