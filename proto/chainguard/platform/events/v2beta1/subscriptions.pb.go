@@ -85,6 +85,52 @@ func (x *Subscription) GetSink() string {
 	return ""
 }
 
+// GetSubscriptionRequest is the request message for GetSubscription.
+type GetSubscriptionRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UID of the subscription to retrieve.
+	Uid           string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSubscriptionRequest) Reset() {
+	*x = GetSubscriptionRequest{}
+	mi := &file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSubscriptionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSubscriptionRequest) ProtoMessage() {}
+
+func (x *GetSubscriptionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSubscriptionRequest.ProtoReflect.Descriptor instead.
+func (*GetSubscriptionRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_events_v2beta1_subscriptions_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *GetSubscriptionRequest) GetUid() string {
+	if x != nil {
+		return x.Uid
+	}
+	return ""
+}
+
 // CreateSubscriptionRequest is the request message for CreateSubscription.
 type CreateSubscriptionRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -98,7 +144,7 @@ type CreateSubscriptionRequest struct {
 
 func (x *CreateSubscriptionRequest) Reset() {
 	*x = CreateSubscriptionRequest{}
-	mi := &file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes[1]
+	mi := &file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -110,7 +156,7 @@ func (x *CreateSubscriptionRequest) String() string {
 func (*CreateSubscriptionRequest) ProtoMessage() {}
 
 func (x *CreateSubscriptionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes[1]
+	mi := &file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -123,7 +169,7 @@ func (x *CreateSubscriptionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateSubscriptionRequest.ProtoReflect.Descriptor instead.
 func (*CreateSubscriptionRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_events_v2beta1_subscriptions_proto_rawDescGZIP(), []int{1}
+	return file_chainguard_platform_events_v2beta1_subscriptions_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *CreateSubscriptionRequest) GetParent() string {
@@ -153,7 +199,7 @@ type ListSubscriptionsRequest struct {
 
 func (x *ListSubscriptionsRequest) Reset() {
 	*x = ListSubscriptionsRequest{}
-	mi := &file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes[2]
+	mi := &file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -165,7 +211,7 @@ func (x *ListSubscriptionsRequest) String() string {
 func (*ListSubscriptionsRequest) ProtoMessage() {}
 
 func (x *ListSubscriptionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes[2]
+	mi := &file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -178,7 +224,7 @@ func (x *ListSubscriptionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSubscriptionsRequest.ProtoReflect.Descriptor instead.
 func (*ListSubscriptionsRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_events_v2beta1_subscriptions_proto_rawDescGZIP(), []int{2}
+	return file_chainguard_platform_events_v2beta1_subscriptions_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ListSubscriptionsRequest) GetUidp() *v1.UIDPFilter {
@@ -199,7 +245,7 @@ type ListSubscriptionsResponse struct {
 
 func (x *ListSubscriptionsResponse) Reset() {
 	*x = ListSubscriptionsResponse{}
-	mi := &file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes[3]
+	mi := &file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -211,7 +257,7 @@ func (x *ListSubscriptionsResponse) String() string {
 func (*ListSubscriptionsResponse) ProtoMessage() {}
 
 func (x *ListSubscriptionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes[3]
+	mi := &file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -224,7 +270,7 @@ func (x *ListSubscriptionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSubscriptionsResponse.ProtoReflect.Descriptor instead.
 func (*ListSubscriptionsResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_events_v2beta1_subscriptions_proto_rawDescGZIP(), []int{3}
+	return file_chainguard_platform_events_v2beta1_subscriptions_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ListSubscriptionsResponse) GetSubscriptions() []*Subscription {
@@ -245,7 +291,7 @@ type DeleteSubscriptionRequest struct {
 
 func (x *DeleteSubscriptionRequest) Reset() {
 	*x = DeleteSubscriptionRequest{}
-	mi := &file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes[4]
+	mi := &file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -257,7 +303,7 @@ func (x *DeleteSubscriptionRequest) String() string {
 func (*DeleteSubscriptionRequest) ProtoMessage() {}
 
 func (x *DeleteSubscriptionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes[4]
+	mi := &file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -270,7 +316,7 @@ func (x *DeleteSubscriptionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteSubscriptionRequest.ProtoReflect.Descriptor instead.
 func (*DeleteSubscriptionRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_events_v2beta1_subscriptions_proto_rawDescGZIP(), []int{4}
+	return file_chainguard_platform_events_v2beta1_subscriptions_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *DeleteSubscriptionRequest) GetUid() string {
@@ -284,12 +330,15 @@ var File_chainguard_platform_events_v2beta1_subscriptions_proto protoreflect.Fil
 
 const file_chainguard_platform_events_v2beta1_subscriptions_proto_rawDesc = "" +
 	"\n" +
-	"6chainguard/platform/events/v2beta1/subscriptions.proto\x12\"chainguard.platform.events.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a&platform/common/v1/uidp.platform.proto\"\xaa\x01\n" +
+	"6chainguard/platform/events/v2beta1/subscriptions.proto\x12\"chainguard.platform.events.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a&platform/common/v1/uidp.platform.proto\"\xaa\x01\n" +
 	"\fSubscription\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
 	"\x04sink\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x04sink:b\xeaA_\n" +
-	"\"events.chainguard.dev/Subscription\x12\x1csubscriptions/{subscription}*\rsubscriptions2\fsubscription\"\x9b\x01\n" +
+	"\"events.chainguard.dev/Subscription\x12\x1csubscriptions/{subscription}*\rsubscriptions2\fsubscription\"6\n" +
+	"\x16GetSubscriptionRequest\x12\x1c\n" +
+	"\x03uid\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\"\x9b\x01\n" +
 	"\x19CreateSubscriptionRequest\x12\"\n" +
 	"\x06parent\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12Z\n" +
@@ -300,8 +349,11 @@ const file_chainguard_platform_events_v2beta1_subscriptions_proto_rawDesc = "" +
 	"\rsubscriptions\x18\x01 \x03(\v20.chainguard.platform.events.v2beta1.SubscriptionR\rsubscriptions\"9\n" +
 	"\x19DeleteSubscriptionRequest\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid2\xe2\x05\n" +
-	"\x14SubscriptionsService\x12\x95\x02\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid2\xd6\a\n" +
+	"\x14SubscriptionsService\x12\xf1\x01\n" +
+	"\x0fGetSubscription\x12:.chainguard.platform.events.v2beta1.GetSubscriptionRequest\x1a0.chainguard.platform.events.v2beta1.Subscription\"p\x82\xd3\xe4\x93\x02(\x12&/events/v2beta1/subscriptions/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xdf\v\x9a\xaf\xa8\xd2\x050\n" +
+	"&Get an event subscription by its UIDP.\x18\x01 \x00(\x010\x00\x12\x95\x02\n" +
 	"\x12CreateSubscription\x12=.chainguard.platform.events.v2beta1.CreateSubscriptionRequest\x1a0.chainguard.platform.events.v2beta1.Subscription\"\x8d\x01\x82\xd3\xe4\x93\x029:\fsubscription\")/events/v2beta1/subscriptions/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xdd\v\xc2\xf0\x8e\xfc\v<\n" +
 	"1dev.chainguard.api.events.subscription.created.v1\x12\x05group\x18\x01\x12\xc5\x01\n" +
@@ -324,28 +376,31 @@ func file_chainguard_platform_events_v2beta1_subscriptions_proto_rawDescGZIP() [
 	return file_chainguard_platform_events_v2beta1_subscriptions_proto_rawDescData
 }
 
-var file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_chainguard_platform_events_v2beta1_subscriptions_proto_goTypes = []any{
 	(*Subscription)(nil),              // 0: chainguard.platform.events.v2beta1.Subscription
-	(*CreateSubscriptionRequest)(nil), // 1: chainguard.platform.events.v2beta1.CreateSubscriptionRequest
-	(*ListSubscriptionsRequest)(nil),  // 2: chainguard.platform.events.v2beta1.ListSubscriptionsRequest
-	(*ListSubscriptionsResponse)(nil), // 3: chainguard.platform.events.v2beta1.ListSubscriptionsResponse
-	(*DeleteSubscriptionRequest)(nil), // 4: chainguard.platform.events.v2beta1.DeleteSubscriptionRequest
-	(*v1.UIDPFilter)(nil),             // 5: chainguard.platform.common.UIDPFilter
-	(*emptypb.Empty)(nil),             // 6: google.protobuf.Empty
+	(*GetSubscriptionRequest)(nil),    // 1: chainguard.platform.events.v2beta1.GetSubscriptionRequest
+	(*CreateSubscriptionRequest)(nil), // 2: chainguard.platform.events.v2beta1.CreateSubscriptionRequest
+	(*ListSubscriptionsRequest)(nil),  // 3: chainguard.platform.events.v2beta1.ListSubscriptionsRequest
+	(*ListSubscriptionsResponse)(nil), // 4: chainguard.platform.events.v2beta1.ListSubscriptionsResponse
+	(*DeleteSubscriptionRequest)(nil), // 5: chainguard.platform.events.v2beta1.DeleteSubscriptionRequest
+	(*v1.UIDPFilter)(nil),             // 6: chainguard.platform.common.UIDPFilter
+	(*emptypb.Empty)(nil),             // 7: google.protobuf.Empty
 }
 var file_chainguard_platform_events_v2beta1_subscriptions_proto_depIdxs = []int32{
 	0, // 0: chainguard.platform.events.v2beta1.CreateSubscriptionRequest.subscription:type_name -> chainguard.platform.events.v2beta1.Subscription
-	5, // 1: chainguard.platform.events.v2beta1.ListSubscriptionsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	6, // 1: chainguard.platform.events.v2beta1.ListSubscriptionsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
 	0, // 2: chainguard.platform.events.v2beta1.ListSubscriptionsResponse.subscriptions:type_name -> chainguard.platform.events.v2beta1.Subscription
-	1, // 3: chainguard.platform.events.v2beta1.SubscriptionsService.CreateSubscription:input_type -> chainguard.platform.events.v2beta1.CreateSubscriptionRequest
-	2, // 4: chainguard.platform.events.v2beta1.SubscriptionsService.ListSubscriptions:input_type -> chainguard.platform.events.v2beta1.ListSubscriptionsRequest
-	4, // 5: chainguard.platform.events.v2beta1.SubscriptionsService.DeleteSubscription:input_type -> chainguard.platform.events.v2beta1.DeleteSubscriptionRequest
-	0, // 6: chainguard.platform.events.v2beta1.SubscriptionsService.CreateSubscription:output_type -> chainguard.platform.events.v2beta1.Subscription
-	3, // 7: chainguard.platform.events.v2beta1.SubscriptionsService.ListSubscriptions:output_type -> chainguard.platform.events.v2beta1.ListSubscriptionsResponse
-	6, // 8: chainguard.platform.events.v2beta1.SubscriptionsService.DeleteSubscription:output_type -> google.protobuf.Empty
-	6, // [6:9] is the sub-list for method output_type
-	3, // [3:6] is the sub-list for method input_type
+	1, // 3: chainguard.platform.events.v2beta1.SubscriptionsService.GetSubscription:input_type -> chainguard.platform.events.v2beta1.GetSubscriptionRequest
+	2, // 4: chainguard.platform.events.v2beta1.SubscriptionsService.CreateSubscription:input_type -> chainguard.platform.events.v2beta1.CreateSubscriptionRequest
+	3, // 5: chainguard.platform.events.v2beta1.SubscriptionsService.ListSubscriptions:input_type -> chainguard.platform.events.v2beta1.ListSubscriptionsRequest
+	5, // 6: chainguard.platform.events.v2beta1.SubscriptionsService.DeleteSubscription:input_type -> chainguard.platform.events.v2beta1.DeleteSubscriptionRequest
+	0, // 7: chainguard.platform.events.v2beta1.SubscriptionsService.GetSubscription:output_type -> chainguard.platform.events.v2beta1.Subscription
+	0, // 8: chainguard.platform.events.v2beta1.SubscriptionsService.CreateSubscription:output_type -> chainguard.platform.events.v2beta1.Subscription
+	4, // 9: chainguard.platform.events.v2beta1.SubscriptionsService.ListSubscriptions:output_type -> chainguard.platform.events.v2beta1.ListSubscriptionsResponse
+	7, // 10: chainguard.platform.events.v2beta1.SubscriptionsService.DeleteSubscription:output_type -> google.protobuf.Empty
+	7, // [7:11] is the sub-list for method output_type
+	3, // [3:7] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
 	3, // [3:3] is the sub-list for extension extendee
 	0, // [0:3] is the sub-list for field type_name
@@ -362,7 +417,7 @@ func file_chainguard_platform_events_v2beta1_subscriptions_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_events_v2beta1_subscriptions_proto_rawDesc), len(file_chainguard_platform_events_v2beta1_subscriptions_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

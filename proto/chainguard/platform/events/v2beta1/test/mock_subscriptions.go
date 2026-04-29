@@ -23,9 +23,14 @@ type MockSubscriptionsServiceClient struct {
 	events.SubscriptionsServiceClient
 	T *testing.T
 
+	OnGetSubscription    []test.On[*events.GetSubscriptionRequest, *events.Subscription]
 	OnCreateSubscription []test.On[*events.CreateSubscriptionRequest, *events.Subscription]
 	OnListSubscriptions  []test.On[*events.ListSubscriptionsRequest, *events.ListSubscriptionsResponse]
 	OnDeleteSubscription []test.On[*events.DeleteSubscriptionRequest, *emptypb.Empty]
+}
+
+func (m MockSubscriptionsServiceClient) GetSubscription(_ context.Context, given *events.GetSubscriptionRequest, _ ...grpc.CallOption) (*events.Subscription, error) {
+	return test.Match(m.T, m.OnGetSubscription, given, "get-subscription", protocmp.Transform())
 }
 
 func (m MockSubscriptionsServiceClient) CreateSubscription(_ context.Context, given *events.CreateSubscriptionRequest, _ ...grpc.CallOption) (*events.Subscription, error) {

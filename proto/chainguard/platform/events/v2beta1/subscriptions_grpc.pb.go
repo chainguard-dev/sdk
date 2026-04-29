@@ -23,6 +23,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	SubscriptionsService_GetSubscription_FullMethodName    = "/chainguard.platform.events.v2beta1.SubscriptionsService/GetSubscription"
 	SubscriptionsService_CreateSubscription_FullMethodName = "/chainguard.platform.events.v2beta1.SubscriptionsService/CreateSubscription"
 	SubscriptionsService_ListSubscriptions_FullMethodName  = "/chainguard.platform.events.v2beta1.SubscriptionsService/ListSubscriptions"
 	SubscriptionsService_DeleteSubscription_FullMethodName = "/chainguard.platform.events.v2beta1.SubscriptionsService/DeleteSubscription"
@@ -34,6 +35,12 @@ const (
 //
 // SubscriptionsService manages event subscriptions (webhooks).
 type SubscriptionsServiceClient interface {
+	// GetSubscription retrieves a single event subscription by UID.
+	// Note: CAP_EVENTS_SUBSCRIPTION_LIST is intentionally reused for this
+	// single-resource read. There is no separate read-one capability; granting
+	// list access implicitly grants get access. This is a deliberate design
+	// choice for simplicity at the beta stage and may be revisited before GA.
+	GetSubscription(ctx context.Context, in *GetSubscriptionRequest, opts ...grpc.CallOption) (*Subscription, error)
 	// CreateSubscription registers a new event subscription under a group.
 	CreateSubscription(ctx context.Context, in *CreateSubscriptionRequest, opts ...grpc.CallOption) (*Subscription, error)
 	// ListSubscriptions returns subscriptions matching filter criteria.
@@ -48,6 +55,16 @@ type subscriptionsServiceClient struct {
 
 func NewSubscriptionsServiceClient(cc grpc.ClientConnInterface) SubscriptionsServiceClient {
 	return &subscriptionsServiceClient{cc}
+}
+
+func (c *subscriptionsServiceClient) GetSubscription(ctx context.Context, in *GetSubscriptionRequest, opts ...grpc.CallOption) (*Subscription, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Subscription)
+	err := c.cc.Invoke(ctx, SubscriptionsService_GetSubscription_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *subscriptionsServiceClient) CreateSubscription(ctx context.Context, in *CreateSubscriptionRequest, opts ...grpc.CallOption) (*Subscription, error) {
@@ -86,6 +103,12 @@ func (c *subscriptionsServiceClient) DeleteSubscription(ctx context.Context, in 
 //
 // SubscriptionsService manages event subscriptions (webhooks).
 type SubscriptionsServiceServer interface {
+	// GetSubscription retrieves a single event subscription by UID.
+	// Note: CAP_EVENTS_SUBSCRIPTION_LIST is intentionally reused for this
+	// single-resource read. There is no separate read-one capability; granting
+	// list access implicitly grants get access. This is a deliberate design
+	// choice for simplicity at the beta stage and may be revisited before GA.
+	GetSubscription(context.Context, *GetSubscriptionRequest) (*Subscription, error)
 	// CreateSubscription registers a new event subscription under a group.
 	CreateSubscription(context.Context, *CreateSubscriptionRequest) (*Subscription, error)
 	// ListSubscriptions returns subscriptions matching filter criteria.
@@ -102,6 +125,9 @@ type SubscriptionsServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedSubscriptionsServiceServer struct{}
 
+func (UnimplementedSubscriptionsServiceServer) GetSubscription(context.Context, *GetSubscriptionRequest) (*Subscription, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetSubscription not implemented")
+}
 func (UnimplementedSubscriptionsServiceServer) CreateSubscription(context.Context, *CreateSubscriptionRequest) (*Subscription, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateSubscription not implemented")
 }
@@ -130,6 +156,24 @@ func RegisterSubscriptionsServiceServer(s grpc.ServiceRegistrar, srv Subscriptio
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&SubscriptionsService_ServiceDesc, srv)
+}
+
+func _SubscriptionsService_GetSubscription_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSubscriptionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SubscriptionsServiceServer).GetSubscription(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SubscriptionsService_GetSubscription_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SubscriptionsServiceServer).GetSubscription(ctx, req.(*GetSubscriptionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _SubscriptionsService_CreateSubscription_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -193,6 +237,10 @@ var SubscriptionsService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "chainguard.platform.events.v2beta1.SubscriptionsService",
 	HandlerType: (*SubscriptionsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetSubscription",
+			Handler:    _SubscriptionsService_GetSubscription_Handler,
+		},
 		{
 			MethodName: "CreateSubscription",
 			Handler:    _SubscriptionsService_CreateSubscription_Handler,

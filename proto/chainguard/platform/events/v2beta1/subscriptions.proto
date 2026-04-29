@@ -7,6 +7,7 @@ package chainguard.platform.events.v2beta1;
 
 import "annotations/auth.proto";
 import "annotations/events.proto";
+import "annotations/mcp.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
@@ -20,6 +21,27 @@ option java_package = "com.chainguard.platform.events.v2beta1";
 
 // SubscriptionsService manages event subscriptions (webhooks).
 service SubscriptionsService {
+  // GetSubscription retrieves a single event subscription by UID.
+  // Note: CAP_EVENTS_SUBSCRIPTION_LIST is intentionally reused for this
+  // single-resource read. There is no separate read-one capability; granting
+  // list access implicitly grants get access. This is a deliberate design
+  // choice for simplicity at the beta stage and may be revisited before GA.
+  rpc GetSubscription(GetSubscriptionRequest) returns (Subscription) {
+    option (google.api.http) = {get: "/events/v2beta1/subscriptions/{uid=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_EVENTS_SUBSCRIPTION_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get an event subscription by its UIDP."
+      read_only: true
+      idempotent: true
+      destructive: false
+      open_world: false
+    };
+  }
+
   // CreateSubscription registers a new event subscription under a group.
   rpc CreateSubscription(CreateSubscriptionRequest) returns (Subscription) {
     option (google.api.http) = {
@@ -84,6 +106,15 @@ message Subscription {
   // The routable HTTPS URL to which events are delivered.
   // Must use the https scheme.
   string sink = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetSubscriptionRequest is the request message for GetSubscription.
+message GetSubscriptionRequest {
+  // UID of the subscription to retrieve.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
 }
 
 // CreateSubscriptionRequest is the request message for CreateSubscription.
