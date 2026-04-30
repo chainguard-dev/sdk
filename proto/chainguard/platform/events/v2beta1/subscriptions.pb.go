@@ -187,12 +187,25 @@ func (x *CreateSubscriptionRequest) GetSubscription() *Subscription {
 }
 
 // ListSubscriptionsRequest is the request message for ListSubscriptions.
-// TODO: add page_size, page_token, order_by, skip once the datastore
-// SubscriptionFilter supports pagination (currently only uidp is supported).
 type ListSubscriptionsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Optional UIDP-based filter for hierarchy navigation.
-	Uidp          *v1.UIDPFilter `protobuf:"bytes,1,opt,name=uidp,proto3" json:"uidp,omitempty"`
+	Uidp *v1.UIDPFilter `protobuf:"bytes,1,opt,name=uidp,proto3" json:"uidp,omitempty"`
+	// Maximum number of results to return per page.
+	// Default: 50, Maximum: 200.
+	PageSize int32 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// Page token from a previous List response for pagination.
+	// Opaque token with 3-day expiration.
+	PageToken string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// Order results by field. Format: "field [asc|desc]"
+	// Default: ascending by primary key.
+	// Note: Changing order_by between pages invalidates the page token.
+	OrderBy string `protobuf:"bytes,4,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
+	// Number of results to skip before returning.
+	// Used for random-access pagination (jumping to arbitrary pages).
+	// Can be combined with page_token to skip from cursor position.
+	// Must be non-negative.
+	Skip          int32 `protobuf:"varint,5,opt,name=skip,proto3" json:"skip,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -234,11 +247,48 @@ func (x *ListSubscriptionsRequest) GetUidp() *v1.UIDPFilter {
 	return nil
 }
 
+func (x *ListSubscriptionsRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *ListSubscriptionsRequest) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+func (x *ListSubscriptionsRequest) GetOrderBy() string {
+	if x != nil {
+		return x.OrderBy
+	}
+	return ""
+}
+
+func (x *ListSubscriptionsRequest) GetSkip() int32 {
+	if x != nil {
+		return x.Skip
+	}
+	return 0
+}
+
 // ListSubscriptionsResponse is the response message for ListSubscriptions.
 type ListSubscriptionsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Subscriptions matching the filter criteria.
 	Subscriptions []*Subscription `protobuf:"bytes,1,rep,name=subscriptions,proto3" json:"subscriptions,omitempty"`
+	// Token for retrieving the next page of results.
+	// Empty if no more results.
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	// Total number of subscriptions matching the filter.
+	// Optional, provided for UI pagination.
+	TotalCount *int64 `protobuf:"varint,3,opt,name=total_count,json=totalCount,proto3,oneof" json:"total_count,omitempty"`
+	// Number of results that were skipped.
+	// Accumulates across paginated requests.
+	Skipped       int32 `protobuf:"varint,4,opt,name=skipped,proto3" json:"skipped,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -278,6 +328,27 @@ func (x *ListSubscriptionsResponse) GetSubscriptions() []*Subscription {
 		return x.Subscriptions
 	}
 	return nil
+}
+
+func (x *ListSubscriptionsResponse) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
+}
+
+func (x *ListSubscriptionsResponse) GetTotalCount() int64 {
+	if x != nil && x.TotalCount != nil {
+		return *x.TotalCount
+	}
+	return 0
+}
+
+func (x *ListSubscriptionsResponse) GetSkipped() int32 {
+	if x != nil {
+		return x.Skipped
+	}
+	return 0
 }
 
 // DeleteSubscriptionRequest is the request message for DeleteSubscription.
@@ -342,11 +413,21 @@ const file_chainguard_platform_events_v2beta1_subscriptions_proto_rawDesc = "" +
 	"\x19CreateSubscriptionRequest\x12\"\n" +
 	"\x06parent\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12Z\n" +
-	"\fsubscription\x18\x02 \x01(\v20.chainguard.platform.events.v2beta1.SubscriptionB\x04\xe2A\x01\x02R\fsubscription\"\\\n" +
+	"\fsubscription\x18\x02 \x01(\v20.chainguard.platform.events.v2beta1.SubscriptionB\x04\xe2A\x01\x02R\fsubscription\"\xdf\x01\n" +
 	"\x18ListSubscriptionsRequest\x12@\n" +
-	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterB\x04\xe2A\x01\x01R\x04uidp\"s\n" +
+	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterB\x04\xe2A\x01\x01R\x04uidp\x12!\n" +
+	"\tpage_size\x18\x02 \x01(\x05B\x04\xe2A\x01\x01R\bpageSize\x12#\n" +
+	"\n" +
+	"page_token\x18\x03 \x01(\tB\x04\xe2A\x01\x01R\tpageToken\x12\x1f\n" +
+	"\border_by\x18\x04 \x01(\tB\x04\xe2A\x01\x01R\aorderBy\x12\x18\n" +
+	"\x04skip\x18\x05 \x01(\x05B\x04\xe2A\x01\x01R\x04skip\"\xeb\x01\n" +
 	"\x19ListSubscriptionsResponse\x12V\n" +
-	"\rsubscriptions\x18\x01 \x03(\v20.chainguard.platform.events.v2beta1.SubscriptionR\rsubscriptions\"9\n" +
+	"\rsubscriptions\x18\x01 \x03(\v20.chainguard.platform.events.v2beta1.SubscriptionR\rsubscriptions\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12$\n" +
+	"\vtotal_count\x18\x03 \x01(\x03H\x00R\n" +
+	"totalCount\x88\x01\x01\x12\x18\n" +
+	"\askipped\x18\x04 \x01(\x05R\askippedB\x0e\n" +
+	"\f_total_count\"9\n" +
 	"\x19DeleteSubscriptionRequest\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid2\xd6\a\n" +
@@ -411,6 +492,7 @@ func file_chainguard_platform_events_v2beta1_subscriptions_proto_init() {
 	if File_chainguard_platform_events_v2beta1_subscriptions_proto != nil {
 		return
 	}
+	file_chainguard_platform_events_v2beta1_subscriptions_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

@@ -130,17 +130,46 @@ message CreateSubscriptionRequest {
 }
 
 // ListSubscriptionsRequest is the request message for ListSubscriptions.
-// TODO: add page_size, page_token, order_by, skip once the datastore
-// SubscriptionFilter supports pagination (currently only uidp is supported).
 message ListSubscriptionsRequest {
   // Optional UIDP-based filter for hierarchy navigation.
   chainguard.platform.common.UIDPFilter uidp = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // Maximum number of results to return per page.
+  // Default: 50, Maximum: 200.
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Page token from a previous List response for pagination.
+  // Opaque token with 3-day expiration.
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order results by field. Format: "field [asc|desc]"
+  // Default: ascending by primary key.
+  // Note: Changing order_by between pages invalidates the page token.
+  string order_by = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of results to skip before returning.
+  // Used for random-access pagination (jumping to arbitrary pages).
+  // Can be combined with page_token to skip from cursor position.
+  // Must be non-negative.
+  int32 skip = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // ListSubscriptionsResponse is the response message for ListSubscriptions.
 message ListSubscriptionsResponse {
   // Subscriptions matching the filter criteria.
   repeated Subscription subscriptions = 1;
+
+  // Token for retrieving the next page of results.
+  // Empty if no more results.
+  string next_page_token = 2;
+
+  // Total number of subscriptions matching the filter.
+  // Optional, provided for UI pagination.
+  optional int64 total_count = 3;
+
+  // Number of results that were skipped.
+  // Accumulates across paginated requests.
+  int32 skipped = 4;
 }
 
 // DeleteSubscriptionRequest is the request message for DeleteSubscription.
