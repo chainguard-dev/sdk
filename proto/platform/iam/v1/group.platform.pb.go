@@ -456,6 +456,177 @@ func (x *DeleteGroupRequest) GetId() string {
 	return ""
 }
 
+// LookupGroupRequest is the request message for LookupGroup.
+// It is intentionally empty: the lookup is driven entirely by the caller's
+// token claims.
+type LookupGroupRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LookupGroupRequest) Reset() {
+	*x = LookupGroupRequest{}
+	mi := &file_group_platform_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LookupGroupRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LookupGroupRequest) ProtoMessage() {}
+
+func (x *LookupGroupRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_group_platform_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LookupGroupRequest.ProtoReflect.Descriptor instead.
+func (*LookupGroupRequest) Descriptor() ([]byte, []int) {
+	return file_group_platform_proto_rawDescGZIP(), []int{5}
+}
+
+// LookupGroupResponse is the response message for LookupGroup.
+type LookupGroupResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The group matching the caller's email domain from their token.
+	Group         *Group `protobuf:"bytes,1,opt,name=group,proto3" json:"group,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LookupGroupResponse) Reset() {
+	*x = LookupGroupResponse{}
+	mi := &file_group_platform_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LookupGroupResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LookupGroupResponse) ProtoMessage() {}
+
+func (x *LookupGroupResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_group_platform_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LookupGroupResponse.ProtoReflect.Descriptor instead.
+func (*LookupGroupResponse) Descriptor() ([]byte, []int) {
+	return file_group_platform_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *LookupGroupResponse) GetGroup() *Group {
+	if x != nil {
+		return x.Group
+	}
+	return nil
+}
+
+// RequestGroupAccessRequest is the request message for RequestGroupAccess.
+type RequestGroupAccessRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// group_id is the UIDP of the group to request access to. Must be the
+	// group whose name matches the email domain on the caller's token; the
+	// server revalidates this on every call.
+	GroupId       string `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RequestGroupAccessRequest) Reset() {
+	*x = RequestGroupAccessRequest{}
+	mi := &file_group_platform_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RequestGroupAccessRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RequestGroupAccessRequest) ProtoMessage() {}
+
+func (x *RequestGroupAccessRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_group_platform_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RequestGroupAccessRequest.ProtoReflect.Descriptor instead.
+func (*RequestGroupAccessRequest) Descriptor() ([]byte, []int) {
+	return file_group_platform_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *RequestGroupAccessRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
+// RequestGroupAccessResponse is the response message for RequestGroupAccess.
+// It is intentionally empty; the access request is delivered out of band.
+type RequestGroupAccessResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RequestGroupAccessResponse) Reset() {
+	*x = RequestGroupAccessResponse{}
+	mi := &file_group_platform_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RequestGroupAccessResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RequestGroupAccessResponse) ProtoMessage() {}
+
+func (x *RequestGroupAccessResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_group_platform_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RequestGroupAccessResponse.ProtoReflect.Descriptor instead.
+func (*RequestGroupAccessResponse) Descriptor() ([]byte, []int) {
+	return file_group_platform_proto_rawDescGZIP(), []int{8}
+}
+
 var File_group_platform_proto protoreflect.FileDescriptor
 
 const file_group_platform_proto_rawDesc = "" +
@@ -482,7 +653,13 @@ const file_group_platform_proto_rawDesc = "" +
 	"\x06parent\x18\x01 \x01(\tR\x06parent\x124\n" +
 	"\x05group\x18\x02 \x01(\v2\x1e.chainguard.platform.iam.GroupR\x05group\",\n" +
 	"\x12DeleteGroupRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id*t\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"\x14\n" +
+	"\x12LookupGroupRequest\"K\n" +
+	"\x13LookupGroupResponse\x124\n" +
+	"\x05group\x18\x01 \x01(\v2\x1e.chainguard.platform.iam.GroupR\x05group\"6\n" +
+	"\x19RequestGroupAccessRequest\x12\x19\n" +
+	"\bgroup_id\x18\x01 \x01(\tR\agroupId\"\x1c\n" +
+	"\x1aRequestGroupAccessResponse*t\n" +
 	"\tOrgStatus\x12\x1a\n" +
 	"\x16ORG_STATUS_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17ORG_STATUS_INITIALIZING\x10\x01\x12\x14\n" +
@@ -493,7 +670,7 @@ const file_group_platform_proto_rawDesc = "" +
 	"\x10ORG_KIND_STARTER\x10\x01\x12\x15\n" +
 	"\x11ORG_KIND_CUSTOMER\x10\x02\x12\x10\n" +
 	"\fORG_KIND_DEV\x10\x03\x12\x12\n" +
-	"\x0eORG_KIND_INFRA\x10\x042\xab\x05\n" +
+	"\x0eORG_KIND_INFRA\x10\x042\x8a\b\n" +
 	"\x06Groups\x12\xc5\x01\n" +
 	"\x06Create\x12+.chainguard.platform.iam.CreateGroupRequest\x1a\x1e.chainguard.platform.iam.Group\"n\x82\xd3\xe4\x93\x02#:\x05group\"\x1a/iam/v1/groups/{parent=**}\x8a\xaf\xa8\xd2\x05\a\x12\x05\n" +
 	"\x01e\x10\x01\xc2\xf0\x8e\xfc\v2\n" +
@@ -505,7 +682,9 @@ const file_group_platform_proto_rawDesc = "" +
 	"\x01g\x10\x01\x12\xb0\x01\n" +
 	"\x06Delete\x12+.chainguard.platform.iam.DeleteGroupRequest\x1a\x16.google.protobuf.Empty\"a\x82\xd3\xe4\x93\x02\x18*\x16/iam/v1/groups/{id=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
 	"\x01h\xc2\xf0\x8e\xfc\v2\n" +
-	"'dev.chainguard.api.iam.group.deleted.v1\x12\x05group\x18\x01B*Z(chainguard.dev/sdk/proto/platform/iam/v1b\x06proto3"
+	"'dev.chainguard.api.iam.group.deleted.v1\x12\x05group\x18\x01\x12\x96\x01\n" +
+	"\vLookupGroup\x12+.chainguard.platform.iam.LookupGroupRequest\x1a,.chainguard.platform.iam.LookupGroupResponse\",\x82\xd3\xe4\x93\x02\x1c\x12\x1a/iam/v1/groups:lookupGroup\x8a\xaf\xa8\xd2\x05\x04\x12\x02\x10\x01\x12\xc3\x01\n" +
+	"\x12RequestGroupAccess\x122.chainguard.platform.iam.RequestGroupAccessRequest\x1a3.chainguard.platform.iam.RequestGroupAccessResponse\"D\x82\xd3\xe4\x93\x024:\x01*\"//iam/v1/groups/{group_id=**}:requestGroupAccess\x8a\xaf\xa8\xd2\x05\x04\x12\x02\x10\x01B*Z(chainguard.dev/sdk/proto/platform/iam/v1b\x06proto3"
 
 var (
 	file_group_platform_proto_rawDescOnce sync.Once
@@ -520,39 +699,48 @@ func file_group_platform_proto_rawDescGZIP() []byte {
 }
 
 var file_group_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_group_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_group_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_group_platform_proto_goTypes = []any{
-	(OrgStatus)(0),             // 0: chainguard.platform.iam.OrgStatus
-	(OrgKind)(0),               // 1: chainguard.platform.iam.OrgKind
-	(*Group)(nil),              // 2: chainguard.platform.iam.Group
-	(*GroupList)(nil),          // 3: chainguard.platform.iam.GroupList
-	(*GroupFilter)(nil),        // 4: chainguard.platform.iam.GroupFilter
-	(*CreateGroupRequest)(nil), // 5: chainguard.platform.iam.CreateGroupRequest
-	(*DeleteGroupRequest)(nil), // 6: chainguard.platform.iam.DeleteGroupRequest
-	nil,                        // 7: chainguard.platform.iam.Group.ResourceLimitsEntry
-	(*v1.UIDPFilter)(nil),      // 8: chainguard.platform.common.UIDPFilter
-	(*emptypb.Empty)(nil),      // 9: google.protobuf.Empty
+	(OrgStatus)(0),                     // 0: chainguard.platform.iam.OrgStatus
+	(OrgKind)(0),                       // 1: chainguard.platform.iam.OrgKind
+	(*Group)(nil),                      // 2: chainguard.platform.iam.Group
+	(*GroupList)(nil),                  // 3: chainguard.platform.iam.GroupList
+	(*GroupFilter)(nil),                // 4: chainguard.platform.iam.GroupFilter
+	(*CreateGroupRequest)(nil),         // 5: chainguard.platform.iam.CreateGroupRequest
+	(*DeleteGroupRequest)(nil),         // 6: chainguard.platform.iam.DeleteGroupRequest
+	(*LookupGroupRequest)(nil),         // 7: chainguard.platform.iam.LookupGroupRequest
+	(*LookupGroupResponse)(nil),        // 8: chainguard.platform.iam.LookupGroupResponse
+	(*RequestGroupAccessRequest)(nil),  // 9: chainguard.platform.iam.RequestGroupAccessRequest
+	(*RequestGroupAccessResponse)(nil), // 10: chainguard.platform.iam.RequestGroupAccessResponse
+	nil,                                // 11: chainguard.platform.iam.Group.ResourceLimitsEntry
+	(*v1.UIDPFilter)(nil),              // 12: chainguard.platform.common.UIDPFilter
+	(*emptypb.Empty)(nil),              // 13: google.protobuf.Empty
 }
 var file_group_platform_proto_depIdxs = []int32{
-	7,  // 0: chainguard.platform.iam.Group.resource_limits:type_name -> chainguard.platform.iam.Group.ResourceLimitsEntry
+	11, // 0: chainguard.platform.iam.Group.resource_limits:type_name -> chainguard.platform.iam.Group.ResourceLimitsEntry
 	1,  // 1: chainguard.platform.iam.Group.kind:type_name -> chainguard.platform.iam.OrgKind
 	0,  // 2: chainguard.platform.iam.Group.status:type_name -> chainguard.platform.iam.OrgStatus
 	2,  // 3: chainguard.platform.iam.GroupList.items:type_name -> chainguard.platform.iam.Group
-	8,  // 4: chainguard.platform.iam.GroupFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	12, // 4: chainguard.platform.iam.GroupFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
 	2,  // 5: chainguard.platform.iam.CreateGroupRequest.group:type_name -> chainguard.platform.iam.Group
-	5,  // 6: chainguard.platform.iam.Groups.Create:input_type -> chainguard.platform.iam.CreateGroupRequest
-	2,  // 7: chainguard.platform.iam.Groups.Update:input_type -> chainguard.platform.iam.Group
-	4,  // 8: chainguard.platform.iam.Groups.List:input_type -> chainguard.platform.iam.GroupFilter
-	6,  // 9: chainguard.platform.iam.Groups.Delete:input_type -> chainguard.platform.iam.DeleteGroupRequest
-	2,  // 10: chainguard.platform.iam.Groups.Create:output_type -> chainguard.platform.iam.Group
-	2,  // 11: chainguard.platform.iam.Groups.Update:output_type -> chainguard.platform.iam.Group
-	3,  // 12: chainguard.platform.iam.Groups.List:output_type -> chainguard.platform.iam.GroupList
-	9,  // 13: chainguard.platform.iam.Groups.Delete:output_type -> google.protobuf.Empty
-	10, // [10:14] is the sub-list for method output_type
-	6,  // [6:10] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	2,  // 6: chainguard.platform.iam.LookupGroupResponse.group:type_name -> chainguard.platform.iam.Group
+	5,  // 7: chainguard.platform.iam.Groups.Create:input_type -> chainguard.platform.iam.CreateGroupRequest
+	2,  // 8: chainguard.platform.iam.Groups.Update:input_type -> chainguard.platform.iam.Group
+	4,  // 9: chainguard.platform.iam.Groups.List:input_type -> chainguard.platform.iam.GroupFilter
+	6,  // 10: chainguard.platform.iam.Groups.Delete:input_type -> chainguard.platform.iam.DeleteGroupRequest
+	7,  // 11: chainguard.platform.iam.Groups.LookupGroup:input_type -> chainguard.platform.iam.LookupGroupRequest
+	9,  // 12: chainguard.platform.iam.Groups.RequestGroupAccess:input_type -> chainguard.platform.iam.RequestGroupAccessRequest
+	2,  // 13: chainguard.platform.iam.Groups.Create:output_type -> chainguard.platform.iam.Group
+	2,  // 14: chainguard.platform.iam.Groups.Update:output_type -> chainguard.platform.iam.Group
+	3,  // 15: chainguard.platform.iam.Groups.List:output_type -> chainguard.platform.iam.GroupList
+	13, // 16: chainguard.platform.iam.Groups.Delete:output_type -> google.protobuf.Empty
+	8,  // 17: chainguard.platform.iam.Groups.LookupGroup:output_type -> chainguard.platform.iam.LookupGroupResponse
+	10, // 18: chainguard.platform.iam.Groups.RequestGroupAccess:output_type -> chainguard.platform.iam.RequestGroupAccessResponse
+	13, // [13:19] is the sub-list for method output_type
+	7,  // [7:13] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_group_platform_proto_init() }
@@ -566,7 +754,7 @@ func file_group_platform_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_group_platform_proto_rawDesc), len(file_group_platform_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   6,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

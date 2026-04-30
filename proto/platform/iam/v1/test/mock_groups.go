@@ -19,12 +19,13 @@ import (
 var _ iam.GroupsClient = (*MockGroupsClient)(nil)
 
 type MockGroupsClient struct {
-	OnCreate []GroupOnCreate
-	OnUpdate []GroupOnUpdate
-	OnDelete []GroupOnDelete
-	OnList   []GroupOnList
+	OnCreate             []GroupOnCreate
+	OnUpdate             []GroupOnUpdate
+	OnDelete             []GroupOnDelete
+	OnList               []GroupOnList
+	OnLookupGroup        []GroupOnLookupGroup
+	OnRequestGroupAccess []GroupOnRequestGroupAccess
 }
-
 type GroupOnCreate struct {
 	Given   *iam.CreateGroupRequest
 	Created *iam.Group
@@ -46,6 +47,18 @@ type GroupOnList struct {
 	Given *iam.GroupFilter
 	List  *iam.GroupList
 	Error error
+}
+
+type GroupOnLookupGroup struct {
+	Given    *iam.LookupGroupRequest
+	Response *iam.LookupGroupResponse
+	Error    error
+}
+
+type GroupOnRequestGroupAccess struct {
+	Given    *iam.RequestGroupAccessRequest
+	Response *iam.RequestGroupAccessResponse
+	Error    error
 }
 
 func (m MockGroupsClient) Create(_ context.Context, given *iam.CreateGroupRequest, _ ...grpc.CallOption) (*iam.Group, error) {
@@ -79,6 +92,24 @@ func (m MockGroupsClient) List(_ context.Context, given *iam.GroupFilter, _ ...g
 	for _, o := range m.OnList {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.List, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockGroupsClient) LookupGroup(_ context.Context, given *iam.LookupGroupRequest, _ ...grpc.CallOption) (*iam.LookupGroupResponse, error) {
+	for _, o := range m.OnLookupGroup {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockGroupsClient) RequestGroupAccess(_ context.Context, given *iam.RequestGroupAccessRequest, _ ...grpc.CallOption) (*iam.RequestGroupAccessResponse, error) {
+	for _, o := range m.OnRequestGroupAccess {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)

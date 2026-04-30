@@ -20,10 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Groups_Create_FullMethodName = "/chainguard.platform.iam.Groups/Create"
-	Groups_Update_FullMethodName = "/chainguard.platform.iam.Groups/Update"
-	Groups_List_FullMethodName   = "/chainguard.platform.iam.Groups/List"
-	Groups_Delete_FullMethodName = "/chainguard.platform.iam.Groups/Delete"
+	Groups_Create_FullMethodName             = "/chainguard.platform.iam.Groups/Create"
+	Groups_Update_FullMethodName             = "/chainguard.platform.iam.Groups/Update"
+	Groups_List_FullMethodName               = "/chainguard.platform.iam.Groups/List"
+	Groups_Delete_FullMethodName             = "/chainguard.platform.iam.Groups/Delete"
+	Groups_LookupGroup_FullMethodName        = "/chainguard.platform.iam.Groups/LookupGroup"
+	Groups_RequestGroupAccess_FullMethodName = "/chainguard.platform.iam.Groups/RequestGroupAccess"
 )
 
 // GroupsClient is the client API for Groups service.
@@ -34,6 +36,15 @@ type GroupsClient interface {
 	Update(ctx context.Context, in *Group, opts ...grpc.CallOption) (*Group, error)
 	List(ctx context.Context, in *GroupFilter, opts ...grpc.CallOption) (*GroupList, error)
 	Delete(ctx context.Context, in *DeleteGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// LookupGroup returns the verified root group whose name matches the email
+	// domain on the caller's token, when the token comes from a trusted upstream
+	// identity provider that performs its own email verification.
+	// See the v2beta1 GroupsService.LookupGroup for full semantics.
+	LookupGroup(ctx context.Context, in *LookupGroupRequest, opts ...grpc.CallOption) (*LookupGroupResponse, error)
+	// RequestGroupAccess sends an access request from the caller to the owners
+	// of the given verified root group. See the v2beta1 GroupsService.RequestGroupAccess
+	// for full semantics.
+	RequestGroupAccess(ctx context.Context, in *RequestGroupAccessRequest, opts ...grpc.CallOption) (*RequestGroupAccessResponse, error)
 }
 
 type groupsClient struct {
@@ -84,6 +95,26 @@ func (c *groupsClient) Delete(ctx context.Context, in *DeleteGroupRequest, opts 
 	return out, nil
 }
 
+func (c *groupsClient) LookupGroup(ctx context.Context, in *LookupGroupRequest, opts ...grpc.CallOption) (*LookupGroupResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LookupGroupResponse)
+	err := c.cc.Invoke(ctx, Groups_LookupGroup_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *groupsClient) RequestGroupAccess(ctx context.Context, in *RequestGroupAccessRequest, opts ...grpc.CallOption) (*RequestGroupAccessResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RequestGroupAccessResponse)
+	err := c.cc.Invoke(ctx, Groups_RequestGroupAccess_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GroupsServer is the server API for Groups service.
 // All implementations must embed UnimplementedGroupsServer
 // for forward compatibility.
@@ -92,6 +123,15 @@ type GroupsServer interface {
 	Update(context.Context, *Group) (*Group, error)
 	List(context.Context, *GroupFilter) (*GroupList, error)
 	Delete(context.Context, *DeleteGroupRequest) (*emptypb.Empty, error)
+	// LookupGroup returns the verified root group whose name matches the email
+	// domain on the caller's token, when the token comes from a trusted upstream
+	// identity provider that performs its own email verification.
+	// See the v2beta1 GroupsService.LookupGroup for full semantics.
+	LookupGroup(context.Context, *LookupGroupRequest) (*LookupGroupResponse, error)
+	// RequestGroupAccess sends an access request from the caller to the owners
+	// of the given verified root group. See the v2beta1 GroupsService.RequestGroupAccess
+	// for full semantics.
+	RequestGroupAccess(context.Context, *RequestGroupAccessRequest) (*RequestGroupAccessResponse, error)
 	mustEmbedUnimplementedGroupsServer()
 }
 
@@ -113,6 +153,12 @@ func (UnimplementedGroupsServer) List(context.Context, *GroupFilter) (*GroupList
 }
 func (UnimplementedGroupsServer) Delete(context.Context, *DeleteGroupRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedGroupsServer) LookupGroup(context.Context, *LookupGroupRequest) (*LookupGroupResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method LookupGroup not implemented")
+}
+func (UnimplementedGroupsServer) RequestGroupAccess(context.Context, *RequestGroupAccessRequest) (*RequestGroupAccessResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RequestGroupAccess not implemented")
 }
 func (UnimplementedGroupsServer) mustEmbedUnimplementedGroupsServer() {}
 func (UnimplementedGroupsServer) testEmbeddedByValue()                {}
@@ -207,6 +253,42 @@ func _Groups_Delete_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Groups_LookupGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LookupGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupsServer).LookupGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Groups_LookupGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupsServer).LookupGroup(ctx, req.(*LookupGroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Groups_RequestGroupAccess_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestGroupAccessRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupsServer).RequestGroupAccess(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Groups_RequestGroupAccess_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupsServer).RequestGroupAccess(ctx, req.(*RequestGroupAccessRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Groups_ServiceDesc is the grpc.ServiceDesc for Groups service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -229,6 +311,14 @@ var Groups_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Delete",
 			Handler:    _Groups_Delete_Handler,
+		},
+		{
+			MethodName: "LookupGroup",
+			Handler:    _Groups_LookupGroup_Handler,
+		},
+		{
+			MethodName: "RequestGroupAccess",
+			Handler:    _Groups_RequestGroupAccess_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

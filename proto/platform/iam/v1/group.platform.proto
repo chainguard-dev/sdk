@@ -71,6 +71,30 @@ service Groups {
       audience: CUSTOMER
     };
   }
+
+  // LookupGroup returns the verified root group whose name matches the email
+  // domain on the caller's token, when the token comes from a trusted upstream
+  // identity provider that performs its own email verification.
+  // See the v2beta1 GroupsService.LookupGroup for full semantics.
+  rpc LookupGroup(LookupGroupRequest) returns (LookupGroupResponse) {
+    option (google.api.http) = {get: "/iam/v1/groups:lookupGroup"};
+    option (chainguard.annotations.iam) = {
+      enabled: {unscoped: true}
+    };
+  }
+
+  // RequestGroupAccess sends an access request from the caller to the owners
+  // of the given verified root group. See the v2beta1 GroupsService.RequestGroupAccess
+  // for full semantics.
+  rpc RequestGroupAccess(RequestGroupAccessRequest) returns (RequestGroupAccessResponse) {
+    option (google.api.http) = {
+      post: "/iam/v1/groups/{group_id=**}:requestGroupAccess"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {unscoped: true}
+    };
+  }
 }
 
 message Group {
@@ -123,6 +147,29 @@ message DeleteGroupRequest {
   // id is the exact UIDP of the record.
   string id = 1 [(chainguard.annotations.iam_scope) = true];
 }
+
+// LookupGroupRequest is the request message for LookupGroup.
+// It is intentionally empty: the lookup is driven entirely by the caller's
+// token claims.
+message LookupGroupRequest {}
+
+// LookupGroupResponse is the response message for LookupGroup.
+message LookupGroupResponse {
+  // The group matching the caller's email domain from their token.
+  Group group = 1;
+}
+
+// RequestGroupAccessRequest is the request message for RequestGroupAccess.
+message RequestGroupAccessRequest {
+  // group_id is the UIDP of the group to request access to. Must be the
+  // group whose name matches the email domain on the caller's token; the
+  // server revalidates this on every call.
+  string group_id = 1;
+}
+
+// RequestGroupAccessResponse is the response message for RequestGroupAccess.
+// It is intentionally empty; the access request is delivered out of band.
+message RequestGroupAccessResponse {}
 
 // OrgStatus is the provisioning status of an organization.
 enum OrgStatus {
