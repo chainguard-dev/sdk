@@ -190,8 +190,10 @@ type Entitlement struct {
 	// source indicates how this entitlement was provisioned.
 	Source Source `protobuf:"varint,4,opt,name=source,proto3,enum=chainguard.platform.libraries.Source" json:"source,omitempty"`
 	// cooldown_days is the number of days an upstream package version must have
-	// been published before it is served. 0 means use the system default (7 days).
-	// Must be between 3 and 3650 when set.
+	// been published before it is served. 0 means no cooldown is enforced; a
+	// positive value sets the cooldown to that many days. Negative values are
+	// rejected. Must be <= 3650. The system default (when no entitlement
+	// specifies a value) is 7 days.
 	CooldownDays  int32 `protobuf:"varint,5,opt,name=cooldown_days,json=cooldownDays,proto3" json:"cooldown_days,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -317,8 +319,10 @@ type CreateEntitlementRequest struct {
 	// source indicates how this entitlement is being provisioned.
 	Source Source `protobuf:"varint,4,opt,name=source,proto3,enum=chainguard.platform.libraries.Source" json:"source,omitempty"`
 	// cooldown_days is the number of days an upstream package version must have
-	// been published before it is served. 0 means use the system default (7 days).
-	// Must be between 3 and 3650 when set.
+	// been published before it is served. 0 means no cooldown is enforced; a
+	// positive value sets the cooldown to that many days. Negative values are
+	// rejected. Must be <= 3650. The system default (when no entitlement
+	// specifies a value) is 7 days.
 	CooldownDays  int32 `protobuf:"varint,5,opt,name=cooldown_days,json=cooldownDays,proto3" json:"cooldown_days,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
