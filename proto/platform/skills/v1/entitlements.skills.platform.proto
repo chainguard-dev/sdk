@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/skills/v1";
+
+package chainguard.platform.skills;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "annotations/auth.proto";
+import "annotations/events.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+service Entitlements {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    description: "Skills Entitlements API"
+    name: "SkillsEntitlements"
+  };
+
+  rpc Create(CreateSkillEntitlementRequest) returns (SkillEntitlement) {
+    option (google.api.http) = {
+      post: "/skills/v1/entitlements/{parent_id=**}"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "SkillsEntitlements"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_SKILLS_ENTITLEMENTS_CREATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.skills.entitlements.created.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  rpc List(SkillEntitlementFilter) returns (SkillEntitlementList) {
+    option (google.api.http) = {
+      get: "/skills/v1/entitlements"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "SkillsEntitlements"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_SKILLS_ENTITLEMENTS_LIST]
+        unscoped: true
+      }
+    };
+  }
+
+  rpc Delete(DeleteSkillEntitlementRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/skills/v1/entitlements/{id=**}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "SkillsEntitlements"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_SKILLS_ENTITLEMENTS_DELETE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.skills.entitlements.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+}
+
+// SkillEntitlement records that an org is entitled to publish and pull
+// skill artifacts via skills.cgr.dev.
+message SkillEntitlement {
+  // id is the uidp of the entitlement, a child of the org group.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message SkillEntitlementList {
+  repeated SkillEntitlement items = 1;
+}
+
+message CreateSkillEntitlementRequest {
+  // parent_id is the org group to create the entitlement for.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message SkillEntitlementFilter {
+  // parent_id is the org group to list entitlements for. Required.
+  string parent_id = 1;
+}
+
+message DeleteSkillEntitlementRequest {
+  // id is the exact uidp of the entitlement to delete.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+}

@@ -44,6 +44,8 @@ var (
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
 		Capability_CAP_LIBRARIES_ARTIFACTS_LIST,
 
+		Capability_CAP_SKILLS_ENTITLEMENTS_LIST,
+
 		Capability_CAP_REGISTRY_ENTITLEMENTS_LIST,
 		Capability_CAP_REGISTRY_DEPLOYMENTS_LIST,
 
@@ -71,6 +73,12 @@ var (
 
 		Capability_CAP_GUARDENER_DFC_CONVERT,
 	}, ViewerCaps)
+
+	// SkillsPublishCaps is the capability set required to publish skill artifacts
+	// to skills.cgr.dev. Included in OwnerCaps; not granted to editors or viewers.
+	SkillsPublishCaps = SortCaps([]Capability{
+		Capability_CAP_SKILLS_PUBLISH,
+	})
 
 	// OwnerCaps includes all capabilities possible by a user.
 	OwnerCaps = SortCaps([]Capability{
@@ -108,6 +116,9 @@ var (
 
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_CREATE,
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_DELETE,
+
+		Capability_CAP_SKILLS_ENTITLEMENTS_CREATE,
+		Capability_CAP_SKILLS_ENTITLEMENTS_DELETE,
 		Capability_CAP_LIBRARIES_CACHE_INVALIDATE,
 		Capability_CAP_REPO_UPDATE,
 
@@ -125,6 +136,8 @@ var (
 		// Owners can pull artifacts from ecosystem libraries and grant this role to others in their org.
 		// NB: The org must also be entitled to the ecosystem to pull artifacts.
 		LibrariesJavaPullCaps, LibrariesPythonPullCaps, LibrariesJavascriptPullCaps,
+		// NOTE: SkillsPublishCaps is intentionally omitted from OwnerCaps pending
+		// resolution of the push-role model for skills.cgr.dev.
 	)
 
 	RegistryRepoAdminCaps = SortCaps([]Capability{

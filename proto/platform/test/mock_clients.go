@@ -35,6 +35,8 @@ import (
 	policygatestest "chainguard.dev/sdk/proto/platform/policygates/v1/test"
 	registry "chainguard.dev/sdk/proto/platform/registry/v1"
 	registrytest "chainguard.dev/sdk/proto/platform/registry/v1/test"
+	skills "chainguard.dev/sdk/proto/platform/skills/v1"
+	skillstest "chainguard.dev/sdk/proto/platform/skills/v1/test"
 	vulnerabilities "chainguard.dev/sdk/proto/platform/vulnerabilities/v1"
 	vulnerabilitiestest "chainguard.dev/sdk/proto/platform/vulnerabilities/v1/test"
 )
@@ -53,6 +55,7 @@ type MockPlatformClients struct {
 	APKClient             apktest.MockAPKClients
 	EcosystemsClient      ecosystemstest.MockEcosystemsClients
 	LibrariesClient       librariestest.MockLibrariesClients
+	SkillsClient          skillstest.MockSkillsClients
 	PackagesClient        packagestest.MockPackagesClients
 	VulnerabilitiesClient vulnerabilitiestest.MockVulnerabilitiesClients
 	ImageMatcherClient    matchertest.MockImageMatcherClients
@@ -97,6 +100,10 @@ func (m MockPlatformClients) Ecosystems() ecosystems.Clients {
 
 func (m MockPlatformClients) Libraries() libraries.Clients {
 	return m.LibrariesClient
+}
+
+func (m MockPlatformClients) Skills() skills.Clients {
+	return m.SkillsClient
 }
 
 func (m MockPlatformClients) Packages() packages.Clients {
