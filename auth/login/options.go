@@ -63,6 +63,14 @@ type config struct {
 	// MessageWriter is the writer to use for outputting informational messages to
 	// the user. (e.g. os.Stderr)
 	MessageWriter io.Writer
+
+	// ScreenHint is forwarded as `screen_hint=<value>` on the /oauth
+	// redirect. The Chainguard issuer's allowlist passes it straight
+	// through to Auth0's /authorize, which uses it to default the
+	// Universal Login UI to a particular screen — most commonly
+	// `signup` (vs the implicit `login` default) when a flow is
+	// expected to register a new user. Empty means "don't set."
+	ScreenHint string
 }
 
 const defaultIssuer = `https://issuer.enforce.dev`
@@ -230,5 +238,16 @@ func WithHeadlessCode(code string) Option {
 func WithMessageWriter(w io.Writer) Option {
 	return func(c *config) {
 		c.MessageWriter = w
+	}
+}
+
+// WithScreenHint sets `screen_hint=<value>` on the /oauth redirect.
+// The Chainguard issuer forwards it to Auth0's /authorize. Pass
+// "signup" to default the Universal Login UI to the signup form
+// instead of the login form when a flow is known to register a new
+// user (e.g. catalog starter init).
+func WithScreenHint(hint string) Option {
+	return func(c *config) {
+		c.ScreenHint = hint
 	}
 }

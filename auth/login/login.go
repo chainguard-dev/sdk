@@ -99,6 +99,10 @@ func BuildHeadlessURL(opts ...Option) (u string, err error) {
 		// Client ID is passed explicitly for email/password logins
 		params.Set("client_id", conf.ClientID)
 	}
+	// NB: ScreenHint is intentionally not propagated here — the
+	// headless flow doesn't render Auth0's Universal Login UI, so the
+	// hint has no effect downstream. See Login() for the interactive
+	// counterpart that does forward it.
 	return fmt.Sprintf("%s/oauth?%s", conf.Issuer, params.Encode()), nil
 }
 
@@ -145,6 +149,13 @@ func Login(ctx context.Context, opts ...Option) (token string, refreshToken stri
 	}
 	if conf.CreateRefreshToken {
 		params.Set("create_refresh_token", "true")
+	}
+	if conf.ScreenHint != "" {
+		// Forwarded by the issuer to Auth0's /authorize via the
+		// AllowedPassthroughInitParams allowlist; lets callers default
+		// the Universal Login UI to the signup form (vs the implicit
+		// login default) for known-registration flows.
+		params.Set("screen_hint", conf.ScreenHint)
 	}
 	for _, scope := range conf.Scope {
 		params.Add("scope", url.QueryEscape(scope))
