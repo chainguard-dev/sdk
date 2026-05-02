@@ -42,6 +42,12 @@ const (
 	// (e.g., "apk.cgr.dev/{uidp}/{arch}/{pkg}-{version}.apk") for APK events.
 	APKURLKey = "apkurl"
 
+	// BodyTypeKey is the CloudEvents extension name holding the fully-qualified
+	// proto message name of the Occurrence body (e.g. "chainguard.platform.iam.v2beta1.Group").
+	// Subscribers use it to resolve the body into a concrete proto.Message via
+	// protoregistry.GlobalTypes, without having to sniff the JSON shape.
+	BodyTypeKey = "bodytype"
+
 	// AudienceKey labels an event for its intended audience ["internal", "customer"].
 	AudienceKey = "audience"
 	// AudienceInternal are events intended for the internal platform.
