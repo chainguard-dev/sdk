@@ -58,6 +58,13 @@ service SubscriptionsService {
       extensions: ["group"]
       audience: CUSTOMER
     };
+    option (chainguard.annotations.mcp) = {
+      description: "Create a new event subscription (webhook) under a group."
+      read_only: false
+      destructive: false
+      idempotent: false
+      open_world: false
+    };
   }
 
   // ListSubscriptions returns subscriptions matching filter criteria.
@@ -68,6 +75,13 @@ service SubscriptionsService {
         capabilities: [CAP_EVENTS_SUBSCRIPTION_LIST]
         unscoped: true
       }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List event subscriptions the caller has access to. Supports filtering by UIDP and pagination."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
     };
   }
 
@@ -83,6 +97,13 @@ service SubscriptionsService {
       type: "dev.chainguard.api.events.subscription.deleted.v1"
       extensions: ["group"]
       audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Delete an event subscription by its UID."
+      read_only: false
+      destructive: true
+      idempotent: true
+      open_world: false
     };
   }
 }

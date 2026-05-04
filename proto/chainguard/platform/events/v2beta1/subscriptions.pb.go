@@ -430,18 +430,21 @@ const file_chainguard_platform_events_v2beta1_subscriptions_proto_rawDesc = "" +
 	"\f_total_count\"9\n" +
 	"\x19DeleteSubscriptionRequest\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid2\xd6\a\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid2\xbf\t\n" +
 	"\x14SubscriptionsService\x12\xf1\x01\n" +
 	"\x0fGetSubscription\x12:.chainguard.platform.events.v2beta1.GetSubscriptionRequest\x1a0.chainguard.platform.events.v2beta1.Subscription\"p\x82\xd3\xe4\x93\x02(\x12&/events/v2beta1/subscriptions/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xdf\v\x9a\xaf\xa8\xd2\x050\n" +
-	"&Get an event subscription by its UIDP.\x18\x01 \x00(\x010\x00\x12\x95\x02\n" +
-	"\x12CreateSubscription\x12=.chainguard.platform.events.v2beta1.CreateSubscriptionRequest\x1a0.chainguard.platform.events.v2beta1.Subscription\"\x8d\x01\x82\xd3\xe4\x93\x029:\fsubscription\")/events/v2beta1/subscriptions/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xdd\v\xc2\xf0\x8e\xfc\v<\n" +
-	"1dev.chainguard.api.events.subscription.created.v1\x12\x05group\x18\x01\x12\xc5\x01\n" +
-	"\x11ListSubscriptions\x12<.chainguard.platform.events.v2beta1.ListSubscriptionsRequest\x1a=.chainguard.platform.events.v2beta1.ListSubscriptionsResponse\"3\x82\xd3\xe4\x93\x02\x1f\x12\x1d/events/v2beta1/subscriptions\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x02\xdf\v\x10\x01\x12\xe9\x01\n" +
-	"\x12DeleteSubscription\x12=.chainguard.platform.events.v2beta1.DeleteSubscriptionRequest\x1a\x16.google.protobuf.Empty\"|\x82\xd3\xe4\x93\x02(*&/events/v2beta1/subscriptions/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xe0\v\xc2\xf0\x8e\xfc\v<\n" +
+	"&Get an event subscription by its UIDP.\x18\x01 \x00(\x010\x00\x12\xd9\x02\n" +
+	"\x12CreateSubscription\x12=.chainguard.platform.events.v2beta1.CreateSubscriptionRequest\x1a0.chainguard.platform.events.v2beta1.Subscription\"\xd1\x01\x82\xd3\xe4\x93\x029:\fsubscription\")/events/v2beta1/subscriptions/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xdd\v\x9a\xaf\xa8\xd2\x05>\n" +
+	"8Create a new event subscription (webhook) under a group. \x000\x00\xc2\xf0\x8e\xfc\v<\n" +
+	"1dev.chainguard.api.events.subscription.created.v1\x12\x05group\x18\x01\x12\xb3\x02\n" +
+	"\x11ListSubscriptions\x12<.chainguard.platform.events.v2beta1.ListSubscriptionsRequest\x1a=.chainguard.platform.events.v2beta1.ListSubscriptionsResponse\"\xa0\x01\x82\xd3\xe4\x93\x02\x1f\x12\x1d/events/v2beta1/subscriptions\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02\xdf\v\x10\x01\x9a\xaf\xa8\xd2\x05g\n" +
+	"]List event subscriptions the caller has access to. Supports filtering by UIDP and pagination.\x18\x01 \x00(\x010\x00\x12\xa0\x02\n" +
+	"\x12DeleteSubscription\x12=.chainguard.platform.events.v2beta1.DeleteSubscriptionRequest\x1a\x16.google.protobuf.Empty\"\xb2\x01\x82\xd3\xe4\x93\x02(*&/events/v2beta1/subscriptions/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xe0\v\x9a\xaf\xa8\xd2\x050\n" +
+	"(Delete an event subscription by its UID. \x01(\x010\x00\xc2\xf0\x8e\xfc\v<\n" +
 	"1dev.chainguard.api.events.subscription.deleted.v1\x12\x05group\x18\x01B{\n" +
 	"&com.chainguard.platform.events.v2beta1B\x12SubscriptionsProtoP\x01Z;chainguard.dev/sdk/proto/chainguard/platform/events/v2beta1b\x06proto3"
 
