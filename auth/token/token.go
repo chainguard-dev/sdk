@@ -248,7 +248,7 @@ func cacheFilePath(file string) (string, error) {
 	_, err = os.Stat(filepath.Dir(path))
 	if errors.Is(err, os.ErrNotExist) {
 		err = nil // Clear err, we're dealing with it.
-		if err := os.MkdirAll(filepath.Dir(path), os.ModePerm); err != nil {
+		if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
 			return "", fmt.Errorf("failed to create %s: %w", path, err)
 		}
 	}
