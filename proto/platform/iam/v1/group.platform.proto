@@ -95,6 +95,17 @@ service Groups {
       enabled: {unscoped: true}
     };
   }
+
+  // CheckEligibility reports whether the caller passes the same eligibility
+  // gates applied by LookupGroup and RequestGroupAccess. A response of
+  // eligible=true does not guarantee those calls succeed for other reasons
+  // (no matching org, already requested, etc.).
+  rpc CheckEligibility(CheckEligibilityRequest) returns (CheckEligibilityResponse) {
+    option (google.api.http) = {get: "/iam/v1/groups:checkEligibility"};
+    option (chainguard.annotations.iam) = {
+      enabled: {unscoped: true}
+    };
+  }
 }
 
 message Group {
@@ -170,6 +181,19 @@ message RequestGroupAccessRequest {
 // RequestGroupAccessResponse is the response message for RequestGroupAccess.
 // It is intentionally empty; the access request is delivered out of band.
 message RequestGroupAccessResponse {}
+
+// CheckEligibilityRequest is the request message for CheckEligibility.
+// It is intentionally sparse because CheckEligibility uses the email
+// domain on the caller's token to perform the validation. No user-supplied
+// arguments are necessary.
+message CheckEligibilityRequest {}
+
+// CheckEligibilityResponse is the response message for CheckEligibility.
+message CheckEligibilityResponse {
+  // Indicates if the domain of the caller's email address is eligible
+  // for email-domain-gated Groups flows.
+  bool eligible = 1;
+}
 
 // OrgStatus is the provisioning status of an organization.
 enum OrgStatus {

@@ -25,6 +25,7 @@ type MockGroupsClient struct {
 	OnList               []GroupOnList
 	OnLookupGroup        []GroupOnLookupGroup
 	OnRequestGroupAccess []GroupOnRequestGroupAccess
+	OnCheckEligibility   []GroupOnCheckEligibility
 }
 type GroupOnCreate struct {
 	Given   *iam.CreateGroupRequest
@@ -58,6 +59,12 @@ type GroupOnLookupGroup struct {
 type GroupOnRequestGroupAccess struct {
 	Given    *iam.RequestGroupAccessRequest
 	Response *iam.RequestGroupAccessResponse
+	Error    error
+}
+
+type GroupOnCheckEligibility struct {
+	Given    *iam.CheckEligibilityRequest
+	Response *iam.CheckEligibilityResponse
 	Error    error
 }
 
@@ -108,6 +115,15 @@ func (m MockGroupsClient) LookupGroup(_ context.Context, given *iam.LookupGroupR
 
 func (m MockGroupsClient) RequestGroupAccess(_ context.Context, given *iam.RequestGroupAccessRequest, _ ...grpc.CallOption) (*iam.RequestGroupAccessResponse, error) {
 	for _, o := range m.OnRequestGroupAccess {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockGroupsClient) CheckEligibility(_ context.Context, given *iam.CheckEligibilityRequest, _ ...grpc.CallOption) (*iam.CheckEligibilityResponse, error) {
+	for _, o := range m.OnCheckEligibility {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Response, o.Error
 		}

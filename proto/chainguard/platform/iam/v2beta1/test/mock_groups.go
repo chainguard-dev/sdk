@@ -30,6 +30,7 @@ type MockGroupsServiceClient struct {
 	OnGetGroup           []test.On[*iam.GetGroupRequest, *iam.Group]
 	OnLookupGroup        []test.On[*iam.LookupGroupRequest, *iam.LookupGroupResponse]
 	OnRequestGroupAccess []test.On[*iam.RequestGroupAccessRequest, *iam.RequestGroupAccessResponse]
+	OnCheckEligibility   []test.On[*iam.CheckEligibilityRequest, *iam.CheckEligibilityResponse]
 }
 
 func (m MockGroupsServiceClient) CreateGroup(_ context.Context, given *iam.CreateGroupRequest, _ ...grpc.CallOption) (*iam.Group, error) {
@@ -58,4 +59,8 @@ func (m MockGroupsServiceClient) LookupGroup(_ context.Context, given *iam.Looku
 
 func (m MockGroupsServiceClient) RequestGroupAccess(_ context.Context, given *iam.RequestGroupAccessRequest, _ ...grpc.CallOption) (*iam.RequestGroupAccessResponse, error) {
 	return test.Match(m.T, m.OnRequestGroupAccess, given, "request-group-access", protocmp.Transform())
+}
+
+func (m MockGroupsServiceClient) CheckEligibility(_ context.Context, given *iam.CheckEligibilityRequest, _ ...grpc.CallOption) (*iam.CheckEligibilityResponse, error) {
+	return test.Match(m.T, m.OnCheckEligibility, given, "check-eligibility", protocmp.Transform())
 }

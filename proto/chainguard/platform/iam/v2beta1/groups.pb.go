@@ -824,6 +824,93 @@ func (*RequestGroupAccessResponse) Descriptor() ([]byte, []int) {
 	return file_chainguard_platform_iam_v2beta1_groups_proto_rawDescGZIP(), []int{10}
 }
 
+// CheckEligibilityRequest is the request message for CheckEligibility.
+// It is intentionally sparse because CheckEligibility uses the email
+// domain on the caller's token to perform the validation. No user-supplied
+// arguments are necessary.
+type CheckEligibilityRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckEligibilityRequest) Reset() {
+	*x = CheckEligibilityRequest{}
+	mi := &file_chainguard_platform_iam_v2beta1_groups_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckEligibilityRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckEligibilityRequest) ProtoMessage() {}
+
+func (x *CheckEligibilityRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2beta1_groups_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckEligibilityRequest.ProtoReflect.Descriptor instead.
+func (*CheckEligibilityRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_groups_proto_rawDescGZIP(), []int{11}
+}
+
+// CheckEligibilityResponse is the response message for CheckEligibility.
+type CheckEligibilityResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Indicates if the domain of the caller's email address is eligible
+	// for email-domain-gated Groups flows.
+	Eligible      bool `protobuf:"varint,1,opt,name=eligible,proto3" json:"eligible,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckEligibilityResponse) Reset() {
+	*x = CheckEligibilityResponse{}
+	mi := &file_chainguard_platform_iam_v2beta1_groups_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckEligibilityResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckEligibilityResponse) ProtoMessage() {}
+
+func (x *CheckEligibilityResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2beta1_groups_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckEligibilityResponse.ProtoReflect.Descriptor instead.
+func (*CheckEligibilityResponse) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_groups_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *CheckEligibilityResponse) GetEligible() bool {
+	if x != nil {
+		return x.Eligible
+	}
+	return false
+}
+
 var File_chainguard_platform_iam_v2beta1_groups_proto protoreflect.FileDescriptor
 
 const file_chainguard_platform_iam_v2beta1_groups_proto_rawDesc = "" +
@@ -880,7 +967,10 @@ const file_chainguard_platform_iam_v2beta1_groups_proto_rawDesc = "" +
 	"\x05group\x18\x01 \x01(\v2&.chainguard.platform.iam.v2beta1.GroupR\x05group\">\n" +
 	"\x19RequestGroupAccessRequest\x12!\n" +
 	"\tgroup_uid\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\bgroupUid\"\x1c\n" +
-	"\x1aRequestGroupAccessResponse*v\n" +
+	"\x1aRequestGroupAccessResponse\"\x19\n" +
+	"\x17CheckEligibilityRequest\"6\n" +
+	"\x18CheckEligibilityResponse\x12\x1a\n" +
+	"\beligible\x18\x01 \x01(\bR\beligible*v\n" +
 	"\aOrgKind\x12\x18\n" +
 	"\x14ORG_KIND_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10ORG_KIND_STARTER\x10\x01\x12\x15\n" +
@@ -891,7 +981,7 @@ const file_chainguard_platform_iam_v2beta1_groups_proto_rawDesc = "" +
 	"\x16ORG_STATUS_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17ORG_STATUS_INITIALIZING\x10\x01\x12\x14\n" +
 	"\x10ORG_STATUS_READY\x10\x02\x12\x18\n" +
-	"\x14ORG_STATUS_SUSPENDED\x10\x032\xb2\x0e\n" +
+	"\x14ORG_STATUS_SUSPENDED\x10\x032\xfc\x0f\n" +
 	"\rGroupsService\x12\xd6\x01\n" +
 	"\bGetGroup\x120.chainguard.platform.iam.v2beta1.GetGroupRequest\x1a&.chainguard.platform.iam.v2beta1.Group\"p\x82\xd3\xe4\x93\x02\x1e\x12\x1c/iam/v2beta1/groups/{uid=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
 	"\x01g\x9a\xaf\xa8\xd2\x05;\n" +
@@ -913,7 +1003,8 @@ const file_chainguard_platform_iam_v2beta1_groups_proto_rawDesc = "" +
 	"<Update a group's name, description, or other mutable fields. \x00(\x010\x00\xc2\xf0\x8e\xfc\v2\n" +
 	"'dev.chainguard.api.iam.group.updated.v1\x12\x05group\x18\x01\x12\xb3\x01\n" +
 	"\vLookupGroup\x123.chainguard.platform.iam.v2beta1.LookupGroupRequest\x1a4.chainguard.platform.iam.v2beta1.LookupGroupResponse\"9\x82\xd3\xe4\x93\x02!\x12\x1f/iam/v2beta1/groups:lookupGroup\x8a\xaf\xa8\xd2\x05\x04\x12\x02\x10\x01\x9a\xaf\xa8\xd2\x05\x02\x10\x01\x12\xe1\x01\n" +
-	"\x12RequestGroupAccess\x12:.chainguard.platform.iam.v2beta1.RequestGroupAccessRequest\x1a;.chainguard.platform.iam.v2beta1.RequestGroupAccessResponse\"R\x82\xd3\xe4\x93\x02::\x01*\"5/iam/v2beta1/groups/{group_uid=**}:requestGroupAccess\x8a\xaf\xa8\xd2\x05\x04\x12\x02\x10\x01\x9a\xaf\xa8\xd2\x05\x02\x10\x01Bn\n" +
+	"\x12RequestGroupAccess\x12:.chainguard.platform.iam.v2beta1.RequestGroupAccessRequest\x1a;.chainguard.platform.iam.v2beta1.RequestGroupAccessResponse\"R\x82\xd3\xe4\x93\x02::\x01*\"5/iam/v2beta1/groups/{group_uid=**}:requestGroupAccess\x8a\xaf\xa8\xd2\x05\x04\x12\x02\x10\x01\x9a\xaf\xa8\xd2\x05\x02\x10\x01\x12\xc7\x01\n" +
+	"\x10CheckEligibility\x128.chainguard.platform.iam.v2beta1.CheckEligibilityRequest\x1a9.chainguard.platform.iam.v2beta1.CheckEligibilityResponse\">\x82\xd3\xe4\x93\x02&\x12$/iam/v2beta1/groups:checkEligibility\x8a\xaf\xa8\xd2\x05\x04\x12\x02\x10\x01\x9a\xaf\xa8\xd2\x05\x02\x10\x01Bn\n" +
 	"#com.chainguard.platform.iam.v2beta1B\vGroupsProtoP\x01Z8chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1b\x06proto3"
 
 var (
@@ -929,7 +1020,7 @@ func file_chainguard_platform_iam_v2beta1_groups_proto_rawDescGZIP() []byte {
 }
 
 var file_chainguard_platform_iam_v2beta1_groups_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chainguard_platform_iam_v2beta1_groups_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_chainguard_platform_iam_v2beta1_groups_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_chainguard_platform_iam_v2beta1_groups_proto_goTypes = []any{
 	(OrgKind)(0),                       // 0: chainguard.platform.iam.v2beta1.OrgKind
 	(OrgStatus)(0),                     // 1: chainguard.platform.iam.v2beta1.OrgStatus
@@ -944,23 +1035,25 @@ var file_chainguard_platform_iam_v2beta1_groups_proto_goTypes = []any{
 	(*LookupGroupResponse)(nil),        // 10: chainguard.platform.iam.v2beta1.LookupGroupResponse
 	(*RequestGroupAccessRequest)(nil),  // 11: chainguard.platform.iam.v2beta1.RequestGroupAccessRequest
 	(*RequestGroupAccessResponse)(nil), // 12: chainguard.platform.iam.v2beta1.RequestGroupAccessResponse
-	nil,                                // 13: chainguard.platform.iam.v2beta1.Group.ResourceLimitsEntry
-	(*timestamppb.Timestamp)(nil),      // 14: google.protobuf.Timestamp
-	(*v1.UIDPFilter)(nil),              // 15: chainguard.platform.common.UIDPFilter
-	(*fieldmaskpb.FieldMask)(nil),      // 16: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),              // 17: google.protobuf.Empty
+	(*CheckEligibilityRequest)(nil),    // 13: chainguard.platform.iam.v2beta1.CheckEligibilityRequest
+	(*CheckEligibilityResponse)(nil),   // 14: chainguard.platform.iam.v2beta1.CheckEligibilityResponse
+	nil,                                // 15: chainguard.platform.iam.v2beta1.Group.ResourceLimitsEntry
+	(*timestamppb.Timestamp)(nil),      // 16: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),              // 17: chainguard.platform.common.UIDPFilter
+	(*fieldmaskpb.FieldMask)(nil),      // 18: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),              // 19: google.protobuf.Empty
 }
 var file_chainguard_platform_iam_v2beta1_groups_proto_depIdxs = []int32{
-	13, // 0: chainguard.platform.iam.v2beta1.Group.resource_limits:type_name -> chainguard.platform.iam.v2beta1.Group.ResourceLimitsEntry
-	14, // 1: chainguard.platform.iam.v2beta1.Group.create_time:type_name -> google.protobuf.Timestamp
-	14, // 2: chainguard.platform.iam.v2beta1.Group.update_time:type_name -> google.protobuf.Timestamp
+	15, // 0: chainguard.platform.iam.v2beta1.Group.resource_limits:type_name -> chainguard.platform.iam.v2beta1.Group.ResourceLimitsEntry
+	16, // 1: chainguard.platform.iam.v2beta1.Group.create_time:type_name -> google.protobuf.Timestamp
+	16, // 2: chainguard.platform.iam.v2beta1.Group.update_time:type_name -> google.protobuf.Timestamp
 	0,  // 3: chainguard.platform.iam.v2beta1.Group.kind:type_name -> chainguard.platform.iam.v2beta1.OrgKind
 	1,  // 4: chainguard.platform.iam.v2beta1.Group.status:type_name -> chainguard.platform.iam.v2beta1.OrgStatus
-	15, // 5: chainguard.platform.iam.v2beta1.ListGroupsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	17, // 5: chainguard.platform.iam.v2beta1.ListGroupsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
 	2,  // 6: chainguard.platform.iam.v2beta1.ListGroupsResponse.groups:type_name -> chainguard.platform.iam.v2beta1.Group
 	2,  // 7: chainguard.platform.iam.v2beta1.CreateGroupRequest.group:type_name -> chainguard.platform.iam.v2beta1.Group
 	2,  // 8: chainguard.platform.iam.v2beta1.UpdateGroupRequest.group:type_name -> chainguard.platform.iam.v2beta1.Group
-	16, // 9: chainguard.platform.iam.v2beta1.UpdateGroupRequest.update_mask:type_name -> google.protobuf.FieldMask
+	18, // 9: chainguard.platform.iam.v2beta1.UpdateGroupRequest.update_mask:type_name -> google.protobuf.FieldMask
 	2,  // 10: chainguard.platform.iam.v2beta1.LookupGroupResponse.group:type_name -> chainguard.platform.iam.v2beta1.Group
 	3,  // 11: chainguard.platform.iam.v2beta1.GroupsService.GetGroup:input_type -> chainguard.platform.iam.v2beta1.GetGroupRequest
 	4,  // 12: chainguard.platform.iam.v2beta1.GroupsService.DeleteGroup:input_type -> chainguard.platform.iam.v2beta1.DeleteGroupRequest
@@ -969,15 +1062,17 @@ var file_chainguard_platform_iam_v2beta1_groups_proto_depIdxs = []int32{
 	8,  // 15: chainguard.platform.iam.v2beta1.GroupsService.UpdateGroup:input_type -> chainguard.platform.iam.v2beta1.UpdateGroupRequest
 	9,  // 16: chainguard.platform.iam.v2beta1.GroupsService.LookupGroup:input_type -> chainguard.platform.iam.v2beta1.LookupGroupRequest
 	11, // 17: chainguard.platform.iam.v2beta1.GroupsService.RequestGroupAccess:input_type -> chainguard.platform.iam.v2beta1.RequestGroupAccessRequest
-	2,  // 18: chainguard.platform.iam.v2beta1.GroupsService.GetGroup:output_type -> chainguard.platform.iam.v2beta1.Group
-	17, // 19: chainguard.platform.iam.v2beta1.GroupsService.DeleteGroup:output_type -> google.protobuf.Empty
-	6,  // 20: chainguard.platform.iam.v2beta1.GroupsService.ListGroups:output_type -> chainguard.platform.iam.v2beta1.ListGroupsResponse
-	2,  // 21: chainguard.platform.iam.v2beta1.GroupsService.CreateGroup:output_type -> chainguard.platform.iam.v2beta1.Group
-	2,  // 22: chainguard.platform.iam.v2beta1.GroupsService.UpdateGroup:output_type -> chainguard.platform.iam.v2beta1.Group
-	10, // 23: chainguard.platform.iam.v2beta1.GroupsService.LookupGroup:output_type -> chainguard.platform.iam.v2beta1.LookupGroupResponse
-	12, // 24: chainguard.platform.iam.v2beta1.GroupsService.RequestGroupAccess:output_type -> chainguard.platform.iam.v2beta1.RequestGroupAccessResponse
-	18, // [18:25] is the sub-list for method output_type
-	11, // [11:18] is the sub-list for method input_type
+	13, // 18: chainguard.platform.iam.v2beta1.GroupsService.CheckEligibility:input_type -> chainguard.platform.iam.v2beta1.CheckEligibilityRequest
+	2,  // 19: chainguard.platform.iam.v2beta1.GroupsService.GetGroup:output_type -> chainguard.platform.iam.v2beta1.Group
+	19, // 20: chainguard.platform.iam.v2beta1.GroupsService.DeleteGroup:output_type -> google.protobuf.Empty
+	6,  // 21: chainguard.platform.iam.v2beta1.GroupsService.ListGroups:output_type -> chainguard.platform.iam.v2beta1.ListGroupsResponse
+	2,  // 22: chainguard.platform.iam.v2beta1.GroupsService.CreateGroup:output_type -> chainguard.platform.iam.v2beta1.Group
+	2,  // 23: chainguard.platform.iam.v2beta1.GroupsService.UpdateGroup:output_type -> chainguard.platform.iam.v2beta1.Group
+	10, // 24: chainguard.platform.iam.v2beta1.GroupsService.LookupGroup:output_type -> chainguard.platform.iam.v2beta1.LookupGroupResponse
+	12, // 25: chainguard.platform.iam.v2beta1.GroupsService.RequestGroupAccess:output_type -> chainguard.platform.iam.v2beta1.RequestGroupAccessResponse
+	14, // 26: chainguard.platform.iam.v2beta1.GroupsService.CheckEligibility:output_type -> chainguard.platform.iam.v2beta1.CheckEligibilityResponse
+	19, // [19:27] is the sub-list for method output_type
+	11, // [11:19] is the sub-list for method input_type
 	11, // [11:11] is the sub-list for extension type_name
 	11, // [11:11] is the sub-list for extension extendee
 	0,  // [0:11] is the sub-list for field type_name
@@ -995,7 +1090,7 @@ func file_chainguard_platform_iam_v2beta1_groups_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_iam_v2beta1_groups_proto_rawDesc), len(file_chainguard_platform_iam_v2beta1_groups_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   12,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -30,6 +30,7 @@ const (
 	GroupsService_UpdateGroup_FullMethodName        = "/chainguard.platform.iam.v2beta1.GroupsService/UpdateGroup"
 	GroupsService_LookupGroup_FullMethodName        = "/chainguard.platform.iam.v2beta1.GroupsService/LookupGroup"
 	GroupsService_RequestGroupAccess_FullMethodName = "/chainguard.platform.iam.v2beta1.GroupsService/RequestGroupAccess"
+	GroupsService_CheckEligibility_FullMethodName   = "/chainguard.platform.iam.v2beta1.GroupsService/CheckEligibility"
 )
 
 // GroupsServiceClient is the client API for GroupsService service.
@@ -83,6 +84,11 @@ type GroupsServiceClient interface {
 	//
 	// Returns INVALID_ARGUMENT when group_uid is empty.
 	RequestGroupAccess(ctx context.Context, in *RequestGroupAccessRequest, opts ...grpc.CallOption) (*RequestGroupAccessResponse, error)
+	// CheckEligibility reports whether the caller passes the same eligibility
+	// gates applied by LookupGroup and RequestGroupAccess. A response of
+	// eligible=true does not guarantee those calls succeed for other reasons
+	// (no matching org, already requested, etc.).
+	CheckEligibility(ctx context.Context, in *CheckEligibilityRequest, opts ...grpc.CallOption) (*CheckEligibilityResponse, error)
 }
 
 type groupsServiceClient struct {
@@ -163,6 +169,16 @@ func (c *groupsServiceClient) RequestGroupAccess(ctx context.Context, in *Reques
 	return out, nil
 }
 
+func (c *groupsServiceClient) CheckEligibility(ctx context.Context, in *CheckEligibilityRequest, opts ...grpc.CallOption) (*CheckEligibilityResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CheckEligibilityResponse)
+	err := c.cc.Invoke(ctx, GroupsService_CheckEligibility_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GroupsServiceServer is the server API for GroupsService service.
 // All implementations must embed UnimplementedGroupsServiceServer
 // for forward compatibility.
@@ -214,6 +230,11 @@ type GroupsServiceServer interface {
 	//
 	// Returns INVALID_ARGUMENT when group_uid is empty.
 	RequestGroupAccess(context.Context, *RequestGroupAccessRequest) (*RequestGroupAccessResponse, error)
+	// CheckEligibility reports whether the caller passes the same eligibility
+	// gates applied by LookupGroup and RequestGroupAccess. A response of
+	// eligible=true does not guarantee those calls succeed for other reasons
+	// (no matching org, already requested, etc.).
+	CheckEligibility(context.Context, *CheckEligibilityRequest) (*CheckEligibilityResponse, error)
 	mustEmbedUnimplementedGroupsServiceServer()
 }
 
@@ -244,6 +265,9 @@ func (UnimplementedGroupsServiceServer) LookupGroup(context.Context, *LookupGrou
 }
 func (UnimplementedGroupsServiceServer) RequestGroupAccess(context.Context, *RequestGroupAccessRequest) (*RequestGroupAccessResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RequestGroupAccess not implemented")
+}
+func (UnimplementedGroupsServiceServer) CheckEligibility(context.Context, *CheckEligibilityRequest) (*CheckEligibilityResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CheckEligibility not implemented")
 }
 func (UnimplementedGroupsServiceServer) mustEmbedUnimplementedGroupsServiceServer() {}
 func (UnimplementedGroupsServiceServer) testEmbeddedByValue()                       {}
@@ -392,6 +416,24 @@ func _GroupsService_RequestGroupAccess_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GroupsService_CheckEligibility_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckEligibilityRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupsServiceServer).CheckEligibility(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupsService_CheckEligibility_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupsServiceServer).CheckEligibility(ctx, req.(*CheckEligibilityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GroupsService_ServiceDesc is the grpc.ServiceDesc for GroupsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -426,6 +468,10 @@ var GroupsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RequestGroupAccess",
 			Handler:    _GroupsService_RequestGroupAccess_Handler,
+		},
+		{
+			MethodName: "CheckEligibility",
+			Handler:    _GroupsService_CheckEligibility_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
