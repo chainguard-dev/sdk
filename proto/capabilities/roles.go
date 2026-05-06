@@ -75,9 +75,12 @@ var (
 	}, ViewerCaps)
 
 	// SkillsPublishCaps is the capability set required to publish skill artifacts
-	// to skills.cgr.dev. Included in OwnerCaps; not granted to editors or viewers.
+	// to skills.cgr.dev. Included in OwnerCaps so org owners can push after
+	// provisioning a skills entitlement. Can also be granted explicitly to a
+	// service principal or non-owner member via chainctl iam role-bindings create.
 	SkillsPublishCaps = SortCaps([]Capability{
 		Capability_CAP_SKILLS_PUBLISH,
+		Capability_CAP_SKILLS_ENTITLEMENTS_LIST,
 	})
 
 	// OwnerCaps includes all capabilities possible by a user.
@@ -136,8 +139,10 @@ var (
 		// Owners can pull artifacts from ecosystem libraries and grant this role to others in their org.
 		// NB: The org must also be entitled to the ecosystem to pull artifacts.
 		LibrariesJavaPullCaps, LibrariesPythonPullCaps, LibrariesJavascriptPullCaps,
-		// NOTE: SkillsPublishCaps is intentionally omitted from OwnerCaps pending
-		// resolution of the push-role model for skills.cgr.dev.
+		// Owners can publish skill artifacts to skills.cgr.dev, subject to the org
+		// having a skills entitlement. SkillsPublishCaps can also be granted
+		// independently to a service principal or non-owner via role-bindings.
+		SkillsPublishCaps,
 	)
 
 	RegistryRepoAdminCaps = SortCaps([]Capability{
