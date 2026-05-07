@@ -213,6 +213,8 @@ enum Capability {
   CAP_POLICY_GATES_BINDING_LIST   = 2013 [(name) = "policy_gates.bindings.list",   (bit) = 119];
   CAP_POLICY_GATES_BINDING_DELETE = 2014 [(name) = "policy_gates.bindings.delete", (bit) = 120];
 
+  CAP_REPO_CHECK_POLICIES = 2020 [(name) = "repo.check_policies", (bit) = 134];
+
   CAP_PACKAGES_ENTITLEMENTS_LIST = 2100 [(name) = "packages.entitlements.list", (bit) = 123];
 
   // Terms
@@ -233,6 +235,14 @@ enum Capability {
   // MCP tool calls
   CAP_MCP_TOOL_CALL = 2401 [(name) = "mcp.tool.call", (bit) = 128];
 
+  // Skills registry — publishing skill artifacts to skills.cgr.dev
+  CAP_SKILLS_PUBLISH = 2501 [(name) = "skills.publish", (bit) = 137];
+
+  // Skills registry entitlements
+  CAP_SKILLS_ENTITLEMENTS_CREATE = 2502 [(name) = "skills.entitlements.create", (bit) = 138];
+  CAP_SKILLS_ENTITLEMENTS_LIST   = 2503 [(name) = "skills.entitlements.list",   (bit) = 139];
+  CAP_SKILLS_ENTITLEMENTS_DELETE = 2504 [(name) = "skills.entitlements.delete", (bit) = 140];
+
   reserved 1;
-  // next bit: 132
+  // next bit: 141
 }

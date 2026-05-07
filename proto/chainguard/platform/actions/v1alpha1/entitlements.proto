@@ -1,0 +1,122 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.actions.v1alpha1;
+
+import "annotations/auth.proto";
+import "annotations/events.proto";
+import "annotations/mcp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/actions/v1alpha1";
+option java_multiple_files = true;
+option java_outer_classname = "EntitlementsProto";
+option java_package = "com.chainguard.platform.actions.v1alpha1";
+
+// Actions exposes management RPCs for the "actions" entitlement, which
+// gates a group's access to the Chainguard platform actions feature.
+service Actions {
+  // CreateEntitlement entitles the given group to actions.
+  rpc CreateEntitlement(CreateEntitlementRequest) returns (Entitlement) {
+    option (google.api.http) = {post: "/actions/v1alpha1/entitlements/{parent_id=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_GROUPS_UPDATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.actions.entitlement.created.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Entitle a group to the Chainguard actions feature."
+      read_only: false
+      destructive: false
+      idempotent: false
+      open_world: false
+    };
+  }
+
+  // GetEntitlement retrieves the entitlement record for the given id.
+  rpc GetEntitlement(GetEntitlementRequest) returns (Entitlement) {
+    option (google.api.http) = {get: "/actions/v1alpha1/entitlements/{id=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_GROUPS_UPDATE]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get the actions entitlement record by its UIDP."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // DeleteEntitlement removes the actions entitlement identified by id.
+  rpc DeleteEntitlement(DeleteEntitlementRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/actions/v1alpha1/entitlements/{id=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_GROUPS_UPDATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.actions.entitlement.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Remove a group's actions entitlement by its UIDP."
+      read_only: false
+      destructive: true
+      idempotent: true
+      open_world: false
+    };
+  }
+}
+
+// Entitlement is a presence record indicating that a group is entitled to
+// the actions feature. Entitlements are 1:1 with their group, so the
+// entitlement's id IS the entitled group's UIDP.
+message Entitlement {
+  // UIDP of the entitled group.
+  string id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // When the entitlement was created.
+  google.protobuf.Timestamp create_time = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message CreateEntitlementRequest {
+  // UIDP of the group to entitle. The created entitlement's id will equal this.
+  string parent_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+message GetEntitlementRequest {
+  // UIDP of the entitled group.
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+message DeleteEntitlementRequest {
+  // UIDP of the entitled group.
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}

@@ -149,6 +149,21 @@ func TestBuildHeadlessURL(t *testing.T) {
 			WithOrgName("my-org"),
 		},
 		want: orgServer.URL + "/oauth?headless_code=code&idp_id=my-org",
+	}, {
+		// ScreenHint is intentionally NOT included in the headless URL —
+		// the headless flow doesn't render Auth0's Universal Login UI,
+		// so the hint has no effect. Setting WithScreenHint must be a
+		// no-op here; the parallel interactive flow (Login) is where it
+		// matters. Locks in the BuildHeadlessURL contract.
+		name: "screen_hint is not propagated to headless URL",
+		opts: []Option{
+			WithHeadlessCode("code"),
+			WithIssuer("https://issuer.chaintest.net"),
+			WithAuth0Connection("email"),
+			WithClientID("clientid"),
+			WithScreenHint("signup"),
+		},
+		want: "https://issuer.chaintest.net/oauth?client_id=clientid&connection=email&headless_code=code",
 	}} {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := BuildHeadlessURL(tt.opts...)

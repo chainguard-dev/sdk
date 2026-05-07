@@ -122,6 +122,18 @@ func TestConfFromOptions(t *testing.T) {
 			},
 			WantErr: true,
 		},
+		"WithScreenHint sets the field": {
+			Options: []Option{
+				WithIdentityProvider(id),
+				WithScreenHint("signup"),
+			},
+			WantConfig: &config{
+				Issuer:        defaultIssuer,
+				IDP:           id,
+				ScreenHint:    "signup",
+				MessageWriter: defaultMessageWriter,
+			},
+		},
 	}
 
 	for test, data := range tests {

@@ -82,8 +82,10 @@ message Entitlement {
   // source indicates how this entitlement was provisioned.
   Source source = 4;
   // cooldown_days is the number of days an upstream package version must have
-  // been published before it is served. 0 means use the system default (7 days).
-  // Must be between 3 and 3650 when set.
+  // been published before it is served. 0 means no cooldown is enforced; a
+  // positive value sets the cooldown to that many days. Negative values are
+  // rejected. Must be <= 3650. The system default (when no entitlement
+  // specifies a value) is 7 days.
   int32 cooldown_days = 5;
 }
 
@@ -123,8 +125,10 @@ message CreateEntitlementRequest {
   // source indicates how this entitlement is being provisioned.
   Source source = 4;
   // cooldown_days is the number of days an upstream package version must have
-  // been published before it is served. 0 means use the system default (7 days).
-  // Must be between 3 and 3650 when set.
+  // been published before it is served. 0 means no cooldown is enforced; a
+  // positive value sets the cooldown to that many days. Negative values are
+  // rejected. Must be <= 3650. The system default (when no entitlement
+  // specifies a value) is 7 days.
   int32 cooldown_days = 5;
 }
 

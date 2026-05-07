@@ -28,6 +28,7 @@ import (
 	ping "chainguard.dev/sdk/proto/platform/ping/v1"
 	policygates "chainguard.dev/sdk/proto/platform/policygates/v1"
 	registry "chainguard.dev/sdk/proto/platform/registry/v1"
+	skills "chainguard.dev/sdk/proto/platform/skills/v1"
 	vulnerabilities "chainguard.dev/sdk/proto/platform/vulnerabilities/v1"
 	"github.com/chainguard-dev/clog"
 )
@@ -43,6 +44,7 @@ type Clients interface {
 	APK() apk.Clients
 	Ecosystems() ecosystems.Clients
 	Libraries() libraries.Clients
+	Skills() skills.Clients
 	Packages() packages.Clients
 	Vulnerabilities() vulnerabilities.Clients
 	ImageMatcher() matcher.Clients
@@ -99,6 +101,7 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 		apk:             apk.NewClientsFromConnection(conn),
 		ecosystems:      ecosystems.NewClientsFromConnection(conn),
 		libraries:       libraries.NewClientsFromConnection(conn),
+		skills:          skills.NewClientsFromConnection(conn),
 		packages:        packages.NewClientsFromConnection(conn),
 		vulnerabilities: vulnerabilities.NewClientsFromConnection(conn),
 		matcher:         matcher.NewClientsFromConnection(conn),
@@ -116,6 +119,7 @@ type clients struct {
 	apk             apk.Clients
 	ecosystems      ecosystems.Clients
 	libraries       libraries.Clients
+	skills          skills.Clients
 	packages        packages.Clients
 	vulnerabilities vulnerabilities.Clients
 	matcher         matcher.Clients
@@ -158,6 +162,10 @@ func (c *clients) Ecosystems() ecosystems.Clients {
 
 func (c *clients) Libraries() libraries.Clients {
 	return c.libraries
+}
+
+func (c *clients) Skills() skills.Clients {
+	return c.skills
 }
 
 func (c *clients) Packages() packages.Clients {

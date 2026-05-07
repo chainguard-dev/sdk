@@ -9,6 +9,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"strings"
 )
 
 // NOTE: We are using UID over UUID for 2 reasons:
@@ -50,6 +51,21 @@ func NewUIDP(path UIDP) UIDP {
 
 func (u UIDP) NewChild() UIDP {
 	return NewUIDP(u)
+}
+
+// Reparent creates a new UIDP under parent using the SUID of u.
+// This produces a deterministic child UIDP, useful when moving a record
+// from one parent to another while preserving its identity within the new parent.
+//
+// u must not be a root-level UIDP (i.e. it must contain a '/').
+// Returns an error if u has no SUID component to preserve.
+func (u UIDP) Reparent(parent UIDP) (UIDP, error) {
+	s := string(u)
+	i := strings.LastIndex(s, "/")
+	if i < 0 {
+		return "", fmt.Errorf("uidp: Reparent called on root UIDP %q; only non-root UIDPs can be reparented", u)
+	}
+	return UIDP(fmt.Sprintf("%s/%s", parent, s[i+1:])), nil
 }
 
 func (u UID) String() string {

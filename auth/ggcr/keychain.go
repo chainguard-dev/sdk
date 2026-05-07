@@ -8,6 +8,7 @@ package ggcr
 
 import (
 	"fmt"
+	"strings"
 
 	"chainguard.dev/sdk/sts"
 	"github.com/google/go-containerregistry/pkg/authn"
@@ -42,7 +43,9 @@ type cgKeychain struct {
 var _ authn.Keychain = (*cgKeychain)(nil)
 
 func (k cgKeychain) Resolve(res authn.Resource) (authn.Authenticator, error) {
-	if res.RegistryStr() != aud {
+	r := res.RegistryStr()
+	// Accept cgr.dev and any subdomain of cgr.dev (e.g. skills.cgr.dev).
+	if r != aud && !strings.HasSuffix(r, "."+aud) {
 		return authn.Anonymous, nil
 	}
 

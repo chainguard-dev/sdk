@@ -71,6 +71,41 @@ service Groups {
       audience: CUSTOMER
     };
   }
+
+  // LookupGroup returns the verified root group whose name matches the email
+  // domain on the caller's token, when the token comes from a trusted upstream
+  // identity provider that performs its own email verification.
+  // See the v2beta1 GroupsService.LookupGroup for full semantics.
+  rpc LookupGroup(LookupGroupRequest) returns (LookupGroupResponse) {
+    option (google.api.http) = {get: "/iam/v1/groups:lookupGroup"};
+    option (chainguard.annotations.iam) = {
+      enabled: {unscoped: true}
+    };
+  }
+
+  // RequestGroupAccess sends an access request from the caller to the owners
+  // of the given verified root group. See the v2beta1 GroupsService.RequestGroupAccess
+  // for full semantics.
+  rpc RequestGroupAccess(RequestGroupAccessRequest) returns (RequestGroupAccessResponse) {
+    option (google.api.http) = {
+      post: "/iam/v1/groups/{group_id=**}:requestGroupAccess"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {unscoped: true}
+    };
+  }
+
+  // CheckEligibility reports whether the caller passes the same eligibility
+  // gates applied by LookupGroup and RequestGroupAccess. A response of
+  // eligible=true does not guarantee those calls succeed for other reasons
+  // (no matching org, already requested, etc.).
+  rpc CheckEligibility(CheckEligibilityRequest) returns (CheckEligibilityResponse) {
+    option (google.api.http) = {get: "/iam/v1/groups:checkEligibility"};
+    option (chainguard.annotations.iam) = {
+      enabled: {unscoped: true}
+    };
+  }
 }
 
 message Group {
@@ -124,6 +159,42 @@ message DeleteGroupRequest {
   string id = 1 [(chainguard.annotations.iam_scope) = true];
 }
 
+// LookupGroupRequest is the request message for LookupGroup.
+// It is intentionally empty: the lookup is driven entirely by the caller's
+// token claims.
+message LookupGroupRequest {}
+
+// LookupGroupResponse is the response message for LookupGroup.
+message LookupGroupResponse {
+  // The group matching the caller's email domain from their token.
+  Group group = 1;
+}
+
+// RequestGroupAccessRequest is the request message for RequestGroupAccess.
+message RequestGroupAccessRequest {
+  // group_id is the UIDP of the group to request access to. Must be the
+  // group whose name matches the email domain on the caller's token; the
+  // server revalidates this on every call.
+  string group_id = 1;
+}
+
+// RequestGroupAccessResponse is the response message for RequestGroupAccess.
+// It is intentionally empty; the access request is delivered out of band.
+message RequestGroupAccessResponse {}
+
+// CheckEligibilityRequest is the request message for CheckEligibility.
+// It is intentionally sparse because CheckEligibility uses the email
+// domain on the caller's token to perform the validation. No user-supplied
+// arguments are necessary.
+message CheckEligibilityRequest {}
+
+// CheckEligibilityResponse is the response message for CheckEligibility.
+message CheckEligibilityResponse {
+  // Indicates if the domain of the caller's email address is eligible
+  // for email-domain-gated Groups flows.
+  bool eligible = 1;
+}
+
 // OrgStatus is the provisioning status of an organization.
 enum OrgStatus {
   // Organization status is not yet set.
@@ -132,6 +203,8 @@ enum OrgStatus {
   ORG_STATUS_INITIALIZING = 1;
   // The organization is fully provisioned and ready to use.
   ORG_STATUS_READY = 2;
+  // The organization is suspended and unavailable to its members.
+  ORG_STATUS_SUSPENDED = 3;
 }
 
 // OrgKind is the kind of organization the group belongs to.

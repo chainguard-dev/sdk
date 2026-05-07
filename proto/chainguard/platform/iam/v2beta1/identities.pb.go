@@ -993,8 +993,15 @@ type Identity_StaticKeys struct {
 	// When the issuer_keys expire.
 	// Defaults to / Maximum of 365 days after creation.
 	ExpirationTime *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=expiration_time,json=expirationTime,proto3" json:"expiration_time,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Accepted OIDC token audiences for this identity.
+	// When set, only these values are checked and the global allowed
+	// audiences are bypassed entirely.
+	// When empty, falls back to the global allowed audiences.
+	// Currently only a single audience is supported — callers must specify
+	// exactly one value. The field is repeated for forward compatibility.
+	Audiences     []string `protobuf:"bytes,5,rep,name=audiences,proto3" json:"audiences,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Identity_StaticKeys) Reset() {
@@ -1051,6 +1058,13 @@ func (x *Identity_StaticKeys) GetIssuerKeys() string {
 func (x *Identity_StaticKeys) GetExpirationTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.ExpirationTime
+	}
+	return nil
+}
+
+func (x *Identity_StaticKeys) GetAudiences() []string {
+	if x != nil {
+		return x.Audiences
 	}
 	return nil
 }
@@ -1205,7 +1219,7 @@ var File_chainguard_platform_iam_v2beta1_identities_proto protoreflect.FileDescr
 
 const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\n" +
-	"0chainguard/platform/iam/v2beta1/identities.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xf0\x0e\n" +
+	"0chainguard/platform/iam/v2beta1/identities.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\x94\x0f\n" +
 	"\bIdentity\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
@@ -1245,14 +1259,15 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x05\n" +
 	"\x03issB\x05\n" +
 	"\x03subB\x05\n" +
-	"\x03aud\x1a\xbc\x01\n" +
+	"\x03aud\x1a\xe0\x01\n" +
 	"\n" +
 	"StaticKeys\x12\x1c\n" +
 	"\x06issuer\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x06issuer\x12\x1e\n" +
 	"\asubject\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\asubject\x12%\n" +
 	"\vissuer_keys\x18\x03 \x01(\tB\x04\xe2A\x01\x02R\n" +
 	"issuerKeys\x12I\n" +
-	"\x0fexpiration_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x01R\x0eexpirationTime\x1a\xca\x01\n" +
+	"\x0fexpiration_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x01R\x0eexpirationTime\x12\"\n" +
+	"\taudiences\x18\x05 \x03(\tB\x04\xe2A\x01\x01R\taudiences\x1a\xca\x01\n" +
 	"\vAWSIdentity\x12%\n" +
 	"\vaws_account\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\n" +
 	"awsAccount\x12\x12\n" +

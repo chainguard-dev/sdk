@@ -23,11 +23,14 @@ type MockGroupsServiceClient struct {
 	iam.GroupsServiceClient
 	T *testing.T
 
-	OnCreateGroup []test.On[*iam.CreateGroupRequest, *iam.Group]
-	OnUpdateGroup []test.On[*iam.UpdateGroupRequest, *iam.Group]
-	OnDeleteGroup []test.On[*iam.DeleteGroupRequest, *emptypb.Empty]
-	OnListGroups  []test.On[*iam.ListGroupsRequest, *iam.ListGroupsResponse]
-	OnGetGroup    []test.On[*iam.GetGroupRequest, *iam.Group]
+	OnCreateGroup        []test.On[*iam.CreateGroupRequest, *iam.Group]
+	OnUpdateGroup        []test.On[*iam.UpdateGroupRequest, *iam.Group]
+	OnDeleteGroup        []test.On[*iam.DeleteGroupRequest, *emptypb.Empty]
+	OnListGroups         []test.On[*iam.ListGroupsRequest, *iam.ListGroupsResponse]
+	OnGetGroup           []test.On[*iam.GetGroupRequest, *iam.Group]
+	OnLookupGroup        []test.On[*iam.LookupGroupRequest, *iam.LookupGroupResponse]
+	OnRequestGroupAccess []test.On[*iam.RequestGroupAccessRequest, *iam.RequestGroupAccessResponse]
+	OnCheckEligibility   []test.On[*iam.CheckEligibilityRequest, *iam.CheckEligibilityResponse]
 }
 
 func (m MockGroupsServiceClient) CreateGroup(_ context.Context, given *iam.CreateGroupRequest, _ ...grpc.CallOption) (*iam.Group, error) {
@@ -48,4 +51,16 @@ func (m MockGroupsServiceClient) ListGroups(_ context.Context, given *iam.ListGr
 
 func (m MockGroupsServiceClient) GetGroup(_ context.Context, given *iam.GetGroupRequest, _ ...grpc.CallOption) (*iam.Group, error) {
 	return test.Match(m.T, m.OnGetGroup, given, "get-group", protocmp.Transform())
+}
+
+func (m MockGroupsServiceClient) LookupGroup(_ context.Context, given *iam.LookupGroupRequest, _ ...grpc.CallOption) (*iam.LookupGroupResponse, error) {
+	return test.Match(m.T, m.OnLookupGroup, given, "lookup-group", protocmp.Transform())
+}
+
+func (m MockGroupsServiceClient) RequestGroupAccess(_ context.Context, given *iam.RequestGroupAccessRequest, _ ...grpc.CallOption) (*iam.RequestGroupAccessResponse, error) {
+	return test.Match(m.T, m.OnRequestGroupAccess, given, "request-group-access", protocmp.Transform())
+}
+
+func (m MockGroupsServiceClient) CheckEligibility(_ context.Context, given *iam.CheckEligibilityRequest, _ ...grpc.CallOption) (*iam.CheckEligibilityResponse, error) {
+	return test.Match(m.T, m.OnCheckEligibility, given, "check-eligibility", protocmp.Transform())
 }

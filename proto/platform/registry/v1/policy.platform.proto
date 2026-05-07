@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/registry/v1";
+
+package chainguard.platform.registry;
+
+import "google/api/annotations.proto";
+import "annotations/auth.proto";
+
+service Policies {
+  rpc CheckPolicies(CheckPoliciesRequest) returns (CheckPoliciesResponse) {
+    option (google.api.http) = {
+      post: "/registry/v1/repos/{repo_id=**}:checkPolicies"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: { capabilities: [CAP_REPO_CHECK_POLICIES] }
+    };
+  }
+}
+
+message CheckPoliciesRequest {
+  // The UIDP of the image's parent repository.
+  string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
+  // The digest of the image manifest (e.g. "sha256:abc123...").
+  string digest = 2;
+}
+
+message CheckPoliciesResponse {
+  // One result per applicable policy.
+  repeated PolicyResult results = 1;
+}
+
+// PolicyMode indicates how the caller should treat a policy violation.
+enum PolicyMode {
+  POLICY_MODE_UNSPECIFIED = 0;
+  // The violation should be treated as blocking by the caller.
+  ENFORCED = 1;
+  // The violation should be logged but not treated as blocking.
+  LOG = 2;
+}
+
+// PolicyCheckResult is the outcome of evaluating a single policy.
+enum PolicyCheckResult {
+  POLICY_CHECK_RESULT_UNSPECIFIED = 0;
+  // The image satisfies the policy.
+  ALLOWED = 1;
+  // The image violates the policy.
+  DENIED = 2;
+  // The policy definition itself produced an error during evaluation (e.g. a
+  // syntax error in the policy expression). The API call succeeded, but the
+  // policy could not be evaluated to an allow/deny outcome.
+  ERROR = 3;
+}
+
+// PolicyResult is the outcome of evaluating a single policy against an image.
+message PolicyResult {
+  // The UIDP of the policy that was evaluated.
+  string policy_id = 1;
+  // The name of the policy.
+  string policy_name = 2;
+  // The mode the policy was operating in.
+  PolicyMode mode = 3;
+  // The result of the evaluation.
+  PolicyCheckResult result = 4;
+  // The UIDP of the binding that associated this policy.
+  string binding_id = 5;
+}
