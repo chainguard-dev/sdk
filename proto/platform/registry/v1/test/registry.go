@@ -26,6 +26,7 @@ type MockRegistryClients struct {
 	VulnerabilitiesClient MockVulnerabilitiesClient
 	ApkoClient            MockApkoClient
 	EntitlementsClient    MockEntitlementsClient
+	PoliciesClient        MockPoliciesClient
 }
 
 func (m MockRegistryClients) Registry() registry.RegistryClient {
@@ -42,6 +43,10 @@ func (m MockRegistryClients) Apko() registry.ApkoClient {
 
 func (m MockRegistryClients) Entitlements() registry.EntitlementsClient {
 	return &m.EntitlementsClient
+}
+
+func (m MockRegistryClients) Policies() registry.PoliciesClient {
+	return &m.PoliciesClient
 }
 
 func (m MockRegistryClients) Close() error {
@@ -240,6 +245,20 @@ type SyncStatusOnList struct {
 	Given *registry.ListSyncStatusesRequest
 	Get   *registry.SyncStatusList
 	Error error
+}
+
+var _ registry.PoliciesClient = (*MockPoliciesClient)(nil)
+
+type MockPoliciesClient struct {
+	registry.PoliciesClient
+
+	OnCheckPolicies []CheckPoliciesOnCheck
+}
+
+type CheckPoliciesOnCheck struct {
+	Given    *registry.CheckPoliciesRequest
+	Response *registry.CheckPoliciesResponse
+	Error    error
 }
 
 func (m MockRegistryClient) CreateRepo(_ context.Context, given *registry.CreateRepoRequest, _ ...grpc.CallOption) (*registry.Repo, error) {
@@ -482,6 +501,15 @@ func (m MockRegistryClient) ListSyncStatuses(_ context.Context, given *registry.
 	for _, o := range m.OnListSyncStatuses {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Get, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m *MockPoliciesClient) CheckPolicies(_ context.Context, given *registry.CheckPoliciesRequest, _ ...grpc.CallOption) (*registry.CheckPoliciesResponse, error) {
+	for _, o := range m.OnCheckPolicies {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)
