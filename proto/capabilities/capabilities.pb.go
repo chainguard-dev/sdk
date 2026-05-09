@@ -214,6 +214,10 @@ const (
 	Capability_CAP_SKILLS_ENTITLEMENTS_CREATE Capability = 2502
 	Capability_CAP_SKILLS_ENTITLEMENTS_LIST   Capability = 2503
 	Capability_CAP_SKILLS_ENTITLEMENTS_DELETE Capability = 2504
+	// Argos — client-side encrypted document records.
+	Capability_CAP_ARGOS_DOCUMENTS_CREATE Capability = 2601
+	Capability_CAP_ARGOS_DOCUMENTS_LIST   Capability = 2602
+	Capability_CAP_ARGOS_DOCUMENTS_DELETE Capability = 2603
 )
 
 // Enum value maps for Capability.
@@ -358,6 +362,9 @@ var (
 		2502:  "CAP_SKILLS_ENTITLEMENTS_CREATE",
 		2503:  "CAP_SKILLS_ENTITLEMENTS_LIST",
 		2504:  "CAP_SKILLS_ENTITLEMENTS_DELETE",
+		2601:  "CAP_ARGOS_DOCUMENTS_CREATE",
+		2602:  "CAP_ARGOS_DOCUMENTS_LIST",
+		2603:  "CAP_ARGOS_DOCUMENTS_DELETE",
 	}
 	Capability_value = map[string]int32{
 		"UNKNOWN":                                           0,
@@ -499,6 +506,9 @@ var (
 		"CAP_SKILLS_ENTITLEMENTS_CREATE":                    2502,
 		"CAP_SKILLS_ENTITLEMENTS_LIST":                      2503,
 		"CAP_SKILLS_ENTITLEMENTS_DELETE":                    2504,
+		"CAP_ARGOS_DOCUMENTS_CREATE":                        2601,
+		"CAP_ARGOS_DOCUMENTS_LIST":                          2602,
+		"CAP_ARGOS_DOCUMENTS_DELETE":                        2603,
 	}
 )
 
@@ -566,7 +576,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xb1G\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xfcH\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -724,7 +734,10 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x12CAP_SKILLS_PUBLISH\x10\xc5\x13\x1a\x1a\xa8ˑM\x89\x01\x9a\xaf\xa8\xd2\x05\x0eskills.publish\x12K\n" +
 	"\x1eCAP_SKILLS_ENTITLEMENTS_CREATE\x10\xc6\x13\x1a&\xa8ˑM\x8a\x01\x9a\xaf\xa8\xd2\x05\x1askills.entitlements.create\x12G\n" +
 	"\x1cCAP_SKILLS_ENTITLEMENTS_LIST\x10\xc7\x13\x1a$\xa8ˑM\x8b\x01\x9a\xaf\xa8\xd2\x05\x18skills.entitlements.list\x12K\n" +
-	"\x1eCAP_SKILLS_ENTITLEMENTS_DELETE\x10\xc8\x13\x1a&\xa8ˑM\x8c\x01\x9a\xaf\xa8\xd2\x05\x1askills.entitlements.delete\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x04\b\x01\x10\x01:8\n" +
+	"\x1eCAP_SKILLS_ENTITLEMENTS_DELETE\x10\xc8\x13\x1a&\xa8ˑM\x8c\x01\x9a\xaf\xa8\xd2\x05\x1askills.entitlements.delete\x12C\n" +
+	"\x1aCAP_ARGOS_DOCUMENTS_CREATE\x10\xa9\x14\x1a\"\xa8ˑM\x90\x01\x9a\xaf\xa8\xd2\x05\x16argos.documents.create\x12?\n" +
+	"\x18CAP_ARGOS_DOCUMENTS_LIST\x10\xaa\x14\x1a \xa8ˑM\x91\x01\x9a\xaf\xa8\xd2\x05\x14argos.documents.list\x12C\n" +
+	"\x1aCAP_ARGOS_DOCUMENTS_DELETE\x10\xab\x14\x1a\"\xa8ˑM\x92\x01\x9a\xaf\xa8\xd2\x05\x16argos.documents.delete\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +
 	"\x03bit\x12!.google.protobuf.EnumValueOptions\x18\xb5\x99\xd2\t \x01(\rR\x03bitB'Z%chainguard.dev/sdk/proto/capabilitiesb\x06proto3"
 

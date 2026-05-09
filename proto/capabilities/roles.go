@@ -298,6 +298,14 @@ var (
 	MCPToolUserCaps = SortCaps([]Capability{
 		Capability_CAP_MCP_TOOL_CALL,
 	})
+
+	// ArgosOperatorCaps is the capability set for managing argos
+	// (client-side-encrypted document) records.
+	ArgosOperatorCaps = SortCaps([]Capability{
+		Capability_CAP_ARGOS_DOCUMENTS_CREATE,
+		Capability_CAP_ARGOS_DOCUMENTS_DELETE,
+		Capability_CAP_ARGOS_DOCUMENTS_LIST,
+	})
 )
 
 func SortCaps(caps ...[]Capability) []Capability {

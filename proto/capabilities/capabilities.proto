@@ -245,6 +245,11 @@ enum Capability {
   CAP_SKILLS_ENTITLEMENTS_LIST   = 2503 [(name) = "skills.entitlements.list",   (bit) = 139];
   CAP_SKILLS_ENTITLEMENTS_DELETE = 2504 [(name) = "skills.entitlements.delete", (bit) = 140];
 
+  // Argos — client-side encrypted document records.
+  CAP_ARGOS_DOCUMENTS_CREATE = 2601 [(name) = "argos.documents.create", (bit) = 144];
+  CAP_ARGOS_DOCUMENTS_LIST   = 2602 [(name) = "argos.documents.list",   (bit) = 145];
+  CAP_ARGOS_DOCUMENTS_DELETE = 2603 [(name) = "argos.documents.delete", (bit) = 146];
+
   reserved 1;
-  // next bit: 143
+  // next bit: 147
 }
