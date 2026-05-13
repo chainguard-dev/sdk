@@ -1,14 +1,14 @@
 syntax = "proto3";
 
-option go_package = "chainguard.dev/sdk/proto/platform/events/v1";
-
 package chainguard.platform.events;
 
-import "google/protobuf/timestamp.proto";
-import "google/api/annotations.proto";
 import "annotations/auth.proto";
 import "annotations/events.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "chainguard.dev/sdk/proto/platform/events/v1";
 
 service Identities {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
@@ -16,15 +16,12 @@ service Identities {
     name: "EventIdentities" // Override the tag name
   };
 
-
   rpc Create(Identity) returns (Identity) {
     option (google.api.http) = {
       post: "/iam/v1/identities"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "EventIdentities"
-    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {tags: "EventIdentities"};
     option (chainguard.annotations.iam) = {
       enabled: {
         // TODO(nsmith): The authentications story here is pretty rough. This
@@ -42,19 +39,17 @@ service Identities {
       patch: "/iam/v1/identities/metadata"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "EventIdentities"
-    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {tags: "EventIdentities"};
     option (chainguard.annotations.iam) = {
-			// Authentication will be implicit in the handler - the updated identity
-			// is the one from the token.
+      // Authentication will be implicit in the handler - the updated identity
+      // is the one from the token.
       enabled: {
         capabilities: []
         unscoped: true
       }
     };
     option (chainguard.annotations.events) = {
-			// Emit an internal event to track user onboarding.
+      // Emit an internal event to track user onboarding.
       type: "dev.chainguard.api.iam.identity.metadata.updated.v1"
       audience: INTERNAL
     };
@@ -70,8 +65,8 @@ message Identity {
   // id is unique identifier of this specific identity.
   string id = 1;
 
-  // subject of OIDC ID tokens issued for this identity. Matchs the `sub`
-  // claim.
+  // subject of OIDC ID tokens issued for this identity.
+  // Matches the `sub` claim.
   string subject = 2;
 
   // issuer of the OIDC ID tokens issued for this identity. Matches the `iss`
@@ -80,7 +75,7 @@ message Identity {
 
   // Optional JWKS formatted public keys for the issuer. If supplied
   // verification of ID tokens is attempted using these keys instead of the
-  // normal OIDC discovery path. This enables e.g clusters behing NAT to
+  // normal OIDC discovery path. This enables e.g clusters behind NAT to
   // authenticate.
   string issuer_keys = 4;
 
@@ -93,15 +88,31 @@ message Identity {
 message IdentityMetadata {
   OnboardingQuestions onboarding_questions = 1;
 
-  // Output only. This is the name of the user.
+  // Output only. This is the name of the user derived
+  // from their upstream token.
   string name = 2;
+  string given_name = 4;
+  string family_name = 5;
 
-	// Whether the user has opted to receive updates from Chainguard.
-	bool updatesOptIn = 3;
+  // Whether the user has opted to receive updates from Chainguard.
+  bool updatesOptIn = 3;
 
   message OnboardingQuestions {
     string company_name = 1;
     repeated string providers = 2;
     string product = 3;
+    string job_title = 4;
+
+    // UTM fields
+    // See https://en.wikipedia.org/wiki/UTM_parameters
+    string utm_campaign = 7;
+    string utm_content = 8;
+    string utm_medium = 9;
+    string utm_source = 10;
+    string utm_term = 11;
+
+    // Marketing fields.
+    string latest_form_submit_url = 12;
+    string latest_internal_referring_url = 13;
   }
 }
