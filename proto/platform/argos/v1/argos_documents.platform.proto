@@ -1,0 +1,209 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/argos/v1";
+
+package chainguard.platform.argos;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "annotations/auth.proto";
+import "annotations/events.proto";
+import "platform/common/v1/uidp.platform.proto";
+
+service ArgosDocuments {
+  rpc Create(CreateArgosDocumentRequest) returns (ArgosDocument) {
+    option (google.api.http) = {
+      post: "/argos/v1/documents/{parent_id=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ARGOS_DOCUMENTS_CREATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.argos.documents.created.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  rpc List(ArgosDocumentFilter) returns (ArgosDocumentList) {
+    option (google.api.http) = {
+      get: "/argos/v1/documents"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ARGOS_DOCUMENTS_LIST]
+        unscoped: true
+      }
+    };
+  }
+
+  rpc Delete(DeleteArgosDocumentRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/argos/v1/documents/{id=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ARGOS_DOCUMENTS_DELETE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.argos.documents.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  // GetOrgPublicKey returns the PEM-encoded RSA-OAEP public key for the
+  // given organization. Clients fetch this once per upload destination and
+  // use it to wrap a fresh per-document AES key client-side. The
+  // corresponding private key never leaves Cloud KMS.
+  rpc GetOrgPublicKey(GetArgosOrgPublicKeyRequest) returns (ArgosOrgPublicKey) {
+    option (google.api.http) = {
+      get: "/argos/v1/orgs/{parent_id=**}/publicKey"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ARGOS_DOCUMENTS_CREATE]
+      }
+    };
+  }
+}
+
+// ArgosDocument is an organization-scoped record describing a
+// client-side-encrypted document. The actual ciphertext (the upload
+// envelope: client-AES-encrypted plaintext + RSA-wrapped AES key) lives in
+// GCS; ArgosDocument tracks only the metadata.
+message ArgosDocument {
+  // id is the UIDP of the document, a child of an organization (root group).
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // status reflects where the document is in its processing lifecycle.
+  Status status = 2;
+
+  // When the document record was created.
+  google.protobuf.Timestamp created_at = 3;
+
+  // When the document record was last updated.
+  google.protobuf.Timestamp updated_at = 4;
+
+  // filename is a human-readable label for the document, supplied by the
+  // client at creation time.
+  string filename = 5;
+
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    // Payload received; pending downstream processing.
+    STATUS_PENDING = 1;
+    // Document is fully usable.
+    STATUS_READY = 2;
+    // Document processing failed; the document is unusable.
+    STATUS_FAILED = 3;
+  }
+}
+
+message CreateArgosDocumentRequest {
+  // parent_id is the exact UIDP of the organization (root group) to nest this
+  // document under.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // payload is the upload envelope produced by client-side encryption: a
+  // JSON object containing the AES-GCM ciphertext, IV, and the RSA-OAEP
+  // wrap of the AES key (under the org's public key, fetched via
+  // GetOrgPublicKey). Stored as-is in GCS; the server never decrypts.
+  // Required.
+  string payload = 2;
+
+  // filename is a human-readable label for the document. Required.
+  string filename = 3;
+}
+
+message GetArgosOrgPublicKeyRequest {
+  // parent_id is the UIDP of the organization whose public key is requested.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message ArgosOrgPublicKey {
+  // pem is the PEM-encoded SubjectPublicKeyInfo of the org's RSA-OAEP-3072
+  // key. Use it client-side to wrap a fresh per-document AES-256 key, then
+  // include the wrapped key + AES-GCM ciphertext in the CreateArgosDocument
+  // payload.
+  string pem = 1;
+
+  // algorithm names the RSA-OAEP algorithm clients must use for the wrap
+  // (e.g. "RSA_DECRYPT_OAEP_3072_SHA256"). Mirrors the Cloud KMS
+  // CryptoKeyVersionAlgorithm enum names so clients don't need to guess.
+  string algorithm = 2;
+
+  // key_version is the integer Cloud KMS CryptoKeyVersion the returned
+  // public key belongs to (e.g. "1"). Clients echo this in the upload
+  // envelope so a future decrypter — including readers running after a
+  // key rotation — knows which version's private key to call
+  // AsymmetricDecrypt against; without it, post-rotation reads of
+  // pre-rotation blobs would fail.
+  string key_version = 3;
+}
+
+message DeleteArgosDocumentRequest {
+  // id is the exact UIDP of the document to delete.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message ArgosDocumentFilter {
+  // Exact match on document UIDP.
+  string id = 1;
+
+  // uidp filters records based on their position in the group hierarchy.
+  chainguard.platform.common.UIDPFilter uidp = 2;
+
+  // Filter to documents in a specific lifecycle state.
+  // STATUS_UNSPECIFIED (the default) returns documents in any state.
+  ArgosDocument.Status status = 3;
+
+  // created_since returns documents created at or after the given time.
+  google.protobuf.Timestamp created_since = 4;
+
+  // created_before returns documents created at or before the given time.
+  google.protobuf.Timestamp created_before = 5;
+
+  // Maximum number of results to return per page.
+  // Default: 50, Maximum: 200.
+  int32 page_size = 6 [(google.api.field_behavior) = OPTIONAL];
+
+  // Page token from a previous List response for pagination.
+  // Opaque token; treat as a black box.
+  string page_token = 7 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order results by field. Format: "field [asc|desc]"
+  // Default: "uid_p asc"
+  // Note: changing order_by between pages invalidates the page token.
+  string order_by = 8 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of results to skip before returning. Used for random-access
+  // pagination (jumping to arbitrary pages). Can be combined with
+  // page_token to skip from cursor position. Must be non-negative.
+  int32 skip = 9 [(google.api.field_behavior) = OPTIONAL];
+
+  // Exact match on the document filename.
+  string filename = 10;
+}
+
+message ArgosDocumentList {
+  // Documents matching the filter criteria.
+  repeated ArgosDocument items = 1;
+
+  // Token for retrieving the next page of results. Empty if no more results.
+  string next_page_token = 2;
+
+  // Total number of documents matching the filter. Optional; provided for
+  // UI pagination.
+  optional int64 total_count = 3;
+
+  // Number of results that were skipped. Accumulates across paginated
+  // requests.
+  int32 skipped = 4;
+}

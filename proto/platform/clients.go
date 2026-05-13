@@ -17,6 +17,7 @@ import (
 	delegate "chainguard.dev/go-grpc-kit/pkg/options"
 	advisory "chainguard.dev/sdk/proto/platform/advisory/v1"
 	apk "chainguard.dev/sdk/proto/platform/apk/v1"
+	argos "chainguard.dev/sdk/proto/platform/argos/v1"
 	platformauth "chainguard.dev/sdk/proto/platform/auth/v1"
 	ecosystems "chainguard.dev/sdk/proto/platform/ecosystems/v1"
 	iam "chainguard.dev/sdk/proto/platform/iam/v1"
@@ -49,6 +50,7 @@ type Clients interface {
 	Vulnerabilities() vulnerabilities.Clients
 	ImageMatcher() matcher.Clients
 	PolicyGates() policygates.Clients
+	Argos() argos.Clients
 
 	// Connection returns the underlying gRPC connection for creating additional clients.
 	// This is useful for internal consumers that need access to experimental APIs.
@@ -106,6 +108,7 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 		vulnerabilities: vulnerabilities.NewClientsFromConnection(conn),
 		matcher:         matcher.NewClientsFromConnection(conn),
 		policyGates:     policygates.NewClientsFromConnection(conn),
+		argos:           argos.NewClientsFromConnection(conn),
 		conn:            conn,
 	}, nil
 }
@@ -124,6 +127,7 @@ type clients struct {
 	vulnerabilities vulnerabilities.Clients
 	matcher         matcher.Clients
 	policyGates     policygates.Clients
+	argos           argos.Clients
 
 	conn *grpc.ClientConn
 }
@@ -182,6 +186,10 @@ func (c *clients) ImageMatcher() matcher.Clients {
 
 func (c *clients) PolicyGates() policygates.Clients {
 	return c.policyGates
+}
+
+func (c *clients) Argos() argos.Clients {
+	return c.argos
 }
 
 func (c *clients) Close() error {

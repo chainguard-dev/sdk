@@ -13,6 +13,8 @@ import (
 	advisorytest "chainguard.dev/sdk/proto/platform/advisory/v1/test"
 	apk "chainguard.dev/sdk/proto/platform/apk/v1"
 	apktest "chainguard.dev/sdk/proto/platform/apk/v1/test"
+	argos "chainguard.dev/sdk/proto/platform/argos/v1"
+	argostest "chainguard.dev/sdk/proto/platform/argos/v1/test"
 	auth "chainguard.dev/sdk/proto/platform/auth/v1"
 	authtest "chainguard.dev/sdk/proto/platform/auth/v1/test"
 	ecosystems "chainguard.dev/sdk/proto/platform/ecosystems/v1"
@@ -60,6 +62,7 @@ type MockPlatformClients struct {
 	VulnerabilitiesClient vulnerabilitiestest.MockVulnerabilitiesClients
 	ImageMatcherClient    matchertest.MockImageMatcherClients
 	PolicyGatesClient     policygatestest.MockPolicyGatesClients
+	ArgosClient           argostest.MockArgosClients
 }
 
 func (m MockPlatformClients) Close() error {
@@ -120,6 +123,10 @@ func (m MockPlatformClients) ImageMatcher() matcher.Clients {
 
 func (m MockPlatformClients) PolicyGates() policygates.Clients {
 	return m.PolicyGatesClient
+}
+
+func (m MockPlatformClients) Argos() argos.Clients {
+	return m.ArgosClient
 }
 
 var _ platform.OIDCClients = (*MockOIDCClients)(nil)

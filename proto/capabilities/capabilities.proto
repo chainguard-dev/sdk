@@ -171,6 +171,8 @@ enum Capability {
   CAP_LIBRARIES_REBUILDER_BUILDS_TOKENS_FETCH = 1853 [(name) = "libraries.rebuilder.builds.tokens.fetch", (bit) = 130];
   CAP_LIBRARIES_REBUILDER_BUILDS_UNTRUSTED = 1854 [(name) = "libraries.rebuilder.builds.untrusted", (bit) = 131];
   CAP_LIBRARIES_REBUILDER_REMEDIATED_ARTIFACTS_READ = 1855 [(name) = "libraries.rebuilder.remediated_artifacts.read", (bit) = 132];
+  CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_READ = 1856 [(name) = "libraries.rebuilder.new_versions.read", (bit) = 141];
+  CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_REFRESH = 1857 [(name) = "libraries.rebuilder.new_versions.refresh", (bit) = 142];
 
   // Registry Entitlements
   CAP_REGISTRY_ENTITLEMENTS_LIST = 1680 [(name) = "registry.entitlements.list", (bit) = 87];
@@ -243,6 +245,11 @@ enum Capability {
   CAP_SKILLS_ENTITLEMENTS_LIST   = 2503 [(name) = "skills.entitlements.list",   (bit) = 139];
   CAP_SKILLS_ENTITLEMENTS_DELETE = 2504 [(name) = "skills.entitlements.delete", (bit) = 140];
 
+  // Argos — client-side encrypted document records.
+  CAP_ARGOS_DOCUMENTS_CREATE = 2601 [(name) = "argos.documents.create", (bit) = 144];
+  CAP_ARGOS_DOCUMENTS_LIST   = 2602 [(name) = "argos.documents.list",   (bit) = 145];
+  CAP_ARGOS_DOCUMENTS_DELETE = 2603 [(name) = "argos.documents.delete", (bit) = 146];
+
   reserved 1;
-  // next bit: 141
+  // next bit: 147
 }

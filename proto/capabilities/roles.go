@@ -265,6 +265,7 @@ var (
 		Capability_CAP_LIBRARIES_REBUILDER_BUILDS_READ,
 		Capability_CAP_LIBRARIES_REBUILDER_REMEDIATED_ARTIFACTS_READ,
 		Capability_CAP_LIBRARIES_REBUILDER_REQUESTS_LIST,
+		Capability_CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_READ,
 	})
 
 	// LibrariesRebuilderTrustedCaps is for the trusted SA (e.g. prepare phase) that
@@ -290,10 +291,20 @@ var (
 		Capability_CAP_LIBRARIES_REBUILDER_BUILDS_READ,
 		Capability_CAP_LIBRARIES_REBUILDER_BUILDS_TOKENS_FETCH,
 		Capability_CAP_LIBRARIES_REBUILDER_REMEDIATED_ARTIFACTS_READ,
+		Capability_CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_READ,
+		Capability_CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_REFRESH,
 	})
 
 	MCPToolUserCaps = SortCaps([]Capability{
 		Capability_CAP_MCP_TOOL_CALL,
+	})
+
+	// ArgosOperatorCaps is the capability set for managing argos
+	// (client-side-encrypted document) records.
+	ArgosOperatorCaps = SortCaps([]Capability{
+		Capability_CAP_ARGOS_DOCUMENTS_CREATE,
+		Capability_CAP_ARGOS_DOCUMENTS_DELETE,
+		Capability_CAP_ARGOS_DOCUMENTS_LIST,
 	})
 )
 

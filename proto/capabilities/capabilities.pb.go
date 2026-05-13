@@ -154,6 +154,8 @@ const (
 	Capability_CAP_LIBRARIES_REBUILDER_BUILDS_TOKENS_FETCH       Capability = 1853
 	Capability_CAP_LIBRARIES_REBUILDER_BUILDS_UNTRUSTED          Capability = 1854
 	Capability_CAP_LIBRARIES_REBUILDER_REMEDIATED_ARTIFACTS_READ Capability = 1855
+	Capability_CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_READ         Capability = 1856
+	Capability_CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_REFRESH      Capability = 1857
 	// Registry Entitlements
 	Capability_CAP_REGISTRY_ENTITLEMENTS_LIST       Capability = 1680
 	Capability_CAP_REGISTRY_ENTITLEMENTS_CREATE     Capability = 1681
@@ -212,6 +214,10 @@ const (
 	Capability_CAP_SKILLS_ENTITLEMENTS_CREATE Capability = 2502
 	Capability_CAP_SKILLS_ENTITLEMENTS_LIST   Capability = 2503
 	Capability_CAP_SKILLS_ENTITLEMENTS_DELETE Capability = 2504
+	// Argos — client-side encrypted document records.
+	Capability_CAP_ARGOS_DOCUMENTS_CREATE Capability = 2601
+	Capability_CAP_ARGOS_DOCUMENTS_LIST   Capability = 2602
+	Capability_CAP_ARGOS_DOCUMENTS_DELETE Capability = 2603
 )
 
 // Enum value maps for Capability.
@@ -316,6 +322,8 @@ var (
 		1853:  "CAP_LIBRARIES_REBUILDER_BUILDS_TOKENS_FETCH",
 		1854:  "CAP_LIBRARIES_REBUILDER_BUILDS_UNTRUSTED",
 		1855:  "CAP_LIBRARIES_REBUILDER_REMEDIATED_ARTIFACTS_READ",
+		1856:  "CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_READ",
+		1857:  "CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_REFRESH",
 		1680:  "CAP_REGISTRY_ENTITLEMENTS_LIST",
 		1681:  "CAP_REGISTRY_ENTITLEMENTS_CREATE",
 		1682:  "CAP_REGISTRY_ENTITLEMENTS_DELETE",
@@ -354,6 +362,9 @@ var (
 		2502:  "CAP_SKILLS_ENTITLEMENTS_CREATE",
 		2503:  "CAP_SKILLS_ENTITLEMENTS_LIST",
 		2504:  "CAP_SKILLS_ENTITLEMENTS_DELETE",
+		2601:  "CAP_ARGOS_DOCUMENTS_CREATE",
+		2602:  "CAP_ARGOS_DOCUMENTS_LIST",
+		2603:  "CAP_ARGOS_DOCUMENTS_DELETE",
 	}
 	Capability_value = map[string]int32{
 		"UNKNOWN":                                           0,
@@ -455,6 +466,8 @@ var (
 		"CAP_LIBRARIES_REBUILDER_BUILDS_TOKENS_FETCH":       1853,
 		"CAP_LIBRARIES_REBUILDER_BUILDS_UNTRUSTED":          1854,
 		"CAP_LIBRARIES_REBUILDER_REMEDIATED_ARTIFACTS_READ": 1855,
+		"CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_READ":         1856,
+		"CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_REFRESH":      1857,
 		"CAP_REGISTRY_ENTITLEMENTS_LIST":                    1680,
 		"CAP_REGISTRY_ENTITLEMENTS_CREATE":                  1681,
 		"CAP_REGISTRY_ENTITLEMENTS_DELETE":                  1682,
@@ -493,6 +506,9 @@ var (
 		"CAP_SKILLS_ENTITLEMENTS_CREATE":                    2502,
 		"CAP_SKILLS_ENTITLEMENTS_LIST":                      2503,
 		"CAP_SKILLS_ENTITLEMENTS_DELETE":                    2504,
+		"CAP_ARGOS_DOCUMENTS_CREATE":                        2601,
+		"CAP_ARGOS_DOCUMENTS_LIST":                          2602,
+		"CAP_ARGOS_DOCUMENTS_DELETE":                        2603,
 	}
 )
 
@@ -560,7 +576,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xe5E\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xfcH\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -676,7 +692,9 @@ const file_capabilities_proto_rawDesc = "" +
 	"#CAP_LIBRARIES_REBUILDER_BUILDS_READ\x10\xbc\x0e\x1a*\xa8ˑMz\x9a\xaf\xa8\xd2\x05\x1flibraries.rebuilder.builds.read\x12e\n" +
 	"+CAP_LIBRARIES_REBUILDER_BUILDS_TOKENS_FETCH\x10\xbd\x0e\x1a3\xa8ˑM\x82\x01\x9a\xaf\xa8\xd2\x05'libraries.rebuilder.builds.tokens.fetch\x12_\n" +
 	"(CAP_LIBRARIES_REBUILDER_BUILDS_UNTRUSTED\x10\xbe\x0e\x1a0\xa8ˑM\x83\x01\x9a\xaf\xa8\xd2\x05$libraries.rebuilder.builds.untrusted\x12q\n" +
-	"1CAP_LIBRARIES_REBUILDER_REMEDIATED_ARTIFACTS_READ\x10\xbf\x0e\x1a9\xa8ˑM\x84\x01\x9a\xaf\xa8\xd2\x05-libraries.rebuilder.remediated_artifacts.read\x12J\n" +
+	"1CAP_LIBRARIES_REBUILDER_REMEDIATED_ARTIFACTS_READ\x10\xbf\x0e\x1a9\xa8ˑM\x84\x01\x9a\xaf\xa8\xd2\x05-libraries.rebuilder.remediated_artifacts.read\x12a\n" +
+	")CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_READ\x10\xc0\x0e\x1a1\xa8ˑM\x8d\x01\x9a\xaf\xa8\xd2\x05%libraries.rebuilder.new_versions.read\x12g\n" +
+	",CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_REFRESH\x10\xc1\x0e\x1a4\xa8ˑM\x8e\x01\x9a\xaf\xa8\xd2\x05(libraries.rebuilder.new_versions.refresh\x12J\n" +
 	"\x1eCAP_REGISTRY_ENTITLEMENTS_LIST\x10\x90\r\x1a%\xa8ˑMW\x9a\xaf\xa8\xd2\x05\x1aregistry.entitlements.list\x12N\n" +
 	" CAP_REGISTRY_ENTITLEMENTS_CREATE\x10\x91\r\x1a'\xa8ˑM`\x9a\xaf\xa8\xd2\x05\x1cregistry.entitlements.create\x12N\n" +
 	" CAP_REGISTRY_ENTITLEMENTS_DELETE\x10\x92\r\x1a'\xa8ˑMa\x9a\xaf\xa8\xd2\x05\x1cregistry.entitlements.delete\x12W\n" +
@@ -716,7 +734,10 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x12CAP_SKILLS_PUBLISH\x10\xc5\x13\x1a\x1a\xa8ˑM\x89\x01\x9a\xaf\xa8\xd2\x05\x0eskills.publish\x12K\n" +
 	"\x1eCAP_SKILLS_ENTITLEMENTS_CREATE\x10\xc6\x13\x1a&\xa8ˑM\x8a\x01\x9a\xaf\xa8\xd2\x05\x1askills.entitlements.create\x12G\n" +
 	"\x1cCAP_SKILLS_ENTITLEMENTS_LIST\x10\xc7\x13\x1a$\xa8ˑM\x8b\x01\x9a\xaf\xa8\xd2\x05\x18skills.entitlements.list\x12K\n" +
-	"\x1eCAP_SKILLS_ENTITLEMENTS_DELETE\x10\xc8\x13\x1a&\xa8ˑM\x8c\x01\x9a\xaf\xa8\xd2\x05\x1askills.entitlements.delete\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x04\b\x01\x10\x01:8\n" +
+	"\x1eCAP_SKILLS_ENTITLEMENTS_DELETE\x10\xc8\x13\x1a&\xa8ˑM\x8c\x01\x9a\xaf\xa8\xd2\x05\x1askills.entitlements.delete\x12C\n" +
+	"\x1aCAP_ARGOS_DOCUMENTS_CREATE\x10\xa9\x14\x1a\"\xa8ˑM\x90\x01\x9a\xaf\xa8\xd2\x05\x16argos.documents.create\x12?\n" +
+	"\x18CAP_ARGOS_DOCUMENTS_LIST\x10\xaa\x14\x1a \xa8ˑM\x91\x01\x9a\xaf\xa8\xd2\x05\x14argos.documents.list\x12C\n" +
+	"\x1aCAP_ARGOS_DOCUMENTS_DELETE\x10\xab\x14\x1a\"\xa8ˑM\x92\x01\x9a\xaf\xa8\xd2\x05\x16argos.documents.delete\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +
 	"\x03bit\x12!.google.protobuf.EnumValueOptions\x18\xb5\x99\xd2\t \x01(\rR\x03bitB'Z%chainguard.dev/sdk/proto/capabilitiesb\x06proto3"
 

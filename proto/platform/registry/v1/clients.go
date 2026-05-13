@@ -22,6 +22,7 @@ type Clients interface {
 	Vulnerabilities() VulnerabilitiesClient
 	Apko() ApkoClient
 	Entitlements() EntitlementsClient
+	Policies() PoliciesClient
 
 	Close() error
 }
@@ -51,6 +52,7 @@ func NewClients(ctx context.Context, addr string, token string) (Clients, error)
 		vulnerabilities: NewVulnerabilitiesClient(conn),
 		apko:            NewApkoClient(conn),
 		entitlements:    NewEntitlementsClient(conn),
+		policies:        NewPoliciesClient(conn),
 
 		conn: conn,
 	}, nil
@@ -62,6 +64,7 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 		vulnerabilities: NewVulnerabilitiesClient(conn),
 		apko:            NewApkoClient(conn),
 		entitlements:    NewEntitlementsClient(conn),
+		policies:        NewPoliciesClient(conn),
 		// conn is not set, this client struct does not own closing it.
 	}
 }
@@ -71,6 +74,7 @@ type clients struct {
 	vulnerabilities VulnerabilitiesClient
 	apko            ApkoClient
 	entitlements    EntitlementsClient
+	policies        PoliciesClient
 
 	conn *grpc.ClientConn
 }
@@ -89,6 +93,10 @@ func (c *clients) Apko() ApkoClient {
 
 func (c *clients) Entitlements() EntitlementsClient {
 	return c.entitlements
+}
+
+func (c *clients) Policies() PoliciesClient {
+	return c.policies
 }
 
 func (c *clients) Close() error {
