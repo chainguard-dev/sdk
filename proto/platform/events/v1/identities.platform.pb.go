@@ -29,15 +29,15 @@ type Identity struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id is unique identifier of this specific identity.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// subject of OIDC ID tokens issued for this identity. Matchs the `sub`
-	// claim.
+	// subject of OIDC ID tokens issued for this identity.
+	// Matches the `sub` claim.
 	Subject string `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
 	// issuer of the OIDC ID tokens issued for this identity. Matches the `iss`
 	// claim.
 	Issuer string `protobuf:"bytes,3,opt,name=issuer,proto3" json:"issuer,omitempty"`
 	// Optional JWKS formatted public keys for the issuer. If supplied
 	// verification of ID tokens is attempted using these keys instead of the
-	// normal OIDC discovery path. This enables e.g clusters behing NAT to
+	// normal OIDC discovery path. This enables e.g clusters behind NAT to
 	// authenticate.
 	IssuerKeys string `protobuf:"bytes,4,opt,name=issuer_keys,json=issuerKeys,proto3" json:"issuer_keys,omitempty"`
 	// Expiration of identity / issuer keys. After this date /time the issuer
@@ -116,8 +116,11 @@ func (x *Identity) GetExpiration() *timestamppb.Timestamp {
 type IdentityMetadata struct {
 	state               protoimpl.MessageState                `protogen:"open.v1"`
 	OnboardingQuestions *IdentityMetadata_OnboardingQuestions `protobuf:"bytes,1,opt,name=onboarding_questions,json=onboardingQuestions,proto3" json:"onboarding_questions,omitempty"`
-	// Output only. This is the name of the user.
-	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Output only. This is the name of the user derived
+	// from their upstream token.
+	Name       string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	GivenName  string `protobuf:"bytes,4,opt,name=given_name,json=givenName,proto3" json:"given_name,omitempty"`
+	FamilyName string `protobuf:"bytes,5,opt,name=family_name,json=familyName,proto3" json:"family_name,omitempty"`
 	// Whether the user has opted to receive updates from Chainguard.
 	UpdatesOptIn  bool `protobuf:"varint,3,opt,name=updatesOptIn,proto3" json:"updatesOptIn,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -168,6 +171,20 @@ func (x *IdentityMetadata) GetName() string {
 	return ""
 }
 
+func (x *IdentityMetadata) GetGivenName() string {
+	if x != nil {
+		return x.GivenName
+	}
+	return ""
+}
+
+func (x *IdentityMetadata) GetFamilyName() string {
+	if x != nil {
+		return x.FamilyName
+	}
+	return ""
+}
+
 func (x *IdentityMetadata) GetUpdatesOptIn() bool {
 	if x != nil {
 		return x.UpdatesOptIn
@@ -176,12 +193,23 @@ func (x *IdentityMetadata) GetUpdatesOptIn() bool {
 }
 
 type IdentityMetadata_OnboardingQuestions struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	CompanyName   string                 `protobuf:"bytes,1,opt,name=company_name,json=companyName,proto3" json:"company_name,omitempty"`
-	Providers     []string               `protobuf:"bytes,2,rep,name=providers,proto3" json:"providers,omitempty"`
-	Product       string                 `protobuf:"bytes,3,opt,name=product,proto3" json:"product,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	CompanyName string                 `protobuf:"bytes,1,opt,name=company_name,json=companyName,proto3" json:"company_name,omitempty"`
+	Providers   []string               `protobuf:"bytes,2,rep,name=providers,proto3" json:"providers,omitempty"`
+	Product     string                 `protobuf:"bytes,3,opt,name=product,proto3" json:"product,omitempty"`
+	JobTitle    string                 `protobuf:"bytes,4,opt,name=job_title,json=jobTitle,proto3" json:"job_title,omitempty"`
+	// UTM fields
+	// See https://en.wikipedia.org/wiki/UTM_parameters
+	UtmCampaign string `protobuf:"bytes,7,opt,name=utm_campaign,json=utmCampaign,proto3" json:"utm_campaign,omitempty"`
+	UtmContent  string `protobuf:"bytes,8,opt,name=utm_content,json=utmContent,proto3" json:"utm_content,omitempty"`
+	UtmMedium   string `protobuf:"bytes,9,opt,name=utm_medium,json=utmMedium,proto3" json:"utm_medium,omitempty"`
+	UtmSource   string `protobuf:"bytes,10,opt,name=utm_source,json=utmSource,proto3" json:"utm_source,omitempty"`
+	UtmTerm     string `protobuf:"bytes,11,opt,name=utm_term,json=utmTerm,proto3" json:"utm_term,omitempty"`
+	// Marketing fields.
+	LatestFormSubmitUrl        string `protobuf:"bytes,12,opt,name=latest_form_submit_url,json=latestFormSubmitUrl,proto3" json:"latest_form_submit_url,omitempty"`
+	LatestInternalReferringUrl string `protobuf:"bytes,13,opt,name=latest_internal_referring_url,json=latestInternalReferringUrl,proto3" json:"latest_internal_referring_url,omitempty"`
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
 }
 
 func (x *IdentityMetadata_OnboardingQuestions) Reset() {
@@ -235,11 +263,67 @@ func (x *IdentityMetadata_OnboardingQuestions) GetProduct() string {
 	return ""
 }
 
+func (x *IdentityMetadata_OnboardingQuestions) GetJobTitle() string {
+	if x != nil {
+		return x.JobTitle
+	}
+	return ""
+}
+
+func (x *IdentityMetadata_OnboardingQuestions) GetUtmCampaign() string {
+	if x != nil {
+		return x.UtmCampaign
+	}
+	return ""
+}
+
+func (x *IdentityMetadata_OnboardingQuestions) GetUtmContent() string {
+	if x != nil {
+		return x.UtmContent
+	}
+	return ""
+}
+
+func (x *IdentityMetadata_OnboardingQuestions) GetUtmMedium() string {
+	if x != nil {
+		return x.UtmMedium
+	}
+	return ""
+}
+
+func (x *IdentityMetadata_OnboardingQuestions) GetUtmSource() string {
+	if x != nil {
+		return x.UtmSource
+	}
+	return ""
+}
+
+func (x *IdentityMetadata_OnboardingQuestions) GetUtmTerm() string {
+	if x != nil {
+		return x.UtmTerm
+	}
+	return ""
+}
+
+func (x *IdentityMetadata_OnboardingQuestions) GetLatestFormSubmitUrl() string {
+	if x != nil {
+		return x.LatestFormSubmitUrl
+	}
+	return ""
+}
+
+func (x *IdentityMetadata_OnboardingQuestions) GetLatestInternalReferringUrl() string {
+	if x != nil {
+		return x.LatestInternalReferringUrl
+	}
+	return ""
+}
+
 var File_identities_platform_proto protoreflect.FileDescriptor
 
 const file_identities_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x19identities.platform.proto\x12\x1achainguard.platform.events\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\xa9\x01\n" +
+	"\x19identities.platform.proto\x12\x1achainguard.platform.events\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\xa9\x01\n" +
 	"\bIdentity\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
 	"\asubject\x18\x02 \x01(\tR\asubject\x12\x16\n" +
@@ -248,15 +332,31 @@ const file_identities_platform_proto_rawDesc = "" +
 	"issuerKeys\x12:\n" +
 	"\n" +
 	"expiration\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"expiration\"\xb1\x02\n" +
+	"expiration\"\xa4\x05\n" +
 	"\x10IdentityMetadata\x12s\n" +
 	"\x14onboarding_questions\x18\x01 \x01(\v2@.chainguard.platform.events.IdentityMetadata.OnboardingQuestionsR\x13onboardingQuestions\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\"\n" +
-	"\fupdatesOptIn\x18\x03 \x01(\bR\fupdatesOptIn\x1ap\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
+	"\n" +
+	"given_name\x18\x04 \x01(\tR\tgivenName\x12\x1f\n" +
+	"\vfamily_name\x18\x05 \x01(\tR\n" +
+	"familyName\x12\"\n" +
+	"\fupdatesOptIn\x18\x03 \x01(\bR\fupdatesOptIn\x1a\xa2\x03\n" +
 	"\x13OnboardingQuestions\x12!\n" +
 	"\fcompany_name\x18\x01 \x01(\tR\vcompanyName\x12\x1c\n" +
 	"\tproviders\x18\x02 \x03(\tR\tproviders\x12\x18\n" +
-	"\aproduct\x18\x03 \x01(\tR\aproduct2\xc0\x03\n" +
+	"\aproduct\x18\x03 \x01(\tR\aproduct\x12\x1b\n" +
+	"\tjob_title\x18\x04 \x01(\tR\bjobTitle\x12!\n" +
+	"\futm_campaign\x18\a \x01(\tR\vutmCampaign\x12\x1f\n" +
+	"\vutm_content\x18\b \x01(\tR\n" +
+	"utmContent\x12\x1d\n" +
+	"\n" +
+	"utm_medium\x18\t \x01(\tR\tutmMedium\x12\x1d\n" +
+	"\n" +
+	"utm_source\x18\n" +
+	" \x01(\tR\tutmSource\x12\x19\n" +
+	"\butm_term\x18\v \x01(\tR\autmTerm\x123\n" +
+	"\x16latest_form_submit_url\x18\f \x01(\tR\x13latestFormSubmitUrl\x12A\n" +
+	"\x1dlatest_internal_referring_url\x18\r \x01(\tR\x1alatestInternalReferringUrl2\xc0\x03\n" +
 	"\n" +
 	"Identities\x12\x95\x01\n" +
 	"\x06Create\x12$.chainguard.platform.events.Identity\x1a$.chainguard.platform.events.Identity\"?\x92A\x11\n" +
