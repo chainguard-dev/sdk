@@ -125,6 +125,54 @@ service ActionsAuthorization {
   }
 }
 
+// Actions is the operational API for callers running inside GitHub
+// Actions workflows. Unlike ActionsAuthorization (which only issues
+// trust decisions), this service hosts RPCs that workflows invoke
+// against the service during a run — self-reported telemetry today,
+// and likely more workflow-facing operations later.
+//
+// Authentication is OPTIONAL. Callers MAY present a GitHub Actions
+// OIDC ID token in the `Authorization: Bearer <jwt>` header (same
+// audience as ActionsAuthorization.AuthorizeWithOIDC). When a valid
+// token is presented, the recorded event is marked verified and the
+// token's claims (repository, run_id, run_attempt, sub, ...) are
+// attached. When no token is presented, the event is still recorded
+// — just marked unverified. When a token IS presented but fails to
+// verify, the call is rejected.
+service Actions {
+  // Record registers that a GitHub repository used this service.
+  // It is write-only and the recording is internal: the response is
+  // empty and there is no read side.
+  //
+  // Behavior depends on the `Authorization: Bearer <jwt>` header:
+  //   - Header absent (or non-Bearer scheme): the request body's
+  //     `repository` field is REQUIRED and taken as-is; the event is
+  //     recorded as unverified. Lets forked-PR workflows (which
+  //     cannot mint an OIDC token) still self-identify.
+  //   - Header present and verifies: the request body's `repository`
+  //     field is IGNORED and the repository is taken from the
+  //     verified token's claim instead; the event is recorded as
+  //     verified with the token's claims attached.
+  //   - Header present but fails to verify: rejected with
+  //     codes.PermissionDenied. The caller claimed an identity and
+  //     we won't silently downgrade that to unverified.
+  //
+  // Repeated calls with the same token are allowed (no replay check)
+  // so a long-running workflow can record multiple events.
+  rpc Record(RecordRequest) returns (RecordResponse) {
+    option (google.api.http) = {
+      post: "/actions/v1/record"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      // Unauthenticated by design — the OIDC token, when presented,
+      // IS the credential; an absent token is also accepted but
+      // produces an unverified record.
+      disabled: {}
+    };
+  }
+}
+
 // AuthorizeWithOIDCRequest carries no token. The OIDC ID token is
 // read from the `Authorization: Bearer <jwt>` gRPC metadata header.
 // The set of accepted audiences is fixed by the server; the caller
@@ -211,3 +259,31 @@ message AuthorizationResponse {
   // the IssueChallenge inputs.
   map<string, string> claims = 1;
 }
+
+// RecordRequest names the GitHub repository whose use of the service
+// is being recorded. Whose value the server actually trusts depends
+// on the optional OIDC bearer token:
+//
+//   - Verified call (valid bearer presented): the `repository` field
+//     is IGNORED. The server takes the repository slug from the
+//     verified token's `repository` claim instead — that value is
+//     authoritative, and accepting a request-supplied one would just
+//     create a way to lie.
+//   - Unverified call (no bearer): the `repository` field is REQUIRED
+//     and is taken as-is. The recorded event is marked unverified.
+//
+// There are no other caller-supplied fields — no metrics, no
+// attributes, no free-form text. The recording is internal: the
+// server keeps a usage record per repository (today via structured
+// logging), and the response is empty.
+message RecordRequest {
+  // repository is the owner/repo slug, e.g. "chainguard-dev/mono".
+  // Required on unverified calls; ignored on verified calls. Server-
+  // enforced caps: non-empty, ≤256 bytes, must contain a single "/"
+  // separating non-empty owner and repo segments.
+  string repository = 1;
+}
+
+// RecordResponse is empty on success. Failure is signaled by a
+// non-OK gRPC status.
+message RecordResponse {}

@@ -405,3 +405,173 @@ var ActionsAuthorization_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "actions.platform.proto",
 }
+
+const (
+	Actions_Record_FullMethodName = "/chainguard.platform.actions.Actions/Record"
+)
+
+// ActionsClient is the client API for Actions service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// Actions is the operational API for callers running inside GitHub
+// Actions workflows. Unlike ActionsAuthorization (which only issues
+// trust decisions), this service hosts RPCs that workflows invoke
+// against the service during a run — self-reported telemetry today,
+// and likely more workflow-facing operations later.
+//
+// Authentication is OPTIONAL. Callers MAY present a GitHub Actions
+// OIDC ID token in the `Authorization: Bearer <jwt>` header (same
+// audience as ActionsAuthorization.AuthorizeWithOIDC). When a valid
+// token is presented, the recorded event is marked verified and the
+// token's claims (repository, run_id, run_attempt, sub, ...) are
+// attached. When no token is presented, the event is still recorded
+// — just marked unverified. When a token IS presented but fails to
+// verify, the call is rejected.
+type ActionsClient interface {
+	// Record registers that a GitHub repository used this service.
+	// It is write-only and the recording is internal: the response is
+	// empty and there is no read side.
+	//
+	// Behavior depends on the `Authorization: Bearer <jwt>` header:
+	//   - Header absent (or non-Bearer scheme): the request body's
+	//     `repository` field is REQUIRED and taken as-is; the event is
+	//     recorded as unverified. Lets forked-PR workflows (which
+	//     cannot mint an OIDC token) still self-identify.
+	//   - Header present and verifies: the request body's `repository`
+	//     field is IGNORED and the repository is taken from the
+	//     verified token's claim instead; the event is recorded as
+	//     verified with the token's claims attached.
+	//   - Header present but fails to verify: rejected with
+	//     codes.PermissionDenied. The caller claimed an identity and
+	//     we won't silently downgrade that to unverified.
+	//
+	// Repeated calls with the same token are allowed (no replay check)
+	// so a long-running workflow can record multiple events.
+	Record(ctx context.Context, in *RecordRequest, opts ...grpc.CallOption) (*RecordResponse, error)
+}
+
+type actionsClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewActionsClient(cc grpc.ClientConnInterface) ActionsClient {
+	return &actionsClient{cc}
+}
+
+func (c *actionsClient) Record(ctx context.Context, in *RecordRequest, opts ...grpc.CallOption) (*RecordResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RecordResponse)
+	err := c.cc.Invoke(ctx, Actions_Record_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ActionsServer is the server API for Actions service.
+// All implementations must embed UnimplementedActionsServer
+// for forward compatibility.
+//
+// Actions is the operational API for callers running inside GitHub
+// Actions workflows. Unlike ActionsAuthorization (which only issues
+// trust decisions), this service hosts RPCs that workflows invoke
+// against the service during a run — self-reported telemetry today,
+// and likely more workflow-facing operations later.
+//
+// Authentication is OPTIONAL. Callers MAY present a GitHub Actions
+// OIDC ID token in the `Authorization: Bearer <jwt>` header (same
+// audience as ActionsAuthorization.AuthorizeWithOIDC). When a valid
+// token is presented, the recorded event is marked verified and the
+// token's claims (repository, run_id, run_attempt, sub, ...) are
+// attached. When no token is presented, the event is still recorded
+// — just marked unverified. When a token IS presented but fails to
+// verify, the call is rejected.
+type ActionsServer interface {
+	// Record registers that a GitHub repository used this service.
+	// It is write-only and the recording is internal: the response is
+	// empty and there is no read side.
+	//
+	// Behavior depends on the `Authorization: Bearer <jwt>` header:
+	//   - Header absent (or non-Bearer scheme): the request body's
+	//     `repository` field is REQUIRED and taken as-is; the event is
+	//     recorded as unverified. Lets forked-PR workflows (which
+	//     cannot mint an OIDC token) still self-identify.
+	//   - Header present and verifies: the request body's `repository`
+	//     field is IGNORED and the repository is taken from the
+	//     verified token's claim instead; the event is recorded as
+	//     verified with the token's claims attached.
+	//   - Header present but fails to verify: rejected with
+	//     codes.PermissionDenied. The caller claimed an identity and
+	//     we won't silently downgrade that to unverified.
+	//
+	// Repeated calls with the same token are allowed (no replay check)
+	// so a long-running workflow can record multiple events.
+	Record(context.Context, *RecordRequest) (*RecordResponse, error)
+	mustEmbedUnimplementedActionsServer()
+}
+
+// UnimplementedActionsServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedActionsServer struct{}
+
+func (UnimplementedActionsServer) Record(context.Context, *RecordRequest) (*RecordResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Record not implemented")
+}
+func (UnimplementedActionsServer) mustEmbedUnimplementedActionsServer() {}
+func (UnimplementedActionsServer) testEmbeddedByValue()                 {}
+
+// UnsafeActionsServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ActionsServer will
+// result in compilation errors.
+type UnsafeActionsServer interface {
+	mustEmbedUnimplementedActionsServer()
+}
+
+func RegisterActionsServer(s grpc.ServiceRegistrar, srv ActionsServer) {
+	// If the following call panics, it indicates UnimplementedActionsServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&Actions_ServiceDesc, srv)
+}
+
+func _Actions_Record_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RecordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ActionsServer).Record(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Actions_Record_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ActionsServer).Record(ctx, req.(*RecordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Actions_ServiceDesc is the grpc.ServiceDesc for Actions service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Actions_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "chainguard.platform.actions.Actions",
+	HandlerType: (*ActionsServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Record",
+			Handler:    _Actions_Record_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "actions.platform.proto",
+}
