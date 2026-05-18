@@ -480,6 +480,108 @@ func (x *AuthorizationResponse) GetClaims() map[string]string {
 	return nil
 }
 
+// RecordRequest names the GitHub repository whose use of the service
+// is being recorded. Whose value the server actually trusts depends
+// on the optional OIDC bearer token:
+//
+//   - Verified call (valid bearer presented): the `repository` field
+//     is IGNORED. The server takes the repository slug from the
+//     verified token's `repository` claim instead — that value is
+//     authoritative, and accepting a request-supplied one would just
+//     create a way to lie.
+//   - Unverified call (no bearer): the `repository` field is REQUIRED
+//     and is taken as-is. The recorded event is marked unverified.
+//
+// There are no other caller-supplied fields — no metrics, no
+// attributes, no free-form text. The recording is internal: the
+// server keeps a usage record per repository (today via structured
+// logging), and the response is empty.
+type RecordRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// repository is the owner/repo slug, e.g. "chainguard-dev/mono".
+	// Required on unverified calls; ignored on verified calls. Server-
+	// enforced caps: non-empty, ≤256 bytes, must contain a single "/"
+	// separating non-empty owner and repo segments.
+	Repository    string `protobuf:"bytes,1,opt,name=repository,proto3" json:"repository,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RecordRequest) Reset() {
+	*x = RecordRequest{}
+	mi := &file_actions_platform_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecordRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecordRequest) ProtoMessage() {}
+
+func (x *RecordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_actions_platform_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecordRequest.ProtoReflect.Descriptor instead.
+func (*RecordRequest) Descriptor() ([]byte, []int) {
+	return file_actions_platform_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *RecordRequest) GetRepository() string {
+	if x != nil {
+		return x.Repository
+	}
+	return ""
+}
+
+// RecordResponse is empty on success. Failure is signaled by a
+// non-OK gRPC status.
+type RecordResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RecordResponse) Reset() {
+	*x = RecordResponse{}
+	mi := &file_actions_platform_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecordResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecordResponse) ProtoMessage() {}
+
+func (x *RecordResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_actions_platform_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecordResponse.ProtoReflect.Descriptor instead.
+func (*RecordResponse) Descriptor() ([]byte, []int) {
+	return file_actions_platform_proto_rawDescGZIP(), []int{10}
+}
+
 var File_actions_platform_proto protoreflect.FileDescriptor
 
 const file_actions_platform_proto_rawDesc = "" +
@@ -513,7 +615,12 @@ const file_actions_platform_proto_rawDesc = "" +
 	"\x06claims\x18\x01 \x03(\v2>.chainguard.platform.actions.AuthorizationResponse.ClaimsEntryR\x06claims\x1a9\n" +
 	"\vClaimsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\xcd\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"/\n" +
+	"\rRecordRequest\x12\x1e\n" +
+	"\n" +
+	"repository\x18\x01 \x01(\tR\n" +
+	"repository\"\x10\n" +
+	"\x0eRecordResponse2\xcd\x06\n" +
 	"\x14ActionsAuthorization\x12\xad\x01\n" +
 	"\x11AuthorizeWithOIDC\x125.chainguard.platform.actions.AuthorizeWithOIDCRequest\x1a2.chainguard.platform.actions.AuthorizationResponse\"-\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/actions/v1/authorize/oidc\x8a\xaf\xa8\xd2\x05\x02\n" +
 	"\x00\x12\xa9\x01\n" +
@@ -524,6 +631,9 @@ const file_actions_platform_proto_rawDesc = "" +
 	"\tGetCACert\x12-.chainguard.platform.actions.GetCACertRequest\x1a+.chainguard.platform.actions.CACertResponse\"\x1e\x82\xd3\xe4\x93\x02\x10\x12\x0e/actions/v1/ca\x8a\xaf\xa8\xd2\x05\x02\n" +
 	"\x00\x12\xa0\x01\n" +
 	"\x0eGetTrustedKeys\x122.chainguard.platform.actions.GetTrustedKeysRequest\x1a0.chainguard.platform.actions.TrustedKeysResponse\"(\x82\xd3\xe4\x93\x02\x1a\x12\x18/actions/v1/trusted-keys\x8a\xaf\xa8\xd2\x05\x02\n" +
+	"\x002\x94\x01\n" +
+	"\aActions\x12\x88\x01\n" +
+	"\x06Record\x12*.chainguard.platform.actions.RecordRequest\x1a+.chainguard.platform.actions.RecordResponse\"%\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/actions/v1/record\x8a\xaf\xa8\xd2\x05\x02\n" +
 	"\x00B.Z,chainguard.dev/sdk/proto/platform/actions/v1b\x06proto3"
 
 var (
@@ -538,7 +648,7 @@ func file_actions_platform_proto_rawDescGZIP() []byte {
 	return file_actions_platform_proto_rawDescData
 }
 
-var file_actions_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_actions_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_actions_platform_proto_goTypes = []any{
 	(*AuthorizeWithOIDCRequest)(nil), // 0: chainguard.platform.actions.AuthorizeWithOIDCRequest
 	(*IssueChallengeRequest)(nil),    // 1: chainguard.platform.actions.IssueChallengeRequest
@@ -549,25 +659,29 @@ var file_actions_platform_proto_goTypes = []any{
 	(*GetTrustedKeysRequest)(nil),    // 6: chainguard.platform.actions.GetTrustedKeysRequest
 	(*TrustedKeysResponse)(nil),      // 7: chainguard.platform.actions.TrustedKeysResponse
 	(*AuthorizationResponse)(nil),    // 8: chainguard.platform.actions.AuthorizationResponse
-	nil,                              // 9: chainguard.platform.actions.AuthorizationResponse.ClaimsEntry
+	(*RecordRequest)(nil),            // 9: chainguard.platform.actions.RecordRequest
+	(*RecordResponse)(nil),           // 10: chainguard.platform.actions.RecordResponse
+	nil,                              // 11: chainguard.platform.actions.AuthorizationResponse.ClaimsEntry
 }
 var file_actions_platform_proto_depIdxs = []int32{
-	9, // 0: chainguard.platform.actions.AuthorizationResponse.claims:type_name -> chainguard.platform.actions.AuthorizationResponse.ClaimsEntry
-	0, // 1: chainguard.platform.actions.ActionsAuthorization.AuthorizeWithOIDC:input_type -> chainguard.platform.actions.AuthorizeWithOIDCRequest
-	1, // 2: chainguard.platform.actions.ActionsAuthorization.IssueChallenge:input_type -> chainguard.platform.actions.IssueChallengeRequest
-	3, // 3: chainguard.platform.actions.ActionsAuthorization.VerifyChallenge:input_type -> chainguard.platform.actions.VerifyChallengeRequest
-	4, // 4: chainguard.platform.actions.ActionsAuthorization.GetCACert:input_type -> chainguard.platform.actions.GetCACertRequest
-	6, // 5: chainguard.platform.actions.ActionsAuthorization.GetTrustedKeys:input_type -> chainguard.platform.actions.GetTrustedKeysRequest
-	8, // 6: chainguard.platform.actions.ActionsAuthorization.AuthorizeWithOIDC:output_type -> chainguard.platform.actions.AuthorizationResponse
-	2, // 7: chainguard.platform.actions.ActionsAuthorization.IssueChallenge:output_type -> chainguard.platform.actions.IssueChallengeResponse
-	8, // 8: chainguard.platform.actions.ActionsAuthorization.VerifyChallenge:output_type -> chainguard.platform.actions.AuthorizationResponse
-	5, // 9: chainguard.platform.actions.ActionsAuthorization.GetCACert:output_type -> chainguard.platform.actions.CACertResponse
-	7, // 10: chainguard.platform.actions.ActionsAuthorization.GetTrustedKeys:output_type -> chainguard.platform.actions.TrustedKeysResponse
-	6, // [6:11] is the sub-list for method output_type
-	1, // [1:6] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	11, // 0: chainguard.platform.actions.AuthorizationResponse.claims:type_name -> chainguard.platform.actions.AuthorizationResponse.ClaimsEntry
+	0,  // 1: chainguard.platform.actions.ActionsAuthorization.AuthorizeWithOIDC:input_type -> chainguard.platform.actions.AuthorizeWithOIDCRequest
+	1,  // 2: chainguard.platform.actions.ActionsAuthorization.IssueChallenge:input_type -> chainguard.platform.actions.IssueChallengeRequest
+	3,  // 3: chainguard.platform.actions.ActionsAuthorization.VerifyChallenge:input_type -> chainguard.platform.actions.VerifyChallengeRequest
+	4,  // 4: chainguard.platform.actions.ActionsAuthorization.GetCACert:input_type -> chainguard.platform.actions.GetCACertRequest
+	6,  // 5: chainguard.platform.actions.ActionsAuthorization.GetTrustedKeys:input_type -> chainguard.platform.actions.GetTrustedKeysRequest
+	9,  // 6: chainguard.platform.actions.Actions.Record:input_type -> chainguard.platform.actions.RecordRequest
+	8,  // 7: chainguard.platform.actions.ActionsAuthorization.AuthorizeWithOIDC:output_type -> chainguard.platform.actions.AuthorizationResponse
+	2,  // 8: chainguard.platform.actions.ActionsAuthorization.IssueChallenge:output_type -> chainguard.platform.actions.IssueChallengeResponse
+	8,  // 9: chainguard.platform.actions.ActionsAuthorization.VerifyChallenge:output_type -> chainguard.platform.actions.AuthorizationResponse
+	5,  // 10: chainguard.platform.actions.ActionsAuthorization.GetCACert:output_type -> chainguard.platform.actions.CACertResponse
+	7,  // 11: chainguard.platform.actions.ActionsAuthorization.GetTrustedKeys:output_type -> chainguard.platform.actions.TrustedKeysResponse
+	10, // 12: chainguard.platform.actions.Actions.Record:output_type -> chainguard.platform.actions.RecordResponse
+	7,  // [7:13] is the sub-list for method output_type
+	1,  // [1:7] is the sub-list for method input_type
+	1,  // [1:1] is the sub-list for extension type_name
+	1,  // [1:1] is the sub-list for extension extendee
+	0,  // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_actions_platform_proto_init() }
@@ -581,9 +695,9 @@ func file_actions_platform_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_actions_platform_proto_rawDesc), len(file_actions_platform_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   12,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   2,
 		},
 		GoTypes:           file_actions_platform_proto_goTypes,
 		DependencyIndexes: file_actions_platform_proto_depIdxs,

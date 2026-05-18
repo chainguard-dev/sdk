@@ -19,6 +19,7 @@ import (
 
 type Clients interface {
 	ActionsAuthorization() ActionsAuthorizationClient
+	Actions() ActionsClient
 
 	Close() error
 }
@@ -43,23 +44,30 @@ func NewClients(ctx context.Context, addr string, token string) (Clients, error)
 	}
 
 	return &clients{
-		actions: NewActionsAuthorizationClient(conn),
+		authz:   NewActionsAuthorizationClient(conn),
+		actions: NewActionsClient(conn),
 		conn:    conn,
 	}, nil
 }
 
 func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 	return &clients{
-		actions: NewActionsAuthorizationClient(conn),
+		authz:   NewActionsAuthorizationClient(conn),
+		actions: NewActionsClient(conn),
 	}
 }
 
 type clients struct {
-	actions ActionsAuthorizationClient
+	authz   ActionsAuthorizationClient
+	actions ActionsClient
 	conn    *grpc.ClientConn
 }
 
 func (c *clients) ActionsAuthorization() ActionsAuthorizationClient {
+	return c.authz
+}
+
+func (c *clients) Actions() ActionsClient {
 	return c.actions
 }
 

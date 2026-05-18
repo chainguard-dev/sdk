@@ -63,15 +63,15 @@ var (
 	ViewerCaps = SortCaps(ConsoleViewerCaps,
 		// Any additional capabilities needed to specifically pull from
 		// the container or apk registries.
-		RegistryPullCaps, APKPullCaps)
+		RegistryPullCaps, APKPullCaps,
+		// Viewers can also run guardener (DFC) sessions.
+		GuardenerUserCaps)
 
 	// EditorCaps can modify state, but not grant roles/permissions.
 	EditorCaps = SortCaps([]Capability{
 		Capability_CAP_EVENTS_SUBSCRIPTION_CREATE,
 		Capability_CAP_EVENTS_SUBSCRIPTION_DELETE,
 		Capability_CAP_EVENTS_SUBSCRIPTION_UPDATE,
-
-		Capability_CAP_GUARDENER_DFC_CONVERT,
 	}, ViewerCaps)
 
 	// SkillsPublishCaps is the capability set required to publish skill artifacts
@@ -124,6 +124,7 @@ var (
 		Capability_CAP_SKILLS_ENTITLEMENTS_DELETE,
 		Capability_CAP_LIBRARIES_CACHE_INVALIDATE,
 		Capability_CAP_REPO_UPDATE,
+		Capability_CAP_REPO_CHECK_POLICIES,
 
 		Capability_CAP_POLICY_GATES_BINDING_CREATE,
 		Capability_CAP_POLICY_GATES_BINDING_UPDATE,
@@ -294,6 +295,24 @@ var (
 		Capability_CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_READ,
 		Capability_CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_REFRESH,
 	})
+
+	// GuardenerUserCaps is the minimum capability set required to run
+	// guardener (DFC) sessions against a group. terms.list is required
+	// because the DFC server checks the group's terms-of-service
+	// acceptance with the caller's credentials before starting a session.
+	// Registry pull caps are included so users can fetch the base images
+	// the DFC session converts to.
+	GuardenerUserCaps = SortCaps([]Capability{
+		Capability_CAP_GUARDENER_DFC_CONVERT,
+		Capability_CAP_TERMS_LIST,
+	}, RegistryPullCaps)
+
+	// GuardenerAdminCaps extends GuardenerUserCaps with terms.accept so
+	// admins can record acceptance of the legal documents that the DFC
+	// server requires before sessions can start.
+	GuardenerAdminCaps = SortCaps([]Capability{
+		Capability_CAP_TERMS_ACCEPT,
+	}, GuardenerUserCaps)
 
 	MCPToolUserCaps = SortCaps([]Capability{
 		Capability_CAP_MCP_TOOL_CALL,
