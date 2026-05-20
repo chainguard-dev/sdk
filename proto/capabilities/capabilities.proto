@@ -14,6 +14,13 @@ extend google.protobuf.EnumValueOptions {
   // This decorates our capability enumeration values with
   // a bit index enabling compacted encodings.
   uint32 bit = 20221109;
+
+  // This decorates our capability enumeration values with a marker denoting the
+  // capability as internal only: it can never be granted by a role available to
+  // customer organisations. Roles which contain internal only capabilities must
+  // have `CAP_INTERNAL` set. Role creation/updating will fail if this is
+  // violated.
+  bool internal_only = 189350644;
 }
 
 // Capability is an enumeration of the Chainguard IAM capabilities.
@@ -201,7 +208,7 @@ enum Capability {
 
   // Registry Deployments
   CAP_REGISTRY_DEPLOYMENTS_CREATE = 1950 [(name) = "registry.deployments.create", (bit) = 98];
-  CAP_REGISTRY_DEPLOYMENTS_UPDATE = 1951 [(name) = "registry.deployments.update", (bit) = 99];
+  CAP_REGISTRY_DEPLOYMENTS_UPDATE = 1951 [(name) = "registry.deployments.update", (bit) = 99, (internal_only) = true];
   CAP_REGISTRY_DEPLOYMENTS_LIST   = 1952 [(name) = "registry.deployments.list", (bit) = 100];
 
   // Policy Gates

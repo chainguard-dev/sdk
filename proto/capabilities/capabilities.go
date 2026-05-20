@@ -79,6 +79,30 @@ func Names() []string {
 	return all
 }
 
+// InternalOnly reports whether the capability is annotated as
+// internal-only via the (internal_only) proto option. Capabilities
+// that return true must never be granted by a role available to
+// customer organisations.
+func InternalOnly(capability Capability) bool {
+	evd := capability.Descriptor().Values().ByNumber(capability.Number())
+	if evd == nil {
+		return false
+	}
+
+	opt := evd.Options()
+	if opt == nil {
+		return false
+	}
+
+	evo := opt.(*descriptorpb.EnumValueOptions)
+	v, ok := proto.GetExtension(evo, E_InternalOnly).(bool)
+	if !ok {
+		return false
+	}
+
+	return v
+}
+
 func Deprecated(capability Capability) bool {
 	evd := capability.Descriptor().Values().ByNumber(capability.Number())
 	if evd == nil {
