@@ -31,7 +31,7 @@ const (
 	// The violation should be treated as blocking by the caller.
 	PolicyMode_ENFORCED PolicyMode = 1
 	// The violation should be logged but not treated as blocking.
-	PolicyMode_LOG PolicyMode = 2
+	PolicyMode_DRY_RUN PolicyMode = 2
 )
 
 // Enum value maps for PolicyMode.
@@ -39,12 +39,12 @@ var (
 	PolicyMode_name = map[int32]string{
 		0: "POLICY_MODE_UNSPECIFIED",
 		1: "ENFORCED",
-		2: "LOG",
+		2: "DRY_RUN",
 	}
 	PolicyMode_value = map[string]int32{
 		"POLICY_MODE_UNSPECIFIED": 0,
 		"ENFORCED":                1,
-		"LOG":                     2,
+		"DRY_RUN":                 2,
 	}
 )
 
@@ -331,12 +331,12 @@ const file_policy_platform_proto_rawDesc = "" +
 	"\x04mode\x18\x03 \x01(\x0e2(.chainguard.platform.registry.PolicyModeR\x04mode\x12G\n" +
 	"\x06result\x18\x04 \x01(\x0e2/.chainguard.platform.registry.PolicyCheckResultR\x06result\x12\x1d\n" +
 	"\n" +
-	"binding_id\x18\x05 \x01(\tR\tbindingId*@\n" +
+	"binding_id\x18\x05 \x01(\tR\tbindingId*D\n" +
 	"\n" +
 	"PolicyMode\x12\x1b\n" +
 	"\x17POLICY_MODE_UNSPECIFIED\x10\x00\x12\f\n" +
-	"\bENFORCED\x10\x01\x12\a\n" +
-	"\x03LOG\x10\x02*\\\n" +
+	"\bENFORCED\x10\x01\x12\v\n" +
+	"\aDRY_RUN\x10\x02*\\\n" +
 	"\x11PolicyCheckResult\x12#\n" +
 	"\x1fPOLICY_CHECK_RESULT_UNSPECIFIED\x10\x00\x12\v\n" +
 	"\aALLOWED\x10\x01\x12\n" +

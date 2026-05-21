@@ -37,7 +37,7 @@ enum PolicyMode {
   // The violation should be treated as blocking by the caller.
   ENFORCED = 1;
   // The violation should be logged but not treated as blocking.
-  LOG = 2;
+  DRY_RUN = 2;
 }
 
 // PolicyCheckResult is the outcome of evaluating a single policy.
