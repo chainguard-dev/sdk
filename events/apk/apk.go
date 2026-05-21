@@ -17,6 +17,9 @@ const (
 
 	// PulledEventType is the cloudevents event type for APK pulls
 	PulledEventType = "dev.chainguard.apk.pull.v1"
+
+	// WithdrawnEventType is the cloudevents event type for APK withdrawals
+	WithdrawnEventType = "dev.chainguard.apk.withdraw.v1"
 )
 
 // PushEvent describes an APK being pushed to the registry.
@@ -123,6 +126,24 @@ type PullEvent struct {
 	// ProxyHash is the hash of the image associated with the apkproxy pull, if any.
 	// This is only set if the pull was proxied through virtualapk.cgr.dev/<uidp>/<hash>/original/<arch>/<pkg>.apk.
 	ProxyHash string `json:"proxy_hash,omitempty"`
+}
+
+// WithdrawEvent describes an APK withdrawal from a source repository.
+type WithdrawEvent struct {
+	// Repository identifies the repository the withdrawal was made from.
+	Repository string `json:"repository"`
+
+	// RepoID identifies the UIDP of the APK repository being withdrawn from.
+	RepoID string `json:"repo_id"`
+
+	// Architecture holds the architecture of the withdrawn packages.
+	Architecture string `json:"architecture"`
+
+	// WithdrawnCount holds the number of packages successfully withdrawn.
+	WithdrawnCount int32 `json:"withdrawn_count"`
+
+	// When holds when the withdrawal occurred.
+	When civil.DateTime `json:"when"`
 }
 
 // APKPath is a convenience method for constructing the full path to the APK.
