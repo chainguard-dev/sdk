@@ -70,7 +70,7 @@ type PolicyCheckResult struct {
 	PolicyID string `json:"policy_id"`
 	// PolicyName is the human-readable name of the policy.
 	PolicyName string `json:"policy_name"`
-	// Mode is the policy binding mode ("POLICY_MODE_ENFORCED" or "POLICY_MODE_LOG").
+	// Mode is the policy binding mode ("POLICY_MODE_ENFORCED" or "POLICY_MODE_DRY_RUN").
 	Mode string `json:"mode"`
 	// Result is the evaluation outcome ("RESULT_ALLOWED", "RESULT_DENIED", or "RESULT_ERROR").
 	Result string `json:"result"`

@@ -34,7 +34,7 @@ const (
 	// Disallow access to the artifact when it doesn't satisfy the applied policy.
 	PolicyMode_POLICY_MODE_ENFORCED PolicyMode = 1
 	// Allow access to the artifact when it doesn't satisfy the applied policy, but log the outcome.
-	PolicyMode_POLICY_MODE_LOG PolicyMode = 2
+	PolicyMode_POLICY_MODE_DRY_RUN PolicyMode = 2
 )
 
 // Enum value maps for PolicyMode.
@@ -42,12 +42,12 @@ var (
 	PolicyMode_name = map[int32]string{
 		0: "POLICY_MODE_UNSPECIFIED",
 		1: "POLICY_MODE_ENFORCED",
-		2: "POLICY_MODE_LOG",
+		2: "POLICY_MODE_DRY_RUN",
 	}
 	PolicyMode_value = map[string]int32{
 		"POLICY_MODE_UNSPECIFIED": 0,
 		"POLICY_MODE_ENFORCED":    1,
-		"POLICY_MODE_LOG":         2,
+		"POLICY_MODE_DRY_RUN":     2,
 	}
 )
 
@@ -915,12 +915,12 @@ const file_policygates_platform_proto_rawDesc = "" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12E\n" +
 	"\abinding\x18\x02 \x01(\v2+.chainguard.platform.policygates.v1.BindingR\abinding\".\n" +
 	"\x14DeleteBindingRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id*X\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id*\\\n" +
 	"\n" +
 	"PolicyMode\x12\x1b\n" +
 	"\x17POLICY_MODE_UNSPECIFIED\x10\x00\x12\x18\n" +
-	"\x14POLICY_MODE_ENFORCED\x10\x01\x12\x13\n" +
-	"\x0fPOLICY_MODE_LOG\x10\x02*Y\n" +
+	"\x14POLICY_MODE_ENFORCED\x10\x01\x12\x17\n" +
+	"\x13POLICY_MODE_DRY_RUN\x10\x02*Y\n" +
 	"\n" +
 	"PolicyType\x12\x1b\n" +
 	"\x17POLICY_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +

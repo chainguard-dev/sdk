@@ -103,7 +103,7 @@ enum PolicyMode {
   // Disallow access to the artifact when it doesn't satisfy the applied policy.
   POLICY_MODE_ENFORCED = 1;
   // Allow access to the artifact when it doesn't satisfy the applied policy, but log the outcome.
-  POLICY_MODE_LOG = 2;
+  POLICY_MODE_DRY_RUN = 2;
 }
 
 // The type of policy.

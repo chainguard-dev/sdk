@@ -556,6 +556,14 @@ var file_capabilities_proto_extTypes = []protoimpl.ExtensionInfo{
 		Tag:           "varint,20221109,opt,name=bit",
 		Filename:      "capabilities.proto",
 	},
+	{
+		ExtendedType:  (*descriptorpb.EnumValueOptions)(nil),
+		ExtensionType: (*bool)(nil),
+		Field:         189350644,
+		Name:          "chainguard.capabilities.internal_only",
+		Tag:           "varint,189350644,opt,name=internal_only",
+		Filename:      "capabilities.proto",
+	},
 }
 
 // Extension fields to descriptorpb.EnumValueOptions.
@@ -570,13 +578,21 @@ var (
 	//
 	// optional uint32 bit = 20221109;
 	E_Bit = &file_capabilities_proto_extTypes[1]
+	// This decorates our capability enumeration values with a marker denoting the
+	// capability as internal only: it can never be granted by a role available to
+	// customer organisations. Roles which contain internal only capabilities must
+	// have `CAP_INTERNAL` set. Role creation/updating will fail if this is
+	// violated.
+	//
+	// optional bool internal_only = 189350644;
+	E_InternalOnly = &file_capabilities_proto_extTypes[2]
 )
 
 var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xfcH\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x82I\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -711,8 +727,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x13CAP_ADVISORIES_LIST\x10\xee\x0e\x1a\x1a\xa8ˑM[\x9a\xaf\xa8\xd2\x05\x0fadvisories.list\x128\n" +
 	"\x15CAP_ADVISORIES_DELETE\x10\xef\x0e\x1a\x1c\xa8ˑM\\\x9a\xaf\xa8\xd2\x05\x11advisories.delete\x12:\n" +
 	"\x16CAP_ADVISORIES_APPROVE\x10\xf0\x0e\x1a\x1d\xa8ˑM]\x9a\xaf\xa8\xd2\x05\x12advisories.approve\x12L\n" +
-	"\x1fCAP_REGISTRY_DEPLOYMENTS_CREATE\x10\x9e\x0f\x1a&\xa8ˑMb\x9a\xaf\xa8\xd2\x05\x1bregistry.deployments.create\x12L\n" +
-	"\x1fCAP_REGISTRY_DEPLOYMENTS_UPDATE\x10\x9f\x0f\x1a&\xa8ˑMc\x9a\xaf\xa8\xd2\x05\x1bregistry.deployments.update\x12H\n" +
+	"\x1fCAP_REGISTRY_DEPLOYMENTS_CREATE\x10\x9e\x0f\x1a&\xa8ˑMb\x9a\xaf\xa8\xd2\x05\x1bregistry.deployments.create\x12R\n" +
+	"\x1fCAP_REGISTRY_DEPLOYMENTS_UPDATE\x10\x9f\x0f\x1a,\xa8ˑMc\x9a\xaf\xa8\xd2\x05\x1bregistry.deployments.update\xa0\xaf\xa8\xd2\x05\x01\x12H\n" +
 	"\x1dCAP_REGISTRY_DEPLOYMENTS_LIST\x10\xa0\x0f\x1a$\xa8ˑMd\x9a\xaf\xa8\xd2\x05\x19registry.deployments.list\x12L\n" +
 	"\x1eCAP_POLICY_GATES_POLICY_CREATE\x10\xd1\x0f\x1a'\xa8ˑMq\x9a\xaf\xa8\xd2\x05\x1cpolicy_gates.policies.create\x12L\n" +
 	"\x1eCAP_POLICY_GATES_POLICY_UPDATE\x10\xd2\x0f\x1a'\xa8ˑMr\x9a\xaf\xa8\xd2\x05\x1cpolicy_gates.policies.update\x12H\n" +
@@ -739,7 +755,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x18CAP_ARGOS_DOCUMENTS_LIST\x10\xaa\x14\x1a \xa8ˑM\x91\x01\x9a\xaf\xa8\xd2\x05\x14argos.documents.list\x12C\n" +
 	"\x1aCAP_ARGOS_DOCUMENTS_DELETE\x10\xab\x14\x1a\"\xa8ˑM\x92\x01\x9a\xaf\xa8\xd2\x05\x16argos.documents.delete\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +
-	"\x03bit\x12!.google.protobuf.EnumValueOptions\x18\xb5\x99\xd2\t \x01(\rR\x03bitB'Z%chainguard.dev/sdk/proto/capabilitiesb\x06proto3"
+	"\x03bit\x12!.google.protobuf.EnumValueOptions\x18\xb5\x99\xd2\t \x01(\rR\x03bit:I\n" +
+	"\rinternal_only\x12!.google.protobuf.EnumValueOptions\x18\xf4\x85\xa5Z \x01(\bR\finternalOnlyB'Z%chainguard.dev/sdk/proto/capabilitiesb\x06proto3"
 
 var (
 	file_capabilities_proto_rawDescOnce sync.Once
@@ -761,10 +778,11 @@ var file_capabilities_proto_goTypes = []any{
 var file_capabilities_proto_depIdxs = []int32{
 	1, // 0: chainguard.capabilities.name:extendee -> google.protobuf.EnumValueOptions
 	1, // 1: chainguard.capabilities.bit:extendee -> google.protobuf.EnumValueOptions
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	0, // [0:2] is the sub-list for extension extendee
+	1, // 2: chainguard.capabilities.internal_only:extendee -> google.protobuf.EnumValueOptions
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	0, // [0:3] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
 }
 
@@ -780,7 +798,7 @@ func file_capabilities_proto_init() {
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_capabilities_proto_rawDesc), len(file_capabilities_proto_rawDesc)),
 			NumEnums:      1,
 			NumMessages:   0,
-			NumExtensions: 2,
+			NumExtensions: 3,
 			NumServices:   0,
 		},
 		GoTypes:           file_capabilities_proto_goTypes,
