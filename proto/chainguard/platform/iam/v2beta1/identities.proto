@@ -130,6 +130,20 @@ service IdentitiesService {
       open_world: false
     };
   }
+
+  // LookupIdentity resolves an OIDC issuer and subject to a Chainguard
+  // identity UID. If no identity exists yet, returns the deterministic UID
+  // the identity will receive upon registration — enabling role bindings
+  // to be created before the user signs up.
+  //
+  // This is an unscoped endpoint: any authenticated caller may invoke it.
+  rpc LookupIdentity(LookupIdentityRequest) returns (LookupIdentityResponse) {
+    option (google.api.http) = {get: "/iam/v2beta1/identities:lookupIdentity"};
+    option (chainguard.annotations.iam) = {
+      enabled: {unscoped: true}
+    };
+    option (chainguard.annotations.mcp) = {hidden: true};
+  }
 }
 
 // Identity represents an IAM identity.
@@ -366,6 +380,23 @@ message ListIdentitiesResponse {
   // Number of results that were skipped.
   // Accumulates across paginated requests.
   int32 skipped = 4;
+}
+
+// LookupIdentityRequest is the request for LookupIdentity.
+message LookupIdentityRequest {
+  // The OIDC issuer URL (e.g. "https://accounts.google.com").
+  string issuer = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The OIDC subject identifier.
+  string subject = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// LookupIdentityResponse is the response for LookupIdentity.
+message LookupIdentityResponse {
+  // The Chainguard identity UID matching the issuer/subject.
+  // If no identity exists yet, this is the deterministic UID
+  // the identity will receive upon future registration.
+  string uid = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // RelationshipType represents the type of identity relationship.

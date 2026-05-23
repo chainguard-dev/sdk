@@ -774,6 +774,109 @@ func (x *ListIdentitiesResponse) GetSkipped() int32 {
 	return 0
 }
 
+// LookupIdentityRequest is the request for LookupIdentity.
+type LookupIdentityRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The OIDC issuer URL (e.g. "https://accounts.google.com").
+	Issuer string `protobuf:"bytes,1,opt,name=issuer,proto3" json:"issuer,omitempty"`
+	// The OIDC subject identifier.
+	Subject       string `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LookupIdentityRequest) Reset() {
+	*x = LookupIdentityRequest{}
+	mi := &file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LookupIdentityRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LookupIdentityRequest) ProtoMessage() {}
+
+func (x *LookupIdentityRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LookupIdentityRequest.ProtoReflect.Descriptor instead.
+func (*LookupIdentityRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_identities_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *LookupIdentityRequest) GetIssuer() string {
+	if x != nil {
+		return x.Issuer
+	}
+	return ""
+}
+
+func (x *LookupIdentityRequest) GetSubject() string {
+	if x != nil {
+		return x.Subject
+	}
+	return ""
+}
+
+// LookupIdentityResponse is the response for LookupIdentity.
+type LookupIdentityResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The Chainguard identity UID matching the issuer/subject.
+	// If no identity exists yet, this is the deterministic UID
+	// the identity will receive upon future registration.
+	Uid           string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LookupIdentityResponse) Reset() {
+	*x = LookupIdentityResponse{}
+	mi := &file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LookupIdentityResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LookupIdentityResponse) ProtoMessage() {}
+
+func (x *LookupIdentityResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LookupIdentityResponse.ProtoReflect.Descriptor instead.
+func (*LookupIdentityResponse) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_identities_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *LookupIdentityResponse) GetUid() string {
+	if x != nil {
+		return x.Uid
+	}
+	return ""
+}
+
 // ClaimMatch checks the third party IdP token's claims against configured patterns.
 type Identity_ClaimMatch struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -809,7 +912,7 @@ type Identity_ClaimMatch struct {
 
 func (x *Identity_ClaimMatch) Reset() {
 	*x = Identity_ClaimMatch{}
-	mi := &file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[7]
+	mi := &file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -821,7 +924,7 @@ func (x *Identity_ClaimMatch) String() string {
 func (*Identity_ClaimMatch) ProtoMessage() {}
 
 func (x *Identity_ClaimMatch) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[7]
+	mi := &file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1006,7 +1109,7 @@ type Identity_StaticKeys struct {
 
 func (x *Identity_StaticKeys) Reset() {
 	*x = Identity_StaticKeys{}
-	mi := &file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[8]
+	mi := &file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1018,7 +1121,7 @@ func (x *Identity_StaticKeys) String() string {
 func (*Identity_StaticKeys) ProtoMessage() {}
 
 func (x *Identity_StaticKeys) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[8]
+	mi := &file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1094,7 +1197,7 @@ type Identity_AWSIdentity struct {
 
 func (x *Identity_AWSIdentity) Reset() {
 	*x = Identity_AWSIdentity{}
-	mi := &file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[9]
+	mi := &file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1106,7 +1209,7 @@ func (x *Identity_AWSIdentity) String() string {
 func (*Identity_AWSIdentity) ProtoMessage() {}
 
 func (x *Identity_AWSIdentity) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[9]
+	mi := &file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1313,7 +1416,12 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\vtotal_count\x18\x03 \x01(\x03H\x00R\n" +
 	"totalCount\x88\x01\x01\x12\x18\n" +
 	"\askipped\x18\x04 \x01(\x05R\askippedB\x0e\n" +
-	"\f_total_count*\xc3\x01\n" +
+	"\f_total_count\"U\n" +
+	"\x15LookupIdentityRequest\x12\x1c\n" +
+	"\x06issuer\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x06issuer\x12\x1e\n" +
+	"\asubject\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\asubject\"0\n" +
+	"\x16LookupIdentityResponse\x12\x16\n" +
+	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid*\xc3\x01\n" +
 	"\x10RelationshipType\x12!\n" +
 	"\x1dRELATIONSHIP_TYPE_UNSPECIFIED\x10\x00\x12!\n" +
 	"\x1dRELATIONSHIP_TYPE_CLAIM_MATCH\x10\x01\x12\x1c\n" +
@@ -1330,7 +1438,7 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	" SERVICE_PRINCIPAL_TENANT_SCANNER\x10\x06\x12#\n" +
 	"\x1fSERVICE_PRINCIPAL_SEDIMENTOLOGY\x10\a\x12\x1d\n" +
 	"\x19SERVICE_PRINCIPAL_SKILLUP\x10\b\x12\"\n" +
-	"\x1eSERVICE_PRINCIPAL_MATERIALIZER\x10\t2\xda\v\n" +
+	"\x1eSERVICE_PRINCIPAL_MATERIALIZER\x10\t2\xa0\r\n" +
 	"\x11IdentitiesService\x12\xe5\x02\n" +
 	"\x0eCreateIdentity\x126.chainguard.platform.iam.v2beta1.CreateIdentityRequest\x1a).chainguard.platform.iam.v2beta1.Identity\"\xef\x01\x82\xd3\xe4\x93\x02/:\bidentity\"#/iam/v2beta1/identities/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x85\a\x9a\xaf\xa8\xd2\x05m\n" +
@@ -1349,7 +1457,8 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"*dev.chainguard.api.iam.identity.updated.v1\x12\x05group\x18\x01\x12\xad\x02\n" +
 	"\x0eListIdentities\x126.chainguard.platform.iam.v2beta1.ListIdentitiesRequest\x1a7.chainguard.platform.iam.v2beta1.ListIdentitiesResponse\"\xa9\x01\x82\xd3\xe4\x93\x02\x19\x12\x17/iam/v2beta1/identities\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\x87\a\x10\x01\x9a\xaf\xa8\xd2\x05v\n" +
-	"lList IAM identities the caller has access to. Supports filtering by name, relationship type, and pagination.\x18\x01 \x00(\x010\x00Br\n" +
+	"lList IAM identities the caller has access to. Supports filtering by name, relationship type, and pagination.\x18\x01 \x00(\x010\x00\x12\xc3\x01\n" +
+	"\x0eLookupIdentity\x126.chainguard.platform.iam.v2beta1.LookupIdentityRequest\x1a7.chainguard.platform.iam.v2beta1.LookupIdentityResponse\"@\x82\xd3\xe4\x93\x02(\x12&/iam/v2beta1/identities:lookupIdentity\x8a\xaf\xa8\xd2\x05\x04\x12\x02\x10\x01\x9a\xaf\xa8\xd2\x05\x02\x10\x01Br\n" +
 	"#com.chainguard.platform.iam.v2beta1B\x0fIdentitiesProtoP\x01Z8chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1b\x06proto3"
 
 var (
@@ -1365,7 +1474,7 @@ func file_chainguard_platform_iam_v2beta1_identities_proto_rawDescGZIP() []byte 
 }
 
 var file_chainguard_platform_iam_v2beta1_identities_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_chainguard_platform_iam_v2beta1_identities_proto_goTypes = []any{
 	(RelationshipType)(0),          // 0: chainguard.platform.iam.v2beta1.RelationshipType
 	(ServicePrincipal)(0),          // 1: chainguard.platform.iam.v2beta1.ServicePrincipal
@@ -1376,45 +1485,49 @@ var file_chainguard_platform_iam_v2beta1_identities_proto_goTypes = []any{
 	(*UpdateIdentityRequest)(nil),  // 6: chainguard.platform.iam.v2beta1.UpdateIdentityRequest
 	(*ListIdentitiesRequest)(nil),  // 7: chainguard.platform.iam.v2beta1.ListIdentitiesRequest
 	(*ListIdentitiesResponse)(nil), // 8: chainguard.platform.iam.v2beta1.ListIdentitiesResponse
-	(*Identity_ClaimMatch)(nil),    // 9: chainguard.platform.iam.v2beta1.Identity.ClaimMatch
-	(*Identity_StaticKeys)(nil),    // 10: chainguard.platform.iam.v2beta1.Identity.StaticKeys
-	(*Identity_AWSIdentity)(nil),   // 11: chainguard.platform.iam.v2beta1.Identity.AWSIdentity
-	nil,                            // 12: chainguard.platform.iam.v2beta1.Identity.ClaimMatch.ClaimsEntry
-	nil,                            // 13: chainguard.platform.iam.v2beta1.Identity.ClaimMatch.ClaimPatternsEntry
-	(*timestamppb.Timestamp)(nil),  // 14: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),  // 15: google.protobuf.FieldMask
-	(*v1.UIDPFilter)(nil),          // 16: chainguard.platform.common.UIDPFilter
-	(*emptypb.Empty)(nil),          // 17: google.protobuf.Empty
+	(*LookupIdentityRequest)(nil),  // 9: chainguard.platform.iam.v2beta1.LookupIdentityRequest
+	(*LookupIdentityResponse)(nil), // 10: chainguard.platform.iam.v2beta1.LookupIdentityResponse
+	(*Identity_ClaimMatch)(nil),    // 11: chainguard.platform.iam.v2beta1.Identity.ClaimMatch
+	(*Identity_StaticKeys)(nil),    // 12: chainguard.platform.iam.v2beta1.Identity.StaticKeys
+	(*Identity_AWSIdentity)(nil),   // 13: chainguard.platform.iam.v2beta1.Identity.AWSIdentity
+	nil,                            // 14: chainguard.platform.iam.v2beta1.Identity.ClaimMatch.ClaimsEntry
+	nil,                            // 15: chainguard.platform.iam.v2beta1.Identity.ClaimMatch.ClaimPatternsEntry
+	(*timestamppb.Timestamp)(nil),  // 16: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),  // 17: google.protobuf.FieldMask
+	(*v1.UIDPFilter)(nil),          // 18: chainguard.platform.common.UIDPFilter
+	(*emptypb.Empty)(nil),          // 19: google.protobuf.Empty
 }
 var file_chainguard_platform_iam_v2beta1_identities_proto_depIdxs = []int32{
-	14, // 0: chainguard.platform.iam.v2beta1.Identity.last_seen_time:type_name -> google.protobuf.Timestamp
-	14, // 1: chainguard.platform.iam.v2beta1.Identity.create_time:type_name -> google.protobuf.Timestamp
-	14, // 2: chainguard.platform.iam.v2beta1.Identity.update_time:type_name -> google.protobuf.Timestamp
-	9,  // 3: chainguard.platform.iam.v2beta1.Identity.claim_match:type_name -> chainguard.platform.iam.v2beta1.Identity.ClaimMatch
-	10, // 4: chainguard.platform.iam.v2beta1.Identity.static_keys:type_name -> chainguard.platform.iam.v2beta1.Identity.StaticKeys
-	11, // 5: chainguard.platform.iam.v2beta1.Identity.aws_identity:type_name -> chainguard.platform.iam.v2beta1.Identity.AWSIdentity
+	16, // 0: chainguard.platform.iam.v2beta1.Identity.last_seen_time:type_name -> google.protobuf.Timestamp
+	16, // 1: chainguard.platform.iam.v2beta1.Identity.create_time:type_name -> google.protobuf.Timestamp
+	16, // 2: chainguard.platform.iam.v2beta1.Identity.update_time:type_name -> google.protobuf.Timestamp
+	11, // 3: chainguard.platform.iam.v2beta1.Identity.claim_match:type_name -> chainguard.platform.iam.v2beta1.Identity.ClaimMatch
+	12, // 4: chainguard.platform.iam.v2beta1.Identity.static_keys:type_name -> chainguard.platform.iam.v2beta1.Identity.StaticKeys
+	13, // 5: chainguard.platform.iam.v2beta1.Identity.aws_identity:type_name -> chainguard.platform.iam.v2beta1.Identity.AWSIdentity
 	1,  // 6: chainguard.platform.iam.v2beta1.Identity.service_principal:type_name -> chainguard.platform.iam.v2beta1.ServicePrincipal
 	2,  // 7: chainguard.platform.iam.v2beta1.CreateIdentityRequest.identity:type_name -> chainguard.platform.iam.v2beta1.Identity
 	2,  // 8: chainguard.platform.iam.v2beta1.UpdateIdentityRequest.identity:type_name -> chainguard.platform.iam.v2beta1.Identity
-	15, // 9: chainguard.platform.iam.v2beta1.UpdateIdentityRequest.update_mask:type_name -> google.protobuf.FieldMask
-	16, // 10: chainguard.platform.iam.v2beta1.ListIdentitiesRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	17, // 9: chainguard.platform.iam.v2beta1.UpdateIdentityRequest.update_mask:type_name -> google.protobuf.FieldMask
+	18, // 10: chainguard.platform.iam.v2beta1.ListIdentitiesRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
 	0,  // 11: chainguard.platform.iam.v2beta1.ListIdentitiesRequest.relationship_type:type_name -> chainguard.platform.iam.v2beta1.RelationshipType
 	2,  // 12: chainguard.platform.iam.v2beta1.ListIdentitiesResponse.identities:type_name -> chainguard.platform.iam.v2beta1.Identity
-	12, // 13: chainguard.platform.iam.v2beta1.Identity.ClaimMatch.claims:type_name -> chainguard.platform.iam.v2beta1.Identity.ClaimMatch.ClaimsEntry
-	13, // 14: chainguard.platform.iam.v2beta1.Identity.ClaimMatch.claim_patterns:type_name -> chainguard.platform.iam.v2beta1.Identity.ClaimMatch.ClaimPatternsEntry
-	14, // 15: chainguard.platform.iam.v2beta1.Identity.StaticKeys.expiration_time:type_name -> google.protobuf.Timestamp
+	14, // 13: chainguard.platform.iam.v2beta1.Identity.ClaimMatch.claims:type_name -> chainguard.platform.iam.v2beta1.Identity.ClaimMatch.ClaimsEntry
+	15, // 14: chainguard.platform.iam.v2beta1.Identity.ClaimMatch.claim_patterns:type_name -> chainguard.platform.iam.v2beta1.Identity.ClaimMatch.ClaimPatternsEntry
+	16, // 15: chainguard.platform.iam.v2beta1.Identity.StaticKeys.expiration_time:type_name -> google.protobuf.Timestamp
 	3,  // 16: chainguard.platform.iam.v2beta1.IdentitiesService.CreateIdentity:input_type -> chainguard.platform.iam.v2beta1.CreateIdentityRequest
 	4,  // 17: chainguard.platform.iam.v2beta1.IdentitiesService.GetIdentity:input_type -> chainguard.platform.iam.v2beta1.GetIdentityRequest
 	5,  // 18: chainguard.platform.iam.v2beta1.IdentitiesService.DeleteIdentity:input_type -> chainguard.platform.iam.v2beta1.DeleteIdentityRequest
 	6,  // 19: chainguard.platform.iam.v2beta1.IdentitiesService.UpdateIdentity:input_type -> chainguard.platform.iam.v2beta1.UpdateIdentityRequest
 	7,  // 20: chainguard.platform.iam.v2beta1.IdentitiesService.ListIdentities:input_type -> chainguard.platform.iam.v2beta1.ListIdentitiesRequest
-	2,  // 21: chainguard.platform.iam.v2beta1.IdentitiesService.CreateIdentity:output_type -> chainguard.platform.iam.v2beta1.Identity
-	2,  // 22: chainguard.platform.iam.v2beta1.IdentitiesService.GetIdentity:output_type -> chainguard.platform.iam.v2beta1.Identity
-	17, // 23: chainguard.platform.iam.v2beta1.IdentitiesService.DeleteIdentity:output_type -> google.protobuf.Empty
-	2,  // 24: chainguard.platform.iam.v2beta1.IdentitiesService.UpdateIdentity:output_type -> chainguard.platform.iam.v2beta1.Identity
-	8,  // 25: chainguard.platform.iam.v2beta1.IdentitiesService.ListIdentities:output_type -> chainguard.platform.iam.v2beta1.ListIdentitiesResponse
-	21, // [21:26] is the sub-list for method output_type
-	16, // [16:21] is the sub-list for method input_type
+	9,  // 21: chainguard.platform.iam.v2beta1.IdentitiesService.LookupIdentity:input_type -> chainguard.platform.iam.v2beta1.LookupIdentityRequest
+	2,  // 22: chainguard.platform.iam.v2beta1.IdentitiesService.CreateIdentity:output_type -> chainguard.platform.iam.v2beta1.Identity
+	2,  // 23: chainguard.platform.iam.v2beta1.IdentitiesService.GetIdentity:output_type -> chainguard.platform.iam.v2beta1.Identity
+	19, // 24: chainguard.platform.iam.v2beta1.IdentitiesService.DeleteIdentity:output_type -> google.protobuf.Empty
+	2,  // 25: chainguard.platform.iam.v2beta1.IdentitiesService.UpdateIdentity:output_type -> chainguard.platform.iam.v2beta1.Identity
+	8,  // 26: chainguard.platform.iam.v2beta1.IdentitiesService.ListIdentities:output_type -> chainguard.platform.iam.v2beta1.ListIdentitiesResponse
+	10, // 27: chainguard.platform.iam.v2beta1.IdentitiesService.LookupIdentity:output_type -> chainguard.platform.iam.v2beta1.LookupIdentityResponse
+	22, // [22:28] is the sub-list for method output_type
+	16, // [16:22] is the sub-list for method input_type
 	16, // [16:16] is the sub-list for extension type_name
 	16, // [16:16] is the sub-list for extension extendee
 	0,  // [0:16] is the sub-list for field type_name
@@ -1432,7 +1545,7 @@ func file_chainguard_platform_iam_v2beta1_identities_proto_init() {
 		(*Identity_ServicePrincipal)(nil),
 	}
 	file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[6].OneofWrappers = []any{}
-	file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[7].OneofWrappers = []any{
+	file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[9].OneofWrappers = []any{
 		(*Identity_ClaimMatch_Issuer)(nil),
 		(*Identity_ClaimMatch_IssuerPattern)(nil),
 		(*Identity_ClaimMatch_Subject)(nil),
@@ -1440,7 +1553,7 @@ func file_chainguard_platform_iam_v2beta1_identities_proto_init() {
 		(*Identity_ClaimMatch_Audience)(nil),
 		(*Identity_ClaimMatch_AudiencePattern)(nil),
 	}
-	file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[9].OneofWrappers = []any{
+	file_chainguard_platform_iam_v2beta1_identities_proto_msgTypes[11].OneofWrappers = []any{
 		(*Identity_AWSIdentity_Arn)(nil),
 		(*Identity_AWSIdentity_ArnPattern)(nil),
 		(*Identity_AWSIdentity_UserId)(nil),
@@ -1452,7 +1565,7 @@ func file_chainguard_platform_iam_v2beta1_identities_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc), len(file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   12,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
