@@ -89,6 +89,101 @@ func TestParse(t *testing.T) {
 			},
 		},
 		{
+			name: "valid with requirement required",
+			input: `{
+				"images": {
+					"nginx": {
+						"values": {
+							"image": "${registry}"
+						},
+						"requirement": "required"
+					}
+				}
+			}`,
+			want: &Mapping{
+				Images: map[string]*Image{
+					"nginx": {
+						Values:      map[string]any{"image": "${registry}"},
+						Requirement: Required,
+					},
+				},
+			},
+		},
+		{
+			name: "valid with requirement optional",
+			input: `{
+				"images": {
+					"nginx": {
+						"values": {
+							"image": "${registry}"
+						},
+						"requirement": "optional"
+					}
+				}
+			}`,
+			want: &Mapping{
+				Images: map[string]*Image{
+					"nginx": {
+						Values:      map[string]any{"image": "${registry}"},
+						Requirement: Optional,
+					},
+				},
+			},
+		},
+		{
+			name: "valid with empty requirement",
+			input: `{
+				"images": {
+					"nginx": {
+						"values": {
+							"image": "${registry}"
+						}
+					}
+				}
+			}`,
+			want: &Mapping{
+				Images: map[string]*Image{
+					"nginx": {
+						Values: map[string]any{"image": "${registry}"},
+					},
+				},
+			},
+		},
+		{
+			name: "invalid requirement value",
+			input: `{
+				"images": {
+					"nginx": {
+						"values": {
+							"image": "${registry}"
+						},
+						"requirement": "fake"
+					}
+				}
+			}`,
+			wantErr: "invalid requirement",
+		},
+		{
+			name: "explicit empty requirement string",
+			input: `{
+				"images": {
+					"nginx": {
+						"values": {
+							"image": "${registry}"
+						},
+						"requirement": ""
+					}
+				}
+			}`,
+			want: &Mapping{
+				Images: map[string]*Image{
+					"nginx": {
+						Values: map[string]any{"image": "${registry}"},
+					},
+				},
+			},
+		},
+		{
 			name: "valid with non-string values",
 			input: `{
 				"images": {

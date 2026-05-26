@@ -45,9 +45,29 @@ type Mapping struct {
 	Images map[string]*Image `json:"images"`
 }
 
+// Requirement represents whether an image is required or optional for a chart.
+type Requirement string
+
+const (
+	// RequirementUnspecified is the zero value; treated as required.
+	RequirementUnspecified Requirement = ""
+	// Required indicates the image must be present.
+	Required Requirement = "required"
+	// Optional indicates the image may be omitted.
+	Optional Requirement = "optional"
+)
+
+// IsOptional reports whether the image may be omitted.
+// Unspecified and required both return false, so the default
+// behavior fails closed (image is required).
+func (r Requirement) IsOptional() bool {
+	return r == Optional
+}
+
 // Image defines how a single container image maps to values.yaml paths.
 type Image struct {
-	Values map[string]any `json:"values"`
+	Values      map[string]any `json:"values"`
+	Requirement Requirement    `json:"requirement,omitempty"`
 }
 
 // WalkFunc is the callback signature for Mapping.Walk.
@@ -72,6 +92,9 @@ func Parse(r io.Reader) (*Mapping, error) {
 		}
 		if img.Values == nil {
 			return nil, fmt.Errorf("image %q: missing 'values' field", id)
+		}
+		if img.Requirement != "" && img.Requirement != Required && img.Requirement != Optional {
+			return nil, fmt.Errorf("image %q: invalid requirement %q, must be %q or %q", id, img.Requirement, Required, Optional)
 		}
 		if err := validateMarkers(img.Values); err != nil {
 			return nil, fmt.Errorf("image %q: %w", id, err)
