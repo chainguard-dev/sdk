@@ -89,6 +89,101 @@ func TestParse(t *testing.T) {
 			},
 		},
 		{
+			name: "valid with requirement required",
+			input: `{
+				"images": {
+					"nginx": {
+						"values": {
+							"image": "${registry}"
+						},
+						"requirement": "required"
+					}
+				}
+			}`,
+			want: &Mapping{
+				Images: map[string]*Image{
+					"nginx": {
+						Values:      map[string]any{"image": "${registry}"},
+						Requirement: Required,
+					},
+				},
+			},
+		},
+		{
+			name: "valid with requirement optional",
+			input: `{
+				"images": {
+					"nginx": {
+						"values": {
+							"image": "${registry}"
+						},
+						"requirement": "optional"
+					}
+				}
+			}`,
+			want: &Mapping{
+				Images: map[string]*Image{
+					"nginx": {
+						Values:      map[string]any{"image": "${registry}"},
+						Requirement: Optional,
+					},
+				},
+			},
+		},
+		{
+			name: "valid with empty requirement",
+			input: `{
+				"images": {
+					"nginx": {
+						"values": {
+							"image": "${registry}"
+						}
+					}
+				}
+			}`,
+			want: &Mapping{
+				Images: map[string]*Image{
+					"nginx": {
+						Values: map[string]any{"image": "${registry}"},
+					},
+				},
+			},
+		},
+		{
+			name: "invalid requirement value",
+			input: `{
+				"images": {
+					"nginx": {
+						"values": {
+							"image": "${registry}"
+						},
+						"requirement": "fake"
+					}
+				}
+			}`,
+			wantErr: "invalid requirement",
+		},
+		{
+			name: "explicit empty requirement string",
+			input: `{
+				"images": {
+					"nginx": {
+						"values": {
+							"image": "${registry}"
+						},
+						"requirement": ""
+					}
+				}
+			}`,
+			want: &Mapping{
+				Images: map[string]*Image{
+					"nginx": {
+						Values: map[string]any{"image": "${registry}"},
+					},
+				},
+			},
+		},
+		{
 			name: "valid with non-string values",
 			input: `{
 				"images": {
@@ -499,7 +594,7 @@ func TestWalk(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			cb := tc.callback
 			if cb == nil {
-				cb = Resolve(tc.refs, &resolveConfig{omitDigests: false})
+				cb = Resolve(tc.refs)
 			}
 			got, err := tc.mapping.Walk(cb)
 
@@ -858,7 +953,7 @@ image:
 				"nginx": "cgr.dev/chainguard/nginx:latest@sha256:abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234",
 			},
 			valuesYAML: ``,
-			wantErr:    "yaml",
+			wantErr:    "does not exist",
 		},
 		{
 			name: "malformed yaml returns error",
@@ -1003,6 +1098,92 @@ baz~qux:
 			want: `image:
   pseudoTag: v1.0
 `,
+		},
+
+		// WithAddMissing cases
+		{
+			name: "addMissing adds missing top-level key",
+			mapping: &Mapping{
+				Images: map[string]*Image{
+					"nginx": {Values: map[string]any{
+						"image": map[string]any{"registry": "${registry}"},
+					}},
+				},
+			},
+			refs: map[string]string{
+				"nginx": "cgr.dev/chainguard/nginx:latest@sha256:abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234",
+			},
+			opts:       []ResolveOption{WithAddMissing(true)},
+			valuesYAML: `existing: value` + "\n",
+			want: `existing: value
+image:
+  registry: cgr.dev
+`,
+		},
+		{
+			name: "addMissing adds child to existing parent",
+			mapping: &Mapping{
+				Images: map[string]*Image{
+					"nginx": {Values: map[string]any{
+						"image": map[string]any{"registry": "${registry}"},
+					}},
+				},
+			},
+			refs: map[string]string{
+				"nginx": "cgr.dev/chainguard/nginx:latest@sha256:abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234",
+			},
+			opts: []ResolveOption{WithAddMissing(true)},
+			valuesYAML: `image:
+  tag: latest
+`,
+			want: `image:
+  tag: latest
+  registry: cgr.dev
+`,
+		},
+		{
+			name: "addMissing with deeply nested mix of existing and missing",
+			mapping: &Mapping{
+				Images: map[string]*Image{
+					"nginx": {Values: map[string]any{
+						"proxy": map[string]any{
+							"image": map[string]any{
+								"registry": "${registry}",
+								"digest":   "${digest}",
+							},
+						},
+					}},
+				},
+			},
+			refs: map[string]string{
+				"nginx": "cgr.dev/chainguard/nginx:latest@sha256:abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234",
+			},
+			opts: []ResolveOption{WithAddMissing(true)},
+			valuesYAML: `proxy:
+  enabled: true
+`,
+			want: `proxy:
+  enabled: true
+  image:
+    digest: sha256:abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234
+    registry: cgr.dev
+`,
+		},
+		{
+			name: "addMissing on empty document seeds a root mapping",
+			mapping: &Mapping{
+				Images: map[string]*Image{
+					"nginx": {Values: map[string]any{
+						"image": map[string]any{"registry": "${registry}"},
+					}},
+				},
+			},
+			refs: map[string]string{
+				"nginx": "cgr.dev/chainguard/nginx:latest@sha256:abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234",
+			},
+			opts:       []ResolveOption{WithAddMissing(true)},
+			valuesYAML: ``,
+			want:       "{image: {registry: cgr.dev}}\n",
 		},
 	}
 

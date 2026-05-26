@@ -74,7 +74,11 @@ func NewRef(reference string) (OCIRef, error) {
 }
 
 // Resolve returns a WalkFunc that resolves tokens to strings using refs.
-func Resolve(refs map[string]OCIRef, cfg *resolveConfig) WalkFunc {
+func Resolve(refs map[string]OCIRef, opts ...ResolveOption) WalkFunc {
+	cfg := &resolveConfig{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
 	return func(imageID string, tokens TokenList) (any, error) {
 		ref, ok := refs[imageID]
 		if !ok {

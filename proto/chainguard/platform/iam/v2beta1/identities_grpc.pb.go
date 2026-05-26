@@ -28,6 +28,7 @@ const (
 	IdentitiesService_DeleteIdentity_FullMethodName = "/chainguard.platform.iam.v2beta1.IdentitiesService/DeleteIdentity"
 	IdentitiesService_UpdateIdentity_FullMethodName = "/chainguard.platform.iam.v2beta1.IdentitiesService/UpdateIdentity"
 	IdentitiesService_ListIdentities_FullMethodName = "/chainguard.platform.iam.v2beta1.IdentitiesService/ListIdentities"
+	IdentitiesService_LookupIdentity_FullMethodName = "/chainguard.platform.iam.v2beta1.IdentitiesService/LookupIdentity"
 )
 
 // IdentitiesServiceClient is the client API for IdentitiesService service.
@@ -47,6 +48,13 @@ type IdentitiesServiceClient interface {
 	UpdateIdentity(ctx context.Context, in *UpdateIdentityRequest, opts ...grpc.CallOption) (*Identity, error)
 	// ListIdentities returns identities based on filter criteria with pagination support.
 	ListIdentities(ctx context.Context, in *ListIdentitiesRequest, opts ...grpc.CallOption) (*ListIdentitiesResponse, error)
+	// LookupIdentity resolves an OIDC issuer and subject to a Chainguard
+	// identity UID. If no identity exists yet, returns the deterministic UID
+	// the identity will receive upon registration — enabling role bindings
+	// to be created before the user signs up.
+	//
+	// This is an unscoped endpoint: any authenticated caller may invoke it.
+	LookupIdentity(ctx context.Context, in *LookupIdentityRequest, opts ...grpc.CallOption) (*LookupIdentityResponse, error)
 }
 
 type identitiesServiceClient struct {
@@ -107,6 +115,16 @@ func (c *identitiesServiceClient) ListIdentities(ctx context.Context, in *ListId
 	return out, nil
 }
 
+func (c *identitiesServiceClient) LookupIdentity(ctx context.Context, in *LookupIdentityRequest, opts ...grpc.CallOption) (*LookupIdentityResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LookupIdentityResponse)
+	err := c.cc.Invoke(ctx, IdentitiesService_LookupIdentity_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // IdentitiesServiceServer is the server API for IdentitiesService service.
 // All implementations must embed UnimplementedIdentitiesServiceServer
 // for forward compatibility.
@@ -124,6 +142,13 @@ type IdentitiesServiceServer interface {
 	UpdateIdentity(context.Context, *UpdateIdentityRequest) (*Identity, error)
 	// ListIdentities returns identities based on filter criteria with pagination support.
 	ListIdentities(context.Context, *ListIdentitiesRequest) (*ListIdentitiesResponse, error)
+	// LookupIdentity resolves an OIDC issuer and subject to a Chainguard
+	// identity UID. If no identity exists yet, returns the deterministic UID
+	// the identity will receive upon registration — enabling role bindings
+	// to be created before the user signs up.
+	//
+	// This is an unscoped endpoint: any authenticated caller may invoke it.
+	LookupIdentity(context.Context, *LookupIdentityRequest) (*LookupIdentityResponse, error)
 	mustEmbedUnimplementedIdentitiesServiceServer()
 }
 
@@ -148,6 +173,9 @@ func (UnimplementedIdentitiesServiceServer) UpdateIdentity(context.Context, *Upd
 }
 func (UnimplementedIdentitiesServiceServer) ListIdentities(context.Context, *ListIdentitiesRequest) (*ListIdentitiesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListIdentities not implemented")
+}
+func (UnimplementedIdentitiesServiceServer) LookupIdentity(context.Context, *LookupIdentityRequest) (*LookupIdentityResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method LookupIdentity not implemented")
 }
 func (UnimplementedIdentitiesServiceServer) mustEmbedUnimplementedIdentitiesServiceServer() {}
 func (UnimplementedIdentitiesServiceServer) testEmbeddedByValue()                           {}
@@ -260,6 +288,24 @@ func _IdentitiesService_ListIdentities_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _IdentitiesService_LookupIdentity_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LookupIdentityRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IdentitiesServiceServer).LookupIdentity(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IdentitiesService_LookupIdentity_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IdentitiesServiceServer).LookupIdentity(ctx, req.(*LookupIdentityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // IdentitiesService_ServiceDesc is the grpc.ServiceDesc for IdentitiesService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -286,6 +332,10 @@ var IdentitiesService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListIdentities",
 			Handler:    _IdentitiesService_ListIdentities_Handler,
+		},
+		{
+			MethodName: "LookupIdentity",
+			Handler:    _IdentitiesService_LookupIdentity_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
