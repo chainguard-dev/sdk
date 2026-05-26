@@ -12,20 +12,30 @@ import (
 	"slices"
 
 	yamlpatch "github.com/palantir/pkg/yamlpatch"
+	"gopkg.in/yaml.v3"
 )
 
 // ResolveOption allows customizing the resolution process.
 type ResolveOption func(*resolveConfig)
 
-// resolveConfig holds configuration for the Resolve method, including the resolver function.
 type resolveConfig struct {
 	omitDigests bool
+	addMissing  bool
 }
 
-// WithOmitDigests allows users to customize the pinning behavior. Default is false.
+// WithOmitDigests controls whether digests are included in resolved values. Default is false.
 func WithOmitDigests(omitDigests bool) ResolveOption {
 	return func(cfg *resolveConfig) {
 		cfg.omitDigests = omitDigests
+	}
+}
+
+// WithAddMissing controls whether paths not present in the target YAML are
+// added (true) or cause an error (false, the default). Use this when patching
+// values that may not have pre-existing entries, such as subchart overrides.
+func WithAddMissing(addMissing bool) ResolveOption {
+	return func(cfg *resolveConfig) {
+		cfg.addMissing = addMissing
 	}
 }
 
@@ -205,6 +215,9 @@ func merge(dst, src map[string]any) error {
 
 // Resolve resolves all image references in the mapping and patches the results
 // into the provided values.yaml content, preserving YAML comments and formatting.
+//
+// By default, all template paths must exist in the YAML — an error is returned
+// for missing paths. Use [WithAddMissing] to allow missing paths to be added.
 func (m *Mapping) Resolve(refs map[string]string, valuesr io.Reader, opts ...ResolveOption) ([]byte, error) {
 	original, err := io.ReadAll(valuesr)
 	if err != nil {
@@ -215,7 +228,6 @@ func (m *Mapping) Resolve(refs map[string]string, valuesr io.Reader, opts ...Res
 		return original, nil
 	}
 
-	// Apply options
 	cfg := &resolveConfig{}
 	for _, opt := range opts {
 		opt(cfg)
@@ -230,7 +242,7 @@ func (m *Mapping) Resolve(refs map[string]string, valuesr io.Reader, opts ...Res
 		ociRefs[id] = ociRef
 	}
 
-	imageValues, err := m.Walk(Resolve(ociRefs, cfg))
+	imageValues, err := m.Walk(Resolve(ociRefs, opts...))
 	if err != nil {
 		return nil, err
 	}
@@ -240,23 +252,78 @@ func (m *Mapping) Resolve(refs map[string]string, valuesr io.Reader, opts ...Res
 		return nil, err
 	}
 
-	var patch yamlpatch.Patch
-	var walk func(path yamlpatch.Path, m map[string]any)
-	walk = func(path yamlpatch.Path, m map[string]any) {
-		for k, v := range m {
-			p := append(slices.Clone(path), k)
-			if nested, ok := v.(map[string]any); ok {
-				walk(p, nested)
-			} else {
-				patch = append(patch, yamlpatch.Operation{
-					Type:  yamlpatch.OperationReplace,
-					Path:  p,
-					Value: v,
-				})
+	paths, err := newYAMLPaths(original)
+	if err != nil {
+		return nil, fmt.Errorf("parsing values: %w", err)
+	}
+
+	patch := paths.buildPatch(yamlpatch.Path{""}, merged)
+
+	if !cfg.addMissing {
+		for _, op := range patch {
+			if op.Type == yamlpatch.OperationAdd {
+				return nil, fmt.Errorf("path %s does not exist in values", op.Path)
 			}
 		}
 	}
-	walk(yamlpatch.Path{""}, merged)
+
+	// yamlpatch requires a root mapping node; seed one if the document is empty.
+	if paths.children == nil && len(patch) > 0 {
+		original = []byte("{}\n")
+	}
 
 	return yamlpatch.Apply(original, patch)
+}
+
+// yamlPaths mirrors the key hierarchy of a YAML document as a tree.
+// buildPatch walks this tree alongside the values map to decide whether
+// each operation should Add (missing path) or Replace (existing path).
+type yamlPaths struct {
+	children map[string]*yamlPaths
+}
+
+func newYAMLPaths(data []byte) (*yamlPaths, error) {
+	var doc yaml.Node
+	if err := yaml.Unmarshal(data, &doc); err != nil {
+		return nil, err
+	}
+	root := &yamlPaths{}
+	if doc.Kind == yaml.DocumentNode && len(doc.Content) > 0 {
+		root.collect(doc.Content[0])
+	}
+	return root, nil
+}
+
+func (yp *yamlPaths) collect(node *yaml.Node) {
+	if node.Kind != yaml.MappingNode {
+		return
+	}
+	yp.children = make(map[string]*yamlPaths, len(node.Content)/2)
+	for i := 0; i+1 < len(node.Content); i += 2 {
+		child := &yamlPaths{}
+		child.collect(node.Content[i+1])
+		yp.children[node.Content[i].Value] = child
+	}
+}
+
+// buildPatch generates yamlpatch operations for the given values.
+// Existing paths produce Replace; missing paths produce Add.
+func (yp *yamlPaths) buildPatch(path yamlpatch.Path, m map[string]any) yamlpatch.Patch {
+	var patch yamlpatch.Patch
+	for k, v := range m {
+		p := append(slices.Clone(path), k)
+		child := yp.children[k]
+		nested, isMap := v.(map[string]any)
+		switch {
+		case isMap && child != nil:
+			patch = append(patch, child.buildPatch(p, nested)...)
+		case isMap:
+			patch = append(patch, yamlpatch.Operation{Type: yamlpatch.OperationAdd, Path: p, Value: v})
+		case child != nil:
+			patch = append(patch, yamlpatch.Operation{Type: yamlpatch.OperationReplace, Path: p, Value: v})
+		default:
+			patch = append(patch, yamlpatch.Operation{Type: yamlpatch.OperationAdd, Path: p, Value: v})
+		}
+	}
+	return patch
 }
