@@ -6,8 +6,9 @@ package chainguard.platform.policygates.v1;
 
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
 import "annotations/auth.proto";
 import "platform/common/v1/uidp.platform.proto";
 
@@ -115,6 +116,50 @@ enum PolicyType {
   POLICY_TYPE_CUSTOM = 2;
 }
 
+// The data type of a configurable parameter on a Policy.
+enum ParameterType {
+  PARAMETER_TYPE_UNSPECIFIED = 0;
+  // A UTF-8 string value.
+  PARAMETER_TYPE_STRING      = 1;
+  // A signed 64-bit integer value.
+  PARAMETER_TYPE_INTEGER     = 2;
+  // A list of UTF-8 string values.
+  PARAMETER_TYPE_STRING_LIST = 3;
+}
+
+// ParameterSchema declares a single configurable parameter on a Policy.
+// Bindings supply values for these parameters at activation time.
+message ParameterSchema {
+  // The parameter name. Must be non-empty and unique within a Policy.
+  string name = 1;
+
+  // The data type of the parameter value.
+  ParameterType type = 2;
+
+  // A human-readable description of what this parameter controls.
+  string description = 3;
+
+  // The default value applied when a Binding omits this parameter.
+  google.protobuf.Value default = 4;
+
+  // The inclusive lower bound for numeric parameters (PARAMETER_TYPE_INTEGER).
+  google.protobuf.Value minimum = 5;
+
+  // The inclusive upper bound for numeric parameters (PARAMETER_TYPE_INTEGER).
+  google.protobuf.Value maximum = 6;
+
+  // The set of allowed values (PARAMETER_TYPE_STRING, PARAMETER_TYPE_INTEGER).
+  // Exact-match allowlist
+  repeated google.protobuf.Value allowed_values = 7;
+
+  // Whether the parameter must be supplied by the Binding.
+  bool required = 8;
+
+  // Whether the parameter is deprecated. Customers should migrate off
+  // deprecated parameters; new Bindings should not set them.
+  bool deprecated = 9;
+}
+
 // Policy defines a rule that can be evaluated on an image
 // in a repository, giving an "allowed" or "disallowed" decision.
 message Policy {
@@ -149,6 +194,11 @@ message Policy {
 
   // When the policy was last updated.
   google.protobuf.Timestamp updated_at = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The configurable parameter schemas declared by this policy. System
+  // policies declare these; customers configure values on the bindings that
+  // activate the policy.
+  repeated ParameterSchema parameter_schemas = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message PolicyList {
@@ -226,6 +276,18 @@ message Binding {
   // Supported resource types:
   //   - registry.chainguard.dev/Repo
   repeated string resource_types = 4;
+
+  // The parameter values supplied for this binding, keyed by parameter name.
+  // The set of valid keys and value types is declared by the referenced
+  // policy's parameter_schemas. Server-side validation rejects unknown keys
+  // and values that violate the schema.
+  map<string, google.protobuf.Value> parameters = 5;
+
+  // When the binding was created.
+  google.protobuf.Timestamp created_at = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // When the binding was last updated.
+  google.protobuf.Timestamp updated_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message BindingList {

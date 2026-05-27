@@ -13,6 +13,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -130,6 +131,183 @@ func (PolicyType) EnumDescriptor() ([]byte, []int) {
 	return file_policygates_platform_proto_rawDescGZIP(), []int{1}
 }
 
+// The data type of a configurable parameter on a Policy.
+type ParameterType int32
+
+const (
+	ParameterType_PARAMETER_TYPE_UNSPECIFIED ParameterType = 0
+	// A UTF-8 string value.
+	ParameterType_PARAMETER_TYPE_STRING ParameterType = 1
+	// A signed 64-bit integer value.
+	ParameterType_PARAMETER_TYPE_INTEGER ParameterType = 2
+	// A list of UTF-8 string values.
+	ParameterType_PARAMETER_TYPE_STRING_LIST ParameterType = 3
+)
+
+// Enum value maps for ParameterType.
+var (
+	ParameterType_name = map[int32]string{
+		0: "PARAMETER_TYPE_UNSPECIFIED",
+		1: "PARAMETER_TYPE_STRING",
+		2: "PARAMETER_TYPE_INTEGER",
+		3: "PARAMETER_TYPE_STRING_LIST",
+	}
+	ParameterType_value = map[string]int32{
+		"PARAMETER_TYPE_UNSPECIFIED": 0,
+		"PARAMETER_TYPE_STRING":      1,
+		"PARAMETER_TYPE_INTEGER":     2,
+		"PARAMETER_TYPE_STRING_LIST": 3,
+	}
+)
+
+func (x ParameterType) Enum() *ParameterType {
+	p := new(ParameterType)
+	*p = x
+	return p
+}
+
+func (x ParameterType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ParameterType) Descriptor() protoreflect.EnumDescriptor {
+	return file_policygates_platform_proto_enumTypes[2].Descriptor()
+}
+
+func (ParameterType) Type() protoreflect.EnumType {
+	return &file_policygates_platform_proto_enumTypes[2]
+}
+
+func (x ParameterType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ParameterType.Descriptor instead.
+func (ParameterType) EnumDescriptor() ([]byte, []int) {
+	return file_policygates_platform_proto_rawDescGZIP(), []int{2}
+}
+
+// ParameterSchema declares a single configurable parameter on a Policy.
+// Bindings supply values for these parameters at activation time.
+type ParameterSchema struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The parameter name. Must be non-empty and unique within a Policy.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// The data type of the parameter value.
+	Type ParameterType `protobuf:"varint,2,opt,name=type,proto3,enum=chainguard.platform.policygates.v1.ParameterType" json:"type,omitempty"`
+	// A human-readable description of what this parameter controls.
+	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	// The default value applied when a Binding omits this parameter.
+	Default *structpb.Value `protobuf:"bytes,4,opt,name=default,proto3" json:"default,omitempty"`
+	// The inclusive lower bound for numeric parameters (PARAMETER_TYPE_INTEGER).
+	Minimum *structpb.Value `protobuf:"bytes,5,opt,name=minimum,proto3" json:"minimum,omitempty"`
+	// The inclusive upper bound for numeric parameters (PARAMETER_TYPE_INTEGER).
+	Maximum *structpb.Value `protobuf:"bytes,6,opt,name=maximum,proto3" json:"maximum,omitempty"`
+	// The set of allowed values (PARAMETER_TYPE_STRING, PARAMETER_TYPE_INTEGER).
+	// Exact-match allowlist
+	AllowedValues []*structpb.Value `protobuf:"bytes,7,rep,name=allowed_values,json=allowedValues,proto3" json:"allowed_values,omitempty"`
+	// Whether the parameter must be supplied by the Binding.
+	Required bool `protobuf:"varint,8,opt,name=required,proto3" json:"required,omitempty"`
+	// Whether the parameter is deprecated. Customers should migrate off
+	// deprecated parameters; new Bindings should not set them.
+	Deprecated    bool `protobuf:"varint,9,opt,name=deprecated,proto3" json:"deprecated,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ParameterSchema) Reset() {
+	*x = ParameterSchema{}
+	mi := &file_policygates_platform_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ParameterSchema) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ParameterSchema) ProtoMessage() {}
+
+func (x *ParameterSchema) ProtoReflect() protoreflect.Message {
+	mi := &file_policygates_platform_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ParameterSchema.ProtoReflect.Descriptor instead.
+func (*ParameterSchema) Descriptor() ([]byte, []int) {
+	return file_policygates_platform_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *ParameterSchema) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ParameterSchema) GetType() ParameterType {
+	if x != nil {
+		return x.Type
+	}
+	return ParameterType_PARAMETER_TYPE_UNSPECIFIED
+}
+
+func (x *ParameterSchema) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *ParameterSchema) GetDefault() *structpb.Value {
+	if x != nil {
+		return x.Default
+	}
+	return nil
+}
+
+func (x *ParameterSchema) GetMinimum() *structpb.Value {
+	if x != nil {
+		return x.Minimum
+	}
+	return nil
+}
+
+func (x *ParameterSchema) GetMaximum() *structpb.Value {
+	if x != nil {
+		return x.Maximum
+	}
+	return nil
+}
+
+func (x *ParameterSchema) GetAllowedValues() []*structpb.Value {
+	if x != nil {
+		return x.AllowedValues
+	}
+	return nil
+}
+
+func (x *ParameterSchema) GetRequired() bool {
+	if x != nil {
+		return x.Required
+	}
+	return false
+}
+
+func (x *ParameterSchema) GetDeprecated() bool {
+	if x != nil {
+		return x.Deprecated
+	}
+	return false
+}
+
 // Policy defines a rule that can be evaluated on an image
 // in a repository, giving an "allowed" or "disallowed" decision.
 type Policy struct {
@@ -157,14 +335,18 @@ type Policy struct {
 	// When the policy was created.
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	// When the policy was last updated.
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	// The configurable parameter schemas declared by this policy. System
+	// policies declare these; customers configure values on the bindings that
+	// activate the policy.
+	ParameterSchemas []*ParameterSchema `protobuf:"bytes,9,rep,name=parameter_schemas,json=parameterSchemas,proto3" json:"parameter_schemas,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *Policy) Reset() {
 	*x = Policy{}
-	mi := &file_policygates_platform_proto_msgTypes[0]
+	mi := &file_policygates_platform_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -176,7 +358,7 @@ func (x *Policy) String() string {
 func (*Policy) ProtoMessage() {}
 
 func (x *Policy) ProtoReflect() protoreflect.Message {
-	mi := &file_policygates_platform_proto_msgTypes[0]
+	mi := &file_policygates_platform_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -189,7 +371,7 @@ func (x *Policy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Policy.ProtoReflect.Descriptor instead.
 func (*Policy) Descriptor() ([]byte, []int) {
-	return file_policygates_platform_proto_rawDescGZIP(), []int{0}
+	return file_policygates_platform_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Policy) GetId() string {
@@ -248,6 +430,13 @@ func (x *Policy) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Policy) GetParameterSchemas() []*ParameterSchema {
+	if x != nil {
+		return x.ParameterSchemas
+	}
+	return nil
+}
+
 type PolicyList struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The Policy items requested.
@@ -267,7 +456,7 @@ type PolicyList struct {
 
 func (x *PolicyList) Reset() {
 	*x = PolicyList{}
-	mi := &file_policygates_platform_proto_msgTypes[1]
+	mi := &file_policygates_platform_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -279,7 +468,7 @@ func (x *PolicyList) String() string {
 func (*PolicyList) ProtoMessage() {}
 
 func (x *PolicyList) ProtoReflect() protoreflect.Message {
-	mi := &file_policygates_platform_proto_msgTypes[1]
+	mi := &file_policygates_platform_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -292,7 +481,7 @@ func (x *PolicyList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PolicyList.ProtoReflect.Descriptor instead.
 func (*PolicyList) Descriptor() ([]byte, []int) {
-	return file_policygates_platform_proto_rawDescGZIP(), []int{1}
+	return file_policygates_platform_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *PolicyList) GetItems() []*Policy {
@@ -348,7 +537,7 @@ type PolicyFilter struct {
 
 func (x *PolicyFilter) Reset() {
 	*x = PolicyFilter{}
-	mi := &file_policygates_platform_proto_msgTypes[2]
+	mi := &file_policygates_platform_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -360,7 +549,7 @@ func (x *PolicyFilter) String() string {
 func (*PolicyFilter) ProtoMessage() {}
 
 func (x *PolicyFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_policygates_platform_proto_msgTypes[2]
+	mi := &file_policygates_platform_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -373,7 +562,7 @@ func (x *PolicyFilter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PolicyFilter.ProtoReflect.Descriptor instead.
 func (*PolicyFilter) Descriptor() ([]byte, []int) {
-	return file_policygates_platform_proto_rawDescGZIP(), []int{2}
+	return file_policygates_platform_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *PolicyFilter) GetUidp() *v1.UIDPFilter {
@@ -430,7 +619,7 @@ type CreatePolicyRequest struct {
 
 func (x *CreatePolicyRequest) Reset() {
 	*x = CreatePolicyRequest{}
-	mi := &file_policygates_platform_proto_msgTypes[3]
+	mi := &file_policygates_platform_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -442,7 +631,7 @@ func (x *CreatePolicyRequest) String() string {
 func (*CreatePolicyRequest) ProtoMessage() {}
 
 func (x *CreatePolicyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_policygates_platform_proto_msgTypes[3]
+	mi := &file_policygates_platform_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -455,7 +644,7 @@ func (x *CreatePolicyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreatePolicyRequest.ProtoReflect.Descriptor instead.
 func (*CreatePolicyRequest) Descriptor() ([]byte, []int) {
-	return file_policygates_platform_proto_rawDescGZIP(), []int{3}
+	return file_policygates_platform_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CreatePolicyRequest) GetParentId() string {
@@ -482,7 +671,7 @@ type DeletePolicyRequest struct {
 
 func (x *DeletePolicyRequest) Reset() {
 	*x = DeletePolicyRequest{}
-	mi := &file_policygates_platform_proto_msgTypes[4]
+	mi := &file_policygates_platform_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -494,7 +683,7 @@ func (x *DeletePolicyRequest) String() string {
 func (*DeletePolicyRequest) ProtoMessage() {}
 
 func (x *DeletePolicyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_policygates_platform_proto_msgTypes[4]
+	mi := &file_policygates_platform_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -507,7 +696,7 @@ func (x *DeletePolicyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeletePolicyRequest.ProtoReflect.Descriptor instead.
 func (*DeletePolicyRequest) Descriptor() ([]byte, []int) {
-	return file_policygates_platform_proto_rawDescGZIP(), []int{4}
+	return file_policygates_platform_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *DeletePolicyRequest) GetId() string {
@@ -535,13 +724,22 @@ type Binding struct {
 	// Supported resource types:
 	//   - registry.chainguard.dev/Repo
 	ResourceTypes []string `protobuf:"bytes,4,rep,name=resource_types,json=resourceTypes,proto3" json:"resource_types,omitempty"`
+	// The parameter values supplied for this binding, keyed by parameter name.
+	// The set of valid keys and value types is declared by the referenced
+	// policy's parameter_schemas. Server-side validation rejects unknown keys
+	// and values that violate the schema.
+	Parameters map[string]*structpb.Value `protobuf:"bytes,5,rep,name=parameters,proto3" json:"parameters,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// When the binding was created.
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// When the binding was last updated.
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Binding) Reset() {
 	*x = Binding{}
-	mi := &file_policygates_platform_proto_msgTypes[5]
+	mi := &file_policygates_platform_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -553,7 +751,7 @@ func (x *Binding) String() string {
 func (*Binding) ProtoMessage() {}
 
 func (x *Binding) ProtoReflect() protoreflect.Message {
-	mi := &file_policygates_platform_proto_msgTypes[5]
+	mi := &file_policygates_platform_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -566,7 +764,7 @@ func (x *Binding) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Binding.ProtoReflect.Descriptor instead.
 func (*Binding) Descriptor() ([]byte, []int) {
-	return file_policygates_platform_proto_rawDescGZIP(), []int{5}
+	return file_policygates_platform_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *Binding) GetId() string {
@@ -597,6 +795,27 @@ func (x *Binding) GetResourceTypes() []string {
 	return nil
 }
 
+func (x *Binding) GetParameters() map[string]*structpb.Value {
+	if x != nil {
+		return x.Parameters
+	}
+	return nil
+}
+
+func (x *Binding) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *Binding) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
 type BindingList struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The requested bindings.
@@ -616,7 +835,7 @@ type BindingList struct {
 
 func (x *BindingList) Reset() {
 	*x = BindingList{}
-	mi := &file_policygates_platform_proto_msgTypes[6]
+	mi := &file_policygates_platform_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -628,7 +847,7 @@ func (x *BindingList) String() string {
 func (*BindingList) ProtoMessage() {}
 
 func (x *BindingList) ProtoReflect() protoreflect.Message {
-	mi := &file_policygates_platform_proto_msgTypes[6]
+	mi := &file_policygates_platform_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -641,7 +860,7 @@ func (x *BindingList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BindingList.ProtoReflect.Descriptor instead.
 func (*BindingList) Descriptor() ([]byte, []int) {
-	return file_policygates_platform_proto_rawDescGZIP(), []int{6}
+	return file_policygates_platform_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *BindingList) GetItems() []*Binding {
@@ -695,7 +914,7 @@ type BindingFilter struct {
 
 func (x *BindingFilter) Reset() {
 	*x = BindingFilter{}
-	mi := &file_policygates_platform_proto_msgTypes[7]
+	mi := &file_policygates_platform_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -707,7 +926,7 @@ func (x *BindingFilter) String() string {
 func (*BindingFilter) ProtoMessage() {}
 
 func (x *BindingFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_policygates_platform_proto_msgTypes[7]
+	mi := &file_policygates_platform_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -720,7 +939,7 @@ func (x *BindingFilter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BindingFilter.ProtoReflect.Descriptor instead.
 func (*BindingFilter) Descriptor() ([]byte, []int) {
-	return file_policygates_platform_proto_rawDescGZIP(), []int{7}
+	return file_policygates_platform_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *BindingFilter) GetUidp() *v1.UIDPFilter {
@@ -768,7 +987,7 @@ type CreateBindingRequest struct {
 
 func (x *CreateBindingRequest) Reset() {
 	*x = CreateBindingRequest{}
-	mi := &file_policygates_platform_proto_msgTypes[8]
+	mi := &file_policygates_platform_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -780,7 +999,7 @@ func (x *CreateBindingRequest) String() string {
 func (*CreateBindingRequest) ProtoMessage() {}
 
 func (x *CreateBindingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_policygates_platform_proto_msgTypes[8]
+	mi := &file_policygates_platform_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -793,7 +1012,7 @@ func (x *CreateBindingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateBindingRequest.ProtoReflect.Descriptor instead.
 func (*CreateBindingRequest) Descriptor() ([]byte, []int) {
-	return file_policygates_platform_proto_rawDescGZIP(), []int{8}
+	return file_policygates_platform_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *CreateBindingRequest) GetParentId() string {
@@ -819,7 +1038,7 @@ type DeleteBindingRequest struct {
 
 func (x *DeleteBindingRequest) Reset() {
 	*x = DeleteBindingRequest{}
-	mi := &file_policygates_platform_proto_msgTypes[9]
+	mi := &file_policygates_platform_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -831,7 +1050,7 @@ func (x *DeleteBindingRequest) String() string {
 func (*DeleteBindingRequest) ProtoMessage() {}
 
 func (x *DeleteBindingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_policygates_platform_proto_msgTypes[9]
+	mi := &file_policygates_platform_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -844,7 +1063,7 @@ func (x *DeleteBindingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteBindingRequest.ProtoReflect.Descriptor instead.
 func (*DeleteBindingRequest) Descriptor() ([]byte, []int) {
-	return file_policygates_platform_proto_rawDescGZIP(), []int{9}
+	return file_policygates_platform_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *DeleteBindingRequest) GetId() string {
@@ -858,7 +1077,19 @@ var File_policygates_platform_proto protoreflect.FileDescriptor
 
 const file_policygates_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x1apolicygates.platform.proto\x12\"chainguard.platform.policygates.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16annotations/auth.proto\x1a&platform/common/v1/uidp.platform.proto\"\x89\x03\n" +
+	"\x1apolicygates.platform.proto\x12\"chainguard.platform.policygates.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16annotations/auth.proto\x1a&platform/common/v1/uidp.platform.proto\"\x9f\x03\n" +
+	"\x0fParameterSchema\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12E\n" +
+	"\x04type\x18\x02 \x01(\x0e21.chainguard.platform.policygates.v1.ParameterTypeR\x04type\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x120\n" +
+	"\adefault\x18\x04 \x01(\v2\x16.google.protobuf.ValueR\adefault\x120\n" +
+	"\aminimum\x18\x05 \x01(\v2\x16.google.protobuf.ValueR\aminimum\x120\n" +
+	"\amaximum\x18\x06 \x01(\v2\x16.google.protobuf.ValueR\amaximum\x12=\n" +
+	"\x0eallowed_values\x18\a \x03(\v2\x16.google.protobuf.ValueR\rallowedValues\x12\x1a\n" +
+	"\brequired\x18\b \x01(\bR\brequired\x12\x1e\n" +
+	"\n" +
+	"deprecated\x18\t \x01(\bR\n" +
+	"deprecated\"\xf1\x03\n" +
 	"\x06Policy\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -872,7 +1103,8 @@ const file_policygates_platform_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\tcreatedAt\x12?\n" +
 	"\n" +
-	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\tupdatedAt\"\xb1\x01\n" +
+	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\tupdatedAt\x12f\n" +
+	"\x11parameter_schemas\x18\t \x03(\v23.chainguard.platform.policygates.v1.ParameterSchemaB\x04\xe2A\x01\x03R\x10parameterSchemas\"\xb1\x01\n" +
 	"\n" +
 	"PolicyList\x12@\n" +
 	"\x05items\x18\x01 \x03(\v2*.chainguard.platform.policygates.v1.PolicyR\x05items\x12&\n" +
@@ -892,12 +1124,22 @@ const file_policygates_platform_proto_rawDesc = "" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12B\n" +
 	"\x06policy\x18\x02 \x01(\v2*.chainguard.platform.policygates.v1.PolicyR\x06policy\"-\n" +
 	"\x13DeletePolicyRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"\xa4\x01\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"\xda\x03\n" +
 	"\aBinding\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x16\n" +
 	"\x06policy\x18\x02 \x01(\tR\x06policy\x12B\n" +
 	"\x04mode\x18\x03 \x01(\x0e2..chainguard.platform.policygates.v1.PolicyModeR\x04mode\x12%\n" +
-	"\x0eresource_types\x18\x04 \x03(\tR\rresourceTypes\"\xb3\x01\n" +
+	"\x0eresource_types\x18\x04 \x03(\tR\rresourceTypes\x12[\n" +
+	"\n" +
+	"parameters\x18\x05 \x03(\v2;.chainguard.platform.policygates.v1.Binding.ParametersEntryR\n" +
+	"parameters\x12?\n" +
+	"\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\tcreatedAt\x12?\n" +
+	"\n" +
+	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\tupdatedAt\x1aU\n" +
+	"\x0fParametersEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\"\xb3\x01\n" +
 	"\vBindingList\x12A\n" +
 	"\x05items\x18\x01 \x03(\v2+.chainguard.platform.policygates.v1.BindingR\x05items\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
@@ -925,7 +1167,12 @@ const file_policygates_platform_proto_rawDesc = "" +
 	"PolicyType\x12\x1b\n" +
 	"\x17POLICY_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12POLICY_TYPE_SYSTEM\x10\x01\x12\x16\n" +
-	"\x12POLICY_TYPE_CUSTOM\x10\x022\xa2\x05\n" +
+	"\x12POLICY_TYPE_CUSTOM\x10\x02*\x86\x01\n" +
+	"\rParameterType\x12\x1e\n" +
+	"\x1aPARAMETER_TYPE_UNSPECIFIED\x10\x00\x12\x19\n" +
+	"\x15PARAMETER_TYPE_STRING\x10\x01\x12\x1a\n" +
+	"\x16PARAMETER_TYPE_INTEGER\x10\x02\x12\x1e\n" +
+	"\x1aPARAMETER_TYPE_STRING_LIST\x10\x032\xa2\x05\n" +
 	"\bPolicies\x12\xb8\x01\n" +
 	"\fCreatePolicy\x127.chainguard.platform.policygates.v1.CreatePolicyRequest\x1a*.chainguard.platform.policygates.v1.Policy\"C\x82\xd3\xe4\x93\x021:\x06policy\"'/policygates/v1/policies/{parent_id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd1\x0f\x12\x9f\x01\n" +
@@ -957,57 +1204,71 @@ func file_policygates_platform_proto_rawDescGZIP() []byte {
 	return file_policygates_platform_proto_rawDescData
 }
 
-var file_policygates_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_policygates_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_policygates_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_policygates_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_policygates_platform_proto_goTypes = []any{
 	(PolicyMode)(0),               // 0: chainguard.platform.policygates.v1.PolicyMode
 	(PolicyType)(0),               // 1: chainguard.platform.policygates.v1.PolicyType
-	(*Policy)(nil),                // 2: chainguard.platform.policygates.v1.Policy
-	(*PolicyList)(nil),            // 3: chainguard.platform.policygates.v1.PolicyList
-	(*PolicyFilter)(nil),          // 4: chainguard.platform.policygates.v1.PolicyFilter
-	(*CreatePolicyRequest)(nil),   // 5: chainguard.platform.policygates.v1.CreatePolicyRequest
-	(*DeletePolicyRequest)(nil),   // 6: chainguard.platform.policygates.v1.DeletePolicyRequest
-	(*Binding)(nil),               // 7: chainguard.platform.policygates.v1.Binding
-	(*BindingList)(nil),           // 8: chainguard.platform.policygates.v1.BindingList
-	(*BindingFilter)(nil),         // 9: chainguard.platform.policygates.v1.BindingFilter
-	(*CreateBindingRequest)(nil),  // 10: chainguard.platform.policygates.v1.CreateBindingRequest
-	(*DeleteBindingRequest)(nil),  // 11: chainguard.platform.policygates.v1.DeleteBindingRequest
-	(*timestamppb.Timestamp)(nil), // 12: google.protobuf.Timestamp
-	(*v1.UIDPFilter)(nil),         // 13: chainguard.platform.common.UIDPFilter
-	(*emptypb.Empty)(nil),         // 14: google.protobuf.Empty
+	(ParameterType)(0),            // 2: chainguard.platform.policygates.v1.ParameterType
+	(*ParameterSchema)(nil),       // 3: chainguard.platform.policygates.v1.ParameterSchema
+	(*Policy)(nil),                // 4: chainguard.platform.policygates.v1.Policy
+	(*PolicyList)(nil),            // 5: chainguard.platform.policygates.v1.PolicyList
+	(*PolicyFilter)(nil),          // 6: chainguard.platform.policygates.v1.PolicyFilter
+	(*CreatePolicyRequest)(nil),   // 7: chainguard.platform.policygates.v1.CreatePolicyRequest
+	(*DeletePolicyRequest)(nil),   // 8: chainguard.platform.policygates.v1.DeletePolicyRequest
+	(*Binding)(nil),               // 9: chainguard.platform.policygates.v1.Binding
+	(*BindingList)(nil),           // 10: chainguard.platform.policygates.v1.BindingList
+	(*BindingFilter)(nil),         // 11: chainguard.platform.policygates.v1.BindingFilter
+	(*CreateBindingRequest)(nil),  // 12: chainguard.platform.policygates.v1.CreateBindingRequest
+	(*DeleteBindingRequest)(nil),  // 13: chainguard.platform.policygates.v1.DeleteBindingRequest
+	nil,                           // 14: chainguard.platform.policygates.v1.Binding.ParametersEntry
+	(*structpb.Value)(nil),        // 15: google.protobuf.Value
+	(*timestamppb.Timestamp)(nil), // 16: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),         // 17: chainguard.platform.common.UIDPFilter
+	(*emptypb.Empty)(nil),         // 18: google.protobuf.Empty
 }
 var file_policygates_platform_proto_depIdxs = []int32{
-	1,  // 0: chainguard.platform.policygates.v1.Policy.policy_type:type_name -> chainguard.platform.policygates.v1.PolicyType
-	12, // 1: chainguard.platform.policygates.v1.Policy.created_at:type_name -> google.protobuf.Timestamp
-	12, // 2: chainguard.platform.policygates.v1.Policy.updated_at:type_name -> google.protobuf.Timestamp
-	2,  // 3: chainguard.platform.policygates.v1.PolicyList.items:type_name -> chainguard.platform.policygates.v1.Policy
-	13, // 4: chainguard.platform.policygates.v1.PolicyFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	2,  // 5: chainguard.platform.policygates.v1.CreatePolicyRequest.policy:type_name -> chainguard.platform.policygates.v1.Policy
-	0,  // 6: chainguard.platform.policygates.v1.Binding.mode:type_name -> chainguard.platform.policygates.v1.PolicyMode
-	7,  // 7: chainguard.platform.policygates.v1.BindingList.items:type_name -> chainguard.platform.policygates.v1.Binding
-	13, // 8: chainguard.platform.policygates.v1.BindingFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	7,  // 9: chainguard.platform.policygates.v1.CreateBindingRequest.binding:type_name -> chainguard.platform.policygates.v1.Binding
-	5,  // 10: chainguard.platform.policygates.v1.Policies.CreatePolicy:input_type -> chainguard.platform.policygates.v1.CreatePolicyRequest
-	2,  // 11: chainguard.platform.policygates.v1.Policies.UpdatePolicy:input_type -> chainguard.platform.policygates.v1.Policy
-	4,  // 12: chainguard.platform.policygates.v1.Policies.ListPolicies:input_type -> chainguard.platform.policygates.v1.PolicyFilter
-	6,  // 13: chainguard.platform.policygates.v1.Policies.DeletePolicy:input_type -> chainguard.platform.policygates.v1.DeletePolicyRequest
-	10, // 14: chainguard.platform.policygates.v1.Bindings.CreateBinding:input_type -> chainguard.platform.policygates.v1.CreateBindingRequest
-	7,  // 15: chainguard.platform.policygates.v1.Bindings.UpdateBinding:input_type -> chainguard.platform.policygates.v1.Binding
-	9,  // 16: chainguard.platform.policygates.v1.Bindings.ListBindings:input_type -> chainguard.platform.policygates.v1.BindingFilter
-	11, // 17: chainguard.platform.policygates.v1.Bindings.DeleteBinding:input_type -> chainguard.platform.policygates.v1.DeleteBindingRequest
-	2,  // 18: chainguard.platform.policygates.v1.Policies.CreatePolicy:output_type -> chainguard.platform.policygates.v1.Policy
-	2,  // 19: chainguard.platform.policygates.v1.Policies.UpdatePolicy:output_type -> chainguard.platform.policygates.v1.Policy
-	3,  // 20: chainguard.platform.policygates.v1.Policies.ListPolicies:output_type -> chainguard.platform.policygates.v1.PolicyList
-	14, // 21: chainguard.platform.policygates.v1.Policies.DeletePolicy:output_type -> google.protobuf.Empty
-	7,  // 22: chainguard.platform.policygates.v1.Bindings.CreateBinding:output_type -> chainguard.platform.policygates.v1.Binding
-	7,  // 23: chainguard.platform.policygates.v1.Bindings.UpdateBinding:output_type -> chainguard.platform.policygates.v1.Binding
-	8,  // 24: chainguard.platform.policygates.v1.Bindings.ListBindings:output_type -> chainguard.platform.policygates.v1.BindingList
-	14, // 25: chainguard.platform.policygates.v1.Bindings.DeleteBinding:output_type -> google.protobuf.Empty
-	18, // [18:26] is the sub-list for method output_type
-	10, // [10:18] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	2,  // 0: chainguard.platform.policygates.v1.ParameterSchema.type:type_name -> chainguard.platform.policygates.v1.ParameterType
+	15, // 1: chainguard.platform.policygates.v1.ParameterSchema.default:type_name -> google.protobuf.Value
+	15, // 2: chainguard.platform.policygates.v1.ParameterSchema.minimum:type_name -> google.protobuf.Value
+	15, // 3: chainguard.platform.policygates.v1.ParameterSchema.maximum:type_name -> google.protobuf.Value
+	15, // 4: chainguard.platform.policygates.v1.ParameterSchema.allowed_values:type_name -> google.protobuf.Value
+	1,  // 5: chainguard.platform.policygates.v1.Policy.policy_type:type_name -> chainguard.platform.policygates.v1.PolicyType
+	16, // 6: chainguard.platform.policygates.v1.Policy.created_at:type_name -> google.protobuf.Timestamp
+	16, // 7: chainguard.platform.policygates.v1.Policy.updated_at:type_name -> google.protobuf.Timestamp
+	3,  // 8: chainguard.platform.policygates.v1.Policy.parameter_schemas:type_name -> chainguard.platform.policygates.v1.ParameterSchema
+	4,  // 9: chainguard.platform.policygates.v1.PolicyList.items:type_name -> chainguard.platform.policygates.v1.Policy
+	17, // 10: chainguard.platform.policygates.v1.PolicyFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	4,  // 11: chainguard.platform.policygates.v1.CreatePolicyRequest.policy:type_name -> chainguard.platform.policygates.v1.Policy
+	0,  // 12: chainguard.platform.policygates.v1.Binding.mode:type_name -> chainguard.platform.policygates.v1.PolicyMode
+	14, // 13: chainguard.platform.policygates.v1.Binding.parameters:type_name -> chainguard.platform.policygates.v1.Binding.ParametersEntry
+	16, // 14: chainguard.platform.policygates.v1.Binding.created_at:type_name -> google.protobuf.Timestamp
+	16, // 15: chainguard.platform.policygates.v1.Binding.updated_at:type_name -> google.protobuf.Timestamp
+	9,  // 16: chainguard.platform.policygates.v1.BindingList.items:type_name -> chainguard.platform.policygates.v1.Binding
+	17, // 17: chainguard.platform.policygates.v1.BindingFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	9,  // 18: chainguard.platform.policygates.v1.CreateBindingRequest.binding:type_name -> chainguard.platform.policygates.v1.Binding
+	15, // 19: chainguard.platform.policygates.v1.Binding.ParametersEntry.value:type_name -> google.protobuf.Value
+	7,  // 20: chainguard.platform.policygates.v1.Policies.CreatePolicy:input_type -> chainguard.platform.policygates.v1.CreatePolicyRequest
+	4,  // 21: chainguard.platform.policygates.v1.Policies.UpdatePolicy:input_type -> chainguard.platform.policygates.v1.Policy
+	6,  // 22: chainguard.platform.policygates.v1.Policies.ListPolicies:input_type -> chainguard.platform.policygates.v1.PolicyFilter
+	8,  // 23: chainguard.platform.policygates.v1.Policies.DeletePolicy:input_type -> chainguard.platform.policygates.v1.DeletePolicyRequest
+	12, // 24: chainguard.platform.policygates.v1.Bindings.CreateBinding:input_type -> chainguard.platform.policygates.v1.CreateBindingRequest
+	9,  // 25: chainguard.platform.policygates.v1.Bindings.UpdateBinding:input_type -> chainguard.platform.policygates.v1.Binding
+	11, // 26: chainguard.platform.policygates.v1.Bindings.ListBindings:input_type -> chainguard.platform.policygates.v1.BindingFilter
+	13, // 27: chainguard.platform.policygates.v1.Bindings.DeleteBinding:input_type -> chainguard.platform.policygates.v1.DeleteBindingRequest
+	4,  // 28: chainguard.platform.policygates.v1.Policies.CreatePolicy:output_type -> chainguard.platform.policygates.v1.Policy
+	4,  // 29: chainguard.platform.policygates.v1.Policies.UpdatePolicy:output_type -> chainguard.platform.policygates.v1.Policy
+	5,  // 30: chainguard.platform.policygates.v1.Policies.ListPolicies:output_type -> chainguard.platform.policygates.v1.PolicyList
+	18, // 31: chainguard.platform.policygates.v1.Policies.DeletePolicy:output_type -> google.protobuf.Empty
+	9,  // 32: chainguard.platform.policygates.v1.Bindings.CreateBinding:output_type -> chainguard.platform.policygates.v1.Binding
+	9,  // 33: chainguard.platform.policygates.v1.Bindings.UpdateBinding:output_type -> chainguard.platform.policygates.v1.Binding
+	10, // 34: chainguard.platform.policygates.v1.Bindings.ListBindings:output_type -> chainguard.platform.policygates.v1.BindingList
+	18, // 35: chainguard.platform.policygates.v1.Bindings.DeleteBinding:output_type -> google.protobuf.Empty
+	28, // [28:36] is the sub-list for method output_type
+	20, // [20:28] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_policygates_platform_proto_init() }
@@ -1020,8 +1281,8 @@ func file_policygates_platform_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_policygates_platform_proto_rawDesc), len(file_policygates_platform_proto_rawDesc)),
-			NumEnums:      2,
-			NumMessages:   10,
+			NumEnums:      3,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   2,
 		},
