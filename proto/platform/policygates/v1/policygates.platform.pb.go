@@ -1077,7 +1077,7 @@ var File_policygates_platform_proto protoreflect.FileDescriptor
 
 const file_policygates_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x1apolicygates.platform.proto\x12\"chainguard.platform.policygates.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16annotations/auth.proto\x1a&platform/common/v1/uidp.platform.proto\"\x9f\x03\n" +
+	"\x1apolicygates.platform.proto\x12\"chainguard.platform.policygates.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a&platform/common/v1/uidp.platform.proto\"\x9f\x03\n" +
 	"\x0fParameterSchema\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12E\n" +
 	"\x04type\x18\x02 \x01(\x0e21.chainguard.platform.policygates.v1.ParameterTypeR\x04type\x12 \n" +
@@ -1181,16 +1181,19 @@ const file_policygates_platform_proto_rawDesc = "" +
 	"\fListPolicies\x120.chainguard.platform.policygates.v1.PolicyFilter\x1a..chainguard.platform.policygates.v1.PolicyList\".\x82\xd3\xe4\x93\x02\x1a\x12\x18/policygates/v1/policies\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\xd3\x0f\x10\x01\x12\x95\x01\n" +
 	"\fDeletePolicy\x127.chainguard.platform.policygates.v1.DeletePolicyRequest\x1a\x16.google.protobuf.Empty\"4\x82\xd3\xe4\x93\x02\"* /policygates/v1/policies/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xd4\x0f2\xad\x05\n" +
-	"\bBindings\x12\xbc\x01\n" +
-	"\rCreateBinding\x128.chainguard.platform.policygates.v1.CreateBindingRequest\x1a+.chainguard.platform.policygates.v1.Binding\"D\x82\xd3\xe4\x93\x022:\abinding\"'/policygates/v1/bindings/{parent_id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xdb\x0f\x12\xa2\x01\n" +
-	"\rUpdateBinding\x12+.chainguard.platform.policygates.v1.Binding\x1a+.chainguard.platform.policygates.v1.Binding\"7\x82\xd3\xe4\x93\x02%:\x01*\x1a /policygates/v1/bindings/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xdc\x0f\x12\xa2\x01\n" +
+	"\x02\xd4\x0f2\xf7\x06\n" +
+	"\bBindings\x12\x80\x02\n" +
+	"\rCreateBinding\x128.chainguard.platform.policygates.v1.CreateBindingRequest\x1a+.chainguard.platform.policygates.v1.Binding\"\x87\x01\x82\xd3\xe4\x93\x022:\abinding\"'/policygates/v1/bindings/{parent_id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xdb\x0f\xc2\xf0\x8e\xfc\v=\n" +
+	"2dev.chainguard.api.policygates.bindings.created.v1\x12\x05group\x18\x01\x12\xe5\x01\n" +
+	"\rUpdateBinding\x12+.chainguard.platform.policygates.v1.Binding\x1a+.chainguard.platform.policygates.v1.Binding\"z\x82\xd3\xe4\x93\x02%:\x01*\x1a /policygates/v1/bindings/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xdc\x0f\xc2\xf0\x8e\xfc\v=\n" +
+	"2dev.chainguard.api.policygates.bindings.updated.v1\x12\x05group\x18\x01\x12\xa2\x01\n" +
 	"\fListBindings\x121.chainguard.platform.policygates.v1.BindingFilter\x1a/.chainguard.platform.policygates.v1.BindingList\".\x82\xd3\xe4\x93\x02\x1a\x12\x18/policygates/v1/bindings\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x02\xdd\x0f\x10\x01\x12\x97\x01\n" +
-	"\rDeleteBinding\x128.chainguard.platform.policygates.v1.DeleteBindingRequest\x1a\x16.google.protobuf.Empty\"4\x82\xd3\xe4\x93\x02\"* /policygates/v1/bindings/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xde\x0fB2Z0chainguard.dev/sdk/proto/platform/policygates/v1b\x06proto3"
+	"\x02\xdd\x0f\x10\x01\x12\xda\x01\n" +
+	"\rDeleteBinding\x128.chainguard.platform.policygates.v1.DeleteBindingRequest\x1a\x16.google.protobuf.Empty\"w\x82\xd3\xe4\x93\x02\"* /policygates/v1/bindings/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xde\x0f\xc2\xf0\x8e\xfc\v=\n" +
+	"2dev.chainguard.api.policygates.bindings.deleted.v1\x12\x05group\x18\x01B2Z0chainguard.dev/sdk/proto/platform/policygates/v1b\x06proto3"
 
 var (
 	file_policygates_platform_proto_rawDescOnce sync.Once
