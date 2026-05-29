@@ -1731,8 +1731,11 @@ type Detection_DetectionTypeScanV1 struct {
 	ComponentVersion  string                 `protobuf:"bytes,5,opt,name=component_version,json=componentVersion,proto3" json:"component_version,omitempty"`
 	ComponentType     string                 `protobuf:"bytes,6,opt,name=component_type,json=componentType,proto3" json:"component_type,omitempty"`
 	ComponentLocation string                 `protobuf:"bytes,7,opt,name=component_location,json=componentLocation,proto3" json:"component_location,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// artifact_version is the version of the artifact (origin package or
+	// subpackage) that was scanned when the vulnerability was detected.
+	ArtifactVersion string `protobuf:"bytes,8,opt,name=artifact_version,json=artifactVersion,proto3" json:"artifact_version,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *Detection_DetectionTypeScanV1) Reset() {
@@ -1810,6 +1813,13 @@ func (x *Detection_DetectionTypeScanV1) GetComponentType() string {
 func (x *Detection_DetectionTypeScanV1) GetComponentLocation() string {
 	if x != nil {
 		return x.ComponentLocation
+	}
+	return ""
+}
+
+func (x *Detection_DetectionTypeScanV1) GetArtifactVersion() string {
+	if x != nil {
+		return x.ArtifactVersion
 	}
 	return ""
 }
@@ -1909,7 +1919,7 @@ const file_advisory_platform_proto_rawDesc = "" +
 	":FPT_TYPE_VULNERABLE_CODE_CANNOT_BE_CONTROLLED_BY_ADVERSARY\x10\x06\x12%\n" +
 	"!FPT_TYPE_INLINE_MITIGATIONS_EXIST\x10\a\",\n" +
 	"\x05Fixed\x12#\n" +
-	"\rfixed_version\x18\x01 \x01(\tR\ffixedVersion\"\xae\x05\n" +
+	"\rfixed_version\x18\x01 \x01(\tR\ffixedVersion\"\xd9\x05\n" +
 	"\tDetection\x12U\n" +
 	"\x06nvdapi\x18\x01 \x01(\v2;.chainguard.platform.advisory.Detection.DetectionTypeNVDAPIH\x00R\x06nvdapi\x12U\n" +
 	"\x06manual\x18\x02 \x01(\v2;.chainguard.platform.advisory.Detection.DetectionTypeManualH\x00R\x06manual\x12U\n" +
@@ -1917,7 +1927,7 @@ const file_advisory_platform_proto_rawDesc = "" +
 	"\x13DetectionTypeNVDAPI\x12!\n" +
 	"\fcpe_searched\x18\x01 \x01(\tR\vcpeSearched\x12\x1b\n" +
 	"\tcpe_found\x18\x02 \x01(\tR\bcpeFound\x1a\x15\n" +
-	"\x13DetectionTypeManual\x1a\xa5\x02\n" +
+	"\x13DetectionTypeManual\x1a\xd0\x02\n" +
 	"\x13DetectionTypeScanV1\x12\x18\n" +
 	"\ascanner\x18\x01 \x01(\tR\ascanner\x12'\n" +
 	"\x0fsubpackage_name\x18\x02 \x01(\tR\x0esubpackageName\x12!\n" +
@@ -1925,7 +1935,8 @@ const file_advisory_platform_proto_rawDesc = "" +
 	"\x0ecomponent_name\x18\x04 \x01(\tR\rcomponentName\x12+\n" +
 	"\x11component_version\x18\x05 \x01(\tR\x10componentVersion\x12%\n" +
 	"\x0ecomponent_type\x18\x06 \x01(\tR\rcomponentType\x12-\n" +
-	"\x12component_location\x18\a \x01(\tR\x11componentLocationB\x06\n" +
+	"\x12component_location\x18\a \x01(\tR\x11componentLocation\x12)\n" +
+	"\x10artifact_version\x18\b \x01(\tR\x0fartifactVersionB\x06\n" +
 	"\x04type\"(\n" +
 	"\x12AnalysisNotPlanned\x12\x12\n" +
 	"\x04note\x18\x01 \x01(\tR\x04note\"#\n" +

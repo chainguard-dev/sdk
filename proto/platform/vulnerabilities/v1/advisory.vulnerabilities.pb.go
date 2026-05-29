@@ -1905,8 +1905,11 @@ type AdvisoryEvent_Detection_ScanV1 struct {
 	ComponentVersion  string                 `protobuf:"bytes,5,opt,name=component_version,json=componentVersion,proto3" json:"component_version,omitempty"`
 	ComponentType     string                 `protobuf:"bytes,6,opt,name=component_type,json=componentType,proto3" json:"component_type,omitempty"`
 	ComponentLocation string                 `protobuf:"bytes,7,opt,name=component_location,json=componentLocation,proto3" json:"component_location,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// artifact_version is the version of the artifact (origin package or
+	// subpackage) that was scanned when the vulnerability was detected.
+	ArtifactVersion string `protobuf:"bytes,8,opt,name=artifact_version,json=artifactVersion,proto3" json:"artifact_version,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *AdvisoryEvent_Detection_ScanV1) Reset() {
@@ -1988,6 +1991,13 @@ func (x *AdvisoryEvent_Detection_ScanV1) GetComponentLocation() string {
 	return ""
 }
 
+func (x *AdvisoryEvent_Detection_ScanV1) GetArtifactVersion() string {
+	if x != nil {
+		return x.ArtifactVersion
+	}
+	return ""
+}
+
 var File_advisory_vulnerabilities_proto protoreflect.FileDescriptor
 
 const file_advisory_vulnerabilities_proto_rawDesc = "" +
@@ -2018,7 +2028,7 @@ const file_advisory_vulnerabilities_proto_rawDesc = "" +
 	"\x13_component_locationB\x11\n" +
 	"\x0f_component_typeB\r\n" +
 	"\v_deleted_atB\x13\n" +
-	"\x11_legacyAdvisoryIDJ\x04\b\x04\x10\x05J\x04\b\x11\x10\x12J\x04\b\x12\x10\x13R\breviewerR\x06status\"\xa3\x17\n" +
+	"\x11_legacyAdvisoryIDJ\x04\b\x04\x10\x05J\x04\b\x11\x10\x12J\x04\b\x12\x10\x13R\breviewerR\x06status\"\xce\x17\n" +
 	"\rAdvisoryEvent\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x128\n" +
 	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12_\n" +
@@ -2036,7 +2046,7 @@ const file_advisory_vulnerabilities_proto_rawDesc = "" +
 	"\x06author\x18\v \x01(\tR\x06author\x12\x1a\n" +
 	"\breviewer\x18\f \x01(\tR\breviewer\x12L\n" +
 	"\x06status\x18\r \x01(\x0e24.chainguard.platform.vulnerabilities.v1.ReviewStatusR\x06status\x12\x19\n" +
-	"\x05issue\x18\x0e \x01(\tH\x01R\x05issue\x88\x01\x01\x1a\xa8\x05\n" +
+	"\x05issue\x18\x0e \x01(\tH\x01R\x05issue\x88\x01\x01\x1a\xd3\x05\n" +
 	"\tDetection\x12`\n" +
 	"\x06nvdapi\x18\x01 \x01(\v2F.chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.NVDAPIH\x00R\x06nvdapi\x12`\n" +
 	"\x06manual\x18\x02 \x01(\v2F.chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.ManualH\x00R\x06manual\x12`\n" +
@@ -2044,7 +2054,7 @@ const file_advisory_vulnerabilities_proto_rawDesc = "" +
 	"\x06NVDAPI\x12!\n" +
 	"\fcpe_searched\x18\x01 \x01(\tR\vcpeSearched\x12\x1b\n" +
 	"\tcpe_found\x18\x02 \x01(\tR\bcpeFound\x1a\b\n" +
-	"\x06Manual\x1a\x98\x02\n" +
+	"\x06Manual\x1a\xc3\x02\n" +
 	"\x06ScanV1\x12\x18\n" +
 	"\ascanner\x18\x01 \x01(\tR\ascanner\x12'\n" +
 	"\x0fsubpackage_name\x18\x02 \x01(\tR\x0esubpackageName\x12!\n" +
@@ -2052,7 +2062,8 @@ const file_advisory_vulnerabilities_proto_rawDesc = "" +
 	"\x0ecomponent_name\x18\x04 \x01(\tR\rcomponentName\x12+\n" +
 	"\x11component_version\x18\x05 \x01(\tR\x10componentVersion\x12%\n" +
 	"\x0ecomponent_type\x18\x06 \x01(\tR\rcomponentType\x12-\n" +
-	"\x12component_location\x18\a \x01(\tR\x11componentLocationB\x06\n" +
+	"\x12component_location\x18\a \x01(\tR\x11componentLocation\x12)\n" +
+	"\x10artifact_version\x18\b \x01(\tR\x0fartifactVersionB\x06\n" +
 	"\x04type\x1a@\n" +
 	"\x05Fixed\x12#\n" +
 	"\rfixed_version\x18\x01 \x01(\tR\ffixedVersion\x12\x12\n" +

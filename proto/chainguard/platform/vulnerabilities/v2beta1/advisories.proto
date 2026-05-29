@@ -198,6 +198,8 @@ message AdvisoryEvent {
       string component_type = 6;
       // The location within the subpackage of the matched component.
       string component_location = 7;
+      // The version of the artifact (origin package or subpackage) that was scanned when the vulnerability was detected. Pairs with the advisory's artifact_name.
+      string artifact_version = 8;
     }
   }
 

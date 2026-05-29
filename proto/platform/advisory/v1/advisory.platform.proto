@@ -260,6 +260,9 @@ message Detection {
     string component_version = 5;
     string component_type = 6;
     string component_location = 7;
+    // artifact_version is the version of the artifact (origin package or
+    // subpackage) that was scanned when the vulnerability was detected.
+    string artifact_version = 8;
   }
 }
 
