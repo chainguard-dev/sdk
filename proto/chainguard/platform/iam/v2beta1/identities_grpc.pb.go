@@ -23,12 +23,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	IdentitiesService_CreateIdentity_FullMethodName = "/chainguard.platform.iam.v2beta1.IdentitiesService/CreateIdentity"
-	IdentitiesService_GetIdentity_FullMethodName    = "/chainguard.platform.iam.v2beta1.IdentitiesService/GetIdentity"
-	IdentitiesService_DeleteIdentity_FullMethodName = "/chainguard.platform.iam.v2beta1.IdentitiesService/DeleteIdentity"
-	IdentitiesService_UpdateIdentity_FullMethodName = "/chainguard.platform.iam.v2beta1.IdentitiesService/UpdateIdentity"
-	IdentitiesService_ListIdentities_FullMethodName = "/chainguard.platform.iam.v2beta1.IdentitiesService/ListIdentities"
-	IdentitiesService_LookupIdentity_FullMethodName = "/chainguard.platform.iam.v2beta1.IdentitiesService/LookupIdentity"
+	IdentitiesService_CreateIdentity_FullMethodName         = "/chainguard.platform.iam.v2beta1.IdentitiesService/CreateIdentity"
+	IdentitiesService_GetIdentity_FullMethodName            = "/chainguard.platform.iam.v2beta1.IdentitiesService/GetIdentity"
+	IdentitiesService_DeleteIdentity_FullMethodName         = "/chainguard.platform.iam.v2beta1.IdentitiesService/DeleteIdentity"
+	IdentitiesService_UpdateIdentity_FullMethodName         = "/chainguard.platform.iam.v2beta1.IdentitiesService/UpdateIdentity"
+	IdentitiesService_ListIdentities_FullMethodName         = "/chainguard.platform.iam.v2beta1.IdentitiesService/ListIdentities"
+	IdentitiesService_LookupIdentity_FullMethodName         = "/chainguard.platform.iam.v2beta1.IdentitiesService/LookupIdentity"
+	IdentitiesService_UpdateIdentityMetadata_FullMethodName = "/chainguard.platform.iam.v2beta1.IdentitiesService/UpdateIdentityMetadata"
 )
 
 // IdentitiesServiceClient is the client API for IdentitiesService service.
@@ -55,6 +56,13 @@ type IdentitiesServiceClient interface {
 	//
 	// This is an unscoped endpoint: any authenticated caller may invoke it.
 	LookupIdentity(ctx context.Context, in *LookupIdentityRequest, opts ...grpc.CallOption) (*LookupIdentityResponse, error)
+	// UpdateIdentityMetadata updates metadata fields on the caller's own
+	// identity. The identity is derived from the caller's token — no UID
+	// parameter is needed.
+	//
+	// This is an unscoped endpoint: any authenticated caller may invoke it.
+	// Follows AIP-134: supports field mask for partial updates.
+	UpdateIdentityMetadata(ctx context.Context, in *UpdateIdentityMetadataRequest, opts ...grpc.CallOption) (*IdentityMetadata, error)
 }
 
 type identitiesServiceClient struct {
@@ -125,6 +133,16 @@ func (c *identitiesServiceClient) LookupIdentity(ctx context.Context, in *Lookup
 	return out, nil
 }
 
+func (c *identitiesServiceClient) UpdateIdentityMetadata(ctx context.Context, in *UpdateIdentityMetadataRequest, opts ...grpc.CallOption) (*IdentityMetadata, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(IdentityMetadata)
+	err := c.cc.Invoke(ctx, IdentitiesService_UpdateIdentityMetadata_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // IdentitiesServiceServer is the server API for IdentitiesService service.
 // All implementations must embed UnimplementedIdentitiesServiceServer
 // for forward compatibility.
@@ -149,6 +167,13 @@ type IdentitiesServiceServer interface {
 	//
 	// This is an unscoped endpoint: any authenticated caller may invoke it.
 	LookupIdentity(context.Context, *LookupIdentityRequest) (*LookupIdentityResponse, error)
+	// UpdateIdentityMetadata updates metadata fields on the caller's own
+	// identity. The identity is derived from the caller's token — no UID
+	// parameter is needed.
+	//
+	// This is an unscoped endpoint: any authenticated caller may invoke it.
+	// Follows AIP-134: supports field mask for partial updates.
+	UpdateIdentityMetadata(context.Context, *UpdateIdentityMetadataRequest) (*IdentityMetadata, error)
 	mustEmbedUnimplementedIdentitiesServiceServer()
 }
 
@@ -176,6 +201,9 @@ func (UnimplementedIdentitiesServiceServer) ListIdentities(context.Context, *Lis
 }
 func (UnimplementedIdentitiesServiceServer) LookupIdentity(context.Context, *LookupIdentityRequest) (*LookupIdentityResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method LookupIdentity not implemented")
+}
+func (UnimplementedIdentitiesServiceServer) UpdateIdentityMetadata(context.Context, *UpdateIdentityMetadataRequest) (*IdentityMetadata, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateIdentityMetadata not implemented")
 }
 func (UnimplementedIdentitiesServiceServer) mustEmbedUnimplementedIdentitiesServiceServer() {}
 func (UnimplementedIdentitiesServiceServer) testEmbeddedByValue()                           {}
@@ -306,6 +334,24 @@ func _IdentitiesService_LookupIdentity_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _IdentitiesService_UpdateIdentityMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateIdentityMetadataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IdentitiesServiceServer).UpdateIdentityMetadata(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IdentitiesService_UpdateIdentityMetadata_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IdentitiesServiceServer).UpdateIdentityMetadata(ctx, req.(*UpdateIdentityMetadataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // IdentitiesService_ServiceDesc is the grpc.ServiceDesc for IdentitiesService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -336,6 +382,10 @@ var IdentitiesService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "LookupIdentity",
 			Handler:    _IdentitiesService_LookupIdentity_Handler,
+		},
+		{
+			MethodName: "UpdateIdentityMetadata",
+			Handler:    _IdentitiesService_UpdateIdentityMetadata_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

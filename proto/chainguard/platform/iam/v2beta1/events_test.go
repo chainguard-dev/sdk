@@ -122,6 +122,28 @@ func TestIdentitiesEventInterfaces(t *testing.T) {
 	if got, ok := del.CloudEventsExtension("group"); !ok || got != parentUID {
 		t.Errorf("DeleteIdentityRequest.CloudEventsExtension(group) = (%q, %v), want (%q, true)", got, ok, parentUID)
 	}
+
+	md := &IdentityMetadata{Uid: identityUID}
+	if got := md.CloudEventsSubject(); got != identityUID {
+		t.Errorf("IdentityMetadata.CloudEventsSubject() = %q, want %q", got, identityUID)
+	}
+	if _, ok := md.CloudEventsExtension("group"); ok {
+		t.Error("IdentityMetadata.CloudEventsExtension(group) returned true, want false")
+	}
+}
+
+func TestUpdateIdentityMetadataEventAnnotation(t *testing.T) {
+	sd := File_chainguard_platform_iam_v2beta1_identities_proto.Services().ByName("IdentitiesService")
+	if sd == nil {
+		t.Fatal("IdentitiesService not found")
+	}
+	ea := getEventAttributes(t, sd, "UpdateIdentityMetadata")
+	if got := ea.GetType(); got != "dev.chainguard.api.iam.identity.metadata.updated.v1" {
+		t.Errorf("type = %q, want %q", got, "dev.chainguard.api.iam.identity.metadata.updated.v1")
+	}
+	if ea.GetAudience() != cgannotations.EventAttributes_INTERNAL {
+		t.Errorf("audience = %v, want INTERNAL", ea.GetAudience())
+	}
 }
 
 func TestRoleBindingsEventAnnotations(t *testing.T) {

@@ -15,6 +15,8 @@ var (
 	_ events.Extendable = (*Identity)(nil)
 	_ events.Eventable  = (*DeleteIdentityRequest)(nil)
 	_ events.Extendable = (*DeleteIdentityRequest)(nil)
+	_ events.Eventable  = (*IdentityMetadata)(nil)
+	_ events.Extendable = (*IdentityMetadata)(nil)
 )
 
 // CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension
@@ -44,5 +46,15 @@ func (x *DeleteIdentityRequest) CloudEventsExtension(key string) (string, bool) 
 
 // CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
 func (x *DeleteIdentityRequest) CloudEventsSubject() string {
+	return x.GetUid()
+}
+
+// CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension
+func (x *IdentityMetadata) CloudEventsExtension(_ string) (string, bool) {
+	return "", false
+}
+
+// CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
+func (x *IdentityMetadata) CloudEventsSubject() string {
 	return x.GetUid()
 }

@@ -144,6 +144,27 @@ service IdentitiesService {
     };
     option (chainguard.annotations.mcp) = {hidden: true};
   }
+
+  // UpdateIdentityMetadata updates metadata fields on the caller's own
+  // identity. The identity is derived from the caller's token — no UID
+  // parameter is needed.
+  //
+  // This is an unscoped endpoint: any authenticated caller may invoke it.
+  // Follows AIP-134: supports field mask for partial updates.
+  rpc UpdateIdentityMetadata(UpdateIdentityMetadataRequest) returns (IdentityMetadata) {
+    option (google.api.http) = {
+      patch: "/iam/v2beta1/identities:updateIdentityMetadata"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {unscoped: true}
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.identity.metadata.updated.v1"
+      audience: INTERNAL
+    };
+    option (chainguard.annotations.mcp) = {hidden: true};
+  }
 }
 
 // Identity represents an IAM identity.
@@ -178,8 +199,8 @@ message Identity {
   // Optional company associated with the identity.
   string company = 6 [(google.api.field_behavior) = OPTIONAL];
 
-  // Cloud provider names associated with the identity.
-  repeated string providers = 7 [(google.api.field_behavior) = OPTIONAL];
+  reserved 7;
+  reserved "providers";
 
   // When the identity was last federated (last login).
   google.protobuf.Timestamp last_seen_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -397,6 +418,73 @@ message LookupIdentityResponse {
   // If no identity exists yet, this is the deterministic UID
   // the identity will receive upon future registration.
   string uid = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// IdentityMetadata contains profile and onboarding metadata for the
+// caller's identity. OUTPUT_ONLY fields are populated by the server;
+// all other fields are caller-provided and passed through the emitted
+// CloudEvent for downstream consumers (e.g. HubSpot sync).
+// (-- api-linter: core::0123::resource-annotation=disabled
+//     aip.dev/not-precedent: IdentityMetadata is not a standalone resource; it is a
+//     value object returned by UpdateIdentityMetadata and emitted as a CloudEvent body. --)
+message IdentityMetadata {
+  // The caller's identity UID.
+  string uid = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The caller's display name (from upstream OIDC token).
+  string name = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The caller's given name (derived from display name).
+  string given_name = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The caller's family name (derived from display name).
+  string family_name = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The company name associated with the identity.
+  string company = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // Whether the user has opted to receive updates from Chainguard.
+  // (-- api-linter: core::0140::prepositions=disabled
+  //     aip.dev/not-precedent: "opt_in" is a compound term matching the v1 field name. --)
+  bool updates_opt_in = 6 [(google.api.field_behavior) = OPTIONAL];
+
+  // The product the user is interested in.
+  string product = 7 [(google.api.field_behavior) = OPTIONAL];
+
+  // The user's job title.
+  string job_title = 8 [(google.api.field_behavior) = OPTIONAL];
+
+  // UTM campaign tracking parameter.
+  string utm_campaign = 9 [(google.api.field_behavior) = OPTIONAL];
+
+  // UTM content tracking parameter.
+  string utm_content = 10 [(google.api.field_behavior) = OPTIONAL];
+
+  // UTM medium tracking parameter.
+  string utm_medium = 11 [(google.api.field_behavior) = OPTIONAL];
+
+  // UTM source tracking parameter.
+  string utm_source = 12 [(google.api.field_behavior) = OPTIONAL];
+
+  // UTM term tracking parameter.
+  string utm_term = 13 [(google.api.field_behavior) = OPTIONAL];
+
+  // The URL of the latest form submission.
+  string latest_form_submit_url = 14 [(google.api.field_behavior) = OPTIONAL];
+
+  // The URL of the latest internal referring page.
+  string latest_internal_referring_url = 15 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// UpdateIdentityMetadataRequest is the request for UpdateIdentityMetadata.
+message UpdateIdentityMetadataRequest {
+  // The metadata to update.
+  IdentityMetadata identity_metadata = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The list of fields to update. If not provided, an implied field mask
+  // is used equivalent to all populated fields. * is supported over gRPC
+  // and interpreted as a full replacement with the given field values.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // RelationshipType represents the type of identity relationship.
