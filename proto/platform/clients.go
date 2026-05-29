@@ -23,7 +23,6 @@ import (
 	iam "chainguard.dev/sdk/proto/platform/iam/v1"
 	libraries "chainguard.dev/sdk/proto/platform/libraries/v1"
 	matcher "chainguard.dev/sdk/proto/platform/matcher/v1"
-	notifications "chainguard.dev/sdk/proto/platform/notifications/v1"
 	platformoidc "chainguard.dev/sdk/proto/platform/oidc/v1"
 	packages "chainguard.dev/sdk/proto/platform/packages/v1"
 	ping "chainguard.dev/sdk/proto/platform/ping/v1"
@@ -41,7 +40,6 @@ type Clients interface {
 	Registry() registry.Clients
 	Advisory() advisory.Clients
 	Ping() ping.Clients
-	Notifications() notifications.Clients
 	APK() apk.Clients
 	Ecosystems() ecosystems.Clients
 	Libraries() libraries.Clients
@@ -99,7 +97,6 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 		registry:        registry.NewClientsFromConnection(conn),
 		advisory:        advisory.NewClientsFromConnection(conn),
 		ping:            ping.NewClientsFromConnection(conn),
-		notifications:   notifications.NewClientsFromConnection(conn),
 		apk:             apk.NewClientsFromConnection(conn),
 		ecosystems:      ecosystems.NewClientsFromConnection(conn),
 		libraries:       libraries.NewClientsFromConnection(conn),
@@ -118,7 +115,6 @@ type clients struct {
 	registry        registry.Clients
 	advisory        advisory.Clients
 	ping            ping.Clients
-	notifications   notifications.Clients
 	apk             apk.Clients
 	ecosystems      ecosystems.Clients
 	libraries       libraries.Clients
@@ -150,10 +146,6 @@ func (c *clients) Advisory() advisory.Clients {
 
 func (c *clients) Ping() ping.Clients {
 	return c.ping
-}
-
-func (c *clients) Notifications() notifications.Clients {
-	return c.notifications
 }
 
 func (c *clients) APK() apk.Clients {
