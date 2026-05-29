@@ -130,6 +130,28 @@ service AccountAssociationsService {
       open_world: false
     };
   }
+
+  // CheckAccountAssociation validates whether a cloud provider account
+  // association is correctly configured by performing a live credential
+  // exchange against the provider's STS/token endpoint.
+  rpc CheckAccountAssociation(CheckAccountAssociationRequest) returns (CheckAccountAssociationResponse) {
+    option (google.api.http) = {
+      post: "/iam/v2beta1/accountAssociations/{uid=**}:checkAccountAssociation"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_ACCOUNT_ASSOCIATIONS_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Check whether a cloud provider account association is correctly configured by performing a live credential exchange."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
 }
 
 // AccountAssociation represents cloud provider account associations for a group.
@@ -317,4 +339,50 @@ message UpdateAccountAssociationRequest {
   // (have non-default values). * is supported and interpreted as a full
   // replacement with the given field values.
   google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// CheckAccountAssociationRequest is the request for CheckAccountAssociation.
+message CheckAccountAssociationRequest {
+  // UID (group UIDP) of the account association to check.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The cloud provider type to check.
+  AccountProviderType provider_type = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// CheckAccountAssociationResponse is the response for CheckAccountAssociation.
+message CheckAccountAssociationResponse {
+  // Whether the association is ready.
+  CheckStatus status = 1;
+
+  // Human-readable reason code (e.g., "not configured", "error exchanging credentials").
+  string reason = 2;
+
+  // Detailed error message, if any.
+  string message = 3;
+}
+
+// AccountProviderType identifies a cloud provider for account association checks.
+enum AccountProviderType {
+  // Unspecified provider type.
+  ACCOUNT_PROVIDER_TYPE_UNSPECIFIED = 0;
+  // Google Cloud Platform.
+  ACCOUNT_PROVIDER_TYPE_GOOGLE = 1;
+  // Amazon Web Services.
+  ACCOUNT_PROVIDER_TYPE_AMAZON = 2;
+  // Microsoft Azure.
+  ACCOUNT_PROVIDER_TYPE_AZURE = 3;
+}
+
+// CheckStatus indicates the readiness state of an account association check.
+enum CheckStatus {
+  // Unspecified check status.
+  CHECK_STATUS_UNSPECIFIED = 0;
+  // The account association is correctly configured and credentials can be exchanged.
+  CHECK_STATUS_READY = 1;
+  // The account association is not ready (misconfigured, missing, or credential exchange failed).
+  CHECK_STATUS_NOT_READY = 2;
 }

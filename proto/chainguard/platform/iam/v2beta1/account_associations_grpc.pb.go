@@ -28,6 +28,7 @@ const (
 	AccountAssociationsService_DeleteAccountAssociation_FullMethodName = "/chainguard.platform.iam.v2beta1.AccountAssociationsService/DeleteAccountAssociation"
 	AccountAssociationsService_ListAccountAssociations_FullMethodName  = "/chainguard.platform.iam.v2beta1.AccountAssociationsService/ListAccountAssociations"
 	AccountAssociationsService_UpdateAccountAssociation_FullMethodName = "/chainguard.platform.iam.v2beta1.AccountAssociationsService/UpdateAccountAssociation"
+	AccountAssociationsService_CheckAccountAssociation_FullMethodName  = "/chainguard.platform.iam.v2beta1.AccountAssociationsService/CheckAccountAssociation"
 )
 
 // AccountAssociationsServiceClient is the client API for AccountAssociationsService service.
@@ -47,6 +48,10 @@ type AccountAssociationsServiceClient interface {
 	ListAccountAssociations(ctx context.Context, in *ListAccountAssociationsRequest, opts ...grpc.CallOption) (*ListAccountAssociationsResponse, error)
 	// UpdateAccountAssociation updates an account association's fields.
 	UpdateAccountAssociation(ctx context.Context, in *UpdateAccountAssociationRequest, opts ...grpc.CallOption) (*AccountAssociation, error)
+	// CheckAccountAssociation validates whether a cloud provider account
+	// association is correctly configured by performing a live credential
+	// exchange against the provider's STS/token endpoint.
+	CheckAccountAssociation(ctx context.Context, in *CheckAccountAssociationRequest, opts ...grpc.CallOption) (*CheckAccountAssociationResponse, error)
 }
 
 type accountAssociationsServiceClient struct {
@@ -107,6 +112,16 @@ func (c *accountAssociationsServiceClient) UpdateAccountAssociation(ctx context.
 	return out, nil
 }
 
+func (c *accountAssociationsServiceClient) CheckAccountAssociation(ctx context.Context, in *CheckAccountAssociationRequest, opts ...grpc.CallOption) (*CheckAccountAssociationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CheckAccountAssociationResponse)
+	err := c.cc.Invoke(ctx, AccountAssociationsService_CheckAccountAssociation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AccountAssociationsServiceServer is the server API for AccountAssociationsService service.
 // All implementations must embed UnimplementedAccountAssociationsServiceServer
 // for forward compatibility.
@@ -124,6 +139,10 @@ type AccountAssociationsServiceServer interface {
 	ListAccountAssociations(context.Context, *ListAccountAssociationsRequest) (*ListAccountAssociationsResponse, error)
 	// UpdateAccountAssociation updates an account association's fields.
 	UpdateAccountAssociation(context.Context, *UpdateAccountAssociationRequest) (*AccountAssociation, error)
+	// CheckAccountAssociation validates whether a cloud provider account
+	// association is correctly configured by performing a live credential
+	// exchange against the provider's STS/token endpoint.
+	CheckAccountAssociation(context.Context, *CheckAccountAssociationRequest) (*CheckAccountAssociationResponse, error)
 	mustEmbedUnimplementedAccountAssociationsServiceServer()
 }
 
@@ -148,6 +167,9 @@ func (UnimplementedAccountAssociationsServiceServer) ListAccountAssociations(con
 }
 func (UnimplementedAccountAssociationsServiceServer) UpdateAccountAssociation(context.Context, *UpdateAccountAssociationRequest) (*AccountAssociation, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateAccountAssociation not implemented")
+}
+func (UnimplementedAccountAssociationsServiceServer) CheckAccountAssociation(context.Context, *CheckAccountAssociationRequest) (*CheckAccountAssociationResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CheckAccountAssociation not implemented")
 }
 func (UnimplementedAccountAssociationsServiceServer) mustEmbedUnimplementedAccountAssociationsServiceServer() {
 }
@@ -261,6 +283,24 @@ func _AccountAssociationsService_UpdateAccountAssociation_Handler(srv interface{
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AccountAssociationsService_CheckAccountAssociation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckAccountAssociationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountAssociationsServiceServer).CheckAccountAssociation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AccountAssociationsService_CheckAccountAssociation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountAssociationsServiceServer).CheckAccountAssociation(ctx, req.(*CheckAccountAssociationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AccountAssociationsService_ServiceDesc is the grpc.ServiceDesc for AccountAssociationsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -287,6 +327,10 @@ var AccountAssociationsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateAccountAssociation",
 			Handler:    _AccountAssociationsService_UpdateAccountAssociation_Handler,
+		},
+		{
+			MethodName: "CheckAccountAssociation",
+			Handler:    _AccountAssociationsService_CheckAccountAssociation_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

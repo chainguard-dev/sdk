@@ -30,6 +30,116 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// AccountProviderType identifies a cloud provider for account association checks.
+type AccountProviderType int32
+
+const (
+	// Unspecified provider type.
+	AccountProviderType_ACCOUNT_PROVIDER_TYPE_UNSPECIFIED AccountProviderType = 0
+	// Google Cloud Platform.
+	AccountProviderType_ACCOUNT_PROVIDER_TYPE_GOOGLE AccountProviderType = 1
+	// Amazon Web Services.
+	AccountProviderType_ACCOUNT_PROVIDER_TYPE_AMAZON AccountProviderType = 2
+	// Microsoft Azure.
+	AccountProviderType_ACCOUNT_PROVIDER_TYPE_AZURE AccountProviderType = 3
+)
+
+// Enum value maps for AccountProviderType.
+var (
+	AccountProviderType_name = map[int32]string{
+		0: "ACCOUNT_PROVIDER_TYPE_UNSPECIFIED",
+		1: "ACCOUNT_PROVIDER_TYPE_GOOGLE",
+		2: "ACCOUNT_PROVIDER_TYPE_AMAZON",
+		3: "ACCOUNT_PROVIDER_TYPE_AZURE",
+	}
+	AccountProviderType_value = map[string]int32{
+		"ACCOUNT_PROVIDER_TYPE_UNSPECIFIED": 0,
+		"ACCOUNT_PROVIDER_TYPE_GOOGLE":      1,
+		"ACCOUNT_PROVIDER_TYPE_AMAZON":      2,
+		"ACCOUNT_PROVIDER_TYPE_AZURE":       3,
+	}
+)
+
+func (x AccountProviderType) Enum() *AccountProviderType {
+	p := new(AccountProviderType)
+	*p = x
+	return p
+}
+
+func (x AccountProviderType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AccountProviderType) Descriptor() protoreflect.EnumDescriptor {
+	return file_chainguard_platform_iam_v2beta1_account_associations_proto_enumTypes[0].Descriptor()
+}
+
+func (AccountProviderType) Type() protoreflect.EnumType {
+	return &file_chainguard_platform_iam_v2beta1_account_associations_proto_enumTypes[0]
+}
+
+func (x AccountProviderType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AccountProviderType.Descriptor instead.
+func (AccountProviderType) EnumDescriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_account_associations_proto_rawDescGZIP(), []int{0}
+}
+
+// CheckStatus indicates the readiness state of an account association check.
+type CheckStatus int32
+
+const (
+	// Unspecified check status.
+	CheckStatus_CHECK_STATUS_UNSPECIFIED CheckStatus = 0
+	// The account association is correctly configured and credentials can be exchanged.
+	CheckStatus_CHECK_STATUS_READY CheckStatus = 1
+	// The account association is not ready (misconfigured, missing, or credential exchange failed).
+	CheckStatus_CHECK_STATUS_NOT_READY CheckStatus = 2
+)
+
+// Enum value maps for CheckStatus.
+var (
+	CheckStatus_name = map[int32]string{
+		0: "CHECK_STATUS_UNSPECIFIED",
+		1: "CHECK_STATUS_READY",
+		2: "CHECK_STATUS_NOT_READY",
+	}
+	CheckStatus_value = map[string]int32{
+		"CHECK_STATUS_UNSPECIFIED": 0,
+		"CHECK_STATUS_READY":       1,
+		"CHECK_STATUS_NOT_READY":   2,
+	}
+)
+
+func (x CheckStatus) Enum() *CheckStatus {
+	p := new(CheckStatus)
+	*p = x
+	return p
+}
+
+func (x CheckStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CheckStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_chainguard_platform_iam_v2beta1_account_associations_proto_enumTypes[1].Descriptor()
+}
+
+func (CheckStatus) Type() protoreflect.EnumType {
+	return &file_chainguard_platform_iam_v2beta1_account_associations_proto_enumTypes[1]
+}
+
+func (x CheckStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CheckStatus.Descriptor instead.
+func (CheckStatus) EnumDescriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_account_associations_proto_rawDescGZIP(), []int{1}
+}
+
 // AccountAssociation represents cloud provider account associations for a group.
 type AccountAssociation struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -535,6 +645,125 @@ func (x *UpdateAccountAssociationRequest) GetUpdateMask() *fieldmaskpb.FieldMask
 	return nil
 }
 
+// CheckAccountAssociationRequest is the request for CheckAccountAssociation.
+type CheckAccountAssociationRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UID (group UIDP) of the account association to check.
+	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	// The cloud provider type to check.
+	ProviderType  AccountProviderType `protobuf:"varint,2,opt,name=provider_type,json=providerType,proto3,enum=chainguard.platform.iam.v2beta1.AccountProviderType" json:"provider_type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckAccountAssociationRequest) Reset() {
+	*x = CheckAccountAssociationRequest{}
+	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckAccountAssociationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckAccountAssociationRequest) ProtoMessage() {}
+
+func (x *CheckAccountAssociationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckAccountAssociationRequest.ProtoReflect.Descriptor instead.
+func (*CheckAccountAssociationRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_account_associations_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *CheckAccountAssociationRequest) GetUid() string {
+	if x != nil {
+		return x.Uid
+	}
+	return ""
+}
+
+func (x *CheckAccountAssociationRequest) GetProviderType() AccountProviderType {
+	if x != nil {
+		return x.ProviderType
+	}
+	return AccountProviderType_ACCOUNT_PROVIDER_TYPE_UNSPECIFIED
+}
+
+// CheckAccountAssociationResponse is the response for CheckAccountAssociation.
+type CheckAccountAssociationResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Whether the association is ready.
+	Status CheckStatus `protobuf:"varint,1,opt,name=status,proto3,enum=chainguard.platform.iam.v2beta1.CheckStatus" json:"status,omitempty"`
+	// Human-readable reason code (e.g., "not configured", "error exchanging credentials").
+	Reason string `protobuf:"bytes,2,opt,name=reason,proto3" json:"reason,omitempty"`
+	// Detailed error message, if any.
+	Message       string `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckAccountAssociationResponse) Reset() {
+	*x = CheckAccountAssociationResponse{}
+	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckAccountAssociationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckAccountAssociationResponse) ProtoMessage() {}
+
+func (x *CheckAccountAssociationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckAccountAssociationResponse.ProtoReflect.Descriptor instead.
+func (*CheckAccountAssociationResponse) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_account_associations_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *CheckAccountAssociationResponse) GetStatus() CheckStatus {
+	if x != nil {
+		return x.Status
+	}
+	return CheckStatus_CHECK_STATUS_UNSPECIFIED
+}
+
+func (x *CheckAccountAssociationResponse) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *CheckAccountAssociationResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 // Amazon account association.
 type AccountAssociation_Amazon struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -546,7 +775,7 @@ type AccountAssociation_Amazon struct {
 
 func (x *AccountAssociation_Amazon) Reset() {
 	*x = AccountAssociation_Amazon{}
-	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[7]
+	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -558,7 +787,7 @@ func (x *AccountAssociation_Amazon) String() string {
 func (*AccountAssociation_Amazon) ProtoMessage() {}
 
 func (x *AccountAssociation_Amazon) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[7]
+	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -594,7 +823,7 @@ type AccountAssociation_Google struct {
 
 func (x *AccountAssociation_Google) Reset() {
 	*x = AccountAssociation_Google{}
-	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[8]
+	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -606,7 +835,7 @@ func (x *AccountAssociation_Google) String() string {
 func (*AccountAssociation_Google) ProtoMessage() {}
 
 func (x *AccountAssociation_Google) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[8]
+	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -648,7 +877,7 @@ type AccountAssociation_GitHub struct {
 
 func (x *AccountAssociation_GitHub) Reset() {
 	*x = AccountAssociation_GitHub{}
-	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[9]
+	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -660,7 +889,7 @@ func (x *AccountAssociation_GitHub) String() string {
 func (*AccountAssociation_GitHub) ProtoMessage() {}
 
 func (x *AccountAssociation_GitHub) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[9]
+	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -694,7 +923,7 @@ type AccountAssociation_GitHubAppInstallations struct {
 
 func (x *AccountAssociation_GitHubAppInstallations) Reset() {
 	*x = AccountAssociation_GitHubAppInstallations{}
-	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[10]
+	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -706,7 +935,7 @@ func (x *AccountAssociation_GitHubAppInstallations) String() string {
 func (*AccountAssociation_GitHubAppInstallations) ProtoMessage() {}
 
 func (x *AccountAssociation_GitHubAppInstallations) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[10]
+	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -743,7 +972,7 @@ type AccountAssociation_GitHubInstallation struct {
 
 func (x *AccountAssociation_GitHubInstallation) Reset() {
 	*x = AccountAssociation_GitHubInstallation{}
-	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[11]
+	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -755,7 +984,7 @@ func (x *AccountAssociation_GitHubInstallation) String() string {
 func (*AccountAssociation_GitHubInstallation) ProtoMessage() {}
 
 func (x *AccountAssociation_GitHubInstallation) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[11]
+	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -797,7 +1026,7 @@ type AccountAssociation_Chainguard struct {
 
 func (x *AccountAssociation_Chainguard) Reset() {
 	*x = AccountAssociation_Chainguard{}
-	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[12]
+	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -809,7 +1038,7 @@ func (x *AccountAssociation_Chainguard) String() string {
 func (*AccountAssociation_Chainguard) ProtoMessage() {}
 
 func (x *AccountAssociation_Chainguard) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[12]
+	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -845,7 +1074,7 @@ type AccountAssociation_Azure struct {
 
 func (x *AccountAssociation_Azure) Reset() {
 	*x = AccountAssociation_Azure{}
-	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[13]
+	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -857,7 +1086,7 @@ func (x *AccountAssociation_Azure) String() string {
 func (*AccountAssociation_Azure) ProtoMessage() {}
 
 func (x *AccountAssociation_Azure) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[13]
+	mi := &file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -968,7 +1197,24 @@ const file_chainguard_platform_iam_v2beta1_account_associations_proto_rawDesc = 
 	"\x13account_association\x18\x01 \x01(\v23.chainguard.platform.iam.v2beta1.AccountAssociationB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x12accountAssociation\x12A\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x04\xe2A\x01\x01R\n" +
-	"updateMask2\xe9\r\n" +
+	"updateMask\"\x9f\x01\n" +
+	"\x1eCheckAccountAssociationRequest\x12\x1c\n" +
+	"\x03uid\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12_\n" +
+	"\rprovider_type\x18\x02 \x01(\x0e24.chainguard.platform.iam.v2beta1.AccountProviderTypeB\x04\xe2A\x01\x02R\fproviderType\"\x99\x01\n" +
+	"\x1fCheckAccountAssociationResponse\x12D\n" +
+	"\x06status\x18\x01 \x01(\x0e2,.chainguard.platform.iam.v2beta1.CheckStatusR\x06status\x12\x16\n" +
+	"\x06reason\x18\x02 \x01(\tR\x06reason\x12\x18\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage*\xa1\x01\n" +
+	"\x13AccountProviderType\x12%\n" +
+	"!ACCOUNT_PROVIDER_TYPE_UNSPECIFIED\x10\x00\x12 \n" +
+	"\x1cACCOUNT_PROVIDER_TYPE_GOOGLE\x10\x01\x12 \n" +
+	"\x1cACCOUNT_PROVIDER_TYPE_AMAZON\x10\x02\x12\x1f\n" +
+	"\x1bACCOUNT_PROVIDER_TYPE_AZURE\x10\x03*_\n" +
+	"\vCheckStatus\x12\x1c\n" +
+	"\x18CHECK_STATUS_UNSPECIFIED\x10\x00\x12\x16\n" +
+	"\x12CHECK_STATUS_READY\x10\x01\x12\x1a\n" +
+	"\x16CHECK_STATUS_NOT_READY\x10\x022\xe5\x10\n" +
 	"\x1aAccountAssociationsService\x12\x90\x02\n" +
 	"\x15GetAccountAssociation\x12=.chainguard.platform.iam.v2beta1.GetAccountAssociationRequest\x1a3.chainguard.platform.iam.v2beta1.AccountAssociation\"\x82\x01\x82\xd3\xe4\x93\x02+\x12)/iam/v2beta1/accountAssociations/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xbf\x05\x9a\xaf\xa8\xd2\x05?\n" +
@@ -987,7 +1233,10 @@ const file_chainguard_platform_iam_v2beta1_account_associations_proto_rawDesc = 
 	"\x18UpdateAccountAssociation\x12@.chainguard.platform.iam.v2beta1.UpdateAccountAssociationRequest\x1a3.chainguard.platform.iam.v2beta1.AccountAssociation\"\xf0\x01\x82\xd3\xe4\x93\x02T:\x13account_association2=/iam/v2beta1/accountAssociations/{account_association.uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xbe\x05\x9a\xaf\xa8\xd2\x05=\n" +
 	"5Update a cloud provider account association's fields. \x00(\x010\x00\xc2\xf0\x8e\xfc\vA\n" +
-	"6dev.chainguard.api.iam.account_associations.updated.v1\x12\x05group\x18\x01B{\n" +
+	"6dev.chainguard.api.iam.account_associations.updated.v1\x12\x05group\x18\x01\x12\xf9\x02\n" +
+	"\x17CheckAccountAssociation\x12?.chainguard.platform.iam.v2beta1.CheckAccountAssociationRequest\x1a@.chainguard.platform.iam.v2beta1.CheckAccountAssociationResponse\"\xda\x01\x82\xd3\xe4\x93\x02F:\x01*\"A/iam/v2beta1/accountAssociations/{uid=**}:checkAccountAssociation\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xbf\x05\x9a\xaf\xa8\xd2\x05|\n" +
+	"tCheck whether a cloud provider account association is correctly configured by performing a live credential exchange. \x00(\x010\x00B{\n" +
 	"#com.chainguard.platform.iam.v2beta1B\x18AccountAssociationsProtoP\x01Z8chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1b\x06proto3"
 
 var (
@@ -1002,63 +1251,72 @@ func file_chainguard_platform_iam_v2beta1_account_associations_proto_rawDescGZIP
 	return file_chainguard_platform_iam_v2beta1_account_associations_proto_rawDescData
 }
 
-var file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_chainguard_platform_iam_v2beta1_account_associations_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_chainguard_platform_iam_v2beta1_account_associations_proto_goTypes = []any{
-	(*AccountAssociation)(nil),                        // 0: chainguard.platform.iam.v2beta1.AccountAssociation
-	(*GetAccountAssociationRequest)(nil),              // 1: chainguard.platform.iam.v2beta1.GetAccountAssociationRequest
-	(*ListAccountAssociationsRequest)(nil),            // 2: chainguard.platform.iam.v2beta1.ListAccountAssociationsRequest
-	(*CreateAccountAssociationRequest)(nil),           // 3: chainguard.platform.iam.v2beta1.CreateAccountAssociationRequest
-	(*DeleteAccountAssociationRequest)(nil),           // 4: chainguard.platform.iam.v2beta1.DeleteAccountAssociationRequest
-	(*ListAccountAssociationsResponse)(nil),           // 5: chainguard.platform.iam.v2beta1.ListAccountAssociationsResponse
-	(*UpdateAccountAssociationRequest)(nil),           // 6: chainguard.platform.iam.v2beta1.UpdateAccountAssociationRequest
-	(*AccountAssociation_Amazon)(nil),                 // 7: chainguard.platform.iam.v2beta1.AccountAssociation.Amazon
-	(*AccountAssociation_Google)(nil),                 // 8: chainguard.platform.iam.v2beta1.AccountAssociation.Google
-	(*AccountAssociation_GitHub)(nil),                 // 9: chainguard.platform.iam.v2beta1.AccountAssociation.GitHub
-	(*AccountAssociation_GitHubAppInstallations)(nil), // 10: chainguard.platform.iam.v2beta1.AccountAssociation.GitHubAppInstallations
-	(*AccountAssociation_GitHubInstallation)(nil),     // 11: chainguard.platform.iam.v2beta1.AccountAssociation.GitHubInstallation
-	(*AccountAssociation_Chainguard)(nil),             // 12: chainguard.platform.iam.v2beta1.AccountAssociation.Chainguard
-	(*AccountAssociation_Azure)(nil),                  // 13: chainguard.platform.iam.v2beta1.AccountAssociation.Azure
-	nil,                                               // 14: chainguard.platform.iam.v2beta1.AccountAssociation.GitHub.AppInstallationsEntry
-	nil,                                               // 15: chainguard.platform.iam.v2beta1.AccountAssociation.Chainguard.ServiceBindingsEntry
-	nil,                                               // 16: chainguard.platform.iam.v2beta1.AccountAssociation.Azure.ClientIdsEntry
-	(*timestamppb.Timestamp)(nil),                     // 17: google.protobuf.Timestamp
-	(*v1.UIDPFilter)(nil),                             // 18: chainguard.platform.common.UIDPFilter
-	(*fieldmaskpb.FieldMask)(nil),                     // 19: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),                             // 20: google.protobuf.Empty
+	(AccountProviderType)(0),                          // 0: chainguard.platform.iam.v2beta1.AccountProviderType
+	(CheckStatus)(0),                                  // 1: chainguard.platform.iam.v2beta1.CheckStatus
+	(*AccountAssociation)(nil),                        // 2: chainguard.platform.iam.v2beta1.AccountAssociation
+	(*GetAccountAssociationRequest)(nil),              // 3: chainguard.platform.iam.v2beta1.GetAccountAssociationRequest
+	(*ListAccountAssociationsRequest)(nil),            // 4: chainguard.platform.iam.v2beta1.ListAccountAssociationsRequest
+	(*CreateAccountAssociationRequest)(nil),           // 5: chainguard.platform.iam.v2beta1.CreateAccountAssociationRequest
+	(*DeleteAccountAssociationRequest)(nil),           // 6: chainguard.platform.iam.v2beta1.DeleteAccountAssociationRequest
+	(*ListAccountAssociationsResponse)(nil),           // 7: chainguard.platform.iam.v2beta1.ListAccountAssociationsResponse
+	(*UpdateAccountAssociationRequest)(nil),           // 8: chainguard.platform.iam.v2beta1.UpdateAccountAssociationRequest
+	(*CheckAccountAssociationRequest)(nil),            // 9: chainguard.platform.iam.v2beta1.CheckAccountAssociationRequest
+	(*CheckAccountAssociationResponse)(nil),           // 10: chainguard.platform.iam.v2beta1.CheckAccountAssociationResponse
+	(*AccountAssociation_Amazon)(nil),                 // 11: chainguard.platform.iam.v2beta1.AccountAssociation.Amazon
+	(*AccountAssociation_Google)(nil),                 // 12: chainguard.platform.iam.v2beta1.AccountAssociation.Google
+	(*AccountAssociation_GitHub)(nil),                 // 13: chainguard.platform.iam.v2beta1.AccountAssociation.GitHub
+	(*AccountAssociation_GitHubAppInstallations)(nil), // 14: chainguard.platform.iam.v2beta1.AccountAssociation.GitHubAppInstallations
+	(*AccountAssociation_GitHubInstallation)(nil),     // 15: chainguard.platform.iam.v2beta1.AccountAssociation.GitHubInstallation
+	(*AccountAssociation_Chainguard)(nil),             // 16: chainguard.platform.iam.v2beta1.AccountAssociation.Chainguard
+	(*AccountAssociation_Azure)(nil),                  // 17: chainguard.platform.iam.v2beta1.AccountAssociation.Azure
+	nil,                                               // 18: chainguard.platform.iam.v2beta1.AccountAssociation.GitHub.AppInstallationsEntry
+	nil,                                               // 19: chainguard.platform.iam.v2beta1.AccountAssociation.Chainguard.ServiceBindingsEntry
+	nil,                                               // 20: chainguard.platform.iam.v2beta1.AccountAssociation.Azure.ClientIdsEntry
+	(*timestamppb.Timestamp)(nil),                     // 21: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),                             // 22: chainguard.platform.common.UIDPFilter
+	(*fieldmaskpb.FieldMask)(nil),                     // 23: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),                             // 24: google.protobuf.Empty
 }
 var file_chainguard_platform_iam_v2beta1_account_associations_proto_depIdxs = []int32{
-	7,  // 0: chainguard.platform.iam.v2beta1.AccountAssociation.amazon:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation.Amazon
-	8,  // 1: chainguard.platform.iam.v2beta1.AccountAssociation.google:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation.Google
-	12, // 2: chainguard.platform.iam.v2beta1.AccountAssociation.chainguard:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation.Chainguard
-	13, // 3: chainguard.platform.iam.v2beta1.AccountAssociation.azure:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation.Azure
-	17, // 4: chainguard.platform.iam.v2beta1.AccountAssociation.create_time:type_name -> google.protobuf.Timestamp
-	17, // 5: chainguard.platform.iam.v2beta1.AccountAssociation.update_time:type_name -> google.protobuf.Timestamp
-	9,  // 6: chainguard.platform.iam.v2beta1.AccountAssociation.github:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation.GitHub
-	18, // 7: chainguard.platform.iam.v2beta1.ListAccountAssociationsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	0,  // 8: chainguard.platform.iam.v2beta1.CreateAccountAssociationRequest.account_association:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation
-	0,  // 9: chainguard.platform.iam.v2beta1.ListAccountAssociationsResponse.account_associations:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation
-	0,  // 10: chainguard.platform.iam.v2beta1.UpdateAccountAssociationRequest.account_association:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation
-	19, // 11: chainguard.platform.iam.v2beta1.UpdateAccountAssociationRequest.update_mask:type_name -> google.protobuf.FieldMask
-	14, // 12: chainguard.platform.iam.v2beta1.AccountAssociation.GitHub.app_installations:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation.GitHub.AppInstallationsEntry
-	11, // 13: chainguard.platform.iam.v2beta1.AccountAssociation.GitHubAppInstallations.installations:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation.GitHubInstallation
-	15, // 14: chainguard.platform.iam.v2beta1.AccountAssociation.Chainguard.service_bindings:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation.Chainguard.ServiceBindingsEntry
-	16, // 15: chainguard.platform.iam.v2beta1.AccountAssociation.Azure.client_ids:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation.Azure.ClientIdsEntry
-	10, // 16: chainguard.platform.iam.v2beta1.AccountAssociation.GitHub.AppInstallationsEntry.value:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation.GitHubAppInstallations
-	1,  // 17: chainguard.platform.iam.v2beta1.AccountAssociationsService.GetAccountAssociation:input_type -> chainguard.platform.iam.v2beta1.GetAccountAssociationRequest
-	3,  // 18: chainguard.platform.iam.v2beta1.AccountAssociationsService.CreateAccountAssociation:input_type -> chainguard.platform.iam.v2beta1.CreateAccountAssociationRequest
-	4,  // 19: chainguard.platform.iam.v2beta1.AccountAssociationsService.DeleteAccountAssociation:input_type -> chainguard.platform.iam.v2beta1.DeleteAccountAssociationRequest
-	2,  // 20: chainguard.platform.iam.v2beta1.AccountAssociationsService.ListAccountAssociations:input_type -> chainguard.platform.iam.v2beta1.ListAccountAssociationsRequest
-	6,  // 21: chainguard.platform.iam.v2beta1.AccountAssociationsService.UpdateAccountAssociation:input_type -> chainguard.platform.iam.v2beta1.UpdateAccountAssociationRequest
-	0,  // 22: chainguard.platform.iam.v2beta1.AccountAssociationsService.GetAccountAssociation:output_type -> chainguard.platform.iam.v2beta1.AccountAssociation
-	0,  // 23: chainguard.platform.iam.v2beta1.AccountAssociationsService.CreateAccountAssociation:output_type -> chainguard.platform.iam.v2beta1.AccountAssociation
-	20, // 24: chainguard.platform.iam.v2beta1.AccountAssociationsService.DeleteAccountAssociation:output_type -> google.protobuf.Empty
-	5,  // 25: chainguard.platform.iam.v2beta1.AccountAssociationsService.ListAccountAssociations:output_type -> chainguard.platform.iam.v2beta1.ListAccountAssociationsResponse
-	0,  // 26: chainguard.platform.iam.v2beta1.AccountAssociationsService.UpdateAccountAssociation:output_type -> chainguard.platform.iam.v2beta1.AccountAssociation
-	22, // [22:27] is the sub-list for method output_type
-	17, // [17:22] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	11, // 0: chainguard.platform.iam.v2beta1.AccountAssociation.amazon:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation.Amazon
+	12, // 1: chainguard.platform.iam.v2beta1.AccountAssociation.google:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation.Google
+	16, // 2: chainguard.platform.iam.v2beta1.AccountAssociation.chainguard:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation.Chainguard
+	17, // 3: chainguard.platform.iam.v2beta1.AccountAssociation.azure:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation.Azure
+	21, // 4: chainguard.platform.iam.v2beta1.AccountAssociation.create_time:type_name -> google.protobuf.Timestamp
+	21, // 5: chainguard.platform.iam.v2beta1.AccountAssociation.update_time:type_name -> google.protobuf.Timestamp
+	13, // 6: chainguard.platform.iam.v2beta1.AccountAssociation.github:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation.GitHub
+	22, // 7: chainguard.platform.iam.v2beta1.ListAccountAssociationsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	2,  // 8: chainguard.platform.iam.v2beta1.CreateAccountAssociationRequest.account_association:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation
+	2,  // 9: chainguard.platform.iam.v2beta1.ListAccountAssociationsResponse.account_associations:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation
+	2,  // 10: chainguard.platform.iam.v2beta1.UpdateAccountAssociationRequest.account_association:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation
+	23, // 11: chainguard.platform.iam.v2beta1.UpdateAccountAssociationRequest.update_mask:type_name -> google.protobuf.FieldMask
+	0,  // 12: chainguard.platform.iam.v2beta1.CheckAccountAssociationRequest.provider_type:type_name -> chainguard.platform.iam.v2beta1.AccountProviderType
+	1,  // 13: chainguard.platform.iam.v2beta1.CheckAccountAssociationResponse.status:type_name -> chainguard.platform.iam.v2beta1.CheckStatus
+	18, // 14: chainguard.platform.iam.v2beta1.AccountAssociation.GitHub.app_installations:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation.GitHub.AppInstallationsEntry
+	15, // 15: chainguard.platform.iam.v2beta1.AccountAssociation.GitHubAppInstallations.installations:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation.GitHubInstallation
+	19, // 16: chainguard.platform.iam.v2beta1.AccountAssociation.Chainguard.service_bindings:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation.Chainguard.ServiceBindingsEntry
+	20, // 17: chainguard.platform.iam.v2beta1.AccountAssociation.Azure.client_ids:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation.Azure.ClientIdsEntry
+	14, // 18: chainguard.platform.iam.v2beta1.AccountAssociation.GitHub.AppInstallationsEntry.value:type_name -> chainguard.platform.iam.v2beta1.AccountAssociation.GitHubAppInstallations
+	3,  // 19: chainguard.platform.iam.v2beta1.AccountAssociationsService.GetAccountAssociation:input_type -> chainguard.platform.iam.v2beta1.GetAccountAssociationRequest
+	5,  // 20: chainguard.platform.iam.v2beta1.AccountAssociationsService.CreateAccountAssociation:input_type -> chainguard.platform.iam.v2beta1.CreateAccountAssociationRequest
+	6,  // 21: chainguard.platform.iam.v2beta1.AccountAssociationsService.DeleteAccountAssociation:input_type -> chainguard.platform.iam.v2beta1.DeleteAccountAssociationRequest
+	4,  // 22: chainguard.platform.iam.v2beta1.AccountAssociationsService.ListAccountAssociations:input_type -> chainguard.platform.iam.v2beta1.ListAccountAssociationsRequest
+	8,  // 23: chainguard.platform.iam.v2beta1.AccountAssociationsService.UpdateAccountAssociation:input_type -> chainguard.platform.iam.v2beta1.UpdateAccountAssociationRequest
+	9,  // 24: chainguard.platform.iam.v2beta1.AccountAssociationsService.CheckAccountAssociation:input_type -> chainguard.platform.iam.v2beta1.CheckAccountAssociationRequest
+	2,  // 25: chainguard.platform.iam.v2beta1.AccountAssociationsService.GetAccountAssociation:output_type -> chainguard.platform.iam.v2beta1.AccountAssociation
+	2,  // 26: chainguard.platform.iam.v2beta1.AccountAssociationsService.CreateAccountAssociation:output_type -> chainguard.platform.iam.v2beta1.AccountAssociation
+	24, // 27: chainguard.platform.iam.v2beta1.AccountAssociationsService.DeleteAccountAssociation:output_type -> google.protobuf.Empty
+	7,  // 28: chainguard.platform.iam.v2beta1.AccountAssociationsService.ListAccountAssociations:output_type -> chainguard.platform.iam.v2beta1.ListAccountAssociationsResponse
+	2,  // 29: chainguard.platform.iam.v2beta1.AccountAssociationsService.UpdateAccountAssociation:output_type -> chainguard.platform.iam.v2beta1.AccountAssociation
+	10, // 30: chainguard.platform.iam.v2beta1.AccountAssociationsService.CheckAccountAssociation:output_type -> chainguard.platform.iam.v2beta1.CheckAccountAssociationResponse
+	25, // [25:31] is the sub-list for method output_type
+	19, // [19:25] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_iam_v2beta1_account_associations_proto_init() }
@@ -1072,13 +1330,14 @@ func file_chainguard_platform_iam_v2beta1_account_associations_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_iam_v2beta1_account_associations_proto_rawDesc), len(file_chainguard_platform_iam_v2beta1_account_associations_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   17,
+			NumEnums:      2,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_chainguard_platform_iam_v2beta1_account_associations_proto_goTypes,
 		DependencyIndexes: file_chainguard_platform_iam_v2beta1_account_associations_proto_depIdxs,
+		EnumInfos:         file_chainguard_platform_iam_v2beta1_account_associations_proto_enumTypes,
 		MessageInfos:      file_chainguard_platform_iam_v2beta1_account_associations_proto_msgTypes,
 	}.Build()
 	File_chainguard_platform_iam_v2beta1_account_associations_proto = out.File
