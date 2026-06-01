@@ -1,7 +1,7 @@
 # SDK
 
 This repository contains the public [gRPC](https://grpc.io/) protos supporting
-our services and packages to ease integration with the Chainguard platform.
+our services, plus packages to ease integration with the Chainguard platform.
 
 ## Updating `*.proto` files
 
