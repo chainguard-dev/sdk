@@ -72,7 +72,7 @@ var (
 		Capability_CAP_EVENTS_SUBSCRIPTION_CREATE,
 		Capability_CAP_EVENTS_SUBSCRIPTION_DELETE,
 		Capability_CAP_EVENTS_SUBSCRIPTION_UPDATE,
-	}, ViewerCaps)
+	}, RegistryEditorCaps, ViewerCaps)
 
 	// SkillsPublishCaps is the capability set required to publish skill artifacts
 	// to skills.cgr.dev. Included in OwnerCaps so org owners can push after
@@ -123,7 +123,6 @@ var (
 		Capability_CAP_SKILLS_ENTITLEMENTS_CREATE,
 		Capability_CAP_SKILLS_ENTITLEMENTS_DELETE,
 		Capability_CAP_LIBRARIES_CACHE_INVALIDATE,
-		Capability_CAP_REPO_UPDATE,
 		Capability_CAP_REPO_CHECK_POLICIES,
 
 		Capability_CAP_POLICY_GATES_BINDING_CREATE,
@@ -146,7 +145,9 @@ var (
 		SkillsPublishCaps,
 	)
 
-	RegistryRepoAdminCaps = SortCaps([]Capability{
+	RegistryRepoAdminCaps = SortCaps(RegistryEditorCaps)
+
+	RegistryEditorCaps = SortCaps([]Capability{
 		Capability_CAP_REPO_CREATE,
 		Capability_CAP_REPO_UPDATE,
 		Capability_CAP_REPO_DELETE,
