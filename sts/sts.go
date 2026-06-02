@@ -13,6 +13,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	oidc "chainguard.dev/sdk/proto/platform/oidc/v1"
@@ -43,13 +44,14 @@ type Exchanger interface {
 }
 
 // New creates a new Exchanger that works against the provided issuer's STS
-// endpoint, and requests token with the specified audience.  It's behavior
+// endpoint, and requests tokens with the specified audience(s). The audience
+// parameter may contain multiple comma-separated audience values. Its behavior
 // can be further customized via optional ExchangerOption parameters.
 func New(issuer, audience string, opts ...ExchangerOption) Exchanger {
 	i := &impl{
 		opts: options{
-			issuer:   issuer,
-			audience: audience,
+			issuer:    issuer,
+			audiences: strings.Split(audience, ","),
 		},
 	}
 	for _, opt := range opts {
@@ -74,8 +76,8 @@ func Exchange(ctx context.Context, issuer, audience, idToken string, opts ...Exc
 // ExchangePair performs an OIDC token exchange with the correct Exchanger based on the provided options.
 func ExchangePair(ctx context.Context, issuer, audience, idToken string, exchangerOptions ...ExchangerOption) (TokenPair, error) {
 	opts := options{
-		issuer:   issuer,
-		audience: audience,
+		issuer:    issuer,
+		audiences: strings.Split(audience, ","),
 	}
 	for _, eo := range exchangerOptions {
 		eo(&opts)
@@ -100,7 +102,7 @@ type impl struct {
 
 type options struct {
 	issuer           string
-	audience         string
+	audiences        []string
 	userAgent        string
 	firstScope       string
 	scope            []string
@@ -166,7 +168,7 @@ func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOpti
 		}
 
 		resp, err := c.STS().Exchange(ctx, &oidc.ExchangeRequest{
-			Aud:              []string{o.audience},
+			Aud:              o.audiences,
 			Scope:            o.firstScope, //nolint:staticcheck // Populating for backward compatibility
 			Scopes:           o.scope,
 			Identity:         o.identity,
@@ -218,7 +220,7 @@ func (i *impl) Refresh(ctx context.Context, token string, opts ...ExchangerOptio
 		}
 
 		resp, err := c.STS().ExchangeRefreshToken(ctx, &oidc.ExchangeRefreshTokenRequest{
-			Aud:    []string{o.audience},
+			Aud:    o.audiences,
 			Scope:  o.firstScope, //nolint:staticcheck // Populating for backward compatibility
 			Scopes: o.scope,
 			Cap:    o.capabilities,
@@ -298,8 +300,8 @@ type HTTP1DowngradeExchanger struct {
 func NewHTTP1DowngradeExchanger(issuer, audience string, opts ...ExchangerOption) *HTTP1DowngradeExchanger {
 	i := &HTTP1DowngradeExchanger{
 		opts: options{
-			issuer:   issuer,
-			audience: audience,
+			issuer:    issuer,
+			audiences: strings.Split(audience, ","),
 		},
 	}
 	for _, opt := range opts {
@@ -369,7 +371,7 @@ func (i *HTTP1DowngradeExchanger) Exchange(ctx context.Context, token string, op
 		opt(&o)
 	}
 	in := &oidc.ExchangeRequest{
-		Aud:              []string{o.audience},
+		Aud:              o.audiences,
 		Scope:            o.firstScope, //nolint:staticcheck // Populating for backward compatibility
 		Scopes:           o.scope,
 		Identity:         o.identity,
@@ -395,7 +397,7 @@ func (i *HTTP1DowngradeExchanger) Refresh(ctx context.Context, token string, opt
 	}
 
 	in := &oidc.ExchangeRefreshTokenRequest{
-		Aud:    []string{o.audience},
+		Aud:    o.audiences,
 		Scope:  o.firstScope, //nolint:staticcheck // Populating for backward compatibility
 		Scopes: o.scope,
 		Cap:    o.capabilities,
