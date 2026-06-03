@@ -474,6 +474,10 @@ message IdentityMetadata {
 
   // The URL of the latest internal referring page.
   string latest_internal_referring_url = 15 [(google.api.field_behavior) = OPTIONAL];
+
+  // The HubSpot UTK value to pass to HubSpot during console login.
+  // This value is ephemeral and not persisted to datastore.
+  string hubspot_utk = 16 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // UpdateIdentityMetadataRequest is the request for UpdateIdentityMetadata.

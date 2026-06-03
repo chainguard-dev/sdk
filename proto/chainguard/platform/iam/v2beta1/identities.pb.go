@@ -911,8 +911,11 @@ type IdentityMetadata struct {
 	LatestFormSubmitUrl string `protobuf:"bytes,14,opt,name=latest_form_submit_url,json=latestFormSubmitUrl,proto3" json:"latest_form_submit_url,omitempty"`
 	// The URL of the latest internal referring page.
 	LatestInternalReferringUrl string `protobuf:"bytes,15,opt,name=latest_internal_referring_url,json=latestInternalReferringUrl,proto3" json:"latest_internal_referring_url,omitempty"`
-	unknownFields              protoimpl.UnknownFields
-	sizeCache                  protoimpl.SizeCache
+	// The HubSpot UTK value to pass to HubSpot during console login.
+	// This value is ephemeral and not persisted to datastore.
+	HubspotUtk    string `protobuf:"bytes,16,opt,name=hubspot_utk,json=hubspotUtk,proto3" json:"hubspot_utk,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *IdentityMetadata) Reset() {
@@ -1046,6 +1049,13 @@ func (x *IdentityMetadata) GetLatestFormSubmitUrl() string {
 func (x *IdentityMetadata) GetLatestInternalReferringUrl() string {
 	if x != nil {
 		return x.LatestInternalReferringUrl
+	}
+	return ""
+}
+
+func (x *IdentityMetadata) GetHubspotUtk() string {
+	if x != nil {
+		return x.HubspotUtk
 	}
 	return ""
 }
@@ -1650,7 +1660,7 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\x06issuer\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x06issuer\x12\x1e\n" +
 	"\asubject\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\asubject\"0\n" +
 	"\x16LookupIdentityResponse\x12\x16\n" +
-	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\"\xde\x04\n" +
+	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\"\x85\x05\n" +
 	"\x10IdentityMetadata\x12\x16\n" +
 	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12\x18\n" +
 	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x04name\x12#\n" +
@@ -1672,7 +1682,9 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"utm_source\x18\f \x01(\tB\x04\xe2A\x01\x01R\tutmSource\x12\x1f\n" +
 	"\butm_term\x18\r \x01(\tB\x04\xe2A\x01\x01R\autmTerm\x129\n" +
 	"\x16latest_form_submit_url\x18\x0e \x01(\tB\x04\xe2A\x01\x01R\x13latestFormSubmitUrl\x12G\n" +
-	"\x1dlatest_internal_referring_url\x18\x0f \x01(\tB\x04\xe2A\x01\x01R\x1alatestInternalReferringUrl\"\xc8\x01\n" +
+	"\x1dlatest_internal_referring_url\x18\x0f \x01(\tB\x04\xe2A\x01\x01R\x1alatestInternalReferringUrl\x12%\n" +
+	"\vhubspot_utk\x18\x10 \x01(\tB\x04\xe2A\x01\x01R\n" +
+	"hubspotUtk\"\xc8\x01\n" +
 	"\x1dUpdateIdentityMetadataRequest\x12d\n" +
 	"\x11identity_metadata\x18\x01 \x01(\v21.chainguard.platform.iam.v2beta1.IdentityMetadataB\x04\xe2A\x01\x02R\x10identityMetadata\x12A\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x04\xe2A\x01\x01R\n" +

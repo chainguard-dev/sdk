@@ -114,5 +114,6 @@ message IdentityMetadata {
     // Marketing fields.
     string latest_form_submit_url = 12;
     string latest_internal_referring_url = 13;
+    string hubspot_utk = 14;
   }
 }
