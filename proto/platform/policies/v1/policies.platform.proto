@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-option go_package = "chainguard.dev/sdk/proto/platform/policygates/v1";
+option go_package = "chainguard.dev/sdk/proto/platform/policies/v1";
 
-package chainguard.platform.policygates.v1;
+package chainguard.platform.policies.v1;
 
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
@@ -16,31 +16,31 @@ import "platform/common/v1/uidp.platform.proto";
 service Policies {
   rpc CreatePolicy(CreatePolicyRequest) returns (Policy) {
     option (google.api.http) = {
-      post: "/policygates/v1/policies/{parent_id=**}"
+      post: "/policies/v1/policies/{parent_id=**}"
       body: "policy"
     };
     option (chainguard.annotations.iam) = {
-      enabled: { capabilities: [CAP_POLICY_GATES_POLICY_CREATE] }
+      enabled: { capabilities: [CAP_POLICIES_POLICY_CREATE] }
     };
   }
 
   rpc UpdatePolicy(Policy) returns (Policy) {
     option (google.api.http) = {
-      put: "/policygates/v1/policies/{id=**}"
+      put: "/policies/v1/policies/{id=**}"
       body: "*"
     };
     option (chainguard.annotations.iam) = {
-      enabled: { capabilities: [CAP_POLICY_GATES_POLICY_UPDATE] }
+      enabled: { capabilities: [CAP_POLICIES_POLICY_UPDATE] }
     };
   }
 
   rpc ListPolicies(PolicyFilter) returns (PolicyList) {
     option (google.api.http) = {
-      get: "/policygates/v1/policies"
+      get: "/policies/v1/policies"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [CAP_POLICY_GATES_POLICY_LIST]
+        capabilities: [CAP_POLICIES_POLICY_LIST]
         unscoped: true
       }
     };
@@ -48,10 +48,10 @@ service Policies {
 
   rpc DeletePolicy(DeletePolicyRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/policygates/v1/policies/{id=**}"
+      delete: "/policies/v1/policies/{id=**}"
     };
     option (chainguard.annotations.iam) = {
-      enabled: { capabilities: [CAP_POLICY_GATES_POLICY_DELETE] }
+      enabled: { capabilities: [CAP_POLICIES_POLICY_DELETE] }
     };
   }
 }
@@ -59,14 +59,14 @@ service Policies {
 service Bindings {
   rpc CreateBinding(CreateBindingRequest) returns (Binding) {
     option (google.api.http) = {
-      post: "/policygates/v1/bindings/{parent_id=**}"
+      post: "/policies/v1/bindings/{parent_id=**}"
       body: "binding"
     };
     option (chainguard.annotations.iam) = {
-      enabled: { capabilities: [CAP_POLICY_GATES_BINDING_CREATE] }
+      enabled: { capabilities: [CAP_POLICIES_BINDING_CREATE] }
     };
     option (chainguard.annotations.events) = {
-      type: "dev.chainguard.api.policygates.bindings.created.v1"
+      type: "dev.chainguard.api.policies.bindings.created.v1"
       extensions: ["group"]
       audience: CUSTOMER
     };
@@ -74,14 +74,14 @@ service Bindings {
 
   rpc UpdateBinding(Binding) returns (Binding) {
     option (google.api.http) = {
-      put: "/policygates/v1/bindings/{id=**}"
+      put: "/policies/v1/bindings/{id=**}"
       body: "*"
     };
     option (chainguard.annotations.iam) = {
-      enabled: { capabilities: [CAP_POLICY_GATES_BINDING_UPDATE] }
+      enabled: { capabilities: [CAP_POLICIES_BINDING_UPDATE] }
     };
     option (chainguard.annotations.events) = {
-      type: "dev.chainguard.api.policygates.bindings.updated.v1"
+      type: "dev.chainguard.api.policies.bindings.updated.v1"
       extensions: ["group"]
       audience: CUSTOMER
     };
@@ -89,11 +89,11 @@ service Bindings {
 
   rpc ListBindings(BindingFilter) returns (BindingList) {
     option (google.api.http) = {
-      get: "/policygates/v1/bindings"
+      get: "/policies/v1/bindings"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [CAP_POLICY_GATES_BINDING_LIST]
+        capabilities: [CAP_POLICIES_BINDING_LIST]
         unscoped: true
       }
     };
@@ -101,13 +101,13 @@ service Bindings {
 
   rpc DeleteBinding(DeleteBindingRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/policygates/v1/bindings/{id=**}"
+      delete: "/policies/v1/bindings/{id=**}"
     };
     option (chainguard.annotations.iam) = {
-      enabled: { capabilities: [CAP_POLICY_GATES_BINDING_DELETE] }
+      enabled: { capabilities: [CAP_POLICIES_BINDING_DELETE] }
     };
     option (chainguard.annotations.events) = {
-      type: "dev.chainguard.api.policygates.bindings.deleted.v1"
+      type: "dev.chainguard.api.policies.bindings.deleted.v1"
       extensions: ["group"]
       audience: CUSTOMER
     };

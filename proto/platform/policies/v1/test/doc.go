@@ -3,34 +3,34 @@ Copyright 2026 Chainguard, Inc.
 SPDX-License-Identifier: Apache-2.0
 */
 
-// Package test provides mock implementations of PolicyGates gRPC clients for testing.
+// Package test provides mock implementations of Policies gRPC clients for testing.
 //
 // # Overview
 //
-// This package contains mock implementations of the PolicyGates service clients,
-// enabling unit testing of code that depends on the PolicyGates API without
+// This package contains mock implementations of the Policies service clients,
+// enabling unit testing of code that depends on the Policies API without
 // requiring a live gRPC connection. The mocks support configurable responses
-// for all PolicyGates operations including policies and bindings management.
+// for all Policies operations including policies and bindings management.
 //
 // # Features
 //
-//   - Mock implementations of policygates.Clients, policygates.PoliciesClient,
-//     and policygates.BindingsClient interfaces
+//   - Mock implementations of policies.Clients, policies.PoliciesClient,
+//     and policies.BindingsClient interfaces
 //   - Configurable responses based on request matching using protocmp
 //   - Support for error simulation in test scenarios
-//   - Zero external dependencies beyond the PolicyGates proto definitions
+//   - Zero external dependencies beyond the Policies proto definitions
 //
 // # Usage
 //
-// To use the mocks in tests, create a MockPolicyGatesClients instance and
+// To use the mocks in tests, create a MockPoliciesClients instance and
 // configure the expected requests and responses:
 //
-//	mock := &test.MockPolicyGatesClients{
+//	mock := &test.MockPoliciesClients{
 //		PoliciesOnClient: test.MockPoliciesClient{
 //			OnListPolicies: []test.OnListPolicies{{
-//				Given: &policygates.PolicyFilter{},
-//				List: &policygates.PolicyList{
-//					Items: []*policygates.Policy{
+//				Given: &policies.PolicyFilter{},
+//				List: &policies.PolicyList{
+//					Items: []*policies.Policy{
 //						{Id: "policy-1", Name: "test-policy"},
 //					},
 //				},
@@ -40,7 +40,7 @@ SPDX-License-Identifier: Apache-2.0
 //
 //	// Use the mock in your code under test
 //	policies := mock.Policies()
-//	list, err := policies.ListPolicies(ctx, &policygates.PolicyFilter{})
+//	list, err := policies.ListPolicies(ctx, &policies.PolicyFilter{})
 //
 // # Integration Patterns
 //

@@ -26,7 +26,7 @@ import (
 	platformoidc "chainguard.dev/sdk/proto/platform/oidc/v1"
 	packages "chainguard.dev/sdk/proto/platform/packages/v1"
 	ping "chainguard.dev/sdk/proto/platform/ping/v1"
-	policygates "chainguard.dev/sdk/proto/platform/policygates/v1"
+	policies "chainguard.dev/sdk/proto/platform/policies/v1"
 	registry "chainguard.dev/sdk/proto/platform/registry/v1"
 	skills "chainguard.dev/sdk/proto/platform/skills/v1"
 	vulnerabilities "chainguard.dev/sdk/proto/platform/vulnerabilities/v1"
@@ -47,7 +47,7 @@ type Clients interface {
 	Packages() packages.Clients
 	Vulnerabilities() vulnerabilities.Clients
 	ImageMatcher() matcher.Clients
-	PolicyGates() policygates.Clients
+	Policies() policies.Clients
 	Argos() argos.Clients
 
 	// Connection returns the underlying gRPC connection for creating additional clients.
@@ -104,7 +104,7 @@ func NewPlatformClients(ctx context.Context, apiURL string, cred credentials.Per
 		packages:        packages.NewClientsFromConnection(conn),
 		vulnerabilities: vulnerabilities.NewClientsFromConnection(conn),
 		matcher:         matcher.NewClientsFromConnection(conn),
-		policyGates:     policygates.NewClientsFromConnection(conn),
+		policies:        policies.NewClientsFromConnection(conn),
 		argos:           argos.NewClientsFromConnection(conn),
 		conn:            conn,
 	}, nil
@@ -122,7 +122,7 @@ type clients struct {
 	packages        packages.Clients
 	vulnerabilities vulnerabilities.Clients
 	matcher         matcher.Clients
-	policyGates     policygates.Clients
+	policies        policies.Clients
 	argos           argos.Clients
 
 	conn *grpc.ClientConn
@@ -176,8 +176,8 @@ func (c *clients) ImageMatcher() matcher.Clients {
 	return c.matcher
 }
 
-func (c *clients) PolicyGates() policygates.Clients {
-	return c.policyGates
+func (c *clients) Policies() policies.Clients {
+	return c.policies
 }
 
 func (c *clients) Argos() argos.Clients {

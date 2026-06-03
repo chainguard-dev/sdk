@@ -9,13 +9,13 @@ import (
 	"context"
 	"fmt"
 
-	policygatev1 "chainguard.dev/sdk/proto/platform/policygates/v1"
+	policiesv1 "chainguard.dev/sdk/proto/platform/policies/v1"
 )
 
 // ExampleNewClients demonstrates that an invalid address returns an error.
 func ExampleNewClients() {
 	ctx := context.Background()
-	_, err := policygatev1.NewClients(ctx, "http://%zz", "")
+	_, err := policiesv1.NewClients(ctx, "http://%zz", "")
 	fmt.Println(err != nil)
 	// Output:
 	// true

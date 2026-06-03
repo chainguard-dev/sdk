@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.1
 // - protoc             v7.34.1
-// source: policygates.platform.proto
+// source: policies.platform.proto
 
 package v1
 
@@ -20,10 +20,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Policies_CreatePolicy_FullMethodName = "/chainguard.platform.policygates.v1.Policies/CreatePolicy"
-	Policies_UpdatePolicy_FullMethodName = "/chainguard.platform.policygates.v1.Policies/UpdatePolicy"
-	Policies_ListPolicies_FullMethodName = "/chainguard.platform.policygates.v1.Policies/ListPolicies"
-	Policies_DeletePolicy_FullMethodName = "/chainguard.platform.policygates.v1.Policies/DeletePolicy"
+	Policies_CreatePolicy_FullMethodName = "/chainguard.platform.policies.v1.Policies/CreatePolicy"
+	Policies_UpdatePolicy_FullMethodName = "/chainguard.platform.policies.v1.Policies/UpdatePolicy"
+	Policies_ListPolicies_FullMethodName = "/chainguard.platform.policies.v1.Policies/ListPolicies"
+	Policies_DeletePolicy_FullMethodName = "/chainguard.platform.policies.v1.Policies/DeletePolicy"
 )
 
 // PoliciesClient is the client API for Policies service.
@@ -211,7 +211,7 @@ func _Policies_DeletePolicy_Handler(srv interface{}, ctx context.Context, dec fu
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Policies_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "chainguard.platform.policygates.v1.Policies",
+	ServiceName: "chainguard.platform.policies.v1.Policies",
 	HandlerType: (*PoliciesServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -232,14 +232,14 @@ var Policies_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "policygates.platform.proto",
+	Metadata: "policies.platform.proto",
 }
 
 const (
-	Bindings_CreateBinding_FullMethodName = "/chainguard.platform.policygates.v1.Bindings/CreateBinding"
-	Bindings_UpdateBinding_FullMethodName = "/chainguard.platform.policygates.v1.Bindings/UpdateBinding"
-	Bindings_ListBindings_FullMethodName  = "/chainguard.platform.policygates.v1.Bindings/ListBindings"
-	Bindings_DeleteBinding_FullMethodName = "/chainguard.platform.policygates.v1.Bindings/DeleteBinding"
+	Bindings_CreateBinding_FullMethodName = "/chainguard.platform.policies.v1.Bindings/CreateBinding"
+	Bindings_UpdateBinding_FullMethodName = "/chainguard.platform.policies.v1.Bindings/UpdateBinding"
+	Bindings_ListBindings_FullMethodName  = "/chainguard.platform.policies.v1.Bindings/ListBindings"
+	Bindings_DeleteBinding_FullMethodName = "/chainguard.platform.policies.v1.Bindings/DeleteBinding"
 )
 
 // BindingsClient is the client API for Bindings service.
@@ -427,7 +427,7 @@ func _Bindings_DeleteBinding_Handler(srv interface{}, ctx context.Context, dec f
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Bindings_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "chainguard.platform.policygates.v1.Bindings",
+	ServiceName: "chainguard.platform.policies.v1.Bindings",
 	HandlerType: (*BindingsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -448,5 +448,5 @@ var Bindings_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "policygates.platform.proto",
+	Metadata: "policies.platform.proto",
 }

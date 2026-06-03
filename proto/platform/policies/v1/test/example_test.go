@@ -9,22 +9,22 @@ import (
 	"context"
 	"fmt"
 
-	policygates "chainguard.dev/sdk/proto/platform/policygates/v1"
-	"chainguard.dev/sdk/proto/platform/policygates/v1/test"
+	policies "chainguard.dev/sdk/proto/platform/policies/v1"
+	"chainguard.dev/sdk/proto/platform/policies/v1/test"
 )
 
-// ExampleMockPolicyGatesClients demonstrates how to use the mock clients
-// for testing code that depends on the PolicyGates API.
-func ExampleMockPolicyGatesClients() {
+// ExampleMockPoliciesClients demonstrates how to use the mock clients
+// for testing code that depends on the Policies API.
+func ExampleMockPoliciesClients() {
 	ctx := context.Background()
 
 	// Create a mock with configured responses
-	mock := &test.MockPolicyGatesClients{
+	mock := &test.MockPoliciesClients{
 		PoliciesOnClient: test.MockPoliciesClient{
 			OnListPolicies: []test.OnListPolicies{{
-				Given: &policygates.PolicyFilter{},
-				List: &policygates.PolicyList{
-					Items: []*policygates.Policy{{
+				Given: &policies.PolicyFilter{},
+				List: &policies.PolicyList{
+					Items: []*policies.Policy{{
 						Id:   "policy-1",
 						Name: "example-policy",
 					}},
@@ -34,8 +34,8 @@ func ExampleMockPolicyGatesClients() {
 	}
 
 	// Use the mock in your code
-	policies := mock.Policies()
-	list, err := policies.ListPolicies(ctx, &policygates.PolicyFilter{})
+	pc := mock.Policies()
+	list, err := pc.ListPolicies(ctx, &policies.PolicyFilter{})
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
 		return
@@ -51,20 +51,20 @@ func ExampleMockPoliciesClient_CreatePolicy() {
 
 	mock := &test.MockPoliciesClient{
 		OnCreatePolicy: []test.OnCreatePolicy{{
-			Given: &policygates.CreatePolicyRequest{
-				Policy: &policygates.Policy{
+			Given: &policies.CreatePolicyRequest{
+				Policy: &policies.Policy{
 					Name: "new-policy",
 				},
 			},
-			Created: &policygates.Policy{
+			Created: &policies.Policy{
 				Id:   "policy-123",
 				Name: "new-policy",
 			},
 		}},
 	}
 
-	created, err := mock.CreatePolicy(ctx, &policygates.CreatePolicyRequest{
-		Policy: &policygates.Policy{
+	created, err := mock.CreatePolicy(ctx, &policies.CreatePolicyRequest{
+		Policy: &policies.Policy{
 			Name: "new-policy",
 		},
 	})
@@ -83,18 +83,18 @@ func ExampleMockPoliciesClient_UpdatePolicy() {
 
 	mock := &test.MockPoliciesClient{
 		OnUpdatePolicy: []test.OnUpdatePolicy{{
-			Given: &policygates.Policy{
+			Given: &policies.Policy{
 				Id:   "policy-1",
 				Name: "updated-name",
 			},
-			Updated: &policygates.Policy{
+			Updated: &policies.Policy{
 				Id:   "policy-1",
 				Name: "updated-name",
 			},
 		}},
 	}
 
-	updated, err := mock.UpdatePolicy(ctx, &policygates.Policy{
+	updated, err := mock.UpdatePolicy(ctx, &policies.Policy{
 		Id:   "policy-1",
 		Name: "updated-name",
 	})
@@ -113,9 +113,9 @@ func ExampleMockPoliciesClient_ListPolicies() {
 
 	mock := &test.MockPoliciesClient{
 		OnListPolicies: []test.OnListPolicies{{
-			Given: &policygates.PolicyFilter{},
-			List: &policygates.PolicyList{
-				Items: []*policygates.Policy{{
+			Given: &policies.PolicyFilter{},
+			List: &policies.PolicyList{
+				Items: []*policies.Policy{{
 					Id:   "policy-1",
 					Name: "first-policy",
 				}, {
@@ -126,7 +126,7 @@ func ExampleMockPoliciesClient_ListPolicies() {
 		}},
 	}
 
-	list, err := mock.ListPolicies(ctx, &policygates.PolicyFilter{})
+	list, err := mock.ListPolicies(ctx, &policies.PolicyFilter{})
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
 		return
@@ -142,13 +142,13 @@ func ExampleMockPoliciesClient_DeletePolicy() {
 
 	mock := &test.MockPoliciesClient{
 		OnDeletePolicy: []test.OnDeletePolicy{{
-			Given: &policygates.DeletePolicyRequest{
+			Given: &policies.DeletePolicyRequest{
 				Id: "policy-1",
 			},
 		}},
 	}
 
-	_, err := mock.DeletePolicy(ctx, &policygates.DeletePolicyRequest{
+	_, err := mock.DeletePolicy(ctx, &policies.DeletePolicyRequest{
 		Id: "policy-1",
 	})
 	if err != nil {
@@ -166,20 +166,20 @@ func ExampleMockBindingsClient_CreateBinding() {
 
 	mock := &test.MockBindingsClient{
 		OnCreateBinding: []test.OnCreateBinding{{
-			Given: &policygates.CreateBindingRequest{
-				Binding: &policygates.Binding{
+			Given: &policies.CreateBindingRequest{
+				Binding: &policies.Binding{
 					Policy: "policy-1",
 				},
 			},
-			Created: &policygates.Binding{
+			Created: &policies.Binding{
 				Id:     "binding-123",
 				Policy: "policy-1",
 			},
 		}},
 	}
 
-	created, err := mock.CreateBinding(ctx, &policygates.CreateBindingRequest{
-		Binding: &policygates.Binding{
+	created, err := mock.CreateBinding(ctx, &policies.CreateBindingRequest{
+		Binding: &policies.Binding{
 			Policy: "policy-1",
 		},
 	})
@@ -198,18 +198,18 @@ func ExampleMockBindingsClient_UpdateBinding() {
 
 	mock := &test.MockBindingsClient{
 		OnUpdateBinding: []test.OnUpdateBinding{{
-			Given: &policygates.Binding{
+			Given: &policies.Binding{
 				Id:     "binding-1",
 				Policy: "policy-2",
 			},
-			Updated: &policygates.Binding{
+			Updated: &policies.Binding{
 				Id:     "binding-1",
 				Policy: "policy-2",
 			},
 		}},
 	}
 
-	updated, err := mock.UpdateBinding(ctx, &policygates.Binding{
+	updated, err := mock.UpdateBinding(ctx, &policies.Binding{
 		Id:     "binding-1",
 		Policy: "policy-2",
 	})
@@ -228,9 +228,9 @@ func ExampleMockBindingsClient_ListBindings() {
 
 	mock := &test.MockBindingsClient{
 		OnListBindings: []test.OnListBindings{{
-			Given: &policygates.BindingFilter{},
-			List: &policygates.BindingList{
-				Items: []*policygates.Binding{{
+			Given: &policies.BindingFilter{},
+			List: &policies.BindingList{
+				Items: []*policies.Binding{{
 					Id:     "binding-1",
 					Policy: "policy-1",
 				}, {
@@ -241,7 +241,7 @@ func ExampleMockBindingsClient_ListBindings() {
 		}},
 	}
 
-	list, err := mock.ListBindings(ctx, &policygates.BindingFilter{})
+	list, err := mock.ListBindings(ctx, &policies.BindingFilter{})
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
 		return
@@ -257,13 +257,13 @@ func ExampleMockBindingsClient_DeleteBinding() {
 
 	mock := &test.MockBindingsClient{
 		OnDeleteBinding: []test.OnDeleteBinding{{
-			Given: &policygates.DeleteBindingRequest{
+			Given: &policies.DeleteBindingRequest{
 				Id: "binding-1",
 			},
 		}},
 	}
 
-	_, err := mock.DeleteBinding(ctx, &policygates.DeleteBindingRequest{
+	_, err := mock.DeleteBinding(ctx, &policies.DeleteBindingRequest{
 		Id: "binding-1",
 	})
 	if err != nil {

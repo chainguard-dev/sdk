@@ -31,8 +31,8 @@ import (
 	packagestest "chainguard.dev/sdk/proto/platform/packages/v1/test"
 	ping "chainguard.dev/sdk/proto/platform/ping/v1"
 	pingtest "chainguard.dev/sdk/proto/platform/ping/v1/test"
-	policygates "chainguard.dev/sdk/proto/platform/policygates/v1"
-	policygatestest "chainguard.dev/sdk/proto/platform/policygates/v1/test"
+	policies "chainguard.dev/sdk/proto/platform/policies/v1"
+	policiestest "chainguard.dev/sdk/proto/platform/policies/v1/test"
 	registry "chainguard.dev/sdk/proto/platform/registry/v1"
 	registrytest "chainguard.dev/sdk/proto/platform/registry/v1/test"
 	skills "chainguard.dev/sdk/proto/platform/skills/v1"
@@ -58,7 +58,7 @@ type MockPlatformClients struct {
 	PackagesClient        packagestest.MockPackagesClients
 	VulnerabilitiesClient vulnerabilitiestest.MockVulnerabilitiesClients
 	ImageMatcherClient    matchertest.MockImageMatcherClients
-	PolicyGatesClient     policygatestest.MockPolicyGatesClients
+	PoliciesClient        policiestest.MockPoliciesClients
 	ArgosClient           argostest.MockArgosClients
 }
 
@@ -114,8 +114,8 @@ func (m MockPlatformClients) ImageMatcher() matcher.Clients {
 	return m.ImageMatcherClient
 }
 
-func (m MockPlatformClients) PolicyGates() policygates.Clients {
-	return m.PolicyGatesClient
+func (m MockPlatformClients) Policies() policies.Clients {
+	return m.PoliciesClient
 }
 
 func (m MockPlatformClients) Argos() argos.Clients {

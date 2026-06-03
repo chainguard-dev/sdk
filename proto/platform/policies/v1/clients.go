@@ -27,7 +27,7 @@ type Clients interface {
 func NewClients(ctx context.Context, addr string, token string) (Clients, error) {
 	uri, err := url.Parse(addr)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse policy gates service address, must be a url: %w", err)
+		return nil, fmt.Errorf("failed to parse policies service address, must be a url: %w", err)
 	}
 
 	target, opts := delegate.GRPCOptions(*uri)
@@ -40,7 +40,7 @@ func NewClients(ctx context.Context, addr string, token string) (Clients, error)
 
 	conn, err := grpc.NewClient(target, opts...)
 	if err != nil {
-		return nil, fmt.Errorf("policygates.NewClients: failed to connect to the server: %w", err)
+		return nil, fmt.Errorf("policies.NewClients: failed to connect to the server: %w", err)
 	}
 
 	return &clients{
