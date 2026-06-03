@@ -11,6 +11,26 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+// TestSkillsPublishCaps pins the bundle's membership so a regression that
+// drops CAP_TERMS_LIST (which chainctl pre-flight needs to read acceptance
+// state) won't silently leave skills publishers unable to push.
+func TestSkillsPublishCaps(t *testing.T) {
+	required := map[Capability]struct{}{
+		Capability_CAP_SKILLS_PUBLISH:           {},
+		Capability_CAP_SKILLS_ENTITLEMENTS_LIST: {},
+		Capability_CAP_TERMS_LIST:               {},
+	}
+	got := make(map[Capability]struct{}, len(SkillsPublishCaps))
+	for _, c := range SkillsPublishCaps {
+		got[c] = struct{}{}
+	}
+	for c := range required {
+		if _, ok := got[c]; !ok {
+			t.Errorf("SkillsPublishCaps missing %v", c)
+		}
+	}
+}
+
 func TestSortCaps(t *testing.T) {
 	tests := []struct {
 		name      string

@@ -78,9 +78,13 @@ var (
 	// to skills.cgr.dev. Included in OwnerCaps so org owners can push after
 	// provisioning a skills entitlement. Can also be granted explicitly to a
 	// service principal or non-owner member via chainctl iam role-bindings create.
+	//
+	// CAP_TERMS_LIST lets chainctl's pre-flight read the org's accepted-docs
+	// list so it knows whether to prompt with the TUI before remote.Write.
 	SkillsPublishCaps = SortCaps([]Capability{
 		Capability_CAP_SKILLS_PUBLISH,
 		Capability_CAP_SKILLS_ENTITLEMENTS_LIST,
+		Capability_CAP_TERMS_LIST,
 	})
 
 	// OwnerCaps includes all capabilities possible by a user.
