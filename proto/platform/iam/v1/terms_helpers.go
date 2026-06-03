@@ -32,12 +32,10 @@ var knownDocuments = map[string]TermsDocument{
 		Label: "Data Privacy Agreement",
 		URL:   "https://www.chainguard.dev/legal/supplemental-dpa",
 	},
-	// TODO(priya): finalize URL with legal before flipping the registry-side
-	// terms gate in production. The doc ID is stable; only Label/URL may change.
 	"skills-tos.v1": {
 		ID:    "skills-tos.v1",
 		Label: "Skills Registry Terms of Service",
-		URL:   "https://www.chainguard.dev/legal/skills",
+		URL:   "https://www.chainguard.dev/legal/agent-skills-disclosure",
 	},
 }
 
