@@ -7,7 +7,6 @@ package chainguard.platform.libraries;
 import "annotations/auth.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-
 service NpmPackages {
   rpc List(NpmPackageFilter) returns (NpmPackageList) {
     option (google.api.http) = {
@@ -75,6 +74,8 @@ message NpmPackageFilter {
   // The token received from a previous call to List.
   // Provide this to retrieve the subsequent page.
   string page_token = 3;
+  // The source types to include. If empty, defaults to all.
+  repeated NpmSourceType source_types = 4;
 }
 
 // NpmSourceType indicates the origin of a package version.
@@ -88,20 +89,47 @@ enum NpmSourceType {
 // NpmPackageVersion contains metadata about a specific version of an
 // npm package available in Chainguard Libraries.
 message NpmPackageVersion {
-  // The npm package name (e.g. "react" or "@scope/lib").
+  // package_name is the full package name including scope.
+  // e.g., "@scope/lib" or "react"
   string package_name = 1;
-  // The version string of this package version.
+  // version is the semver string.
+  // e.g., "18.2.0"
   string version = 2;
-  // The SPDX license identifier for this version.
+  // license is the SPDX license identifier for this version (e.g., "MIT", "Apache-2.0").
   string license = 3;
-  // When this version was first published.
+  // created_at is when the record was created in the database.
   google.protobuf.Timestamp created_at = 4;
-  // The size of the package in bytes.
+  // file_size is the size of the tarball in bytes.
   int64 file_size = 5;
-  // The number of files contained in the package.
+  // file_count is the number of files inside the tarball.
   int64 file_count = 6;
-  // The origin of this package version.
+  // source_type indicates the origin of this version.
   NpmSourceType source_type = 7;
+  // sha512 is the SHA-512 checksum of the tarball (required).
+  string sha512 = 8;
+  // updated_at is when the record was last updated.
+  google.protobuf.Timestamp updated_at = 9;
+  // upstream_published_date is when the package was published upstream (optional).
+  google.protobuf.Timestamp upstream_published_date = 10;
+  // integrity is the SRI string (optional).
+  string integrity = 11;
+  // provenance_predicate_type is the SLSA predicate type URI if provenance was
+  // provided at publish time. Empty string if no provenance was provided.
+  // e.g., "https://slsa.dev/provenance/v1" or "https://slsa.dev/provenance/v0.2"
+  string provenance_predicate_type = 12;
+  // putument_ref is the R2 storage path to the raw putument JSON blob.
+  string putument_ref = 13;
+  // version_metadata is a JSON blob of the version object from the putument,
+  // used to serve rich packument responses without fetching from R2.
+  string version_metadata = 14;
+  // malware_scanned indicates whether this version has been scanned for malware.
+  bool malware_scanned = 15;
+  // malware_malicious indicates whether this version was flagged as malicious.
+  bool malware_malicious = 16;
+  // malware_scanned_at is when the malware scan was performed.
+  google.protobuf.Timestamp malware_scanned_at = 17;
+  // sbom_formats are the supported sbom formats for this package.
+  repeated string sbom_formats = 18;
 }
 
 // A collection of NpmPackageVersions as returned by calls to ListVersions.
@@ -127,4 +155,6 @@ message NpmPackageVersionFilter {
   // The token received from a previous call to ListVersions.
   // Provide this to retrieve the subsequent page.
   string page_token = 3;
+  // The source types to include. If empty, defaults to all.
+  repeated NpmSourceType source_types = 4;
 }

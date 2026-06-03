@@ -240,7 +240,9 @@ type NpmPackageFilter struct {
 	PageSize int64 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	// The token received from a previous call to List.
 	// Provide this to retrieve the subsequent page.
-	PageToken     string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	PageToken string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// The source types to include. If empty, defaults to all.
+	SourceTypes   []NpmSourceType `protobuf:"varint,4,rep,packed,name=source_types,json=sourceTypes,proto3,enum=chainguard.platform.libraries.NpmSourceType" json:"source_types,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -296,24 +298,58 @@ func (x *NpmPackageFilter) GetPageToken() string {
 	return ""
 }
 
+func (x *NpmPackageFilter) GetSourceTypes() []NpmSourceType {
+	if x != nil {
+		return x.SourceTypes
+	}
+	return nil
+}
+
 // NpmPackageVersion contains metadata about a specific version of an
 // npm package available in Chainguard Libraries.
 type NpmPackageVersion struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The npm package name (e.g. "react" or "@scope/lib").
+	// package_name is the full package name including scope.
+	// e.g., "@scope/lib" or "react"
 	PackageName string `protobuf:"bytes,1,opt,name=package_name,json=packageName,proto3" json:"package_name,omitempty"`
-	// The version string of this package version.
+	// version is the semver string.
+	// e.g., "18.2.0"
 	Version string `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
-	// The SPDX license identifier for this version.
+	// license is the SPDX license identifier for this version (e.g., "MIT", "Apache-2.0").
 	License string `protobuf:"bytes,3,opt,name=license,proto3" json:"license,omitempty"`
-	// When this version was first published.
+	// created_at is when the record was created in the database.
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	// The size of the package in bytes.
+	// file_size is the size of the tarball in bytes.
 	FileSize int64 `protobuf:"varint,5,opt,name=file_size,json=fileSize,proto3" json:"file_size,omitempty"`
-	// The number of files contained in the package.
+	// file_count is the number of files inside the tarball.
 	FileCount int64 `protobuf:"varint,6,opt,name=file_count,json=fileCount,proto3" json:"file_count,omitempty"`
-	// The origin of this package version.
-	SourceType    NpmSourceType `protobuf:"varint,7,opt,name=source_type,json=sourceType,proto3,enum=chainguard.platform.libraries.NpmSourceType" json:"source_type,omitempty"`
+	// source_type indicates the origin of this version.
+	SourceType NpmSourceType `protobuf:"varint,7,opt,name=source_type,json=sourceType,proto3,enum=chainguard.platform.libraries.NpmSourceType" json:"source_type,omitempty"`
+	// sha512 is the SHA-512 checksum of the tarball (required).
+	Sha512 string `protobuf:"bytes,8,opt,name=sha512,proto3" json:"sha512,omitempty"`
+	// updated_at is when the record was last updated.
+	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	// upstream_published_date is when the package was published upstream (optional).
+	UpstreamPublishedDate *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=upstream_published_date,json=upstreamPublishedDate,proto3" json:"upstream_published_date,omitempty"`
+	// integrity is the SRI string (optional).
+	Integrity string `protobuf:"bytes,11,opt,name=integrity,proto3" json:"integrity,omitempty"`
+	// provenance_predicate_type is the SLSA predicate type URI if provenance was
+	// provided at publish time. Empty string if no provenance was provided.
+	// e.g., "https://slsa.dev/provenance/v1" or "https://slsa.dev/provenance/v0.2"
+	ProvenancePredicateType string `protobuf:"bytes,12,opt,name=provenance_predicate_type,json=provenancePredicateType,proto3" json:"provenance_predicate_type,omitempty"`
+	// putument_ref is the R2 storage path to the raw putument JSON blob.
+	PutumentRef string `protobuf:"bytes,13,opt,name=putument_ref,json=putumentRef,proto3" json:"putument_ref,omitempty"`
+	// version_metadata is a JSON blob of the version object from the putument,
+	// used to serve rich packument responses without fetching from R2.
+	VersionMetadata string `protobuf:"bytes,14,opt,name=version_metadata,json=versionMetadata,proto3" json:"version_metadata,omitempty"`
+	// malware_scanned indicates whether this version has been scanned for malware.
+	MalwareScanned bool `protobuf:"varint,15,opt,name=malware_scanned,json=malwareScanned,proto3" json:"malware_scanned,omitempty"`
+	// malware_malicious indicates whether this version was flagged as malicious.
+	MalwareMalicious bool `protobuf:"varint,16,opt,name=malware_malicious,json=malwareMalicious,proto3" json:"malware_malicious,omitempty"`
+	// malware_scanned_at is when the malware scan was performed.
+	MalwareScannedAt *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=malware_scanned_at,json=malwareScannedAt,proto3" json:"malware_scanned_at,omitempty"`
+	// sbom_formats are the supported sbom formats for this package.
+	SbomFormats   []string `protobuf:"bytes,18,rep,name=sbom_formats,json=sbomFormats,proto3" json:"sbom_formats,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -397,6 +433,83 @@ func (x *NpmPackageVersion) GetSourceType() NpmSourceType {
 	return NpmSourceType_NPM_SOURCE_TYPE_UNKNOWN
 }
 
+func (x *NpmPackageVersion) GetSha512() string {
+	if x != nil {
+		return x.Sha512
+	}
+	return ""
+}
+
+func (x *NpmPackageVersion) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *NpmPackageVersion) GetUpstreamPublishedDate() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpstreamPublishedDate
+	}
+	return nil
+}
+
+func (x *NpmPackageVersion) GetIntegrity() string {
+	if x != nil {
+		return x.Integrity
+	}
+	return ""
+}
+
+func (x *NpmPackageVersion) GetProvenancePredicateType() string {
+	if x != nil {
+		return x.ProvenancePredicateType
+	}
+	return ""
+}
+
+func (x *NpmPackageVersion) GetPutumentRef() string {
+	if x != nil {
+		return x.PutumentRef
+	}
+	return ""
+}
+
+func (x *NpmPackageVersion) GetVersionMetadata() string {
+	if x != nil {
+		return x.VersionMetadata
+	}
+	return ""
+}
+
+func (x *NpmPackageVersion) GetMalwareScanned() bool {
+	if x != nil {
+		return x.MalwareScanned
+	}
+	return false
+}
+
+func (x *NpmPackageVersion) GetMalwareMalicious() bool {
+	if x != nil {
+		return x.MalwareMalicious
+	}
+	return false
+}
+
+func (x *NpmPackageVersion) GetMalwareScannedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.MalwareScannedAt
+	}
+	return nil
+}
+
+func (x *NpmPackageVersion) GetSbomFormats() []string {
+	if x != nil {
+		return x.SbomFormats
+	}
+	return nil
+}
+
 // A collection of NpmPackageVersions as returned by calls to ListVersions.
 // Contains pagination fields to allow callers to request additional
 // pages of results if the set exceeds the requested page size.
@@ -474,7 +587,9 @@ type NpmPackageVersionFilter struct {
 	PageSize int64 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	// The token received from a previous call to ListVersions.
 	// Provide this to retrieve the subsequent page.
-	PageToken     string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	PageToken string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// The source types to include. If empty, defaults to all.
+	SourceTypes   []NpmSourceType `protobuf:"varint,4,rep,packed,name=source_types,json=sourceTypes,proto3,enum=chainguard.platform.libraries.NpmSourceType" json:"source_types,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -530,6 +645,13 @@ func (x *NpmPackageVersionFilter) GetPageToken() string {
 	return ""
 }
 
+func (x *NpmPackageVersionFilter) GetSourceTypes() []NpmSourceType {
+	if x != nil {
+		return x.SourceTypes
+	}
+	return nil
+}
+
 var File_npm_packages_libraries_platform_proto protoreflect.FileDescriptor
 
 const file_npm_packages_libraries_platform_proto_rawDesc = "" +
@@ -546,12 +668,13 @@ const file_npm_packages_libraries_platform_proto_rawDesc = "" +
 	"\x05items\x18\x01 \x03(\v2).chainguard.platform.libraries.NpmPackageR\x05items\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
 	"\vtotal_count\x18\x03 \x01(\x03R\n" +
-	"totalCount\"d\n" +
+	"totalCount\"\xb5\x01\n" +
 	"\x10NpmPackageFilter\x12\x14\n" +
 	"\x05query\x18\x01 \x01(\tR\x05query\x12\x1b\n" +
 	"\tpage_size\x18\x02 \x01(\x03R\bpageSize\x12\x1d\n" +
 	"\n" +
-	"page_token\x18\x03 \x01(\tR\tpageToken\"\xb0\x02\n" +
+	"page_token\x18\x03 \x01(\tR\tpageToken\x12O\n" +
+	"\fsource_types\x18\x04 \x03(\x0e2,.chainguard.platform.libraries.NpmSourceTypeR\vsourceTypes\"\xc2\x06\n" +
 	"\x11NpmPackageVersion\x12!\n" +
 	"\fpackage_name\x18\x01 \x01(\tR\vpackageName\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\tR\aversion\x12\x18\n" +
@@ -562,17 +685,31 @@ const file_npm_packages_libraries_platform_proto_rawDesc = "" +
 	"\n" +
 	"file_count\x18\x06 \x01(\x03R\tfileCount\x12M\n" +
 	"\vsource_type\x18\a \x01(\x0e2,.chainguard.platform.libraries.NpmSourceTypeR\n" +
-	"sourceType\"\xa8\x01\n" +
+	"sourceType\x12\x16\n" +
+	"\x06sha512\x18\b \x01(\tR\x06sha512\x129\n" +
+	"\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12R\n" +
+	"\x17upstream_published_date\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\x15upstreamPublishedDate\x12\x1c\n" +
+	"\tintegrity\x18\v \x01(\tR\tintegrity\x12:\n" +
+	"\x19provenance_predicate_type\x18\f \x01(\tR\x17provenancePredicateType\x12!\n" +
+	"\fputument_ref\x18\r \x01(\tR\vputumentRef\x12)\n" +
+	"\x10version_metadata\x18\x0e \x01(\tR\x0fversionMetadata\x12'\n" +
+	"\x0fmalware_scanned\x18\x0f \x01(\bR\x0emalwareScanned\x12+\n" +
+	"\x11malware_malicious\x18\x10 \x01(\bR\x10malwareMalicious\x12H\n" +
+	"\x12malware_scanned_at\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\x10malwareScannedAt\x12!\n" +
+	"\fsbom_formats\x18\x12 \x03(\tR\vsbomFormats\"\xa8\x01\n" +
 	"\x15NpmPackageVersionList\x12F\n" +
 	"\x05items\x18\x01 \x03(\v20.chainguard.platform.libraries.NpmPackageVersionR\x05items\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
 	"\vtotal_count\x18\x03 \x01(\x03R\n" +
-	"totalCount\"x\n" +
+	"totalCount\"\xc9\x01\n" +
 	"\x17NpmPackageVersionFilter\x12!\n" +
 	"\fpackage_name\x18\x01 \x01(\tR\vpackageName\x12\x1b\n" +
 	"\tpage_size\x18\x02 \x01(\x03R\bpageSize\x12\x1d\n" +
 	"\n" +
-	"page_token\x18\x03 \x01(\tR\tpageToken*\x9a\x01\n" +
+	"page_token\x18\x03 \x01(\tR\tpageToken\x12O\n" +
+	"\fsource_types\x18\x04 \x03(\x0e2,.chainguard.platform.libraries.NpmSourceTypeR\vsourceTypes*\x9a\x01\n" +
 	"\rNpmSourceType\x12\x1b\n" +
 	"\x17NPM_SOURCE_TYPE_UNKNOWN\x10\x00\x12\x1c\n" +
 	"\x18NPM_SOURCE_TYPE_INTERNAL\x10\x01\x12'\n" +
@@ -609,19 +746,24 @@ var file_npm_packages_libraries_platform_proto_goTypes = []any{
 	(*timestamppb.Timestamp)(nil),   // 7: google.protobuf.Timestamp
 }
 var file_npm_packages_libraries_platform_proto_depIdxs = []int32{
-	1, // 0: chainguard.platform.libraries.NpmPackageList.items:type_name -> chainguard.platform.libraries.NpmPackage
-	7, // 1: chainguard.platform.libraries.NpmPackageVersion.created_at:type_name -> google.protobuf.Timestamp
-	0, // 2: chainguard.platform.libraries.NpmPackageVersion.source_type:type_name -> chainguard.platform.libraries.NpmSourceType
-	4, // 3: chainguard.platform.libraries.NpmPackageVersionList.items:type_name -> chainguard.platform.libraries.NpmPackageVersion
-	3, // 4: chainguard.platform.libraries.NpmPackages.List:input_type -> chainguard.platform.libraries.NpmPackageFilter
-	6, // 5: chainguard.platform.libraries.NpmPackages.ListVersions:input_type -> chainguard.platform.libraries.NpmPackageVersionFilter
-	2, // 6: chainguard.platform.libraries.NpmPackages.List:output_type -> chainguard.platform.libraries.NpmPackageList
-	5, // 7: chainguard.platform.libraries.NpmPackages.ListVersions:output_type -> chainguard.platform.libraries.NpmPackageVersionList
-	6, // [6:8] is the sub-list for method output_type
-	4, // [4:6] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	1,  // 0: chainguard.platform.libraries.NpmPackageList.items:type_name -> chainguard.platform.libraries.NpmPackage
+	0,  // 1: chainguard.platform.libraries.NpmPackageFilter.source_types:type_name -> chainguard.platform.libraries.NpmSourceType
+	7,  // 2: chainguard.platform.libraries.NpmPackageVersion.created_at:type_name -> google.protobuf.Timestamp
+	0,  // 3: chainguard.platform.libraries.NpmPackageVersion.source_type:type_name -> chainguard.platform.libraries.NpmSourceType
+	7,  // 4: chainguard.platform.libraries.NpmPackageVersion.updated_at:type_name -> google.protobuf.Timestamp
+	7,  // 5: chainguard.platform.libraries.NpmPackageVersion.upstream_published_date:type_name -> google.protobuf.Timestamp
+	7,  // 6: chainguard.platform.libraries.NpmPackageVersion.malware_scanned_at:type_name -> google.protobuf.Timestamp
+	4,  // 7: chainguard.platform.libraries.NpmPackageVersionList.items:type_name -> chainguard.platform.libraries.NpmPackageVersion
+	0,  // 8: chainguard.platform.libraries.NpmPackageVersionFilter.source_types:type_name -> chainguard.platform.libraries.NpmSourceType
+	3,  // 9: chainguard.platform.libraries.NpmPackages.List:input_type -> chainguard.platform.libraries.NpmPackageFilter
+	6,  // 10: chainguard.platform.libraries.NpmPackages.ListVersions:input_type -> chainguard.platform.libraries.NpmPackageVersionFilter
+	2,  // 11: chainguard.platform.libraries.NpmPackages.List:output_type -> chainguard.platform.libraries.NpmPackageList
+	5,  // 12: chainguard.platform.libraries.NpmPackages.ListVersions:output_type -> chainguard.platform.libraries.NpmPackageVersionList
+	11, // [11:13] is the sub-list for method output_type
+	9,  // [9:11] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_npm_packages_libraries_platform_proto_init() }
