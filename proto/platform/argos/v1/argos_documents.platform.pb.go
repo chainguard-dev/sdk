@@ -36,6 +36,8 @@ const (
 	ArgosDocument_STATUS_READY ArgosDocument_Status = 2
 	// Document processing failed; the document is unusable.
 	ArgosDocument_STATUS_FAILED ArgosDocument_Status = 3
+	// Processing determined the finding is not a true positive.
+	ArgosDocument_STATUS_FALSE_POSITIVE ArgosDocument_Status = 4
 )
 
 // Enum value maps for ArgosDocument_Status.
@@ -45,12 +47,14 @@ var (
 		1: "STATUS_PENDING",
 		2: "STATUS_READY",
 		3: "STATUS_FAILED",
+		4: "STATUS_FALSE_POSITIVE",
 	}
 	ArgosDocument_Status_value = map[string]int32{
-		"STATUS_UNSPECIFIED": 0,
-		"STATUS_PENDING":     1,
-		"STATUS_READY":       2,
-		"STATUS_FAILED":      3,
+		"STATUS_UNSPECIFIED":    0,
+		"STATUS_PENDING":        1,
+		"STATUS_READY":          2,
+		"STATUS_FAILED":         3,
+		"STATUS_FALSE_POSITIVE": 4,
 	}
 )
 
@@ -97,7 +101,10 @@ type ArgosDocument struct {
 	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	// filename is a human-readable label for the document, supplied by the
 	// client at creation time.
-	Filename      string `protobuf:"bytes,5,opt,name=filename,proto3" json:"filename,omitempty"`
+	Filename string `protobuf:"bytes,5,opt,name=filename,proto3" json:"filename,omitempty"`
+	// cgp_ids are the Chainguard vulnerability identifiers (CGP-...) this
+	// submission resolved to, populated once processing completes.
+	CgpIds        []string `protobuf:"bytes,6,rep,name=cgp_ids,json=cgpIds,proto3" json:"cgp_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -165,6 +172,13 @@ func (x *ArgosDocument) GetFilename() string {
 		return x.Filename
 	}
 	return ""
+}
+
+func (x *ArgosDocument) GetCgpIds() []string {
+	if x != nil {
+		return x.CgpIds
+	}
+	return nil
 }
 
 type CreateArgosDocumentRequest struct {
@@ -609,7 +623,7 @@ var File_argos_documents_platform_proto protoreflect.FileDescriptor
 
 const file_argos_documents_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x1eargos_documents.platform.proto\x12\x19chainguard.platform.argos\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a&platform/common/v1/uidp.platform.proto\"\xdd\x02\n" +
+	"\x1eargos_documents.platform.proto\x12\x19chainguard.platform.argos\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a&platform/common/v1/uidp.platform.proto\"\x97\x03\n" +
 	"\rArgosDocument\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12G\n" +
 	"\x06status\x18\x02 \x01(\x0e2/.chainguard.platform.argos.ArgosDocument.StatusR\x06status\x129\n" +
@@ -617,12 +631,14 @@ const file_argos_documents_platform_proto_rawDesc = "" +
 	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
 	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x1a\n" +
-	"\bfilename\x18\x05 \x01(\tR\bfilename\"Y\n" +
+	"\bfilename\x18\x05 \x01(\tR\bfilename\x12\x1d\n" +
+	"\acgp_ids\x18\x06 \x03(\tB\x04\xe2A\x01\x03R\x06cgpIds\"t\n" +
 	"\x06Status\x12\x16\n" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x12\n" +
 	"\x0eSTATUS_PENDING\x10\x01\x12\x10\n" +
 	"\fSTATUS_READY\x10\x02\x12\x11\n" +
-	"\rSTATUS_FAILED\x10\x03\"w\n" +
+	"\rSTATUS_FAILED\x10\x03\x12\x19\n" +
+	"\x15STATUS_FALSE_POSITIVE\x10\x04\"w\n" +
 	"\x1aCreateArgosDocumentRequest\x12#\n" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12\x18\n" +
 	"\apayload\x18\x02 \x01(\tR\apayload\x12\x1a\n" +

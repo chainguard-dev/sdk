@@ -95,6 +95,10 @@ message ArgosDocument {
   // client at creation time.
   string filename = 5;
 
+  // cgp_ids are the Chainguard vulnerability identifiers (CGP-...) this
+  // submission resolved to, populated once processing completes.
+  repeated string cgp_ids = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
   enum Status {
     STATUS_UNSPECIFIED = 0;
     // Payload received; pending downstream processing.
@@ -103,6 +107,8 @@ message ArgosDocument {
     STATUS_READY = 2;
     // Document processing failed; the document is unusable.
     STATUS_FAILED = 3;
+    // Processing determined the finding is not a true positive.
+    STATUS_FALSE_POSITIVE = 4;
   }
 }
 
