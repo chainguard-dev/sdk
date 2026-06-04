@@ -218,6 +218,8 @@ const (
 	Capability_CAP_ARGOS_DOCUMENTS_CREATE Capability = 2601
 	Capability_CAP_ARGOS_DOCUMENTS_LIST   Capability = 2602
 	Capability_CAP_ARGOS_DOCUMENTS_DELETE Capability = 2603
+	// Argos — Private OSV API (customer-facing OSV query surface).
+	Capability_CAP_ARGOS_OSV_READ Capability = 2604
 )
 
 // Enum value maps for Capability.
@@ -365,6 +367,7 @@ var (
 		2601:  "CAP_ARGOS_DOCUMENTS_CREATE",
 		2602:  "CAP_ARGOS_DOCUMENTS_LIST",
 		2603:  "CAP_ARGOS_DOCUMENTS_DELETE",
+		2604:  "CAP_ARGOS_OSV_READ",
 	}
 	Capability_value = map[string]int32{
 		"UNKNOWN":                                           0,
@@ -509,6 +512,7 @@ var (
 		"CAP_ARGOS_DOCUMENTS_CREATE":                        2601,
 		"CAP_ARGOS_DOCUMENTS_LIST":                          2602,
 		"CAP_ARGOS_DOCUMENTS_DELETE":                        2603,
+		"CAP_ARGOS_OSV_READ":                                2604,
 	}
 )
 
@@ -592,7 +596,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xb6H\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xebH\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -753,7 +757,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x1eCAP_SKILLS_ENTITLEMENTS_DELETE\x10\xc8\x13\x1a&\xa8ˑM\x8c\x01\x9a\xaf\xa8\xd2\x05\x1askills.entitlements.delete\x12C\n" +
 	"\x1aCAP_ARGOS_DOCUMENTS_CREATE\x10\xa9\x14\x1a\"\xa8ˑM\x90\x01\x9a\xaf\xa8\xd2\x05\x16argos.documents.create\x12?\n" +
 	"\x18CAP_ARGOS_DOCUMENTS_LIST\x10\xaa\x14\x1a \xa8ˑM\x91\x01\x9a\xaf\xa8\xd2\x05\x14argos.documents.list\x12C\n" +
-	"\x1aCAP_ARGOS_DOCUMENTS_DELETE\x10\xab\x14\x1a\"\xa8ˑM\x92\x01\x9a\xaf\xa8\xd2\x05\x16argos.documents.delete\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x04\b\x01\x10\x01:8\n" +
+	"\x1aCAP_ARGOS_DOCUMENTS_DELETE\x10\xab\x14\x1a\"\xa8ˑM\x92\x01\x9a\xaf\xa8\xd2\x05\x16argos.documents.delete\x123\n" +
+	"\x12CAP_ARGOS_OSV_READ\x10\xac\x14\x1a\x1a\xa8ˑM\x93\x01\x9a\xaf\xa8\xd2\x05\x0eargos.osv.read\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +
 	"\x03bit\x12!.google.protobuf.EnumValueOptions\x18\xb5\x99\xd2\t \x01(\rR\x03bit:I\n" +
 	"\rinternal_only\x12!.google.protobuf.EnumValueOptions\x18\xf4\x85\xa5Z \x01(\bR\finternalOnlyB'Z%chainguard.dev/sdk/proto/capabilitiesb\x06proto3"

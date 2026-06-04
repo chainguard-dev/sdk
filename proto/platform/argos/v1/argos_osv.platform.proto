@@ -1,0 +1,146 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/argos/v1";
+
+package chainguard.platform.argos;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "annotations/auth.proto";
+
+// ArgosOSV is the customer-facing OSV-spec query surface for the Private OSV
+// shared corpus. All members holding CAP_ARGOS_OSV_READ see the same record
+// set; there is no per-organisation filtering. Records are customer-blind.
+service ArgosOSV {
+  rpc Query(OSVQueryRequest) returns (OSVQueryResponse) {
+    option (google.api.http) = {
+      post: "/argos/v1/osv/query"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ARGOS_OSV_READ]
+        unscoped: true
+      }
+    };
+  }
+  rpc QueryBatch(OSVQueryBatchRequest) returns (OSVQueryBatchResponse) {
+    option (google.api.http) = {
+      post: "/argos/v1/osv/querybatch"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ARGOS_OSV_READ]
+        unscoped: true
+      }
+    };
+  }
+  rpc GetVuln(GetOSVRequest) returns (OSVRecord) {
+    option (google.api.http) = {
+      get: "/argos/v1/osv/vulns/{id=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ARGOS_OSV_READ]
+        unscoped: true
+      }
+    };
+  }
+}
+
+message Package {
+  string ecosystem = 1;
+  string name = 2;
+  string purl = 3;
+}
+
+message Event {
+  oneof event {
+    string introduced = 1;
+    string fixed = 2;
+    string last_affected = 3;
+    string limit = 4;
+  }
+}
+
+message Range {
+  enum RangeType {
+    RANGE_TYPE_UNSPECIFIED = 0;
+    RANGE_TYPE_SEMVER = 1;
+    RANGE_TYPE_ECOSYSTEM = 2;
+    RANGE_TYPE_GIT = 3;
+  }
+  RangeType type = 1;
+  string repo = 2;
+  repeated Event events = 3;
+}
+
+message Affected {
+  Package package = 1;
+  repeated Range ranges = 2;
+  repeated string versions = 3;
+  bytes ecosystem_specific = 4;
+  bytes database_specific = 5;
+}
+
+message Severity {
+  string type = 1;
+  string score = 2;
+}
+
+message OSVRecord {
+  string id = 1;
+  string schema_version = 2;
+  string summary = 3;
+  string details = 4;
+  repeated string aliases = 5;
+  repeated Severity severity = 6;
+  repeated Affected affected = 7;
+  google.protobuf.Timestamp published = 8;
+  google.protobuf.Timestamp modified = 9;
+  repeated string related = 10;
+}
+
+message OSVQueryRequest {
+  Package package = 1;
+  string version = 2;
+  // page_token is the opaque cursor from a previous response's next_page_token.
+  // Empty starts at the first page. (OSV spec: query supports page_token.)
+  string page_token = 3;
+}
+
+message OSVQueryResponse {
+  repeated OSVRecord vulns = 1;
+  // next_page_token is the cursor for the next page; empty when last page.
+  string next_page_token = 2;
+}
+
+// MinimalOSVRecord is the abbreviated vuln entry returned by QueryBatch,
+// matching the OSV spec's batch response (id + modified only); callers
+// follow up with GetVuln for full detail.
+message MinimalOSVRecord {
+  string id = 1;
+  google.protobuf.Timestamp modified = 2;
+}
+
+message OSVQueryBatchRequest {
+  repeated OSVQueryRequest queries = 1;
+}
+
+message OSVQueryBatchResult {
+  repeated MinimalOSVRecord vulns = 1;
+  // next_page_token paginates this query's results (OSV batch spec).
+  string next_page_token = 2;
+}
+
+message OSVQueryBatchResponse {
+  repeated OSVQueryBatchResult results = 1;
+}
+
+message GetOSVRequest {
+  string id = 1;
+}

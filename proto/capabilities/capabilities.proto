@@ -257,6 +257,9 @@ enum Capability {
   CAP_ARGOS_DOCUMENTS_LIST   = 2602 [(name) = "argos.documents.list",   (bit) = 145];
   CAP_ARGOS_DOCUMENTS_DELETE = 2603 [(name) = "argos.documents.delete", (bit) = 146];
 
+  // Argos — Private OSV API (customer-facing OSV query surface).
+  CAP_ARGOS_OSV_READ = 2604 [(name) = "argos.osv.read", (bit) = 147];
+
   reserved 1;
-  // next bit: 147
+  // next bit: 148
 }

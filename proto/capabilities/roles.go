@@ -330,6 +330,15 @@ var (
 		Capability_CAP_ARGOS_DOCUMENTS_DELETE,
 		Capability_CAP_ARGOS_DOCUMENTS_LIST,
 	})
+
+	// ArgosOSVReaderCaps is the capability set for reading the shared,
+	// customer-blind Private OSV corpus. It is kept separate from
+	// ArgosOperatorCaps (document management) and is granted to participating
+	// orgs via the dedicated argos.osv.reader role, never to staff or org
+	// owners by default.
+	ArgosOSVReaderCaps = SortCaps([]Capability{
+		Capability_CAP_ARGOS_OSV_READ,
+	})
 )
 
 func SortCaps(caps ...[]Capability) []Capability {

@@ -11,6 +11,7 @@ import (
 
 type Clients interface {
 	ArgosDocuments() ArgosDocumentsClient
+	ArgosOSV() ArgosOSVClient
 
 	Close() error
 }
@@ -18,18 +19,24 @@ type Clients interface {
 func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 	return &clients{
 		argosDocuments: NewArgosDocumentsClient(conn),
+		argosOSV:       NewArgosOSVClient(conn),
 		// conn is not set, this client struct does not own closing it.
 	}
 }
 
 type clients struct {
 	argosDocuments ArgosDocumentsClient
+	argosOSV       ArgosOSVClient
 
 	conn *grpc.ClientConn
 }
 
 func (c *clients) ArgosDocuments() ArgosDocumentsClient {
 	return c.argosDocuments
+}
+
+func (c *clients) ArgosOSV() ArgosOSVClient {
+	return c.argosOSV
 }
 
 func (c *clients) Close() error {
