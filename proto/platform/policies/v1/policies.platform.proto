@@ -141,6 +141,8 @@ enum ParameterType {
   PARAMETER_TYPE_INTEGER     = 2;
   // A list of UTF-8 string values.
   PARAMETER_TYPE_STRING_LIST = 3;
+  // A boolean value.
+  PARAMETER_TYPE_BOOLEAN     = 4;
 }
 
 // ParameterSchema declares a single configurable parameter on a Policy.

@@ -142,6 +142,8 @@ const (
 	ParameterType_PARAMETER_TYPE_INTEGER ParameterType = 2
 	// A list of UTF-8 string values.
 	ParameterType_PARAMETER_TYPE_STRING_LIST ParameterType = 3
+	// A boolean value.
+	ParameterType_PARAMETER_TYPE_BOOLEAN ParameterType = 4
 )
 
 // Enum value maps for ParameterType.
@@ -151,12 +153,14 @@ var (
 		1: "PARAMETER_TYPE_STRING",
 		2: "PARAMETER_TYPE_INTEGER",
 		3: "PARAMETER_TYPE_STRING_LIST",
+		4: "PARAMETER_TYPE_BOOLEAN",
 	}
 	ParameterType_value = map[string]int32{
 		"PARAMETER_TYPE_UNSPECIFIED": 0,
 		"PARAMETER_TYPE_STRING":      1,
 		"PARAMETER_TYPE_INTEGER":     2,
 		"PARAMETER_TYPE_STRING_LIST": 3,
+		"PARAMETER_TYPE_BOOLEAN":     4,
 	}
 )
 
@@ -1167,12 +1171,13 @@ const file_policies_platform_proto_rawDesc = "" +
 	"PolicyType\x12\x1b\n" +
 	"\x17POLICY_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12POLICY_TYPE_SYSTEM\x10\x01\x12\x16\n" +
-	"\x12POLICY_TYPE_CUSTOM\x10\x02*\x86\x01\n" +
+	"\x12POLICY_TYPE_CUSTOM\x10\x02*\xa2\x01\n" +
 	"\rParameterType\x12\x1e\n" +
 	"\x1aPARAMETER_TYPE_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15PARAMETER_TYPE_STRING\x10\x01\x12\x1a\n" +
 	"\x16PARAMETER_TYPE_INTEGER\x10\x02\x12\x1e\n" +
-	"\x1aPARAMETER_TYPE_STRING_LIST\x10\x032\x81\x05\n" +
+	"\x1aPARAMETER_TYPE_STRING_LIST\x10\x03\x12\x1a\n" +
+	"\x16PARAMETER_TYPE_BOOLEAN\x10\x042\x81\x05\n" +
 	"\bPolicies\x12\xaf\x01\n" +
 	"\fCreatePolicy\x124.chainguard.platform.policies.v1.CreatePolicyRequest\x1a'.chainguard.platform.policies.v1.Policy\"@\x82\xd3\xe4\x93\x02.:\x06policy\"$/policies/v1/policies/{parent_id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd1\x0f\x12\x96\x01\n" +
