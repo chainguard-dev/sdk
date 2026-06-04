@@ -115,6 +115,10 @@ message IdentityProvider {
 
     // Additional scopes to request for ID tokens
     repeated string additional_scopes = 4;
+
+    // groups_claim is the name of the OIDC token claim containing group memberships.
+    // Required for IdP group-based role mapping.
+    string groups_claim = 5;
   }
 }
 

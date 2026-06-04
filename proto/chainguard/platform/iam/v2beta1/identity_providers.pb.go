@@ -552,8 +552,12 @@ type IdentityProvider_OIDC struct {
 	// Additional scopes to request for ID tokens from the upstream IdP.
 	// Scope openid is always requested as part of the authentication flow.
 	AdditionalScopes []string `protobuf:"bytes,4,rep,name=additional_scopes,json=additionalScopes,proto3" json:"additional_scopes,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Name of the OIDC token claim that carries the user's group memberships
+	// (e.g. "groups" for Entra, a custom claim name for Okta). Required for
+	// IdP group-based role mapping; when empty, group extraction is skipped.
+	GroupsClaim   string `protobuf:"bytes,5,opt,name=groups_claim,json=groupsClaim,proto3" json:"groups_claim,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *IdentityProvider_OIDC) Reset() {
@@ -614,11 +618,18 @@ func (x *IdentityProvider_OIDC) GetAdditionalScopes() []string {
 	return nil
 }
 
+func (x *IdentityProvider_OIDC) GetGroupsClaim() string {
+	if x != nil {
+		return x.GroupsClaim
+	}
+	return ""
+}
+
 var File_chainguard_platform_iam_v2beta1_identity_providers_proto protoreflect.FileDescriptor
 
 const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = "" +
 	"\n" +
-	"8chainguard/platform/iam/v2beta1/identity_providers.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\x9e\x05\n" +
+	"8chainguard/platform/iam/v2beta1/identity_providers.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xc7\x05\n" +
 	"\x10IdentityProvider\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
@@ -629,12 +640,13 @@ const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = ""
 	"\vupdate_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
 	"updateTime\x12'\n" +
 	"\fdefault_role\x18\x06 \x01(\tB\x04\xe2A\x01\x02R\vdefaultRole\x12L\n" +
-	"\x04oidc\x18\x14 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.OIDCH\x00R\x04oidc\x1a\xa5\x01\n" +
+	"\x04oidc\x18\x14 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.OIDCH\x00R\x04oidc\x1a\xce\x01\n" +
 	"\x04OIDC\x12\x1c\n" +
 	"\x06issuer\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x06issuer\x12!\n" +
 	"\tclient_id\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\bclientId\x12)\n" +
 	"\rclient_secret\x18\x03 \x01(\tB\x04\xe2A\x01\x02R\fclientSecret\x121\n" +
-	"\x11additional_scopes\x18\x04 \x03(\tB\x04\xe2A\x01\x01R\x10additionalScopes:t\xeaAq\n" +
+	"\x11additional_scopes\x18\x04 \x03(\tB\x04\xe2A\x01\x01R\x10additionalScopes\x12'\n" +
+	"\fgroups_claim\x18\x05 \x01(\tB\x04\xe2A\x01\x01R\vgroupsClaim:t\xeaAq\n" +
 	"#iam.chainguard.dev/IdentityProvider\x12%identityProviders/{identity_provider}*\x11identityProviders2\x10identityProviderB\x0f\n" +
 	"\rconfiguration\"\xfd\x01\n" +
 	"\x1cListIdentityProvidersRequest\x12@\n" +

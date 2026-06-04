@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/iam/v1";
+
+package chainguard.platform.iam;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "annotations/auth.proto";
+import "annotations/events.proto";
+import "platform/common/v1/uidp.platform.proto";
+
+// ExternalGroupRoleMappings manages mappings from IdP groups to Chainguard
+// roles. There is intentionally no Update RPC: every field is immutable, so a
+// change is expressed as a Delete of the old mapping and a Create of the new
+// one.
+service ExternalGroupRoleMappings {
+  rpc Create(CreateExternalGroupRoleMappingRequest) returns (ExternalGroupRoleMapping) {
+    option (google.api.http) = {
+      post: "/iam/v1/externalGroupRoleMappings/{parent_id=**}"
+      body: "mapping"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_IAM_IDENTITY_PROVIDERS_CREATE,
+          CAP_IAM_ROLE_BINDINGS_CREATE
+        ]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.external_group_role_mappings.created.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  rpc Get(GetExternalGroupRoleMappingRequest) returns (ExternalGroupRoleMapping) {
+    option (google.api.http) = {
+      get: "/iam/v1/externalGroupRoleMappings/{uid=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_IDENTITY_PROVIDERS_LIST]
+      }
+    };
+  }
+
+  rpc List(ExternalGroupRoleMappingFilter) returns (ExternalGroupRoleMappingList) {
+    option (google.api.http) = {
+      get: "/iam/v1/externalGroupRoleMappings"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_IDENTITY_PROVIDERS_LIST]
+        unscoped: true
+      }
+    };
+  }
+
+  rpc Delete(DeleteExternalGroupRoleMappingRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/iam/v1/externalGroupRoleMappings/{id=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_IDENTITY_PROVIDERS_DELETE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.external_group_role_mappings.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+}
+
+message ExternalGroupRoleMapping {
+  // id is the UIDP of this mapping. It is rooted under the owning
+  // IdentityProvider's UIDP ({org}/{idp}/{mapping}).
+  string id = 1;
+
+  // identity_provider_uidp is the UIDP of the IdentityProvider this mapping belongs to.
+  string identity_provider_uidp = 2;
+
+  // external_group_id is the IdP's identifier for the group.
+  string external_group_id = 3;
+
+  // role_uidp is the UIDP of the Chainguard Role to grant.
+  string role_uidp = 4;
+
+  // scope is the UIDP of the Chainguard Group where the role applies.
+  // Today it must equal the organization root UIDP; it is modeled as a group
+  // UIDP (rather than an org_id) so role mappings can later be scoped to a
+  // sub-org or folder without a schema change.
+  string scope = 5;
+
+  // When this mapping was created.
+  google.protobuf.Timestamp created_at = 6;
+}
+
+message ExternalGroupRoleMappingList {
+  repeated ExternalGroupRoleMapping items = 1;
+}
+
+message ExternalGroupRoleMappingFilter {
+  chainguard.platform.common.UIDPFilter uidp = 1;
+
+  // identity_provider_uidp filters to a specific IdentityProvider.
+  string identity_provider_uidp = 2;
+}
+
+message CreateExternalGroupRoleMappingRequest {
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+  ExternalGroupRoleMapping mapping = 2;
+}
+
+message GetExternalGroupRoleMappingRequest {
+  string uid = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message DeleteExternalGroupRoleMappingRequest {
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+}

@@ -202,6 +202,11 @@ message IdentityProvider {
     // Additional scopes to request for ID tokens from the upstream IdP.
     // Scope openid is always requested as part of the authentication flow.
     repeated string additional_scopes = 4 [(google.api.field_behavior) = OPTIONAL];
+
+    // Name of the OIDC token claim that carries the user's group memberships
+    // (e.g. "groups" for Entra, a custom claim name for Okta). Required for
+    // IdP group-based role mapping; when empty, group extraction is skipped.
+    string groups_claim = 5 [(google.api.field_behavior) = OPTIONAL];
   }
 }
 
