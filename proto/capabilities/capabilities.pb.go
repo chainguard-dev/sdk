@@ -220,6 +220,18 @@ const (
 	Capability_CAP_ARGOS_DOCUMENTS_DELETE Capability = 2603
 	// Argos — Private OSV API (customer-facing OSV query surface).
 	Capability_CAP_ARGOS_OSV_READ Capability = 2604
+	// Libraries Policy Gates — customer-facing policies and bindings that
+	// configure the cooldown and malware gates applied to upstream package pulls,
+	// plus the block events recorded when a pull is withheld.
+	Capability_CAP_LIBRARIES_POLICY_CREATE           Capability = 2605
+	Capability_CAP_LIBRARIES_POLICY_UPDATE           Capability = 2606
+	Capability_CAP_LIBRARIES_POLICY_LIST             Capability = 2607
+	Capability_CAP_LIBRARIES_POLICY_DELETE           Capability = 2608
+	Capability_CAP_LIBRARIES_POLICY_BINDING_CREATE   Capability = 2609
+	Capability_CAP_LIBRARIES_POLICY_BINDING_UPDATE   Capability = 2610
+	Capability_CAP_LIBRARIES_POLICY_BINDING_LIST     Capability = 2611
+	Capability_CAP_LIBRARIES_POLICY_BINDING_DELETE   Capability = 2612
+	Capability_CAP_LIBRARIES_POLICY_BLOCK_EVENT_LIST Capability = 2613
 )
 
 // Enum value maps for Capability.
@@ -368,6 +380,15 @@ var (
 		2602:  "CAP_ARGOS_DOCUMENTS_LIST",
 		2603:  "CAP_ARGOS_DOCUMENTS_DELETE",
 		2604:  "CAP_ARGOS_OSV_READ",
+		2605:  "CAP_LIBRARIES_POLICY_CREATE",
+		2606:  "CAP_LIBRARIES_POLICY_UPDATE",
+		2607:  "CAP_LIBRARIES_POLICY_LIST",
+		2608:  "CAP_LIBRARIES_POLICY_DELETE",
+		2609:  "CAP_LIBRARIES_POLICY_BINDING_CREATE",
+		2610:  "CAP_LIBRARIES_POLICY_BINDING_UPDATE",
+		2611:  "CAP_LIBRARIES_POLICY_BINDING_LIST",
+		2612:  "CAP_LIBRARIES_POLICY_BINDING_DELETE",
+		2613:  "CAP_LIBRARIES_POLICY_BLOCK_EVENT_LIST",
 	}
 	Capability_value = map[string]int32{
 		"UNKNOWN":                                           0,
@@ -513,6 +534,15 @@ var (
 		"CAP_ARGOS_DOCUMENTS_LIST":                          2602,
 		"CAP_ARGOS_DOCUMENTS_DELETE":                        2603,
 		"CAP_ARGOS_OSV_READ":                                2604,
+		"CAP_LIBRARIES_POLICY_CREATE":                       2605,
+		"CAP_LIBRARIES_POLICY_UPDATE":                       2606,
+		"CAP_LIBRARIES_POLICY_LIST":                         2607,
+		"CAP_LIBRARIES_POLICY_DELETE":                       2608,
+		"CAP_LIBRARIES_POLICY_BINDING_CREATE":               2609,
+		"CAP_LIBRARIES_POLICY_BINDING_UPDATE":               2610,
+		"CAP_LIBRARIES_POLICY_BINDING_LIST":                 2611,
+		"CAP_LIBRARIES_POLICY_BINDING_DELETE":               2612,
+		"CAP_LIBRARIES_POLICY_BLOCK_EVENT_LIST":             2613,
 	}
 )
 
@@ -596,7 +626,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xebH\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xb6N\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -758,7 +788,16 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x1aCAP_ARGOS_DOCUMENTS_CREATE\x10\xa9\x14\x1a\"\xa8ˑM\x90\x01\x9a\xaf\xa8\xd2\x05\x16argos.documents.create\x12?\n" +
 	"\x18CAP_ARGOS_DOCUMENTS_LIST\x10\xaa\x14\x1a \xa8ˑM\x91\x01\x9a\xaf\xa8\xd2\x05\x14argos.documents.list\x12C\n" +
 	"\x1aCAP_ARGOS_DOCUMENTS_DELETE\x10\xab\x14\x1a\"\xa8ˑM\x92\x01\x9a\xaf\xa8\xd2\x05\x16argos.documents.delete\x123\n" +
-	"\x12CAP_ARGOS_OSV_READ\x10\xac\x14\x1a\x1a\xa8ˑM\x93\x01\x9a\xaf\xa8\xd2\x05\x0eargos.osv.read\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x04\b\x01\x10\x01:8\n" +
+	"\x12CAP_ARGOS_OSV_READ\x10\xac\x14\x1a\x1a\xa8ˑM\x93\x01\x9a\xaf\xa8\xd2\x05\x0eargos.osv.read\x12E\n" +
+	"\x1bCAP_LIBRARIES_POLICY_CREATE\x10\xad\x14\x1a#\xa8ˑM\x94\x01\x9a\xaf\xa8\xd2\x05\x17libraries.policy.create\x12E\n" +
+	"\x1bCAP_LIBRARIES_POLICY_UPDATE\x10\xae\x14\x1a#\xa8ˑM\x95\x01\x9a\xaf\xa8\xd2\x05\x17libraries.policy.update\x12A\n" +
+	"\x19CAP_LIBRARIES_POLICY_LIST\x10\xaf\x14\x1a!\xa8ˑM\x96\x01\x9a\xaf\xa8\xd2\x05\x15libraries.policy.list\x12E\n" +
+	"\x1bCAP_LIBRARIES_POLICY_DELETE\x10\xb0\x14\x1a#\xa8ˑM\x97\x01\x9a\xaf\xa8\xd2\x05\x17libraries.policy.delete\x12U\n" +
+	"#CAP_LIBRARIES_POLICY_BINDING_CREATE\x10\xb1\x14\x1a+\xa8ˑM\x98\x01\x9a\xaf\xa8\xd2\x05\x1flibraries.policy.binding.create\x12U\n" +
+	"#CAP_LIBRARIES_POLICY_BINDING_UPDATE\x10\xb2\x14\x1a+\xa8ˑM\x99\x01\x9a\xaf\xa8\xd2\x05\x1flibraries.policy.binding.update\x12Q\n" +
+	"!CAP_LIBRARIES_POLICY_BINDING_LIST\x10\xb3\x14\x1a)\xa8ˑM\x9a\x01\x9a\xaf\xa8\xd2\x05\x1dlibraries.policy.binding.list\x12U\n" +
+	"#CAP_LIBRARIES_POLICY_BINDING_DELETE\x10\xb4\x14\x1a+\xa8ˑM\x9b\x01\x9a\xaf\xa8\xd2\x05\x1flibraries.policy.binding.delete\x12Y\n" +
+	"%CAP_LIBRARIES_POLICY_BLOCK_EVENT_LIST\x10\xb5\x14\x1a-\xa8ˑM\x9c\x01\x9a\xaf\xa8\xd2\x05!libraries.policy.block_event.list\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +
 	"\x03bit\x12!.google.protobuf.EnumValueOptions\x18\xb5\x99\xd2\t \x01(\rR\x03bit:I\n" +
 	"\rinternal_only\x12!.google.protobuf.EnumValueOptions\x18\xf4\x85\xa5Z \x01(\bR\finternalOnlyB'Z%chainguard.dev/sdk/proto/capabilitiesb\x06proto3"

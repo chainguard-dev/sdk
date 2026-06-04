@@ -1,0 +1,329 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/libraries/v1";
+
+package chainguard.platform.libraries;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "annotations/auth.proto";
+import "entitlements.libraries.platform.proto";
+
+// LibraryPolicies manages customer-facing Libraries policies that configure the
+// automatic gates (cooldown, malware) applied to upstream package pulls.
+service LibraryPolicies {
+  // CreatePolicy creates a custom policy under an org. expression is rejected
+  // (INVALID_ARGUMENT); cooldown_days above 30 is rejected; an allow-list entry
+  // with bypass_malware=true requires a non-empty justification.
+  rpc CreatePolicy(CreateLibraryPolicyRequest) returns (LibraryPolicy) {
+    option (google.api.http) = {
+      post: "/libraries/v1/policies/{parent_id=**}"
+      body: "policy"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: { capabilities: [CAP_LIBRARIES_POLICY_CREATE] }
+    };
+  }
+
+  // UpdatePolicy updates a custom policy. Returns PERMISSION_DENIED for SYSTEM
+  // policies and applies the same validation as CreatePolicy.
+  rpc UpdatePolicy(LibraryPolicy) returns (LibraryPolicy) {
+    option (google.api.http) = {
+      put: "/libraries/v1/policies/{id=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: { capabilities: [CAP_LIBRARIES_POLICY_UPDATE] }
+    };
+  }
+
+  // ListPolicies returns all policies available to the org: SYSTEM policies and
+  // the org's CUSTOM policies.
+  rpc ListPolicies(LibraryPolicyFilter) returns (LibraryPolicyList) {
+    option (google.api.http) = {
+      get: "/libraries/v1/policies"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_LIBRARIES_POLICY_LIST]
+        unscoped: true
+      }
+    };
+  }
+
+  rpc DeletePolicy(DeleteLibraryPolicyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/libraries/v1/policies/{id=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: { capabilities: [CAP_LIBRARIES_POLICY_DELETE] }
+    };
+  }
+}
+
+// LibraryPolicyBindings activates a LibraryPolicy for an (org, ecosystem) pair
+// in a given mode (ENFORCED or LOG).
+service LibraryPolicyBindings {
+  // CreateBinding activates a policy. Returns ALREADY_EXISTS if a binding for
+  // the same (org, ecosystem, mode) already exists; use UpdateBinding instead.
+  // A JAVA ecosystem is rejected (INVALID_ARGUMENT) until enforcement exists.
+  rpc CreateBinding(CreateLibraryPolicyBindingRequest) returns (LibraryPolicyBinding) {
+    option (google.api.http) = {
+      post: "/libraries/v1/policy-bindings/{parent_id=**}"
+      body: "binding"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: { capabilities: [CAP_LIBRARIES_POLICY_BINDING_CREATE] }
+    };
+  }
+
+  rpc UpdateBinding(LibraryPolicyBinding) returns (LibraryPolicyBinding) {
+    option (google.api.http) = {
+      put: "/libraries/v1/policy-bindings/{id=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: { capabilities: [CAP_LIBRARIES_POLICY_BINDING_UPDATE] }
+    };
+  }
+
+  rpc ListBindings(LibraryPolicyBindingFilter) returns (LibraryPolicyBindingList) {
+    option (google.api.http) = {
+      get: "/libraries/v1/policy-bindings"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_LIBRARIES_POLICY_BINDING_LIST]
+        unscoped: true
+      }
+    };
+  }
+
+  rpc DeleteBinding(DeleteLibraryPolicyBindingRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/libraries/v1/policy-bindings/{id=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: { capabilities: [CAP_LIBRARIES_POLICY_BINDING_DELETE] }
+    };
+  }
+}
+
+// LibraryPolicyBlockEvents lists per-package block events recorded when a pull
+// is withheld. Writes are performed internally by the serve layer and are not
+// exposed in the public API.
+service LibraryPolicyBlockEvents {
+  rpc ListBlockEvents(LibraryPolicyBlockEventFilter) returns (LibraryPolicyBlockEventList) {
+    option (google.api.http) = {
+      get: "/libraries/v1/blocked-packages"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_LIBRARIES_POLICY_BLOCK_EVENT_LIST]
+        unscoped: true
+      }
+    };
+  }
+}
+
+// PolicyType distinguishes Chainguard-authored system policies from
+// customer-managed custom policies.
+enum LibraryPolicyType {
+  LIBRARY_POLICY_TYPE_UNSPECIFIED = 0;
+  // Created and managed by Chainguard; readable but not modifiable.
+  LIBRARY_POLICY_TYPE_SYSTEM = 1;
+  // Created and managed by your organization.
+  LIBRARY_POLICY_TYPE_CUSTOM = 2;
+}
+
+// BindingMode controls whether a binding enforces (blocks pulls) or only logs
+// shadow violations.
+enum LibraryPolicyBindingMode {
+  LIBRARY_POLICY_BINDING_MODE_UNSPECIFIED = 0;
+  // Withhold packages that fail the policy.
+  LIBRARY_POLICY_BINDING_MODE_ENFORCED = 1;
+  // Evaluate and record violations without blocking.
+  LIBRARY_POLICY_BINDING_MODE_LOG = 2;
+}
+
+// BlockListEntry explicitly withholds a package (PURL) regardless of any other
+// gate. Block-list entries always take precedence over allow-list entries.
+message LibraryBlockListEntry {
+  // The PURL. Normalized on input. An empty component is a wildcard.
+  string purl = 1;
+}
+
+// AllowListEntry bypasses specific automatic gates for a trusted package (PURL).
+message LibraryAllowListEntry {
+  // The PURL. Normalized on input. An empty component is a wildcard.
+  string purl = 1;
+  // Bypass the cooldown gate for matching versions.
+  bool bypass_cooldown = 2;
+  // Bypass the malware gate for matching versions. Requires justification.
+  bool bypass_malware = 3;
+  // Required when bypass_malware is true.
+  string justification = 4;
+}
+
+// LibraryPolicy configures Libraries gates via structured block/allow lists and
+// a cooldown window.
+message LibraryPolicy {
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // Human-readable name. May be up to 128 characters.
+  string name = 2;
+
+  // Human-readable description. May be up to 1024 characters.
+  string description = 3;
+
+  // SYSTEM or CUSTOM. System policies may not be modified.
+  LibraryPolicyType policy_type = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The cooldown window in days. Unset = inherit default (7); 0 = disabled;
+  // 1-30 = explicit. Values above 30 are rejected.
+  optional int32 cooldown_days = 5;
+
+  // PURL-keyed entries that withhold a package regardless of other gates.
+  repeated LibraryBlockListEntry block_list = 6;
+
+  // PURL-keyed entries that bypass specific automatic gates.
+  repeated LibraryAllowListEntry allow_list = 7;
+
+  // Raw Rego. OUTPUT_ONLY: populated for SYSTEM policies, empty for CUSTOM.
+  // Setting it on create/update of a custom policy is rejected (INVALID_ARGUMENT) in v1.
+  string expression = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  google.protobuf.Timestamp created_at = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp updated_at = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message LibraryPolicyList {
+  repeated LibraryPolicy items = 1;
+  // Token for retrieving the next page of results. Empty if no more results.
+  string next_page_token = 2;
+  int64 total_count = 3;
+  int32 skipped = 4;
+}
+
+message LibraryPolicyFilter {
+  // The org (parent) to scope policies to.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+  int32 page_size = 2;
+  string page_token = 3;
+  // Exact name of the policy.
+  string name = 4;
+  // Only return policies of this type (UNSPECIFIED = all).
+  LibraryPolicyType policy_type = 5;
+}
+
+message CreateLibraryPolicyRequest {
+  // The org Group UIDP under which the policy is created.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+  LibraryPolicy policy = 2;
+}
+
+message DeleteLibraryPolicyRequest {
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+// LibraryPolicyBinding activates a policy for an (org, ecosystem) pair.
+message LibraryPolicyBinding {
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // The UIDP of the policy to apply.
+  string policy = 2;
+
+  // The ecosystem this binding applies to (JAVASCRIPT or PYTHON; JAVA rejected).
+  Ecosystem ecosystem = 3;
+
+  // ENFORCED or LOG.
+  LibraryPolicyBindingMode mode = 4;
+
+  google.protobuf.Timestamp created_at = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp updated_at = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message LibraryPolicyBindingList {
+  repeated LibraryPolicyBinding items = 1;
+  string next_page_token = 2;
+  int64 total_count = 3;
+  int32 skipped = 4;
+}
+
+message LibraryPolicyBindingFilter {
+  // The org (parent) to scope bindings to.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+  // Only return bindings for this ecosystem (UNKNOWN = all).
+  Ecosystem ecosystem = 2;
+  // Only return bindings in this mode (UNSPECIFIED = all).
+  LibraryPolicyBindingMode mode = 3;
+  int32 page_size = 4;
+  string page_token = 5;
+}
+
+message CreateLibraryPolicyBindingRequest {
+  // The org Group UIDP under which the binding is created.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+  LibraryPolicyBinding binding = 2;
+}
+
+message DeleteLibraryPolicyBindingRequest {
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+// LibraryPolicyBlockEvent records that a package version was withheld.
+message LibraryPolicyBlockEvent {
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // Full PURL of the attempted pull.
+  string purl = 2;
+
+  // The ecosystem string (e.g. "JAVASCRIPT").
+  string ecosystem = 3;
+
+  // ENFORCED or LOG.
+  LibraryPolicyBindingMode mode = 4;
+
+  // cooldown, malware, or policy.
+  string reason = 5;
+
+  // The policy UIDP active when the block occurred.
+  string policy = 6;
+
+  // Upstream publish date; set when reason = cooldown.
+  google.protobuf.Timestamp publish_date = 7;
+
+  // Cooldown days snapshotted at first block.
+  int32 cooldown_days = 8;
+
+  // publish_date + cooldown_days; nil when reason != cooldown.
+  google.protobuf.Timestamp unblocks_at = 9;
+
+  google.protobuf.Timestamp first_blocked_at = 10;
+  google.protobuf.Timestamp last_blocked_at = 11;
+  int32 attempt_count = 12;
+}
+
+message LibraryPolicyBlockEventList {
+  repeated LibraryPolicyBlockEvent items = 1;
+  string next_page_token = 2;
+  int64 total_count = 3;
+  int32 skipped = 4;
+}
+
+message LibraryPolicyBlockEventFilter {
+  // The org (parent) to scope events to. Required.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+  // Only events for this ecosystem (UNKNOWN = all).
+  Ecosystem ecosystem = 2;
+  // Match against the PURL name component (exact, case-insensitive).
+  string package_name = 3;
+  // Only events in this mode. Defaults to ENFORCED when unspecified.
+  LibraryPolicyBindingMode mode = 4;
+  // Only events first blocked at or after this time. Defaults to 30 days ago.
+  google.protobuf.Timestamp since = 5;
+  int32 page_size = 6;
+  string page_token = 7;
+}

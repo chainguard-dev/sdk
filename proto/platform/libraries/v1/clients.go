@@ -21,6 +21,9 @@ type Clients interface {
 	Artifacts() ArtifactsClient
 	Entitlements() EntitlementsClient
 	NpmPackages() NpmPackagesClient
+	LibraryPolicies() LibraryPoliciesClient
+	LibraryPolicyBindings() LibraryPolicyBindingsClient
+	LibraryPolicyBlockEvents() LibraryPolicyBlockEventsClient
 
 	Close() error
 }
@@ -46,7 +49,12 @@ func NewClients(ctx context.Context, ecoURL string, token string) (Clients, erro
 	}
 
 	return &clients{
-		entitlements: NewEntitlementsClient(conn),
+		artifacts:                NewArtifactsClient(conn),
+		entitlements:             NewEntitlementsClient(conn),
+		npmPackages:              NewNpmPackagesClient(conn),
+		libraryPolicies:          NewLibraryPoliciesClient(conn),
+		libraryPolicyBindings:    NewLibraryPolicyBindingsClient(conn),
+		libraryPolicyBlockEvents: NewLibraryPolicyBlockEventsClient(conn),
 
 		conn: conn,
 	}, nil
@@ -54,18 +62,24 @@ func NewClients(ctx context.Context, ecoURL string, token string) (Clients, erro
 
 func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 	return &clients{
-		artifacts:    NewArtifactsClient(conn),
-		entitlements: NewEntitlementsClient(conn),
-		npmPackages:  NewNpmPackagesClient(conn),
+		artifacts:                NewArtifactsClient(conn),
+		entitlements:             NewEntitlementsClient(conn),
+		npmPackages:              NewNpmPackagesClient(conn),
+		libraryPolicies:          NewLibraryPoliciesClient(conn),
+		libraryPolicyBindings:    NewLibraryPolicyBindingsClient(conn),
+		libraryPolicyBlockEvents: NewLibraryPolicyBlockEventsClient(conn),
 
 		// conn is not set, this client struct does not own closing it.
 	}
 }
 
 type clients struct {
-	artifacts    ArtifactsClient
-	entitlements EntitlementsClient
-	npmPackages  NpmPackagesClient
+	artifacts                ArtifactsClient
+	entitlements             EntitlementsClient
+	npmPackages              NpmPackagesClient
+	libraryPolicies          LibraryPoliciesClient
+	libraryPolicyBindings    LibraryPolicyBindingsClient
+	libraryPolicyBlockEvents LibraryPolicyBlockEventsClient
 
 	conn *grpc.ClientConn
 }
@@ -80,6 +94,18 @@ func (c *clients) Entitlements() EntitlementsClient {
 
 func (c *clients) NpmPackages() NpmPackagesClient {
 	return c.npmPackages
+}
+
+func (c *clients) LibraryPolicies() LibraryPoliciesClient {
+	return c.libraryPolicies
+}
+
+func (c *clients) LibraryPolicyBindings() LibraryPolicyBindingsClient {
+	return c.libraryPolicyBindings
+}
+
+func (c *clients) LibraryPolicyBlockEvents() LibraryPolicyBlockEventsClient {
+	return c.libraryPolicyBlockEvents
 }
 
 func (c *clients) Close() error {

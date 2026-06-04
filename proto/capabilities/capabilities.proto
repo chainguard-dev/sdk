@@ -260,6 +260,21 @@ enum Capability {
   // Argos — Private OSV API (customer-facing OSV query surface).
   CAP_ARGOS_OSV_READ = 2604 [(name) = "argos.osv.read", (bit) = 147];
 
+  // Libraries Policy Gates — customer-facing policies and bindings that
+  // configure the cooldown and malware gates applied to upstream package pulls,
+  // plus the block events recorded when a pull is withheld.
+  CAP_LIBRARIES_POLICY_CREATE = 2605 [(name) = "libraries.policy.create", (bit) = 148];
+  CAP_LIBRARIES_POLICY_UPDATE = 2606 [(name) = "libraries.policy.update", (bit) = 149];
+  CAP_LIBRARIES_POLICY_LIST   = 2607 [(name) = "libraries.policy.list",   (bit) = 150];
+  CAP_LIBRARIES_POLICY_DELETE = 2608 [(name) = "libraries.policy.delete", (bit) = 151];
+
+  CAP_LIBRARIES_POLICY_BINDING_CREATE = 2609 [(name) = "libraries.policy.binding.create", (bit) = 152];
+  CAP_LIBRARIES_POLICY_BINDING_UPDATE = 2610 [(name) = "libraries.policy.binding.update", (bit) = 153];
+  CAP_LIBRARIES_POLICY_BINDING_LIST   = 2611 [(name) = "libraries.policy.binding.list",   (bit) = 154];
+  CAP_LIBRARIES_POLICY_BINDING_DELETE = 2612 [(name) = "libraries.policy.binding.delete", (bit) = 155];
+
+  CAP_LIBRARIES_POLICY_BLOCK_EVENT_LIST = 2613 [(name) = "libraries.policy.block_event.list", (bit) = 156];
+
   reserved 1;
-  // next bit: 148
+  // next bit: 157
 }

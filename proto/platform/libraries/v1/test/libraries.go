@@ -10,9 +10,12 @@ import libraries "chainguard.dev/sdk/proto/platform/libraries/v1"
 var _ libraries.Clients = (*MockLibrariesClients)(nil)
 
 type MockLibrariesClients struct {
-	ArtifactsClient    MockArtifactsClient
-	EntitlementsClient MockEntitlementsClient
-	NpmPackagesClient  MockNpmPackagesClient
+	ArtifactsClient                MockArtifactsClient
+	EntitlementsClient             MockEntitlementsClient
+	NpmPackagesClient              MockNpmPackagesClient
+	LibraryPoliciesClient          MockLibraryPoliciesClient
+	LibraryPolicyBindingsClient    MockLibraryPolicyBindingsClient
+	LibraryPolicyBlockEventsClient MockLibraryPolicyBlockEventsClient
 
 	OnClose error
 }
@@ -27,6 +30,18 @@ func (m MockLibrariesClients) Entitlements() libraries.EntitlementsClient {
 
 func (m MockLibrariesClients) NpmPackages() libraries.NpmPackagesClient {
 	return &m.NpmPackagesClient
+}
+
+func (m MockLibrariesClients) LibraryPolicies() libraries.LibraryPoliciesClient {
+	return &m.LibraryPoliciesClient
+}
+
+func (m MockLibrariesClients) LibraryPolicyBindings() libraries.LibraryPolicyBindingsClient {
+	return &m.LibraryPolicyBindingsClient
+}
+
+func (m MockLibrariesClients) LibraryPolicyBlockEvents() libraries.LibraryPolicyBlockEventsClient {
+	return &m.LibraryPolicyBlockEventsClient
 }
 
 func (m MockLibrariesClients) Close() error {
