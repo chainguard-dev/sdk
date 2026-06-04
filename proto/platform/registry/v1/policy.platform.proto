@@ -5,6 +5,7 @@ option go_package = "chainguard.dev/sdk/proto/platform/registry/v1";
 package chainguard.platform.registry;
 
 import "google/api/annotations.proto";
+import "google/protobuf/struct.proto";
 import "annotations/auth.proto";
 
 service Policies {
@@ -65,4 +66,7 @@ message PolicyResult {
   PolicyCheckResult result = 4;
   // The UIDP of the binding that associated this policy.
   string binding_id = 5;
+  // The parameter values the binding supplied for this evaluation, keyed by
+  // parameter name. Surfaces what the allow/deny outcome was configured with.
+  map<string, google.protobuf.Value> parameters = 6;
 }

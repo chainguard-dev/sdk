@@ -11,6 +11,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -244,7 +245,10 @@ type PolicyResult struct {
 	// The result of the evaluation.
 	Result PolicyCheckResult `protobuf:"varint,4,opt,name=result,proto3,enum=chainguard.platform.registry.PolicyCheckResult" json:"result,omitempty"`
 	// The UIDP of the binding that associated this policy.
-	BindingId     string `protobuf:"bytes,5,opt,name=binding_id,json=bindingId,proto3" json:"binding_id,omitempty"`
+	BindingId string `protobuf:"bytes,5,opt,name=binding_id,json=bindingId,proto3" json:"binding_id,omitempty"`
+	// The parameter values the binding supplied for this evaluation, keyed by
+	// parameter name. Surfaces what the allow/deny outcome was configured with.
+	Parameters    map[string]*structpb.Value `protobuf:"bytes,6,rep,name=parameters,proto3" json:"parameters,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -314,16 +318,23 @@ func (x *PolicyResult) GetBindingId() string {
 	return ""
 }
 
+func (x *PolicyResult) GetParameters() map[string]*structpb.Value {
+	if x != nil {
+		return x.Parameters
+	}
+	return nil
+}
+
 var File_policy_platform_proto protoreflect.FileDescriptor
 
 const file_policy_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x15policy.platform.proto\x12\x1cchainguard.platform.registry\x1a\x1cgoogle/api/annotations.proto\x1a\x16annotations/auth.proto\"O\n" +
+	"\x15policy.platform.proto\x12\x1cchainguard.platform.registry\x1a\x1cgoogle/api/annotations.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x16annotations/auth.proto\"O\n" +
 	"\x14CheckPoliciesRequest\x12\x1f\n" +
 	"\arepo_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06repoId\x12\x16\n" +
 	"\x06digest\x18\x02 \x01(\tR\x06digest\"]\n" +
 	"\x15CheckPoliciesResponse\x12D\n" +
-	"\aresults\x18\x01 \x03(\v2*.chainguard.platform.registry.PolicyResultR\aresults\"\xf2\x01\n" +
+	"\aresults\x18\x01 \x03(\v2*.chainguard.platform.registry.PolicyResultR\aresults\"\xa5\x03\n" +
 	"\fPolicyResult\x12\x1b\n" +
 	"\tpolicy_id\x18\x01 \x01(\tR\bpolicyId\x12\x1f\n" +
 	"\vpolicy_name\x18\x02 \x01(\tR\n" +
@@ -331,7 +342,13 @@ const file_policy_platform_proto_rawDesc = "" +
 	"\x04mode\x18\x03 \x01(\x0e2(.chainguard.platform.registry.PolicyModeR\x04mode\x12G\n" +
 	"\x06result\x18\x04 \x01(\x0e2/.chainguard.platform.registry.PolicyCheckResultR\x06result\x12\x1d\n" +
 	"\n" +
-	"binding_id\x18\x05 \x01(\tR\tbindingId*D\n" +
+	"binding_id\x18\x05 \x01(\tR\tbindingId\x12Z\n" +
+	"\n" +
+	"parameters\x18\x06 \x03(\v2:.chainguard.platform.registry.PolicyResult.ParametersEntryR\n" +
+	"parameters\x1aU\n" +
+	"\x0fParametersEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01*D\n" +
 	"\n" +
 	"PolicyMode\x12\x1b\n" +
 	"\x17POLICY_MODE_UNSPECIFIED\x10\x00\x12\f\n" +
@@ -360,25 +377,29 @@ func file_policy_platform_proto_rawDescGZIP() []byte {
 }
 
 var file_policy_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_policy_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_policy_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_policy_platform_proto_goTypes = []any{
 	(PolicyMode)(0),               // 0: chainguard.platform.registry.PolicyMode
 	(PolicyCheckResult)(0),        // 1: chainguard.platform.registry.PolicyCheckResult
 	(*CheckPoliciesRequest)(nil),  // 2: chainguard.platform.registry.CheckPoliciesRequest
 	(*CheckPoliciesResponse)(nil), // 3: chainguard.platform.registry.CheckPoliciesResponse
 	(*PolicyResult)(nil),          // 4: chainguard.platform.registry.PolicyResult
+	nil,                           // 5: chainguard.platform.registry.PolicyResult.ParametersEntry
+	(*structpb.Value)(nil),        // 6: google.protobuf.Value
 }
 var file_policy_platform_proto_depIdxs = []int32{
 	4, // 0: chainguard.platform.registry.CheckPoliciesResponse.results:type_name -> chainguard.platform.registry.PolicyResult
 	0, // 1: chainguard.platform.registry.PolicyResult.mode:type_name -> chainguard.platform.registry.PolicyMode
 	1, // 2: chainguard.platform.registry.PolicyResult.result:type_name -> chainguard.platform.registry.PolicyCheckResult
-	2, // 3: chainguard.platform.registry.Policies.CheckPolicies:input_type -> chainguard.platform.registry.CheckPoliciesRequest
-	3, // 4: chainguard.platform.registry.Policies.CheckPolicies:output_type -> chainguard.platform.registry.CheckPoliciesResponse
-	4, // [4:5] is the sub-list for method output_type
-	3, // [3:4] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	5, // 3: chainguard.platform.registry.PolicyResult.parameters:type_name -> chainguard.platform.registry.PolicyResult.ParametersEntry
+	6, // 4: chainguard.platform.registry.PolicyResult.ParametersEntry.value:type_name -> google.protobuf.Value
+	2, // 5: chainguard.platform.registry.Policies.CheckPolicies:input_type -> chainguard.platform.registry.CheckPoliciesRequest
+	3, // 6: chainguard.platform.registry.Policies.CheckPolicies:output_type -> chainguard.platform.registry.CheckPoliciesResponse
+	6, // [6:7] is the sub-list for method output_type
+	5, // [5:6] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_policy_platform_proto_init() }
@@ -392,7 +413,7 @@ func file_policy_platform_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_policy_platform_proto_rawDesc), len(file_policy_platform_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
