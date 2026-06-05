@@ -202,7 +202,12 @@ type WhoAmI struct {
 	// The capabilities referenced in the token.
 	Capabilities []*WhoAmI_Capability `protobuf:"bytes,101,rep,name=capabilities,proto3" json:"capabilities,omitempty"`
 	// The upstream email for this token.
-	Email         string `protobuf:"bytes,102,opt,name=email,proto3" json:"email,omitempty"`
+	Email string `protobuf:"bytes,102,opt,name=email,proto3" json:"email,omitempty"`
+	// The upstream profile claims (name, picture, etc.) for the caller's
+	// identity, sourced from the most recent authentication. Unset for
+	// identities with no stored profile (e.g. assumable identities, or
+	// human identities that haven't authenticated since the feature shipped).
+	Profile       *Profile `protobuf:"bytes,103,opt,name=profile,proto3" json:"profile,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -286,6 +291,88 @@ func (x *WhoAmI) GetEmail() string {
 	return ""
 }
 
+func (x *WhoAmI) GetProfile() *Profile {
+	if x != nil {
+		return x.Profile
+	}
+	return nil
+}
+
+// Profile carries upstream OIDC profile claims for a single identity.
+// Returned on WhoAmI for the caller's own identity; not exposed via any
+// other API surface.
+type Profile struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// name is the upstream `name` claim — typically the user's full display name.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// picture is the upstream `picture` claim — a URL to the user's avatar.
+	Picture string `protobuf:"bytes,2,opt,name=picture,proto3" json:"picture,omitempty"`
+	// given_name is the upstream `given_name` claim.
+	GivenName string `protobuf:"bytes,3,opt,name=given_name,json=givenName,proto3" json:"given_name,omitempty"`
+	// family_name is the upstream `family_name` claim.
+	FamilyName    string `protobuf:"bytes,4,opt,name=family_name,json=familyName,proto3" json:"family_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Profile) Reset() {
+	*x = Profile{}
+	mi := &file_auth_platform_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Profile) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Profile) ProtoMessage() {}
+
+func (x *Profile) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_platform_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Profile.ProtoReflect.Descriptor instead.
+func (*Profile) Descriptor() ([]byte, []int) {
+	return file_auth_platform_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *Profile) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Profile) GetPicture() string {
+	if x != nil {
+		return x.Picture
+	}
+	return ""
+}
+
+func (x *Profile) GetGivenName() string {
+	if x != nil {
+		return x.GivenName
+	}
+	return ""
+}
+
+func (x *Profile) GetFamilyName() string {
+	if x != nil {
+		return x.FamilyName
+	}
+	return ""
+}
+
 type GetHeadlessSessionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
@@ -295,7 +382,7 @@ type GetHeadlessSessionRequest struct {
 
 func (x *GetHeadlessSessionRequest) Reset() {
 	*x = GetHeadlessSessionRequest{}
-	mi := &file_auth_platform_proto_msgTypes[4]
+	mi := &file_auth_platform_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -307,7 +394,7 @@ func (x *GetHeadlessSessionRequest) String() string {
 func (*GetHeadlessSessionRequest) ProtoMessage() {}
 
 func (x *GetHeadlessSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_platform_proto_msgTypes[4]
+	mi := &file_auth_platform_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -320,7 +407,7 @@ func (x *GetHeadlessSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHeadlessSessionRequest.ProtoReflect.Descriptor instead.
 func (*GetHeadlessSessionRequest) Descriptor() ([]byte, []int) {
-	return file_auth_platform_proto_rawDescGZIP(), []int{4}
+	return file_auth_platform_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetHeadlessSessionRequest) GetCode() string {
@@ -359,7 +446,7 @@ type HeadlessSession struct {
 
 func (x *HeadlessSession) Reset() {
 	*x = HeadlessSession{}
-	mi := &file_auth_platform_proto_msgTypes[5]
+	mi := &file_auth_platform_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -371,7 +458,7 @@ func (x *HeadlessSession) String() string {
 func (*HeadlessSession) ProtoMessage() {}
 
 func (x *HeadlessSession) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_platform_proto_msgTypes[5]
+	mi := &file_auth_platform_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -384,7 +471,7 @@ func (x *HeadlessSession) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HeadlessSession.ProtoReflect.Descriptor instead.
 func (*HeadlessSession) Descriptor() ([]byte, []int) {
-	return file_auth_platform_proto_rawDescGZIP(), []int{5}
+	return file_auth_platform_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *HeadlessSession) GetEcdhPublicKey() []byte {
@@ -414,7 +501,7 @@ type WhoAmI_Capability struct {
 
 func (x *WhoAmI_Capability) Reset() {
 	*x = WhoAmI_Capability{}
-	mi := &file_auth_platform_proto_msgTypes[6]
+	mi := &file_auth_platform_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -426,7 +513,7 @@ func (x *WhoAmI_Capability) String() string {
 func (*WhoAmI_Capability) ProtoMessage() {}
 
 func (x *WhoAmI_Capability) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_platform_proto_msgTypes[6]
+	mi := &file_auth_platform_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -469,7 +556,7 @@ const file_auth_platform_proto_rawDesc = "" +
 	"identityIdJ\x04\b\x02\x10\x03J\x04\b\x04\x10\x05J\x04\b\x05\x10\x06J\x04\b\x06\x10\a\";\n" +
 	"\aSession\x12\x1a\n" +
 	"\bidentity\x18\x01 \x01(\tR\bidentity\x12\x14\n" +
-	"\x05group\x18\x02 \x01(\tR\x05group\"\xa1\x03\n" +
+	"\x05group\x18\x02 \x01(\tR\x05group\"\xde\x03\n" +
 	"\x06WhoAmI\x12\x16\n" +
 	"\x06issuer\x18\x01 \x01(\tR\x06issuer\x12\x18\n" +
 	"\asubject\x18\x02 \x01(\tR\asubject\x12\x1a\n" +
@@ -477,11 +564,19 @@ const file_auth_platform_proto_rawDesc = "" +
 	"\x06expiry\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x06expiry\x127\n" +
 	"\tissued_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\bissuedAt\x12O\n" +
 	"\fcapabilities\x18e \x03(\v2+.chainguard.platform.auth.WhoAmI.CapabilityR\fcapabilities\x12\x14\n" +
-	"\x05email\x18f \x01(\tR\x05email\x1au\n" +
+	"\x05email\x18f \x01(\tR\x05email\x12;\n" +
+	"\aprofile\x18g \x01(\v2!.chainguard.platform.auth.ProfileR\aprofile\x1au\n" +
 	"\n" +
 	"Capability\x124\n" +
 	"\x05group\x18\x01 \x01(\v2\x1e.chainguard.platform.iam.GroupR\x05group\x121\n" +
-	"\x04role\x18\x02 \x01(\v2\x1d.chainguard.platform.iam.RoleR\x04role\"/\n" +
+	"\x04role\x18\x02 \x01(\v2\x1d.chainguard.platform.iam.RoleR\x04role\"w\n" +
+	"\aProfile\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
+	"\apicture\x18\x02 \x01(\tR\apicture\x12\x1d\n" +
+	"\n" +
+	"given_name\x18\x03 \x01(\tR\tgivenName\x12\x1f\n" +
+	"\vfamily_name\x18\x04 \x01(\tR\n" +
+	"familyName\"/\n" +
 	"\x19GetHeadlessSessionRequest\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\tR\x04code\"f\n" +
 	"\x0fHeadlessSession\x12&\n" +
@@ -507,39 +602,41 @@ func file_auth_platform_proto_rawDescGZIP() []byte {
 	return file_auth_platform_proto_rawDescData
 }
 
-var file_auth_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_auth_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_auth_platform_proto_goTypes = []any{
 	(*DeletionRequest)(nil),           // 0: chainguard.platform.auth.DeletionRequest
 	(*RegistrationRequest)(nil),       // 1: chainguard.platform.auth.RegistrationRequest
 	(*Session)(nil),                   // 2: chainguard.platform.auth.Session
 	(*WhoAmI)(nil),                    // 3: chainguard.platform.auth.WhoAmI
-	(*GetHeadlessSessionRequest)(nil), // 4: chainguard.platform.auth.GetHeadlessSessionRequest
-	(*HeadlessSession)(nil),           // 5: chainguard.platform.auth.HeadlessSession
-	(*WhoAmI_Capability)(nil),         // 6: chainguard.platform.auth.WhoAmI.Capability
-	(*timestamppb.Timestamp)(nil),     // 7: google.protobuf.Timestamp
-	(*v1.Group)(nil),                  // 8: chainguard.platform.iam.Group
-	(*v1.Role)(nil),                   // 9: chainguard.platform.iam.Role
-	(*emptypb.Empty)(nil),             // 10: google.protobuf.Empty
+	(*Profile)(nil),                   // 4: chainguard.platform.auth.Profile
+	(*GetHeadlessSessionRequest)(nil), // 5: chainguard.platform.auth.GetHeadlessSessionRequest
+	(*HeadlessSession)(nil),           // 6: chainguard.platform.auth.HeadlessSession
+	(*WhoAmI_Capability)(nil),         // 7: chainguard.platform.auth.WhoAmI.Capability
+	(*timestamppb.Timestamp)(nil),     // 8: google.protobuf.Timestamp
+	(*v1.Group)(nil),                  // 9: chainguard.platform.iam.Group
+	(*v1.Role)(nil),                   // 10: chainguard.platform.iam.Role
+	(*emptypb.Empty)(nil),             // 11: google.protobuf.Empty
 }
 var file_auth_platform_proto_depIdxs = []int32{
-	7,  // 0: chainguard.platform.auth.WhoAmI.expiry:type_name -> google.protobuf.Timestamp
-	7,  // 1: chainguard.platform.auth.WhoAmI.issued_at:type_name -> google.protobuf.Timestamp
-	6,  // 2: chainguard.platform.auth.WhoAmI.capabilities:type_name -> chainguard.platform.auth.WhoAmI.Capability
-	8,  // 3: chainguard.platform.auth.WhoAmI.Capability.group:type_name -> chainguard.platform.iam.Group
-	9,  // 4: chainguard.platform.auth.WhoAmI.Capability.role:type_name -> chainguard.platform.iam.Role
-	10, // 5: chainguard.platform.auth.Auth.Validate:input_type -> google.protobuf.Empty
-	1,  // 6: chainguard.platform.auth.Auth.Register:input_type -> chainguard.platform.auth.RegistrationRequest
-	4,  // 7: chainguard.platform.auth.Auth.GetHeadlessSession:input_type -> chainguard.platform.auth.GetHeadlessSessionRequest
-	0,  // 8: chainguard.platform.auth.Auth.Delete:input_type -> chainguard.platform.auth.DeletionRequest
-	3,  // 9: chainguard.platform.auth.Auth.Validate:output_type -> chainguard.platform.auth.WhoAmI
-	2,  // 10: chainguard.platform.auth.Auth.Register:output_type -> chainguard.platform.auth.Session
-	5,  // 11: chainguard.platform.auth.Auth.GetHeadlessSession:output_type -> chainguard.platform.auth.HeadlessSession
-	10, // 12: chainguard.platform.auth.Auth.Delete:output_type -> google.protobuf.Empty
-	9,  // [9:13] is the sub-list for method output_type
-	5,  // [5:9] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	8,  // 0: chainguard.platform.auth.WhoAmI.expiry:type_name -> google.protobuf.Timestamp
+	8,  // 1: chainguard.platform.auth.WhoAmI.issued_at:type_name -> google.protobuf.Timestamp
+	7,  // 2: chainguard.platform.auth.WhoAmI.capabilities:type_name -> chainguard.platform.auth.WhoAmI.Capability
+	4,  // 3: chainguard.platform.auth.WhoAmI.profile:type_name -> chainguard.platform.auth.Profile
+	9,  // 4: chainguard.platform.auth.WhoAmI.Capability.group:type_name -> chainguard.platform.iam.Group
+	10, // 5: chainguard.platform.auth.WhoAmI.Capability.role:type_name -> chainguard.platform.iam.Role
+	11, // 6: chainguard.platform.auth.Auth.Validate:input_type -> google.protobuf.Empty
+	1,  // 7: chainguard.platform.auth.Auth.Register:input_type -> chainguard.platform.auth.RegistrationRequest
+	5,  // 8: chainguard.platform.auth.Auth.GetHeadlessSession:input_type -> chainguard.platform.auth.GetHeadlessSessionRequest
+	0,  // 9: chainguard.platform.auth.Auth.Delete:input_type -> chainguard.platform.auth.DeletionRequest
+	3,  // 10: chainguard.platform.auth.Auth.Validate:output_type -> chainguard.platform.auth.WhoAmI
+	2,  // 11: chainguard.platform.auth.Auth.Register:output_type -> chainguard.platform.auth.Session
+	6,  // 12: chainguard.platform.auth.Auth.GetHeadlessSession:output_type -> chainguard.platform.auth.HeadlessSession
+	11, // 13: chainguard.platform.auth.Auth.Delete:output_type -> google.protobuf.Empty
+	10, // [10:14] is the sub-list for method output_type
+	6,  // [6:10] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_auth_platform_proto_init() }
@@ -553,7 +650,7 @@ func file_auth_platform_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_platform_proto_rawDesc), len(file_auth_platform_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

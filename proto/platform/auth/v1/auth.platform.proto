@@ -133,6 +133,25 @@ message WhoAmI {
   repeated Capability capabilities = 101;
   // The upstream email for this token.
   string email = 102;
+  // The upstream profile claims (name, picture, etc.) for the caller's
+  // identity, sourced from the most recent authentication. Unset for
+  // identities with no stored profile (e.g. assumable identities, or
+  // human identities that haven't authenticated since the feature shipped).
+  Profile profile = 103;
+}
+
+// Profile carries upstream OIDC profile claims for a single identity.
+// Returned on WhoAmI for the caller's own identity; not exposed via any
+// other API surface.
+message Profile {
+  // name is the upstream `name` claim — typically the user's full display name.
+  string name = 1;
+  // picture is the upstream `picture` claim — a URL to the user's avatar.
+  string picture = 2;
+  // given_name is the upstream `given_name` claim.
+  string given_name = 3;
+  // family_name is the upstream `family_name` claim.
+  string family_name = 4;
 }
 
 message GetHeadlessSessionRequest {
