@@ -47,6 +47,9 @@ message NpmPackage {
   string license = 4;
   // The number of versions available for this package.
   int64 version_count = 5;
+  // The source type this package summary belongs to. Packages are scoped by
+  // source type, so the same name may appear once per source type.
+  NpmSourceType source_type = 6;
 }
 
 // A collection of NpmPackages as returned by calls to List.

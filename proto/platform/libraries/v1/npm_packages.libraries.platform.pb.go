@@ -91,7 +91,10 @@ type NpmPackage struct {
 	// The SPDX license identifier for this package.
 	License string `protobuf:"bytes,4,opt,name=license,proto3" json:"license,omitempty"`
 	// The number of versions available for this package.
-	VersionCount  int64 `protobuf:"varint,5,opt,name=version_count,json=versionCount,proto3" json:"version_count,omitempty"`
+	VersionCount int64 `protobuf:"varint,5,opt,name=version_count,json=versionCount,proto3" json:"version_count,omitempty"`
+	// The source type this package summary belongs to. Packages are scoped by
+	// source type, so the same name may appear once per source type.
+	SourceType    NpmSourceType `protobuf:"varint,6,opt,name=source_type,json=sourceType,proto3,enum=chainguard.platform.libraries.NpmSourceType" json:"source_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -159,6 +162,13 @@ func (x *NpmPackage) GetVersionCount() int64 {
 		return x.VersionCount
 	}
 	return 0
+}
+
+func (x *NpmPackage) GetSourceType() NpmSourceType {
+	if x != nil {
+		return x.SourceType
+	}
+	return NpmSourceType_NPM_SOURCE_TYPE_UNKNOWN
 }
 
 // A collection of NpmPackages as returned by calls to List.
@@ -656,14 +666,16 @@ var File_npm_packages_libraries_platform_proto protoreflect.FileDescriptor
 
 const file_npm_packages_libraries_platform_proto_rawDesc = "" +
 	"\n" +
-	"%npm_packages.libraries.platform.proto\x12\x1dchainguard.platform.libraries\x1a\x16annotations/auth.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb7\x01\n" +
+	"%npm_packages.libraries.platform.proto\x12\x1dchainguard.platform.libraries\x1a\x16annotations/auth.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x86\x02\n" +
 	"\n" +
 	"NpmPackage\x12!\n" +
 	"\fpackage_name\x18\x01 \x01(\tR\vpackageName\x12%\n" +
 	"\x0elatest_version\x18\x02 \x01(\tR\rlatestVersion\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x18\n" +
 	"\alicense\x18\x04 \x01(\tR\alicense\x12#\n" +
-	"\rversion_count\x18\x05 \x01(\x03R\fversionCount\"\x9a\x01\n" +
+	"\rversion_count\x18\x05 \x01(\x03R\fversionCount\x12M\n" +
+	"\vsource_type\x18\x06 \x01(\x0e2,.chainguard.platform.libraries.NpmSourceTypeR\n" +
+	"sourceType\"\x9a\x01\n" +
 	"\x0eNpmPackageList\x12?\n" +
 	"\x05items\x18\x01 \x03(\v2).chainguard.platform.libraries.NpmPackageR\x05items\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
@@ -746,24 +758,25 @@ var file_npm_packages_libraries_platform_proto_goTypes = []any{
 	(*timestamppb.Timestamp)(nil),   // 7: google.protobuf.Timestamp
 }
 var file_npm_packages_libraries_platform_proto_depIdxs = []int32{
-	1,  // 0: chainguard.platform.libraries.NpmPackageList.items:type_name -> chainguard.platform.libraries.NpmPackage
-	0,  // 1: chainguard.platform.libraries.NpmPackageFilter.source_types:type_name -> chainguard.platform.libraries.NpmSourceType
-	7,  // 2: chainguard.platform.libraries.NpmPackageVersion.created_at:type_name -> google.protobuf.Timestamp
-	0,  // 3: chainguard.platform.libraries.NpmPackageVersion.source_type:type_name -> chainguard.platform.libraries.NpmSourceType
-	7,  // 4: chainguard.platform.libraries.NpmPackageVersion.updated_at:type_name -> google.protobuf.Timestamp
-	7,  // 5: chainguard.platform.libraries.NpmPackageVersion.upstream_published_date:type_name -> google.protobuf.Timestamp
-	7,  // 6: chainguard.platform.libraries.NpmPackageVersion.malware_scanned_at:type_name -> google.protobuf.Timestamp
-	4,  // 7: chainguard.platform.libraries.NpmPackageVersionList.items:type_name -> chainguard.platform.libraries.NpmPackageVersion
-	0,  // 8: chainguard.platform.libraries.NpmPackageVersionFilter.source_types:type_name -> chainguard.platform.libraries.NpmSourceType
-	3,  // 9: chainguard.platform.libraries.NpmPackages.List:input_type -> chainguard.platform.libraries.NpmPackageFilter
-	6,  // 10: chainguard.platform.libraries.NpmPackages.ListVersions:input_type -> chainguard.platform.libraries.NpmPackageVersionFilter
-	2,  // 11: chainguard.platform.libraries.NpmPackages.List:output_type -> chainguard.platform.libraries.NpmPackageList
-	5,  // 12: chainguard.platform.libraries.NpmPackages.ListVersions:output_type -> chainguard.platform.libraries.NpmPackageVersionList
-	11, // [11:13] is the sub-list for method output_type
-	9,  // [9:11] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	0,  // 0: chainguard.platform.libraries.NpmPackage.source_type:type_name -> chainguard.platform.libraries.NpmSourceType
+	1,  // 1: chainguard.platform.libraries.NpmPackageList.items:type_name -> chainguard.platform.libraries.NpmPackage
+	0,  // 2: chainguard.platform.libraries.NpmPackageFilter.source_types:type_name -> chainguard.platform.libraries.NpmSourceType
+	7,  // 3: chainguard.platform.libraries.NpmPackageVersion.created_at:type_name -> google.protobuf.Timestamp
+	0,  // 4: chainguard.platform.libraries.NpmPackageVersion.source_type:type_name -> chainguard.platform.libraries.NpmSourceType
+	7,  // 5: chainguard.platform.libraries.NpmPackageVersion.updated_at:type_name -> google.protobuf.Timestamp
+	7,  // 6: chainguard.platform.libraries.NpmPackageVersion.upstream_published_date:type_name -> google.protobuf.Timestamp
+	7,  // 7: chainguard.platform.libraries.NpmPackageVersion.malware_scanned_at:type_name -> google.protobuf.Timestamp
+	4,  // 8: chainguard.platform.libraries.NpmPackageVersionList.items:type_name -> chainguard.platform.libraries.NpmPackageVersion
+	0,  // 9: chainguard.platform.libraries.NpmPackageVersionFilter.source_types:type_name -> chainguard.platform.libraries.NpmSourceType
+	3,  // 10: chainguard.platform.libraries.NpmPackages.List:input_type -> chainguard.platform.libraries.NpmPackageFilter
+	6,  // 11: chainguard.platform.libraries.NpmPackages.ListVersions:input_type -> chainguard.platform.libraries.NpmPackageVersionFilter
+	2,  // 12: chainguard.platform.libraries.NpmPackages.List:output_type -> chainguard.platform.libraries.NpmPackageList
+	5,  // 13: chainguard.platform.libraries.NpmPackages.ListVersions:output_type -> chainguard.platform.libraries.NpmPackageVersionList
+	12, // [12:14] is the sub-list for method output_type
+	10, // [10:12] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_npm_packages_libraries_platform_proto_init() }
