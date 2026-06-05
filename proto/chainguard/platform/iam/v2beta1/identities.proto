@@ -478,6 +478,9 @@ message IdentityMetadata {
   // The HubSpot UTK value to pass to HubSpot during console login.
   // This value is ephemeral and not persisted to datastore.
   string hubspot_utk = 16 [(google.api.field_behavior) = OPTIONAL];
+
+  // Flag to indicate if the user is onboarding via a self-service flow.
+  bool self_serve = 17 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // UpdateIdentityMetadataRequest is the request for UpdateIdentityMetadata.

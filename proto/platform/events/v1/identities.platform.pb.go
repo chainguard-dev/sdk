@@ -209,8 +209,10 @@ type IdentityMetadata_OnboardingQuestions struct {
 	LatestFormSubmitUrl        string `protobuf:"bytes,12,opt,name=latest_form_submit_url,json=latestFormSubmitUrl,proto3" json:"latest_form_submit_url,omitempty"`
 	LatestInternalReferringUrl string `protobuf:"bytes,13,opt,name=latest_internal_referring_url,json=latestInternalReferringUrl,proto3" json:"latest_internal_referring_url,omitempty"`
 	HubspotUtk                 string `protobuf:"bytes,14,opt,name=hubspot_utk,json=hubspotUtk,proto3" json:"hubspot_utk,omitempty"`
-	unknownFields              protoimpl.UnknownFields
-	sizeCache                  protoimpl.SizeCache
+	// Product fields.
+	SelfServe     bool `protobuf:"varint,15,opt,name=self_serve,json=selfServe,proto3" json:"self_serve,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *IdentityMetadata_OnboardingQuestions) Reset() {
@@ -327,6 +329,13 @@ func (x *IdentityMetadata_OnboardingQuestions) GetHubspotUtk() string {
 	return ""
 }
 
+func (x *IdentityMetadata_OnboardingQuestions) GetSelfServe() bool {
+	if x != nil {
+		return x.SelfServe
+	}
+	return false
+}
+
 var File_identities_platform_proto protoreflect.FileDescriptor
 
 const file_identities_platform_proto_rawDesc = "" +
@@ -340,7 +349,7 @@ const file_identities_platform_proto_rawDesc = "" +
 	"issuerKeys\x12:\n" +
 	"\n" +
 	"expiration\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"expiration\"\xc5\x05\n" +
+	"expiration\"\xe4\x05\n" +
 	"\x10IdentityMetadata\x12s\n" +
 	"\x14onboarding_questions\x18\x01 \x01(\v2@.chainguard.platform.events.IdentityMetadata.OnboardingQuestionsR\x13onboardingQuestions\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
@@ -348,7 +357,7 @@ const file_identities_platform_proto_rawDesc = "" +
 	"given_name\x18\x04 \x01(\tR\tgivenName\x12\x1f\n" +
 	"\vfamily_name\x18\x05 \x01(\tR\n" +
 	"familyName\x12\"\n" +
-	"\fupdatesOptIn\x18\x03 \x01(\bR\fupdatesOptIn\x1a\xc3\x03\n" +
+	"\fupdatesOptIn\x18\x03 \x01(\bR\fupdatesOptIn\x1a\xe2\x03\n" +
 	"\x13OnboardingQuestions\x12!\n" +
 	"\fcompany_name\x18\x01 \x01(\tR\vcompanyName\x12\x1c\n" +
 	"\tproviders\x18\x02 \x03(\tR\tproviders\x12\x18\n" +
@@ -366,7 +375,9 @@ const file_identities_platform_proto_rawDesc = "" +
 	"\x16latest_form_submit_url\x18\f \x01(\tR\x13latestFormSubmitUrl\x12A\n" +
 	"\x1dlatest_internal_referring_url\x18\r \x01(\tR\x1alatestInternalReferringUrl\x12\x1f\n" +
 	"\vhubspot_utk\x18\x0e \x01(\tR\n" +
-	"hubspotUtk2\xc0\x03\n" +
+	"hubspotUtk\x12\x1d\n" +
+	"\n" +
+	"self_serve\x18\x0f \x01(\bR\tselfServe2\xc0\x03\n" +
 	"\n" +
 	"Identities\x12\x95\x01\n" +
 	"\x06Create\x12$.chainguard.platform.events.Identity\x1a$.chainguard.platform.events.Identity\"?\x92A\x11\n" +
