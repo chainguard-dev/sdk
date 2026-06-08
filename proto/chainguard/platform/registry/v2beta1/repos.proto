@@ -6,10 +6,12 @@ syntax = "proto3";
 package chainguard.platform.registry.v2beta1;
 
 import "annotations/auth.proto";
+import "annotations/events.proto";
 import "annotations/mcp.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "platform/common/v1/uidp.platform.proto";
 
@@ -32,6 +34,28 @@ service ReposService {
       description: "Get a container image repository by its UIDP."
       read_only: true
       destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // DeleteRepo deletes a repository by UID.
+  rpc DeleteRepo(DeleteRepoRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/registry/v2beta1/repos/{uid=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_DELETE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.platform.registry.repo.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Delete a container image repository by its UIDP."
+      read_only: false
+      destructive: true
       idempotent: true
       open_world: false
     };
@@ -223,6 +247,15 @@ message CustomOverlay {
 // GetRepoRequest is the request message for GetRepo.
 message GetRepoRequest {
   // UID of the repository to retrieve.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// DeleteRepoRequest is the request message for DeleteRepo.
+message DeleteRepoRequest {
+  // UID of the repository to delete.
   string uid = 1 [
     (google.api.field_behavior) = REQUIRED,
     (chainguard.annotations.iam_scope) = true

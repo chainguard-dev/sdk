@@ -14,6 +14,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,8 +23,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ReposService_GetRepo_FullMethodName   = "/chainguard.platform.registry.v2beta1.ReposService/GetRepo"
-	ReposService_ListRepos_FullMethodName = "/chainguard.platform.registry.v2beta1.ReposService/ListRepos"
+	ReposService_GetRepo_FullMethodName    = "/chainguard.platform.registry.v2beta1.ReposService/GetRepo"
+	ReposService_DeleteRepo_FullMethodName = "/chainguard.platform.registry.v2beta1.ReposService/DeleteRepo"
+	ReposService_ListRepos_FullMethodName  = "/chainguard.platform.registry.v2beta1.ReposService/ListRepos"
 )
 
 // ReposServiceClient is the client API for ReposService service.
@@ -34,6 +36,8 @@ const (
 type ReposServiceClient interface {
 	// GetRepo retrieves a single repository by UID.
 	GetRepo(ctx context.Context, in *GetRepoRequest, opts ...grpc.CallOption) (*Repo, error)
+	// DeleteRepo deletes a repository by UID.
+	DeleteRepo(ctx context.Context, in *DeleteRepoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// ListRepos returns repositories based on filter criteria with pagination support.
 	ListRepos(ctx context.Context, in *ListReposRequest, opts ...grpc.CallOption) (*ListReposResponse, error)
 }
@@ -50,6 +54,16 @@ func (c *reposServiceClient) GetRepo(ctx context.Context, in *GetRepoRequest, op
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Repo)
 	err := c.cc.Invoke(ctx, ReposService_GetRepo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *reposServiceClient) DeleteRepo(ctx context.Context, in *DeleteRepoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ReposService_DeleteRepo_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -74,6 +88,8 @@ func (c *reposServiceClient) ListRepos(ctx context.Context, in *ListReposRequest
 type ReposServiceServer interface {
 	// GetRepo retrieves a single repository by UID.
 	GetRepo(context.Context, *GetRepoRequest) (*Repo, error)
+	// DeleteRepo deletes a repository by UID.
+	DeleteRepo(context.Context, *DeleteRepoRequest) (*emptypb.Empty, error)
 	// ListRepos returns repositories based on filter criteria with pagination support.
 	ListRepos(context.Context, *ListReposRequest) (*ListReposResponse, error)
 	mustEmbedUnimplementedReposServiceServer()
@@ -88,6 +104,9 @@ type UnimplementedReposServiceServer struct{}
 
 func (UnimplementedReposServiceServer) GetRepo(context.Context, *GetRepoRequest) (*Repo, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetRepo not implemented")
+}
+func (UnimplementedReposServiceServer) DeleteRepo(context.Context, *DeleteRepoRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteRepo not implemented")
 }
 func (UnimplementedReposServiceServer) ListRepos(context.Context, *ListReposRequest) (*ListReposResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListRepos not implemented")
@@ -131,6 +150,24 @@ func _ReposService_GetRepo_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ReposService_DeleteRepo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRepoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReposServiceServer).DeleteRepo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReposService_DeleteRepo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReposServiceServer).DeleteRepo(ctx, req.(*DeleteRepoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ReposService_ListRepos_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListReposRequest)
 	if err := dec(in); err != nil {
@@ -159,6 +196,10 @@ var ReposService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetRepo",
 			Handler:    _ReposService_GetRepo_Handler,
+		},
+		{
+			MethodName: "DeleteRepo",
+			Handler:    _ReposService_DeleteRepo_Handler,
 		},
 		{
 			MethodName: "ListRepos",
