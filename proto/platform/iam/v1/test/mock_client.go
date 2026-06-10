@@ -13,16 +13,17 @@ import (
 type MockIAMClient struct {
 	OnClose error
 
-	GroupsClient                   MockGroupsClient
-	GroupInvitesClient             MockGroupInvitesClient
-	RolesClient                    MockRolesClient
-	RoleBindingsClient             MockRoleBindingsClient
-	IdentitiesClient               MockIdentitiesClient
-	DeprecatedIdentitiesClient     MockDeprecatedIdentitiesClient
-	IdentityProvidersClient        MockIdentityProvidersClient
-	GroupAccountAssociationsClient MockGroupAccountAssociationsClient
-	TermsClient                    MockTermsClient
-	SubscriptionsClient            MockSubscriptionsClient
+	GroupsClient                    MockGroupsClient
+	GroupInvitesClient              MockGroupInvitesClient
+	RolesClient                     MockRolesClient
+	RoleBindingsClient              MockRoleBindingsClient
+	IdentitiesClient                MockIdentitiesClient
+	DeprecatedIdentitiesClient      MockDeprecatedIdentitiesClient
+	IdentityProvidersClient         MockIdentityProvidersClient
+	GroupAccountAssociationsClient  MockGroupAccountAssociationsClient
+	ExternalGroupRoleMappingsClient MockExternalGroupRoleMappingsClient
+	TermsClient                     MockTermsClient
+	SubscriptionsClient             MockSubscriptionsClient
 }
 
 var _ iam.Clients = (*MockIAMClient)(nil)
@@ -57,6 +58,10 @@ func (m MockIAMClient) IdentityProviders() iam.IdentityProvidersClient {
 
 func (m MockIAMClient) AccountAssociations() iam.GroupAccountAssociationsClient {
 	return &m.GroupAccountAssociationsClient
+}
+
+func (m MockIAMClient) ExternalGroupRoleMappings() iam.ExternalGroupRoleMappingsClient {
+	return &m.ExternalGroupRoleMappingsClient
 }
 
 func (m MockIAMClient) Terms() iam.TermsClient {

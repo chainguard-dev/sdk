@@ -30,6 +30,8 @@ type Clients interface {
 
 	AccountAssociations() GroupAccountAssociationsClient
 
+	ExternalGroupRoleMappings() ExternalGroupRoleMappingsClient
+
 	Terms() TermsClient
 
 	Subscriptions() events.SubscriptionsClient
@@ -68,6 +70,8 @@ func NewClients(ctx context.Context, iamURL string, token string) (Clients, erro
 
 		accountAssociations: NewGroupAccountAssociationsClient(conn),
 
+		externalGroupRoleMappings: NewExternalGroupRoleMappingsClient(conn),
+
 		terms: NewTermsClient(conn),
 
 		subscription: events.NewSubscriptionsClient(conn),
@@ -88,6 +92,8 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 
 		accountAssociations: NewGroupAccountAssociationsClient(conn),
 
+		externalGroupRoleMappings: NewExternalGroupRoleMappingsClient(conn),
+
 		terms: NewTermsClient(conn),
 
 		subscription: events.NewSubscriptionsClient(conn),
@@ -106,6 +112,8 @@ type clients struct {
 	identityProviders    IdentityProvidersClient
 
 	accountAssociations GroupAccountAssociationsClient
+
+	externalGroupRoleMappings ExternalGroupRoleMappingsClient
 
 	terms TermsClient
 
@@ -144,6 +152,10 @@ func (c *clients) IdentityProviders() IdentityProvidersClient {
 
 func (c *clients) AccountAssociations() GroupAccountAssociationsClient {
 	return c.accountAssociations
+}
+
+func (c *clients) ExternalGroupRoleMappings() ExternalGroupRoleMappingsClient {
+	return c.externalGroupRoleMappings
 }
 
 func (c *clients) Terms() TermsClient {
