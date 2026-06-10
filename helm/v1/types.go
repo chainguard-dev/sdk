@@ -43,6 +43,19 @@ type ChartImage struct {
 	Digest   string `json:"digest"`
 }
 
+// IsOptionalImage reports whether imageID is marked as optional in the template
+// at this level. Returns false if the template is nil or the image is not found.
+func (ci *ChartImages) IsOptionalImage(imageID string) bool {
+	if ci == nil || ci.Template == nil {
+		return false
+	}
+	img, ok := ci.Template.Images[imageID]
+	if !ok || img == nil {
+		return false
+	}
+	return img.Requirement.IsOptional()
+}
+
 // WalkFunc is the callback for ChartImages.Walk.
 // It receives the image ID, the pinned image ref, and the tokenized template value.
 // Return the transformed value, or nil to exclude the field from output.

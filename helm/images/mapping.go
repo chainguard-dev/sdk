@@ -70,6 +70,22 @@ type Image struct {
 	Requirement Requirement    `json:"requirement,omitempty"`
 }
 
+// ForImages returns a new Mapping containing only the images whose IDs are
+// present as keys in refs. This is used to exclude skipped (e.g., optional)
+// images from template resolution.
+func (m *Mapping) ForImages(refs map[string]string) *Mapping {
+	if m == nil {
+		return nil
+	}
+	filtered := &Mapping{Images: make(map[string]*Image, len(refs))}
+	for id, img := range m.Images {
+		if _, ok := refs[id]; ok {
+			filtered.Images[id] = img
+		}
+	}
+	return filtered
+}
+
 // WalkFunc is the callback signature for Mapping.Walk.
 // It receives the image ID and tokenized string value, returning the transformed value.
 type WalkFunc func(imageID string, tokens TokenList) (any, error)

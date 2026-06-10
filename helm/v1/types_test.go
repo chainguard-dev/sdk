@@ -390,3 +390,103 @@ func TestChartImages_Walk(t *testing.T) {
 		})
 	}
 }
+
+func TestIsOptionalImage(t *testing.T) {
+	tests := []struct {
+		name    string
+		ci      *ChartImages
+		imageID string
+		want    bool
+	}{
+		{
+			name:    "nil ChartImages",
+			ci:      nil,
+			imageID: "nginx",
+			want:    false,
+		},
+		{
+			name:    "nil template",
+			ci:      &ChartImages{},
+			imageID: "nginx",
+			want:    false,
+		},
+		{
+			name: "image not in template",
+			ci: &ChartImages{
+				Template: &images.Mapping{
+					Images: map[string]*images.Image{
+						"nginx": {Values: map[string]any{"image": "${ref}"}},
+					},
+				},
+			},
+			imageID: "redis",
+			want:    false,
+		},
+		{
+			name: "required image",
+			ci: &ChartImages{
+				Template: &images.Mapping{
+					Images: map[string]*images.Image{
+						"nginx": {Requirement: images.Required, Values: map[string]any{"image": "${ref}"}},
+					},
+				},
+			},
+			imageID: "nginx",
+			want:    false,
+		},
+		{
+			name: "unspecified requirement",
+			ci: &ChartImages{
+				Template: &images.Mapping{
+					Images: map[string]*images.Image{
+						"nginx": {Values: map[string]any{"image": "${ref}"}},
+					},
+				},
+			},
+			imageID: "nginx",
+			want:    false,
+		},
+		{
+			name: "optional image",
+			ci: &ChartImages{
+				Template: &images.Mapping{
+					Images: map[string]*images.Image{
+						"sidecar": {Requirement: images.Optional, Values: map[string]any{"image": "${ref}"}},
+					},
+				},
+			},
+			imageID: "sidecar",
+			want:    true,
+		},
+		{
+			name: "does not check subcharts",
+			ci: &ChartImages{
+				Template: &images.Mapping{
+					Images: map[string]*images.Image{
+						"nginx": {Requirement: images.Required, Values: map[string]any{"image": "${ref}"}},
+					},
+				},
+				Subcharts: map[string]*ChartImages{
+					"redis": {
+						Template: &images.Mapping{
+							Images: map[string]*images.Image{
+								"exporter": {Requirement: images.Optional, Values: map[string]any{"image": "${ref}"}},
+							},
+						},
+					},
+				},
+			},
+			imageID: "exporter",
+			want:    false, // only checks current level, not subcharts
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.ci.IsOptionalImage(tc.imageID)
+			if got != tc.want {
+				t.Errorf("IsOptionalImage(%q) = %v, want %v", tc.imageID, got, tc.want)
+			}
+		})
+	}
+}

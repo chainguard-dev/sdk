@@ -23,7 +23,7 @@ const (
 	digestE = "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 )
 
-func echoResolve(_ string, ref *helmv1.ChartImage) (string, string, error) {
+func echoResolve(_ *helmv1.ChartImages, _ string, ref *helmv1.ChartImage) (string, string, error) {
 	fullRef := "test.registry/" + ref.RepoName
 	if ref.Tag != "" {
 		fullRef += ":" + ref.Tag
@@ -313,7 +313,7 @@ image:
 				Refs:     map[string]*helmv1.ChartImage{"nginx": {RepoName: "nginx", Digest: digestA}},
 				Template: imageTemplate("nginx", map[string]any{"image": map[string]any{"registry": "${registry}"}}),
 			},
-			resolve: func(string, *helmv1.ChartImage) (string, string, error) {
+			resolve: func(*helmv1.ChartImages, string, *helmv1.ChartImage) (string, string, error) {
 				return "", "", fmt.Errorf("repo not found")
 			},
 			wantErr: "repo not found",
@@ -418,6 +418,83 @@ dashboard:
   image:
     digest: ` + digestA + `
     registry: test.registry
+`,
+		},
+		{
+			name: "ErrSkipImage skips single image",
+			valuesYAML: `image:
+  registry: cgr.dev
+  digest: placeholder
+`,
+			ci: &helmv1.ChartImages{
+				Refs:     map[string]*helmv1.ChartImage{"nginx": {RepoName: "nginx", Tag: "latest", Digest: digestA}},
+				Template: registryDigestTemplate("nginx", "image"),
+			},
+			resolve: func(_ *helmv1.ChartImages, _ string, _ *helmv1.ChartImage) (string, string, error) {
+				return "", "", ErrSkipImage
+			},
+			// All images skipped — values unchanged.
+		},
+		{
+			name: "ErrSkipImage with co-mingled required and optional",
+			valuesYAML: `image:
+  registry: cgr.dev
+  digest: placeholder
+sidecar:
+  registry: cgr.dev
+  digest: placeholder
+`,
+			ci: &helmv1.ChartImages{
+				Refs: map[string]*helmv1.ChartImage{
+					"nginx":   {RepoName: "nginx", Tag: "latest", Digest: digestA},
+					"sidecar": {RepoName: "sidecar", Tag: "latest", Digest: digestB},
+				},
+				Template: &images.Mapping{
+					Images: map[string]*images.Image{
+						"nginx":   {Requirement: images.Required, Values: map[string]any{"image": map[string]any{"registry": "${registry}", "digest": "${digest}"}}},
+						"sidecar": {Requirement: images.Optional, Values: map[string]any{"sidecar": map[string]any{"registry": "${registry}", "digest": "${digest}"}}},
+					},
+				},
+			},
+			resolve: func(ci *helmv1.ChartImages, imageID string, ref *helmv1.ChartImage) (string, string, error) {
+				if imageID == "sidecar" {
+					return "", "", ErrSkipImage
+				}
+				return echoResolve(ci, imageID, ref)
+			},
+			want: `image:
+  registry: test.registry
+  digest: ` + digestA + `
+sidecar:
+  registry: cgr.dev
+  digest: placeholder
+`,
+		},
+		{
+			name: "ErrSkipImage in subchart skips subchart image",
+			valuesYAML: `image:
+  registry: cgr.dev
+  digest: placeholder
+`,
+			ci: &helmv1.ChartImages{
+				Refs:     map[string]*helmv1.ChartImage{"nginx": {RepoName: "nginx", Tag: "latest", Digest: digestA}},
+				Template: registryDigestTemplate("nginx", "image"),
+				Subcharts: map[string]*helmv1.ChartImages{
+					"redis": {
+						Refs:     map[string]*helmv1.ChartImage{"redis": {RepoName: "redis", Tag: "7", Digest: digestB}},
+						Template: registryDigestTemplate("redis", "image"),
+					},
+				},
+			},
+			resolve: func(ci *helmv1.ChartImages, imageID string, ref *helmv1.ChartImage) (string, string, error) {
+				if imageID == "redis" {
+					return "", "", ErrSkipImage
+				}
+				return echoResolve(ci, imageID, ref)
+			},
+			want: `image:
+  registry: test.registry
+  digest: ` + digestA + `
 `,
 		},
 	}

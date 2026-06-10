@@ -7,6 +7,7 @@ package chart
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"maps"
 	"slices"
@@ -16,10 +17,20 @@ import (
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 )
 
+// ErrSkipImage is returned by a [ResolveFunc] to indicate that an image
+// should be excluded from patching (e.g., an optional image that is missing).
+var ErrSkipImage = errors.New("skip image")
+
 // ResolveFunc resolves a single chart image to its full OCI reference string
 // and the resolved digest. Callers provide their own resolution logic
 // (e.g., registry lookups, custom assembly checks) via this callback.
-type ResolveFunc func(imageID string, ref *helmv1.ChartImage) (fullRef, resolvedDigest string, err error)
+//
+// The ci parameter is the [helmv1.ChartImages] that owns this image, allowing
+// callers to check level-specific metadata (e.g., whether the image is optional
+// at this level of the chart tree).
+//
+// Return [ErrSkipImage] to exclude the image from patching.
+type ResolveFunc func(ci *helmv1.ChartImages, imageID string, ref *helmv1.ChartImage) (fullRef, resolvedDigest string, err error)
 
 // PatchChartImages resolves all image references in a [helmv1.ChartImages]
 // tree and patches them into the chart's values.yaml.
@@ -43,7 +54,7 @@ func PatchChartImages(chart v1.Image, ci *helmv1.ChartImages, resolve ResolveFun
 		subOpts: append([]images.ResolveOption{images.WithAddMissing(true)}, opts...),
 	}
 
-	rootRefs, rootDigests, err := p.resolveRefs(ci.Refs)
+	rootRefs, rootDigests, err := p.resolveRefs(ci)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -61,8 +72,13 @@ func PatchChartImages(chart v1.Image, ci *helmv1.ChartImages, resolve ResolveFun
 	patched := values
 
 	// Apply root image template strictly — paths must exist in values.yaml.
+	// When images were skipped, filter the template to exclude them.
 	if ci.Template != nil && len(rootRefs) > 0 {
-		patched, err = ci.Template.Resolve(rootRefs, bytes.NewReader(patched), p.opts...)
+		tmpl := ci.Template
+		if len(rootRefs) < len(ci.Refs) {
+			tmpl = tmpl.ForImages(rootRefs)
+		}
+		patched, err = tmpl.Resolve(rootRefs, bytes.NewReader(patched), p.opts...)
 		if err != nil {
 			return nil, nil, fmt.Errorf("resolving root images: %w", err)
 		}
@@ -89,14 +105,17 @@ type patcher struct {
 	subOpts []images.ResolveOption
 }
 
-func (p *patcher) resolveRefs(refs map[string]*helmv1.ChartImage) (map[string]string, map[string]string, error) {
-	if len(refs) == 0 {
+func (p *patcher) resolveRefs(ci *helmv1.ChartImages) (map[string]string, map[string]string, error) {
+	if len(ci.Refs) == 0 {
 		return nil, nil, nil
 	}
-	fullRefs := make(map[string]string, len(refs))
-	digests := make(map[string]string, len(refs))
-	for imageID, ref := range refs {
-		fullRef, resolvedDigest, err := p.resolve(imageID, ref)
+	fullRefs := make(map[string]string, len(ci.Refs))
+	digests := make(map[string]string, len(ci.Refs))
+	for imageID, ref := range ci.Refs {
+		fullRef, resolvedDigest, err := p.resolve(ci, imageID, ref)
+		if errors.Is(err, ErrSkipImage) {
+			continue
+		}
 		if err != nil {
 			return nil, nil, fmt.Errorf("image %q: %w", imageID, err)
 		}
@@ -117,13 +136,17 @@ func (p *patcher) patchSubcharts(valuesYAML []byte, subcharts map[string]*helmv1
 		ci := subcharts[depName]
 		subPath := append(slices.Clone(path), depName)
 
-		refs, digests, err := p.resolveRefs(ci.Refs)
+		refs, digests, err := p.resolveRefs(ci)
 		if err != nil {
 			return nil, nil, fmt.Errorf("subchart %q: %w", depName, err)
 		}
 
 		if ci.Template != nil && len(refs) > 0 {
-			nested := nestTemplate(ci.Template, subPath)
+			tmpl := ci.Template
+			if len(refs) < len(ci.Refs) {
+				tmpl = tmpl.ForImages(refs)
+			}
+			nested := nestTemplate(tmpl, subPath)
 			patched, err = nested.Resolve(refs, bytes.NewReader(patched), p.subOpts...)
 			if err != nil {
 				return nil, nil, fmt.Errorf("subchart %q: %w", depName, err)

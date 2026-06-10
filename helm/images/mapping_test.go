@@ -1316,3 +1316,67 @@ func TestImageValuesMerge(t *testing.T) {
 		})
 	}
 }
+
+func TestForImages(t *testing.T) {
+	tests := []struct {
+		name    string
+		mapping *Mapping
+		refs    map[string]string
+		want    *Mapping
+	}{
+		{
+			name:    "nil mapping",
+			mapping: nil,
+			refs:    map[string]string{"nginx": "ref"},
+			want:    nil,
+		},
+		{
+			name: "all images match",
+			mapping: &Mapping{Images: map[string]*Image{
+				"nginx": {Values: map[string]any{"image": "${ref}"}},
+				"redis": {Values: map[string]any{"image": "${ref}"}},
+			}},
+			refs: map[string]string{"nginx": "ref1", "redis": "ref2"},
+			want: &Mapping{Images: map[string]*Image{
+				"nginx": {Values: map[string]any{"image": "${ref}"}},
+				"redis": {Values: map[string]any{"image": "${ref}"}},
+			}},
+		},
+		{
+			name: "filters to subset",
+			mapping: &Mapping{Images: map[string]*Image{
+				"nginx":   {Values: map[string]any{"image": "${ref}"}},
+				"sidecar": {Requirement: Optional, Values: map[string]any{"image": "${ref}"}},
+			}},
+			refs: map[string]string{"nginx": "ref"},
+			want: &Mapping{Images: map[string]*Image{
+				"nginx": {Values: map[string]any{"image": "${ref}"}},
+			}},
+		},
+		{
+			name: "no matching images",
+			mapping: &Mapping{Images: map[string]*Image{
+				"nginx": {Values: map[string]any{"image": "${ref}"}},
+			}},
+			refs: map[string]string{"redis": "ref"},
+			want: &Mapping{Images: map[string]*Image{}},
+		},
+		{
+			name: "empty refs",
+			mapping: &Mapping{Images: map[string]*Image{
+				"nginx": {Values: map[string]any{"image": "${ref}"}},
+			}},
+			refs: map[string]string{},
+			want: &Mapping{Images: map[string]*Image{}},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.mapping.ForImages(tc.refs)
+			if diff := cmp.Diff(tc.want, got); diff != "" {
+				t.Errorf("ForImages mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
