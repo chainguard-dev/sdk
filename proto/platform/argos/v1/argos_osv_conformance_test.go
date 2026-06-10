@@ -28,8 +28,18 @@ func TestOSVRecordJSONConformsToOSVSpec(t *testing.T) {
 				Events: []*argosv1.Event{
 					{Event: &argosv1.Event_Introduced{Introduced: "0"}},
 					{Event: &argosv1.Event_Fixed{Fixed: "1.2.3"}},
+					{Event: &argosv1.Event_LastAffected{LastAffected: "1.2.2"}},
 				},
 			}},
+			DatabaseSpecific: &argosv1.DatabaseSpecific{
+				CweIds: []string{"CWE-0000"},
+				SinkLocator: &argosv1.SinkLocator{
+					Class:    "example.pkg.Sink",
+					Method:   "method(str)",
+					FileLine: "example/pkg/sink.py:1-2",
+				},
+				DefectKind: "incorrect-control",
+			},
 		}},
 	}
 	b, err := protojson.Marshal(rec)
@@ -37,9 +47,23 @@ func TestOSVRecordJSONConformsToOSVSpec(t *testing.T) {
 		t.Fatalf("marshal: %v", err)
 	}
 	got := string(b)
-	for _, want := range []string{`"affected"`, `"ranges"`, `"introduced"`, `"fixed"`} {
+	for _, want := range []string{
+		`"affected"`, `"ranges"`, `"introduced"`, `"fixed"`,
+		// Multi-word OSV keys are the ones protojson would lowerCamelCase
+		// without their json_name pins — assert the exact spec form.
+		`"schema_version"`, `"last_affected"`, `"database_specific"`,
+		`"cwe_ids"`, `"sink_locator"`, `"class"`, `"file_line"`, `"defect_kind"`,
+	} {
 		if !strings.Contains(got, want) {
 			t.Errorf("expected %s in %s", want, got)
+		}
+	}
+	for _, reject := range []string{
+		"schemaVersion", "lastAffected", "databaseSpecific",
+		"cweIds", "sinkLocator", "fileLine", "defectKind",
+	} {
+		if strings.Contains(got, reject) {
+			t.Errorf("lowerCamelCase key %q leaked into customer OSV JSON (missing json_name pin): %s", reject, got)
 		}
 	}
 }

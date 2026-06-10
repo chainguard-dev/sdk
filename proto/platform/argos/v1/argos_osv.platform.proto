@@ -8,6 +8,7 @@ option go_package = "chainguard.dev/sdk/proto/platform/argos/v1";
 package chainguard.platform.argos;
 
 import "google/api/annotations.proto";
+import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 import "annotations/auth.proto";
 
@@ -62,7 +63,7 @@ message Event {
   oneof event {
     string introduced = 1;
     string fixed = 2;
-    string last_affected = 3;
+    string last_affected = 3 [json_name = "last_affected"];
     string limit = 4;
   }
 }
@@ -83,8 +84,45 @@ message Affected {
   Package package = 1;
   repeated Range ranges = 2;
   repeated string versions = 3;
-  bytes ecosystem_specific = 4;
-  bytes database_specific = 5;
+  // ecosystem_specific is the OSV-spec free-form ecosystem-owned extension
+  // object. Currently never populated.
+  google.protobuf.Struct ecosystem_specific = 4 [json_name = "ecosystem_specific"];
+  // database_specific is the Chainguard atomic-vulnerability extension; see
+  // DatabaseSpecific.
+  DatabaseSpecific database_specific = 5 [json_name = "database_specific"];
+}
+
+// DatabaseSpecific is the Chainguard database-owned extension on an Affected
+// entry: the atomic-vulnerability classification and sink location for the
+// record. Field names are pinned to OSV-spec snake_case via json_name.
+message DatabaseSpecific {
+  // cwe_ids is the ordered list of CWE classifications; the lead (most
+  // specific) CWE is cwe_ids[0].
+  repeated string cwe_ids = 1 [json_name = "cwe_ids"];
+
+  // sink_locator is the structured sink of the defect within the upstream
+  // package's own source. Unset for non-flow defects.
+  SinkLocator sink_locator = 2 [json_name = "sink_locator"];
+
+  // defect_kind is the coarse defect class: "missing-control",
+  // "incorrect-control", or "configuration-default".
+  string defect_kind = 3 [json_name = "defect_kind"];
+}
+
+// SinkLocator locates a defect's sink within the upstream package source.
+message SinkLocator {
+  // class is the fully-qualified class/type of the sink (or module path for
+  // non-OO languages).
+  string class = 1;
+
+  // method is the symbolic method/function at the sink.
+  string method = 2;
+
+  // arg_signature is the sink's argument signature, when known.
+  string arg_signature = 3 [json_name = "arg_signature"];
+
+  // file_line is the sink's source location, e.g. "src/.../X.java:NNN".
+  string file_line = 4 [json_name = "file_line"];
 }
 
 message Severity {
@@ -94,7 +132,7 @@ message Severity {
 
 message OSVRecord {
   string id = 1;
-  string schema_version = 2;
+  string schema_version = 2 [json_name = "schema_version"];
   string summary = 3;
   string details = 4;
   repeated string aliases = 5;
