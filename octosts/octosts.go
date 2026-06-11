@@ -160,8 +160,10 @@ func (sts *octoSTSTokenSource) Token() (*oauth2.Token, error) {
 	return &oauth2.Token{
 		AccessToken: accessToken,
 		// This is an approximation, as we don't have the actual expiry time from the Exchanger.
-		// Tokens are usually valid for 1 hour, so we set it to 55 minutes here.
+		// Tokens are usually valid for 1 hour, but we refresh at the 20-minute mark so we
+		// pick up fresh tokens more often, rather than staying stuck with a noisy quota
+		// neighbor for the full hour.
 		// TODO: Return exact expiry time from the Exchanger if available.
-		Expiry: time.Now().Add(55 * time.Minute),
+		Expiry: time.Now().Add(20 * time.Minute),
 	}, nil
 }
