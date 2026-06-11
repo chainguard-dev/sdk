@@ -711,7 +711,7 @@ type OSVQueryRequest struct {
 	Version string                 `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
 	// page_token is the opaque cursor from a previous response's next_page_token.
 	// Empty starts at the first page. (OSV spec: query supports page_token.)
-	PageToken     string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	PageToken     string `protobuf:"bytes,3,opt,name=page_token,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -771,7 +771,7 @@ type OSVQueryResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Vulns []*OSVRecord           `protobuf:"bytes,1,rep,name=vulns,proto3" json:"vulns,omitempty"`
 	// next_page_token is the cursor for the next page; empty when last page.
-	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -923,7 +923,7 @@ type OSVQueryBatchResult struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Vulns []*MinimalOSVRecord    `protobuf:"bytes,1,rep,name=vulns,proto3" json:"vulns,omitempty"`
 	// next_page_token paginates this query's results (OSV batch spec).
-	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1115,23 +1115,24 @@ const file_argos_osv_platform_proto_rawDesc = "" +
 	"\tpublished\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tpublished\x126\n" +
 	"\bmodified\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\bmodified\x12\x18\n" +
 	"\arelated\x18\n" +
-	" \x03(\tR\arelated\"\x88\x01\n" +
+	" \x03(\tR\arelated\"\x89\x01\n" +
 	"\x0fOSVQueryRequest\x12<\n" +
 	"\apackage\x18\x01 \x01(\v2\".chainguard.platform.argos.PackageR\apackage\x12\x18\n" +
-	"\aversion\x18\x02 \x01(\tR\aversion\x12\x1d\n" +
+	"\aversion\x18\x02 \x01(\tR\aversion\x12\x1e\n" +
 	"\n" +
-	"page_token\x18\x03 \x01(\tR\tpageToken\"v\n" +
+	"page_token\x18\x03 \x01(\tR\n" +
+	"page_token\"x\n" +
 	"\x10OSVQueryResponse\x12:\n" +
-	"\x05vulns\x18\x01 \x03(\v2$.chainguard.platform.argos.OSVRecordR\x05vulns\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"Z\n" +
+	"\x05vulns\x18\x01 \x03(\v2$.chainguard.platform.argos.OSVRecordR\x05vulns\x12(\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\x0fnext_page_token\"Z\n" +
 	"\x10MinimalOSVRecord\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x126\n" +
 	"\bmodified\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\bmodified\"\\\n" +
 	"\x14OSVQueryBatchRequest\x12D\n" +
-	"\aqueries\x18\x01 \x03(\v2*.chainguard.platform.argos.OSVQueryRequestR\aqueries\"\x80\x01\n" +
+	"\aqueries\x18\x01 \x03(\v2*.chainguard.platform.argos.OSVQueryRequestR\aqueries\"\x82\x01\n" +
 	"\x13OSVQueryBatchResult\x12A\n" +
-	"\x05vulns\x18\x01 \x03(\v2+.chainguard.platform.argos.MinimalOSVRecordR\x05vulns\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"a\n" +
+	"\x05vulns\x18\x01 \x03(\v2+.chainguard.platform.argos.MinimalOSVRecordR\x05vulns\x12(\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\x0fnext_page_token\"a\n" +
 	"\x15OSVQueryBatchResponse\x12H\n" +
 	"\aresults\x18\x01 \x03(\v2..chainguard.platform.argos.OSVQueryBatchResultR\aresults\"\x1f\n" +
 	"\rGetOSVRequest\x12\x0e\n" +

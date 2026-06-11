@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	argosv1 "chainguard.dev/sdk/proto/platform/argos/v1"
@@ -64,6 +65,31 @@ func TestOSVRecordJSONConformsToOSVSpec(t *testing.T) {
 	} {
 		if strings.Contains(got, reject) {
 			t.Errorf("lowerCamelCase key %q leaked into customer OSV JSON (missing json_name pin): %s", reject, got)
+		}
+	}
+}
+
+func TestOSVPaginationJSONConformsToOSVSpec(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		msg    proto.Message
+		want   string
+		reject string
+	}{
+		{"OSVQueryRequest", &argosv1.OSVQueryRequest{PageToken: "tok"}, `"page_token"`, "pageToken"},
+		{"OSVQueryResponse", &argosv1.OSVQueryResponse{NextPageToken: "tok"}, `"next_page_token"`, "nextPageToken"},
+		{"OSVQueryBatchResult", &argosv1.OSVQueryBatchResult{NextPageToken: "tok"}, `"next_page_token"`, "nextPageToken"},
+	} {
+		b, err := protojson.Marshal(tc.msg)
+		if err != nil {
+			t.Fatalf("%s: marshal: %v", tc.name, err)
+		}
+		got := string(b)
+		if !strings.Contains(got, tc.want) {
+			t.Errorf("%s: expected %s in %s", tc.name, tc.want, got)
+		}
+		if strings.Contains(got, tc.reject) {
+			t.Errorf("%s: lowerCamelCase key %q leaked into customer OSV JSON (missing json_name pin): %s", tc.name, tc.reject, got)
 		}
 	}
 }

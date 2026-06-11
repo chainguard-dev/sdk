@@ -148,13 +148,13 @@ message OSVQueryRequest {
   string version = 2;
   // page_token is the opaque cursor from a previous response's next_page_token.
   // Empty starts at the first page. (OSV spec: query supports page_token.)
-  string page_token = 3;
+  string page_token = 3 [json_name = "page_token"];
 }
 
 message OSVQueryResponse {
   repeated OSVRecord vulns = 1;
   // next_page_token is the cursor for the next page; empty when last page.
-  string next_page_token = 2;
+  string next_page_token = 2 [json_name = "next_page_token"];
 }
 
 // MinimalOSVRecord is the abbreviated vuln entry returned by QueryBatch,
@@ -172,7 +172,7 @@ message OSVQueryBatchRequest {
 message OSVQueryBatchResult {
   repeated MinimalOSVRecord vulns = 1;
   // next_page_token paginates this query's results (OSV batch spec).
-  string next_page_token = 2;
+  string next_page_token = 2 [json_name = "next_page_token"];
 }
 
 message OSVQueryBatchResponse {
