@@ -25,7 +25,7 @@ func TestOSVRecordJSONConformsToOSVSpec(t *testing.T) {
 		Affected: []*argosv1.Affected{{
 			Package: &argosv1.Package{Ecosystem: "PyPI", Name: "example"},
 			Ranges: []*argosv1.Range{{
-				Type: argosv1.Range_RANGE_TYPE_ECOSYSTEM,
+				Type: argosv1.Range_ECOSYSTEM,
 				Events: []*argosv1.Event{
 					{Event: &argosv1.Event_Introduced{Introduced: "0"}},
 					{Event: &argosv1.Event_Fixed{Fixed: "1.2.3"}},
@@ -54,6 +54,9 @@ func TestOSVRecordJSONConformsToOSVSpec(t *testing.T) {
 		// without their json_name pins — assert the exact spec form.
 		`"schema_version"`, `"last_affected"`, `"database_specific"`,
 		`"cwe_ids"`, `"sink_locator"`, `"class"`, `"file_line"`, `"defect_kind"`,
+		// Range type must render the bare OSV enum form ("ECOSYSTEM"), not a
+		// proto-prefixed value name.
+		`"ECOSYSTEM"`,
 	} {
 		if !strings.Contains(got, want) {
 			t.Errorf("expected %s in %s", want, got)
@@ -62,9 +65,10 @@ func TestOSVRecordJSONConformsToOSVSpec(t *testing.T) {
 	for _, reject := range []string{
 		"schemaVersion", "lastAffected", "databaseSpecific",
 		"cweIds", "sinkLocator", "fileLine", "defectKind",
+		"RANGE_TYPE_",
 	} {
 		if strings.Contains(got, reject) {
-			t.Errorf("lowerCamelCase key %q leaked into customer OSV JSON (missing json_name pin): %s", reject, got)
+			t.Errorf("non-OSV-spec token %q leaked into customer OSV JSON: %s", reject, got)
 		}
 	}
 }

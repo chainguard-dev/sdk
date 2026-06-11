@@ -69,11 +69,15 @@ message Event {
 }
 
 message Range {
+  // RangeType mirrors the OSV spec's `type` enum. Value names are
+  // deliberately unprefixed so the protojson wire form matches OSV verbatim
+  // (the spec uses bare "SEMVER" / "ECOSYSTEM" / "GIT"); nested-enum scoping
+  // means Go consumers see Range_SEMVER, Range_ECOSYSTEM, Range_GIT.
   enum RangeType {
-    RANGE_TYPE_UNSPECIFIED = 0;
-    RANGE_TYPE_SEMVER = 1;
-    RANGE_TYPE_ECOSYSTEM = 2;
-    RANGE_TYPE_GIT = 3;
+    UNSPECIFIED = 0;
+    SEMVER = 1;
+    ECOSYSTEM = 2;
+    GIT = 3;
   }
   RangeType type = 1;
   string repo = 2;

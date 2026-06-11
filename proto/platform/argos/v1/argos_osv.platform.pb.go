@@ -28,28 +28,32 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// RangeType mirrors the OSV spec's `type` enum. Value names are
+// deliberately unprefixed so the protojson wire form matches OSV verbatim
+// (the spec uses bare "SEMVER" / "ECOSYSTEM" / "GIT"); nested-enum scoping
+// means Go consumers see Range_SEMVER, Range_ECOSYSTEM, Range_GIT.
 type Range_RangeType int32
 
 const (
-	Range_RANGE_TYPE_UNSPECIFIED Range_RangeType = 0
-	Range_RANGE_TYPE_SEMVER      Range_RangeType = 1
-	Range_RANGE_TYPE_ECOSYSTEM   Range_RangeType = 2
-	Range_RANGE_TYPE_GIT         Range_RangeType = 3
+	Range_UNSPECIFIED Range_RangeType = 0
+	Range_SEMVER      Range_RangeType = 1
+	Range_ECOSYSTEM   Range_RangeType = 2
+	Range_GIT         Range_RangeType = 3
 )
 
 // Enum value maps for Range_RangeType.
 var (
 	Range_RangeType_name = map[int32]string{
-		0: "RANGE_TYPE_UNSPECIFIED",
-		1: "RANGE_TYPE_SEMVER",
-		2: "RANGE_TYPE_ECOSYSTEM",
-		3: "RANGE_TYPE_GIT",
+		0: "UNSPECIFIED",
+		1: "SEMVER",
+		2: "ECOSYSTEM",
+		3: "GIT",
 	}
 	Range_RangeType_value = map[string]int32{
-		"RANGE_TYPE_UNSPECIFIED": 0,
-		"RANGE_TYPE_SEMVER":      1,
-		"RANGE_TYPE_ECOSYSTEM":   2,
-		"RANGE_TYPE_GIT":         3,
+		"UNSPECIFIED": 0,
+		"SEMVER":      1,
+		"ECOSYSTEM":   2,
+		"GIT":         3,
 	}
 )
 
@@ -297,7 +301,7 @@ func (x *Range) GetType() Range_RangeType {
 	if x != nil {
 		return x.Type
 	}
-	return Range_RANGE_TYPE_UNSPECIFIED
+	return Range_UNSPECIFIED
 }
 
 func (x *Range) GetRepo() string {
@@ -1076,16 +1080,17 @@ const file_argos_osv_platform_proto_rawDesc = "" +
 	"\x05fixed\x18\x02 \x01(\tH\x00R\x05fixed\x12&\n" +
 	"\rlast_affected\x18\x03 \x01(\tH\x00R\rlast_affected\x12\x16\n" +
 	"\x05limit\x18\x04 \x01(\tH\x00R\x05limitB\a\n" +
-	"\x05event\"\x83\x02\n" +
+	"\x05event\"\xd7\x01\n" +
 	"\x05Range\x12>\n" +
 	"\x04type\x18\x01 \x01(\x0e2*.chainguard.platform.argos.Range.RangeTypeR\x04type\x12\x12\n" +
 	"\x04repo\x18\x02 \x01(\tR\x04repo\x128\n" +
-	"\x06events\x18\x03 \x03(\v2 .chainguard.platform.argos.EventR\x06events\"l\n" +
-	"\tRangeType\x12\x1a\n" +
-	"\x16RANGE_TYPE_UNSPECIFIED\x10\x00\x12\x15\n" +
-	"\x11RANGE_TYPE_SEMVER\x10\x01\x12\x18\n" +
-	"\x14RANGE_TYPE_ECOSYSTEM\x10\x02\x12\x12\n" +
-	"\x0eRANGE_TYPE_GIT\x10\x03\"\xc2\x02\n" +
+	"\x06events\x18\x03 \x03(\v2 .chainguard.platform.argos.EventR\x06events\"@\n" +
+	"\tRangeType\x12\x0f\n" +
+	"\vUNSPECIFIED\x10\x00\x12\n" +
+	"\n" +
+	"\x06SEMVER\x10\x01\x12\r\n" +
+	"\tECOSYSTEM\x10\x02\x12\a\n" +
+	"\x03GIT\x10\x03\"\xc2\x02\n" +
 	"\bAffected\x12<\n" +
 	"\apackage\x18\x01 \x01(\v2\".chainguard.platform.argos.PackageR\apackage\x128\n" +
 	"\x06ranges\x18\x02 \x03(\v2 .chainguard.platform.argos.RangeR\x06ranges\x12\x1a\n" +
