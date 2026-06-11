@@ -133,9 +133,21 @@ func Stringify(capability Capability) (string, error) {
 	return name.(string), nil
 }
 
+// StringifyAll converts capabilities to their string names. A capability with
+// no descriptor has been deleted from the enum; it grants nothing, so it is
+// skipped with a warning rather than failing the whole list — otherwise a
+// single stale capability on a stored role makes that role impossible to read
+// or list, which takes down the Console IDP settings page (CUS-843). Other
+// Stringify errors (a present enum value missing its options or name extension)
+// indicate a proto authoring bug and are surfaced to the caller.
 func StringifyAll(caps []Capability) ([]string, error) {
 	scs := make([]string, 0, len(caps))
 	for _, capability := range caps {
+		if capability.Descriptor().Values().ByNumber(capability.Number()) == nil {
+			// Deleted from the enum — skip it rather than failing the list.
+			clog.WarnContextf(context.Background(), "skipping deleted capability %d", capability)
+			continue
+		}
 		sc, err := Stringify(capability)
 		if err != nil {
 			return nil, err

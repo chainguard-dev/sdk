@@ -52,6 +52,105 @@ func TestStringify(t *testing.T) {
 	}
 }
 
+func TestStringifyAll(t *testing.T) {
+	// staleCap stands in for a capability whose enum value has been removed
+	// (deprecated then deleted). StringifyAll must skip it rather than failing
+	// the whole list, so a stale capability on a stored role can't make that
+	// role impossible to read. CUS-843.
+	const staleCap = Capability(42)
+	if _, err := Stringify(staleCap); err == nil {
+		t.Fatalf("capability %d now has a descriptor; choose a different unassigned value for this test", staleCap)
+	}
+
+	tests := []struct {
+		name string
+		caps []Capability
+		want []string
+	}{{
+		name: "empty input",
+		caps: nil,
+		want: []string{},
+	}, {
+		name: "all valid",
+		caps: []Capability{Capability_CAP_IAM_GROUPS_LIST, Capability_CAP_EVENTS_SUBSCRIPTION_DELETE},
+		want: []string{"groups.list", "subscriptions.delete"},
+	}, {
+		name: "all stale",
+		caps: []Capability{staleCap},
+		want: []string{},
+	}, {
+		name: "skips stale capability in the middle",
+		caps: []Capability{
+			Capability_CAP_IAM_GROUPS_LIST,
+			staleCap,
+			Capability_CAP_EVENTS_SUBSCRIPTION_DELETE,
+		},
+		want: []string{"groups.list", "subscriptions.delete"},
+	}, {
+		name: "skips stale capability at head",
+		caps: []Capability{staleCap, Capability_CAP_IAM_GROUPS_LIST},
+		want: []string{"groups.list"},
+	}, {
+		name: "skips stale capability at tail",
+		caps: []Capability{Capability_CAP_IAM_GROUPS_LIST, staleCap},
+		want: []string{"groups.list"},
+	}}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got, err := StringifyAll(test.caps)
+			if err != nil {
+				t.Fatalf("StringifyAll() error: got = %v, want = nil", err)
+			}
+			if diff := cmp.Diff(test.want, got); diff != "" {
+				t.Errorf("StringifyAll() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+// TestStringifyAll_CUS843 replays a real stored capability set that triggered
+// CUS-843: an owner-style role whose capabilities_json still includes capability
+// 1601 (CAP_REGISTRY_PULL), removed from the enum in mono#23247, so it now has
+// no descriptor. The datastore decodes this stored JSON straight into a
+// []Capability (datastore/internal/persistence/iam/role.go), which then flows
+// into StringifyAll on every role read. Before the fix the stale 1601 made
+// StringifyAll fail the whole list, taking down the Console IDP settings page;
+// it must now be skipped while every live capability is still returned.
+func TestStringifyAll_CUS843(t *testing.T) {
+	const storedCapabilitiesJSON = `[660,1601,505,623,703,1303,103,1503,1203,203,603,1605,403,1003,633,1609,903,1613,303,503,803,613,640,901,1615,670,650,1103,1703]`
+
+	var caps []Capability
+	if err := json.Unmarshal([]byte(storedCapabilitiesJSON), &caps); err != nil {
+		t.Fatalf("decoding stored capabilities_json: %v", err)
+	}
+
+	// Premise: 1601 must be unresolvable for this regression to be meaningful.
+	if _, err := Stringify(Capability(1601)); err == nil {
+		t.Fatal("capability 1601 (CAP_REGISTRY_PULL) now has a descriptor; this regression test no longer reproduces CUS-843")
+	}
+
+	// Expected output: every capability that still resolves, in order — i.e.
+	// the full stored set minus the deleted 1601.
+	var want []string
+	for _, c := range caps {
+		if s, err := Stringify(c); err == nil {
+			want = append(want, s)
+		}
+	}
+
+	got, err := StringifyAll(caps)
+	if err != nil {
+		t.Fatalf("StringifyAll() on the stored caps: got error %v, want nil", err)
+	}
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("StringifyAll() mismatch (-want +got):\n%s", diff)
+	}
+	if len(got) != len(caps)-1 {
+		t.Errorf("StringifyAll() returned %d names, want %d (all %d stored caps minus the deleted 1601)", len(got), len(caps)-1, len(caps))
+	}
+}
+
 func TestDeprecated(t *testing.T) {
 	tests := []struct {
 		name       string
