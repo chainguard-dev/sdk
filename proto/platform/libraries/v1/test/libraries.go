@@ -13,6 +13,7 @@ type MockLibrariesClients struct {
 	ArtifactsClient                MockArtifactsClient
 	EntitlementsClient             MockEntitlementsClient
 	NpmPackagesClient              MockNpmPackagesClient
+	MalwareClient                  MockMalwareClient
 	LibraryPoliciesClient          MockLibraryPoliciesClient
 	LibraryPolicyBindingsClient    MockLibraryPolicyBindingsClient
 	LibraryPolicyBlockEventsClient MockLibraryPolicyBlockEventsClient
@@ -30,6 +31,10 @@ func (m MockLibrariesClients) Entitlements() libraries.EntitlementsClient {
 
 func (m MockLibrariesClients) NpmPackages() libraries.NpmPackagesClient {
 	return &m.NpmPackagesClient
+}
+
+func (m MockLibrariesClients) Malware() libraries.MalwareClient {
+	return &m.MalwareClient
 }
 
 func (m MockLibrariesClients) LibraryPolicies() libraries.LibraryPoliciesClient {

@@ -21,6 +21,7 @@ type Clients interface {
 	Artifacts() ArtifactsClient
 	Entitlements() EntitlementsClient
 	NpmPackages() NpmPackagesClient
+	Malware() MalwareClient
 	LibraryPolicies() LibraryPoliciesClient
 	LibraryPolicyBindings() LibraryPolicyBindingsClient
 	LibraryPolicyBlockEvents() LibraryPolicyBlockEventsClient
@@ -52,6 +53,7 @@ func NewClients(ctx context.Context, ecoURL string, token string) (Clients, erro
 		artifacts:                NewArtifactsClient(conn),
 		entitlements:             NewEntitlementsClient(conn),
 		npmPackages:              NewNpmPackagesClient(conn),
+		malware:                  NewMalwareClient(conn),
 		libraryPolicies:          NewLibraryPoliciesClient(conn),
 		libraryPolicyBindings:    NewLibraryPolicyBindingsClient(conn),
 		libraryPolicyBlockEvents: NewLibraryPolicyBlockEventsClient(conn),
@@ -65,6 +67,7 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 		artifacts:                NewArtifactsClient(conn),
 		entitlements:             NewEntitlementsClient(conn),
 		npmPackages:              NewNpmPackagesClient(conn),
+		malware:                  NewMalwareClient(conn),
 		libraryPolicies:          NewLibraryPoliciesClient(conn),
 		libraryPolicyBindings:    NewLibraryPolicyBindingsClient(conn),
 		libraryPolicyBlockEvents: NewLibraryPolicyBlockEventsClient(conn),
@@ -77,6 +80,7 @@ type clients struct {
 	artifacts                ArtifactsClient
 	entitlements             EntitlementsClient
 	npmPackages              NpmPackagesClient
+	malware                  MalwareClient
 	libraryPolicies          LibraryPoliciesClient
 	libraryPolicyBindings    LibraryPolicyBindingsClient
 	libraryPolicyBlockEvents LibraryPolicyBlockEventsClient
@@ -94,6 +98,10 @@ func (c *clients) Entitlements() EntitlementsClient {
 
 func (c *clients) NpmPackages() NpmPackagesClient {
 	return c.npmPackages
+}
+
+func (c *clients) Malware() MalwareClient {
+	return c.malware
 }
 
 func (c *clients) LibraryPolicies() LibraryPoliciesClient {
