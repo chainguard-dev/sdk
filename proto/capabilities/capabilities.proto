@@ -112,8 +112,16 @@ enum Capability {
   // metadata associated with images vs pulling the image itself.
   CAP_REPO_BLOBS_GET = 1600 [(name) = "repo.blobs.get", (bit) = 107];
 
+  // TODO(laney): cassie's CAS/ActionCache/ByteStream handlers also
+  // accept CAP_REPO_CREATE as a transitional grant for write access to
+  // its REAPI cache surface. Once consumers have migrated to
+  // CAP_CASSIE_CAS_WRITE, drop the dual-accept in cassie.
   CAP_REPO_CREATE = 1603 [(name) = "repo.create", (bit) = 56];
   CAP_REPO_UPDATE = 1604 [(name) = "repo.update", (bit) = 57];
+  // TODO(laney): cassie's CAS/ActionCache/ByteStream handlers also
+  // accept CAP_REPO_LIST as a transitional grant for read access to
+  // its REAPI cache surface. Once consumers have migrated to
+  // CAP_CASSIE_CAS_READ, drop the dual-accept in cassie.
   CAP_REPO_LIST   = 1605 [(name) = "repo.list",   (bit) = 58];
   CAP_REPO_DELETE = 1606 [(name) = "repo.delete", (bit) = 59];
 
@@ -276,6 +284,16 @@ enum Capability {
 
   CAP_LIBRARIES_POLICY_BLOCK_EVENT_LIST = 2613 [(name) = "libraries.policy.block_event.list", (bit) = 156];
 
+  // Build API
+  CAP_BUILDAPI_BUILD_CREATE          = 2701 [(name) = "buildapi.build.create",          (bit) = 158, (internal_only) = true];
+  CAP_BUILDAPI_BUILD_LIST            = 2702 [(name) = "buildapi.build.list",            (bit) = 159, (internal_only) = true];
+  CAP_BUILDAPI_WORKER_SYNC           = 2703 [(name) = "buildapi.worker.sync",           (bit) = 162, (internal_only) = true];
+  CAP_BUILDAPI_BUILD_CANCEL          = 2704 [(name) = "buildapi.build.cancel",          (bit) = 163, (internal_only) = true];
+
+  // Cassie REAPI cache surface (CAS, ActionCache, ByteStream).
+  CAP_CASSIE_CAS_READ                = 2801 [(name) = "cassie.cas.read",                (bit) = 160, (internal_only) = true];
+  CAP_CASSIE_CAS_WRITE               = 2802 [(name) = "cassie.cas.write",               (bit) = 161, (internal_only) = true];
+
   reserved 1;
-  // next bit: 157
+  // next bit: 164
 }
