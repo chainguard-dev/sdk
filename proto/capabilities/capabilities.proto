@@ -294,6 +294,10 @@ enum Capability {
   CAP_CASSIE_CAS_READ                = 2801 [(name) = "cassie.cas.read",                (bit) = 160, (internal_only) = true];
   CAP_CASSIE_CAS_WRITE               = 2802 [(name) = "cassie.cas.write",               (bit) = 161, (internal_only) = true];
 
+  // Actions catalog — the read-only catalog of Chainguard-published GitHub
+  // Actions and the upstreams they mirror. Writes are internal (importer only).
+  CAP_ACTIONS_CATALOG_LIST = 2700 [(name) = "actions.catalog.list", (bit) = 164];
+
   reserved 1;
-  // next bit: 164
+  // next bit: 165
 }

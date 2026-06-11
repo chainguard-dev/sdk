@@ -224,7 +224,7 @@ var File_chainguard_platform_actions_v1alpha1_entitlements_proto protoreflect.Fi
 
 const file_chainguard_platform_actions_v1alpha1_entitlements_proto_rawDesc = "" +
 	"\n" +
-	"7chainguard/platform/actions/v1alpha1/entitlements.proto\x12$chainguard.platform.actions.v1alpha1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"l\n" +
+	"7chainguard/platform/actions/v1alpha1/entitlements.proto\x12$chainguard.platform.actions.v1alpha1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a2chainguard/platform/actions/v1alpha1/catalog.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"l\n" +
 	"\vEntitlement\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x02id\x12A\n" +
@@ -238,7 +238,7 @@ const file_chainguard_platform_actions_v1alpha1_entitlements_proto_rawDesc = "" 
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x02id\"6\n" +
 	"\x18DeleteEntitlementRequest\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x02id2\xfd\x06\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x02id2\xb9\x0f\n" +
 	"\aActions\x12\xc9\x02\n" +
 	"\x11CreateEntitlement\x12>.chainguard.platform.actions.v1alpha1.CreateEntitlementRequest\x1a1.chainguard.platform.actions.v1alpha1.Entitlement\"\xc0\x01\x82\xd3\xe4\x93\x02/\"-/actions/v1alpha1/entitlements/{parent_id=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
 	"\x01f\x9a\xaf\xa8\xd2\x058\n" +
@@ -250,7 +250,16 @@ const file_chainguard_platform_actions_v1alpha1_entitlements_proto_rawDesc = "" 
 	"\x11DeleteEntitlement\x12>.chainguard.platform.actions.v1alpha1.DeleteEntitlementRequest\x1a\x16.google.protobuf.Empty\"\xba\x01\x82\xd3\xe4\x93\x02(*&/actions/v1alpha1/entitlements/{id=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
 	"\x01f\x9a\xaf\xa8\xd2\x059\n" +
 	"1Remove a group's actions entitlement by its UIDP. \x01(\x010\x00\xc2\xf0\x8e\xfc\v<\n" +
-	"1dev.chainguard.api.actions.entitlement.deleted.v1\x12\x05group\x18\x01B~\n" +
+	"1dev.chainguard.api.actions.entitlement.deleted.v1\x12\x05group\x18\x01\x12\xf2\x01\n" +
+	"\tGetAction\x126.chainguard.platform.actions.v1alpha1.GetActionRequest\x1a,.chainguard.platform.actions.v1alpha1.Action\"\x7f\x82\xd3\xe4\x93\x02*\x12(/actions/v1alpha1/catalog/action/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\x8c\x15\x9a\xaf\xa8\xd2\x05=\n" +
+	"3Get a Chainguard Actions catalog entry by its UIDP.\x18\x01 \x00(\x010\x00\x12\x94\x04\n" +
+	"\vListActions\x128.chainguard.platform.actions.v1alpha1.ListActionsRequest\x1a9.chainguard.platform.actions.v1alpha1.ListActionsResponse\"\x8f\x03\x82\xd3\xe4\x93\x02\x85\x02Z8\x126/actions/v1alpha1/{parent_id}/actions/{upstream.owner}ZH\x12F/actions/v1alpha1/{parent_id}/actions/{upstream.owner}/{upstream.repo}ZX\x12V/actions/v1alpha1/{parent_id}/actions/{upstream.owner}/{upstream.repo}/{upstream.path}\x12%/actions/v1alpha1/{parent_id}/actions\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\x8c\x15\x9a\xaf\xa8\xd2\x05q\n" +
+	"gList Chainguard Actions catalog entries under a group, optionally filtered by upstream owner/repo/path.\x18\x01 \x00(\x010\x00\x12\xad\x02\n" +
+	"\fListVersions\x129.chainguard.platform.actions.v1alpha1.ListVersionsRequest\x1a:.chainguard.platform.actions.v1alpha1.ListVersionsResponse\"\xa5\x01\x82\xd3\xe4\x93\x02$\x12\"/actions/v1alpha1/catalog/versions\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\x8c\x15\x9a\xaf\xa8\xd2\x05i\n" +
+	"_List the versions of a Chainguard Actions catalog entry, with the upstream version each tracks.\x18\x01 \x00(\x010\x00B~\n" +
 	"(com.chainguard.platform.actions.v1alpha1B\x11EntitlementsProtoP\x01Z=chainguard.dev/sdk/proto/chainguard/platform/actions/v1alpha1b\x06proto3"
 
 var (
@@ -272,21 +281,33 @@ var file_chainguard_platform_actions_v1alpha1_entitlements_proto_goTypes = []any
 	(*GetEntitlementRequest)(nil),    // 2: chainguard.platform.actions.v1alpha1.GetEntitlementRequest
 	(*DeleteEntitlementRequest)(nil), // 3: chainguard.platform.actions.v1alpha1.DeleteEntitlementRequest
 	(*timestamppb.Timestamp)(nil),    // 4: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),            // 5: google.protobuf.Empty
+	(*GetActionRequest)(nil),         // 5: chainguard.platform.actions.v1alpha1.GetActionRequest
+	(*ListActionsRequest)(nil),       // 6: chainguard.platform.actions.v1alpha1.ListActionsRequest
+	(*ListVersionsRequest)(nil),      // 7: chainguard.platform.actions.v1alpha1.ListVersionsRequest
+	(*emptypb.Empty)(nil),            // 8: google.protobuf.Empty
+	(*Action)(nil),                   // 9: chainguard.platform.actions.v1alpha1.Action
+	(*ListActionsResponse)(nil),      // 10: chainguard.platform.actions.v1alpha1.ListActionsResponse
+	(*ListVersionsResponse)(nil),     // 11: chainguard.platform.actions.v1alpha1.ListVersionsResponse
 }
 var file_chainguard_platform_actions_v1alpha1_entitlements_proto_depIdxs = []int32{
-	4, // 0: chainguard.platform.actions.v1alpha1.Entitlement.create_time:type_name -> google.protobuf.Timestamp
-	1, // 1: chainguard.platform.actions.v1alpha1.Actions.CreateEntitlement:input_type -> chainguard.platform.actions.v1alpha1.CreateEntitlementRequest
-	2, // 2: chainguard.platform.actions.v1alpha1.Actions.GetEntitlement:input_type -> chainguard.platform.actions.v1alpha1.GetEntitlementRequest
-	3, // 3: chainguard.platform.actions.v1alpha1.Actions.DeleteEntitlement:input_type -> chainguard.platform.actions.v1alpha1.DeleteEntitlementRequest
-	0, // 4: chainguard.platform.actions.v1alpha1.Actions.CreateEntitlement:output_type -> chainguard.platform.actions.v1alpha1.Entitlement
-	0, // 5: chainguard.platform.actions.v1alpha1.Actions.GetEntitlement:output_type -> chainguard.platform.actions.v1alpha1.Entitlement
-	5, // 6: chainguard.platform.actions.v1alpha1.Actions.DeleteEntitlement:output_type -> google.protobuf.Empty
-	4, // [4:7] is the sub-list for method output_type
-	1, // [1:4] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	4,  // 0: chainguard.platform.actions.v1alpha1.Entitlement.create_time:type_name -> google.protobuf.Timestamp
+	1,  // 1: chainguard.platform.actions.v1alpha1.Actions.CreateEntitlement:input_type -> chainguard.platform.actions.v1alpha1.CreateEntitlementRequest
+	2,  // 2: chainguard.platform.actions.v1alpha1.Actions.GetEntitlement:input_type -> chainguard.platform.actions.v1alpha1.GetEntitlementRequest
+	3,  // 3: chainguard.platform.actions.v1alpha1.Actions.DeleteEntitlement:input_type -> chainguard.platform.actions.v1alpha1.DeleteEntitlementRequest
+	5,  // 4: chainguard.platform.actions.v1alpha1.Actions.GetAction:input_type -> chainguard.platform.actions.v1alpha1.GetActionRequest
+	6,  // 5: chainguard.platform.actions.v1alpha1.Actions.ListActions:input_type -> chainguard.platform.actions.v1alpha1.ListActionsRequest
+	7,  // 6: chainguard.platform.actions.v1alpha1.Actions.ListVersions:input_type -> chainguard.platform.actions.v1alpha1.ListVersionsRequest
+	0,  // 7: chainguard.platform.actions.v1alpha1.Actions.CreateEntitlement:output_type -> chainguard.platform.actions.v1alpha1.Entitlement
+	0,  // 8: chainguard.platform.actions.v1alpha1.Actions.GetEntitlement:output_type -> chainguard.platform.actions.v1alpha1.Entitlement
+	8,  // 9: chainguard.platform.actions.v1alpha1.Actions.DeleteEntitlement:output_type -> google.protobuf.Empty
+	9,  // 10: chainguard.platform.actions.v1alpha1.Actions.GetAction:output_type -> chainguard.platform.actions.v1alpha1.Action
+	10, // 11: chainguard.platform.actions.v1alpha1.Actions.ListActions:output_type -> chainguard.platform.actions.v1alpha1.ListActionsResponse
+	11, // 12: chainguard.platform.actions.v1alpha1.Actions.ListVersions:output_type -> chainguard.platform.actions.v1alpha1.ListVersionsResponse
+	7,  // [7:13] is the sub-list for method output_type
+	1,  // [1:7] is the sub-list for method input_type
+	1,  // [1:1] is the sub-list for extension type_name
+	1,  // [1:1] is the sub-list for extension extendee
+	0,  // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_actions_v1alpha1_entitlements_proto_init() }
@@ -294,6 +315,7 @@ func file_chainguard_platform_actions_v1alpha1_entitlements_proto_init() {
 	if File_chainguard_platform_actions_v1alpha1_entitlements_proto != nil {
 		return
 	}
+	file_chainguard_platform_actions_v1alpha1_catalog_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

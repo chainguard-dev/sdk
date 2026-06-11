@@ -1,0 +1,130 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.actions.v1alpha1;
+
+import "annotations/auth.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/actions/v1alpha1";
+option java_multiple_files = true;
+option java_outer_classname = "CatalogProto";
+option java_package = "com.chainguard.platform.actions.v1alpha1";
+
+// Location identifies a GitHub Action: its repo (owner/repo) and, for repos
+// that publish more than one action, the sub-directory path within the repo
+// (e.g. "restore" for actions/cache/restore). path is empty for an action at
+// the repo root.
+message Location {
+  string owner = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string repo = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string path = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Action is one published GitHub Action together with the upstream action it
+// mirrors. For repos that publish multiple actions, each one (distinguished by
+// its Location path) is a distinct Action. The catalog is read-only over the
+// public API; it is populated internally from the guarded-actions data plane.
+message Action {
+  // id, identifier of this Action, a UIDP under the owning Group.
+  string id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (chainguard.annotations.iam_scope) = true
+  ];
+  // chainguard is where Chainguard publishes the action, e.g.
+  // {owner: "chainguard-actions", repo: "actions-cache", path: "restore"}.
+  Location chainguard = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // upstream is the action this mirrors, e.g.
+  // {owner: "actions", repo: "cache", path: "restore"}.
+  Location upstream = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // description is a human-readable description of the action.
+  string description = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // when the action was first recorded.
+  google.protobuf.Timestamp create_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // when the action was last updated.
+  google.protobuf.Timestamp update_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // next id: 7
+}
+
+// ActionVersion is one released version/tag of an Action, mapped to the
+// upstream version it tracks.
+message ActionVersion {
+  // id, identifier of this ActionVersion, a UIDP under an Action.
+  string id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (chainguard.annotations.iam_scope) = true
+  ];
+  // action_id, the parent Action UIDP.
+  string action_id = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // version is the released version/tag string, e.g. "v0.8".
+  string version = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // upstream_version is the corresponding upstream version/tag this tracks.
+  string upstream_version = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // ref is the git ref (tag) in the published repo.
+  string ref = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // sha is the resolved commit SHA in the published repo.
+  string sha = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // upstream_sha is the resolved upstream commit SHA.
+  string upstream_sha = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // release_date is when this version was released.
+  google.protobuf.Timestamp release_date = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // when this version was first recorded.
+  google.protobuf.Timestamp create_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // next id: 10
+}
+
+message GetActionRequest {
+  // id, the UIDP of the Action to retrieve.
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+message ListActionsRequest {
+  // parent_id, the Group UIDP under which to list Actions (scopes access).
+  string parent_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+  // Optional Location filters; only the non-empty subfields are matched.
+  Location chainguard = 2;
+  Location upstream = 3;
+  // Maximum number of results to return per page.
+  int32 page_size = 6;
+  // Page token from a previous response's next_page_token.
+  string page_token = 7;
+  // next id: 8
+}
+
+message ListActionsResponse {
+  repeated Action items = 1;
+  // Token for the next page of results (empty if no more pages).
+  string next_page_token = 2;
+  // Total number of actions matching the filter.
+  int64 total_count = 3;
+}
+
+message ListVersionsRequest {
+  // action_id, the parent Action UIDP to list versions of (scopes access).
+  string action_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+  // Maximum number of results to return per page.
+  int32 page_size = 2;
+  // Page token from a previous response's next_page_token.
+  string page_token = 3;
+  // next id: 4
+}
+
+message ListVersionsResponse {
+  repeated ActionVersion items = 1;
+  // Token for the next page of results (empty if no more pages).
+  string next_page_token = 2;
+  // Total number of versions matching the filter.
+  int64 total_count = 3;
+}

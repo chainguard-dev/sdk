@@ -8,6 +8,7 @@ package chainguard.platform.actions.v1alpha1;
 import "annotations/auth.proto";
 import "annotations/events.proto";
 import "annotations/mcp.proto";
+import "chainguard/platform/actions/v1alpha1/catalog.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/empty.proto";
@@ -77,6 +78,64 @@ service Actions {
       description: "Remove a group's actions entitlement by its UIDP."
       read_only: false
       destructive: true
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // GetAction returns a single catalog Action by its UIDP. The catalog is
+  // read-only over the public API.
+  rpc GetAction(GetActionRequest) returns (Action) {
+    option (google.api.http) = {get: "/actions/v1alpha1/catalog/action/{id=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ACTIONS_CATALOG_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get a Chainguard Actions catalog entry by its UIDP."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // ListActions lists catalog Actions under a group, optionally narrowed by
+  // upstream owner/repo/path via the URL path (progressive filtering).
+  rpc ListActions(ListActionsRequest) returns (ListActionsResponse) {
+    option (google.api.http) = {
+      get: "/actions/v1alpha1/{parent_id}/actions"
+      additional_bindings {get: "/actions/v1alpha1/{parent_id}/actions/{upstream.owner}"}
+      additional_bindings {get: "/actions/v1alpha1/{parent_id}/actions/{upstream.owner}/{upstream.repo}"}
+      additional_bindings {get: "/actions/v1alpha1/{parent_id}/actions/{upstream.owner}/{upstream.repo}/{upstream.path}"}
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ACTIONS_CATALOG_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List Chainguard Actions catalog entries under a group, optionally filtered by upstream owner/repo/path."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // ListVersions lists the versions of a catalog Action.
+  rpc ListVersions(ListVersionsRequest) returns (ListVersionsResponse) {
+    option (google.api.http) = {get: "/actions/v1alpha1/catalog/versions"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ACTIONS_CATALOG_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List the versions of a Chainguard Actions catalog entry, with the upstream version each tracks."
+      read_only: true
+      destructive: false
       idempotent: true
       open_world: false
     };

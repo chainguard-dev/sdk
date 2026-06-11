@@ -26,6 +26,9 @@ const (
 	Actions_CreateEntitlement_FullMethodName = "/chainguard.platform.actions.v1alpha1.Actions/CreateEntitlement"
 	Actions_GetEntitlement_FullMethodName    = "/chainguard.platform.actions.v1alpha1.Actions/GetEntitlement"
 	Actions_DeleteEntitlement_FullMethodName = "/chainguard.platform.actions.v1alpha1.Actions/DeleteEntitlement"
+	Actions_GetAction_FullMethodName         = "/chainguard.platform.actions.v1alpha1.Actions/GetAction"
+	Actions_ListActions_FullMethodName       = "/chainguard.platform.actions.v1alpha1.Actions/ListActions"
+	Actions_ListVersions_FullMethodName      = "/chainguard.platform.actions.v1alpha1.Actions/ListVersions"
 )
 
 // ActionsClient is the client API for Actions service.
@@ -41,6 +44,14 @@ type ActionsClient interface {
 	GetEntitlement(ctx context.Context, in *GetEntitlementRequest, opts ...grpc.CallOption) (*Entitlement, error)
 	// DeleteEntitlement removes the actions entitlement identified by id.
 	DeleteEntitlement(ctx context.Context, in *DeleteEntitlementRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// GetAction returns a single catalog Action by its UIDP. The catalog is
+	// read-only over the public API.
+	GetAction(ctx context.Context, in *GetActionRequest, opts ...grpc.CallOption) (*Action, error)
+	// ListActions lists catalog Actions under a group, optionally narrowed by
+	// upstream owner/repo/path via the URL path (progressive filtering).
+	ListActions(ctx context.Context, in *ListActionsRequest, opts ...grpc.CallOption) (*ListActionsResponse, error)
+	// ListVersions lists the versions of a catalog Action.
+	ListVersions(ctx context.Context, in *ListVersionsRequest, opts ...grpc.CallOption) (*ListVersionsResponse, error)
 }
 
 type actionsClient struct {
@@ -81,6 +92,36 @@ func (c *actionsClient) DeleteEntitlement(ctx context.Context, in *DeleteEntitle
 	return out, nil
 }
 
+func (c *actionsClient) GetAction(ctx context.Context, in *GetActionRequest, opts ...grpc.CallOption) (*Action, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Action)
+	err := c.cc.Invoke(ctx, Actions_GetAction_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *actionsClient) ListActions(ctx context.Context, in *ListActionsRequest, opts ...grpc.CallOption) (*ListActionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListActionsResponse)
+	err := c.cc.Invoke(ctx, Actions_ListActions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *actionsClient) ListVersions(ctx context.Context, in *ListVersionsRequest, opts ...grpc.CallOption) (*ListVersionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListVersionsResponse)
+	err := c.cc.Invoke(ctx, Actions_ListVersions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ActionsServer is the server API for Actions service.
 // All implementations must embed UnimplementedActionsServer
 // for forward compatibility.
@@ -94,6 +135,14 @@ type ActionsServer interface {
 	GetEntitlement(context.Context, *GetEntitlementRequest) (*Entitlement, error)
 	// DeleteEntitlement removes the actions entitlement identified by id.
 	DeleteEntitlement(context.Context, *DeleteEntitlementRequest) (*emptypb.Empty, error)
+	// GetAction returns a single catalog Action by its UIDP. The catalog is
+	// read-only over the public API.
+	GetAction(context.Context, *GetActionRequest) (*Action, error)
+	// ListActions lists catalog Actions under a group, optionally narrowed by
+	// upstream owner/repo/path via the URL path (progressive filtering).
+	ListActions(context.Context, *ListActionsRequest) (*ListActionsResponse, error)
+	// ListVersions lists the versions of a catalog Action.
+	ListVersions(context.Context, *ListVersionsRequest) (*ListVersionsResponse, error)
 	mustEmbedUnimplementedActionsServer()
 }
 
@@ -112,6 +161,15 @@ func (UnimplementedActionsServer) GetEntitlement(context.Context, *GetEntitlemen
 }
 func (UnimplementedActionsServer) DeleteEntitlement(context.Context, *DeleteEntitlementRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteEntitlement not implemented")
+}
+func (UnimplementedActionsServer) GetAction(context.Context, *GetActionRequest) (*Action, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetAction not implemented")
+}
+func (UnimplementedActionsServer) ListActions(context.Context, *ListActionsRequest) (*ListActionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListActions not implemented")
+}
+func (UnimplementedActionsServer) ListVersions(context.Context, *ListVersionsRequest) (*ListVersionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListVersions not implemented")
 }
 func (UnimplementedActionsServer) mustEmbedUnimplementedActionsServer() {}
 func (UnimplementedActionsServer) testEmbeddedByValue()                 {}
@@ -188,6 +246,60 @@ func _Actions_DeleteEntitlement_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Actions_GetAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetActionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ActionsServer).GetAction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Actions_GetAction_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ActionsServer).GetAction(ctx, req.(*GetActionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Actions_ListActions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListActionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ActionsServer).ListActions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Actions_ListActions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ActionsServer).ListActions(ctx, req.(*ListActionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Actions_ListVersions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListVersionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ActionsServer).ListVersions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Actions_ListVersions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ActionsServer).ListVersions(ctx, req.(*ListVersionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Actions_ServiceDesc is the grpc.ServiceDesc for Actions service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -206,6 +318,18 @@ var Actions_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteEntitlement",
 			Handler:    _Actions_DeleteEntitlement_Handler,
+		},
+		{
+			MethodName: "GetAction",
+			Handler:    _Actions_GetAction_Handler,
+		},
+		{
+			MethodName: "ListActions",
+			Handler:    _Actions_ListActions_Handler,
+		},
+		{
+			MethodName: "ListVersions",
+			Handler:    _Actions_ListVersions_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
