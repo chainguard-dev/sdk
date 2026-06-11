@@ -218,4 +218,7 @@ enum OrgKind {
   ORG_KIND_DEV = 3;
   // Organizations that are used for infrastructure or automation.
   ORG_KIND_INFRA = 4;
+  // Organizations that are created via AWS Marketplace Subscriptions.
+  // Orgs can move from this kind to CUSTOMER upon up-sell.
+  ORG_KIND_AWS_MARKETPLACE = 5;
 }

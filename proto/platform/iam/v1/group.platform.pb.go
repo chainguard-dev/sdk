@@ -95,6 +95,9 @@ const (
 	OrgKind_ORG_KIND_DEV OrgKind = 3
 	// Organizations that are used for infrastructure or automation.
 	OrgKind_ORG_KIND_INFRA OrgKind = 4
+	// Organizations that are created via AWS Marketplace Subscriptions.
+	// Orgs can move from this kind to CUSTOMER upon up-sell.
+	OrgKind_ORG_KIND_AWS_MARKETPLACE OrgKind = 5
 )
 
 // Enum value maps for OrgKind.
@@ -105,13 +108,15 @@ var (
 		2: "ORG_KIND_CUSTOMER",
 		3: "ORG_KIND_DEV",
 		4: "ORG_KIND_INFRA",
+		5: "ORG_KIND_AWS_MARKETPLACE",
 	}
 	OrgKind_value = map[string]int32{
-		"ORG_KIND_UNSPECIFIED": 0,
-		"ORG_KIND_STARTER":     1,
-		"ORG_KIND_CUSTOMER":    2,
-		"ORG_KIND_DEV":         3,
-		"ORG_KIND_INFRA":       4,
+		"ORG_KIND_UNSPECIFIED":     0,
+		"ORG_KIND_STARTER":         1,
+		"ORG_KIND_CUSTOMER":        2,
+		"ORG_KIND_DEV":             3,
+		"ORG_KIND_INFRA":           4,
+		"ORG_KIND_AWS_MARKETPLACE": 5,
 	}
 )
 
@@ -754,13 +759,14 @@ const file_group_platform_proto_rawDesc = "" +
 	"\x16ORG_STATUS_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17ORG_STATUS_INITIALIZING\x10\x01\x12\x14\n" +
 	"\x10ORG_STATUS_READY\x10\x02\x12\x18\n" +
-	"\x14ORG_STATUS_SUSPENDED\x10\x03*v\n" +
+	"\x14ORG_STATUS_SUSPENDED\x10\x03*\x94\x01\n" +
 	"\aOrgKind\x12\x18\n" +
 	"\x14ORG_KIND_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10ORG_KIND_STARTER\x10\x01\x12\x15\n" +
 	"\x11ORG_KIND_CUSTOMER\x10\x02\x12\x10\n" +
 	"\fORG_KIND_DEV\x10\x03\x12\x12\n" +
-	"\x0eORG_KIND_INFRA\x10\x042\xb7\t\n" +
+	"\x0eORG_KIND_INFRA\x10\x04\x12\x1c\n" +
+	"\x18ORG_KIND_AWS_MARKETPLACE\x10\x052\xb7\t\n" +
 	"\x06Groups\x12\xc5\x01\n" +
 	"\x06Create\x12+.chainguard.platform.iam.CreateGroupRequest\x1a\x1e.chainguard.platform.iam.Group\"n\x82\xd3\xe4\x93\x02#:\x05group\"\x1a/iam/v1/groups/{parent=**}\x8a\xaf\xa8\xd2\x05\a\x12\x05\n" +
 	"\x01e\x10\x01\xc2\xf0\x8e\xfc\v2\n" +
