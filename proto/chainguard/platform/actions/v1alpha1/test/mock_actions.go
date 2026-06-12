@@ -22,15 +22,16 @@ import (
 var _ actions.ActionsClient = (*MockActionsClient)(nil)
 
 // MockActionsClient is a mock implementation of actions.ActionsClient for tests.
-// Configure expected calls via the OnCreateEntitlement, OnGetEntitlement, and
-// OnDeleteEntitlement slices. Calls without a matching configured expectation
-// return an error.
+// Configure expected calls via the OnCreateEntitlement, OnGetEntitlement,
+// OnDeleteEntitlement, and OnListActions slices. Calls without a matching
+// configured expectation return an error.
 type MockActionsClient struct {
 	actions.ActionsClient
 
 	OnCreateEntitlement []ActionsOnCreateEntitlement
 	OnGetEntitlement    []ActionsOnGetEntitlement
 	OnDeleteEntitlement []ActionsOnDeleteEntitlement
+	OnListActions       []ActionsOnListActions
 }
 
 type ActionsOnCreateEntitlement struct {
@@ -47,6 +48,12 @@ type ActionsOnGetEntitlement struct {
 
 type ActionsOnDeleteEntitlement struct {
 	Given *actions.DeleteEntitlementRequest
+	Error error
+}
+
+type ActionsOnListActions struct {
+	Given *actions.ListActionsRequest
+	Got   *actions.ListActionsResponse
 	Error error
 }
 
@@ -75,4 +82,13 @@ func (m MockActionsClient) DeleteEntitlement(_ context.Context, given *actions.D
 		}
 	}
 	return &emptypb.Empty{}, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockActionsClient) ListActions(_ context.Context, given *actions.ListActionsRequest, _ ...grpc.CallOption) (*actions.ListActionsResponse, error) {
+	for _, o := range m.OnListActions {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Got, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
 }
