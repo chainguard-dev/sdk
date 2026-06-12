@@ -251,7 +251,7 @@ const (
 	Capability_CAP_CASSIE_CAS_WRITE Capability = 2802
 	// Actions catalog — the read-only catalog of Chainguard-published GitHub
 	// Actions and the upstreams they mirror. Writes are internal (importer only).
-	Capability_CAP_ACTIONS_CATALOG_LIST Capability = 2700
+	Capability_CAP_ACTIONS_LIST Capability = 2700
 )
 
 // Enum value maps for Capability.
@@ -416,7 +416,7 @@ var (
 		2704:  "CAP_BUILDAPI_BUILD_CANCEL",
 		2801:  "CAP_CASSIE_CAS_READ",
 		2802:  "CAP_CASSIE_CAS_WRITE",
-		2700:  "CAP_ACTIONS_CATALOG_LIST",
+		2700:  "CAP_ACTIONS_LIST",
 	}
 	Capability_value = map[string]int32{
 		"UNKNOWN":                                           0,
@@ -578,7 +578,7 @@ var (
 		"CAP_BUILDAPI_BUILD_CANCEL":                         2704,
 		"CAP_CASSIE_CAS_READ":                               2801,
 		"CAP_CASSIE_CAS_WRITE":                              2802,
-		"CAP_ACTIONS_CATALOG_LIST":                          2700,
+		"CAP_ACTIONS_LIST":                                  2700,
 	}
 )
 
@@ -662,7 +662,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xf8R\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xe8R\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -840,8 +840,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x18CAP_BUILDAPI_WORKER_SYNC\x10\x8f\x15\x1a&\xa8ˑM\xa2\x01\x9a\xaf\xa8\xd2\x05\x14buildapi.worker.sync\xa0\xaf\xa8\xd2\x05\x01\x12G\n" +
 	"\x19CAP_BUILDAPI_BUILD_CANCEL\x10\x90\x15\x1a'\xa8ˑM\xa3\x01\x9a\xaf\xa8\xd2\x05\x15buildapi.build.cancel\xa0\xaf\xa8\xd2\x05\x01\x12;\n" +
 	"\x13CAP_CASSIE_CAS_READ\x10\xf1\x15\x1a!\xa8ˑM\xa0\x01\x9a\xaf\xa8\xd2\x05\x0fcassie.cas.read\xa0\xaf\xa8\xd2\x05\x01\x12=\n" +
-	"\x14CAP_CASSIE_CAS_WRITE\x10\xf2\x15\x1a\"\xa8ˑM\xa1\x01\x9a\xaf\xa8\xd2\x05\x10cassie.cas.write\xa0\xaf\xa8\xd2\x05\x01\x12?\n" +
-	"\x18CAP_ACTIONS_CATALOG_LIST\x10\x8c\x15\x1a \xa8ˑM\xa4\x01\x9a\xaf\xa8\xd2\x05\x14actions.catalog.list\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x04\b\x01\x10\x01:8\n" +
+	"\x14CAP_CASSIE_CAS_WRITE\x10\xf2\x15\x1a\"\xa8ˑM\xa1\x01\x9a\xaf\xa8\xd2\x05\x10cassie.cas.write\xa0\xaf\xa8\xd2\x05\x01\x12/\n" +
+	"\x10CAP_ACTIONS_LIST\x10\x8c\x15\x1a\x18\xa8ˑM\xa4\x01\x9a\xaf\xa8\xd2\x05\factions.list\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +
 	"\x03bit\x12!.google.protobuf.EnumValueOptions\x18\xb5\x99\xd2\t \x01(\rR\x03bit:I\n" +
 	"\rinternal_only\x12!.google.protobuf.EnumValueOptions\x18\xf4\x85\xa5Z \x01(\bR\finternalOnlyB'Z%chainguard.dev/sdk/proto/capabilitiesb\x06proto3"

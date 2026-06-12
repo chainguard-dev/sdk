@@ -760,7 +760,7 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.actions.v1alpha1.Actions/GetAction", runtime.WithHTTPPathPattern("/actions/v1alpha1/catalog/action/{id=**}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.actions.v1alpha1.Actions/GetAction", runtime.WithHTTPPathPattern("/actions/v1alpha1/action/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -885,7 +885,7 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.actions.v1alpha1.Actions/ListVersions", runtime.WithHTTPPathPattern("/actions/v1alpha1/catalog/versions"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.actions.v1alpha1.Actions/ListVersions", runtime.WithHTTPPathPattern("/actions/v1alpha1/versions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1015,7 +1015,7 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.actions.v1alpha1.Actions/GetAction", runtime.WithHTTPPathPattern("/actions/v1alpha1/catalog/action/{id=**}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.actions.v1alpha1.Actions/GetAction", runtime.WithHTTPPathPattern("/actions/v1alpha1/action/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1125,7 +1125,7 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.actions.v1alpha1.Actions/ListVersions", runtime.WithHTTPPathPattern("/actions/v1alpha1/catalog/versions"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.actions.v1alpha1.Actions/ListVersions", runtime.WithHTTPPathPattern("/actions/v1alpha1/versions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1151,7 +1151,7 @@ var (
 
 	pattern_Actions_DeleteEntitlement_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"actions", "v1alpha1", "entitlements", "id"}, ""))
 
-	pattern_Actions_GetAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 3, 0, 4, 1, 5, 4}, []string{"actions", "v1alpha1", "catalog", "action", "id"}, ""))
+	pattern_Actions_GetAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"actions", "v1alpha1", "action", "id"}, ""))
 
 	pattern_Actions_ListActions_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 0}, []string{"actions", "v1alpha1", "parent_id"}, ""))
 
@@ -1161,7 +1161,7 @@ var (
 
 	pattern_Actions_ListActions_3 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 0, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"actions", "v1alpha1", "parent_id", "upstream.owner", "upstream.repo", "upstream.path"}, ""))
 
-	pattern_Actions_ListVersions_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"actions", "v1alpha1", "catalog", "versions"}, ""))
+	pattern_Actions_ListVersions_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"actions", "v1alpha1", "versions"}, ""))
 )
 
 var (

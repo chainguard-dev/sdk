@@ -86,10 +86,10 @@ service Actions {
   // GetAction returns a single catalog Action by its UIDP. The catalog is
   // read-only over the public API.
   rpc GetAction(GetActionRequest) returns (Action) {
-    option (google.api.http) = {get: "/actions/v1alpha1/catalog/action/{id=**}"};
+    option (google.api.http) = {get: "/actions/v1alpha1/action/{id=**}"};
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [CAP_ACTIONS_CATALOG_LIST]
+        capabilities: [CAP_ACTIONS_LIST]
       }
     };
     option (chainguard.annotations.mcp) = {
@@ -112,7 +112,7 @@ service Actions {
     };
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [CAP_ACTIONS_CATALOG_LIST]
+        capabilities: [CAP_ACTIONS_LIST]
       }
     };
     option (chainguard.annotations.mcp) = {
@@ -126,10 +126,10 @@ service Actions {
 
   // ListVersions lists the versions of a catalog Action.
   rpc ListVersions(ListVersionsRequest) returns (ListVersionsResponse) {
-    option (google.api.http) = {get: "/actions/v1alpha1/catalog/versions"};
+    option (google.api.http) = {get: "/actions/v1alpha1/versions"};
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [CAP_ACTIONS_CATALOG_LIST]
+        capabilities: [CAP_ACTIONS_LIST]
       }
     };
     option (chainguard.annotations.mcp) = {

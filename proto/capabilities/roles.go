@@ -60,6 +60,8 @@ var (
 
 		Capability_CAP_PACKAGES_ENTITLEMENTS_LIST,
 		Capability_CAP_ADVISORIES_LIST,
+
+		Capability_CAP_ACTIONS_LIST,
 	})
 
 	// ViewerCaps are read-only capabilities that do not affect state,
@@ -228,6 +230,14 @@ var (
 
 	AdvisoriesViewerCaps = SortCaps([]Capability{
 		Capability_CAP_ADVISORIES_LIST,
+	})
+
+	// ActionsViewerCaps is the minimal capability set for reading the
+	// Chainguard Actions catalog. It backs the actions.viewer role, granted to
+	// the public-puller identity so the catalog is readable without org
+	// membership.
+	ActionsViewerCaps = SortCaps([]Capability{
+		Capability_CAP_ACTIONS_LIST,
 	})
 
 	AdvisoriesCreatorCaps = SortCaps([]Capability{

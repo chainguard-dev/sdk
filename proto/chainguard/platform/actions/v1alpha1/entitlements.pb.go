@@ -238,7 +238,7 @@ const file_chainguard_platform_actions_v1alpha1_entitlements_proto_rawDesc = "" 
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x02id\"6\n" +
 	"\x18DeleteEntitlementRequest\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x02id2\xb9\x0f\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x02id2\xa9\x0f\n" +
 	"\aActions\x12\xc9\x02\n" +
 	"\x11CreateEntitlement\x12>.chainguard.platform.actions.v1alpha1.CreateEntitlementRequest\x1a1.chainguard.platform.actions.v1alpha1.Entitlement\"\xc0\x01\x82\xd3\xe4\x93\x02/\"-/actions/v1alpha1/entitlements/{parent_id=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
 	"\x01f\x9a\xaf\xa8\xd2\x058\n" +
@@ -250,14 +250,14 @@ const file_chainguard_platform_actions_v1alpha1_entitlements_proto_rawDesc = "" 
 	"\x11DeleteEntitlement\x12>.chainguard.platform.actions.v1alpha1.DeleteEntitlementRequest\x1a\x16.google.protobuf.Empty\"\xba\x01\x82\xd3\xe4\x93\x02(*&/actions/v1alpha1/entitlements/{id=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
 	"\x01f\x9a\xaf\xa8\xd2\x059\n" +
 	"1Remove a group's actions entitlement by its UIDP. \x01(\x010\x00\xc2\xf0\x8e\xfc\v<\n" +
-	"1dev.chainguard.api.actions.entitlement.deleted.v1\x12\x05group\x18\x01\x12\xf2\x01\n" +
-	"\tGetAction\x126.chainguard.platform.actions.v1alpha1.GetActionRequest\x1a,.chainguard.platform.actions.v1alpha1.Action\"\x7f\x82\xd3\xe4\x93\x02*\x12(/actions/v1alpha1/catalog/action/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"1dev.chainguard.api.actions.entitlement.deleted.v1\x12\x05group\x18\x01\x12\xea\x01\n" +
+	"\tGetAction\x126.chainguard.platform.actions.v1alpha1.GetActionRequest\x1a,.chainguard.platform.actions.v1alpha1.Action\"w\x82\xd3\xe4\x93\x02\"\x12 /actions/v1alpha1/action/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x8c\x15\x9a\xaf\xa8\xd2\x05=\n" +
 	"3Get a Chainguard Actions catalog entry by its UIDP.\x18\x01 \x00(\x010\x00\x12\x94\x04\n" +
 	"\vListActions\x128.chainguard.platform.actions.v1alpha1.ListActionsRequest\x1a9.chainguard.platform.actions.v1alpha1.ListActionsResponse\"\x8f\x03\x82\xd3\xe4\x93\x02\x85\x02Z8\x126/actions/v1alpha1/{parent_id}/actions/{upstream.owner}ZH\x12F/actions/v1alpha1/{parent_id}/actions/{upstream.owner}/{upstream.repo}ZX\x12V/actions/v1alpha1/{parent_id}/actions/{upstream.owner}/{upstream.repo}/{upstream.path}\x12%/actions/v1alpha1/{parent_id}/actions\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x8c\x15\x9a\xaf\xa8\xd2\x05q\n" +
-	"gList Chainguard Actions catalog entries under a group, optionally filtered by upstream owner/repo/path.\x18\x01 \x00(\x010\x00\x12\xad\x02\n" +
-	"\fListVersions\x129.chainguard.platform.actions.v1alpha1.ListVersionsRequest\x1a:.chainguard.platform.actions.v1alpha1.ListVersionsResponse\"\xa5\x01\x82\xd3\xe4\x93\x02$\x12\"/actions/v1alpha1/catalog/versions\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"gList Chainguard Actions catalog entries under a group, optionally filtered by upstream owner/repo/path.\x18\x01 \x00(\x010\x00\x12\xa5\x02\n" +
+	"\fListVersions\x129.chainguard.platform.actions.v1alpha1.ListVersionsRequest\x1a:.chainguard.platform.actions.v1alpha1.ListVersionsResponse\"\x9d\x01\x82\xd3\xe4\x93\x02\x1c\x12\x1a/actions/v1alpha1/versions\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x8c\x15\x9a\xaf\xa8\xd2\x05i\n" +
 	"_List the versions of a Chainguard Actions catalog entry, with the upstream version each tracks.\x18\x01 \x00(\x010\x00B~\n" +
 	"(com.chainguard.platform.actions.v1alpha1B\x11EntitlementsProtoP\x01Z=chainguard.dev/sdk/proto/chainguard/platform/actions/v1alpha1b\x06proto3"
