@@ -1,0 +1,165 @@
+syntax = "proto3";
+
+package chainguard.platform.libraries;
+
+import "annotations/auth.proto";
+import "annotations/events.proto";
+import "entitlements.libraries.platform.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "platform/common/v1/uidp.platform.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "chainguard.dev/sdk/proto/platform/libraries/v1";
+
+// AWSMarketplaceSubscriptions manages an org's subscription to Chainguard
+// Libraries purchased through AWS Security Hub Extended (the AWS Marketplace).
+service AWSMarketplaceSubscriptions {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    description: "Chainguard Libraries on AWS Security Hub Extended subscriptions"
+    name: "AWSMarketplaceSubscriptions"
+  };
+
+  // Create provisions a subscription for an org from an AWS Marketplace
+  // registration token. aws_token is exchanged server-side and doubles
+  // as an authorization gate: only a token minted by AWS Marketplace
+  // resolves, so a caller without one cannot create a subscription.
+  // The caller must additionally hold the create capability on parent_id.
+  rpc Create(CreateAWSMarketplaceSubscriptionRequest) returns (AWSMarketplaceSubscription) {
+    option (google.api.http) = {
+      post: "/libraries/v1/aws-marketplace-subscriptions/{parent_id=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.libraries.aws_marketplace.subscription.created.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  // Get returns a single subscription by its uidp.
+  rpc Get(GetAWSMarketplaceSubscriptionRequest) returns (AWSMarketplaceSubscription) {
+    option (google.api.http) = {get: "/libraries/v1/aws-marketplace-subscriptions/{id=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_GET]
+      }
+    };
+  }
+
+  // List returns the subscriptions under an org.
+  rpc List(AWSMarketplaceSubscriptionFilter) returns (AWSMarketplaceSubscriptionList) {
+    option (google.api.http) = {get: "/libraries/v1/aws-marketplace-subscriptions"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST]
+        unscoped: true
+      }
+    };
+  }
+
+  // Cancel unsubscribes the org's subscription on our side: it stops future
+  // metering and removes the associated Libraries entitlements, moving the
+  // subscription to UNSUBSCRIBED. The AWS Marketplace subscription itself is
+  // unaffected (AWS has no partner-initiated cancellation); the record is
+  // retained for billing history.
+  rpc Cancel(CancelAWSMarketplaceSubscriptionRequest) returns (AWSMarketplaceSubscription) {
+    option (google.api.http) = {
+      post: "/libraries/v1/aws-marketplace-subscriptions/{id=**}:cancel"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CANCEL]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.libraries.aws_marketplace.subscription.unsubscribed.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+}
+
+// SubscriptionStatus is the lifecycle state of an AWS Marketplace subscription.
+enum SubscriptionStatus {
+  SUBSCRIPTION_STATUS_UNSPECIFIED = 0;
+  // PENDING: created, awaiting AWS subscribe confirmation.
+  SUBSCRIPTION_STATUS_PENDING = 1;
+  // ACTIVE: confirmed and metering-eligible.
+  SUBSCRIPTION_STATUS_ACTIVE = 2;
+  // UNSUBSCRIBE_PENDING: cancellation in progress (final metering window).
+  SUBSCRIPTION_STATUS_UNSUBSCRIBE_PENDING = 3;
+  // UNSUBSCRIBED: cancelled; no further metering.
+  SUBSCRIPTION_STATUS_UNSUBSCRIBED = 4;
+  // EXPIRED: subscription has expired (e.g. a free trial).
+  SUBSCRIPTION_STATUS_EXPIRED = 5;
+}
+
+// AWSMarketplaceSubscription is an org's Chainguard Libraries subscription
+// purchased through AWS Security Hub Extended.
+message AWSMarketplaceSubscription {
+  // id is the uidp of the subscription, a child of the org group.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // developer_band is the selected developer-count band — the "Up to X
+  // developers" ceiling, not an exact head count. It applies uniformly across
+  // every selected ecosystem.
+  int32 developer_band = 2;
+
+  // ecosystems are the Libraries ecosystems the subscription covers.
+  repeated Ecosystem ecosystems = 3;
+
+  // is_free_trial indicates the subscription is on an AWS free trial (not
+  // charged while the trial is active).
+  bool is_free_trial = 4;
+
+  // status is the subscription lifecycle state.
+  SubscriptionStatus status = 5;
+
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message AWSMarketplaceSubscriptionList {
+  repeated AWSMarketplaceSubscription items = 1;
+}
+
+message CreateAWSMarketplaceSubscriptionRequest {
+  // parent_id is the org (group uidp) to provision the subscription under.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // aws_token is the AWS Marketplace registration token from the SHx hand-off.
+  // It is exchanged server-side via ResolveCustomer; required.
+  string aws_token = 2;
+
+  // developer_band is the selected developer-count band ceiling.
+  int32 developer_band = 3;
+
+  // ecosystems are the Libraries ecosystems to subscribe to (one or more).
+  repeated Ecosystem ecosystems = 4;
+
+  // is_free_trial marks the subscription as an AWS free trial, from the
+  // marketplace offer type carried on the hand-off.
+  bool is_free_trial = 5;
+}
+
+message GetAWSMarketplaceSubscriptionRequest {
+  // id is the exact uidp of the subscription.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message AWSMarketplaceSubscriptionFilter {
+  // uidp filters records based on their position in the group hierarchy.
+  chainguard.platform.common.UIDPFilter uidp = 1;
+}
+
+message CancelAWSMarketplaceSubscriptionRequest {
+  // id is the exact uidp of the subscription to cancel.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+}

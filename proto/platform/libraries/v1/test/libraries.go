@@ -18,6 +18,10 @@ type MockLibrariesClients struct {
 	LibraryPolicyBindingsClient    MockLibraryPolicyBindingsClient
 	LibraryPolicyBlockEventsClient MockLibraryPolicyBlockEventsClient
 
+	// AWSMarketplaceSubscriptionsClient is injected directly (no concrete mock
+	// helper yet); tests that exercise it set this field.
+	AWSMarketplaceSubscriptionsClient libraries.AWSMarketplaceSubscriptionsClient
+
 	OnClose error
 }
 
@@ -47,6 +51,10 @@ func (m MockLibrariesClients) LibraryPolicyBindings() libraries.LibraryPolicyBin
 
 func (m MockLibrariesClients) LibraryPolicyBlockEvents() libraries.LibraryPolicyBlockEventsClient {
 	return &m.LibraryPolicyBlockEventsClient
+}
+
+func (m MockLibrariesClients) AWSMarketplaceSubscriptions() libraries.AWSMarketplaceSubscriptionsClient {
+	return m.AWSMarketplaceSubscriptionsClient
 }
 
 func (m MockLibrariesClients) Close() error {

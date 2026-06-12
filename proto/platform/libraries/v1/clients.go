@@ -25,6 +25,7 @@ type Clients interface {
 	LibraryPolicies() LibraryPoliciesClient
 	LibraryPolicyBindings() LibraryPolicyBindingsClient
 	LibraryPolicyBlockEvents() LibraryPolicyBlockEventsClient
+	AWSMarketplaceSubscriptions() AWSMarketplaceSubscriptionsClient
 
 	Close() error
 }
@@ -50,13 +51,14 @@ func NewClients(ctx context.Context, ecoURL string, token string) (Clients, erro
 	}
 
 	return &clients{
-		artifacts:                NewArtifactsClient(conn),
-		entitlements:             NewEntitlementsClient(conn),
-		npmPackages:              NewNpmPackagesClient(conn),
-		malware:                  NewMalwareClient(conn),
-		libraryPolicies:          NewLibraryPoliciesClient(conn),
-		libraryPolicyBindings:    NewLibraryPolicyBindingsClient(conn),
-		libraryPolicyBlockEvents: NewLibraryPolicyBlockEventsClient(conn),
+		artifacts:                   NewArtifactsClient(conn),
+		awsMarketplaceSubscriptions: NewAWSMarketplaceSubscriptionsClient(conn),
+		entitlements:                NewEntitlementsClient(conn),
+		npmPackages:                 NewNpmPackagesClient(conn),
+		malware:                     NewMalwareClient(conn),
+		libraryPolicies:             NewLibraryPoliciesClient(conn),
+		libraryPolicyBindings:       NewLibraryPolicyBindingsClient(conn),
+		libraryPolicyBlockEvents:    NewLibraryPolicyBlockEventsClient(conn),
 
 		conn: conn,
 	}, nil
@@ -64,26 +66,28 @@ func NewClients(ctx context.Context, ecoURL string, token string) (Clients, erro
 
 func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 	return &clients{
-		artifacts:                NewArtifactsClient(conn),
-		entitlements:             NewEntitlementsClient(conn),
-		npmPackages:              NewNpmPackagesClient(conn),
-		malware:                  NewMalwareClient(conn),
-		libraryPolicies:          NewLibraryPoliciesClient(conn),
-		libraryPolicyBindings:    NewLibraryPolicyBindingsClient(conn),
-		libraryPolicyBlockEvents: NewLibraryPolicyBlockEventsClient(conn),
+		artifacts:                   NewArtifactsClient(conn),
+		awsMarketplaceSubscriptions: NewAWSMarketplaceSubscriptionsClient(conn),
+		entitlements:                NewEntitlementsClient(conn),
+		npmPackages:                 NewNpmPackagesClient(conn),
+		malware:                     NewMalwareClient(conn),
+		libraryPolicies:             NewLibraryPoliciesClient(conn),
+		libraryPolicyBindings:       NewLibraryPolicyBindingsClient(conn),
+		libraryPolicyBlockEvents:    NewLibraryPolicyBlockEventsClient(conn),
 
 		// conn is not set, this client struct does not own closing it.
 	}
 }
 
 type clients struct {
-	artifacts                ArtifactsClient
-	entitlements             EntitlementsClient
-	npmPackages              NpmPackagesClient
-	malware                  MalwareClient
-	libraryPolicies          LibraryPoliciesClient
-	libraryPolicyBindings    LibraryPolicyBindingsClient
-	libraryPolicyBlockEvents LibraryPolicyBlockEventsClient
+	artifacts                   ArtifactsClient
+	awsMarketplaceSubscriptions AWSMarketplaceSubscriptionsClient
+	entitlements                EntitlementsClient
+	npmPackages                 NpmPackagesClient
+	malware                     MalwareClient
+	libraryPolicies             LibraryPoliciesClient
+	libraryPolicyBindings       LibraryPolicyBindingsClient
+	libraryPolicyBlockEvents    LibraryPolicyBlockEventsClient
 
 	conn *grpc.ClientConn
 }
@@ -114,6 +118,10 @@ func (c *clients) LibraryPolicyBindings() LibraryPolicyBindingsClient {
 
 func (c *clients) LibraryPolicyBlockEvents() LibraryPolicyBlockEventsClient {
 	return c.libraryPolicyBlockEvents
+}
+
+func (c *clients) AWSMarketplaceSubscriptions() AWSMarketplaceSubscriptionsClient {
+	return c.awsMarketplaceSubscriptions
 }
 
 func (c *clients) Close() error {
