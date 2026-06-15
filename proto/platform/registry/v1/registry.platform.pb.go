@@ -632,9 +632,13 @@ func (x *CustomOverlay) GetCertificates() *CustomOverlay_Certificates {
 type ImageContents struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Packages to append to the image config.
-	Packages      []string `protobuf:"bytes,1,rep,name=packages,proto3" json:"packages,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Packages []string `protobuf:"bytes,1,rep,name=packages,proto3" json:"packages,omitempty"`
+	// Custom APK repository URLs to write to /etc/apk/repositories in the
+	// assembled image. When set, these replace the default virtualapk.cgr.dev
+	// repositories.
+	RuntimeRepositories []string `protobuf:"bytes,2,rep,name=runtime_repositories,json=runtimeRepositories,proto3" json:"runtime_repositories,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ImageContents) Reset() {
@@ -670,6 +674,13 @@ func (*ImageContents) Descriptor() ([]byte, []int) {
 func (x *ImageContents) GetPackages() []string {
 	if x != nil {
 		return x.Packages
+	}
+	return nil
+}
+
+func (x *ImageContents) GetRuntimeRepositories() []string {
+	if x != nil {
+		return x.RuntimeRepositories
 	}
 	return nil
 }
@@ -5540,9 +5551,10 @@ const file_registry_platform_proto_rawDesc = "" +
 	"\tproviders\x18\x02 \x03(\tR\tproviders\x1a?\n" +
 	"\x0fAdditionalEntry\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
-	"\acontent\x18\x02 \x01(\tR\acontent\"+\n" +
+	"\acontent\x18\x02 \x01(\tR\acontent\"^\n" +
 	"\rImageContents\x12\x1a\n" +
-	"\bpackages\x18\x01 \x03(\tR\bpackages\"\x9b\x01\n" +
+	"\bpackages\x18\x01 \x03(\tR\bpackages\x121\n" +
+	"\x14runtime_repositories\x18\x02 \x03(\tR\x13runtimeRepositories\"\x9b\x01\n" +
 	"\x11CreateRepoRequest\x12#\n" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x126\n" +
 	"\x04repo\x18\x02 \x01(\v2\".chainguard.platform.registry.RepoR\x04repo\x12)\n" +

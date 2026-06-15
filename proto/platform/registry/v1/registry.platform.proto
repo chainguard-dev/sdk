@@ -521,6 +521,11 @@ message CustomOverlay {
 message ImageContents {
   // Packages to append to the image config.
   repeated string packages = 1;
+
+  // Custom APK repository URLs to write to /etc/apk/repositories in the
+  // assembled image. When set, these replace the default virtualapk.cgr.dev
+  // repositories.
+  repeated string runtime_repositories = 2;
 }
 
 message CreateRepoRequest {

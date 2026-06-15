@@ -715,9 +715,13 @@ func (x *ListReposResponse) GetSkipped() int32 {
 type CustomOverlay_ImageContents struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Packages to append to the image.
-	Packages      []string `protobuf:"bytes,1,rep,name=packages,proto3" json:"packages,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Packages []string `protobuf:"bytes,1,rep,name=packages,proto3" json:"packages,omitempty"`
+	// Custom APK repository URLs to write to /etc/apk/repositories in the
+	// assembled image. When set, these replace the default virtualapk.cgr.dev
+	// repositories.
+	RuntimeRepositories []string `protobuf:"bytes,2,rep,name=runtime_repositories,json=runtimeRepositories,proto3" json:"runtime_repositories,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *CustomOverlay_ImageContents) Reset() {
@@ -753,6 +757,13 @@ func (*CustomOverlay_ImageContents) Descriptor() ([]byte, []int) {
 func (x *CustomOverlay_ImageContents) GetPackages() []string {
 	if x != nil {
 		return x.Packages
+	}
+	return nil
+}
+
+func (x *CustomOverlay_ImageContents) GetRuntimeRepositories() []string {
+	if x != nil {
+		return x.RuntimeRepositories
 	}
 	return nil
 }
@@ -1119,8 +1130,7 @@ const file_chainguard_platform_registry_v2beta1_repos_proto_rawDesc = "" +
 	"\x06amazon\x18\x05 \x01(\tB\x04\xe2A\x01\x03R\x06amazon\x12\x1a\n" +
 	"\x05azure\x18\x06 \x01(\tB\x04\xe2A\x01\x03R\x05azure\x12'\n" +
 	"\fapko_overlay\x18\a \x01(\tB\x04\xe2A\x01\x03R\vapkoOverlay\x12'\n" +
-	"\fgrace_period\x18\b \x01(\bB\x04\xe2A\x01\x03R\vgracePeriod\"\xf0\n" +
-	"\n" +
+	"\fgrace_period\x18\b \x01(\bB\x04\xe2A\x01\x03R\vgracePeriod\"\xa3\v\n" +
 	"\rCustomOverlay\x12c\n" +
 	"\bcontents\x18\x01 \x01(\v2A.chainguard.platform.registry.v2beta1.CustomOverlay.ImageContentsB\x04\xe2A\x01\x03R\bcontents\x12l\n" +
 	"\venvironment\x18\x02 \x03(\v2D.chainguard.platform.registry.v2beta1.CustomOverlay.EnvironmentEntryB\x04\xe2A\x01\x03R\venvironment\x12l\n" +
@@ -1132,9 +1142,10 @@ const file_chainguard_platform_registry_v2beta1_repos_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +
 	"\x10AnnotationsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a+\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a^\n" +
 	"\rImageContents\x12\x1a\n" +
-	"\bpackages\x18\x01 \x03(\tR\bpackages\x1a\xc2\x03\n" +
+	"\bpackages\x18\x01 \x03(\tR\bpackages\x121\n" +
+	"\x14runtime_repositories\x18\x02 \x03(\tR\x13runtimeRepositories\x1a\xc2\x03\n" +
 	"\bAccounts\x12\x15\n" +
 	"\x06run_as\x18\x01 \x01(\tR\x05runAs\x12W\n" +
 	"\x05users\x18\x02 \x03(\v2A.chainguard.platform.registry.v2beta1.CustomOverlay.Accounts.UserR\x05users\x12Z\n" +
