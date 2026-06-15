@@ -7,6 +7,7 @@ package v1
 
 import (
 	"fmt"
+	"iter"
 	"slices"
 
 	"chainguard.dev/sdk/helm/images"
@@ -41,6 +42,23 @@ type ChartImage struct {
 	RepoName string `json:"repoName"`
 	Tag      string `json:"tag"`
 	Digest   string `json:"digest"`
+}
+
+// Reference renders the image reference as prefix/repoName[:tag][@digest],
+// where prefix is the registry/org the image lives under. An empty tag,
+// digest, or prefix is omitted.
+func (img *ChartImage) Reference(prefix string) string {
+	r := img.RepoName
+	if prefix != "" {
+		r = prefix + "/" + r
+	}
+	if img.Tag != "" {
+		r += ":" + img.Tag
+	}
+	if img.Digest != "" {
+		r += "@" + img.Digest
+	}
+	return r
 }
 
 // IsOptionalImage reports whether imageID is marked as optional in the template
@@ -112,6 +130,32 @@ func (ci *ChartImages) Walk(fn WalkFunc) (map[string]any, error) {
 	}
 
 	return result, nil
+}
+
+// Images iterates every pinned image in this ChartImages and all nested
+// subcharts in unspecified order; a nil receiver yields nothing. Unlike Walk
+// it ignores the template, so it also visits images with no template mapping.
+func (ci *ChartImages) Images() iter.Seq[*ChartImage] {
+	return func(yield func(*ChartImage) bool) {
+		var walk func(*ChartImages) bool
+		walk = func(c *ChartImages) bool {
+			if c == nil {
+				return true
+			}
+			for _, img := range c.Refs {
+				if img != nil && !yield(img) {
+					return false
+				}
+			}
+			for _, sub := range c.Subcharts {
+				if !walk(sub) {
+					return false
+				}
+			}
+			return true
+		}
+		walk(ci)
+	}
 }
 
 // ChartDigests holds resolved digest strings for a chart level and its subcharts.

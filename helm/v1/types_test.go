@@ -7,6 +7,7 @@ package v1
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"testing"
 
@@ -83,6 +84,177 @@ func TestLock_WithChartDigests(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestChartImage_Reference(t *testing.T) {
+	tests := []struct {
+		name   string
+		img    *ChartImage
+		prefix string
+		want   string
+	}{
+		{
+			name:   "repo tag and digest",
+			img:    &ChartImage{RepoName: "nginx", Tag: "latest", Digest: "sha256:a"},
+			prefix: "cgr.dev/test-org",
+			want:   "cgr.dev/test-org/nginx:latest@sha256:a",
+		},
+		{
+			name:   "repo only",
+			img:    &ChartImage{RepoName: "plain"},
+			prefix: "cgr.dev/test-org",
+			want:   "cgr.dev/test-org/plain",
+		},
+		{
+			name:   "tag omitted",
+			img:    &ChartImage{RepoName: "digestonly", Digest: "sha256:a"},
+			prefix: "cgr.dev/test-org",
+			want:   "cgr.dev/test-org/digestonly@sha256:a",
+		},
+		{
+			name:   "digest omitted",
+			img:    &ChartImage{RepoName: "tagged", Tag: "v1"},
+			prefix: "cgr.dev/test-org",
+			want:   "cgr.dev/test-org/tagged:v1",
+		},
+		{
+			name: "empty prefix yields bare coordinates",
+			img:  &ChartImage{RepoName: "nginx", Tag: "latest", Digest: "sha256:a"},
+			want: "nginx:latest@sha256:a",
+		},
+		{
+			name:   "bare registry prefix",
+			img:    &ChartImage{RepoName: "nginx", Tag: "latest", Digest: "sha256:a"},
+			prefix: "myregistry.internal",
+			want:   "myregistry.internal/nginx:latest@sha256:a",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := tc.img.Reference(tc.prefix); got != tc.want {
+				t.Errorf("Reference(%q) = %q, want %q", tc.prefix, got, tc.want)
+			}
+		})
+	}
+}
+
+func TestChartImages_Images(t *testing.T) {
+	tests := []struct {
+		name string
+		ci   *ChartImages
+		// want is the sorted list of "repoName:tag@digest" keys yielded,
+		// including duplicates (Images does not deduplicate).
+		want []string
+	}{
+		{
+			name: "nil receiver yields nothing",
+			ci:   nil,
+		},
+		{
+			name: "root refs only",
+			ci: &ChartImages{
+				Refs: map[string]*ChartImage{
+					"nginx": {RepoName: "nginx", Tag: "latest", Digest: "sha256:a"},
+					"redis": {RepoName: "redis", Tag: "7.0", Digest: "sha256:b"},
+				},
+			},
+			want: []string{"nginx:latest@sha256:a", "redis:7.0@sha256:b"},
+		},
+		{
+			name: "nil entries are skipped",
+			ci: &ChartImages{
+				Refs: map[string]*ChartImage{
+					"good":  {RepoName: "nginx", Tag: "latest", Digest: "sha256:a"},
+					"ghost": nil,
+				},
+			},
+			want: []string{"nginx:latest@sha256:a"},
+		},
+		{
+			name: "subcharts walked recursively",
+			ci: &ChartImages{
+				Refs: map[string]*ChartImage{
+					"main": {RepoName: "main", Tag: "1.0", Digest: "sha256:a"},
+				},
+				Subcharts: map[string]*ChartImages{
+					"redis": {
+						Refs: map[string]*ChartImage{
+							"server": {RepoName: "redis", Tag: "7.0", Digest: "sha256:b"},
+						},
+						Subcharts: map[string]*ChartImages{
+							"exporter": {
+								Refs: map[string]*ChartImage{
+									"exporter": {RepoName: "redis-exporter", Tag: "v1", Digest: "sha256:c"},
+								},
+							},
+						},
+					},
+				},
+			},
+			want: []string{"main:1.0@sha256:a", "redis-exporter:v1@sha256:c", "redis:7.0@sha256:b"},
+		},
+		{
+			name: "duplicates across subcharts are preserved",
+			ci: &ChartImages{
+				Refs: map[string]*ChartImage{
+					"shared": {RepoName: "shared", Tag: "1.0", Digest: "sha256:a"},
+				},
+				Subcharts: map[string]*ChartImages{
+					"sub": {
+						Refs: map[string]*ChartImage{
+							"shared": {RepoName: "shared", Tag: "1.0", Digest: "sha256:a"},
+						},
+					},
+				},
+			},
+			want: []string{"shared:1.0@sha256:a", "shared:1.0@sha256:a"},
+		},
+		{
+			name: "nil subchart entry does not panic",
+			ci: &ChartImages{
+				Refs: map[string]*ChartImage{
+					"nginx": {RepoName: "nginx", Tag: "latest", Digest: "sha256:a"},
+				},
+				Subcharts: map[string]*ChartImages{
+					"empty": nil,
+				},
+			},
+			want: []string{"nginx:latest@sha256:a"},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			var got []string
+			for img := range tc.ci.Images() {
+				got = append(got, fmt.Sprintf("%s:%s@%s", img.RepoName, img.Tag, img.Digest))
+			}
+			slices.Sort(got)
+			if diff := cmp.Diff(tc.want, got); diff != "" {
+				t.Errorf("mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestChartImages_Images_EarlyTermination(t *testing.T) {
+	ci := &ChartImages{
+		Refs: map[string]*ChartImage{
+			"a": {RepoName: "a"},
+			"b": {RepoName: "b"},
+			"c": {RepoName: "c"},
+		},
+	}
+
+	var count int
+	for range ci.Images() {
+		count++
+		break
+	}
+	if count != 1 {
+		t.Errorf("breaking after the first image visited %d images, want 1", count)
 	}
 }
 
