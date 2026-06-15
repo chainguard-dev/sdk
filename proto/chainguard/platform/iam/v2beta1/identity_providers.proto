@@ -187,6 +187,14 @@ message IdentityProvider {
     OIDC oidc = 20;
   }
 
+  // SCIM provisioning configuration for this identity provider.
+  //
+  // SCIM is a provisioning protocol and is independent of the authentication
+  // mechanism in `configuration`: an identity provider may use OIDC for
+  // authentication and SCIM for provisioning at the same time. It is therefore
+  // a top-level field rather than a member of the `configuration` oneof.
+  SCIM scim = 21 [(google.api.field_behavior) = OPTIONAL];
+
   // Configuration parameters for performing an OIDC token exchange.
   message OIDC {
     // Issuer URL (e.g https://accounts.google.com)
@@ -207,6 +215,27 @@ message IdentityProvider {
     // (e.g. "groups" for Entra, a custom claim name for Okta). Required for
     // IdP group-based role mapping; when empty, group extraction is skipped.
     string groups_claim = 5 [(google.api.field_behavior) = OPTIONAL];
+  }
+
+  // SCIM holds the System for Cross-domain Identity Management provisioning
+  // configuration for an identity provider.
+  message SCIM {
+    // Whether SCIM provisioning is enabled for this identity provider.
+    bool enabled = 1 [(google.api.field_behavior) = OPTIONAL];
+
+    // Field 2 is reserved for `bearer_token`, the SCIM bearer token used to
+    // authenticate provisioning requests. Generation and rotation land in
+    // CUS-450; the number is reserved now to prevent a silent deserialization
+    // collision when that field is added.
+    reserved 2;
+    reserved "bearer_token";
+
+    // Server-derived SCIM endpoint URL for this identity provider, computed
+    // from the identity provider UIDP. Not user-configurable. OUTPUT_ONLY:
+    // the persistence layer must strip this before writing, since an
+    // implied/inferred field mask does not exclude OUTPUT_ONLY paths
+    // (enforcement lands with SCIM config persistence, CUS-450).
+    string endpoint_url = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
   }
 }
 

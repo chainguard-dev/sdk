@@ -57,6 +57,13 @@ type IdentityProvider struct {
 	//
 	//	*IdentityProvider_Oidc
 	Configuration isIdentityProvider_Configuration `protobuf_oneof:"configuration"`
+	// SCIM provisioning configuration for this identity provider.
+	//
+	// SCIM is a provisioning protocol and is independent of the authentication
+	// mechanism in `configuration`: an identity provider may use OIDC for
+	// authentication and SCIM for provisioning at the same time. It is therefore
+	// a top-level field rather than a member of the `configuration` oneof.
+	Scim          *IdentityProvider_SCIM `protobuf:"bytes,21,opt,name=scim,proto3" json:"scim,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -145,6 +152,13 @@ func (x *IdentityProvider) GetOidc() *IdentityProvider_OIDC {
 		if x, ok := x.Configuration.(*IdentityProvider_Oidc); ok {
 			return x.Oidc
 		}
+	}
+	return nil
+}
+
+func (x *IdentityProvider) GetScim() *IdentityProvider_SCIM {
+	if x != nil {
+		return x.Scim
 	}
 	return nil
 }
@@ -625,11 +639,71 @@ func (x *IdentityProvider_OIDC) GetGroupsClaim() string {
 	return ""
 }
 
+// SCIM holds the System for Cross-domain Identity Management provisioning
+// configuration for an identity provider.
+type IdentityProvider_SCIM struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Whether SCIM provisioning is enabled for this identity provider.
+	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	// Server-derived SCIM endpoint URL for this identity provider, computed
+	// from the identity provider UIDP. Not user-configurable. OUTPUT_ONLY:
+	// the persistence layer must strip this before writing, since an
+	// implied/inferred field mask does not exclude OUTPUT_ONLY paths
+	// (enforcement lands with SCIM config persistence, CUS-450).
+	EndpointUrl   string `protobuf:"bytes,3,opt,name=endpoint_url,json=endpointUrl,proto3" json:"endpoint_url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IdentityProvider_SCIM) Reset() {
+	*x = IdentityProvider_SCIM{}
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IdentityProvider_SCIM) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IdentityProvider_SCIM) ProtoMessage() {}
+
+func (x *IdentityProvider_SCIM) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IdentityProvider_SCIM.ProtoReflect.Descriptor instead.
+func (*IdentityProvider_SCIM) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDescGZIP(), []int{0, 1}
+}
+
+func (x *IdentityProvider_SCIM) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+func (x *IdentityProvider_SCIM) GetEndpointUrl() string {
+	if x != nil {
+		return x.EndpointUrl
+	}
+	return ""
+}
+
 var File_chainguard_platform_iam_v2beta1_identity_providers_proto protoreflect.FileDescriptor
 
 const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = "" +
 	"\n" +
-	"8chainguard/platform/iam/v2beta1/identity_providers.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xc7\x05\n" +
+	"8chainguard/platform/iam/v2beta1/identity_providers.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xfe\x06\n" +
 	"\x10IdentityProvider\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
@@ -640,13 +714,17 @@ const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = ""
 	"\vupdate_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
 	"updateTime\x12'\n" +
 	"\fdefault_role\x18\x06 \x01(\tB\x04\xe2A\x01\x02R\vdefaultRole\x12L\n" +
-	"\x04oidc\x18\x14 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.OIDCH\x00R\x04oidc\x1a\xce\x01\n" +
+	"\x04oidc\x18\x14 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.OIDCH\x00R\x04oidc\x12P\n" +
+	"\x04scim\x18\x15 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.SCIMB\x04\xe2A\x01\x01R\x04scim\x1a\xce\x01\n" +
 	"\x04OIDC\x12\x1c\n" +
 	"\x06issuer\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x06issuer\x12!\n" +
 	"\tclient_id\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\bclientId\x12)\n" +
 	"\rclient_secret\x18\x03 \x01(\tB\x04\xe2A\x01\x02R\fclientSecret\x121\n" +
 	"\x11additional_scopes\x18\x04 \x03(\tB\x04\xe2A\x01\x01R\x10additionalScopes\x12'\n" +
-	"\fgroups_claim\x18\x05 \x01(\tB\x04\xe2A\x01\x01R\vgroupsClaim:t\xeaAq\n" +
+	"\fgroups_claim\x18\x05 \x01(\tB\x04\xe2A\x01\x01R\vgroupsClaim\x1ac\n" +
+	"\x04SCIM\x12\x1e\n" +
+	"\aenabled\x18\x01 \x01(\bB\x04\xe2A\x01\x01R\aenabled\x12'\n" +
+	"\fendpoint_url\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\vendpointUrlJ\x04\b\x02\x10\x03R\fbearer_token:t\xeaAq\n" +
 	"#iam.chainguard.dev/IdentityProvider\x12%identityProviders/{identity_provider}*\x11identityProviders2\x10identityProviderB\x0f\n" +
 	"\rconfiguration\"\xfd\x01\n" +
 	"\x1cListIdentityProvidersRequest\x12@\n" +
@@ -718,7 +796,7 @@ func file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDescGZIP()
 	return file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDescData
 }
 
-var file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_chainguard_platform_iam_v2beta1_identity_providers_proto_goTypes = []any{
 	(*IdentityProvider)(nil),              // 0: chainguard.platform.iam.v2beta1.IdentityProvider
 	(*ListIdentityProvidersRequest)(nil),  // 1: chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest
@@ -728,35 +806,37 @@ var file_chainguard_platform_iam_v2beta1_identity_providers_proto_goTypes = []an
 	(*UpdateIdentityProviderRequest)(nil), // 5: chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest
 	(*DeleteIdentityProviderRequest)(nil), // 6: chainguard.platform.iam.v2beta1.DeleteIdentityProviderRequest
 	(*IdentityProvider_OIDC)(nil),         // 7: chainguard.platform.iam.v2beta1.IdentityProvider.OIDC
-	(*timestamppb.Timestamp)(nil),         // 8: google.protobuf.Timestamp
-	(*v1.UIDPFilter)(nil),                 // 9: chainguard.platform.common.UIDPFilter
-	(*fieldmaskpb.FieldMask)(nil),         // 10: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),                 // 11: google.protobuf.Empty
+	(*IdentityProvider_SCIM)(nil),         // 8: chainguard.platform.iam.v2beta1.IdentityProvider.SCIM
+	(*timestamppb.Timestamp)(nil),         // 9: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),                 // 10: chainguard.platform.common.UIDPFilter
+	(*fieldmaskpb.FieldMask)(nil),         // 11: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),                 // 12: google.protobuf.Empty
 }
 var file_chainguard_platform_iam_v2beta1_identity_providers_proto_depIdxs = []int32{
-	8,  // 0: chainguard.platform.iam.v2beta1.IdentityProvider.create_time:type_name -> google.protobuf.Timestamp
-	8,  // 1: chainguard.platform.iam.v2beta1.IdentityProvider.update_time:type_name -> google.protobuf.Timestamp
+	9,  // 0: chainguard.platform.iam.v2beta1.IdentityProvider.create_time:type_name -> google.protobuf.Timestamp
+	9,  // 1: chainguard.platform.iam.v2beta1.IdentityProvider.update_time:type_name -> google.protobuf.Timestamp
 	7,  // 2: chainguard.platform.iam.v2beta1.IdentityProvider.oidc:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider.OIDC
-	9,  // 3: chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	0,  // 4: chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse.identity_providers:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider
-	0,  // 5: chainguard.platform.iam.v2beta1.CreateIdentityProviderRequest.identity_provider:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider
-	0,  // 6: chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest.identity_provider:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider
-	10, // 7: chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest.update_mask:type_name -> google.protobuf.FieldMask
-	1,  // 8: chainguard.platform.iam.v2beta1.IdentityProvidersService.ListIdentityProviders:input_type -> chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest
-	3,  // 9: chainguard.platform.iam.v2beta1.IdentityProvidersService.GetIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.GetIdentityProviderRequest
-	4,  // 10: chainguard.platform.iam.v2beta1.IdentityProvidersService.CreateIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.CreateIdentityProviderRequest
-	5,  // 11: chainguard.platform.iam.v2beta1.IdentityProvidersService.UpdateIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest
-	6,  // 12: chainguard.platform.iam.v2beta1.IdentityProvidersService.DeleteIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.DeleteIdentityProviderRequest
-	2,  // 13: chainguard.platform.iam.v2beta1.IdentityProvidersService.ListIdentityProviders:output_type -> chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse
-	0,  // 14: chainguard.platform.iam.v2beta1.IdentityProvidersService.GetIdentityProvider:output_type -> chainguard.platform.iam.v2beta1.IdentityProvider
-	0,  // 15: chainguard.platform.iam.v2beta1.IdentityProvidersService.CreateIdentityProvider:output_type -> chainguard.platform.iam.v2beta1.IdentityProvider
-	0,  // 16: chainguard.platform.iam.v2beta1.IdentityProvidersService.UpdateIdentityProvider:output_type -> chainguard.platform.iam.v2beta1.IdentityProvider
-	11, // 17: chainguard.platform.iam.v2beta1.IdentityProvidersService.DeleteIdentityProvider:output_type -> google.protobuf.Empty
-	13, // [13:18] is the sub-list for method output_type
-	8,  // [8:13] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	8,  // 3: chainguard.platform.iam.v2beta1.IdentityProvider.scim:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider.SCIM
+	10, // 4: chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	0,  // 5: chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse.identity_providers:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider
+	0,  // 6: chainguard.platform.iam.v2beta1.CreateIdentityProviderRequest.identity_provider:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider
+	0,  // 7: chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest.identity_provider:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider
+	11, // 8: chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest.update_mask:type_name -> google.protobuf.FieldMask
+	1,  // 9: chainguard.platform.iam.v2beta1.IdentityProvidersService.ListIdentityProviders:input_type -> chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest
+	3,  // 10: chainguard.platform.iam.v2beta1.IdentityProvidersService.GetIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.GetIdentityProviderRequest
+	4,  // 11: chainguard.platform.iam.v2beta1.IdentityProvidersService.CreateIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.CreateIdentityProviderRequest
+	5,  // 12: chainguard.platform.iam.v2beta1.IdentityProvidersService.UpdateIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest
+	6,  // 13: chainguard.platform.iam.v2beta1.IdentityProvidersService.DeleteIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.DeleteIdentityProviderRequest
+	2,  // 14: chainguard.platform.iam.v2beta1.IdentityProvidersService.ListIdentityProviders:output_type -> chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse
+	0,  // 15: chainguard.platform.iam.v2beta1.IdentityProvidersService.GetIdentityProvider:output_type -> chainguard.platform.iam.v2beta1.IdentityProvider
+	0,  // 16: chainguard.platform.iam.v2beta1.IdentityProvidersService.CreateIdentityProvider:output_type -> chainguard.platform.iam.v2beta1.IdentityProvider
+	0,  // 17: chainguard.platform.iam.v2beta1.IdentityProvidersService.UpdateIdentityProvider:output_type -> chainguard.platform.iam.v2beta1.IdentityProvider
+	12, // 18: chainguard.platform.iam.v2beta1.IdentityProvidersService.DeleteIdentityProvider:output_type -> google.protobuf.Empty
+	14, // [14:19] is the sub-list for method output_type
+	9,  // [9:14] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_iam_v2beta1_identity_providers_proto_init() }
@@ -774,7 +854,7 @@ func file_chainguard_platform_iam_v2beta1_identity_providers_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc), len(file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

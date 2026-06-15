@@ -56,6 +56,16 @@ func (x *IdentityProvider) CloudEventsRedact() any {
 		idp.Configuration = x.Configuration
 	}
 
+	// Deep-copy SCIM config field-by-field rather than sharing the pointer, so
+	// that any future credential fields (e.g. bearer_token, CUS-450) are not
+	// silently carried through redaction unless explicitly copied here.
+	if scim := x.GetScim(); scim != nil {
+		idp.Scim = &IdentityProvider_SCIM{
+			Enabled:     scim.Enabled,
+			EndpointUrl: scim.EndpointUrl,
+		}
+	}
+
 	return idp
 }
 

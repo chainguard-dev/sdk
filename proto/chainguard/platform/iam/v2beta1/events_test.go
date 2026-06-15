@@ -221,6 +221,60 @@ func TestIdentityProvidersEventInterfaces(t *testing.T) {
 	if oidc.GetClientId() != "client-id" {
 		t.Errorf("redacted client_id = %q, want preserved", oidc.GetClientId())
 	}
+	// An IdP with no SCIM config must stay nil after redaction — guards against a
+	// refactor that unconditionally allocates an (empty) Scim sub-message.
+	if redacted.GetScim() != nil {
+		t.Error("CloudEventsRedact() populated Scim on an IdP that had none")
+	}
+
+	// Verify SCIM config is deep-copied field-by-field through redaction. This
+	// guards the fail-closed design: a future credential field (e.g. bearer_token,
+	// CUS-450) must not leak by reverting this to a shallow copy, and non-credential
+	// fields must not be silently dropped.
+	idpWithSCIM := &IdentityProvider{
+		Uid:  idpUID,
+		Name: "test-idp-scim",
+		Scim: &IdentityProvider_SCIM{
+			Enabled:     true,
+			EndpointUrl: "https://console.chainguard.dev/scim/v2/abc123",
+		},
+	}
+	redactedSCIM := idpWithSCIM.CloudEventsRedact().(*IdentityProvider)
+	if redactedSCIM.GetScim() == nil {
+		t.Fatal("CloudEventsRedact() dropped Scim field entirely")
+	}
+	if !redactedSCIM.GetScim().GetEnabled() {
+		t.Error("CloudEventsRedact() lost Scim.Enabled")
+	}
+	if got := redactedSCIM.GetScim().GetEndpointUrl(); got != "https://console.chainguard.dev/scim/v2/abc123" {
+		t.Errorf("redacted Scim.EndpointUrl = %q, want preserved", got)
+	}
+
+	// An IdP may carry both OIDC auth and SCIM provisioning at once — the realistic
+	// steady state. Verify redaction strips the OIDC secret while preserving the
+	// SCIM config on the same message.
+	idpBoth := &IdentityProvider{
+		Uid:  idpUID,
+		Name: "test-idp-both",
+		Configuration: &IdentityProvider_Oidc{
+			Oidc: &IdentityProvider_OIDC{
+				Issuer:       "https://accounts.google.com",
+				ClientId:     "client-id",
+				ClientSecret: "super-secret",
+			},
+		},
+		Scim: &IdentityProvider_SCIM{Enabled: true},
+	}
+	redactedBoth := idpBoth.CloudEventsRedact().(*IdentityProvider)
+	if got := redactedBoth.GetOidc().GetClientSecret(); got != "" {
+		t.Errorf("redacted client_secret = %q, want stripped", got)
+	}
+	if redactedBoth.GetOidc().GetClientId() != "client-id" {
+		t.Error("redacted IdentityProvider lost OIDC client_id with both configs set")
+	}
+	if redactedBoth.GetScim() == nil || !redactedBoth.GetScim().GetEnabled() {
+		t.Error("redacted IdentityProvider lost Scim config with both configs set")
+	}
 }
 
 func TestAccountAssociationsEventAnnotations(t *testing.T) {
