@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/registry/v1";
+
+package chainguard.platform.registry;
+
+import "google/api/annotations.proto";
+import "annotations/auth.proto";
+import "annotations/events.proto";
+
+service Charts {
+  // AddChart adds a Helm chart and its image dependencies as synced repos in
+  // the destination organization.
+  rpc AddChart(AddChartRequest) returns (AddChartResponse) {
+    option (google.api.http) = {
+      post: "/registry/v1/repos/{parent_id=**}:addChart"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_CREATE, CAP_IAM_GROUPS_CREATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.platform.registry.chart.added.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+}
+
+message AddChartRequest {
+  // The UIDP of the destination organization.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+  // The UIDP of the source chart repo (e.g., from the catalog).
+  string source_repo_id = 2;
+  // If true, return what would change but don't create anything.
+  bool dry_run = 3;
+}
+
+// AddChartResponse contains the result of an AddChart operation.
+message AddChartResponse {
+  repeated AddChartResult repos = 1;
+}
+
+// AddChartResult describes what happened to a single repo during AddChart.
+message AddChartResult {
+  // Path of the repo relative to the destination organization. The chart
+  // itself lives under the catalog folder (e.g. "charts/argo-cd"); image
+  // dependencies are created at the org root, so their path is the bare repo
+  // name (e.g. "nginx").
+  string name = 1;
+  // True if the repo was newly created by this call; false if it already
+  // existed (or, on a dry run, would not need to be created).
+  bool created = 2;
+  // The UIDP of the resulting repo. Empty only when a dry run reports a
+  // would-be-created repo that does not yet exist; an existing repo (created
+  // = false) always carries its UIDP, including on dry runs.
+  string id = 3;
+}

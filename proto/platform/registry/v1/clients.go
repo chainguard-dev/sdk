@@ -19,6 +19,7 @@ import (
 
 type Clients interface {
 	Registry() RegistryClient
+	Charts() ChartsClient
 	Vulnerabilities() VulnerabilitiesClient
 	Apko() ApkoClient
 	Entitlements() EntitlementsClient
@@ -49,6 +50,7 @@ func NewClients(ctx context.Context, addr string, token string) (Clients, error)
 
 	return &clients{
 		registry:        NewRegistryClient(conn),
+		charts:          NewChartsClient(conn),
 		vulnerabilities: NewVulnerabilitiesClient(conn),
 		apko:            NewApkoClient(conn),
 		entitlements:    NewEntitlementsClient(conn),
@@ -61,6 +63,7 @@ func NewClients(ctx context.Context, addr string, token string) (Clients, error)
 func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 	return &clients{
 		registry:        NewRegistryClient(conn),
+		charts:          NewChartsClient(conn),
 		vulnerabilities: NewVulnerabilitiesClient(conn),
 		apko:            NewApkoClient(conn),
 		entitlements:    NewEntitlementsClient(conn),
@@ -71,6 +74,7 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 
 type clients struct {
 	registry        RegistryClient
+	charts          ChartsClient
 	vulnerabilities VulnerabilitiesClient
 	apko            ApkoClient
 	entitlements    EntitlementsClient
@@ -81,6 +85,10 @@ type clients struct {
 
 func (c *clients) Registry() RegistryClient {
 	return c.registry
+}
+
+func (c *clients) Charts() ChartsClient {
+	return c.charts
 }
 
 func (c *clients) Vulnerabilities() VulnerabilitiesClient {

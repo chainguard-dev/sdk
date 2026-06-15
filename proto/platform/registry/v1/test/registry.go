@@ -23,6 +23,7 @@ type MockRegistryClients struct {
 	OnClose error
 
 	RegistryClient        MockRegistryClient
+	ChartsClient          MockChartsClient
 	VulnerabilitiesClient MockVulnerabilitiesClient
 	ApkoClient            MockApkoClient
 	EntitlementsClient    MockEntitlementsClient
@@ -31,6 +32,10 @@ type MockRegistryClients struct {
 
 func (m MockRegistryClients) Registry() registry.RegistryClient {
 	return &m.RegistryClient
+}
+
+func (m MockRegistryClients) Charts() registry.ChartsClient {
+	return &m.ChartsClient
 }
 
 func (m MockRegistryClients) Vulnerabilities() registry.VulnerabilitiesClient {
@@ -508,6 +513,29 @@ func (m MockRegistryClient) ListSyncStatuses(_ context.Context, given *registry.
 
 func (m *MockPoliciesClient) CheckPolicies(_ context.Context, given *registry.CheckPoliciesRequest, _ ...grpc.CallOption) (*registry.CheckPoliciesResponse, error) {
 	for _, o := range m.OnCheckPolicies {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+var _ registry.ChartsClient = (*MockChartsClient)(nil)
+
+type MockChartsClient struct {
+	registry.ChartsClient
+
+	OnAddChart []ChartOnAdd
+}
+
+type ChartOnAdd struct {
+	Given    *registry.AddChartRequest
+	Response *registry.AddChartResponse
+	Error    error
+}
+
+func (m *MockChartsClient) AddChart(_ context.Context, given *registry.AddChartRequest, _ ...grpc.CallOption) (*registry.AddChartResponse, error) {
+	for _, o := range m.OnAddChart {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Response, o.Error
 		}
