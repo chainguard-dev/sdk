@@ -155,6 +155,7 @@ func TestRoleBindingsEventAnnotations(t *testing.T) {
 		{"CreateRoleBinding", "dev.chainguard.api.iam.rolebindings.created.v1", []string{"group"}},
 		{"UpdateRoleBinding", "dev.chainguard.api.iam.rolebindings.updated.v1", []string{"group"}},
 		{"DeleteRoleBinding", "dev.chainguard.api.iam.rolebindings.deleted.v1", []string{"group"}},
+		{"BatchCreateRoleBindings", "dev.chainguard.api.iam.rolebindings.created.batch.v1", []string{"group"}},
 	})
 }
 
@@ -172,6 +173,33 @@ func TestRoleBindingsEventInterfaces(t *testing.T) {
 	del := &DeleteRoleBindingRequest{Uid: rbUID}
 	if got, ok := del.CloudEventsExtension("group"); !ok || got != uidp.Parent(rbUID) {
 		t.Errorf("DeleteRoleBindingRequest.CloudEventsExtension(group) = (%q, %v), want (%q, true)", got, ok, uidp.Parent(rbUID))
+	}
+
+	// BatchCreateRoleBindingsResponse uses the parent group as subject,
+	// not individual binding UIDs, aligning with CloudEvents spec intent.
+	parentUID := uidp.Parent(rbUID)
+	batch := &BatchCreateRoleBindingsResponse{
+		RoleBindings: []*RoleBinding{
+			{Uid: rbUID},
+			{Uid: parentUID + "/aaa111"},
+		},
+	}
+	if got := batch.CloudEventsSubject(); got != parentUID {
+		t.Errorf("BatchCreateRoleBindingsResponse.CloudEventsSubject() = %q, want parent %q", got, parentUID)
+	}
+	if got, ok := batch.CloudEventsExtension("group"); !ok || got != parentUID {
+		t.Errorf("BatchCreateRoleBindingsResponse.CloudEventsExtension(group) = (%q, %v), want (%q, true)", got, ok, parentUID)
+	}
+	if _, ok := batch.CloudEventsExtension("unknown"); ok {
+		t.Error("BatchCreateRoleBindingsResponse.CloudEventsExtension(unknown) returned true")
+	}
+
+	emptyBatch := &BatchCreateRoleBindingsResponse{}
+	if got := emptyBatch.CloudEventsSubject(); got != "" {
+		t.Errorf("empty BatchCreateRoleBindingsResponse.CloudEventsSubject() = %q, want empty", got)
+	}
+	if _, ok := emptyBatch.CloudEventsExtension("group"); ok {
+		t.Error("empty BatchCreateRoleBindingsResponse.CloudEventsExtension(group) returned true")
 	}
 }
 

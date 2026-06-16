@@ -108,6 +108,32 @@ service RoleBindingsService {
     };
   }
 
+  // BatchCreateRoleBindings creates multiple role bindings under a single parent
+  // group atomically. Either all bindings are created or none are.
+  rpc BatchCreateRoleBindings(BatchCreateRoleBindingsRequest) returns (BatchCreateRoleBindingsResponse) {
+    option (google.api.http) = {
+      post: "/iam/v2beta1/roleBindings:batchCreate"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_ROLE_BINDINGS_CREATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.rolebindings.created.batch.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Create multiple role bindings under a group in a single call."
+      read_only: false
+      destructive: false
+      idempotent: false
+      open_world: false
+    };
+  }
+
   // UpdateRoleBinding updates the given role binding according to the provided field mask.
   // The fully populated RoleBinding is returned.
   rpc UpdateRoleBinding(UpdateRoleBindingRequest) returns (RoleBinding) {
@@ -321,4 +347,23 @@ message UpdateRoleBindingRequest {
   // (have non-default values). * is supported and interpreted as a full
   // replacement with the given field values.
   google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// BatchCreateRoleBindingsRequest is the request for BatchCreateRoleBindings.
+message BatchCreateRoleBindingsRequest {
+  // Parent group UIDP under which all bindings will be created.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The role bindings to create. Each must specify identity_uid and role_uid.
+  // A maximum of 25 requests can be created in a batch.
+  repeated CreateRoleBindingRequest requests = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// BatchCreateRoleBindingsResponse is the response for BatchCreateRoleBindings.
+message BatchCreateRoleBindingsResponse {
+  // The created role bindings, in the same order as the requests.
+  repeated RoleBinding role_bindings = 1;
 }

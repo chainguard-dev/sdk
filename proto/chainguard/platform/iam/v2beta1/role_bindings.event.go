@@ -15,6 +15,8 @@ var (
 	_ events.Extendable = (*RoleBinding)(nil)
 	_ events.Eventable  = (*DeleteRoleBindingRequest)(nil)
 	_ events.Extendable = (*DeleteRoleBindingRequest)(nil)
+	_ events.Eventable  = (*BatchCreateRoleBindingsResponse)(nil)
+	_ events.Extendable = (*BatchCreateRoleBindingsResponse)(nil)
 )
 
 // CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension
@@ -45,4 +47,28 @@ func (x *DeleteRoleBindingRequest) CloudEventsExtension(key string) (string, boo
 // CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
 func (x *DeleteRoleBindingRequest) CloudEventsSubject() string {
 	return x.GetUid()
+}
+
+// CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension
+func (x *BatchCreateRoleBindingsResponse) CloudEventsExtension(key string) (string, bool) {
+	switch key {
+	case "group":
+		if len(x.GetRoleBindings()) > 0 {
+			return uidp.Parent(x.GetRoleBindings()[0].GetUid()), true
+		}
+		return "", false
+	default:
+		return "", false
+	}
+}
+
+// CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
+// Uses the parent group UIDP as the subject rather than individual binding UIDs,
+// aligning with the CloudEvents spec intent that subject identifies a single
+// resource. Individual binding UIDs are available in the Occurrence body.
+func (x *BatchCreateRoleBindingsResponse) CloudEventsSubject() string {
+	if len(x.GetRoleBindings()) > 0 {
+		return uidp.Parent(x.GetRoleBindings()[0].GetUid())
+	}
+	return ""
 }
