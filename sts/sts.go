@@ -11,10 +11,13 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
+	"math/rand/v2"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/chainguard-dev/clog"
 
 	oidc "chainguard.dev/sdk/proto/platform/oidc/v1"
 	"golang.org/x/oauth2"
@@ -141,6 +144,43 @@ func retryable(err error) bool {
 	}
 }
 
+// refreshRetryable returns true for gRPC codes that are transient on the
+// refresh-token exchange path. Unlike retryable() (used by Exchange), this also
+// retries codes.Internal and codes.DeadlineExceeded: under STS/datastore
+// saturation the refresh RPC surfaces a failed identity lookup as
+// codes.Internal, and a server-side query/connection deadline surfaces as
+// codes.DeadlineExceeded. Both are transient here and safe to retry on a fresh
+// connection. codes.Canceled is intentionally excluded — it signals the caller
+// (or parent context) gave up, where a retry is pointless.
+//
+// Note: a client-side deadline (e.g. the caller's own context timeout) is
+// caught by the loop's ctx.Done() guard before another attempt is issued, so
+// the DeadlineExceeded entry effectively targets server-side query timeouts
+// only — where the caller's context is still alive. See CUS-839.
+func refreshRetryable(err error) bool {
+	switch status.Code(err) {
+	case codes.Unavailable, codes.Internal, codes.DeadlineExceeded:
+		return true
+	default:
+		return false
+	}
+}
+
+// backoffWithJitter returns retryBackoff with uniform jitter in
+// [retryBackoff, 2*retryBackoff). The jitter avoids synchronized retry bursts
+// (thundering herd) when many clients receive the same transient failure at
+// once — likely under the STS/datastore saturation that produces retryable
+// codes.Internal in the first place. See CUS-839.
+//
+// Both Exchange and Refresh use this. Refresh's retry *codes* widened for
+// CUS-839; Exchange's retry codes are unchanged, but its backoff intentionally
+// moved from a flat retryBackoff to this jittered value here — a strict
+// improvement (decorrelates retries on a saturated path), called out so the
+// timing change on the hot exchange path is not a surprise.
+func backoffWithJitter() time.Duration {
+	return retryBackoff + rand.N(retryBackoff) //nolint:gosec // G404: retry-backoff jitter does not require cryptographic randomness
+}
+
 // Exchange implements Exchanger
 func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOption) (TokenPair, error) {
 	o := i.opts
@@ -154,7 +194,7 @@ func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOpti
 			select {
 			case <-ctx.Done():
 				return TokenPair{}, ctx.Err()
-			case <-time.After(retryBackoff):
+			case <-time.After(backoffWithJitter()):
 			}
 		}
 
@@ -206,14 +246,15 @@ func (i *impl) Refresh(ctx context.Context, token string, opts ...ExchangerOptio
 			select {
 			case <-ctx.Done():
 				return "", "", ctx.Err()
-			case <-time.After(retryBackoff):
+			case <-time.After(backoffWithJitter()):
 			}
 		}
 
 		c, err := oidcNewClients(ctx, o.issuer, fmt.Sprintf("Bearer %s", token), oidc.WithUserAgent(o.userAgent))
 		if err != nil {
-			if retryable(err) {
+			if refreshRetryable(err) {
 				lastErr = err
+				clog.FromContext(ctx).Warnf("refresh token exchange attempt %d failed connecting (%v); retrying", attempt+1, status.Code(err))
 				continue
 			}
 			return "", "", err
@@ -227,8 +268,9 @@ func (i *impl) Refresh(ctx context.Context, token string, opts ...ExchangerOptio
 		})
 		c.Close()
 		if err != nil {
-			if retryable(err) {
+			if refreshRetryable(err) {
 				lastErr = err
+				clog.FromContext(ctx).Warnf("refresh token exchange attempt %d failed (%v); retrying", attempt+1, status.Code(err))
 				continue
 			}
 			return "", "", err

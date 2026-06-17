@@ -561,8 +561,30 @@ func TestRefreshRetry(t *testing.T) {
 		wantAttempts: 1,
 		wantErr:      true,
 	}, {
-		name:         "does not retry on Internal",
+		// Unlike Exchange, the refresh path retries Internal: under
+		// STS/datastore saturation a failed identity lookup surfaces as
+		// codes.Internal, which is transient here. See CUS-839.
+		name:         "retries on Internal then succeeds",
 		errors:       []error{status.Error(codes.Internal, "internal error")},
+		wantAttempts: 2,
+	}, {
+		name: "exhausts retries on Internal",
+		errors: []error{
+			status.Error(codes.Internal, "try 1"),
+			status.Error(codes.Internal, "try 2"),
+			status.Error(codes.Internal, "try 3"),
+		},
+		wantAttempts: 3,
+		wantErr:      true,
+	}, {
+		// A server-side query/connection deadline surfaces as
+		// DeadlineExceeded; transient on the refresh path. See CUS-839.
+		name:         "retries on DeadlineExceeded then succeeds",
+		errors:       []error{status.Error(codes.DeadlineExceeded, "deadline exceeded")},
+		wantAttempts: 2,
+	}, {
+		name:         "does not retry on Canceled",
+		errors:       []error{status.Error(codes.Canceled, "canceled")},
 		wantAttempts: 1,
 		wantErr:      true,
 	}, {
