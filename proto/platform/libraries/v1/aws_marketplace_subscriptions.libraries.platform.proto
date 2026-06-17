@@ -6,6 +6,8 @@ import "annotations/auth.proto";
 import "annotations/events.proto";
 import "entitlements.libraries.platform.proto";
 import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 import "platform/common/v1/uidp.platform.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -63,6 +65,23 @@ service AWSMarketplaceSubscriptions {
     };
   }
 
+  rpc Update(UpdateAWSMarketplaceSubscriptionRequest) returns (AWSMarketplaceSubscription) {
+    option (google.api.http) = {
+      patch: "/libraries/v1/aws-marketplace-subscriptions/{subscription.id=**}"
+      body: "subscription"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.libraries.aws_marketplace.subscription.updated.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
   // Cancel unsubscribes the org's subscription on our side: it stops future
   // metering and removes the associated Libraries entitlements, moving the
   // subscription to UNSUBSCRIBED. The AWS Marketplace subscription itself is
@@ -105,25 +124,32 @@ enum SubscriptionStatus {
 // purchased through AWS Security Hub Extended.
 message AWSMarketplaceSubscription {
   // id is the uidp of the subscription, a child of the org group.
-  string id = 1 [(chainguard.annotations.iam_scope) = true];
+  string id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (chainguard.annotations.iam_scope) = true
+  ];
 
   // developer_band is the selected developer-count band — the "Up to X
   // developers" ceiling, not an exact head count. It applies uniformly across
   // every selected ecosystem.
-  int32 developer_band = 2;
+  // Once set on a subscription this cannot be changed. This constraint may be
+  // relaxed in the future.
+  int32 developer_band = 2 [(google.api.field_behavior) = IMMUTABLE];
 
   // ecosystems are the Libraries ecosystems the subscription covers.
   repeated Ecosystem ecosystems = 3;
 
   // is_free_trial indicates the subscription is on an AWS free trial (not
   // charged while the trial is active).
-  bool is_free_trial = 4;
+  // Updating free trial status is not supported directly through the API.
+  bool is_free_trial = 4 [(google.api.field_behavior) = IMMUTABLE];
 
   // status is the subscription lifecycle state.
-  SubscriptionStatus status = 5;
+  // The value is managed server side and cannot be updated through the API.
+  SubscriptionStatus status = 5 [(google.api.field_behavior) = IMMUTABLE];
 
-  google.protobuf.Timestamp created_at = 6;
-  google.protobuf.Timestamp updated_at = 7;
+  google.protobuf.Timestamp created_at = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp updated_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message AWSMarketplaceSubscriptionList {
@@ -162,4 +188,15 @@ message AWSMarketplaceSubscriptionFilter {
 message CancelAWSMarketplaceSubscriptionRequest {
   // id is the exact uidp of the subscription to cancel.
   string id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message UpdateAWSMarketplaceSubscriptionRequest {
+  // The subscription to update.
+  AWSMarketplaceSubscription subscription = 1;
+
+  // The list of fields to update. If not provided, an implied
+  // field mask is used equivalent to all fields that are populated
+  // (have non-default values). * is supported and interpreted as a full
+  // replacement with the given field values.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
 }

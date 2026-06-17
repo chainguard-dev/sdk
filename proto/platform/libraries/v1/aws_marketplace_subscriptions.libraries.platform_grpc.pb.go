@@ -22,6 +22,7 @@ const (
 	AWSMarketplaceSubscriptions_Create_FullMethodName = "/chainguard.platform.libraries.AWSMarketplaceSubscriptions/Create"
 	AWSMarketplaceSubscriptions_Get_FullMethodName    = "/chainguard.platform.libraries.AWSMarketplaceSubscriptions/Get"
 	AWSMarketplaceSubscriptions_List_FullMethodName   = "/chainguard.platform.libraries.AWSMarketplaceSubscriptions/List"
+	AWSMarketplaceSubscriptions_Update_FullMethodName = "/chainguard.platform.libraries.AWSMarketplaceSubscriptions/Update"
 	AWSMarketplaceSubscriptions_Cancel_FullMethodName = "/chainguard.platform.libraries.AWSMarketplaceSubscriptions/Cancel"
 )
 
@@ -42,6 +43,7 @@ type AWSMarketplaceSubscriptionsClient interface {
 	Get(ctx context.Context, in *GetAWSMarketplaceSubscriptionRequest, opts ...grpc.CallOption) (*AWSMarketplaceSubscription, error)
 	// List returns the subscriptions under an org.
 	List(ctx context.Context, in *AWSMarketplaceSubscriptionFilter, opts ...grpc.CallOption) (*AWSMarketplaceSubscriptionList, error)
+	Update(ctx context.Context, in *UpdateAWSMarketplaceSubscriptionRequest, opts ...grpc.CallOption) (*AWSMarketplaceSubscription, error)
 	// Cancel unsubscribes the org's subscription on our side: it stops future
 	// metering and removes the associated Libraries entitlements, moving the
 	// subscription to UNSUBSCRIBED. The AWS Marketplace subscription itself is
@@ -88,6 +90,16 @@ func (c *aWSMarketplaceSubscriptionsClient) List(ctx context.Context, in *AWSMar
 	return out, nil
 }
 
+func (c *aWSMarketplaceSubscriptionsClient) Update(ctx context.Context, in *UpdateAWSMarketplaceSubscriptionRequest, opts ...grpc.CallOption) (*AWSMarketplaceSubscription, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AWSMarketplaceSubscription)
+	err := c.cc.Invoke(ctx, AWSMarketplaceSubscriptions_Update_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *aWSMarketplaceSubscriptionsClient) Cancel(ctx context.Context, in *CancelAWSMarketplaceSubscriptionRequest, opts ...grpc.CallOption) (*AWSMarketplaceSubscription, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AWSMarketplaceSubscription)
@@ -115,6 +127,7 @@ type AWSMarketplaceSubscriptionsServer interface {
 	Get(context.Context, *GetAWSMarketplaceSubscriptionRequest) (*AWSMarketplaceSubscription, error)
 	// List returns the subscriptions under an org.
 	List(context.Context, *AWSMarketplaceSubscriptionFilter) (*AWSMarketplaceSubscriptionList, error)
+	Update(context.Context, *UpdateAWSMarketplaceSubscriptionRequest) (*AWSMarketplaceSubscription, error)
 	// Cancel unsubscribes the org's subscription on our side: it stops future
 	// metering and removes the associated Libraries entitlements, moving the
 	// subscription to UNSUBSCRIBED. The AWS Marketplace subscription itself is
@@ -139,6 +152,9 @@ func (UnimplementedAWSMarketplaceSubscriptionsServer) Get(context.Context, *GetA
 }
 func (UnimplementedAWSMarketplaceSubscriptionsServer) List(context.Context, *AWSMarketplaceSubscriptionFilter) (*AWSMarketplaceSubscriptionList, error) {
 	return nil, status.Error(codes.Unimplemented, "method List not implemented")
+}
+func (UnimplementedAWSMarketplaceSubscriptionsServer) Update(context.Context, *UpdateAWSMarketplaceSubscriptionRequest) (*AWSMarketplaceSubscription, error) {
+	return nil, status.Error(codes.Unimplemented, "method Update not implemented")
 }
 func (UnimplementedAWSMarketplaceSubscriptionsServer) Cancel(context.Context, *CancelAWSMarketplaceSubscriptionRequest) (*AWSMarketplaceSubscription, error) {
 	return nil, status.Error(codes.Unimplemented, "method Cancel not implemented")
@@ -219,6 +235,24 @@ func _AWSMarketplaceSubscriptions_List_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AWSMarketplaceSubscriptions_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAWSMarketplaceSubscriptionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AWSMarketplaceSubscriptionsServer).Update(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AWSMarketplaceSubscriptions_Update_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AWSMarketplaceSubscriptionsServer).Update(ctx, req.(*UpdateAWSMarketplaceSubscriptionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AWSMarketplaceSubscriptions_Cancel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CancelAWSMarketplaceSubscriptionRequest)
 	if err := dec(in); err != nil {
@@ -255,6 +289,10 @@ var AWSMarketplaceSubscriptions_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "List",
 			Handler:    _AWSMarketplaceSubscriptions_List_Handler,
+		},
+		{
+			MethodName: "Update",
+			Handler:    _AWSMarketplaceSubscriptions_Update_Handler,
 		},
 		{
 			MethodName: "Cancel",

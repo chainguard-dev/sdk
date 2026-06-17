@@ -13,6 +13,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -99,13 +100,17 @@ type AWSMarketplaceSubscription struct {
 	// developer_band is the selected developer-count band — the "Up to X
 	// developers" ceiling, not an exact head count. It applies uniformly across
 	// every selected ecosystem.
+	// Once set on a subscription this cannot be changed. This constraint may be
+	// relaxed in the future.
 	DeveloperBand int32 `protobuf:"varint,2,opt,name=developer_band,json=developerBand,proto3" json:"developer_band,omitempty"`
 	// ecosystems are the Libraries ecosystems the subscription covers.
 	Ecosystems []Ecosystem `protobuf:"varint,3,rep,packed,name=ecosystems,proto3,enum=chainguard.platform.libraries.Ecosystem" json:"ecosystems,omitempty"`
 	// is_free_trial indicates the subscription is on an AWS free trial (not
 	// charged while the trial is active).
+	// Updating free trial status is not supported directly through the API.
 	IsFreeTrial bool `protobuf:"varint,4,opt,name=is_free_trial,json=isFreeTrial,proto3" json:"is_free_trial,omitempty"`
 	// status is the subscription lifecycle state.
+	// The value is managed server side and cannot be updated through the API.
 	Status        SubscriptionStatus     `protobuf:"varint,5,opt,name=status,proto3,enum=chainguard.platform.libraries.SubscriptionStatus" json:"status,omitempty"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
@@ -454,23 +459,81 @@ func (x *CancelAWSMarketplaceSubscriptionRequest) GetId() string {
 	return ""
 }
 
+type UpdateAWSMarketplaceSubscriptionRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The subscription to update.
+	Subscription *AWSMarketplaceSubscription `protobuf:"bytes,1,opt,name=subscription,proto3" json:"subscription,omitempty"`
+	// The list of fields to update. If not provided, an implied
+	// field mask is used equivalent to all fields that are populated
+	// (have non-default values). * is supported and interpreted as a full
+	// replacement with the given field values.
+	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateAWSMarketplaceSubscriptionRequest) Reset() {
+	*x = UpdateAWSMarketplaceSubscriptionRequest{}
+	mi := &file_aws_marketplace_subscriptions_libraries_platform_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateAWSMarketplaceSubscriptionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateAWSMarketplaceSubscriptionRequest) ProtoMessage() {}
+
+func (x *UpdateAWSMarketplaceSubscriptionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_aws_marketplace_subscriptions_libraries_platform_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateAWSMarketplaceSubscriptionRequest.ProtoReflect.Descriptor instead.
+func (*UpdateAWSMarketplaceSubscriptionRequest) Descriptor() ([]byte, []int) {
+	return file_aws_marketplace_subscriptions_libraries_platform_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *UpdateAWSMarketplaceSubscriptionRequest) GetSubscription() *AWSMarketplaceSubscription {
+	if x != nil {
+		return x.Subscription
+	}
+	return nil
+}
+
+func (x *UpdateAWSMarketplaceSubscriptionRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+	if x != nil {
+		return x.UpdateMask
+	}
+	return nil
+}
+
 var File_aws_marketplace_subscriptions_libraries_platform_proto protoreflect.FileDescriptor
 
 const file_aws_marketplace_subscriptions_libraries_platform_proto_rawDesc = "" +
 	"\n" +
-	"6aws_marketplace_subscriptions.libraries.platform.proto\x12\x1dchainguard.platform.libraries\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a%entitlements.libraries.platform.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x8a\x03\n" +
-	"\x1aAWSMarketplaceSubscription\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12%\n" +
-	"\x0edeveloper_band\x18\x02 \x01(\x05R\rdeveloperBand\x12H\n" +
+	"6aws_marketplace_subscriptions.libraries.platform.proto\x12\x1dchainguard.platform.libraries\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a%entitlements.libraries.platform.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\xac\x03\n" +
+	"\x1aAWSMarketplaceSubscription\x12\x1a\n" +
+	"\x02id\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x02id\x12+\n" +
+	"\x0edeveloper_band\x18\x02 \x01(\x05B\x04\xe2A\x01\x05R\rdeveloperBand\x12H\n" +
 	"\n" +
 	"ecosystems\x18\x03 \x03(\x0e2(.chainguard.platform.libraries.EcosystemR\n" +
-	"ecosystems\x12\"\n" +
-	"\ris_free_trial\x18\x04 \x01(\bR\visFreeTrial\x12I\n" +
-	"\x06status\x18\x05 \x01(\x0e21.chainguard.platform.libraries.SubscriptionStatusR\x06status\x129\n" +
+	"ecosystems\x12(\n" +
+	"\ris_free_trial\x18\x04 \x01(\bB\x04\xe2A\x01\x05R\visFreeTrial\x12O\n" +
+	"\x06status\x18\x05 \x01(\x0e21.chainguard.platform.libraries.SubscriptionStatusB\x04\xe2A\x01\x05R\x06status\x12?\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\tcreatedAt\x12?\n" +
 	"\n" +
-	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"q\n" +
+	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\tupdatedAt\"q\n" +
 	"\x1eAWSMarketplaceSubscriptionList\x12O\n" +
 	"\x05items\x18\x01 \x03(\v29.chainguard.platform.libraries.AWSMarketplaceSubscriptionR\x05items\"\x80\x02\n" +
 	"'CreateAWSMarketplaceSubscriptionRequest\x12#\n" +
@@ -486,14 +549,18 @@ const file_aws_marketplace_subscriptions_libraries_platform_proto_rawDesc = "" +
 	" AWSMarketplaceSubscriptionFilter\x12:\n" +
 	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterR\x04uidp\"A\n" +
 	"'CancelAWSMarketplaceSubscriptionRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id*\xee\x01\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"\xcb\x01\n" +
+	"'UpdateAWSMarketplaceSubscriptionRequest\x12]\n" +
+	"\fsubscription\x18\x01 \x01(\v29.chainguard.platform.libraries.AWSMarketplaceSubscriptionR\fsubscription\x12A\n" +
+	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x04\xe2A\x01\x01R\n" +
+	"updateMask*\xee\x01\n" +
 	"\x12SubscriptionStatus\x12#\n" +
 	"\x1fSUBSCRIPTION_STATUS_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bSUBSCRIPTION_STATUS_PENDING\x10\x01\x12\x1e\n" +
 	"\x1aSUBSCRIPTION_STATUS_ACTIVE\x10\x02\x12+\n" +
 	"'SUBSCRIPTION_STATUS_UNSUBSCRIBE_PENDING\x10\x03\x12$\n" +
 	" SUBSCRIPTION_STATUS_UNSUBSCRIBED\x10\x04\x12\x1f\n" +
-	"\x1bSUBSCRIPTION_STATUS_EXPIRED\x10\x052\x90\t\n" +
+	"\x1bSUBSCRIPTION_STATUS_EXPIRED\x10\x052\xd8\v\n" +
 	"\x1bAWSMarketplaceSubscriptions\x12\xb4\x02\n" +
 	"\x06Create\x12F.chainguard.platform.libraries.CreateAWSMarketplaceSubscriptionRequest\x1a9.chainguard.platform.libraries.AWSMarketplaceSubscription\"\xa6\x01\x82\xd3\xe4\x93\x02?:\x01*\":/libraries/v1/aws-marketplace-subscriptions/{parent_id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xce\x0e\xc2\xf0\x8e\xfc\vO\n" +
@@ -501,7 +568,10 @@ const file_aws_marketplace_subscriptions_libraries_platform_proto_rawDesc = "" +
 	"\x03Get\x12C.chainguard.platform.libraries.GetAWSMarketplaceSubscriptionRequest\x1a9.chainguard.platform.libraries.AWSMarketplaceSubscription\"G\x82\xd3\xe4\x93\x025\x123/libraries/v1/aws-marketplace-subscriptions/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd0\x0e\x12\xc9\x01\n" +
 	"\x04List\x12?.chainguard.platform.libraries.AWSMarketplaceSubscriptionFilter\x1a=.chainguard.platform.libraries.AWSMarketplaceSubscriptionList\"A\x82\xd3\xe4\x93\x02-\x12+/libraries/v1/aws-marketplace-subscriptions\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x02\xd0\x0e\x10\x01\x12\xb9\x02\n" +
+	"\x02\xd0\x0e\x10\x01\x12\xc5\x02\n" +
+	"\x06Update\x12F.chainguard.platform.libraries.UpdateAWSMarketplaceSubscriptionRequest\x1a9.chainguard.platform.libraries.AWSMarketplaceSubscription\"\xb7\x01\x82\xd3\xe4\x93\x02P:\fsubscription2@/libraries/v1/aws-marketplace-subscriptions/{subscription.id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xcf\x0e\xc2\xf0\x8e\xfc\vO\n" +
+	"Ddev.chainguard.api.libraries.aws_marketplace.subscription.updated.v1\x12\x05group\x18\x01\x12\xb9\x02\n" +
 	"\x06Cancel\x12F.chainguard.platform.libraries.CancelAWSMarketplaceSubscriptionRequest\x1a9.chainguard.platform.libraries.AWSMarketplaceSubscription\"\xab\x01\x82\xd3\xe4\x93\x02?:\x01*\":/libraries/v1/aws-marketplace-subscriptions/{id=**}:cancel\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xcf\x0e\xc2\xf0\x8e\xfc\vT\n" +
 	"Idev.chainguard.api.libraries.aws_marketplace.subscription.unsubscribed.v1\x12\x05group\x18\x01\x1aa\x92A^\n" +
@@ -520,7 +590,7 @@ func file_aws_marketplace_subscriptions_libraries_platform_proto_rawDescGZIP() [
 }
 
 var file_aws_marketplace_subscriptions_libraries_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_aws_marketplace_subscriptions_libraries_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_aws_marketplace_subscriptions_libraries_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_aws_marketplace_subscriptions_libraries_platform_proto_goTypes = []any{
 	(SubscriptionStatus)(0),                         // 0: chainguard.platform.libraries.SubscriptionStatus
 	(*AWSMarketplaceSubscription)(nil),              // 1: chainguard.platform.libraries.AWSMarketplaceSubscription
@@ -529,31 +599,37 @@ var file_aws_marketplace_subscriptions_libraries_platform_proto_goTypes = []any{
 	(*GetAWSMarketplaceSubscriptionRequest)(nil),    // 4: chainguard.platform.libraries.GetAWSMarketplaceSubscriptionRequest
 	(*AWSMarketplaceSubscriptionFilter)(nil),        // 5: chainguard.platform.libraries.AWSMarketplaceSubscriptionFilter
 	(*CancelAWSMarketplaceSubscriptionRequest)(nil), // 6: chainguard.platform.libraries.CancelAWSMarketplaceSubscriptionRequest
-	(Ecosystem)(0),                // 7: chainguard.platform.libraries.Ecosystem
-	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
-	(*v1.UIDPFilter)(nil),         // 9: chainguard.platform.common.UIDPFilter
+	(*UpdateAWSMarketplaceSubscriptionRequest)(nil), // 7: chainguard.platform.libraries.UpdateAWSMarketplaceSubscriptionRequest
+	(Ecosystem)(0),                // 8: chainguard.platform.libraries.Ecosystem
+	(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),         // 10: chainguard.platform.common.UIDPFilter
+	(*fieldmaskpb.FieldMask)(nil), // 11: google.protobuf.FieldMask
 }
 var file_aws_marketplace_subscriptions_libraries_platform_proto_depIdxs = []int32{
-	7,  // 0: chainguard.platform.libraries.AWSMarketplaceSubscription.ecosystems:type_name -> chainguard.platform.libraries.Ecosystem
+	8,  // 0: chainguard.platform.libraries.AWSMarketplaceSubscription.ecosystems:type_name -> chainguard.platform.libraries.Ecosystem
 	0,  // 1: chainguard.platform.libraries.AWSMarketplaceSubscription.status:type_name -> chainguard.platform.libraries.SubscriptionStatus
-	8,  // 2: chainguard.platform.libraries.AWSMarketplaceSubscription.created_at:type_name -> google.protobuf.Timestamp
-	8,  // 3: chainguard.platform.libraries.AWSMarketplaceSubscription.updated_at:type_name -> google.protobuf.Timestamp
+	9,  // 2: chainguard.platform.libraries.AWSMarketplaceSubscription.created_at:type_name -> google.protobuf.Timestamp
+	9,  // 3: chainguard.platform.libraries.AWSMarketplaceSubscription.updated_at:type_name -> google.protobuf.Timestamp
 	1,  // 4: chainguard.platform.libraries.AWSMarketplaceSubscriptionList.items:type_name -> chainguard.platform.libraries.AWSMarketplaceSubscription
-	7,  // 5: chainguard.platform.libraries.CreateAWSMarketplaceSubscriptionRequest.ecosystems:type_name -> chainguard.platform.libraries.Ecosystem
-	9,  // 6: chainguard.platform.libraries.AWSMarketplaceSubscriptionFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	3,  // 7: chainguard.platform.libraries.AWSMarketplaceSubscriptions.Create:input_type -> chainguard.platform.libraries.CreateAWSMarketplaceSubscriptionRequest
-	4,  // 8: chainguard.platform.libraries.AWSMarketplaceSubscriptions.Get:input_type -> chainguard.platform.libraries.GetAWSMarketplaceSubscriptionRequest
-	5,  // 9: chainguard.platform.libraries.AWSMarketplaceSubscriptions.List:input_type -> chainguard.platform.libraries.AWSMarketplaceSubscriptionFilter
-	6,  // 10: chainguard.platform.libraries.AWSMarketplaceSubscriptions.Cancel:input_type -> chainguard.platform.libraries.CancelAWSMarketplaceSubscriptionRequest
-	1,  // 11: chainguard.platform.libraries.AWSMarketplaceSubscriptions.Create:output_type -> chainguard.platform.libraries.AWSMarketplaceSubscription
-	1,  // 12: chainguard.platform.libraries.AWSMarketplaceSubscriptions.Get:output_type -> chainguard.platform.libraries.AWSMarketplaceSubscription
-	2,  // 13: chainguard.platform.libraries.AWSMarketplaceSubscriptions.List:output_type -> chainguard.platform.libraries.AWSMarketplaceSubscriptionList
-	1,  // 14: chainguard.platform.libraries.AWSMarketplaceSubscriptions.Cancel:output_type -> chainguard.platform.libraries.AWSMarketplaceSubscription
-	11, // [11:15] is the sub-list for method output_type
-	7,  // [7:11] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	8,  // 5: chainguard.platform.libraries.CreateAWSMarketplaceSubscriptionRequest.ecosystems:type_name -> chainguard.platform.libraries.Ecosystem
+	10, // 6: chainguard.platform.libraries.AWSMarketplaceSubscriptionFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	1,  // 7: chainguard.platform.libraries.UpdateAWSMarketplaceSubscriptionRequest.subscription:type_name -> chainguard.platform.libraries.AWSMarketplaceSubscription
+	11, // 8: chainguard.platform.libraries.UpdateAWSMarketplaceSubscriptionRequest.update_mask:type_name -> google.protobuf.FieldMask
+	3,  // 9: chainguard.platform.libraries.AWSMarketplaceSubscriptions.Create:input_type -> chainguard.platform.libraries.CreateAWSMarketplaceSubscriptionRequest
+	4,  // 10: chainguard.platform.libraries.AWSMarketplaceSubscriptions.Get:input_type -> chainguard.platform.libraries.GetAWSMarketplaceSubscriptionRequest
+	5,  // 11: chainguard.platform.libraries.AWSMarketplaceSubscriptions.List:input_type -> chainguard.platform.libraries.AWSMarketplaceSubscriptionFilter
+	7,  // 12: chainguard.platform.libraries.AWSMarketplaceSubscriptions.Update:input_type -> chainguard.platform.libraries.UpdateAWSMarketplaceSubscriptionRequest
+	6,  // 13: chainguard.platform.libraries.AWSMarketplaceSubscriptions.Cancel:input_type -> chainguard.platform.libraries.CancelAWSMarketplaceSubscriptionRequest
+	1,  // 14: chainguard.platform.libraries.AWSMarketplaceSubscriptions.Create:output_type -> chainguard.platform.libraries.AWSMarketplaceSubscription
+	1,  // 15: chainguard.platform.libraries.AWSMarketplaceSubscriptions.Get:output_type -> chainguard.platform.libraries.AWSMarketplaceSubscription
+	2,  // 16: chainguard.platform.libraries.AWSMarketplaceSubscriptions.List:output_type -> chainguard.platform.libraries.AWSMarketplaceSubscriptionList
+	1,  // 17: chainguard.platform.libraries.AWSMarketplaceSubscriptions.Update:output_type -> chainguard.platform.libraries.AWSMarketplaceSubscription
+	1,  // 18: chainguard.platform.libraries.AWSMarketplaceSubscriptions.Cancel:output_type -> chainguard.platform.libraries.AWSMarketplaceSubscription
+	14, // [14:19] is the sub-list for method output_type
+	9,  // [9:14] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_aws_marketplace_subscriptions_libraries_platform_proto_init() }
@@ -568,7 +644,7 @@ func file_aws_marketplace_subscriptions_libraries_platform_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_aws_marketplace_subscriptions_libraries_platform_proto_rawDesc), len(file_aws_marketplace_subscriptions_libraries_platform_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
