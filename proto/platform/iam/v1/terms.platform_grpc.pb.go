@@ -11,7 +11,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -30,7 +29,7 @@ const (
 type TermsClient interface {
 	// AcceptTerms records that the group has accepted one or more legal
 	// documents. Called by chainctl after the user completes the acceptance flow.
-	AcceptTerms(ctx context.Context, in *AcceptTermsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AcceptTerms(ctx context.Context, in *AcceptTermsRequest, opts ...grpc.CallOption) (*AcceptTermsResponse, error)
 	// ListAccepted returns the legal documents that the group has accepted.
 	ListAccepted(ctx context.Context, in *TermsFilter, opts ...grpc.CallOption) (*TermsList, error)
 }
@@ -43,9 +42,9 @@ func NewTermsClient(cc grpc.ClientConnInterface) TermsClient {
 	return &termsClient{cc}
 }
 
-func (c *termsClient) AcceptTerms(ctx context.Context, in *AcceptTermsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *termsClient) AcceptTerms(ctx context.Context, in *AcceptTermsRequest, opts ...grpc.CallOption) (*AcceptTermsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
+	out := new(AcceptTermsResponse)
 	err := c.cc.Invoke(ctx, Terms_AcceptTerms_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -69,7 +68,7 @@ func (c *termsClient) ListAccepted(ctx context.Context, in *TermsFilter, opts ..
 type TermsServer interface {
 	// AcceptTerms records that the group has accepted one or more legal
 	// documents. Called by chainctl after the user completes the acceptance flow.
-	AcceptTerms(context.Context, *AcceptTermsRequest) (*emptypb.Empty, error)
+	AcceptTerms(context.Context, *AcceptTermsRequest) (*AcceptTermsResponse, error)
 	// ListAccepted returns the legal documents that the group has accepted.
 	ListAccepted(context.Context, *TermsFilter) (*TermsList, error)
 	mustEmbedUnimplementedTermsServer()
@@ -82,7 +81,7 @@ type TermsServer interface {
 // pointer dereference when methods are called.
 type UnimplementedTermsServer struct{}
 
-func (UnimplementedTermsServer) AcceptTerms(context.Context, *AcceptTermsRequest) (*emptypb.Empty, error) {
+func (UnimplementedTermsServer) AcceptTerms(context.Context, *AcceptTermsRequest) (*AcceptTermsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method AcceptTerms not implemented")
 }
 func (UnimplementedTermsServer) ListAccepted(context.Context, *TermsFilter) (*TermsList, error) {

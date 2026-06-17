@@ -7,6 +7,8 @@ package v1
 
 import (
 	"context"
+
+	"chainguard.dev/sdk/proto/chainguard/platform/iam/terms"
 )
 
 // TermsDocument describes a legal document, including its stable ID and optional
@@ -20,32 +22,16 @@ type TermsDocument struct {
 	URL string
 }
 
-// knownDocuments holds display metadata for well-known legal document IDs.
-var knownDocuments = map[string]TermsDocument{
-	"guardener-tos.v1": {
-		ID:    "guardener-tos.v1",
-		Label: "Terms of Service",
-		URL:   "https://www.chainguard.dev/legal/guardener",
-	},
-	"sfdpa.v1": {
-		ID:    "sfdpa.v1",
-		Label: "Data Privacy Agreement",
-		URL:   "https://www.chainguard.dev/legal/supplemental-dpa",
-	},
-	"skills-tos.v1": {
-		ID:    "skills-tos.v1",
-		Label: "Skills Registry Terms of Service",
-		URL:   "https://www.chainguard.dev/legal/agent-skills-disclosure",
-	},
-}
-
 // DocumentMetadata returns the display metadata for a known document ID,
 // falling back to a TermsDocument with only the ID set for unknown IDs.
+// Delegates to the shared terms package to avoid duplicating the canonical map.
 func DocumentMetadata(id string) TermsDocument {
-	if doc, ok := knownDocuments[id]; ok {
-		return doc
+	doc := terms.DocumentMetadata(id)
+	return TermsDocument{
+		ID:    doc.ID,
+		Label: doc.Label,
+		URL:   doc.URL,
 	}
-	return TermsDocument{ID: id}
 }
 
 // CheckTermsAcceptance verifies that the group identified by groupID has

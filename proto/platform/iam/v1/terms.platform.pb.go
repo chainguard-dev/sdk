@@ -11,7 +11,6 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -79,6 +78,61 @@ func (x *AcceptTermsRequest) GetDocumentIds() []string {
 	return nil
 }
 
+// AcceptTermsResponse is returned after successfully recording acceptance.
+type AcceptTermsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// group UIDP that accepted the documents.
+	Group string `protobuf:"bytes,1,opt,name=group,proto3" json:"group,omitempty"`
+	// document_ids that were accepted.
+	DocumentIds   []string `protobuf:"bytes,2,rep,name=document_ids,json=documentIds,proto3" json:"document_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AcceptTermsResponse) Reset() {
+	*x = AcceptTermsResponse{}
+	mi := &file_terms_platform_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AcceptTermsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AcceptTermsResponse) ProtoMessage() {}
+
+func (x *AcceptTermsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_terms_platform_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AcceptTermsResponse.ProtoReflect.Descriptor instead.
+func (*AcceptTermsResponse) Descriptor() ([]byte, []int) {
+	return file_terms_platform_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *AcceptTermsResponse) GetGroup() string {
+	if x != nil {
+		return x.Group
+	}
+	return ""
+}
+
+func (x *AcceptTermsResponse) GetDocumentIds() []string {
+	if x != nil {
+		return x.DocumentIds
+	}
+	return nil
+}
+
 type TermsFilter struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// group is the UIDP of the org to list documents for.
@@ -89,7 +143,7 @@ type TermsFilter struct {
 
 func (x *TermsFilter) Reset() {
 	*x = TermsFilter{}
-	mi := &file_terms_platform_proto_msgTypes[1]
+	mi := &file_terms_platform_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -101,7 +155,7 @@ func (x *TermsFilter) String() string {
 func (*TermsFilter) ProtoMessage() {}
 
 func (x *TermsFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_terms_platform_proto_msgTypes[1]
+	mi := &file_terms_platform_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -114,7 +168,7 @@ func (x *TermsFilter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TermsFilter.ProtoReflect.Descriptor instead.
 func (*TermsFilter) Descriptor() ([]byte, []int) {
-	return file_terms_platform_proto_rawDescGZIP(), []int{1}
+	return file_terms_platform_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *TermsFilter) GetGroup() string {
@@ -139,7 +193,7 @@ type TermsDocumentStatus struct {
 
 func (x *TermsDocumentStatus) Reset() {
 	*x = TermsDocumentStatus{}
-	mi := &file_terms_platform_proto_msgTypes[2]
+	mi := &file_terms_platform_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -151,7 +205,7 @@ func (x *TermsDocumentStatus) String() string {
 func (*TermsDocumentStatus) ProtoMessage() {}
 
 func (x *TermsDocumentStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_terms_platform_proto_msgTypes[2]
+	mi := &file_terms_platform_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -164,7 +218,7 @@ func (x *TermsDocumentStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TermsDocumentStatus.ProtoReflect.Descriptor instead.
 func (*TermsDocumentStatus) Descriptor() ([]byte, []int) {
-	return file_terms_platform_proto_rawDescGZIP(), []int{2}
+	return file_terms_platform_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *TermsDocumentStatus) GetDocId() string {
@@ -197,7 +251,7 @@ type TermsList struct {
 
 func (x *TermsList) Reset() {
 	*x = TermsList{}
-	mi := &file_terms_platform_proto_msgTypes[3]
+	mi := &file_terms_platform_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -209,7 +263,7 @@ func (x *TermsList) String() string {
 func (*TermsList) ProtoMessage() {}
 
 func (x *TermsList) ProtoReflect() protoreflect.Message {
-	mi := &file_terms_platform_proto_msgTypes[3]
+	mi := &file_terms_platform_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -222,7 +276,7 @@ func (x *TermsList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TermsList.ProtoReflect.Descriptor instead.
 func (*TermsList) Descriptor() ([]byte, []int) {
-	return file_terms_platform_proto_rawDescGZIP(), []int{3}
+	return file_terms_platform_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *TermsList) GetItems() []*TermsDocumentStatus {
@@ -244,7 +298,7 @@ type MissingDocument struct {
 
 func (x *MissingDocument) Reset() {
 	*x = MissingDocument{}
-	mi := &file_terms_platform_proto_msgTypes[4]
+	mi := &file_terms_platform_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -256,7 +310,7 @@ func (x *MissingDocument) String() string {
 func (*MissingDocument) ProtoMessage() {}
 
 func (x *MissingDocument) ProtoReflect() protoreflect.Message {
-	mi := &file_terms_platform_proto_msgTypes[4]
+	mi := &file_terms_platform_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -269,7 +323,7 @@ func (x *MissingDocument) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MissingDocument.ProtoReflect.Descriptor instead.
 func (*MissingDocument) Descriptor() ([]byte, []int) {
-	return file_terms_platform_proto_rawDescGZIP(), []int{4}
+	return file_terms_platform_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *MissingDocument) GetId() string {
@@ -304,7 +358,7 @@ type TermsNotAcceptedDetail struct {
 
 func (x *TermsNotAcceptedDetail) Reset() {
 	*x = TermsNotAcceptedDetail{}
-	mi := &file_terms_platform_proto_msgTypes[5]
+	mi := &file_terms_platform_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -316,7 +370,7 @@ func (x *TermsNotAcceptedDetail) String() string {
 func (*TermsNotAcceptedDetail) ProtoMessage() {}
 
 func (x *TermsNotAcceptedDetail) ProtoReflect() protoreflect.Message {
-	mi := &file_terms_platform_proto_msgTypes[5]
+	mi := &file_terms_platform_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -329,7 +383,7 @@ func (x *TermsNotAcceptedDetail) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TermsNotAcceptedDetail.ProtoReflect.Descriptor instead.
 func (*TermsNotAcceptedDetail) Descriptor() ([]byte, []int) {
-	return file_terms_platform_proto_rawDescGZIP(), []int{5}
+	return file_terms_platform_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *TermsNotAcceptedDetail) GetMissing() []*MissingDocument {
@@ -343,10 +397,13 @@ var File_terms_platform_proto protoreflect.FileDescriptor
 
 const file_terms_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x14terms.platform.proto\x12\x17chainguard.platform.iam\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16annotations/auth.proto\"U\n" +
+	"\x14terms.platform.proto\x12\x17chainguard.platform.iam\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\"U\n" +
 	"\x12AcceptTermsRequest\x12\x1c\n" +
 	"\x05group\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x05group\x12!\n" +
-	"\fdocument_ids\x18\x02 \x03(\tR\vdocumentIds\"+\n" +
+	"\fdocument_ids\x18\x02 \x03(\tR\vdocumentIds\"Z\n" +
+	"\x13AcceptTermsResponse\x12\x1a\n" +
+	"\x05group\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x05group\x12'\n" +
+	"\fdocument_ids\x18\x02 \x03(\tB\x04\xe2A\x01\x03R\vdocumentIds\"+\n" +
 	"\vTermsFilter\x12\x1c\n" +
 	"\x05group\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x05group\"\x8a\x01\n" +
 	"\x13TermsDocumentStatus\x12\x15\n" +
@@ -362,10 +419,11 @@ const file_terms_platform_proto_rawDesc = "" +
 	"\x05label\x18\x02 \x01(\tR\x05label\x12\x10\n" +
 	"\x03url\x18\x03 \x01(\tR\x03url\"\\\n" +
 	"\x16TermsNotAcceptedDetail\x12B\n" +
-	"\amissing\x18\x01 \x03(\v2(.chainguard.platform.iam.MissingDocumentR\amissing2\x96\x02\n" +
-	"\x05Terms\x12\x83\x01\n" +
-	"\vAcceptTerms\x12+.chainguard.platform.iam.AcceptTermsRequest\x1a\x16.google.protobuf.Empty\"/\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/iam/v1/terms/{group=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\x99\x11\x12\x86\x01\n" +
+	"\amissing\x18\x01 \x03(\v2(.chainguard.platform.iam.MissingDocumentR\amissing2\xe5\x02\n" +
+	"\x05Terms\x12\xd2\x01\n" +
+	"\vAcceptTerms\x12+.chainguard.platform.iam.AcceptTermsRequest\x1a,.chainguard.platform.iam.AcceptTermsResponse\"h\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/iam/v1/terms/{group=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\x99\x11\xc2\xf0\x8e\xfc\v3\n" +
+	"(dev.chainguard.api.iam.terms.accepted.v1\x12\x05group\x18\x01\x12\x86\x01\n" +
 	"\fListAccepted\x12$.chainguard.platform.iam.TermsFilter\x1a\".chainguard.platform.iam.TermsList\",\x82\xd3\xe4\x93\x02\x1a\x12\x18/iam/v1/terms/{group=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x9a\x11B*Z(chainguard.dev/sdk/proto/platform/iam/v1b\x06proto3"
 
@@ -381,25 +439,25 @@ func file_terms_platform_proto_rawDescGZIP() []byte {
 	return file_terms_platform_proto_rawDescData
 }
 
-var file_terms_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_terms_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_terms_platform_proto_goTypes = []any{
 	(*AcceptTermsRequest)(nil),     // 0: chainguard.platform.iam.AcceptTermsRequest
-	(*TermsFilter)(nil),            // 1: chainguard.platform.iam.TermsFilter
-	(*TermsDocumentStatus)(nil),    // 2: chainguard.platform.iam.TermsDocumentStatus
-	(*TermsList)(nil),              // 3: chainguard.platform.iam.TermsList
-	(*MissingDocument)(nil),        // 4: chainguard.platform.iam.MissingDocument
-	(*TermsNotAcceptedDetail)(nil), // 5: chainguard.platform.iam.TermsNotAcceptedDetail
-	(*timestamppb.Timestamp)(nil),  // 6: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),          // 7: google.protobuf.Empty
+	(*AcceptTermsResponse)(nil),    // 1: chainguard.platform.iam.AcceptTermsResponse
+	(*TermsFilter)(nil),            // 2: chainguard.platform.iam.TermsFilter
+	(*TermsDocumentStatus)(nil),    // 3: chainguard.platform.iam.TermsDocumentStatus
+	(*TermsList)(nil),              // 4: chainguard.platform.iam.TermsList
+	(*MissingDocument)(nil),        // 5: chainguard.platform.iam.MissingDocument
+	(*TermsNotAcceptedDetail)(nil), // 6: chainguard.platform.iam.TermsNotAcceptedDetail
+	(*timestamppb.Timestamp)(nil),  // 7: google.protobuf.Timestamp
 }
 var file_terms_platform_proto_depIdxs = []int32{
-	6, // 0: chainguard.platform.iam.TermsDocumentStatus.accepted_at:type_name -> google.protobuf.Timestamp
-	2, // 1: chainguard.platform.iam.TermsList.items:type_name -> chainguard.platform.iam.TermsDocumentStatus
-	4, // 2: chainguard.platform.iam.TermsNotAcceptedDetail.missing:type_name -> chainguard.platform.iam.MissingDocument
+	7, // 0: chainguard.platform.iam.TermsDocumentStatus.accepted_at:type_name -> google.protobuf.Timestamp
+	3, // 1: chainguard.platform.iam.TermsList.items:type_name -> chainguard.platform.iam.TermsDocumentStatus
+	5, // 2: chainguard.platform.iam.TermsNotAcceptedDetail.missing:type_name -> chainguard.platform.iam.MissingDocument
 	0, // 3: chainguard.platform.iam.Terms.AcceptTerms:input_type -> chainguard.platform.iam.AcceptTermsRequest
-	1, // 4: chainguard.platform.iam.Terms.ListAccepted:input_type -> chainguard.platform.iam.TermsFilter
-	7, // 5: chainguard.platform.iam.Terms.AcceptTerms:output_type -> google.protobuf.Empty
-	3, // 6: chainguard.platform.iam.Terms.ListAccepted:output_type -> chainguard.platform.iam.TermsList
+	2, // 4: chainguard.platform.iam.Terms.ListAccepted:input_type -> chainguard.platform.iam.TermsFilter
+	1, // 5: chainguard.platform.iam.Terms.AcceptTerms:output_type -> chainguard.platform.iam.AcceptTermsResponse
+	4, // 6: chainguard.platform.iam.Terms.ListAccepted:output_type -> chainguard.platform.iam.TermsList
 	5, // [5:7] is the sub-list for method output_type
 	3, // [3:5] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
@@ -418,7 +476,7 @@ func file_terms_platform_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_terms_platform_proto_rawDesc), len(file_terms_platform_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

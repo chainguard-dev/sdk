@@ -11,7 +11,6 @@ import (
 
 	iam "chainguard.dev/sdk/proto/platform/iam/v1"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 var _ iam.TermsClient = (*MockTermsClient)(nil)
@@ -23,6 +22,7 @@ type MockTermsClient struct {
 
 type TermsOnAcceptTerms struct {
 	Given *iam.AcceptTermsRequest
+	Resp  *iam.AcceptTermsResponse
 	Error error
 }
 
@@ -32,13 +32,13 @@ type TermsOnListAccepted struct {
 	Error error
 }
 
-func (m *MockTermsClient) AcceptTerms(_ context.Context, given *iam.AcceptTermsRequest, _ ...grpc.CallOption) (*emptypb.Empty, error) {
+func (m *MockTermsClient) AcceptTerms(_ context.Context, given *iam.AcceptTermsRequest, _ ...grpc.CallOption) (*iam.AcceptTermsResponse, error) {
 	if len(m.OnAcceptTerms) == 0 {
 		return nil, fmt.Errorf("unexpected call to AcceptTerms with %v", given)
 	}
 	next := m.OnAcceptTerms[0]
 	m.OnAcceptTerms = m.OnAcceptTerms[1:]
-	return &emptypb.Empty{}, next.Error
+	return next.Resp, next.Error
 }
 
 func (m *MockTermsClient) ListAccepted(_ context.Context, given *iam.TermsFilter, _ ...grpc.CallOption) (*iam.TermsList, error) {

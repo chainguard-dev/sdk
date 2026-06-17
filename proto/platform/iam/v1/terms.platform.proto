@@ -5,14 +5,15 @@ option go_package = "chainguard.dev/sdk/proto/platform/iam/v1";
 package chainguard.platform.iam;
 
 import "google/api/annotations.proto";
-import "google/protobuf/empty.proto";
+import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "annotations/auth.proto";
+import "annotations/events.proto";
 
 service Terms {
   // AcceptTerms records that the group has accepted one or more legal
   // documents. Called by chainctl after the user completes the acceptance flow.
-  rpc AcceptTerms(AcceptTermsRequest) returns (google.protobuf.Empty) {
+  rpc AcceptTerms(AcceptTermsRequest) returns (AcceptTermsResponse) {
     option (google.api.http) = {
       post: "/iam/v1/terms/{group=**}"
       body: "*"
@@ -21,6 +22,11 @@ service Terms {
       enabled: {
         capabilities: [CAP_TERMS_ACCEPT]
       }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.terms.accepted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
     };
   }
 
@@ -42,6 +48,14 @@ message AcceptTermsRequest {
   string group = 1 [(chainguard.annotations.iam_scope) = true];
   // document_ids are the IDs of the documents being accepted.
   repeated string document_ids = 2;
+}
+
+// AcceptTermsResponse is returned after successfully recording acceptance.
+message AcceptTermsResponse {
+  // group UIDP that accepted the documents.
+  string group = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // document_ids that were accepted.
+  repeated string document_ids = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message TermsFilter {
