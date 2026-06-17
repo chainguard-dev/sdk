@@ -36,6 +36,9 @@ message AddChartRequest {
   string source_repo_id = 2;
   // If true, return what would change but don't create anything.
   bool dry_run = 3;
+  // The tag of the source chart to inspect for image dependencies. Defaults to
+  // the newest tag in the source repo when empty.
+  string tag = 4;
 }
 
 // AddChartResponse contains the result of an AddChart operation.

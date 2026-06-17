@@ -30,7 +30,10 @@ type AddChartRequest struct {
 	// The UIDP of the source chart repo (e.g., from the catalog).
 	SourceRepoId string `protobuf:"bytes,2,opt,name=source_repo_id,json=sourceRepoId,proto3" json:"source_repo_id,omitempty"`
 	// If true, return what would change but don't create anything.
-	DryRun        bool `protobuf:"varint,3,opt,name=dry_run,json=dryRun,proto3" json:"dry_run,omitempty"`
+	DryRun bool `protobuf:"varint,3,opt,name=dry_run,json=dryRun,proto3" json:"dry_run,omitempty"`
+	// The tag of the source chart to inspect for image dependencies. Defaults to
+	// the newest tag in the source repo when empty.
+	Tag           string `protobuf:"bytes,4,opt,name=tag,proto3" json:"tag,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -84,6 +87,13 @@ func (x *AddChartRequest) GetDryRun() bool {
 		return x.DryRun
 	}
 	return false
+}
+
+func (x *AddChartRequest) GetTag() string {
+	if x != nil {
+		return x.Tag
+	}
+	return ""
 }
 
 // AddChartResponse contains the result of an AddChart operation.
@@ -205,11 +215,12 @@ var File_charts_platform_proto protoreflect.FileDescriptor
 
 const file_charts_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x15charts.platform.proto\x12\x1cchainguard.platform.registry\x1a\x1cgoogle/api/annotations.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\"u\n" +
+	"\x15charts.platform.proto\x12\x1cchainguard.platform.registry\x1a\x1cgoogle/api/annotations.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\"\x87\x01\n" +
 	"\x0fAddChartRequest\x12#\n" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12$\n" +
 	"\x0esource_repo_id\x18\x02 \x01(\tR\fsourceRepoId\x12\x17\n" +
-	"\adry_run\x18\x03 \x01(\bR\x06dryRun\"V\n" +
+	"\adry_run\x18\x03 \x01(\bR\x06dryRun\x12\x10\n" +
+	"\x03tag\x18\x04 \x01(\tR\x03tag\"V\n" +
 	"\x10AddChartResponse\x12B\n" +
 	"\x05repos\x18\x01 \x03(\v2,.chainguard.platform.registry.AddChartResultR\x05repos\"N\n" +
 	"\x0eAddChartResult\x12\x12\n" +
