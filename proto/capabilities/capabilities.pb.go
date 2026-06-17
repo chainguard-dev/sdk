@@ -167,9 +167,8 @@ const (
 	Capability_CAP_LIBRARIES_REBUILDER_MALWARE_STATUS_READ       Capability = 1858
 	// AWS Marketplace Subscriptions (Chainguard Libraries on AWS Security Hub Extended)
 	Capability_CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE Capability = 1870
-	Capability_CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_GET    Capability = 1871
+	Capability_CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE Capability = 1871
 	Capability_CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST   Capability = 1872
-	Capability_CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CANCEL Capability = 1873
 	// Registry Entitlements
 	Capability_CAP_REGISTRY_ENTITLEMENTS_LIST       Capability = 1680
 	Capability_CAP_REGISTRY_ENTITLEMENTS_CREATE     Capability = 1681
@@ -365,9 +364,8 @@ var (
 		1857:  "CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_REFRESH",
 		1858:  "CAP_LIBRARIES_REBUILDER_MALWARE_STATUS_READ",
 		1870:  "CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE",
-		1871:  "CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_GET",
+		1871:  "CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE",
 		1872:  "CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST",
-		1873:  "CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CANCEL",
 		1680:  "CAP_REGISTRY_ENTITLEMENTS_LIST",
 		1681:  "CAP_REGISTRY_ENTITLEMENTS_CREATE",
 		1682:  "CAP_REGISTRY_ENTITLEMENTS_DELETE",
@@ -531,9 +529,8 @@ var (
 		"CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_REFRESH":       1857,
 		"CAP_LIBRARIES_REBUILDER_MALWARE_STATUS_READ":        1858,
 		"CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE": 1870,
-		"CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_GET":    1871,
+		"CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE": 1871,
 		"CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST":   1872,
-		"CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CANCEL": 1873,
 		"CAP_REGISTRY_ENTITLEMENTS_LIST":                     1680,
 		"CAP_REGISTRY_ENTITLEMENTS_CREATE":                   1681,
 		"CAP_REGISTRY_ENTITLEMENTS_DELETE":                   1682,
@@ -675,7 +672,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xb2V\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xcbU\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -795,10 +792,9 @@ const file_capabilities_proto_rawDesc = "" +
 	")CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_READ\x10\xc0\x0e\x1a1\xa8ˑM\x8d\x01\x9a\xaf\xa8\xd2\x05%libraries.rebuilder.new_versions.read\x12g\n" +
 	",CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_REFRESH\x10\xc1\x0e\x1a4\xa8ˑM\x8e\x01\x9a\xaf\xa8\xd2\x05(libraries.rebuilder.new_versions.refresh\x12e\n" +
 	"+CAP_LIBRARIES_REBUILDER_MALWARE_STATUS_READ\x10\xc2\x0e\x1a3\xa8ˑM\x9d\x01\x9a\xaf\xa8\xd2\x05'libraries.rebuilder.malware.status.read\x12s\n" +
-	"2CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE\x10\xce\x0e\x1a:\xa8ˑM\xa5\x01\x9a\xaf\xa8\xd2\x05.libraries.aws_marketplace.subscriptions.create\x12m\n" +
-	"/CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_GET\x10\xcf\x0e\x1a7\xa8ˑM\xa6\x01\x9a\xaf\xa8\xd2\x05+libraries.aws_marketplace.subscriptions.get\x12o\n" +
-	"0CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST\x10\xd0\x0e\x1a8\xa8ˑM\xa7\x01\x9a\xaf\xa8\xd2\x05,libraries.aws_marketplace.subscriptions.list\x12s\n" +
-	"2CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CANCEL\x10\xd1\x0e\x1a:\xa8ˑM\xa8\x01\x9a\xaf\xa8\xd2\x05.libraries.aws_marketplace.subscriptions.cancel\x12J\n" +
+	"2CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE\x10\xce\x0e\x1a:\xa8ˑM\xa5\x01\x9a\xaf\xa8\xd2\x05.libraries.aws_marketplace.subscriptions.create\x12s\n" +
+	"2CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE\x10\xcf\x0e\x1a:\xa8ˑM\xa6\x01\x9a\xaf\xa8\xd2\x05.libraries.aws_marketplace.subscriptions.update\x12o\n" +
+	"0CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST\x10\xd0\x0e\x1a8\xa8ˑM\xa7\x01\x9a\xaf\xa8\xd2\x05,libraries.aws_marketplace.subscriptions.list\x12J\n" +
 	"\x1eCAP_REGISTRY_ENTITLEMENTS_LIST\x10\x90\r\x1a%\xa8ˑMW\x9a\xaf\xa8\xd2\x05\x1aregistry.entitlements.list\x12N\n" +
 	" CAP_REGISTRY_ENTITLEMENTS_CREATE\x10\x91\r\x1a'\xa8ˑM`\x9a\xaf\xa8\xd2\x05\x1cregistry.entitlements.create\x12N\n" +
 	" CAP_REGISTRY_ENTITLEMENTS_DELETE\x10\x92\r\x1a'\xa8ˑMa\x9a\xaf\xa8\xd2\x05\x1cregistry.entitlements.delete\x12W\n" +
@@ -858,7 +854,7 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x19CAP_BUILDAPI_BUILD_CANCEL\x10\x90\x15\x1a'\xa8ˑM\xa3\x01\x9a\xaf\xa8\xd2\x05\x15buildapi.build.cancel\xa0\xaf\xa8\xd2\x05\x01\x12;\n" +
 	"\x13CAP_CASSIE_CAS_READ\x10\xf1\x15\x1a!\xa8ˑM\xa0\x01\x9a\xaf\xa8\xd2\x05\x0fcassie.cas.read\xa0\xaf\xa8\xd2\x05\x01\x12=\n" +
 	"\x14CAP_CASSIE_CAS_WRITE\x10\xf2\x15\x1a\"\xa8ˑM\xa1\x01\x9a\xaf\xa8\xd2\x05\x10cassie.cas.write\xa0\xaf\xa8\xd2\x05\x01\x12/\n" +
-	"\x10CAP_ACTIONS_LIST\x10\x8c\x15\x1a\x18\xa8ˑM\xa4\x01\x9a\xaf\xa8\xd2\x05\factions.list\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x04\b\x01\x10\x01:8\n" +
+	"\x10CAP_ACTIONS_LIST\x10\x8c\x15\x1a\x18\xa8ˑM\xa4\x01\x9a\xaf\xa8\xd2\x05\factions.list\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x06\b\xd1\x0e\x10\xd1\x0e\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +
 	"\x03bit\x12!.google.protobuf.EnumValueOptions\x18\xb5\x99\xd2\t \x01(\rR\x03bit:I\n" +
 	"\rinternal_only\x12!.google.protobuf.EnumValueOptions\x18\xf4\x85\xa5Z \x01(\bR\finternalOnlyB'Z%chainguard.dev/sdk/proto/capabilitiesb\x06proto3"

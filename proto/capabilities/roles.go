@@ -149,6 +149,10 @@ var (
 		Capability_CAP_TERMS_ACCEPT,
 		Capability_CAP_TERMS_LIST,
 
+		Capability_CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE,
+		Capability_CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE,
+		Capability_CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST,
+
 		Capability_CAP_MCP_TOOL_CALL,
 	}, EditorCaps,
 		// Owners can also push and delete OCI, APK Java, JavaScript, and Python artifacts, subject to the identity allowlist.

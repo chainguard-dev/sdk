@@ -47,7 +47,7 @@ service AWSMarketplaceSubscriptions {
     option (google.api.http) = {get: "/libraries/v1/aws-marketplace-subscriptions/{id=**}"};
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_GET]
+        capabilities: [CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST]
       }
     };
   }
@@ -75,7 +75,7 @@ service AWSMarketplaceSubscriptions {
     };
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CANCEL]
+        capabilities: [CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE]
       }
     };
     option (chainguard.annotations.events) = {

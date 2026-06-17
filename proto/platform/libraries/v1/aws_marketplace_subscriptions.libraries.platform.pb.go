@@ -499,11 +499,11 @@ const file_aws_marketplace_subscriptions_libraries_platform_proto_rawDesc = "" +
 	"\x02\xce\x0e\xc2\xf0\x8e\xfc\vO\n" +
 	"Ddev.chainguard.api.libraries.aws_marketplace.subscription.created.v1\x12\x05group\x18\x01\x12\xce\x01\n" +
 	"\x03Get\x12C.chainguard.platform.libraries.GetAWSMarketplaceSubscriptionRequest\x1a9.chainguard.platform.libraries.AWSMarketplaceSubscription\"G\x82\xd3\xe4\x93\x025\x123/libraries/v1/aws-marketplace-subscriptions/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xcf\x0e\x12\xc9\x01\n" +
+	"\x02\xd0\x0e\x12\xc9\x01\n" +
 	"\x04List\x12?.chainguard.platform.libraries.AWSMarketplaceSubscriptionFilter\x1a=.chainguard.platform.libraries.AWSMarketplaceSubscriptionList\"A\x82\xd3\xe4\x93\x02-\x12+/libraries/v1/aws-marketplace-subscriptions\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\xd0\x0e\x10\x01\x12\xb9\x02\n" +
 	"\x06Cancel\x12F.chainguard.platform.libraries.CancelAWSMarketplaceSubscriptionRequest\x1a9.chainguard.platform.libraries.AWSMarketplaceSubscription\"\xab\x01\x82\xd3\xe4\x93\x02?:\x01*\":/libraries/v1/aws-marketplace-subscriptions/{id=**}:cancel\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xd1\x0e\xc2\xf0\x8e\xfc\vT\n" +
+	"\x02\xcf\x0e\xc2\xf0\x8e\xfc\vT\n" +
 	"Idev.chainguard.api.libraries.aws_marketplace.subscription.unsubscribed.v1\x12\x05group\x18\x01\x1aa\x92A^\n" +
 	"\x1bAWSMarketplaceSubscriptions\x12?Chainguard Libraries on AWS Security Hub Extended subscriptionsB0Z.chainguard.dev/sdk/proto/platform/libraries/v1b\x06proto3"
 
