@@ -48,6 +48,11 @@ const (
 	// protoregistry.GlobalTypes, without having to sniff the JSON shape.
 	BodyTypeKey = "bodytype"
 
+	// IdentityProviderKey is the CloudEvents extension name to store the
+	// IdentityProvider (its UIDP) an event is scoped to, for per-IdP audit
+	// attribution. Keyed by the bare resource noun like GroupKey/ClusterKey.
+	IdentityProviderKey = "identityprovider"
+
 	// AudienceKey labels an event for its intended audience ["internal", "customer"].
 	AudienceKey = "audience"
 	// AudienceInternal are events intended for the internal platform.

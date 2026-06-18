@@ -12,6 +12,10 @@ func (x *ExternalGroupRoleMapping) CloudEventsExtension(key string) (string, boo
 	switch key {
 	case "group":
 		return uidp.Root(x.GetId()), true
+	case "identityprovider":
+		// Use the authoritative field; the create path enforces it equals the
+		// mapping's parent IdP.
+		return x.GetIdentityProviderUidp(), true
 	default:
 		return "", false
 	}
@@ -27,6 +31,9 @@ func (x *DeleteExternalGroupRoleMappingRequest) CloudEventsExtension(key string)
 	switch key {
 	case "group":
 		return uidp.Root(x.GetId()), true
+	case "identityprovider":
+		// The mapping UIDP is {org}/{idp}/{mapping}; its parent is the IdP UIDP.
+		return uidp.Parent(x.GetId()), true
 	default:
 		return "", false
 	}

@@ -31,7 +31,7 @@ service ExternalGroupRoleMappings {
     };
     option (chainguard.annotations.events) = {
       type: "dev.chainguard.api.iam.external_group_role_mappings.created.v1"
-      extensions: ["group"]
+      extensions: ["group", "identityprovider"]
       audience: CUSTOMER
     };
   }
@@ -70,7 +70,7 @@ service ExternalGroupRoleMappings {
     };
     option (chainguard.annotations.events) = {
       type: "dev.chainguard.api.iam.external_group_role_mappings.deleted.v1"
-      extensions: ["group"]
+      extensions: ["group", "identityprovider"]
       audience: CUSTOMER
     };
   }

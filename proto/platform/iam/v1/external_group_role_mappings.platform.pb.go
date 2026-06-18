@@ -381,22 +381,22 @@ const file_external_group_role_mappings_platform_proto_rawDesc = "" +
 	"\"GetExternalGroupRoleMappingRequest\x12\x18\n" +
 	"\x03uid\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x03uid\"?\n" +
 	"%DeleteExternalGroupRoleMappingRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id2\x96\a\n" +
-	"\x19ExternalGroupRoleMappings\x12\x9c\x02\n" +
-	"\x06Create\x12>.chainguard.platform.iam.CreateExternalGroupRoleMappingRequest\x1a1.chainguard.platform.iam.ExternalGroupRoleMapping\"\x9e\x01\x82\xd3\xe4\x93\x02;:\amapping\"0/iam/v1/externalGroupRoleMappings/{parent_id=**}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id2\xba\a\n" +
+	"\x19ExternalGroupRoleMappings\x12\xae\x02\n" +
+	"\x06Create\x12>.chainguard.platform.iam.CreateExternalGroupRoleMappingRequest\x1a1.chainguard.platform.iam.ExternalGroupRoleMapping\"\xb0\x01\x82\xd3\xe4\x93\x02;:\amapping\"0/iam/v1/externalGroupRoleMappings/{parent_id=**}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x04\x95\n" +
-	"\x91\x03\xc2\xf0\x8e\xfc\vI\n" +
-	">dev.chainguard.api.iam.external_group_role_mappings.created.v1\x12\x05group\x18\x01\x12\xb5\x01\n" +
+	"\x91\x03\xc2\xf0\x8e\xfc\v[\n" +
+	">dev.chainguard.api.iam.external_group_role_mappings.created.v1\x12\x05group\x12\x10identityprovider\x18\x01\x12\xb5\x01\n" +
 	"\x03Get\x12;.chainguard.platform.iam.GetExternalGroupRoleMappingRequest\x1a1.chainguard.platform.iam.ExternalGroupRoleMapping\">\x82\xd3\xe4\x93\x02,\x12*/iam/v1/externalGroupRoleMappings/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x97\n" +
 	"\x12\xaf\x01\n" +
 	"\x04List\x127.chainguard.platform.iam.ExternalGroupRoleMappingFilter\x1a5.chainguard.platform.iam.ExternalGroupRoleMappingList\"7\x82\xd3\xe4\x93\x02#\x12!/iam/v1/externalGroupRoleMappings\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\x97\n" +
-	"\x10\x01\x12\xef\x01\n" +
-	"\x06Delete\x12>.chainguard.platform.iam.DeleteExternalGroupRoleMappingRequest\x1a\x16.google.protobuf.Empty\"\x8c\x01\x82\xd3\xe4\x93\x02+*)/iam/v1/externalGroupRoleMappings/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x10\x01\x12\x81\x02\n" +
+	"\x06Delete\x12>.chainguard.platform.iam.DeleteExternalGroupRoleMappingRequest\x1a\x16.google.protobuf.Empty\"\x9e\x01\x82\xd3\xe4\x93\x02+*)/iam/v1/externalGroupRoleMappings/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x98\n" +
-	"\xc2\xf0\x8e\xfc\vI\n" +
-	">dev.chainguard.api.iam.external_group_role_mappings.deleted.v1\x12\x05group\x18\x01B*Z(chainguard.dev/sdk/proto/platform/iam/v1b\x06proto3"
+	"\xc2\xf0\x8e\xfc\v[\n" +
+	">dev.chainguard.api.iam.external_group_role_mappings.deleted.v1\x12\x05group\x12\x10identityprovider\x18\x01B*Z(chainguard.dev/sdk/proto/platform/iam/v1b\x06proto3"
 
 var (
 	file_external_group_role_mappings_platform_proto_rawDescOnce sync.Once
