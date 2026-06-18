@@ -22,6 +22,11 @@ service Policies {
     option (chainguard.annotations.iam) = {
       enabled: { capabilities: [CAP_POLICIES_POLICY_CREATE] }
     };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.policies.policies.created.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
   }
 
   rpc UpdatePolicy(Policy) returns (Policy) {
@@ -31,6 +36,11 @@ service Policies {
     };
     option (chainguard.annotations.iam) = {
       enabled: { capabilities: [CAP_POLICIES_POLICY_UPDATE] }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.policies.policies.updated.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
     };
   }
 
@@ -52,6 +62,11 @@ service Policies {
     };
     option (chainguard.annotations.iam) = {
       enabled: { capabilities: [CAP_POLICIES_POLICY_DELETE] }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.policies.policies.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
     };
   }
 }

@@ -38,3 +38,35 @@ func (x *DeleteBindingRequest) CloudEventsExtension(key string) (string, bool) {
 func (x *DeleteBindingRequest) CloudEventsSubject() string {
 	return x.GetId()
 }
+
+// CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension.
+// "group" returns the policy's parent UIDP so audit consumers can filter
+// events by IAM scope.
+func (x *Policy) CloudEventsExtension(key string) (string, bool) {
+	switch key {
+	case "group":
+		return uidp.Parent(x.GetId()), true
+	default:
+		return "", false
+	}
+}
+
+// CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
+func (x *Policy) CloudEventsSubject() string {
+	return x.GetId()
+}
+
+// CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension.
+func (x *DeletePolicyRequest) CloudEventsExtension(key string) (string, bool) {
+	switch key {
+	case "group":
+		return uidp.Parent(x.GetId()), true
+	default:
+		return "", false
+	}
+}
+
+// CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
+func (x *DeletePolicyRequest) CloudEventsSubject() string {
+	return x.GetId()
+}

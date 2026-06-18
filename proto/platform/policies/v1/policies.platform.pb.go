@@ -1177,16 +1177,19 @@ const file_policies_platform_proto_rawDesc = "" +
 	"\x15PARAMETER_TYPE_STRING\x10\x01\x12\x1a\n" +
 	"\x16PARAMETER_TYPE_INTEGER\x10\x02\x12\x1e\n" +
 	"\x1aPARAMETER_TYPE_STRING_LIST\x10\x03\x12\x1a\n" +
-	"\x16PARAMETER_TYPE_BOOLEAN\x10\x042\x81\x05\n" +
-	"\bPolicies\x12\xaf\x01\n" +
-	"\fCreatePolicy\x124.chainguard.platform.policies.v1.CreatePolicyRequest\x1a'.chainguard.platform.policies.v1.Policy\"@\x82\xd3\xe4\x93\x02.:\x06policy\"$/policies/v1/policies/{parent_id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xd1\x0f\x12\x96\x01\n" +
-	"\fUpdatePolicy\x12'.chainguard.platform.policies.v1.Policy\x1a'.chainguard.platform.policies.v1.Policy\"4\x82\xd3\xe4\x93\x02\":\x01*\x1a\x1d/policies/v1/policies/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xd2\x0f\x12\x97\x01\n" +
+	"\x16PARAMETER_TYPE_BOOLEAN\x10\x042\xc2\x06\n" +
+	"\bPolicies\x12\xf0\x01\n" +
+	"\fCreatePolicy\x124.chainguard.platform.policies.v1.CreatePolicyRequest\x1a'.chainguard.platform.policies.v1.Policy\"\x80\x01\x82\xd3\xe4\x93\x02.:\x06policy\"$/policies/v1/policies/{parent_id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xd1\x0f\xc2\xf0\x8e\xfc\v:\n" +
+	"/dev.chainguard.api.policies.policies.created.v1\x12\x05group\x18\x01\x12\xd6\x01\n" +
+	"\fUpdatePolicy\x12'.chainguard.platform.policies.v1.Policy\x1a'.chainguard.platform.policies.v1.Policy\"t\x82\xd3\xe4\x93\x02\":\x01*\x1a\x1d/policies/v1/policies/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xd2\x0f\xc2\xf0\x8e\xfc\v:\n" +
+	"/dev.chainguard.api.policies.policies.updated.v1\x12\x05group\x18\x01\x12\x97\x01\n" +
 	"\fListPolicies\x12-.chainguard.platform.policies.v1.PolicyFilter\x1a+.chainguard.platform.policies.v1.PolicyList\"+\x82\xd3\xe4\x93\x02\x17\x12\x15/policies/v1/policies\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x02\xd3\x0f\x10\x01\x12\x8f\x01\n" +
-	"\fDeletePolicy\x124.chainguard.platform.policies.v1.DeletePolicyRequest\x1a\x16.google.protobuf.Empty\"1\x82\xd3\xe4\x93\x02\x1f*\x1d/policies/v1/policies/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xd4\x0f2\xcd\x06\n" +
+	"\x02\xd3\x0f\x10\x01\x12\xcf\x01\n" +
+	"\fDeletePolicy\x124.chainguard.platform.policies.v1.DeletePolicyRequest\x1a\x16.google.protobuf.Empty\"q\x82\xd3\xe4\x93\x02\x1f*\x1d/policies/v1/policies/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xd4\x0f\xc2\xf0\x8e\xfc\v:\n" +
+	"/dev.chainguard.api.policies.policies.deleted.v1\x12\x05group\x18\x012\xcd\x06\n" +
 	"\bBindings\x12\xf4\x01\n" +
 	"\rCreateBinding\x125.chainguard.platform.policies.v1.CreateBindingRequest\x1a(.chainguard.platform.policies.v1.Binding\"\x81\x01\x82\xd3\xe4\x93\x02/:\abinding\"$/policies/v1/bindings/{parent_id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xdb\x0f\xc2\xf0\x8e\xfc\v:\n" +
