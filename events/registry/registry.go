@@ -29,6 +29,14 @@ type PullEvent struct {
 	// RepoID identifies the UIDP of the repository being pulled
 	RepoID string `json:"repo_id"`
 
+	// Subdomain holds the registry subdomain the request arrived on, if any
+	// (e.g. "skills" for skills.cgr.dev); empty for ordinary cgr.dev requests.
+	// The subdomain is injected as a folder between the org and repo during
+	// resolution (so the stored repo is "<org>/<subdomain>/<name>"), but
+	// Repository above reflects the caller-provided path without it. This field
+	// surfaces that namespace so subdomain traffic is attributable in analytics.
+	Subdomain string `json:"subdomain,omitempty"`
+
 	// Tag holds the tag being pulled, if there is one.
 	Tag string `json:"tag,omitempty"`
 
@@ -85,6 +93,14 @@ type PushEvent struct {
 
 	// RepoID identifies the UIDP of the repository being pushed.
 	RepoID string `json:"repo_id"`
+
+	// Subdomain holds the registry subdomain the request arrived on, if any
+	// (e.g. "skills" for skills.cgr.dev); empty for ordinary cgr.dev requests.
+	// The subdomain is injected as a folder between the org and repo during
+	// resolution (so the stored repo is "<org>/<subdomain>/<name>"), but
+	// Repository above reflects the caller-provided path without it. This field
+	// surfaces that namespace so subdomain traffic is attributable in analytics.
+	Subdomain string `json:"subdomain,omitempty"`
 
 	// DisplayName is the human-readable name of the repository (e.g., "nginx").
 	// Always populated regardless of how the push was initiated.
