@@ -400,6 +400,53 @@ func TestGroupInvitesEventInterfaces(t *testing.T) {
 	}
 }
 
+func Test_ExternalGroupRoleMapping_EventAnnotations(t *testing.T) {
+	sd := File_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto.Services().ByName("ExternalGroupRoleMappingsService")
+	if sd == nil {
+		t.Fatal("ExternalGroupRoleMappingsService not found")
+	}
+	runAnnotationTests(t, sd, []annotationTest{
+		{"CreateExternalGroupRoleMapping", "dev.chainguard.api.iam.external_group_role_mappings.created.v1", []string{"group", "identityprovider"}},
+		{"DeleteExternalGroupRoleMapping", "dev.chainguard.api.iam.external_group_role_mappings.deleted.v1", []string{"group", "identityprovider"}},
+	})
+}
+
+func Test_ExternalGroupRoleMapping_EventInterfaces(t *testing.T) {
+	// EGRM UIDs are structured as org/idp/mapping, so Root() gives the org
+	// and Parent() gives the identity provider.
+	mappingUID := "abc123/def456/aaa111"
+	orgRoot := uidp.Root(mappingUID)
+	idpUID := uidp.Parent(mappingUID)
+
+	m := &ExternalGroupRoleMapping{
+		Uid:                 mappingUID,
+		IdentityProviderUid: idpUID,
+	}
+	if got := m.CloudEventsSubject(); got != mappingUID {
+		t.Errorf("ExternalGroupRoleMapping.CloudEventsSubject() = %q, want %q", got, mappingUID)
+	}
+	if got, ok := m.CloudEventsExtension("group"); !ok || got != orgRoot {
+		t.Errorf("ExternalGroupRoleMapping.CloudEventsExtension(group) = (%q, %v), want (%q, true)", got, ok, orgRoot)
+	}
+	if got, ok := m.CloudEventsExtension("identityprovider"); !ok || got != idpUID {
+		t.Errorf("ExternalGroupRoleMapping.CloudEventsExtension(identityprovider) = (%q, %v), want (%q, true)", got, ok, idpUID)
+	}
+	if _, ok := m.CloudEventsExtension("unknown"); ok {
+		t.Error("ExternalGroupRoleMapping.CloudEventsExtension(unknown) returned true")
+	}
+
+	del := &DeleteExternalGroupRoleMappingRequest{Uid: mappingUID}
+	if got := del.CloudEventsSubject(); got != mappingUID {
+		t.Errorf("DeleteExternalGroupRoleMappingRequest.CloudEventsSubject() = %q, want %q", got, mappingUID)
+	}
+	if got, ok := del.CloudEventsExtension("group"); !ok || got != orgRoot {
+		t.Errorf("DeleteExternalGroupRoleMappingRequest.CloudEventsExtension(group) = (%q, %v), want (%q, true)", got, ok, orgRoot)
+	}
+	if got, ok := del.CloudEventsExtension("identityprovider"); !ok || got != idpUID {
+		t.Errorf("DeleteExternalGroupRoleMappingRequest.CloudEventsExtension(identityprovider) = (%q, %v), want (%q, true)", got, ok, idpUID)
+	}
+}
+
 // TestReadOnlyMethodsHaveNoEvents verifies List/Get methods don't have event annotations.
 func TestReadOnlyMethodsHaveNoEvents(t *testing.T) {
 	readOnlyMethods := []struct {
@@ -419,6 +466,8 @@ func TestReadOnlyMethodsHaveNoEvents(t *testing.T) {
 		{File_chainguard_platform_iam_v2beta1_identity_providers_proto, "IdentityProvidersService", "ListIdentityProviders"},
 		{File_chainguard_platform_iam_v2beta1_account_associations_proto, "AccountAssociationsService", "GetAccountAssociation"},
 		{File_chainguard_platform_iam_v2beta1_account_associations_proto, "AccountAssociationsService", "ListAccountAssociations"},
+		{File_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto, "ExternalGroupRoleMappingsService", "GetExternalGroupRoleMapping"},
+		{File_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto, "ExternalGroupRoleMappingsService", "ListExternalGroupRoleMappings"},
 	}
 
 	for _, tt := range readOnlyMethods {

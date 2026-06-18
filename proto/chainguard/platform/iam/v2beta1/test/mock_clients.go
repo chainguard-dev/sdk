@@ -16,13 +16,14 @@ import (
 type MockClients struct {
 	OnClose error
 
-	AccountAssociationsServiceClient MockAccountAssociationsServiceClient
-	GroupInvitesServiceClient        MockGroupInvitesServiceClient
-	GroupsServiceClient              MockGroupsServiceClient
-	IdentitiesServiceClient          MockIdentitiesServiceClient
-	IdentityProvidersServiceClient   MockIdentityProvidersServiceClient
-	RolesServiceClient               MockRolesServiceClient
-	RoleBindingsServiceClient        MockRoleBindingsServiceClient
+	AccountAssociationsServiceClient       MockAccountAssociationsServiceClient
+	GroupInvitesServiceClient              MockGroupInvitesServiceClient
+	GroupsServiceClient                    MockGroupsServiceClient
+	IdentitiesServiceClient                MockIdentitiesServiceClient
+	IdentityProvidersServiceClient         MockIdentityProvidersServiceClient
+	RolesServiceClient                     MockRolesServiceClient
+	RoleBindingsServiceClient              MockRoleBindingsServiceClient
+	ExternalGroupRoleMappingsServiceClient MockExternalGroupRoleMappingsServiceClient
 }
 
 // Close implements [v2beta1.Clients].
@@ -63,6 +64,25 @@ func (m *MockClients) RolesService() iam.RolesServiceClient {
 // RoleBindingsService implements [v2beta1.Clients].
 func (m *MockClients) RoleBindingsService() iam.RoleBindingsServiceClient {
 	return &m.RoleBindingsServiceClient
+}
+
+// ExternalGroupRoleMappingsService implements [v2beta1.Clients].
+func (m *MockClients) ExternalGroupRoleMappingsService() iam.ExternalGroupRoleMappingsServiceClient {
+	return &m.ExternalGroupRoleMappingsServiceClient
+}
+
+// ListExternalGroupRoleMappingsAll implements [v2beta1.Clients].
+func (m *MockClients) ListExternalGroupRoleMappingsAll(ctx context.Context, req *iam.ListExternalGroupRoleMappingsRequest) ([]*iam.ExternalGroupRoleMapping, error) {
+	resp, err := m.ExternalGroupRoleMappingsServiceClient.ListExternalGroupRoleMappings(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.GetExternalGroupRoleMappings(), nil
+}
+
+// ListExternalGroupRoleMappingsIter implements [v2beta1.Clients].
+func (m *MockClients) ListExternalGroupRoleMappingsIter(ctx context.Context, req *iam.ListExternalGroupRoleMappingsRequest) iter.Seq2[*iam.ExternalGroupRoleMapping, error] {
+	return test.MockIter(m.ListExternalGroupRoleMappingsAll(ctx, req))
 }
 
 // ListAccountAssociationsAll implements [v2beta1.Clients].

@@ -24,6 +24,11 @@ type Clients interface {
 	IdentityProvidersService() IdentityProvidersServiceClient
 	RolesService() RolesServiceClient
 	RoleBindingsService() RoleBindingsServiceClient
+	ExternalGroupRoleMappingsService() ExternalGroupRoleMappingsServiceClient
+
+	// Iterator methods for pagination - ExternalGroupRoleMappings
+	ListExternalGroupRoleMappingsIter(ctx context.Context, req *ListExternalGroupRoleMappingsRequest) iter.Seq2[*ExternalGroupRoleMapping, error]
+	ListExternalGroupRoleMappingsAll(ctx context.Context, req *ListExternalGroupRoleMappingsRequest) ([]*ExternalGroupRoleMapping, error)
 
 	// Iterator methods for pagination - GroupInvites
 	ListGroupInvitesIter(ctx context.Context, req *ListGroupInvitesRequest) iter.Seq2[*GroupInvite, error]
@@ -59,25 +64,27 @@ type Clients interface {
 // NewClientsFromConnection creates v2beta1 IAM clients from an existing gRPC connection.
 func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 	return &clients{
-		accountAssociationsService: NewAccountAssociationsServiceClient(conn),
-		groupInvitesService:        NewGroupInvitesServiceClient(conn),
-		groupsService:              NewGroupsServiceClient(conn),
-		identitiesService:          NewIdentitiesServiceClient(conn),
-		identityProviderService:    NewIdentityProvidersServiceClient(conn),
-		rolesService:               NewRolesServiceClient(conn),
-		roleBindingsService:        NewRoleBindingsServiceClient(conn),
+		accountAssociationsService:       NewAccountAssociationsServiceClient(conn),
+		groupInvitesService:              NewGroupInvitesServiceClient(conn),
+		groupsService:                    NewGroupsServiceClient(conn),
+		identitiesService:                NewIdentitiesServiceClient(conn),
+		identityProviderService:          NewIdentityProvidersServiceClient(conn),
+		rolesService:                     NewRolesServiceClient(conn),
+		roleBindingsService:              NewRoleBindingsServiceClient(conn),
+		externalGroupRoleMappingsService: NewExternalGroupRoleMappingsServiceClient(conn),
 		// conn is not set, this client struct does not own closing it
 	}
 }
 
 type clients struct {
-	accountAssociationsService AccountAssociationsServiceClient
-	groupInvitesService        GroupInvitesServiceClient
-	groupsService              GroupsServiceClient
-	identitiesService          IdentitiesServiceClient
-	identityProviderService    IdentityProvidersServiceClient
-	rolesService               RolesServiceClient
-	roleBindingsService        RoleBindingsServiceClient
+	accountAssociationsService       AccountAssociationsServiceClient
+	groupInvitesService              GroupInvitesServiceClient
+	groupsService                    GroupsServiceClient
+	identitiesService                IdentitiesServiceClient
+	identityProviderService          IdentityProvidersServiceClient
+	rolesService                     RolesServiceClient
+	roleBindingsService              RoleBindingsServiceClient
+	externalGroupRoleMappingsService ExternalGroupRoleMappingsServiceClient
 
 	conn *grpc.ClientConn
 }
@@ -110,6 +117,10 @@ func (c *clients) RolesService() RolesServiceClient {
 
 func (c *clients) RoleBindingsService() RoleBindingsServiceClient {
 	return c.roleBindingsService
+}
+
+func (c *clients) ExternalGroupRoleMappingsService() ExternalGroupRoleMappingsServiceClient {
+	return c.externalGroupRoleMappingsService
 }
 
 func (c *clients) Close() error {
@@ -236,4 +247,21 @@ func (c *clients) ListAccountAssociationsIter(ctx context.Context, req *ListAcco
 // For large result sets, consider using ListAccountAssociationsIter directly to process items incrementally.
 func (c *clients) ListAccountAssociationsAll(ctx context.Context, req *ListAccountAssociationsRequest) ([]*AccountAssociation, error) {
 	return v2iter.All(c.ListAccountAssociationsIter(ctx, req))
+}
+
+// ListExternalGroupRoleMappingsIter returns an iterator over external group role mappings matching the request.
+func (c *clients) ListExternalGroupRoleMappingsIter(ctx context.Context, req *ListExternalGroupRoleMappingsRequest) iter.Seq2[*ExternalGroupRoleMapping, error] {
+	return v2iter.Paginate(ctx, req, "external_group_role_mappings", func(ctx context.Context, r *ListExternalGroupRoleMappingsRequest) ([]*ExternalGroupRoleMapping, string, error) {
+		resp, err := c.ExternalGroupRoleMappingsService().ListExternalGroupRoleMappings(ctx, r)
+		if err != nil {
+			return nil, "", err
+		}
+		return resp.GetExternalGroupRoleMappings(), resp.GetNextPageToken(), nil
+	})
+}
+
+// ListExternalGroupRoleMappingsAll fetches all external group role mappings matching the request by automatically handling pagination.
+// For large result sets, consider using ListExternalGroupRoleMappingsIter directly to process items incrementally.
+func (c *clients) ListExternalGroupRoleMappingsAll(ctx context.Context, req *ListExternalGroupRoleMappingsRequest) ([]*ExternalGroupRoleMapping, error) {
+	return v2iter.All(c.ListExternalGroupRoleMappingsIter(ctx, req))
 }

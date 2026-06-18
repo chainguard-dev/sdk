@@ -1,0 +1,222 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.iam.v2beta1;
+
+import "annotations/auth.proto";
+import "annotations/events.proto";
+import "annotations/mcp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "platform/common/v1/uidp.platform.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1";
+option java_multiple_files = true;
+option java_outer_classname = "ExternalGroupRoleMappingsProto";
+option java_package = "com.chainguard.platform.iam.v2beta1";
+
+// ExternalGroupRoleMappingsService manages external identity provider group-to-role mappings.
+// These mappings grant Chainguard roles to members of external IdP groups during SSO federation.
+// Mappings are immutable by design — to change a mapping, delete and recreate it.
+service ExternalGroupRoleMappingsService {
+  // GetExternalGroupRoleMapping retrieves a single external group role mapping by UID.
+  rpc GetExternalGroupRoleMapping(GetExternalGroupRoleMappingRequest) returns (ExternalGroupRoleMapping) {
+    option (google.api.http) = {get: "/iam/v2beta1/externalGroupRoleMappings/{uid=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_IDENTITY_PROVIDERS_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get an external group role mapping by its UIDP."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // CreateExternalGroupRoleMapping creates a new mapping under an identity provider.
+  // The caller must hold both the identity provider create and role binding create capabilities,
+  // and must already possess the capabilities granted by the mapped role (anti-escalation).
+  rpc CreateExternalGroupRoleMapping(CreateExternalGroupRoleMappingRequest) returns (ExternalGroupRoleMapping) {
+    option (google.api.http) = {
+      post: "/iam/v2beta1/externalGroupRoleMappings/{parent=**}"
+      body: "external_group_role_mapping"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_IAM_IDENTITY_PROVIDERS_CREATE,
+          CAP_IAM_ROLE_BINDINGS_CREATE
+        ]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.external_group_role_mappings.created.v1"
+      extensions: [
+        "group",
+        "identityprovider"
+      ]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Create an external group role mapping under an identity provider, granting a role to members of an external IdP group."
+      read_only: false
+      destructive: false
+      idempotent: false
+      open_world: false
+    };
+  }
+
+  // DeleteExternalGroupRoleMapping deletes a mapping by UID.
+  // Uses hard delete to maintain the unique constraint on (idp, group, role, scope).
+  rpc DeleteExternalGroupRoleMapping(DeleteExternalGroupRoleMappingRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/iam/v2beta1/externalGroupRoleMappings/{uid=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_IDENTITY_PROVIDERS_DELETE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.external_group_role_mappings.deleted.v1"
+      extensions: [
+        "group",
+        "identityprovider"
+      ]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Delete an external group role mapping, revoking the group-to-role grant."
+      read_only: false
+      destructive: true
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // ListExternalGroupRoleMappings returns mappings matching filter criteria with pagination.
+  rpc ListExternalGroupRoleMappings(ListExternalGroupRoleMappingsRequest) returns (ListExternalGroupRoleMappingsResponse) {
+    option (google.api.http) = {get: "/iam/v2beta1/externalGroupRoleMappings"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_IDENTITY_PROVIDERS_LIST]
+        unscoped: true
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List external group role mappings, optionally filtered by identity provider."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+}
+
+// ExternalGroupRoleMapping maps an external identity provider group to a Chainguard role.
+// When a user authenticates via SSO and their token includes the mapped group,
+// the federation flow grants the mapped role's capabilities at the specified scope.
+message ExternalGroupRoleMapping {
+  option (google.api.resource) = {
+    type: "iam.chainguard.dev/ExternalGroupRoleMapping"
+    pattern: "externalGroupRoleMappings/{external_group_role_mapping}"
+    singular: "externalGroupRoleMapping"
+    plural: "externalGroupRoleMappings"
+  };
+
+  // Unique identifier for the mapping (UIDP rooted under the identity provider).
+  string uid = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // UIDP of the parent identity provider.
+  string identity_provider_uid = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The external identity provider's opaque group identifier (e.g. OIDC group claim value).
+  string external_group_id = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // UIDP of the Chainguard role to grant to members of the external group.
+  string role_uid = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // UIDP of the Chainguard group where the role applies (currently constrained to org root).
+  string scope = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // When the mapping was created.
+  google.protobuf.Timestamp create_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// CreateExternalGroupRoleMappingRequest is the request message for CreateExternalGroupRoleMapping.
+message CreateExternalGroupRoleMappingRequest {
+  // Parent identity provider UIDP under which the mapping will be created.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The mapping to create.
+  // Set external_group_id, role_uid, and scope.
+  ExternalGroupRoleMapping external_group_role_mapping = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetExternalGroupRoleMappingRequest is the request message for GetExternalGroupRoleMapping.
+message GetExternalGroupRoleMappingRequest {
+  // UID of the mapping to retrieve.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// DeleteExternalGroupRoleMappingRequest is the request message for DeleteExternalGroupRoleMapping.
+message DeleteExternalGroupRoleMappingRequest {
+  // UID of the mapping to delete.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// ListExternalGroupRoleMappingsRequest is the request message for ListExternalGroupRoleMappings.
+message ListExternalGroupRoleMappingsRequest {
+  // UIDP-based filter for hierarchy navigation.
+  chainguard.platform.common.UIDPFilter uidp = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter by identity provider UID.
+  string identity_provider_uid = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Maximum number of results to return per page.
+  int32 page_size = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Page token from a previous List response for pagination.
+  string page_token = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order results by field. Format: "field [asc|desc]".
+  // Default: "uid asc".
+  // Note: Changing order_by between pages invalidates the page token.
+  string order_by = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of results to skip before returning.
+  int32 skip = 6 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListExternalGroupRoleMappingsResponse is the response message for ListExternalGroupRoleMappings.
+message ListExternalGroupRoleMappingsResponse {
+  // Mappings matching the filter criteria.
+  repeated ExternalGroupRoleMapping external_group_role_mappings = 1;
+
+  // Token for retrieving the next page of results.
+  string next_page_token = 2;
+
+  // Total number of mappings matching the filter.
+  optional int64 total_count = 3;
+
+  // Number of results that were skipped.
+  int32 skipped = 4;
+}
