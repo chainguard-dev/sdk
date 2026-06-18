@@ -24,6 +24,7 @@ type MockAWSMarketplaceSubscriptionsClient struct {
 	OnCreate []AWSMarketplaceSubscriptionsOnCreate
 	OnGet    []AWSMarketplaceSubscriptionsOnGet
 	OnList   []AWSMarketplaceSubscriptionsOnList
+	OnUpdate []AWSMarketplaceSubscriptionsOnUpdate
 	OnCancel []AWSMarketplaceSubscriptionsOnCancel
 }
 
@@ -43,6 +44,12 @@ type AWSMarketplaceSubscriptionsOnList struct {
 	Given *libraries.AWSMarketplaceSubscriptionFilter
 	List  *libraries.AWSMarketplaceSubscriptionList
 	Error error
+}
+
+type AWSMarketplaceSubscriptionsOnUpdate struct {
+	Given   *libraries.UpdateAWSMarketplaceSubscriptionRequest
+	Updated *libraries.AWSMarketplaceSubscription
+	Error   error
 }
 
 type AWSMarketplaceSubscriptionsOnCancel struct {
@@ -73,6 +80,15 @@ func (m MockAWSMarketplaceSubscriptionsClient) List(_ context.Context, given *li
 	for _, o := range m.OnList {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.List, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockAWSMarketplaceSubscriptionsClient) Update(_ context.Context, given *libraries.UpdateAWSMarketplaceSubscriptionRequest, _ ...grpc.CallOption) (*libraries.AWSMarketplaceSubscription, error) {
+	for _, o := range m.OnUpdate {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Updated, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)
