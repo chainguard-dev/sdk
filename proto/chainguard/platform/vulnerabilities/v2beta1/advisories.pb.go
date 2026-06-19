@@ -1208,9 +1208,15 @@ type AdvisoryEvent_Fixed struct {
 	// The first version of the artifact in which the vulnerability is considered fixed.
 	FixedVersion string `protobuf:"bytes,1,opt,name=fixed_version,json=fixedVersion,proto3" json:"fixed_version,omitempty"`
 	// Additional textual comments about the fix.
-	Note          string `protobuf:"bytes,2,opt,name=note,proto3" json:"note,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Note string `protobuf:"bytes,2,opt,name=note,proto3" json:"note,omitempty"`
+	// The version of the vulnerability scanner (grype) that produced this fixed determination.
+	ScannerVersion string `protobuf:"bytes,3,opt,name=scanner_version,json=scannerVersion,proto3" json:"scanner_version,omitempty"`
+	// The build timestamp (RFC 3339) of the grype vulnerability database used for this fixed determination.
+	GrypeDbBuilt string `protobuf:"bytes,4,opt,name=grype_db_built,json=grypeDbBuilt,proto3" json:"grype_db_built,omitempty"`
+	// The integrity checksum of the grype vulnerability database used for this fixed determination.
+	GrypeDbChecksum string `protobuf:"bytes,5,opt,name=grype_db_checksum,json=grypeDbChecksum,proto3" json:"grype_db_checksum,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *AdvisoryEvent_Fixed) Reset() {
@@ -1253,6 +1259,27 @@ func (x *AdvisoryEvent_Fixed) GetFixedVersion() string {
 func (x *AdvisoryEvent_Fixed) GetNote() string {
 	if x != nil {
 		return x.Note
+	}
+	return ""
+}
+
+func (x *AdvisoryEvent_Fixed) GetScannerVersion() string {
+	if x != nil {
+		return x.ScannerVersion
+	}
+	return ""
+}
+
+func (x *AdvisoryEvent_Fixed) GetGrypeDbBuilt() string {
+	if x != nil {
+		return x.GrypeDbBuilt
+	}
+	return ""
+}
+
+func (x *AdvisoryEvent_Fixed) GetGrypeDbChecksum() string {
+	if x != nil {
+		return x.GrypeDbChecksum
 	}
 	return ""
 }
@@ -1663,6 +1690,12 @@ type AdvisoryEvent_Detection_ScanV1 struct {
 	ComponentLocation string `protobuf:"bytes,7,opt,name=component_location,json=componentLocation,proto3" json:"component_location,omitempty"`
 	// The version of the artifact (origin package or subpackage) that was scanned when the vulnerability was detected. Pairs with the advisory's artifact_name.
 	ArtifactVersion string `protobuf:"bytes,8,opt,name=artifact_version,json=artifactVersion,proto3" json:"artifact_version,omitempty"`
+	// The version of the vulnerability scanner (grype) that produced this detection.
+	ScannerVersion string `protobuf:"bytes,9,opt,name=scanner_version,json=scannerVersion,proto3" json:"scanner_version,omitempty"`
+	// The build timestamp (RFC 3339) of the grype vulnerability database used for this detection.
+	GrypeDbBuilt string `protobuf:"bytes,10,opt,name=grype_db_built,json=grypeDbBuilt,proto3" json:"grype_db_built,omitempty"`
+	// The integrity checksum of the grype vulnerability database used for this detection.
+	GrypeDbChecksum string `protobuf:"bytes,11,opt,name=grype_db_checksum,json=grypeDbChecksum,proto3" json:"grype_db_checksum,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -1753,6 +1786,27 @@ func (x *AdvisoryEvent_Detection_ScanV1) GetArtifactVersion() string {
 	return ""
 }
 
+func (x *AdvisoryEvent_Detection_ScanV1) GetScannerVersion() string {
+	if x != nil {
+		return x.ScannerVersion
+	}
+	return ""
+}
+
+func (x *AdvisoryEvent_Detection_ScanV1) GetGrypeDbBuilt() string {
+	if x != nil {
+		return x.GrypeDbBuilt
+	}
+	return ""
+}
+
+func (x *AdvisoryEvent_Detection_ScanV1) GetGrypeDbChecksum() string {
+	if x != nil {
+		return x.GrypeDbChecksum
+	}
+	return ""
+}
+
 var File_chainguard_platform_vulnerabilities_v2beta1_advisories_proto protoreflect.FileDescriptor
 
 const file_chainguard_platform_vulnerabilities_v2beta1_advisories_proto_rawDesc = "" +
@@ -1782,7 +1836,7 @@ const file_chainguard_platform_vulnerabilities_v2beta1_advisories_proto_rawDesc 
 	"'vulnerabilities.chainguard.dev/Advisory\x12\x15advisories/{advisory}*\n" +
 	"advisories2\badvisoryB\x0e\n" +
 	"\f_delete_timeB\x15\n" +
-	"\x13_legacy_advisory_id\"\xb9\x17\n" +
+	"\x13_legacy_advisory_id\"\xb0\x19\n" +
 	"\rAdvisoryEvent\x12\x16\n" +
 	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12A\n" +
 	"\vcreate_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
@@ -1800,7 +1854,7 @@ const file_chainguard_platform_vulnerabilities_v2beta1_advisories_proto_rawDesc 
 	"\x0ffix_not_planned\x18\x0e \x01(\v2H.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.FixNotPlannedH\x00R\rfixNotPlanned\x12\x81\x01\n" +
 	"\x14pending_upstream_fix\x18\x0f \x01(\v2M.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.PendingUpstreamFixH\x00R\x12pendingUpstreamFix\x12\x96\x01\n" +
 	"\x1btrue_positive_determination\x18\x10 \x01(\v2T.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.TruePositiveDeterminationH\x00R\x19truePositiveDetermination\x12^\n" +
-	"\apatched\x18\x11 \x01(\v2B.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.PatchedH\x00R\apatched\x1a\xd0\x05\n" +
+	"\apatched\x18\x11 \x01(\v2B.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.PatchedH\x00R\apatched\x1a\xcb\x06\n" +
 	"\tDetection\x12e\n" +
 	"\x06nvdapi\x18\x01 \x01(\v2K.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.Detection.NVDAPIH\x00R\x06nvdapi\x12e\n" +
 	"\x06manual\x18\x02 \x01(\v2K.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.Detection.ManualH\x00R\x06manual\x12e\n" +
@@ -1808,7 +1862,7 @@ const file_chainguard_platform_vulnerabilities_v2beta1_advisories_proto_rawDesc 
 	"\x06NVDAPI\x12!\n" +
 	"\fcpe_searched\x18\x01 \x01(\tR\vcpeSearched\x12\x1b\n" +
 	"\tcpe_found\x18\x02 \x01(\tR\bcpeFound\x1a\b\n" +
-	"\x06Manual\x1a\xb1\x02\n" +
+	"\x06Manual\x1a\xac\x03\n" +
 	"\x06ScanV1\x12\x18\n" +
 	"\ascanner\x18\x01 \x01(\tR\ascanner\x12\x1e\n" +
 	"\n" +
@@ -1819,11 +1873,18 @@ const file_chainguard_platform_vulnerabilities_v2beta1_advisories_proto_rawDesc 
 	"\x11component_version\x18\x05 \x01(\tR\x10componentVersion\x12%\n" +
 	"\x0ecomponent_type\x18\x06 \x01(\tR\rcomponentType\x12-\n" +
 	"\x12component_location\x18\a \x01(\tR\x11componentLocation\x12)\n" +
-	"\x10artifact_version\x18\b \x01(\tR\x0fartifactVersionB\x06\n" +
-	"\x04type\x1a@\n" +
+	"\x10artifact_version\x18\b \x01(\tR\x0fartifactVersion\x12'\n" +
+	"\x0fscanner_version\x18\t \x01(\tR\x0escannerVersion\x12$\n" +
+	"\x0egrype_db_built\x18\n" +
+	" \x01(\tR\fgrypeDbBuilt\x12*\n" +
+	"\x11grype_db_checksum\x18\v \x01(\tR\x0fgrypeDbChecksumB\x06\n" +
+	"\x04type\x1a\xbb\x01\n" +
 	"\x05Fixed\x12#\n" +
 	"\rfixed_version\x18\x01 \x01(\tR\ffixedVersion\x12\x12\n" +
-	"\x04note\x18\x02 \x01(\tR\x04note\x1a/\n" +
+	"\x04note\x18\x02 \x01(\tR\x04note\x12'\n" +
+	"\x0fscanner_version\x18\x03 \x01(\tR\x0escannerVersion\x12$\n" +
+	"\x0egrype_db_built\x18\x04 \x01(\tR\fgrypeDbBuilt\x12*\n" +
+	"\x11grype_db_checksum\x18\x05 \x01(\tR\x0fgrypeDbChecksum\x1a/\n" +
 	"\x19TruePositiveDetermination\x12\x12\n" +
 	"\x04note\x18\x01 \x01(\tR\x04note\x1a\x88\x04\n" +
 	"\x1aFalsePositiveDetermination\x12n\n" +

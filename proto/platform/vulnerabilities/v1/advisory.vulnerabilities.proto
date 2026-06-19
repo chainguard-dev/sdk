@@ -255,12 +255,30 @@ message AdvisoryEvent {
       // artifact_version is the version of the artifact (origin package or
       // subpackage) that was scanned when the vulnerability was detected.
       string artifact_version = 8;
+      // scanner_version is the version of the vulnerability scanner (grype)
+      // that produced this detection.
+      string scanner_version = 9;
+      // grype_db_built is the build timestamp (RFC 3339) of the grype
+      // vulnerability database used for this detection.
+      string grype_db_built = 10;
+      // grype_db_checksum is the integrity checksum of the grype vulnerability
+      // database used for this detection.
+      string grype_db_checksum = 11;
     }
   }
 
   message Fixed {
     string fixed_version = 1;
     string note = 2;
+    // scanner_version is the version of the vulnerability scanner (grype) that
+    // produced this fixed determination.
+    string scanner_version = 3;
+    // grype_db_built is the build timestamp (RFC 3339) of the grype
+    // vulnerability database used for this fixed determination.
+    string grype_db_built = 4;
+    // grype_db_checksum is the integrity checksum of the grype vulnerability
+    // database used for this fixed determination.
+    string grype_db_checksum = 5;
   }
 
   message TruePositiveDetermination {

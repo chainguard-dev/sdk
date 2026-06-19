@@ -200,6 +200,12 @@ message AdvisoryEvent {
       string component_location = 7;
       // The version of the artifact (origin package or subpackage) that was scanned when the vulnerability was detected. Pairs with the advisory's artifact_name.
       string artifact_version = 8;
+      // The version of the vulnerability scanner (grype) that produced this detection.
+      string scanner_version = 9;
+      // The build timestamp (RFC 3339) of the grype vulnerability database used for this detection.
+      string grype_db_built = 10;
+      // The integrity checksum of the grype vulnerability database used for this detection.
+      string grype_db_checksum = 11;
     }
   }
 
@@ -209,6 +215,12 @@ message AdvisoryEvent {
     string fixed_version = 1;
     // Additional textual comments about the fix.
     string note = 2;
+    // The version of the vulnerability scanner (grype) that produced this fixed determination.
+    string scanner_version = 3;
+    // The build timestamp (RFC 3339) of the grype vulnerability database used for this fixed determination.
+    string grype_db_built = 4;
+    // The integrity checksum of the grype vulnerability database used for this fixed determination.
+    string grype_db_checksum = 5;
   }
 
   // The vulnerability has been determined to affect the matched artifact.
