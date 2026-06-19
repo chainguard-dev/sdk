@@ -1,0 +1,75 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/argos/v1";
+
+package chainguard.platform.argos;
+
+import "google/api/annotations.proto";
+import "annotations/auth.proto";
+import "argos_osv.platform.proto";
+
+// ArgosVulns is the Chainguard-specific (non-OSV-spec) vulnerability query
+// surface for the Console. Unlike ArgosOSV (the unscoped, OSV-spec shared
+// corpus), these RPCs are ORG-SCOPED: a caller sees only their own org's CGP
+// records (the org<->CGP association is customer-attributable). Gated by
+// CAP_ARGOS_DOCUMENTS_LIST at the parent org.
+service ArgosVulns {
+  // BatchGet returns metadata for an explicit set of CGP IDs in one call
+  // (avoids N x ArgosOSV.GetVuln). Scoped to parent. Paginated.
+  rpc BatchGet(BatchGetVulnsRequest) returns (VulnList) {
+    option (google.api.http) = {
+      post: "/argos/v1/orgs/{parent=**}/vulns:batchGet"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ARGOS_DOCUMENTS_LIST]
+      }
+    };
+  }
+  // ListForOrg returns all CGP records associated with the org's documents
+  // (accumulated server-side). Scoped to parent. Paginated.
+  rpc ListForOrg(ListOrgVulnsRequest) returns (VulnList) {
+    option (google.api.http) = {
+      get: "/argos/v1/orgs/{parent=**}/vulns"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ARGOS_DOCUMENTS_LIST]
+      }
+    };
+  }
+}
+
+message BatchGetVulnsRequest {
+  // parent is the UIDP of the organization (root group) to scope the query to.
+  string parent = 1 [(chainguard.annotations.iam_scope) = true];
+  // cgp_ids is the explicit set of CGP vulnerability IDs to fetch metadata for.
+  repeated string cgp_ids = 2;
+  string page_token = 3;
+  int32 page_size = 4;
+}
+
+message ListOrgVulnsRequest {
+  // parent is the UIDP of the organization (root group) to scope the query to.
+  string parent = 1 [(chainguard.annotations.iam_scope) = true];
+  // package is an optional exact ecosystem/name filter (v1: exact match).
+  string package = 2;
+  // version is an optional version filter.
+  string version = 3;
+  string page_token = 4;
+  int32 page_size = 5;
+}
+
+message VulnList {
+  // vulns is the list of OSV records returned, reusing the public OSVRecord
+  // from argos_osv (same proto package: chainguard.platform.argos).
+  repeated OSVRecord vulns = 1;
+  string next_page_token = 2;
+  // total_count is the total number of matching records across all pages.
+  // Optional; provided for UI pagination.
+  optional int64 total_count = 3;
+}
