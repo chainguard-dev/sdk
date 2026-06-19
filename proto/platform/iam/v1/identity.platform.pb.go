@@ -40,21 +40,23 @@ const (
 	ServicePrincipal_SEDIMENTOLOGY      ServicePrincipal = 7
 	ServicePrincipal_SKILLUP            ServicePrincipal = 8
 	ServicePrincipal_MATERIALIZER       ServicePrincipal = 9
+	ServicePrincipal_MICROFLOW          ServicePrincipal = 10
 )
 
 // Enum value maps for ServicePrincipal.
 var (
 	ServicePrincipal_name = map[int32]string{
-		0: "UNKNOWN",
-		1: "COSIGNED",
-		2: "INGESTER",
-		3: "CATALOG_SYNCER",
-		4: "APKO_BUILDER",
-		5: "ENTITLEMENT_SYNCER",
-		6: "TENANT_SCANNER",
-		7: "SEDIMENTOLOGY",
-		8: "SKILLUP",
-		9: "MATERIALIZER",
+		0:  "UNKNOWN",
+		1:  "COSIGNED",
+		2:  "INGESTER",
+		3:  "CATALOG_SYNCER",
+		4:  "APKO_BUILDER",
+		5:  "ENTITLEMENT_SYNCER",
+		6:  "TENANT_SCANNER",
+		7:  "SEDIMENTOLOGY",
+		8:  "SKILLUP",
+		9:  "MATERIALIZER",
+		10: "MICROFLOW",
 	}
 	ServicePrincipal_value = map[string]int32{
 		"UNKNOWN":            0,
@@ -67,6 +69,7 @@ var (
 		"SEDIMENTOLOGY":      7,
 		"SKILLUP":            8,
 		"MATERIALIZER":       9,
+		"MICROFLOW":          10,
 	}
 )
 
@@ -1054,7 +1057,7 @@ const file_identity_platform_proto_rawDesc = "" +
 	"\x02id\x18\x02 \x01(\tR\x02id\"A\n" +
 	"\rLookupRequest\x12\x16\n" +
 	"\x06issuer\x18\x01 \x01(\tR\x06issuer\x12\x18\n" +
-	"\asubject\x18\x02 \x01(\tR\asubject*\xbf\x01\n" +
+	"\asubject\x18\x02 \x01(\tR\asubject*\xce\x01\n" +
 	"\x10ServicePrincipal\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\f\n" +
 	"\bCOSIGNED\x10\x01\x12\f\n" +
@@ -1065,7 +1068,9 @@ const file_identity_platform_proto_rawDesc = "" +
 	"\x0eTENANT_SCANNER\x10\x06\x12\x11\n" +
 	"\rSEDIMENTOLOGY\x10\a\x12\v\n" +
 	"\aSKILLUP\x10\b\x12\x10\n" +
-	"\fMATERIALIZER\x10\t2\xec\a\n" +
+	"\fMATERIALIZER\x10\t\x12\r\n" +
+	"\tMICROFLOW\x10\n" +
+	"2\xec\a\n" +
 	"\n" +
 	"Identities\x12\xea\x01\n" +
 	"\x06Create\x12..chainguard.platform.iam.CreateIdentityRequest\x1a!.chainguard.platform.iam.Identity\"\x8c\x01\x92A\x0f\n" +

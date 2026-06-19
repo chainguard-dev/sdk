@@ -119,6 +119,7 @@ enum ServicePrincipal {
   SEDIMENTOLOGY  = 7;
   SKILLUP        = 8;
   MATERIALIZER   = 9;
+  MICROFLOW      = 10;
 }
 
 message Identity {

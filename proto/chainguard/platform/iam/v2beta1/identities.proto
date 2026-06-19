@@ -535,4 +535,6 @@ enum ServicePrincipal {
   SERVICE_PRINCIPAL_SKILLUP = 8;
   // Materializer service for materializing solutions from problem statements.
   SERVICE_PRINCIPAL_MATERIALIZER = 9;
+  // Microflow service for running a pull request's committed CI workflows in microVMs.
+  SERVICE_PRINCIPAL_MICROFLOW = 10;
 }
