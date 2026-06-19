@@ -308,8 +308,13 @@ var (
 
 	// LibrariesRebuilderUntrustedCaps is for untrusted build/test pods. They combine
 	// this Chainguard identity check with a per-build JWT token for defence in depth.
+	// The read-only malware-status capability lets the build pipeline (e.g. the
+	// prepare phase) gate which package versions enter the build matrix; it is
+	// read-only and low-risk, so it lives on the untrusted role rather than
+	// requiring a separate trusted service account.
 	LibrariesRebuilderUntrustedCaps = SortCaps([]Capability{
 		Capability_CAP_LIBRARIES_REBUILDER_BUILDS_UNTRUSTED,
+		Capability_CAP_LIBRARIES_REBUILDER_MALWARE_STATUS_READ,
 	})
 
 	LibrariesRebuilderAdminCaps = SortCaps([]Capability{
