@@ -24,6 +24,8 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	ReposService_GetRepo_FullMethodName    = "/chainguard.platform.registry.v2beta1.ReposService/GetRepo"
+	ReposService_CreateRepo_FullMethodName = "/chainguard.platform.registry.v2beta1.ReposService/CreateRepo"
+	ReposService_UpdateRepo_FullMethodName = "/chainguard.platform.registry.v2beta1.ReposService/UpdateRepo"
 	ReposService_DeleteRepo_FullMethodName = "/chainguard.platform.registry.v2beta1.ReposService/DeleteRepo"
 	ReposService_ListRepos_FullMethodName  = "/chainguard.platform.registry.v2beta1.ReposService/ListRepos"
 )
@@ -36,6 +38,10 @@ const (
 type ReposServiceClient interface {
 	// GetRepo retrieves a single repository by UID.
 	GetRepo(ctx context.Context, in *GetRepoRequest, opts ...grpc.CallOption) (*Repo, error)
+	// CreateRepo creates a repository under a parent group.
+	CreateRepo(ctx context.Context, in *CreateRepoRequest, opts ...grpc.CallOption) (*Repo, error)
+	// UpdateRepo updates a repository's mutable fields.
+	UpdateRepo(ctx context.Context, in *UpdateRepoRequest, opts ...grpc.CallOption) (*Repo, error)
 	// DeleteRepo deletes a repository by UID.
 	DeleteRepo(ctx context.Context, in *DeleteRepoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// ListRepos returns repositories based on filter criteria with pagination support.
@@ -54,6 +60,26 @@ func (c *reposServiceClient) GetRepo(ctx context.Context, in *GetRepoRequest, op
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Repo)
 	err := c.cc.Invoke(ctx, ReposService_GetRepo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *reposServiceClient) CreateRepo(ctx context.Context, in *CreateRepoRequest, opts ...grpc.CallOption) (*Repo, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Repo)
+	err := c.cc.Invoke(ctx, ReposService_CreateRepo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *reposServiceClient) UpdateRepo(ctx context.Context, in *UpdateRepoRequest, opts ...grpc.CallOption) (*Repo, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Repo)
+	err := c.cc.Invoke(ctx, ReposService_UpdateRepo_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -88,6 +114,10 @@ func (c *reposServiceClient) ListRepos(ctx context.Context, in *ListReposRequest
 type ReposServiceServer interface {
 	// GetRepo retrieves a single repository by UID.
 	GetRepo(context.Context, *GetRepoRequest) (*Repo, error)
+	// CreateRepo creates a repository under a parent group.
+	CreateRepo(context.Context, *CreateRepoRequest) (*Repo, error)
+	// UpdateRepo updates a repository's mutable fields.
+	UpdateRepo(context.Context, *UpdateRepoRequest) (*Repo, error)
 	// DeleteRepo deletes a repository by UID.
 	DeleteRepo(context.Context, *DeleteRepoRequest) (*emptypb.Empty, error)
 	// ListRepos returns repositories based on filter criteria with pagination support.
@@ -104,6 +134,12 @@ type UnimplementedReposServiceServer struct{}
 
 func (UnimplementedReposServiceServer) GetRepo(context.Context, *GetRepoRequest) (*Repo, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetRepo not implemented")
+}
+func (UnimplementedReposServiceServer) CreateRepo(context.Context, *CreateRepoRequest) (*Repo, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateRepo not implemented")
+}
+func (UnimplementedReposServiceServer) UpdateRepo(context.Context, *UpdateRepoRequest) (*Repo, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateRepo not implemented")
 }
 func (UnimplementedReposServiceServer) DeleteRepo(context.Context, *DeleteRepoRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteRepo not implemented")
@@ -146,6 +182,42 @@ func _ReposService_GetRepo_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ReposServiceServer).GetRepo(ctx, req.(*GetRepoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ReposService_CreateRepo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateRepoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReposServiceServer).CreateRepo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReposService_CreateRepo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReposServiceServer).CreateRepo(ctx, req.(*CreateRepoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ReposService_UpdateRepo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateRepoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReposServiceServer).UpdateRepo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReposService_UpdateRepo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReposServiceServer).UpdateRepo(ctx, req.(*UpdateRepoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -196,6 +268,14 @@ var ReposService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetRepo",
 			Handler:    _ReposService_GetRepo_Handler,
+		},
+		{
+			MethodName: "CreateRepo",
+			Handler:    _ReposService_CreateRepo_Handler,
+		},
+		{
+			MethodName: "UpdateRepo",
+			Handler:    _ReposService_UpdateRepo_Handler,
 		},
 		{
 			MethodName: "DeleteRepo",
