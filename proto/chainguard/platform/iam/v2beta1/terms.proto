@@ -1,0 +1,157 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.iam.v2beta1;
+
+import "annotations/auth.proto";
+import "annotations/events.proto";
+import "annotations/mcp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1";
+option java_multiple_files = true;
+option java_outer_classname = "TermsProto";
+option java_package = "com.chainguard.platform.iam.v2beta1";
+
+// TermsService manages legal document acceptance for organizations.
+service TermsService {
+  // AcceptTerms records that a group has accepted one or more legal documents.
+  rpc AcceptTerms(AcceptTermsRequest) returns (AcceptTermsResponse) {
+    option (google.api.http) = {
+      post: "/iam/v2beta1/terms/{group=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TERMS_ACCEPT]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.terms.accepted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Record acceptance of legal documents for an organization."
+      read_only: false
+      idempotent: true
+    };
+  }
+
+  // ListTermsAcceptances returns the legal documents that a group has accepted.
+  rpc ListTermsAcceptances(ListTermsAcceptancesRequest) returns (ListTermsAcceptancesResponse) {
+    option (google.api.http) = {get: "/iam/v2beta1/terms/{group=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TERMS_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List legal documents that an organization has accepted."
+      read_only: true
+      idempotent: true
+    };
+  }
+}
+
+// AcceptTermsRequest is the request message for AcceptTerms.
+message AcceptTermsRequest {
+  // Group UIDP of the organization accepting the documents.
+  string group = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // IDs of the legal documents being accepted.
+  repeated string document_ids = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// AcceptTermsResponse is the response message for AcceptTerms.
+message AcceptTermsResponse {
+  // Group UIDP that accepted the documents.
+  string group = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // IDs of the documents that were accepted.
+  repeated string document_ids = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// TermsAcceptance records an acceptance event for a single legal document.
+message TermsAcceptance {
+  option (google.api.resource) = {
+    type: "iam.chainguard.dev/TermsAcceptance"
+    pattern: "termsAcceptances/{terms_acceptance}"
+    singular: "termsAcceptance"
+    plural: "termsAcceptances"
+  };
+
+  // Stable identifier for the accepted document.
+  string doc_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Identity (subject) that accepted the document.
+  string accepted_by = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Organization UIDP where the document was accepted.
+  string org_uid = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // When the document was accepted.
+  google.protobuf.Timestamp create_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ListTermsAcceptancesRequest is the request message for ListTermsAcceptances.
+message ListTermsAcceptancesRequest {
+  // Group UIDP of the organization to list acceptances for.
+  // Includes ancestor organization acceptances.
+  string group = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Maximum number of results to return per page.
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Page token from a previous List response for pagination.
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order results by field. Format: "field [asc|desc]"
+  string order_by = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of results to skip before returning.
+  int32 skip = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListTermsAcceptancesResponse is the response message for ListTermsAcceptances.
+message ListTermsAcceptancesResponse {
+  // Terms acceptances matching the request criteria.
+  repeated TermsAcceptance terms_acceptances = 1;
+
+  // Token for retrieving the next page of results.
+  string next_page_token = 2;
+
+  // Total number of terms acceptances matching the filter.
+  optional int64 total_count = 3;
+
+  // Number of results that were skipped.
+  int32 skipped = 4;
+}
+
+// MissingDocument describes a required legal document that has not been accepted.
+message MissingDocument {
+  // Stable identifier for the document (e.g., "guardener-tos.v1").
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Human-readable name for display purposes.
+  string label = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Link to the full document text.
+  string url = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// TermsNotAcceptedDetail is attached to gRPC FailedPrecondition errors when
+// required legal documents have not been accepted.
+message TermsNotAcceptedDetail {
+  // Legal documents that have not been accepted.
+  repeated MissingDocument missing = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

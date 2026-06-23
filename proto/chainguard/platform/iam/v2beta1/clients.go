@@ -25,6 +25,7 @@ type Clients interface {
 	RolesService() RolesServiceClient
 	RoleBindingsService() RoleBindingsServiceClient
 	ExternalGroupRoleMappingsService() ExternalGroupRoleMappingsServiceClient
+	TermsService() TermsServiceClient
 
 	// Iterator methods for pagination - ExternalGroupRoleMappings
 	ListExternalGroupRoleMappingsIter(ctx context.Context, req *ListExternalGroupRoleMappingsRequest) iter.Seq2[*ExternalGroupRoleMapping, error]
@@ -58,6 +59,10 @@ type Clients interface {
 	ListAccountAssociationsIter(ctx context.Context, req *ListAccountAssociationsRequest) iter.Seq2[*AccountAssociation, error]
 	ListAccountAssociationsAll(ctx context.Context, req *ListAccountAssociationsRequest) ([]*AccountAssociation, error)
 
+	// Iterator methods for pagination - Terms
+	ListTermsAcceptancesIter(ctx context.Context, req *ListTermsAcceptancesRequest) iter.Seq2[*TermsAcceptance, error]
+	ListTermsAcceptancesAll(ctx context.Context, req *ListTermsAcceptancesRequest) ([]*TermsAcceptance, error)
+
 	Close() error
 }
 
@@ -72,6 +77,7 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 		rolesService:                     NewRolesServiceClient(conn),
 		roleBindingsService:              NewRoleBindingsServiceClient(conn),
 		externalGroupRoleMappingsService: NewExternalGroupRoleMappingsServiceClient(conn),
+		termsService:                     NewTermsServiceClient(conn),
 		// conn is not set, this client struct does not own closing it
 	}
 }
@@ -85,6 +91,7 @@ type clients struct {
 	rolesService                     RolesServiceClient
 	roleBindingsService              RoleBindingsServiceClient
 	externalGroupRoleMappingsService ExternalGroupRoleMappingsServiceClient
+	termsService                     TermsServiceClient
 
 	conn *grpc.ClientConn
 }
@@ -121,6 +128,10 @@ func (c *clients) RoleBindingsService() RoleBindingsServiceClient {
 
 func (c *clients) ExternalGroupRoleMappingsService() ExternalGroupRoleMappingsServiceClient {
 	return c.externalGroupRoleMappingsService
+}
+
+func (c *clients) TermsService() TermsServiceClient {
+	return c.termsService
 }
 
 func (c *clients) Close() error {
@@ -264,4 +275,20 @@ func (c *clients) ListExternalGroupRoleMappingsIter(ctx context.Context, req *Li
 // For large result sets, consider using ListExternalGroupRoleMappingsIter directly to process items incrementally.
 func (c *clients) ListExternalGroupRoleMappingsAll(ctx context.Context, req *ListExternalGroupRoleMappingsRequest) ([]*ExternalGroupRoleMapping, error) {
 	return v2iter.All(c.ListExternalGroupRoleMappingsIter(ctx, req))
+}
+
+// ListTermsAcceptancesIter returns an iterator over terms acceptances matching the request.
+func (c *clients) ListTermsAcceptancesIter(ctx context.Context, req *ListTermsAcceptancesRequest) iter.Seq2[*TermsAcceptance, error] {
+	return v2iter.Paginate(ctx, req, "terms_acceptances", func(ctx context.Context, r *ListTermsAcceptancesRequest) ([]*TermsAcceptance, string, error) {
+		resp, err := c.TermsService().ListTermsAcceptances(ctx, r)
+		if err != nil {
+			return nil, "", err
+		}
+		return resp.GetTermsAcceptances(), resp.GetNextPageToken(), nil
+	})
+}
+
+// ListTermsAcceptancesAll fetches all terms acceptances matching the request by automatically handling pagination.
+func (c *clients) ListTermsAcceptancesAll(ctx context.Context, req *ListTermsAcceptancesRequest) ([]*TermsAcceptance, error) {
+	return v2iter.All(c.ListTermsAcceptancesIter(ctx, req))
 }

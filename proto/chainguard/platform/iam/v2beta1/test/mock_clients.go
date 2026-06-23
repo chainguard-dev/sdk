@@ -24,6 +24,7 @@ type MockClients struct {
 	RolesServiceClient                     MockRolesServiceClient
 	RoleBindingsServiceClient              MockRoleBindingsServiceClient
 	ExternalGroupRoleMappingsServiceClient MockExternalGroupRoleMappingsServiceClient
+	TermsServiceClient                     MockTermsServiceClient
 }
 
 // Close implements [v2beta1.Clients].
@@ -83,6 +84,11 @@ func (m *MockClients) ListExternalGroupRoleMappingsAll(ctx context.Context, req 
 // ListExternalGroupRoleMappingsIter implements [v2beta1.Clients].
 func (m *MockClients) ListExternalGroupRoleMappingsIter(ctx context.Context, req *iam.ListExternalGroupRoleMappingsRequest) iter.Seq2[*iam.ExternalGroupRoleMapping, error] {
 	return test.MockIter(m.ListExternalGroupRoleMappingsAll(ctx, req))
+}
+
+// TermsService implements [v2beta1.Clients].
+func (m *MockClients) TermsService() iam.TermsServiceClient {
+	return &m.TermsServiceClient
 }
 
 // ListAccountAssociationsAll implements [v2beta1.Clients].
@@ -181,6 +187,20 @@ func (m *MockClients) ListRolesAll(ctx context.Context, req *iam.ListRolesReques
 // ListRolesIter implements [v2beta1.Clients].
 func (m *MockClients) ListRolesIter(ctx context.Context, req *iam.ListRolesRequest) iter.Seq2[*iam.Role, error] {
 	return test.MockIter(m.ListRolesAll(ctx, req))
+}
+
+// ListTermsAcceptancesAll implements [v2beta1.Clients].
+func (m *MockClients) ListTermsAcceptancesAll(ctx context.Context, req *iam.ListTermsAcceptancesRequest) ([]*iam.TermsAcceptance, error) {
+	resp, err := m.TermsServiceClient.ListTermsAcceptances(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.GetTermsAcceptances(), nil
+}
+
+// ListTermsAcceptancesIter implements [v2beta1.Clients].
+func (m *MockClients) ListTermsAcceptancesIter(ctx context.Context, req *iam.ListTermsAcceptancesRequest) iter.Seq2[*iam.TermsAcceptance, error] {
+	return test.MockIter(m.ListTermsAcceptancesAll(ctx, req))
 }
 
 var _ iam.Clients = (*MockClients)(nil)
