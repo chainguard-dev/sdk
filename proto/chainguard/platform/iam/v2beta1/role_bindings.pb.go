@@ -765,7 +765,12 @@ type BatchCreateRoleBindingsRequest struct {
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
 	// The role bindings to create. Each must specify identity_uid and role_uid.
 	// A maximum of 25 requests can be created in a batch.
-	Requests      []*CreateRoleBindingRequest `protobuf:"bytes,2,rep,name=requests,proto3" json:"requests,omitempty"`
+	Requests []*CreateRoleBindingRequest `protobuf:"bytes,2,rep,name=requests,proto3" json:"requests,omitempty"`
+	// Optional role UID applied to all sub-requests that do not specify their own
+	// role_uid. When set, sub-requests may omit role_uid and it will be inherited
+	// from this field. If a sub-request specifies a different role_uid, the request
+	// fails with INVALID_ARGUMENT (conflict detection per AIP-233).
+	RoleUid       string `protobuf:"bytes,3,opt,name=role_uid,json=roleUid,proto3" json:"role_uid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -812,6 +817,13 @@ func (x *BatchCreateRoleBindingsRequest) GetRequests() []*CreateRoleBindingReque
 		return x.Requests
 	}
 	return nil
+}
+
+func (x *BatchCreateRoleBindingsRequest) GetRoleUid() string {
+	if x != nil {
+		return x.RoleUid
+	}
+	return ""
 }
 
 // BatchCreateRoleBindingsResponse is the response for BatchCreateRoleBindings.
@@ -922,11 +934,12 @@ const file_chainguard_platform_iam_v2beta1_role_bindings_proto_rawDesc = "" +
 	"\frole_binding\x18\x01 \x01(\v2,.chainguard.platform.iam.v2beta1.RoleBindingB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\vroleBinding\x12A\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x04\xe2A\x01\x01R\n" +
-	"updateMask\"\xa1\x01\n" +
+	"updateMask\"\xc2\x01\n" +
 	"\x1eBatchCreateRoleBindingsRequest\x12\"\n" +
 	"\x06parent\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12[\n" +
-	"\brequests\x18\x02 \x03(\v29.chainguard.platform.iam.v2beta1.CreateRoleBindingRequestB\x04\xe2A\x01\x02R\brequests\"t\n" +
+	"\brequests\x18\x02 \x03(\v29.chainguard.platform.iam.v2beta1.CreateRoleBindingRequestB\x04\xe2A\x01\x02R\brequests\x12\x1f\n" +
+	"\brole_uid\x18\x03 \x01(\tB\x04\xe2A\x01\x01R\aroleUid\"t\n" +
 	"\x1fBatchCreateRoleBindingsResponse\x12Q\n" +
 	"\rrole_bindings\x18\x01 \x03(\v2,.chainguard.platform.iam.v2beta1.RoleBindingR\froleBindings2\xa1\x0f\n" +
 	"\x13RoleBindingsService\x12\xe2\x01\n" +

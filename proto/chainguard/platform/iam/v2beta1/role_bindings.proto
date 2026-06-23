@@ -360,6 +360,12 @@ message BatchCreateRoleBindingsRequest {
   // The role bindings to create. Each must specify identity_uid and role_uid.
   // A maximum of 25 requests can be created in a batch.
   repeated CreateRoleBindingRequest requests = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Optional role UID applied to all sub-requests that do not specify their own
+  // role_uid. When set, sub-requests may omit role_uid and it will be inherited
+  // from this field. If a sub-request specifies a different role_uid, the request
+  // fails with INVALID_ARGUMENT (conflict detection per AIP-233).
+  string role_uid = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // BatchCreateRoleBindingsResponse is the response for BatchCreateRoleBindings.
