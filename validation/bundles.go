@@ -10,7 +10,7 @@ import (
 	"regexp"
 )
 
-const bundleAllowList = `^application$|^base$|^byol$|^ai$|^ai-gpu$|^featured$|^fips$|^commercial$`
+const bundleAllowList = `^application$|^base$|^byol$|^ai$|^ai-gpu$|^featured$|^fips$|^commercial$|^emeritoss$`
 
 var (
 	bundleAllowListCompiled = regexp.MustCompile(bundleAllowList)
