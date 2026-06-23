@@ -1,0 +1,102 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.registry.v2beta1;
+
+import "annotations/auth.proto";
+import "annotations/mcp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/registry/v2beta1";
+option java_multiple_files = true;
+option java_outer_classname = "ImagesProto";
+option java_package = "com.chainguard.platform.registry.v2beta1";
+
+// ImagesService provides read-only operations on container image manifests.
+service ImagesService {
+  // GetArchitectures returns the architectures present in an OCI index manifest.
+  rpc GetArchitectures(GetArchitecturesRequest) returns (Architectures) {
+    option (google.api.http) = {get: "/registry/v2beta1/repos/{repo_uid=**}/digests/{digest}/architectures"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_REPO_LIST,
+          CAP_MANIFEST_METADATA_LIST
+        ]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get the architectures present in a container image manifest list."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // GetSize returns the size of a container image for a specific architecture.
+  rpc GetSize(GetSizeRequest) returns (Size) {
+    option (google.api.http) = {get: "/registry/v2beta1/repos/{repo_uid=**}/digests/{digest}/size"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_REPO_LIST,
+          CAP_MANIFEST_METADATA_LIST
+        ]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get the size of a container image for a specific architecture."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+}
+
+// GetArchitecturesRequest is the request message for GetArchitectures.
+message GetArchitecturesRequest {
+  // UIDP of the repository containing the image.
+  string repo_uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Digest of the OCI index manifest.
+  string digest = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// Architectures contains the architectures present in an OCI index manifest.
+message Architectures {
+  // Architecture names (e.g., "amd64", "arm64").
+  repeated string architectures = 1;
+}
+
+// GetSizeRequest is the request message for GetSize.
+message GetSizeRequest {
+  // UIDP of the repository containing the image.
+  string repo_uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Digest of the OCI index manifest.
+  string digest = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Architecture to get the size for (e.g., "amd64", "arm64").
+  // Defaults to "amd64" if not specified.
+  string architecture = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Size contains the size of a container image for a specific architecture.
+message Size {
+  // Total size in bytes (sum of all layers plus config).
+  int64 size = 1;
+
+  // Architecture the size was computed for.
+  string architecture = 2;
+}

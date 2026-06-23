@@ -58,6 +58,12 @@ func ExampleClients_ListTagsAll() {
 	// Output: func available
 }
 
+func ExampleClients_ImagesService() {
+	clients := registry.NewClientsFromConnection(nil)
+	fmt.Println(clients.ImagesService() != nil)
+	// Output: true
+}
+
 func ExampleClients_Close() {
 	clients := registry.NewClientsFromConnection(nil)
 	_ = clients.Close()
