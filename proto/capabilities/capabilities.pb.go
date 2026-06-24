@@ -122,8 +122,10 @@ const (
 	Capability_CAP_TAG_DELETE             Capability = 1614
 	Capability_CAP_MANIFEST_METADATA_LIST Capability = 1615
 	Capability_CAP_REFERRERS_LIST         Capability = 1616
-	// repo.sync.admin allows administering repository sync settings.
-	Capability_CAP_REPO_SYNC_ADMIN Capability = 1617
+	// repo.internal.admin allows administering internal-only repository fields
+	// (catalog tier, bundles, aliases, active tags, README, and sync settings)
+	// that are otherwise read-only to customers.
+	Capability_CAP_REPO_INTERNAL_ADMIN Capability = 1617
 	// apk.blobs.get is a capability required to pull APKs.
 	// We explicitly define this to distinguish roles that allow browsing/viewing
 	// metadata associated with APKs vs pulling the APK itself.
@@ -331,7 +333,7 @@ var (
 		1614:  "CAP_TAG_DELETE",
 		1615:  "CAP_MANIFEST_METADATA_LIST",
 		1616:  "CAP_REFERRERS_LIST",
-		1617:  "CAP_REPO_SYNC_ADMIN",
+		1617:  "CAP_REPO_INTERNAL_ADMIN",
 		1655:  "CAP_APK_BLOBS_GET",
 		1650:  "CAP_APK_CREATE",
 		1651:  "CAP_APK_UPDATE",
@@ -497,7 +499,7 @@ var (
 		"CAP_TAG_DELETE":                                     1614,
 		"CAP_MANIFEST_METADATA_LIST":                         1615,
 		"CAP_REFERRERS_LIST":                                 1616,
-		"CAP_REPO_SYNC_ADMIN":                                1617,
+		"CAP_REPO_INTERNAL_ADMIN":                            1617,
 		"CAP_APK_BLOBS_GET":                                  1655,
 		"CAP_APK_CREATE":                                     1650,
 		"CAP_APK_UPDATE":                                     1651,
@@ -676,7 +678,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x88V\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x90V\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -758,8 +760,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x0eCAP_TAG_DELETE\x10\xce\f\x1a\x15\xa8ˑMC\x9a\xaf\xa8\xd2\x05\n" +
 	"tag.delete\x12B\n" +
 	"\x1aCAP_MANIFEST_METADATA_LIST\x10\xcf\f\x1a!\xa8ˑMH\x9a\xaf\xa8\xd2\x05\x16manifest.metadata.list\x122\n" +
-	"\x12CAP_REFERRERS_LIST\x10\xd0\f\x1a\x19\xa8ˑM|\x9a\xaf\xa8\xd2\x05\x0ereferrers.list\x12;\n" +
-	"\x13CAP_REPO_SYNC_ADMIN\x10\xd1\f\x1a!\xa8ˑM\xa8\x01\x9a\xaf\xa8\xd2\x05\x0frepo.sync.admin\xa0\xaf\xa8\xd2\x05\x01\x120\n" +
+	"\x12CAP_REFERRERS_LIST\x10\xd0\f\x1a\x19\xa8ˑM|\x9a\xaf\xa8\xd2\x05\x0ereferrers.list\x12C\n" +
+	"\x17CAP_REPO_INTERNAL_ADMIN\x10\xd1\f\x1a%\xa8ˑM\xa8\x01\x9a\xaf\xa8\xd2\x05\x13repo.internal.admin\xa0\xaf\xa8\xd2\x05\x01\x120\n" +
 	"\x11CAP_APK_BLOBS_GET\x10\xf7\f\x1a\x18\xa8ˑMl\x9a\xaf\xa8\xd2\x05\rapk.blobs.get\x12*\n" +
 	"\x0eCAP_APK_CREATE\x10\xf2\f\x1a\x15\xa8ˑMI\x9a\xaf\xa8\xd2\x05\n" +
 	"apk.create\x12*\n" +

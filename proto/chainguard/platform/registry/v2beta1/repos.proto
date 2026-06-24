@@ -151,34 +151,32 @@ message Repo {
   string name = 2 [(google.api.field_behavior) = REQUIRED];
 
   // Optional description of the repository.
-  // Not settable on repositories with a sync_config because it is synced
-  // from the source repository.
+  // For repositories that sync from another repository, this defaults to that
+  // repository's description.
   string description = 3 [(google.api.field_behavior) = OPTIONAL];
 
   // Catalog tier this repository belongs to.
-  // Only meaningful for repositories in Chainguard catalog organizations.
-  // Not settable on repositories with a sync_config because it is synced
-  // from the source repository.
-  CatalogTier catalog_tier = 4 [(google.api.field_behavior) = OPTIONAL];
+  // For repositories that sync from another repository, this is synced from
+  // that repository.
+  CatalogTier catalog_tier = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Sales grouping labels for the repository.
-  // Only meaningful for repositories in Chainguard catalog organizations.
-  // Not settable on repositories with a sync_config because they are synced
-  // from the source repository.
-  repeated string bundles = 5 [(google.api.field_behavior) = OPTIONAL];
+  // For repositories that sync from another repository, these are synced from
+  // that repository.
+  repeated string bundles = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   reserved 6;
   reserved "readme";
 
   // List of equivalent image names/aliases.
-  // Not settable on repositories with a sync_config because they are synced
-  // from the source repository.
-  repeated string aliases = 7 [(google.api.field_behavior) = OPTIONAL];
+  // For repositories that sync from another repository, these are synced from
+  // that repository.
+  repeated string aliases = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Actively maintained tags in this repository.
-  // Not settable on repositories with a sync_config because it reflects the
-  // tags synced from the source repository.
-  repeated string active_tags = 8 [(google.api.field_behavior) = OPTIONAL];
+  // For repositories that sync from another repository, these are synced from
+  // that repository.
+  repeated string active_tags = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Repository sync configuration. If set, images and metadata are synced
   // from the source repository to this one.

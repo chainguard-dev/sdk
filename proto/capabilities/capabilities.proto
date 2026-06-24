@@ -138,8 +138,10 @@ enum Capability {
   CAP_MANIFEST_METADATA_LIST = 1615 [(name) = "manifest.metadata.list", (bit) = 72];
   CAP_REFERRERS_LIST         = 1616 [(name) = "referrers.list",         (bit) = 124];
 
-  // repo.sync.admin allows administering repository sync settings.
-  CAP_REPO_SYNC_ADMIN = 1617 [(name) = "repo.sync.admin", (bit) = 168, (internal_only) = true];
+  // repo.internal.admin allows administering internal-only repository fields
+  // (catalog tier, bundles, aliases, active tags, README, and sync settings)
+  // that are otherwise read-only to customers.
+  CAP_REPO_INTERNAL_ADMIN = 1617 [(name) = "repo.internal.admin", (bit) = 168, (internal_only) = true];
 
   // apk.blobs.get is a capability required to pull APKs.
   // We explicitly define this to distinguish roles that allow browsing/viewing
