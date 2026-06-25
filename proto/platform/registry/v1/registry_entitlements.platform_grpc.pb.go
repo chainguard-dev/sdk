@@ -29,6 +29,7 @@ const (
 	Entitlements_CreateEntitlement_FullMethodName            = "/chainguard.platform.registry.Entitlements/CreateEntitlement"
 	Entitlements_DeleteEntitlement_FullMethodName            = "/chainguard.platform.registry.Entitlements/DeleteEntitlement"
 	Entitlements_AddEntitlementImages_FullMethodName         = "/chainguard.platform.registry.Entitlements/AddEntitlementImages"
+	Entitlements_RemoveEntitlementImages_FullMethodName      = "/chainguard.platform.registry.Entitlements/RemoveEntitlementImages"
 )
 
 // EntitlementsClient is the client API for Entitlements service.
@@ -56,6 +57,18 @@ type EntitlementsClient interface {
 	// The backend selects an eligible entitlement with matching tier capacity,
 	// preferring the newest, unless an explicit entitlement_id is provided.
 	AddEntitlementImages(ctx context.Context, in *AddEntitlementImagesRequest, opts ...grpc.CallOption) (*AddEntitlementImagesResponse, error)
+	// RemoveEntitlementImages removes catalog images from an organization's
+	// entitlements. Images are specified by name and matched against the names
+	// currently associated with the targeted entitlement(s).
+	// When selecting by parent, the named images are removed from every
+	// entitlement under the org that currently has them. When selecting by
+	// entitlement id, only that entitlement is affected. Names that aren't
+	// currently entitled are silently skipped — the response lists only the
+	// removals that actually happened.
+	//
+	// Removal is a soft delete: the underlying rows are retained with a deletion
+	// timestamp so that history can be reconstructed for audit purposes.
+	RemoveEntitlementImages(ctx context.Context, in *RemoveEntitlementImagesRequest, opts ...grpc.CallOption) (*RemoveEntitlementImagesResponse, error)
 }
 
 type entitlementsClient struct {
@@ -156,6 +169,16 @@ func (c *entitlementsClient) AddEntitlementImages(ctx context.Context, in *AddEn
 	return out, nil
 }
 
+func (c *entitlementsClient) RemoveEntitlementImages(ctx context.Context, in *RemoveEntitlementImagesRequest, opts ...grpc.CallOption) (*RemoveEntitlementImagesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RemoveEntitlementImagesResponse)
+	err := c.cc.Invoke(ctx, Entitlements_RemoveEntitlementImages_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // EntitlementsServer is the server API for Entitlements service.
 // All implementations must embed UnimplementedEntitlementsServer
 // for forward compatibility.
@@ -181,6 +204,18 @@ type EntitlementsServer interface {
 	// The backend selects an eligible entitlement with matching tier capacity,
 	// preferring the newest, unless an explicit entitlement_id is provided.
 	AddEntitlementImages(context.Context, *AddEntitlementImagesRequest) (*AddEntitlementImagesResponse, error)
+	// RemoveEntitlementImages removes catalog images from an organization's
+	// entitlements. Images are specified by name and matched against the names
+	// currently associated with the targeted entitlement(s).
+	// When selecting by parent, the named images are removed from every
+	// entitlement under the org that currently has them. When selecting by
+	// entitlement id, only that entitlement is affected. Names that aren't
+	// currently entitled are silently skipped — the response lists only the
+	// removals that actually happened.
+	//
+	// Removal is a soft delete: the underlying rows are retained with a deletion
+	// timestamp so that history can be reconstructed for audit purposes.
+	RemoveEntitlementImages(context.Context, *RemoveEntitlementImagesRequest) (*RemoveEntitlementImagesResponse, error)
 	mustEmbedUnimplementedEntitlementsServer()
 }
 
@@ -217,6 +252,9 @@ func (UnimplementedEntitlementsServer) DeleteEntitlement(context.Context, *Delet
 }
 func (UnimplementedEntitlementsServer) AddEntitlementImages(context.Context, *AddEntitlementImagesRequest) (*AddEntitlementImagesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method AddEntitlementImages not implemented")
+}
+func (UnimplementedEntitlementsServer) RemoveEntitlementImages(context.Context, *RemoveEntitlementImagesRequest) (*RemoveEntitlementImagesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RemoveEntitlementImages not implemented")
 }
 func (UnimplementedEntitlementsServer) mustEmbedUnimplementedEntitlementsServer() {}
 func (UnimplementedEntitlementsServer) testEmbeddedByValue()                      {}
@@ -401,6 +439,24 @@ func _Entitlements_AddEntitlementImages_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Entitlements_RemoveEntitlementImages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveEntitlementImagesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EntitlementsServer).RemoveEntitlementImages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Entitlements_RemoveEntitlementImages_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EntitlementsServer).RemoveEntitlementImages(ctx, req.(*RemoveEntitlementImagesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Entitlements_ServiceDesc is the grpc.ServiceDesc for Entitlements service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -443,6 +499,10 @@ var Entitlements_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddEntitlementImages",
 			Handler:    _Entitlements_AddEntitlementImages_Handler,
+		},
+		{
+			MethodName: "RemoveEntitlementImages",
+			Handler:    _Entitlements_RemoveEntitlementImages_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -56,3 +56,21 @@ func (x *AddEntitlementImagesResponse) CloudEventsExtension(key string) (string,
 func (x *AddEntitlementImagesResponse) CloudEventsSubject() string {
 	return x.GetParent()
 }
+
+// CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension
+func (x *RemoveEntitlementImagesResponse) CloudEventsExtension(key string) (string, bool) {
+	switch key {
+	case "group":
+		return x.GetParent(), true
+	default:
+		return "", false
+	}
+}
+
+// CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
+// Returns the customer org UIDP whose entitlements were affected, matching
+// the AddEntitlementImagesResponse pattern so the same downstream subscribers
+// can route both events.
+func (x *RemoveEntitlementImagesResponse) CloudEventsSubject() string {
+	return x.GetParent()
+}

@@ -520,6 +520,76 @@ func local_request_Entitlements_AddEntitlementImages_0(ctx context.Context, mars
 
 }
 
+func request_Entitlements_RemoveEntitlementImages_0(ctx context.Context, marshaler runtime.Marshaler, client EntitlementsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq RemoveEntitlementImagesRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["parent"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
+	}
+
+	if protoReq.Entitlement == nil {
+		protoReq.Entitlement = &RemoveEntitlementImagesRequest_Parent{}
+	} else if _, ok := protoReq.Entitlement.(*RemoveEntitlementImagesRequest_Parent); !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "expect type: *RemoveEntitlementImagesRequest_Parent, but: %t\n", protoReq.Entitlement)
+	}
+	protoReq.Entitlement.(*RemoveEntitlementImagesRequest_Parent).Parent, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
+	}
+
+	msg, err := client.RemoveEntitlementImages(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_Entitlements_RemoveEntitlementImages_0(ctx context.Context, marshaler runtime.Marshaler, server EntitlementsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq RemoveEntitlementImagesRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["parent"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
+	}
+
+	if protoReq.Entitlement == nil {
+		protoReq.Entitlement = &RemoveEntitlementImagesRequest_Parent{}
+	} else if _, ok := protoReq.Entitlement.(*RemoveEntitlementImagesRequest_Parent); !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "expect type: *RemoveEntitlementImagesRequest_Parent, but: %t\n", protoReq.Entitlement)
+	}
+	protoReq.Entitlement.(*RemoveEntitlementImagesRequest_Parent).Parent, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
+	}
+
+	msg, err := server.RemoveEntitlementImages(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
 // RegisterEntitlementsHandlerServer registers the http handlers for service Entitlements to "mux".
 // UnaryRPC     :call EntitlementsServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -749,6 +819,31 @@ func RegisterEntitlementsHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		}
 
 		forward_Entitlements_AddEntitlementImages_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_Entitlements_RemoveEntitlementImages_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.Entitlements/RemoveEntitlementImages", runtime.WithHTTPPathPattern("/registry/v1/entitlements/{parent=**}:removeImages"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_Entitlements_RemoveEntitlementImages_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Entitlements_RemoveEntitlementImages_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -991,6 +1086,28 @@ func RegisterEntitlementsHandlerClient(ctx context.Context, mux *runtime.ServeMu
 
 	})
 
+	mux.Handle("POST", pattern_Entitlements_RemoveEntitlementImages_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.Entitlements/RemoveEntitlementImages", runtime.WithHTTPPathPattern("/registry/v1/entitlements/{parent=**}:removeImages"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_Entitlements_RemoveEntitlementImages_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Entitlements_RemoveEntitlementImages_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	return nil
 }
 
@@ -1012,6 +1129,8 @@ var (
 	pattern_Entitlements_DeleteEntitlement_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "entitlements", "id"}, ""))
 
 	pattern_Entitlements_AddEntitlementImages_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "entitlements", "parent"}, "addImages"))
+
+	pattern_Entitlements_RemoveEntitlementImages_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v1", "entitlements", "parent"}, "removeImages"))
 )
 
 var (
@@ -1032,4 +1151,6 @@ var (
 	forward_Entitlements_DeleteEntitlement_0 = runtime.ForwardResponseMessage
 
 	forward_Entitlements_AddEntitlementImages_0 = runtime.ForwardResponseMessage
+
+	forward_Entitlements_RemoveEntitlementImages_0 = runtime.ForwardResponseMessage
 )

@@ -27,6 +27,7 @@ type MockEntitlementsClient struct {
 	OnGetFeatures                  []FeaturesOnGet
 	OnGetEffectiveEntitlements     []EffectiveEntitlementsOnGet
 	OnAddEntitlementImages         []AddEntitlementImagesOnAdd
+	OnRemoveEntitlementImages      []RemoveEntitlementImagesOnRemove
 }
 
 type EntitlementsOnList struct {
@@ -68,6 +69,12 @@ type EffectiveEntitlementsOnGet struct {
 type AddEntitlementImagesOnAdd struct {
 	Given    *registry.AddEntitlementImagesRequest
 	Response *registry.AddEntitlementImagesResponse
+	Error    error
+}
+
+type RemoveEntitlementImagesOnRemove struct {
+	Given    *registry.RemoveEntitlementImagesRequest
+	Response *registry.RemoveEntitlementImagesResponse
 	Error    error
 }
 
@@ -127,6 +134,15 @@ func (m *MockEntitlementsClient) GetEffectiveEntitlements(_ context.Context, giv
 
 func (m *MockEntitlementsClient) AddEntitlementImages(_ context.Context, given *registry.AddEntitlementImagesRequest, _ ...grpc.CallOption) (*registry.AddEntitlementImagesResponse, error) {
 	for _, o := range m.OnAddEntitlementImages {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m *MockEntitlementsClient) RemoveEntitlementImages(_ context.Context, given *registry.RemoveEntitlementImagesRequest, _ ...grpc.CallOption) (*registry.RemoveEntitlementImagesResponse, error) {
+	for _, o := range m.OnRemoveEntitlementImages {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Response, o.Error
 		}

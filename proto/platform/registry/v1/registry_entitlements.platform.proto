@@ -130,6 +130,36 @@ service Entitlements {
       audience: INTERNAL
     };
   }
+
+  // RemoveEntitlementImages removes catalog images from an organization's
+  // entitlements. Images are specified by name and matched against the names
+  // currently associated with the targeted entitlement(s).
+  // When selecting by parent, the named images are removed from every
+  // entitlement under the org that currently has them. When selecting by
+  // entitlement id, only that entitlement is affected. Names that aren't
+  // currently entitled are silently skipped — the response lists only the
+  // removals that actually happened.
+  //
+  // Removal is a soft delete: the underlying rows are retained with a deletion
+  // timestamp so that history can be reconstructed for audit purposes.
+  rpc RemoveEntitlementImages(RemoveEntitlementImagesRequest) returns (RemoveEntitlementImagesResponse) {
+    option (google.api.http) = {
+      post: "/registry/v1/entitlements/{parent=**}:removeImages"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {tags: "RegistryEntitlements"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_ENTITLEMENTS_IMAGES_REMOVE]
+        unscoped: true
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.registry.entitlement.images.removed.v1"
+      extensions: ["group"]
+      audience: INTERNAL
+    };
+  }
 }
 
 // Entitlement contains information about what an organization is entitled to.
@@ -286,5 +316,35 @@ message AddEntitlementImagesResponse {
   // to the resolved parent of the target entitlement, regardless of
   // whether the request selected by parent or by entitlement id. Used
   // as the CloudEvents subject for downstream subscribers.
+  string parent = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message RemoveEntitlementImagesRequest {
+  // Specify how to select which entitlements to remove images from.
+  // Callers must have scope over the id in the provided field.
+  oneof entitlement {
+    // The organization to remove images from. The named images are
+    // removed from every active entitlement under the org that has them.
+    string parent = 1;
+    // The exact id of the entitlement to remove images from.
+    string id = 2;
+  }
+  // Catalog image names to remove (e.g., "nginx", "redis"). Matched against
+  // the names of catalog images currently associated with the targeted
+  // entitlement(s). Names that aren't currently entitled are silent no-ops.
+  repeated string image_names = 3;
+}
+
+message RemoveEntitlementImagesResponse {
+  // The images that were removed. One entry per removal event — when a
+  // single image is removed from multiple entitlements (org-scoped remove),
+  // it appears once per affected entitlement so callers can see the
+  // per-entitlement effect.
+  repeated EntitledImage images = 1;
+
+  // The customer org UIDP that owned the affected entitlements. Set by
+  // the backend to the resolved parent regardless of whether the request
+  // selected by parent or by entitlement id. Used as the CloudEvents
+  // subject for downstream subscribers.
   string parent = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
