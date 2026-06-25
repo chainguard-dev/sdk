@@ -1204,6 +1204,18 @@ message ChartImage {
   string name = 1;
   // The image reference.
   string image = 2;
+  // Whether this image is required for the chart to deploy, or optional.
+  // Sourced from the chart-lock attestation's cg.json template; UNSPECIFIED
+  // for charts that do not carry a chart-lock predicate.
+  ChartImageRequirement requirement = 3;
+}
+
+// ChartImageRequirement indicates whether a chart image is required or
+// optional for the chart to deploy.
+enum ChartImageRequirement {
+  REQUIREMENT_UNSPECIFIED = 0;
+  REQUIREMENT_REQUIRED = 1;
+  REQUIREMENT_OPTIONAL = 2;
 }
 
 // Deployment configuration for a repository
