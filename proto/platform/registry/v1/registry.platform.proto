@@ -716,7 +716,7 @@ message DiffImageResponse {
   reserved 4;
 
   // warnings is a list of warning messages to return to the requesting client.
-  // Warning messages describe a problem the client making the DiffImageRequest should correct or be aware of.
+  // Warning messages describe a problem the requesting client should correct or be aware of.
   // Warnings over 256 characters and large numbers of warnings may be truncated.
   repeated string warnings = 5;
 }
@@ -831,15 +831,6 @@ message VulnerabilityReference {
   string id = 1;
   string reference = 2;
   string severity = 3;
-}
-
-// DiffImageRequests are used to request a diff between two images.
-message DiffImageRequest {
-  // The UIDP of the image repo to diff against.
-  string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
-
-  string from_digest = 2;
-  string to_digest = 3;
 }
 
 message ArchRequest {
