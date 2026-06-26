@@ -262,6 +262,9 @@ enum Capability {
 
   // Guardener
   CAP_GUARDENER_DFC_CONVERT = 2301 [(name) = "guardener.dfc.convert", (bit) = 127];
+  // guardener.association.manage gates self-service linking/unlinking of a
+  // GitHub org to a Chainguard group (the GroupAccountAssociations record).
+  CAP_GUARDENER_ASSOCIATION_MANAGE = 2302 [(name) = "guardener.association.manage", (bit) = 170];
 
   // MCP tool calls
   CAP_MCP_TOOL_CALL = 2401 [(name) = "mcp.tool.call", (bit) = 128];

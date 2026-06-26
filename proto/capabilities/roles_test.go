@@ -31,6 +31,26 @@ func TestSkillsPublishCaps(t *testing.T) {
 	}
 }
 
+// TestGuardenerAdminCaps pins the admin bundle's membership so a regression
+// can't silently drop the capability that gates self-service GitHub org
+// linking, and confirms admins retain the full user capability set.
+func TestGuardenerAdminCaps(t *testing.T) {
+	required := map[Capability]struct{}{
+		Capability_CAP_GUARDENER_ASSOCIATION_MANAGE: {},
+		Capability_CAP_TERMS_ACCEPT:                 {},
+		Capability_CAP_GUARDENER_DFC_CONVERT:        {},
+	}
+	got := make(map[Capability]struct{}, len(GuardenerAdminCaps))
+	for _, c := range GuardenerAdminCaps {
+		got[c] = struct{}{}
+	}
+	for c := range required {
+		if _, ok := got[c]; !ok {
+			t.Errorf("GuardenerAdminCaps missing %v", c)
+		}
+	}
+}
+
 func TestSortCaps(t *testing.T) {
 	tests := []struct {
 		name      string

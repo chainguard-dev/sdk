@@ -346,9 +346,11 @@ var (
 
 	// GuardenerAdminCaps extends GuardenerUserCaps with terms.accept so
 	// admins can record acceptance of the legal documents that the DFC
-	// server requires before sessions can start.
+	// server requires before sessions can start, and association.manage so
+	// admins can self-service link/unlink a GitHub org to the group.
 	GuardenerAdminCaps = SortCaps([]Capability{
 		Capability_CAP_TERMS_ACCEPT,
+		Capability_CAP_GUARDENER_ASSOCIATION_MANAGE,
 	}, GuardenerUserCaps)
 
 	MCPToolUserCaps = SortCaps([]Capability{

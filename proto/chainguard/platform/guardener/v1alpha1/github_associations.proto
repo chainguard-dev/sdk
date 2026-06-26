@@ -1,0 +1,180 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.guardener.v1alpha1;
+
+import "annotations/auth.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/guardener/v1alpha1";
+option java_multiple_files = true;
+option java_outer_classname = "GitHubAssociationsProto";
+option java_package = "com.chainguard.platform.guardener.v1alpha1";
+
+// GitHubAssociations is the guardener self-service surface for linking a GitHub
+// organization to a Chainguard group, and unlinking it again.
+//
+// Both mutating RPCs take a GitHub OAuth authorization code obtained by the
+// client's localhost flow; the server exchanges it for a user-to-server token
+// and verifies, one time, that the caller is an owner of the organization (and
+// that the guardener GitHub App is installed on it). The user token is never
+// persisted.
+service GitHubAssociations {
+  // BeginGitHubOAuth starts a GitHub OAuth localhost flow. It returns the
+  // guardener GitHub App's OAuth client ID and a short-lived signed `state` the
+  // client threads through the authorize round trip and hands back on the
+  // mutating RPC. (When linking fails because the App isn't installed, the
+  // install URL is surfaced in the LinkGitHubOrganization error, not here.)
+  //
+  // The caller must be authenticated (a valid Chainguard token); no capability
+  // is required. The interceptor auth is disabled — the handler itself requires
+  // a token — so the `state` it mints attests that a logged-in Chainguard user
+  // initiated the flow. The server verifies that state before performing any
+  // GitHub token exchange, which is what keeps the (otherwise Chainguard-
+  // unauthenticated) GitHub-ownership unlink path behind a login.
+  rpc BeginGitHubOAuth(BeginGitHubOAuthRequest) returns (BeginGitHubOAuthResponse) {
+    option (google.api.http) = {get: "/guardener/v1alpha1/githubAssociations:begin"};
+    option (chainguard.annotations.iam) = {
+      disabled: {}
+    };
+  }
+
+  // LinkGitHubOrganization links a GitHub organization to a Chainguard group.
+  // The caller must hold CAP_GUARDENER_ASSOCIATION_MANAGE on the group (owner
+  // on the Chainguard side) AND prove, via the GitHub OAuth code, that they are
+  // an owner of the organization (owner on the GitHub side).
+  rpc LinkGitHubOrganization(LinkGitHubOrganizationRequest) returns (LinkGitHubOrganizationResponse) {
+    option (google.api.http) = {
+      post: "/guardener/v1alpha1/githubAssociations/{group=**}:link"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_GUARDENER_ASSOCIATION_MANAGE]
+      }
+    };
+  }
+
+  // UnlinkGitHubOrganization removes a GitHub organization's association.
+  //
+  // The caller proves authorization one of two ways (a oneof on the request):
+  //   - chainguard: the caller's Chainguard token holds
+  //     guardener.association.manage on the group that owns the org. This is the
+  //     preferred path for someone who already administers the group.
+  //   - github_oauth: a fresh GitHub OAuth code proving the caller is an owner
+  //     of the org, plus the signed `state` from BeginGitHubOAuth. This lets a
+  //     GitHub owner detach an org without group access — but still requires a
+  //     Chainguard login (the state is minted only to authenticated callers).
+  //
+  // The method's interceptor auth is disabled because the credential check
+  // differs per path; the handler enforces the appropriate check (group
+  // capability, or signed state + GitHub ownership) for whichever is supplied.
+  rpc UnlinkGitHubOrganization(UnlinkGitHubOrganizationRequest) returns (UnlinkGitHubOrganizationResponse) {
+    option (google.api.http) = {
+      // GitHub-only path: no group in the URL; the credential is in the body.
+      post: "/guardener/v1alpha1/githubAssociations:unlink"
+      body: "*"
+      additional_bindings {
+        // Chainguard-authorized path, mirroring the link URL: the group is in
+        // the path and populates the `group` credential oneof.
+        post: "/guardener/v1alpha1/githubAssociations/{group=**}:unlink"
+        body: "*"
+      }
+    };
+    option (chainguard.annotations.iam) = {
+      disabled: {}
+    };
+  }
+}
+
+message BeginGitHubOAuthRequest {}
+
+message BeginGitHubOAuthResponse {
+  // client_id is the guardener GitHub App's OAuth client ID (public). Clients
+  // use it to build the GitHub authorize URL for the localhost flow.
+  string client_id = 1;
+
+  // state is a short-lived signed token the client must place in the GitHub
+  // authorize request (as the OAuth `state`) and return on the mutating RPC.
+  // The server verifies it before exchanging the code, so the GitHub-ownership
+  // unlink path stays behind a Chainguard login. Treat it as opaque.
+  string state = 2;
+}
+
+message LinkGitHubOrganizationRequest {
+  // group is the Chainguard group UIDP to link the organization to.
+  string group = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // organization is the GitHub organization login to link.
+  string organization = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // code is the GitHub OAuth authorization code from the client's localhost flow.
+  string code = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // redirect_uri is the loopback redirect URI the client used to obtain code.
+  // It must match for the server-side token exchange.
+  string redirect_uri = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // code_verifier is the PKCE verifier whose S256 challenge the client sent on
+  // the authorize request. The server replays it in the code exchange so an
+  // intercepted code cannot be redeemed without it.
+  string code_verifier = 5 [(google.api.field_behavior) = REQUIRED];
+
+  // state is the signed token from BeginGitHubOAuth, echoed back by GitHub to
+  // the client's loopback. The server verifies it (signature + expiry) and
+  // requires its subject to match the authenticated caller before exchanging
+  // the code, the same as the unlink github_oauth path.
+  string state = 6 [(google.api.field_behavior) = REQUIRED];
+}
+
+message LinkGitHubOrganizationResponse {
+  // installation_id is the GitHub App installation that was linked.
+  int64 installation_id = 1;
+}
+
+message UnlinkGitHubOrganizationRequest {
+  // organization is the GitHub organization login to unlink.
+  string organization = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // credentials selects how the caller proves they may unlink the organization.
+  oneof credentials {
+    // group authorizes via the caller's Chainguard identity, taken from the
+    // standard Authorization header. The token must hold
+    // guardener.association.manage on this group (which must own the org).
+    string group = 2;
+    // github_oauth authorizes via a fresh GitHub OAuth code proving the caller
+    // owns the organization, plus the signed state from BeginGitHubOAuth (which
+    // requires a Chainguard login). No group access is required.
+    GitHubOAuthCredentials github_oauth = 3;
+  }
+}
+
+// GitHubOAuthCredentials authorizes an unlink by proving GitHub org ownership.
+message GitHubOAuthCredentials {
+  // code is the GitHub OAuth authorization code from the client's localhost flow.
+  string code = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // redirect_uri is the loopback redirect URI the client used to obtain code.
+  string redirect_uri = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // code_verifier is the PKCE verifier whose S256 challenge the client sent on
+  // the authorize request. The server replays it in the code exchange so an
+  // intercepted code cannot be redeemed without it.
+  string code_verifier = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // state is the signed token from BeginGitHubOAuth, echoed back by GitHub to
+  // the client's loopback. The server verifies it (signature + expiry) before
+  // exchanging the code, gating the exchange behind a Chainguard login.
+  string state = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+// UnlinkGitHubOrganizationResponse is intentionally empty: the GitHub-only
+// (Chainguard-unauthenticated) path must not leak which group the organization
+// was linked to, so no group is returned on either path.
+message UnlinkGitHubOrganizationResponse {}

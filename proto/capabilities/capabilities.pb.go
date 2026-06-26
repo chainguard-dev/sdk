@@ -224,6 +224,9 @@ const (
 	Capability_CAP_GULFSTREAM Capability = 10000
 	// Guardener
 	Capability_CAP_GUARDENER_DFC_CONVERT Capability = 2301
+	// guardener.association.manage gates self-service linking/unlinking of a
+	// GitHub org to a Chainguard group (the GroupAccountAssociations record).
+	Capability_CAP_GUARDENER_ASSOCIATION_MANAGE Capability = 2302
 	// MCP tool calls
 	Capability_CAP_MCP_TOOL_CALL Capability = 2401
 	// Skills registry — publishing skill artifacts to skills.cgr.dev
@@ -406,6 +409,7 @@ var (
 		2202:  "CAP_TERMS_LIST",
 		10000: "CAP_GULFSTREAM",
 		2301:  "CAP_GUARDENER_DFC_CONVERT",
+		2302:  "CAP_GUARDENER_ASSOCIATION_MANAGE",
 		2401:  "CAP_MCP_TOOL_CALL",
 		2501:  "CAP_SKILLS_PUBLISH",
 		2502:  "CAP_SKILLS_ENTITLEMENTS_CREATE",
@@ -573,6 +577,7 @@ var (
 		"CAP_TERMS_LIST":                                     2202,
 		"CAP_GULFSTREAM":                                     10000,
 		"CAP_GUARDENER_DFC_CONVERT":                          2301,
+		"CAP_GUARDENER_ASSOCIATION_MANAGE":                   2302,
 		"CAP_MCP_TOOL_CALL":                                  2401,
 		"CAP_SKILLS_PUBLISH":                                 2501,
 		"CAP_SKILLS_ENTITLEMENTS_CREATE":                     2502,
@@ -681,7 +686,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xefV\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xc0W\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -840,7 +845,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"terms.list\x12*\n" +
 	"\x0eCAP_GULFSTREAM\x10\x90N\x1a\x15\xa8ˑM/\x9a\xaf\xa8\xd2\x05\n" +
 	"gulfstream\x12@\n" +
-	"\x19CAP_GUARDENER_DFC_CONVERT\x10\xfd\x11\x1a \xa8ˑM\x7f\x9a\xaf\xa8\xd2\x05\x15guardener.dfc.convert\x121\n" +
+	"\x19CAP_GUARDENER_DFC_CONVERT\x10\xfd\x11\x1a \xa8ˑM\x7f\x9a\xaf\xa8\xd2\x05\x15guardener.dfc.convert\x12O\n" +
+	" CAP_GUARDENER_ASSOCIATION_MANAGE\x10\xfe\x11\x1a(\xa8ˑM\xaa\x01\x9a\xaf\xa8\xd2\x05\x1cguardener.association.manage\x121\n" +
 	"\x11CAP_MCP_TOOL_CALL\x10\xe1\x12\x1a\x19\xa8ˑM\x80\x01\x9a\xaf\xa8\xd2\x05\rmcp.tool.call\x123\n" +
 	"\x12CAP_SKILLS_PUBLISH\x10\xc5\x13\x1a\x1a\xa8ˑM\x89\x01\x9a\xaf\xa8\xd2\x05\x0eskills.publish\x12K\n" +
 	"\x1eCAP_SKILLS_ENTITLEMENTS_CREATE\x10\xc6\x13\x1a&\xa8ˑM\x8a\x01\x9a\xaf\xa8\xd2\x05\x1askills.entitlements.create\x12G\n" +
