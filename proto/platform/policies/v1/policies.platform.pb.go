@@ -10,6 +10,7 @@ import (
 	_ "chainguard.dev/sdk/proto/annotations"
 	v1 "chainguard.dev/sdk/proto/platform/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
+	date "google.golang.org/genproto/googleapis/type/date"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -189,6 +190,62 @@ func (x ParameterType) Number() protoreflect.EnumNumber {
 // Deprecated: Use ParameterType.Descriptor instead.
 func (ParameterType) EnumDescriptor() ([]byte, []int) {
 	return file_policies_platform_proto_rawDescGZIP(), []int{2}
+}
+
+// The outcome of a policy evaluation.
+type Result int32
+
+const (
+	Result_RESULT_UNSPECIFIED Result = 0
+	// The artifact satisfied the policy.
+	Result_RESULT_ALLOWED Result = 1
+	// The artifact violated the policy.
+	Result_RESULT_DENIED Result = 2
+	// The policy could not be evaluated.
+	Result_RESULT_ERROR Result = 3
+)
+
+// Enum value maps for Result.
+var (
+	Result_name = map[int32]string{
+		0: "RESULT_UNSPECIFIED",
+		1: "RESULT_ALLOWED",
+		2: "RESULT_DENIED",
+		3: "RESULT_ERROR",
+	}
+	Result_value = map[string]int32{
+		"RESULT_UNSPECIFIED": 0,
+		"RESULT_ALLOWED":     1,
+		"RESULT_DENIED":      2,
+		"RESULT_ERROR":       3,
+	}
+)
+
+func (x Result) Enum() *Result {
+	p := new(Result)
+	*p = x
+	return p
+}
+
+func (x Result) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Result) Descriptor() protoreflect.EnumDescriptor {
+	return file_policies_platform_proto_enumTypes[3].Descriptor()
+}
+
+func (Result) Type() protoreflect.EnumType {
+	return &file_policies_platform_proto_enumTypes[3]
+}
+
+func (x Result) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Result.Descriptor instead.
+func (Result) EnumDescriptor() ([]byte, []int) {
+	return file_policies_platform_proto_rawDescGZIP(), []int{3}
 }
 
 // ParameterSchema declares a single configurable parameter on a Policy.
@@ -1077,11 +1134,346 @@ func (x *DeleteBindingRequest) GetId() string {
 	return ""
 }
 
+// Decision records the outcome of a single pull-time policy evaluation
+// of one artifact digest.
+type Decision struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The id of the Decision, a child of the repository it concerns.
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// The id of the repository whose artifact was evaluated.
+	RepoId string `protobuf:"bytes,2,opt,name=repo_id,json=repoId,proto3" json:"repo_id,omitempty"`
+	// The digest the policy was evaluated against.
+	Digest string `protobuf:"bytes,3,opt,name=digest,proto3" json:"digest,omitempty"`
+	// The id of the policy that was evaluated.
+	PolicyId string `protobuf:"bytes,4,opt,name=policy_id,json=policyId,proto3" json:"policy_id,omitempty"`
+	// The human-readable name of the policy at evaluation time.
+	PolicyName string `protobuf:"bytes,5,opt,name=policy_name,json=policyName,proto3" json:"policy_name,omitempty"`
+	// The mode the policy was evaluated under.
+	Mode PolicyMode `protobuf:"varint,6,opt,name=mode,proto3,enum=chainguard.platform.policies.v1.PolicyMode" json:"mode,omitempty"`
+	// The evaluation outcome.
+	Result Result `protobuf:"varint,7,opt,name=result,proto3,enum=chainguard.platform.policies.v1.Result" json:"result,omitempty"`
+	// The human-readable explanation of the outcome, if available.
+	Reason string `protobuf:"bytes,8,opt,name=reason,proto3" json:"reason,omitempty"`
+	// The day the digest was pulled and evaluated against this policy.
+	PulledOn      *date.Date `protobuf:"bytes,9,opt,name=pulled_on,json=pulledOn,proto3" json:"pulled_on,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Decision) Reset() {
+	*x = Decision{}
+	mi := &file_policies_platform_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Decision) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Decision) ProtoMessage() {}
+
+func (x *Decision) ProtoReflect() protoreflect.Message {
+	mi := &file_policies_platform_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Decision.ProtoReflect.Descriptor instead.
+func (*Decision) Descriptor() ([]byte, []int) {
+	return file_policies_platform_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *Decision) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Decision) GetRepoId() string {
+	if x != nil {
+		return x.RepoId
+	}
+	return ""
+}
+
+func (x *Decision) GetDigest() string {
+	if x != nil {
+		return x.Digest
+	}
+	return ""
+}
+
+func (x *Decision) GetPolicyId() string {
+	if x != nil {
+		return x.PolicyId
+	}
+	return ""
+}
+
+func (x *Decision) GetPolicyName() string {
+	if x != nil {
+		return x.PolicyName
+	}
+	return ""
+}
+
+func (x *Decision) GetMode() PolicyMode {
+	if x != nil {
+		return x.Mode
+	}
+	return PolicyMode_POLICY_MODE_UNSPECIFIED
+}
+
+func (x *Decision) GetResult() Result {
+	if x != nil {
+		return x.Result
+	}
+	return Result_RESULT_UNSPECIFIED
+}
+
+func (x *Decision) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *Decision) GetPulledOn() *date.Date {
+	if x != nil {
+		return x.PulledOn
+	}
+	return nil
+}
+
+type DecisionList struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The requested decisions.
+	Items []*Decision `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	// Token for retrieving the next page of results.
+	// Empty if there are no more results.
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	// Total number of results matching the filter.
+	// Optional, provided for UI pagination.
+	TotalCount int64 `protobuf:"varint,3,opt,name=total_count,json=totalCount,proto3" json:"total_count,omitempty"`
+	// Number of results that were skipped.
+	// Accumulates across paginated requests.
+	Skipped       int32 `protobuf:"varint,4,opt,name=skipped,proto3" json:"skipped,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DecisionList) Reset() {
+	*x = DecisionList{}
+	mi := &file_policies_platform_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DecisionList) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DecisionList) ProtoMessage() {}
+
+func (x *DecisionList) ProtoReflect() protoreflect.Message {
+	mi := &file_policies_platform_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DecisionList.ProtoReflect.Descriptor instead.
+func (*DecisionList) Descriptor() ([]byte, []int) {
+	return file_policies_platform_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *DecisionList) GetItems() []*Decision {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+func (x *DecisionList) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
+}
+
+func (x *DecisionList) GetTotalCount() int64 {
+	if x != nil {
+		return x.TotalCount
+	}
+	return 0
+}
+
+func (x *DecisionList) GetSkipped() int32 {
+	if x != nil {
+		return x.Skipped
+	}
+	return 0
+}
+
+type DecisionFilter struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional UIDP-based filter for hierarchy navigation; scopes results
+	// to a repository or an organization.
+	Uidp *v1.UIDPFilter `protobuf:"bytes,1,opt,name=uidp,proto3" json:"uidp,omitempty"`
+	// Only return decisions for this policy id.
+	PolicyId string `protobuf:"bytes,2,opt,name=policy_id,json=policyId,proto3" json:"policy_id,omitempty"`
+	// Only return decisions evaluated under this mode.
+	Mode PolicyMode `protobuf:"varint,3,opt,name=mode,proto3,enum=chainguard.platform.policies.v1.PolicyMode" json:"mode,omitempty"`
+	// Only return decisions with this outcome.
+	Result Result `protobuf:"varint,4,opt,name=result,proto3,enum=chainguard.platform.policies.v1.Result" json:"result,omitempty"`
+	// Only return decisions pulled on or after this day.
+	Since *date.Date `protobuf:"bytes,5,opt,name=since,proto3" json:"since,omitempty"`
+	// Only return decisions pulled before this day.
+	Until *date.Date `protobuf:"bytes,6,opt,name=until,proto3" json:"until,omitempty"`
+	// Maximum number of results to return per page.
+	PageSize int32 `protobuf:"varint,7,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// Page token from a previous List response for pagination.
+	PageToken string `protobuf:"bytes,8,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// Order results by field. Format: "field [asc|desc]"
+	// Default: "pulled_on asc"
+	// Note: Changing order_by between pages invalidates the page token.
+	OrderBy string `protobuf:"bytes,9,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
+	// Number of results to skip before returning.
+	// Used for random-access pagination (jumping to arbitrary pages).
+	// Can be combined with page_token to skip from cursor position.
+	// Must be non-negative.
+	Skip int32 `protobuf:"varint,10,opt,name=skip,proto3" json:"skip,omitempty"`
+	// Only return decisions for this manifest digest.
+	Digest        string `protobuf:"bytes,11,opt,name=digest,proto3" json:"digest,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DecisionFilter) Reset() {
+	*x = DecisionFilter{}
+	mi := &file_policies_platform_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DecisionFilter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DecisionFilter) ProtoMessage() {}
+
+func (x *DecisionFilter) ProtoReflect() protoreflect.Message {
+	mi := &file_policies_platform_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DecisionFilter.ProtoReflect.Descriptor instead.
+func (*DecisionFilter) Descriptor() ([]byte, []int) {
+	return file_policies_platform_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *DecisionFilter) GetUidp() *v1.UIDPFilter {
+	if x != nil {
+		return x.Uidp
+	}
+	return nil
+}
+
+func (x *DecisionFilter) GetPolicyId() string {
+	if x != nil {
+		return x.PolicyId
+	}
+	return ""
+}
+
+func (x *DecisionFilter) GetMode() PolicyMode {
+	if x != nil {
+		return x.Mode
+	}
+	return PolicyMode_POLICY_MODE_UNSPECIFIED
+}
+
+func (x *DecisionFilter) GetResult() Result {
+	if x != nil {
+		return x.Result
+	}
+	return Result_RESULT_UNSPECIFIED
+}
+
+func (x *DecisionFilter) GetSince() *date.Date {
+	if x != nil {
+		return x.Since
+	}
+	return nil
+}
+
+func (x *DecisionFilter) GetUntil() *date.Date {
+	if x != nil {
+		return x.Until
+	}
+	return nil
+}
+
+func (x *DecisionFilter) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *DecisionFilter) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+func (x *DecisionFilter) GetOrderBy() string {
+	if x != nil {
+		return x.OrderBy
+	}
+	return ""
+}
+
+func (x *DecisionFilter) GetSkip() int32 {
+	if x != nil {
+		return x.Skip
+	}
+	return 0
+}
+
+func (x *DecisionFilter) GetDigest() string {
+	if x != nil {
+		return x.Digest
+	}
+	return ""
+}
+
 var File_policies_platform_proto protoreflect.FileDescriptor
 
 const file_policies_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x17policies.platform.proto\x12\x1fchainguard.platform.policies.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a&platform/common/v1/uidp.platform.proto\"\x9c\x03\n" +
+	"\x17policies.platform.proto\x12\x1fchainguard.platform.policies.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16google/type/date.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a&platform/common/v1/uidp.platform.proto\"\x9c\x03\n" +
 	"\x0fParameterSchema\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12B\n" +
 	"\x04type\x18\x02 \x01(\x0e2..chainguard.platform.policies.v1.ParameterTypeR\x04type\x12 \n" +
@@ -1161,7 +1553,38 @@ const file_policies_platform_proto_rawDesc = "" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12B\n" +
 	"\abinding\x18\x02 \x01(\v2(.chainguard.platform.policies.v1.BindingR\abinding\".\n" +
 	"\x14DeleteBindingRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id*\\\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"\x8b\x03\n" +
+	"\bDecision\x12\x16\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x1d\n" +
+	"\arepo_id\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x06repoId\x12\x1c\n" +
+	"\x06digest\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\x06digest\x12!\n" +
+	"\tpolicy_id\x18\x04 \x01(\tB\x04\xe2A\x01\x03R\bpolicyId\x12%\n" +
+	"\vpolicy_name\x18\x05 \x01(\tB\x04\xe2A\x01\x03R\n" +
+	"policyName\x12E\n" +
+	"\x04mode\x18\x06 \x01(\x0e2+.chainguard.platform.policies.v1.PolicyModeB\x04\xe2A\x01\x03R\x04mode\x12E\n" +
+	"\x06result\x18\a \x01(\x0e2'.chainguard.platform.policies.v1.ResultB\x04\xe2A\x01\x03R\x06result\x12\x1c\n" +
+	"\x06reason\x18\b \x01(\tB\x04\xe2A\x01\x03R\x06reason\x124\n" +
+	"\tpulled_on\x18\t \x01(\v2\x11.google.type.DateB\x04\xe2A\x01\x03R\bpulledOn\"\xb2\x01\n" +
+	"\fDecisionList\x12?\n" +
+	"\x05items\x18\x01 \x03(\v2).chainguard.platform.policies.v1.DecisionR\x05items\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
+	"\vtotal_count\x18\x03 \x01(\x03R\n" +
+	"totalCount\x12\x18\n" +
+	"\askipped\x18\x04 \x01(\x05R\askipped\"\xcc\x03\n" +
+	"\x0eDecisionFilter\x12:\n" +
+	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterR\x04uidp\x12\x1b\n" +
+	"\tpolicy_id\x18\x02 \x01(\tR\bpolicyId\x12?\n" +
+	"\x04mode\x18\x03 \x01(\x0e2+.chainguard.platform.policies.v1.PolicyModeR\x04mode\x12?\n" +
+	"\x06result\x18\x04 \x01(\x0e2'.chainguard.platform.policies.v1.ResultR\x06result\x12'\n" +
+	"\x05since\x18\x05 \x01(\v2\x11.google.type.DateR\x05since\x12'\n" +
+	"\x05until\x18\x06 \x01(\v2\x11.google.type.DateR\x05until\x12\x1b\n" +
+	"\tpage_size\x18\a \x01(\x05R\bpageSize\x12\x1d\n" +
+	"\n" +
+	"page_token\x18\b \x01(\tR\tpageToken\x12\x1f\n" +
+	"\border_by\x18\t \x01(\tB\x04\xe2A\x01\x01R\aorderBy\x12\x18\n" +
+	"\x04skip\x18\n" +
+	" \x01(\x05B\x04\xe2A\x01\x01R\x04skip\x12\x16\n" +
+	"\x06digest\x18\v \x01(\tR\x06digest*\\\n" +
 	"\n" +
 	"PolicyMode\x12\x1b\n" +
 	"\x17POLICY_MODE_UNSPECIFIED\x10\x00\x12\x18\n" +
@@ -1177,7 +1600,12 @@ const file_policies_platform_proto_rawDesc = "" +
 	"\x15PARAMETER_TYPE_STRING\x10\x01\x12\x1a\n" +
 	"\x16PARAMETER_TYPE_INTEGER\x10\x02\x12\x1e\n" +
 	"\x1aPARAMETER_TYPE_STRING_LIST\x10\x03\x12\x1a\n" +
-	"\x16PARAMETER_TYPE_BOOLEAN\x10\x042\xc2\x06\n" +
+	"\x16PARAMETER_TYPE_BOOLEAN\x10\x04*Y\n" +
+	"\x06Result\x12\x16\n" +
+	"\x12RESULT_UNSPECIFIED\x10\x00\x12\x12\n" +
+	"\x0eRESULT_ALLOWED\x10\x01\x12\x11\n" +
+	"\rRESULT_DENIED\x10\x02\x12\x10\n" +
+	"\fRESULT_ERROR\x10\x032\xc2\x06\n" +
 	"\bPolicies\x12\xf0\x01\n" +
 	"\fCreatePolicy\x124.chainguard.platform.policies.v1.CreatePolicyRequest\x1a'.chainguard.platform.policies.v1.Policy\"\x80\x01\x82\xd3\xe4\x93\x02.:\x06policy\"$/policies/v1/policies/{parent_id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd1\x0f\xc2\xf0\x8e\xfc\v:\n" +
@@ -1201,7 +1629,10 @@ const file_policies_platform_proto_rawDesc = "" +
 	"\x02\xdd\x0f\x10\x01\x12\xd1\x01\n" +
 	"\rDeleteBinding\x125.chainguard.platform.policies.v1.DeleteBindingRequest\x1a\x16.google.protobuf.Empty\"q\x82\xd3\xe4\x93\x02\x1f*\x1d/policies/v1/bindings/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xde\x0f\xc2\xf0\x8e\xfc\v:\n" +
-	"/dev.chainguard.api.policies.bindings.deleted.v1\x12\x05group\x18\x01B/Z-chainguard.dev/sdk/proto/platform/policies/v1b\x06proto3"
+	"/dev.chainguard.api.policies.bindings.deleted.v1\x12\x05group\x18\x012\xab\x01\n" +
+	"\tDecisions\x12\x9d\x01\n" +
+	"\rListDecisions\x12/.chainguard.platform.policies.v1.DecisionFilter\x1a-.chainguard.platform.policies.v1.DecisionList\",\x82\xd3\xe4\x93\x02\x18\x12\x16/policies/v1/decisions\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02\xdf\x0f\x10\x01B/Z-chainguard.dev/sdk/proto/platform/policies/v1b\x06proto3"
 
 var (
 	file_policies_platform_proto_rawDescOnce sync.Once
@@ -1215,71 +1646,87 @@ func file_policies_platform_proto_rawDescGZIP() []byte {
 	return file_policies_platform_proto_rawDescData
 }
 
-var file_policies_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_policies_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_policies_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_policies_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_policies_platform_proto_goTypes = []any{
 	(PolicyMode)(0),               // 0: chainguard.platform.policies.v1.PolicyMode
 	(PolicyType)(0),               // 1: chainguard.platform.policies.v1.PolicyType
 	(ParameterType)(0),            // 2: chainguard.platform.policies.v1.ParameterType
-	(*ParameterSchema)(nil),       // 3: chainguard.platform.policies.v1.ParameterSchema
-	(*Policy)(nil),                // 4: chainguard.platform.policies.v1.Policy
-	(*PolicyList)(nil),            // 5: chainguard.platform.policies.v1.PolicyList
-	(*PolicyFilter)(nil),          // 6: chainguard.platform.policies.v1.PolicyFilter
-	(*CreatePolicyRequest)(nil),   // 7: chainguard.platform.policies.v1.CreatePolicyRequest
-	(*DeletePolicyRequest)(nil),   // 8: chainguard.platform.policies.v1.DeletePolicyRequest
-	(*Binding)(nil),               // 9: chainguard.platform.policies.v1.Binding
-	(*BindingList)(nil),           // 10: chainguard.platform.policies.v1.BindingList
-	(*BindingFilter)(nil),         // 11: chainguard.platform.policies.v1.BindingFilter
-	(*CreateBindingRequest)(nil),  // 12: chainguard.platform.policies.v1.CreateBindingRequest
-	(*DeleteBindingRequest)(nil),  // 13: chainguard.platform.policies.v1.DeleteBindingRequest
-	nil,                           // 14: chainguard.platform.policies.v1.Binding.ParametersEntry
-	(*structpb.Value)(nil),        // 15: google.protobuf.Value
-	(*timestamppb.Timestamp)(nil), // 16: google.protobuf.Timestamp
-	(*v1.UIDPFilter)(nil),         // 17: chainguard.platform.common.UIDPFilter
-	(*emptypb.Empty)(nil),         // 18: google.protobuf.Empty
+	(Result)(0),                   // 3: chainguard.platform.policies.v1.Result
+	(*ParameterSchema)(nil),       // 4: chainguard.platform.policies.v1.ParameterSchema
+	(*Policy)(nil),                // 5: chainguard.platform.policies.v1.Policy
+	(*PolicyList)(nil),            // 6: chainguard.platform.policies.v1.PolicyList
+	(*PolicyFilter)(nil),          // 7: chainguard.platform.policies.v1.PolicyFilter
+	(*CreatePolicyRequest)(nil),   // 8: chainguard.platform.policies.v1.CreatePolicyRequest
+	(*DeletePolicyRequest)(nil),   // 9: chainguard.platform.policies.v1.DeletePolicyRequest
+	(*Binding)(nil),               // 10: chainguard.platform.policies.v1.Binding
+	(*BindingList)(nil),           // 11: chainguard.platform.policies.v1.BindingList
+	(*BindingFilter)(nil),         // 12: chainguard.platform.policies.v1.BindingFilter
+	(*CreateBindingRequest)(nil),  // 13: chainguard.platform.policies.v1.CreateBindingRequest
+	(*DeleteBindingRequest)(nil),  // 14: chainguard.platform.policies.v1.DeleteBindingRequest
+	(*Decision)(nil),              // 15: chainguard.platform.policies.v1.Decision
+	(*DecisionList)(nil),          // 16: chainguard.platform.policies.v1.DecisionList
+	(*DecisionFilter)(nil),        // 17: chainguard.platform.policies.v1.DecisionFilter
+	nil,                           // 18: chainguard.platform.policies.v1.Binding.ParametersEntry
+	(*structpb.Value)(nil),        // 19: google.protobuf.Value
+	(*timestamppb.Timestamp)(nil), // 20: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),         // 21: chainguard.platform.common.UIDPFilter
+	(*date.Date)(nil),             // 22: google.type.Date
+	(*emptypb.Empty)(nil),         // 23: google.protobuf.Empty
 }
 var file_policies_platform_proto_depIdxs = []int32{
 	2,  // 0: chainguard.platform.policies.v1.ParameterSchema.type:type_name -> chainguard.platform.policies.v1.ParameterType
-	15, // 1: chainguard.platform.policies.v1.ParameterSchema.default:type_name -> google.protobuf.Value
-	15, // 2: chainguard.platform.policies.v1.ParameterSchema.minimum:type_name -> google.protobuf.Value
-	15, // 3: chainguard.platform.policies.v1.ParameterSchema.maximum:type_name -> google.protobuf.Value
-	15, // 4: chainguard.platform.policies.v1.ParameterSchema.allowed_values:type_name -> google.protobuf.Value
+	19, // 1: chainguard.platform.policies.v1.ParameterSchema.default:type_name -> google.protobuf.Value
+	19, // 2: chainguard.platform.policies.v1.ParameterSchema.minimum:type_name -> google.protobuf.Value
+	19, // 3: chainguard.platform.policies.v1.ParameterSchema.maximum:type_name -> google.protobuf.Value
+	19, // 4: chainguard.platform.policies.v1.ParameterSchema.allowed_values:type_name -> google.protobuf.Value
 	1,  // 5: chainguard.platform.policies.v1.Policy.policy_type:type_name -> chainguard.platform.policies.v1.PolicyType
-	16, // 6: chainguard.platform.policies.v1.Policy.created_at:type_name -> google.protobuf.Timestamp
-	16, // 7: chainguard.platform.policies.v1.Policy.updated_at:type_name -> google.protobuf.Timestamp
-	3,  // 8: chainguard.platform.policies.v1.Policy.parameter_schemas:type_name -> chainguard.platform.policies.v1.ParameterSchema
-	4,  // 9: chainguard.platform.policies.v1.PolicyList.items:type_name -> chainguard.platform.policies.v1.Policy
-	17, // 10: chainguard.platform.policies.v1.PolicyFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	4,  // 11: chainguard.platform.policies.v1.CreatePolicyRequest.policy:type_name -> chainguard.platform.policies.v1.Policy
+	20, // 6: chainguard.platform.policies.v1.Policy.created_at:type_name -> google.protobuf.Timestamp
+	20, // 7: chainguard.platform.policies.v1.Policy.updated_at:type_name -> google.protobuf.Timestamp
+	4,  // 8: chainguard.platform.policies.v1.Policy.parameter_schemas:type_name -> chainguard.platform.policies.v1.ParameterSchema
+	5,  // 9: chainguard.platform.policies.v1.PolicyList.items:type_name -> chainguard.platform.policies.v1.Policy
+	21, // 10: chainguard.platform.policies.v1.PolicyFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	5,  // 11: chainguard.platform.policies.v1.CreatePolicyRequest.policy:type_name -> chainguard.platform.policies.v1.Policy
 	0,  // 12: chainguard.platform.policies.v1.Binding.mode:type_name -> chainguard.platform.policies.v1.PolicyMode
-	14, // 13: chainguard.platform.policies.v1.Binding.parameters:type_name -> chainguard.platform.policies.v1.Binding.ParametersEntry
-	16, // 14: chainguard.platform.policies.v1.Binding.created_at:type_name -> google.protobuf.Timestamp
-	16, // 15: chainguard.platform.policies.v1.Binding.updated_at:type_name -> google.protobuf.Timestamp
-	9,  // 16: chainguard.platform.policies.v1.BindingList.items:type_name -> chainguard.platform.policies.v1.Binding
-	17, // 17: chainguard.platform.policies.v1.BindingFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	9,  // 18: chainguard.platform.policies.v1.CreateBindingRequest.binding:type_name -> chainguard.platform.policies.v1.Binding
-	15, // 19: chainguard.platform.policies.v1.Binding.ParametersEntry.value:type_name -> google.protobuf.Value
-	7,  // 20: chainguard.platform.policies.v1.Policies.CreatePolicy:input_type -> chainguard.platform.policies.v1.CreatePolicyRequest
-	4,  // 21: chainguard.platform.policies.v1.Policies.UpdatePolicy:input_type -> chainguard.platform.policies.v1.Policy
-	6,  // 22: chainguard.platform.policies.v1.Policies.ListPolicies:input_type -> chainguard.platform.policies.v1.PolicyFilter
-	8,  // 23: chainguard.platform.policies.v1.Policies.DeletePolicy:input_type -> chainguard.platform.policies.v1.DeletePolicyRequest
-	12, // 24: chainguard.platform.policies.v1.Bindings.CreateBinding:input_type -> chainguard.platform.policies.v1.CreateBindingRequest
-	9,  // 25: chainguard.platform.policies.v1.Bindings.UpdateBinding:input_type -> chainguard.platform.policies.v1.Binding
-	11, // 26: chainguard.platform.policies.v1.Bindings.ListBindings:input_type -> chainguard.platform.policies.v1.BindingFilter
-	13, // 27: chainguard.platform.policies.v1.Bindings.DeleteBinding:input_type -> chainguard.platform.policies.v1.DeleteBindingRequest
-	4,  // 28: chainguard.platform.policies.v1.Policies.CreatePolicy:output_type -> chainguard.platform.policies.v1.Policy
-	4,  // 29: chainguard.platform.policies.v1.Policies.UpdatePolicy:output_type -> chainguard.platform.policies.v1.Policy
-	5,  // 30: chainguard.platform.policies.v1.Policies.ListPolicies:output_type -> chainguard.platform.policies.v1.PolicyList
-	18, // 31: chainguard.platform.policies.v1.Policies.DeletePolicy:output_type -> google.protobuf.Empty
-	9,  // 32: chainguard.platform.policies.v1.Bindings.CreateBinding:output_type -> chainguard.platform.policies.v1.Binding
-	9,  // 33: chainguard.platform.policies.v1.Bindings.UpdateBinding:output_type -> chainguard.platform.policies.v1.Binding
-	10, // 34: chainguard.platform.policies.v1.Bindings.ListBindings:output_type -> chainguard.platform.policies.v1.BindingList
-	18, // 35: chainguard.platform.policies.v1.Bindings.DeleteBinding:output_type -> google.protobuf.Empty
-	28, // [28:36] is the sub-list for method output_type
-	20, // [20:28] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	18, // 13: chainguard.platform.policies.v1.Binding.parameters:type_name -> chainguard.platform.policies.v1.Binding.ParametersEntry
+	20, // 14: chainguard.platform.policies.v1.Binding.created_at:type_name -> google.protobuf.Timestamp
+	20, // 15: chainguard.platform.policies.v1.Binding.updated_at:type_name -> google.protobuf.Timestamp
+	10, // 16: chainguard.platform.policies.v1.BindingList.items:type_name -> chainguard.platform.policies.v1.Binding
+	21, // 17: chainguard.platform.policies.v1.BindingFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	10, // 18: chainguard.platform.policies.v1.CreateBindingRequest.binding:type_name -> chainguard.platform.policies.v1.Binding
+	0,  // 19: chainguard.platform.policies.v1.Decision.mode:type_name -> chainguard.platform.policies.v1.PolicyMode
+	3,  // 20: chainguard.platform.policies.v1.Decision.result:type_name -> chainguard.platform.policies.v1.Result
+	22, // 21: chainguard.platform.policies.v1.Decision.pulled_on:type_name -> google.type.Date
+	15, // 22: chainguard.platform.policies.v1.DecisionList.items:type_name -> chainguard.platform.policies.v1.Decision
+	21, // 23: chainguard.platform.policies.v1.DecisionFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	0,  // 24: chainguard.platform.policies.v1.DecisionFilter.mode:type_name -> chainguard.platform.policies.v1.PolicyMode
+	3,  // 25: chainguard.platform.policies.v1.DecisionFilter.result:type_name -> chainguard.platform.policies.v1.Result
+	22, // 26: chainguard.platform.policies.v1.DecisionFilter.since:type_name -> google.type.Date
+	22, // 27: chainguard.platform.policies.v1.DecisionFilter.until:type_name -> google.type.Date
+	19, // 28: chainguard.platform.policies.v1.Binding.ParametersEntry.value:type_name -> google.protobuf.Value
+	8,  // 29: chainguard.platform.policies.v1.Policies.CreatePolicy:input_type -> chainguard.platform.policies.v1.CreatePolicyRequest
+	5,  // 30: chainguard.platform.policies.v1.Policies.UpdatePolicy:input_type -> chainguard.platform.policies.v1.Policy
+	7,  // 31: chainguard.platform.policies.v1.Policies.ListPolicies:input_type -> chainguard.platform.policies.v1.PolicyFilter
+	9,  // 32: chainguard.platform.policies.v1.Policies.DeletePolicy:input_type -> chainguard.platform.policies.v1.DeletePolicyRequest
+	13, // 33: chainguard.platform.policies.v1.Bindings.CreateBinding:input_type -> chainguard.platform.policies.v1.CreateBindingRequest
+	10, // 34: chainguard.platform.policies.v1.Bindings.UpdateBinding:input_type -> chainguard.platform.policies.v1.Binding
+	12, // 35: chainguard.platform.policies.v1.Bindings.ListBindings:input_type -> chainguard.platform.policies.v1.BindingFilter
+	14, // 36: chainguard.platform.policies.v1.Bindings.DeleteBinding:input_type -> chainguard.platform.policies.v1.DeleteBindingRequest
+	17, // 37: chainguard.platform.policies.v1.Decisions.ListDecisions:input_type -> chainguard.platform.policies.v1.DecisionFilter
+	5,  // 38: chainguard.platform.policies.v1.Policies.CreatePolicy:output_type -> chainguard.platform.policies.v1.Policy
+	5,  // 39: chainguard.platform.policies.v1.Policies.UpdatePolicy:output_type -> chainguard.platform.policies.v1.Policy
+	6,  // 40: chainguard.platform.policies.v1.Policies.ListPolicies:output_type -> chainguard.platform.policies.v1.PolicyList
+	23, // 41: chainguard.platform.policies.v1.Policies.DeletePolicy:output_type -> google.protobuf.Empty
+	10, // 42: chainguard.platform.policies.v1.Bindings.CreateBinding:output_type -> chainguard.platform.policies.v1.Binding
+	10, // 43: chainguard.platform.policies.v1.Bindings.UpdateBinding:output_type -> chainguard.platform.policies.v1.Binding
+	11, // 44: chainguard.platform.policies.v1.Bindings.ListBindings:output_type -> chainguard.platform.policies.v1.BindingList
+	23, // 45: chainguard.platform.policies.v1.Bindings.DeleteBinding:output_type -> google.protobuf.Empty
+	16, // 46: chainguard.platform.policies.v1.Decisions.ListDecisions:output_type -> chainguard.platform.policies.v1.DecisionList
+	38, // [38:47] is the sub-list for method output_type
+	29, // [29:38] is the sub-list for method input_type
+	29, // [29:29] is the sub-list for extension type_name
+	29, // [29:29] is the sub-list for extension extendee
+	0,  // [0:29] is the sub-list for field type_name
 }
 
 func init() { file_policies_platform_proto_init() }
@@ -1292,10 +1739,10 @@ func file_policies_platform_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_policies_platform_proto_rawDesc), len(file_policies_platform_proto_rawDesc)),
-			NumEnums:      3,
-			NumMessages:   12,
+			NumEnums:      4,
+			NumMessages:   15,
 			NumExtensions: 0,
-			NumServices:   2,
+			NumServices:   3,
 		},
 		GoTypes:           file_policies_platform_proto_goTypes,
 		DependencyIndexes: file_policies_platform_proto_depIdxs,

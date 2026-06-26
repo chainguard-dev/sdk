@@ -20,6 +20,7 @@ import (
 type Clients interface {
 	Policies() PoliciesClient
 	Bindings() BindingsClient
+	Decisions() DecisionsClient
 
 	Close() error
 }
@@ -44,8 +45,9 @@ func NewClients(ctx context.Context, addr string, token string) (Clients, error)
 	}
 
 	return &clients{
-		policies: NewPoliciesClient(conn),
-		bindings: NewBindingsClient(conn),
+		policies:  NewPoliciesClient(conn),
+		bindings:  NewBindingsClient(conn),
+		decisions: NewDecisionsClient(conn),
 
 		conn: conn,
 	}, nil
@@ -53,15 +55,17 @@ func NewClients(ctx context.Context, addr string, token string) (Clients, error)
 
 func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 	return &clients{
-		policies: NewPoliciesClient(conn),
-		bindings: NewBindingsClient(conn),
+		policies:  NewPoliciesClient(conn),
+		bindings:  NewBindingsClient(conn),
+		decisions: NewDecisionsClient(conn),
 		// conn is not set, this client struct does not own closing it.
 	}
 }
 
 type clients struct {
-	policies PoliciesClient
-	bindings BindingsClient
+	policies  PoliciesClient
+	bindings  BindingsClient
+	decisions DecisionsClient
 
 	conn *grpc.ClientConn
 }
@@ -72,6 +76,10 @@ func (c *clients) Policies() PoliciesClient {
 
 func (c *clients) Bindings() BindingsClient {
 	return c.bindings
+}
+
+func (c *clients) Decisions() DecisionsClient {
+	return c.decisions
 }
 
 func (c *clients) Close() error {

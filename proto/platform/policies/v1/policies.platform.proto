@@ -9,6 +9,7 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
+import "google/type/date.proto";
 import "annotations/auth.proto";
 import "annotations/events.proto";
 import "platform/common/v1/uidp.platform.proto";
@@ -125,6 +126,20 @@ service Bindings {
       type: "dev.chainguard.api.policies.bindings.deleted.v1"
       extensions: ["group"]
       audience: CUSTOMER
+    };
+  }
+}
+
+service Decisions {
+  rpc ListDecisions(DecisionFilter) returns (DecisionList) {
+    option (google.api.http) = {
+      get: "/policies/v1/decisions"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_POLICIES_DECISION_LIST]
+        unscoped: true
+      }
     };
   }
 }
@@ -369,4 +384,104 @@ message CreateBindingRequest {
 
 message DeleteBindingRequest {
   string id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+// The outcome of a policy evaluation.
+enum Result {
+  RESULT_UNSPECIFIED = 0;
+  // The artifact satisfied the policy.
+  RESULT_ALLOWED = 1;
+  // The artifact violated the policy.
+  RESULT_DENIED = 2;
+  // The policy could not be evaluated.
+  RESULT_ERROR = 3;
+}
+
+// Decision records the outcome of a single pull-time policy evaluation
+// of one artifact digest.
+message Decision {
+  // The id of the Decision, a child of the repository it concerns.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // The id of the repository whose artifact was evaluated.
+  string repo_id = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The digest the policy was evaluated against.
+  string digest = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The id of the policy that was evaluated.
+  string policy_id = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The human-readable name of the policy at evaluation time.
+  string policy_name = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The mode the policy was evaluated under.
+  PolicyMode mode = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The evaluation outcome.
+  Result result = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The human-readable explanation of the outcome, if available.
+  string reason = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The day the digest was pulled and evaluated against this policy.
+  google.type.Date pulled_on = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message DecisionList {
+  // The requested decisions.
+  repeated Decision items = 1;
+
+  // Token for retrieving the next page of results.
+  // Empty if there are no more results.
+  string next_page_token = 2;
+
+  // Total number of results matching the filter.
+  // Optional, provided for UI pagination.
+  int64 total_count = 3;
+
+  // Number of results that were skipped.
+  // Accumulates across paginated requests.
+  int32 skipped = 4;
+}
+
+message DecisionFilter {
+  // Optional UIDP-based filter for hierarchy navigation; scopes results
+  // to a repository or an organization.
+  chainguard.platform.common.UIDPFilter uidp = 1;
+
+  // Only return decisions for this policy id.
+  string policy_id = 2;
+
+  // Only return decisions evaluated under this mode.
+  PolicyMode mode = 3;
+
+  // Only return decisions with this outcome.
+  Result result = 4;
+
+  // Only return decisions pulled on or after this day.
+  google.type.Date since = 5;
+
+  // Only return decisions pulled before this day.
+  google.type.Date until = 6;
+
+  // Maximum number of results to return per page.
+  int32 page_size = 7;
+
+  // Page token from a previous List response for pagination.
+  string page_token = 8;
+
+  // Order results by field. Format: "field [asc|desc]"
+  // Default: "pulled_on asc"
+  // Note: Changing order_by between pages invalidates the page token.
+  string order_by = 9 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of results to skip before returning.
+  // Used for random-access pagination (jumping to arbitrary pages).
+  // Can be combined with page_token to skip from cursor position.
+  // Must be non-negative.
+  int32 skip = 10 [(google.api.field_behavior) = OPTIONAL];
+
+  // Only return decisions for this manifest digest.
+  string digest = 11;
 }

@@ -210,6 +210,7 @@ const (
 	Capability_CAP_POLICIES_BINDING_UPDATE    Capability = 2012
 	Capability_CAP_POLICIES_BINDING_LIST      Capability = 2013
 	Capability_CAP_POLICIES_BINDING_DELETE    Capability = 2014
+	Capability_CAP_POLICIES_DECISION_LIST     Capability = 2015
 	Capability_CAP_REPO_CHECK_POLICIES        Capability = 2020
 	Capability_CAP_PACKAGES_ENTITLEMENTS_LIST Capability = 2100
 	// Terms
@@ -407,6 +408,7 @@ var (
 		2012:  "CAP_POLICIES_BINDING_UPDATE",
 		2013:  "CAP_POLICIES_BINDING_LIST",
 		2014:  "CAP_POLICIES_BINDING_DELETE",
+		2015:  "CAP_POLICIES_DECISION_LIST",
 		2020:  "CAP_REPO_CHECK_POLICIES",
 		2100:  "CAP_PACKAGES_ENTITLEMENTS_LIST",
 		2201:  "CAP_TERMS_ACCEPT",
@@ -577,6 +579,7 @@ var (
 		"CAP_POLICIES_BINDING_UPDATE":                        2012,
 		"CAP_POLICIES_BINDING_LIST":                          2013,
 		"CAP_POLICIES_BINDING_DELETE":                        2014,
+		"CAP_POLICIES_DECISION_LIST":                         2015,
 		"CAP_REPO_CHECK_POLICIES":                            2020,
 		"CAP_PACKAGES_ENTITLEMENTS_LIST":                     2100,
 		"CAP_TERMS_ACCEPT":                                   2201,
@@ -694,7 +697,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xb8X\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xfdX\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -845,7 +848,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x1bCAP_POLICIES_BINDING_CREATE\x10\xdb\x0f\x1a\"\xa8ˑMu\x9a\xaf\xa8\xd2\x05\x17policies.binding.create\x12D\n" +
 	"\x1bCAP_POLICIES_BINDING_UPDATE\x10\xdc\x0f\x1a\"\xa8ˑMv\x9a\xaf\xa8\xd2\x05\x17policies.binding.update\x12@\n" +
 	"\x19CAP_POLICIES_BINDING_LIST\x10\xdd\x0f\x1a \xa8ˑMw\x9a\xaf\xa8\xd2\x05\x15policies.binding.list\x12D\n" +
-	"\x1bCAP_POLICIES_BINDING_DELETE\x10\xde\x0f\x1a\"\xa8ˑMx\x9a\xaf\xa8\xd2\x05\x17policies.binding.delete\x12=\n" +
+	"\x1bCAP_POLICIES_BINDING_DELETE\x10\xde\x0f\x1a\"\xa8ˑMx\x9a\xaf\xa8\xd2\x05\x17policies.binding.delete\x12C\n" +
+	"\x1aCAP_POLICIES_DECISION_LIST\x10\xdf\x0f\x1a\"\xa8ˑM\xad\x01\x9a\xaf\xa8\xd2\x05\x16policies.decision.list\x12=\n" +
 	"\x17CAP_REPO_CHECK_POLICIES\x10\xe4\x0f\x1a\x1f\xa8ˑM\x86\x01\x9a\xaf\xa8\xd2\x05\x13repo.check_policies\x12J\n" +
 	"\x1eCAP_PACKAGES_ENTITLEMENTS_LIST\x10\xb4\x10\x1a%\xa8ˑM{\x9a\xaf\xa8\xd2\x05\x1apackages.entitlements.list\x12.\n" +
 	"\x10CAP_TERMS_ACCEPT\x10\x99\x11\x1a\x17\xa8ˑM}\x9a\xaf\xa8\xd2\x05\fterms.accept\x12*\n" +

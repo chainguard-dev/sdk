@@ -244,6 +244,8 @@ enum Capability {
   CAP_POLICIES_BINDING_LIST   = 2013 [(name) = "policies.binding.list",   (bit) = 119];
   CAP_POLICIES_BINDING_DELETE = 2014 [(name) = "policies.binding.delete", (bit) = 120];
 
+  CAP_POLICIES_DECISION_LIST = 2015 [(name) = "policies.decision.list", (bit) = 173];
+
   CAP_REPO_CHECK_POLICIES = 2020 [(name) = "repo.check_policies", (bit) = 134];
 
   CAP_PACKAGES_ENTITLEMENTS_LIST = 2100 [(name) = "packages.entitlements.list", (bit) = 123];
@@ -319,5 +321,5 @@ enum Capability {
   CAP_ACTIONS_LIST = 2700 [(name) = "actions.list", (bit) = 164];
 
   reserved 1;
-  // next bit: 169
+  // next bit: 174
 }

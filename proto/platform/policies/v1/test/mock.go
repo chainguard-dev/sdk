@@ -19,8 +19,9 @@ import (
 var _ policies.Clients = (*MockPoliciesClients)(nil)
 
 type MockPoliciesClients struct {
-	PoliciesOnClient MockPoliciesClient
-	BindingsOnClient MockBindingsClient
+	PoliciesOnClient  MockPoliciesClient
+	BindingsOnClient  MockBindingsClient
+	DecisionsOnClient MockDecisionsClient
 
 	OnClose error
 }
@@ -31,6 +32,10 @@ func (m MockPoliciesClients) Policies() policies.PoliciesClient {
 
 func (m MockPoliciesClients) Bindings() policies.BindingsClient {
 	return &m.BindingsOnClient
+}
+
+func (m MockPoliciesClients) Decisions() policies.DecisionsClient {
+	return &m.DecisionsOnClient
 }
 
 func (m MockPoliciesClients) Close() error {
@@ -103,6 +108,30 @@ func (m *MockPoliciesClient) DeletePolicy(_ context.Context, given *policies.Del
 	for _, o := range m.OnDeletePolicy {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return &emptypb.Empty{}, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+// MockDecisionsClient mocks the Decisions service.
+var _ policies.DecisionsClient = (*MockDecisionsClient)(nil)
+
+type MockDecisionsClient struct {
+	policies.DecisionsClient
+
+	OnListDecisions []OnListDecisions
+}
+
+type OnListDecisions struct {
+	Given *policies.DecisionFilter
+	List  *policies.DecisionList
+	Error error
+}
+
+func (m *MockDecisionsClient) ListDecisions(_ context.Context, given *policies.DecisionFilter, _ ...grpc.CallOption) (*policies.DecisionList, error) {
+	for _, o := range m.OnListDecisions {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.List, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)

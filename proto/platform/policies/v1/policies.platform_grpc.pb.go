@@ -450,3 +450,105 @@ var Bindings_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "policies.platform.proto",
 }
+
+const (
+	Decisions_ListDecisions_FullMethodName = "/chainguard.platform.policies.v1.Decisions/ListDecisions"
+)
+
+// DecisionsClient is the client API for Decisions service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type DecisionsClient interface {
+	ListDecisions(ctx context.Context, in *DecisionFilter, opts ...grpc.CallOption) (*DecisionList, error)
+}
+
+type decisionsClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewDecisionsClient(cc grpc.ClientConnInterface) DecisionsClient {
+	return &decisionsClient{cc}
+}
+
+func (c *decisionsClient) ListDecisions(ctx context.Context, in *DecisionFilter, opts ...grpc.CallOption) (*DecisionList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DecisionList)
+	err := c.cc.Invoke(ctx, Decisions_ListDecisions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// DecisionsServer is the server API for Decisions service.
+// All implementations must embed UnimplementedDecisionsServer
+// for forward compatibility.
+type DecisionsServer interface {
+	ListDecisions(context.Context, *DecisionFilter) (*DecisionList, error)
+	mustEmbedUnimplementedDecisionsServer()
+}
+
+// UnimplementedDecisionsServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedDecisionsServer struct{}
+
+func (UnimplementedDecisionsServer) ListDecisions(context.Context, *DecisionFilter) (*DecisionList, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListDecisions not implemented")
+}
+func (UnimplementedDecisionsServer) mustEmbedUnimplementedDecisionsServer() {}
+func (UnimplementedDecisionsServer) testEmbeddedByValue()                   {}
+
+// UnsafeDecisionsServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to DecisionsServer will
+// result in compilation errors.
+type UnsafeDecisionsServer interface {
+	mustEmbedUnimplementedDecisionsServer()
+}
+
+func RegisterDecisionsServer(s grpc.ServiceRegistrar, srv DecisionsServer) {
+	// If the following call panics, it indicates UnimplementedDecisionsServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&Decisions_ServiceDesc, srv)
+}
+
+func _Decisions_ListDecisions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DecisionFilter)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DecisionsServer).ListDecisions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Decisions_ListDecisions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DecisionsServer).ListDecisions(ctx, req.(*DecisionFilter))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Decisions_ServiceDesc is the grpc.ServiceDesc for Decisions service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Decisions_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "chainguard.platform.policies.v1.Decisions",
+	HandlerType: (*DecisionsServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListDecisions",
+			Handler:    _Decisions_ListDecisions_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "policies.platform.proto",
+}
