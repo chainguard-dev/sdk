@@ -26,3 +26,19 @@ func ExampleValidateName_invalid() {
 	// Output:
 	// true
 }
+
+// ExampleValidateHelmRepoURL demonstrates that a valid Helm repository URL passes validation.
+func ExampleValidateHelmRepoURL() {
+	err := validation.ValidateHelmRepoURL("https://prometheus-community.github.io/helm-charts")
+	fmt.Println(err)
+	// Output:
+	// <nil>
+}
+
+// ExampleValidateHelmRepoURL_invalid demonstrates that a file:// URL is rejected.
+func ExampleValidateHelmRepoURL_invalid() {
+	err := validation.ValidateHelmRepoURL("file:///local/path/to/charts")
+	fmt.Println(err != nil)
+	// Output:
+	// true
+}
