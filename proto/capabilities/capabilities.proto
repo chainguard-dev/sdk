@@ -306,9 +306,13 @@ enum Capability {
   CAP_BUILDAPI_WORKER_SYNC           = 2703 [(name) = "buildapi.worker.sync",           (bit) = 162, (internal_only) = true];
   CAP_BUILDAPI_BUILD_CANCEL          = 2704 [(name) = "buildapi.build.cancel",          (bit) = 163, (internal_only) = true];
 
-  // Cassie REAPI cache surface (CAS, ActionCache, ByteStream).
+  // Cassie REAPI cache surface. CAS (blobs + ByteStream) and the ActionCache
+  // are separately gated: a caller may read or write action results without
+  // any authority over the underlying content blobs, and vice versa.
   CAP_CASSIE_CAS_READ                = 2801 [(name) = "cassie.cas.read",                (bit) = 160, (internal_only) = true];
   CAP_CASSIE_CAS_WRITE               = 2802 [(name) = "cassie.cas.write",               (bit) = 161, (internal_only) = true];
+  CAP_CASSIE_AC_READ                 = 2804 [(name) = "cassie.ac.read",                 (bit) = 172, (internal_only) = true];
+  CAP_CASSIE_AC_WRITE                = 2803 [(name) = "cassie.ac.write",                (bit) = 171, (internal_only) = true];
 
   // Actions catalog — the read-only catalog of Chainguard-published GitHub
   // Actions and the upstreams they mirror. Writes are internal (importer only).

@@ -258,9 +258,13 @@ const (
 	Capability_CAP_BUILDAPI_BUILD_LIST   Capability = 2702
 	Capability_CAP_BUILDAPI_WORKER_SYNC  Capability = 2703
 	Capability_CAP_BUILDAPI_BUILD_CANCEL Capability = 2704
-	// Cassie REAPI cache surface (CAS, ActionCache, ByteStream).
+	// Cassie REAPI cache surface. CAS (blobs + ByteStream) and the ActionCache
+	// are separately gated: a caller may read or write action results without
+	// any authority over the underlying content blobs, and vice versa.
 	Capability_CAP_CASSIE_CAS_READ  Capability = 2801
 	Capability_CAP_CASSIE_CAS_WRITE Capability = 2802
+	Capability_CAP_CASSIE_AC_READ   Capability = 2804
+	Capability_CAP_CASSIE_AC_WRITE  Capability = 2803
 	// Actions catalog — the read-only catalog of Chainguard-published GitHub
 	// Actions and the upstreams they mirror. Writes are internal (importer only).
 	Capability_CAP_ACTIONS_LIST Capability = 2700
@@ -434,6 +438,8 @@ var (
 		2704:  "CAP_BUILDAPI_BUILD_CANCEL",
 		2801:  "CAP_CASSIE_CAS_READ",
 		2802:  "CAP_CASSIE_CAS_WRITE",
+		2804:  "CAP_CASSIE_AC_READ",
+		2803:  "CAP_CASSIE_AC_WRITE",
 		2700:  "CAP_ACTIONS_LIST",
 	}
 	Capability_value = map[string]int32{
@@ -602,6 +608,8 @@ var (
 		"CAP_BUILDAPI_BUILD_CANCEL":                          2704,
 		"CAP_CASSIE_CAS_READ":                                2801,
 		"CAP_CASSIE_CAS_WRITE":                               2802,
+		"CAP_CASSIE_AC_READ":                                 2804,
+		"CAP_CASSIE_AC_WRITE":                                2803,
 		"CAP_ACTIONS_LIST":                                   2700,
 	}
 )
@@ -686,7 +694,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xc0W\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xb8X\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -870,7 +878,9 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x18CAP_BUILDAPI_WORKER_SYNC\x10\x8f\x15\x1a&\xa8ˑM\xa2\x01\x9a\xaf\xa8\xd2\x05\x14buildapi.worker.sync\xa0\xaf\xa8\xd2\x05\x01\x12G\n" +
 	"\x19CAP_BUILDAPI_BUILD_CANCEL\x10\x90\x15\x1a'\xa8ˑM\xa3\x01\x9a\xaf\xa8\xd2\x05\x15buildapi.build.cancel\xa0\xaf\xa8\xd2\x05\x01\x12;\n" +
 	"\x13CAP_CASSIE_CAS_READ\x10\xf1\x15\x1a!\xa8ˑM\xa0\x01\x9a\xaf\xa8\xd2\x05\x0fcassie.cas.read\xa0\xaf\xa8\xd2\x05\x01\x12=\n" +
-	"\x14CAP_CASSIE_CAS_WRITE\x10\xf2\x15\x1a\"\xa8ˑM\xa1\x01\x9a\xaf\xa8\xd2\x05\x10cassie.cas.write\xa0\xaf\xa8\xd2\x05\x01\x12/\n" +
+	"\x14CAP_CASSIE_CAS_WRITE\x10\xf2\x15\x1a\"\xa8ˑM\xa1\x01\x9a\xaf\xa8\xd2\x05\x10cassie.cas.write\xa0\xaf\xa8\xd2\x05\x01\x129\n" +
+	"\x12CAP_CASSIE_AC_READ\x10\xf4\x15\x1a \xa8ˑM\xac\x01\x9a\xaf\xa8\xd2\x05\x0ecassie.ac.read\xa0\xaf\xa8\xd2\x05\x01\x12;\n" +
+	"\x13CAP_CASSIE_AC_WRITE\x10\xf3\x15\x1a!\xa8ˑM\xab\x01\x9a\xaf\xa8\xd2\x05\x0fcassie.ac.write\xa0\xaf\xa8\xd2\x05\x01\x12/\n" +
 	"\x10CAP_ACTIONS_LIST\x10\x8c\x15\x1a\x18\xa8ˑM\xa4\x01\x9a\xaf\xa8\xd2\x05\factions.list\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x06\b\xd1\x0e\x10\xd1\x0e\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +
 	"\x03bit\x12!.google.protobuf.EnumValueOptions\x18\xb5\x99\xd2\t \x01(\rR\x03bit:I\n" +
