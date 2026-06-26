@@ -270,6 +270,120 @@ func (x *DeleteExternalGroupRoleMappingRequest) GetUid() string {
 	return ""
 }
 
+// BatchDeleteExternalGroupRoleMappingsRequest is the request message for BatchDeleteExternalGroupRoleMappings.
+type BatchDeleteExternalGroupRoleMappingsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UID of the identity provider the mappings belong to. Every name must be one
+	// of its mappings.
+	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	// UIDs of the mappings to delete. Names that no longer exist under parent are
+	// silently skipped; names whose parent differs from parent return
+	// INVALID_ARGUMENT.
+	Names         []string `protobuf:"bytes,2,rep,name=names,proto3" json:"names,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BatchDeleteExternalGroupRoleMappingsRequest) Reset() {
+	*x = BatchDeleteExternalGroupRoleMappingsRequest{}
+	mi := &file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BatchDeleteExternalGroupRoleMappingsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BatchDeleteExternalGroupRoleMappingsRequest) ProtoMessage() {}
+
+func (x *BatchDeleteExternalGroupRoleMappingsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BatchDeleteExternalGroupRoleMappingsRequest.ProtoReflect.Descriptor instead.
+func (*BatchDeleteExternalGroupRoleMappingsRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *BatchDeleteExternalGroupRoleMappingsRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
+func (x *BatchDeleteExternalGroupRoleMappingsRequest) GetNames() []string {
+	if x != nil {
+		return x.Names
+	}
+	return nil
+}
+
+// BatchDeleteExternalGroupRoleMappingsResponse is the response message for BatchDeleteExternalGroupRoleMappings.
+type BatchDeleteExternalGroupRoleMappingsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UID of the identity provider the delete targeted. Echoed so the operation can
+	// be attributed even when no mappings matched.
+	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	// The mappings that were deleted.
+	ExternalGroupRoleMappings []*ExternalGroupRoleMapping `protobuf:"bytes,2,rep,name=external_group_role_mappings,json=externalGroupRoleMappings,proto3" json:"external_group_role_mappings,omitempty"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
+}
+
+func (x *BatchDeleteExternalGroupRoleMappingsResponse) Reset() {
+	*x = BatchDeleteExternalGroupRoleMappingsResponse{}
+	mi := &file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BatchDeleteExternalGroupRoleMappingsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BatchDeleteExternalGroupRoleMappingsResponse) ProtoMessage() {}
+
+func (x *BatchDeleteExternalGroupRoleMappingsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BatchDeleteExternalGroupRoleMappingsResponse.ProtoReflect.Descriptor instead.
+func (*BatchDeleteExternalGroupRoleMappingsResponse) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *BatchDeleteExternalGroupRoleMappingsResponse) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
+func (x *BatchDeleteExternalGroupRoleMappingsResponse) GetExternalGroupRoleMappings() []*ExternalGroupRoleMapping {
+	if x != nil {
+		return x.ExternalGroupRoleMappings
+	}
+	return nil
+}
+
 // ListExternalGroupRoleMappingsRequest is the request message for ListExternalGroupRoleMappings.
 type ListExternalGroupRoleMappingsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -293,7 +407,7 @@ type ListExternalGroupRoleMappingsRequest struct {
 
 func (x *ListExternalGroupRoleMappingsRequest) Reset() {
 	*x = ListExternalGroupRoleMappingsRequest{}
-	mi := &file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_msgTypes[4]
+	mi := &file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -305,7 +419,7 @@ func (x *ListExternalGroupRoleMappingsRequest) String() string {
 func (*ListExternalGroupRoleMappingsRequest) ProtoMessage() {}
 
 func (x *ListExternalGroupRoleMappingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_msgTypes[4]
+	mi := &file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -318,7 +432,7 @@ func (x *ListExternalGroupRoleMappingsRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use ListExternalGroupRoleMappingsRequest.ProtoReflect.Descriptor instead.
 func (*ListExternalGroupRoleMappingsRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_rawDescGZIP(), []int{4}
+	return file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ListExternalGroupRoleMappingsRequest) GetUidp() *v1.UIDPFilter {
@@ -380,7 +494,7 @@ type ListExternalGroupRoleMappingsResponse struct {
 
 func (x *ListExternalGroupRoleMappingsResponse) Reset() {
 	*x = ListExternalGroupRoleMappingsResponse{}
-	mi := &file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_msgTypes[5]
+	mi := &file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -392,7 +506,7 @@ func (x *ListExternalGroupRoleMappingsResponse) String() string {
 func (*ListExternalGroupRoleMappingsResponse) ProtoMessage() {}
 
 func (x *ListExternalGroupRoleMappingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_msgTypes[5]
+	mi := &file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -405,7 +519,7 @@ func (x *ListExternalGroupRoleMappingsResponse) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use ListExternalGroupRoleMappingsResponse.ProtoReflect.Descriptor instead.
 func (*ListExternalGroupRoleMappingsResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_rawDescGZIP(), []int{5}
+	return file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListExternalGroupRoleMappingsResponse) GetExternalGroupRoleMappings() []*ExternalGroupRoleMapping {
@@ -460,7 +574,14 @@ const file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_ra
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\"E\n" +
 	"%DeleteExternalGroupRoleMappingRequest\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\"\xa5\x02\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\"m\n" +
+	"+BatchDeleteExternalGroupRoleMappingsRequest\x12\"\n" +
+	"\x06parent\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12\x1a\n" +
+	"\x05names\x18\x02 \x03(\tB\x04\xe2A\x01\x02R\x05names\"\xc2\x01\n" +
+	",BatchDeleteExternalGroupRoleMappingsResponse\x12\x16\n" +
+	"\x06parent\x18\x01 \x01(\tR\x06parent\x12z\n" +
+	"\x1cexternal_group_role_mappings\x18\x02 \x03(\v29.chainguard.platform.iam.v2beta1.ExternalGroupRoleMappingR\x19externalGroupRoleMappings\"\xa5\x02\n" +
 	"$ListExternalGroupRoleMappingsRequest\x12@\n" +
 	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterB\x04\xe2A\x01\x01R\x04uidp\x128\n" +
 	"\x15identity_provider_uid\x18\x02 \x01(\tB\x04\xe2A\x01\x01R\x13identityProviderUid\x12!\n" +
@@ -475,7 +596,7 @@ const file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_ra
 	"\vtotal_count\x18\x03 \x01(\x03H\x00R\n" +
 	"totalCount\x88\x01\x01\x12\x18\n" +
 	"\askipped\x18\x04 \x01(\x05R\askippedB\x0e\n" +
-	"\f_total_count2\x84\f\n" +
+	"\f_total_count2\xf9\x0f\n" +
 	" ExternalGroupRoleMappingsService\x12\xa2\x02\n" +
 	"\x1bGetExternalGroupRoleMapping\x12C.chainguard.platform.iam.v2beta1.GetExternalGroupRoleMappingRequest\x1a9.chainguard.platform.iam.v2beta1.ExternalGroupRoleMapping\"\x82\x01\x82\xd3\xe4\x93\x021\x12//iam/v2beta1/externalGroupRoleMappings/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x97\n" +
@@ -490,7 +611,12 @@ const file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_ra
 	"\x02\x98\n" +
 	"\x9a\xaf\xa8\xd2\x05P\n" +
 	"HDelete an external group role mapping, revoking the group-to-role grant. \x01(\x010\x00\xc2\xf0\x8e\xfc\v[\n" +
-	">dev.chainguard.api.iam.external_group_role_mappings.deleted.v1\x12\x05group\x12\x10identityprovider\x18\x01\x12\xc9\x02\n" +
+	">dev.chainguard.api.iam.external_group_role_mappings.deleted.v1\x12\x05group\x12\x10identityprovider\x18\x01\x12\xf2\x03\n" +
+	"$BatchDeleteExternalGroupRoleMappings\x12L.chainguard.platform.iam.v2beta1.BatchDeleteExternalGroupRoleMappingsRequest\x1aM.chainguard.platform.iam.v2beta1.BatchDeleteExternalGroupRoleMappingsResponse\"\xac\x02\x82\xd3\xe4\x93\x027:\x01*\"2/iam/v2beta1/externalGroupRoleMappings:batchDelete\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\x98\n" +
+	"\x9a\xaf\xa8\xd2\x05v\n" +
+	"nDelete all external group role mappings under an identity provider, revoking every group-to-role grant for it. \x01(\x010\x00\xc2\xf0\x8e\xfc\va\n" +
+	"Ddev.chainguard.api.iam.external_group_role_mappings.deleted.batch.v1\x12\x05group\x12\x10identityprovider\x18\x01\x12\xc9\x02\n" +
 	"\x1dListExternalGroupRoleMappings\x12E.chainguard.platform.iam.v2beta1.ListExternalGroupRoleMappingsRequest\x1aF.chainguard.platform.iam.v2beta1.ListExternalGroupRoleMappingsResponse\"\x98\x01\x82\xd3\xe4\x93\x02(\x12&/iam/v2beta1/externalGroupRoleMappings\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\x97\n" +
 	"\x10\x01\x9a\xaf\xa8\xd2\x05V\n" +
@@ -509,36 +635,41 @@ func file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_raw
 	return file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_rawDescData
 }
 
-var file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_goTypes = []any{
-	(*ExternalGroupRoleMapping)(nil),              // 0: chainguard.platform.iam.v2beta1.ExternalGroupRoleMapping
-	(*CreateExternalGroupRoleMappingRequest)(nil), // 1: chainguard.platform.iam.v2beta1.CreateExternalGroupRoleMappingRequest
-	(*GetExternalGroupRoleMappingRequest)(nil),    // 2: chainguard.platform.iam.v2beta1.GetExternalGroupRoleMappingRequest
-	(*DeleteExternalGroupRoleMappingRequest)(nil), // 3: chainguard.platform.iam.v2beta1.DeleteExternalGroupRoleMappingRequest
-	(*ListExternalGroupRoleMappingsRequest)(nil),  // 4: chainguard.platform.iam.v2beta1.ListExternalGroupRoleMappingsRequest
-	(*ListExternalGroupRoleMappingsResponse)(nil), // 5: chainguard.platform.iam.v2beta1.ListExternalGroupRoleMappingsResponse
-	(*timestamppb.Timestamp)(nil),                 // 6: google.protobuf.Timestamp
-	(*v1.UIDPFilter)(nil),                         // 7: chainguard.platform.common.UIDPFilter
-	(*emptypb.Empty)(nil),                         // 8: google.protobuf.Empty
+	(*ExternalGroupRoleMapping)(nil),                     // 0: chainguard.platform.iam.v2beta1.ExternalGroupRoleMapping
+	(*CreateExternalGroupRoleMappingRequest)(nil),        // 1: chainguard.platform.iam.v2beta1.CreateExternalGroupRoleMappingRequest
+	(*GetExternalGroupRoleMappingRequest)(nil),           // 2: chainguard.platform.iam.v2beta1.GetExternalGroupRoleMappingRequest
+	(*DeleteExternalGroupRoleMappingRequest)(nil),        // 3: chainguard.platform.iam.v2beta1.DeleteExternalGroupRoleMappingRequest
+	(*BatchDeleteExternalGroupRoleMappingsRequest)(nil),  // 4: chainguard.platform.iam.v2beta1.BatchDeleteExternalGroupRoleMappingsRequest
+	(*BatchDeleteExternalGroupRoleMappingsResponse)(nil), // 5: chainguard.platform.iam.v2beta1.BatchDeleteExternalGroupRoleMappingsResponse
+	(*ListExternalGroupRoleMappingsRequest)(nil),         // 6: chainguard.platform.iam.v2beta1.ListExternalGroupRoleMappingsRequest
+	(*ListExternalGroupRoleMappingsResponse)(nil),        // 7: chainguard.platform.iam.v2beta1.ListExternalGroupRoleMappingsResponse
+	(*timestamppb.Timestamp)(nil),                        // 8: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),                                // 9: chainguard.platform.common.UIDPFilter
+	(*emptypb.Empty)(nil),                                // 10: google.protobuf.Empty
 }
 var file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_depIdxs = []int32{
-	6, // 0: chainguard.platform.iam.v2beta1.ExternalGroupRoleMapping.create_time:type_name -> google.protobuf.Timestamp
-	0, // 1: chainguard.platform.iam.v2beta1.CreateExternalGroupRoleMappingRequest.external_group_role_mapping:type_name -> chainguard.platform.iam.v2beta1.ExternalGroupRoleMapping
-	7, // 2: chainguard.platform.iam.v2beta1.ListExternalGroupRoleMappingsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	0, // 3: chainguard.platform.iam.v2beta1.ListExternalGroupRoleMappingsResponse.external_group_role_mappings:type_name -> chainguard.platform.iam.v2beta1.ExternalGroupRoleMapping
-	2, // 4: chainguard.platform.iam.v2beta1.ExternalGroupRoleMappingsService.GetExternalGroupRoleMapping:input_type -> chainguard.platform.iam.v2beta1.GetExternalGroupRoleMappingRequest
-	1, // 5: chainguard.platform.iam.v2beta1.ExternalGroupRoleMappingsService.CreateExternalGroupRoleMapping:input_type -> chainguard.platform.iam.v2beta1.CreateExternalGroupRoleMappingRequest
-	3, // 6: chainguard.platform.iam.v2beta1.ExternalGroupRoleMappingsService.DeleteExternalGroupRoleMapping:input_type -> chainguard.platform.iam.v2beta1.DeleteExternalGroupRoleMappingRequest
-	4, // 7: chainguard.platform.iam.v2beta1.ExternalGroupRoleMappingsService.ListExternalGroupRoleMappings:input_type -> chainguard.platform.iam.v2beta1.ListExternalGroupRoleMappingsRequest
-	0, // 8: chainguard.platform.iam.v2beta1.ExternalGroupRoleMappingsService.GetExternalGroupRoleMapping:output_type -> chainguard.platform.iam.v2beta1.ExternalGroupRoleMapping
-	0, // 9: chainguard.platform.iam.v2beta1.ExternalGroupRoleMappingsService.CreateExternalGroupRoleMapping:output_type -> chainguard.platform.iam.v2beta1.ExternalGroupRoleMapping
-	8, // 10: chainguard.platform.iam.v2beta1.ExternalGroupRoleMappingsService.DeleteExternalGroupRoleMapping:output_type -> google.protobuf.Empty
-	5, // 11: chainguard.platform.iam.v2beta1.ExternalGroupRoleMappingsService.ListExternalGroupRoleMappings:output_type -> chainguard.platform.iam.v2beta1.ListExternalGroupRoleMappingsResponse
-	8, // [8:12] is the sub-list for method output_type
-	4, // [4:8] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	8,  // 0: chainguard.platform.iam.v2beta1.ExternalGroupRoleMapping.create_time:type_name -> google.protobuf.Timestamp
+	0,  // 1: chainguard.platform.iam.v2beta1.CreateExternalGroupRoleMappingRequest.external_group_role_mapping:type_name -> chainguard.platform.iam.v2beta1.ExternalGroupRoleMapping
+	0,  // 2: chainguard.platform.iam.v2beta1.BatchDeleteExternalGroupRoleMappingsResponse.external_group_role_mappings:type_name -> chainguard.platform.iam.v2beta1.ExternalGroupRoleMapping
+	9,  // 3: chainguard.platform.iam.v2beta1.ListExternalGroupRoleMappingsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	0,  // 4: chainguard.platform.iam.v2beta1.ListExternalGroupRoleMappingsResponse.external_group_role_mappings:type_name -> chainguard.platform.iam.v2beta1.ExternalGroupRoleMapping
+	2,  // 5: chainguard.platform.iam.v2beta1.ExternalGroupRoleMappingsService.GetExternalGroupRoleMapping:input_type -> chainguard.platform.iam.v2beta1.GetExternalGroupRoleMappingRequest
+	1,  // 6: chainguard.platform.iam.v2beta1.ExternalGroupRoleMappingsService.CreateExternalGroupRoleMapping:input_type -> chainguard.platform.iam.v2beta1.CreateExternalGroupRoleMappingRequest
+	3,  // 7: chainguard.platform.iam.v2beta1.ExternalGroupRoleMappingsService.DeleteExternalGroupRoleMapping:input_type -> chainguard.platform.iam.v2beta1.DeleteExternalGroupRoleMappingRequest
+	4,  // 8: chainguard.platform.iam.v2beta1.ExternalGroupRoleMappingsService.BatchDeleteExternalGroupRoleMappings:input_type -> chainguard.platform.iam.v2beta1.BatchDeleteExternalGroupRoleMappingsRequest
+	6,  // 9: chainguard.platform.iam.v2beta1.ExternalGroupRoleMappingsService.ListExternalGroupRoleMappings:input_type -> chainguard.platform.iam.v2beta1.ListExternalGroupRoleMappingsRequest
+	0,  // 10: chainguard.platform.iam.v2beta1.ExternalGroupRoleMappingsService.GetExternalGroupRoleMapping:output_type -> chainguard.platform.iam.v2beta1.ExternalGroupRoleMapping
+	0,  // 11: chainguard.platform.iam.v2beta1.ExternalGroupRoleMappingsService.CreateExternalGroupRoleMapping:output_type -> chainguard.platform.iam.v2beta1.ExternalGroupRoleMapping
+	10, // 12: chainguard.platform.iam.v2beta1.ExternalGroupRoleMappingsService.DeleteExternalGroupRoleMapping:output_type -> google.protobuf.Empty
+	5,  // 13: chainguard.platform.iam.v2beta1.ExternalGroupRoleMappingsService.BatchDeleteExternalGroupRoleMappings:output_type -> chainguard.platform.iam.v2beta1.BatchDeleteExternalGroupRoleMappingsResponse
+	7,  // 14: chainguard.platform.iam.v2beta1.ExternalGroupRoleMappingsService.ListExternalGroupRoleMappings:output_type -> chainguard.platform.iam.v2beta1.ListExternalGroupRoleMappingsResponse
+	10, // [10:15] is the sub-list for method output_type
+	5,  // [5:10] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_init() }
@@ -546,14 +677,14 @@ func file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_ini
 	if File_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto != nil {
 		return
 	}
-	file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_msgTypes[5].OneofWrappers = []any{}
+	file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_msgTypes[7].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_rawDesc), len(file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

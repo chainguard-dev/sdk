@@ -100,6 +100,35 @@ service ExternalGroupRoleMappingsService {
     };
   }
 
+  // BatchDeleteExternalGroupRoleMappings deletes the named mappings under an
+  // identity provider in one call, for cleanup, offboarding, or teardown.
+  rpc BatchDeleteExternalGroupRoleMappings(BatchDeleteExternalGroupRoleMappingsRequest) returns (BatchDeleteExternalGroupRoleMappingsResponse) {
+    option (google.api.http) = {
+      post: "/iam/v2beta1/externalGroupRoleMappings:batchDelete"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_IDENTITY_PROVIDERS_DELETE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.external_group_role_mappings.deleted.batch.v1"
+      extensions: [
+        "group",
+        "identityprovider"
+      ]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Delete all external group role mappings under an identity provider, revoking every group-to-role grant for it."
+      read_only: false
+      destructive: true
+      idempotent: true
+      open_world: false
+    };
+  }
+
   // ListExternalGroupRoleMappings returns mappings matching filter criteria with pagination.
   rpc ListExternalGroupRoleMappings(ListExternalGroupRoleMappingsRequest) returns (ListExternalGroupRoleMappingsResponse) {
     option (google.api.http) = {get: "/iam/v2beta1/externalGroupRoleMappings"};
@@ -181,6 +210,31 @@ message DeleteExternalGroupRoleMappingRequest {
     (google.api.field_behavior) = REQUIRED,
     (chainguard.annotations.iam_scope) = true
   ];
+}
+
+// BatchDeleteExternalGroupRoleMappingsRequest is the request message for BatchDeleteExternalGroupRoleMappings.
+message BatchDeleteExternalGroupRoleMappingsRequest {
+  // UID of the identity provider the mappings belong to. Every name must be one
+  // of its mappings.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // UIDs of the mappings to delete. Names that no longer exist under parent are
+  // silently skipped; names whose parent differs from parent return
+  // INVALID_ARGUMENT.
+  repeated string names = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// BatchDeleteExternalGroupRoleMappingsResponse is the response message for BatchDeleteExternalGroupRoleMappings.
+message BatchDeleteExternalGroupRoleMappingsResponse {
+  // UID of the identity provider the delete targeted. Echoed so the operation can
+  // be attributed even when no mappings matched.
+  string parent = 1;
+
+  // The mappings that were deleted.
+  repeated ExternalGroupRoleMapping external_group_role_mappings = 2;
 }
 
 // ListExternalGroupRoleMappingsRequest is the request message for ListExternalGroupRoleMappings.

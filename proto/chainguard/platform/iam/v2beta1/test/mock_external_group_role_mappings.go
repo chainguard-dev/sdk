@@ -23,10 +23,11 @@ type MockExternalGroupRoleMappingsServiceClient struct {
 	iam.ExternalGroupRoleMappingsServiceClient
 	T *testing.T
 
-	OnGetExternalGroupRoleMapping    []test.On[*iam.GetExternalGroupRoleMappingRequest, *iam.ExternalGroupRoleMapping]
-	OnCreateExternalGroupRoleMapping []test.On[*iam.CreateExternalGroupRoleMappingRequest, *iam.ExternalGroupRoleMapping]
-	OnDeleteExternalGroupRoleMapping []test.On[*iam.DeleteExternalGroupRoleMappingRequest, *emptypb.Empty]
-	OnListExternalGroupRoleMappings  []test.On[*iam.ListExternalGroupRoleMappingsRequest, *iam.ListExternalGroupRoleMappingsResponse]
+	OnGetExternalGroupRoleMapping          []test.On[*iam.GetExternalGroupRoleMappingRequest, *iam.ExternalGroupRoleMapping]
+	OnCreateExternalGroupRoleMapping       []test.On[*iam.CreateExternalGroupRoleMappingRequest, *iam.ExternalGroupRoleMapping]
+	OnDeleteExternalGroupRoleMapping       []test.On[*iam.DeleteExternalGroupRoleMappingRequest, *emptypb.Empty]
+	OnListExternalGroupRoleMappings        []test.On[*iam.ListExternalGroupRoleMappingsRequest, *iam.ListExternalGroupRoleMappingsResponse]
+	OnBatchDeleteExternalGroupRoleMappings []test.On[*iam.BatchDeleteExternalGroupRoleMappingsRequest, *iam.BatchDeleteExternalGroupRoleMappingsResponse]
 }
 
 func (m MockExternalGroupRoleMappingsServiceClient) GetExternalGroupRoleMapping(_ context.Context, given *iam.GetExternalGroupRoleMappingRequest, _ ...grpc.CallOption) (*iam.ExternalGroupRoleMapping, error) {
@@ -43,4 +44,8 @@ func (m MockExternalGroupRoleMappingsServiceClient) DeleteExternalGroupRoleMappi
 
 func (m MockExternalGroupRoleMappingsServiceClient) ListExternalGroupRoleMappings(_ context.Context, given *iam.ListExternalGroupRoleMappingsRequest, _ ...grpc.CallOption) (*iam.ListExternalGroupRoleMappingsResponse, error) {
 	return test.Match(m.T, m.OnListExternalGroupRoleMappings, given, "list-external-group-role-mappings", protocmp.Transform())
+}
+
+func (m MockExternalGroupRoleMappingsServiceClient) BatchDeleteExternalGroupRoleMappings(_ context.Context, given *iam.BatchDeleteExternalGroupRoleMappingsRequest, _ ...grpc.CallOption) (*iam.BatchDeleteExternalGroupRoleMappingsResponse, error) {
+	return test.Match(m.T, m.OnBatchDeleteExternalGroupRoleMappings, given, "batch-delete-external-group-role-mappings", protocmp.Transform())
 }

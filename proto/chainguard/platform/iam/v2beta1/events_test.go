@@ -414,6 +414,7 @@ func Test_ExternalGroupRoleMapping_EventAnnotations(t *testing.T) {
 	runAnnotationTests(t, sd, []annotationTest{
 		{"CreateExternalGroupRoleMapping", "dev.chainguard.api.iam.external_group_role_mappings.created.v1", []string{"group", "identityprovider"}},
 		{"DeleteExternalGroupRoleMapping", "dev.chainguard.api.iam.external_group_role_mappings.deleted.v1", []string{"group", "identityprovider"}},
+		{"BatchDeleteExternalGroupRoleMappings", "dev.chainguard.api.iam.external_group_role_mappings.deleted.batch.v1", []string{"group", "identityprovider"}},
 	})
 }
 
@@ -450,6 +451,32 @@ func Test_ExternalGroupRoleMapping_EventInterfaces(t *testing.T) {
 	}
 	if got, ok := del.CloudEventsExtension("identityprovider"); !ok || got != idpUID {
 		t.Errorf("DeleteExternalGroupRoleMappingRequest.CloudEventsExtension(identityprovider) = (%q, %v), want (%q, true)", got, ok, idpUID)
+	}
+
+	// The batch response is attributed to the echoed parent: subject is the IdP,
+	// group is the org root.
+	batch := &BatchDeleteExternalGroupRoleMappingsResponse{
+		Parent:                    idpUID,
+		ExternalGroupRoleMappings: []*ExternalGroupRoleMapping{{Uid: mappingUID, IdentityProviderUid: idpUID}},
+	}
+	if got := batch.CloudEventsSubject(); got != idpUID {
+		t.Errorf("BatchDeleteExternalGroupRoleMappingsResponse.CloudEventsSubject() = %q, want %q", got, idpUID)
+	}
+	if got, ok := batch.CloudEventsExtension("group"); !ok || got != orgRoot {
+		t.Errorf("BatchDeleteExternalGroupRoleMappingsResponse.CloudEventsExtension(group) = (%q, %v), want (%q, true)", got, ok, orgRoot)
+	}
+	if got, ok := batch.CloudEventsExtension("identityprovider"); !ok || got != idpUID {
+		t.Errorf("BatchDeleteExternalGroupRoleMappingsResponse.CloudEventsExtension(identityprovider) = (%q, %v), want (%q, true)", got, ok, idpUID)
+	}
+
+	// A no-op delete (zero mappings) is still attributed to the parent, so the
+	// event stays well-formed and the interceptor logs no missing-extension error.
+	noop := &BatchDeleteExternalGroupRoleMappingsResponse{Parent: idpUID}
+	if got := noop.CloudEventsSubject(); got != idpUID {
+		t.Errorf("no-op CloudEventsSubject() = %q, want %q", got, idpUID)
+	}
+	if got, ok := noop.CloudEventsExtension("identityprovider"); !ok || got != idpUID {
+		t.Errorf("no-op CloudEventsExtension(identityprovider) = (%q, %v), want (%q, true)", got, ok, idpUID)
 	}
 }
 
