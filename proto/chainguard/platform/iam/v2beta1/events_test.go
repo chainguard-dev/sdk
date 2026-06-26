@@ -224,6 +224,7 @@ func TestIdentityProvidersEventInterfaces(t *testing.T) {
 				Issuer:       "https://accounts.google.com",
 				ClientId:     "client-id",
 				ClientSecret: "super-secret",
+				GroupsClaim:  "okta_groups",
 			},
 		},
 	}
@@ -248,6 +249,11 @@ func TestIdentityProvidersEventInterfaces(t *testing.T) {
 	}
 	if oidc.GetClientId() != "client-id" {
 		t.Errorf("redacted client_id = %q, want preserved", oidc.GetClientId())
+	}
+	// groups_claim is org config, not a credential — it must survive redaction so
+	// the IdP-update event records changes to the trusted group claim.
+	if oidc.GetGroupsClaim() != "okta_groups" {
+		t.Errorf("redacted groups_claim = %q, want preserved", oidc.GetGroupsClaim())
 	}
 	// An IdP with no SCIM config must stay nil after redaction — guards against a
 	// refactor that unconditionally allocates an (empty) Scim sub-message.

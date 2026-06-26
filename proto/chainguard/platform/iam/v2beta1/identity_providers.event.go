@@ -49,6 +49,7 @@ func (x *IdentityProvider) CloudEventsRedact() any {
 				Issuer:           cfg.Oidc.Issuer,
 				ClientId:         cfg.Oidc.ClientId,
 				AdditionalScopes: cfg.Oidc.AdditionalScopes,
+				GroupsClaim:      cfg.Oidc.GroupsClaim,
 				// ClientSecret is redacted.
 			},
 		}
