@@ -108,6 +108,30 @@ message Advisory {
 
   // The advisory ID from the GitHub advisories repositories, if this advisory was migrated.
   optional string legacy_advisory_id = 15 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Severity scoring for the vulnerability associated with this advisory.
+  // Sourced from vulnerability metadata (e.g., OSV) via the advisory's aliases.
+  repeated Severity severities = 16 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Severity represents a quantitative severity scoring method for a vulnerability.
+message Severity {
+  // Type of severity scoring method.
+  enum Type {
+    // Unspecified severity type.
+    TYPE_UNSPECIFIED = 0;
+    // CVSS version 2.
+    TYPE_CVSS_V2 = 1;
+    // CVSS version 3.x.
+    TYPE_CVSS_V3 = 2;
+    // CVSS version 4.x.
+    TYPE_CVSS_V4 = 3;
+  }
+
+  // The type of severity scoring method used.
+  Type type = 1;
+  // The score string (CVSS vector string or numeric value depending on type).
+  string score = 2;
 }
 
 // AdvisoryEvent represents a change in state during the lifecycle of an advisory.
