@@ -25,6 +25,40 @@ func (x *Binding) CloudEventsSubject() string {
 }
 
 // CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension.
+// "group" returns the override's parent UIDP so audit consumers can filter
+// events by IAM scope.
+func (x *Override) CloudEventsExtension(key string) (string, bool) {
+	switch key {
+	case "group":
+		return uidp.Parent(x.GetId()), true
+	default:
+		return "", false
+	}
+}
+
+// CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
+func (x *Override) CloudEventsSubject() string {
+	return x.GetId()
+}
+
+// CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension.
+// "group" returns the deleted override's parent UIDP so audit consumers can
+// filter events by IAM scope.
+func (x *DeleteOverrideRequest) CloudEventsExtension(key string) (string, bool) {
+	switch key {
+	case "group":
+		return uidp.Parent(x.GetId()), true
+	default:
+		return "", false
+	}
+}
+
+// CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
+func (x *DeleteOverrideRequest) CloudEventsSubject() string {
+	return x.GetId()
+}
+
+// CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension.
 func (x *DeleteBindingRequest) CloudEventsExtension(key string) (string, bool) {
 	switch key {
 	case "group":

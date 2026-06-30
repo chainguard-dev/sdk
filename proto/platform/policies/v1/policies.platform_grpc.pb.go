@@ -552,3 +552,181 @@ var Decisions_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "policies.platform.proto",
 }
+
+const (
+	Overrides_CreateOverride_FullMethodName = "/chainguard.platform.policies.v1.Overrides/CreateOverride"
+	Overrides_ListOverrides_FullMethodName  = "/chainguard.platform.policies.v1.Overrides/ListOverrides"
+	Overrides_DeleteOverride_FullMethodName = "/chainguard.platform.policies.v1.Overrides/DeleteOverride"
+)
+
+// OverridesClient is the client API for Overrides service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type OverridesClient interface {
+	CreateOverride(ctx context.Context, in *CreateOverrideRequest, opts ...grpc.CallOption) (*Override, error)
+	ListOverrides(ctx context.Context, in *OverrideFilter, opts ...grpc.CallOption) (*OverrideList, error)
+	DeleteOverride(ctx context.Context, in *DeleteOverrideRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+}
+
+type overridesClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewOverridesClient(cc grpc.ClientConnInterface) OverridesClient {
+	return &overridesClient{cc}
+}
+
+func (c *overridesClient) CreateOverride(ctx context.Context, in *CreateOverrideRequest, opts ...grpc.CallOption) (*Override, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Override)
+	err := c.cc.Invoke(ctx, Overrides_CreateOverride_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *overridesClient) ListOverrides(ctx context.Context, in *OverrideFilter, opts ...grpc.CallOption) (*OverrideList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OverrideList)
+	err := c.cc.Invoke(ctx, Overrides_ListOverrides_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *overridesClient) DeleteOverride(ctx context.Context, in *DeleteOverrideRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Overrides_DeleteOverride_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// OverridesServer is the server API for Overrides service.
+// All implementations must embed UnimplementedOverridesServer
+// for forward compatibility.
+type OverridesServer interface {
+	CreateOverride(context.Context, *CreateOverrideRequest) (*Override, error)
+	ListOverrides(context.Context, *OverrideFilter) (*OverrideList, error)
+	DeleteOverride(context.Context, *DeleteOverrideRequest) (*emptypb.Empty, error)
+	mustEmbedUnimplementedOverridesServer()
+}
+
+// UnimplementedOverridesServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedOverridesServer struct{}
+
+func (UnimplementedOverridesServer) CreateOverride(context.Context, *CreateOverrideRequest) (*Override, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateOverride not implemented")
+}
+func (UnimplementedOverridesServer) ListOverrides(context.Context, *OverrideFilter) (*OverrideList, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListOverrides not implemented")
+}
+func (UnimplementedOverridesServer) DeleteOverride(context.Context, *DeleteOverrideRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteOverride not implemented")
+}
+func (UnimplementedOverridesServer) mustEmbedUnimplementedOverridesServer() {}
+func (UnimplementedOverridesServer) testEmbeddedByValue()                   {}
+
+// UnsafeOverridesServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to OverridesServer will
+// result in compilation errors.
+type UnsafeOverridesServer interface {
+	mustEmbedUnimplementedOverridesServer()
+}
+
+func RegisterOverridesServer(s grpc.ServiceRegistrar, srv OverridesServer) {
+	// If the following call panics, it indicates UnimplementedOverridesServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&Overrides_ServiceDesc, srv)
+}
+
+func _Overrides_CreateOverride_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateOverrideRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OverridesServer).CreateOverride(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Overrides_CreateOverride_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OverridesServer).CreateOverride(ctx, req.(*CreateOverrideRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Overrides_ListOverrides_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OverrideFilter)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OverridesServer).ListOverrides(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Overrides_ListOverrides_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OverridesServer).ListOverrides(ctx, req.(*OverrideFilter))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Overrides_DeleteOverride_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteOverrideRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OverridesServer).DeleteOverride(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Overrides_DeleteOverride_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OverridesServer).DeleteOverride(ctx, req.(*DeleteOverrideRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Overrides_ServiceDesc is the grpc.ServiceDesc for Overrides service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Overrides_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "chainguard.platform.policies.v1.Overrides",
+	HandlerType: (*OverridesServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateOverride",
+			Handler:    _Overrides_CreateOverride_Handler,
+		},
+		{
+			MethodName: "ListOverrides",
+			Handler:    _Overrides_ListOverrides_Handler,
+		},
+		{
+			MethodName: "DeleteOverride",
+			Handler:    _Overrides_DeleteOverride_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "policies.platform.proto",
+}

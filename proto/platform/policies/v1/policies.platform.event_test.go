@@ -93,6 +93,104 @@ func TestBinding_CloudEventsSubject(t *testing.T) {
 	}
 }
 
+func TestOverride_CloudEventsExtension(t *testing.T) {
+	o := &Override{Id: "abc123/def456/override789"}
+
+	got, ok := o.CloudEventsExtension("group")
+	if !ok {
+		t.Error("CloudEventsExtension(group) ok = false, want = true")
+	}
+	if want := "abc123/def456"; got != want {
+		t.Errorf("CloudEventsExtension(group) = %q, want = %q", got, want)
+	}
+
+	if _, ok := o.CloudEventsExtension("unknown"); ok {
+		t.Error("CloudEventsExtension(unknown) ok = true, want = false")
+	}
+
+	if got, want := o.CloudEventsSubject(), "abc123/def456/override789"; got != want {
+		t.Errorf("CloudEventsSubject() = %q, want = %q", got, want)
+	}
+}
+
+func TestDeleteOverrideRequest_CloudEventsExtension(t *testing.T) {
+	tests := []struct {
+		name   string
+		id     string
+		key    string
+		want   string
+		wantOk bool
+	}{
+		{
+			name:   "group extension returns parent UIDP",
+			id:     "abc123/def456/override789",
+			key:    "group",
+			want:   "abc123/def456",
+			wantOk: true,
+		},
+		{
+			name:   "unknown extension returns false",
+			id:     "abc123/def456/override789",
+			key:    "unknown",
+			want:   "",
+			wantOk: false,
+		},
+		{
+			name:   "group extension with empty id",
+			id:     "",
+			key:    "group",
+			want:   "/",
+			wantOk: true,
+		},
+		{
+			name:   "group extension with single segment id",
+			id:     "abc123",
+			key:    "group",
+			want:   "/",
+			wantOk: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := &DeleteOverrideRequest{Id: tt.id}
+			got, ok := req.CloudEventsExtension(tt.key)
+			if ok != tt.wantOk {
+				t.Errorf("CloudEventsExtension() ok = %v, want = %v", ok, tt.wantOk)
+			}
+			if got != tt.want {
+				t.Errorf("CloudEventsExtension() = %q, want = %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestDeleteOverrideRequest_CloudEventsSubject(t *testing.T) {
+	tests := []struct {
+		name string
+		id   string
+		want string
+	}{
+		{
+			name: "non-empty id",
+			id:   "abc123/def456/override789",
+			want: "abc123/def456/override789",
+		},
+		{
+			name: "empty id",
+			id:   "",
+			want: "",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := &DeleteOverrideRequest{Id: tt.id}
+			if got := req.CloudEventsSubject(); got != tt.want {
+				t.Errorf("CloudEventsSubject() = %q, want = %q", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestDeleteBindingRequest_CloudEventsExtension(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -415,6 +513,25 @@ func TestBindingsEventAnnotations(t *testing.T) {
 	}, {
 		method:   "DeleteBinding",
 		wantType: "dev.chainguard.api.policies.bindings.deleted.v1",
+		wantExts: []string{"group"},
+	}})
+}
+
+// TestOverridesEventAnnotations is the matching regression guard for the
+// Overrides service: a waiver being granted or revoked is a security-sensitive
+// state change, so both RPCs must keep emitting audit events.
+func TestOverridesEventAnnotations(t *testing.T) {
+	sd := File_policies_platform_proto.Services().ByName("Overrides")
+	if sd == nil {
+		t.Fatal("Overrides service not found")
+	}
+	runAnnotationTests(t, sd, []annotationTest{{
+		method:   "CreateOverride",
+		wantType: "dev.chainguard.api.policies.overrides.created.v1",
+		wantExts: []string{"group"},
+	}, {
+		method:   "DeleteOverride",
+		wantType: "dev.chainguard.api.policies.overrides.deleted.v1",
 		wantExts: []string{"group"},
 	}})
 }

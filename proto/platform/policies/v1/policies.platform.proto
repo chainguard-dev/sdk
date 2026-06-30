@@ -144,6 +144,49 @@ service Decisions {
   }
 }
 
+service Overrides {
+  rpc CreateOverride(CreateOverrideRequest) returns (Override) {
+    option (google.api.http) = {
+      post: "/policies/v1/overrides/{parent_id=**}"
+      body: "override"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: { capabilities: [CAP_POLICIES_OVERRIDE_CREATE] }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.policies.overrides.created.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  rpc ListOverrides(OverrideFilter) returns (OverrideList) {
+    option (google.api.http) = {
+      get: "/policies/v1/overrides"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_POLICIES_OVERRIDE_LIST]
+        unscoped: true
+      }
+    };
+  }
+
+  rpc DeleteOverride(DeleteOverrideRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/policies/v1/overrides/{id=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: { capabilities: [CAP_POLICIES_OVERRIDE_DELETE] }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.policies.overrides.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+}
+
 // The mode to use when evaluating the policy.
 enum PolicyMode {
   POLICY_MODE_UNSPECIFIED = 0;
@@ -484,4 +527,77 @@ message DecisionFilter {
 
   // Only return decisions for this manifest digest.
   string digest = 11;
+}
+
+// Override is an admin-granted waiver of a policy decision for one specific
+// image. It does not change the policy or its binding; it records a deliberate,
+// attributable exception applied by the engine after evaluation.
+message Override {
+  // The id of the Override. The override is granted under its parent and
+  // applies to all of the parent's descendants whose image matches the digest.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // The id of the policy being waived.
+  string policy_id = 2;
+
+  // The image manifest digest this override waives (e.g. "sha256:abc123...").
+  string digest = 3;
+
+  // The required justification for the waiver.
+  string reason = 4;
+
+  // The identity of the actor that created the override, stamped from the
+  // authenticated caller.
+  string created_by = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // When the override was created.
+  google.protobuf.Timestamp created_at = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message OverrideList {
+  // The requested overrides.
+  repeated Override items = 1;
+
+  // Token for retrieving the next page of results.
+  // Empty if there are no more results.
+  string next_page_token = 2;
+
+  // Total number of results matching the filter.
+  // Optional, provided for UI pagination.
+  int64 total_count = 3;
+
+  // Number of results that were skipped.
+  // Accumulates across paginated requests.
+  int32 skipped = 4;
+}
+
+message OverrideFilter {
+  // Optional UIDP-based filter for hierarchy navigation.
+  chainguard.platform.common.UIDPFilter uidp = 1;
+
+  // Maximum number of results to return per page.
+  int32 page_size = 2;
+
+  // Page token from a previous List response for pagination.
+  string page_token = 3;
+
+  // Order results by field. Format: "field [asc|desc]"
+  // Default: "id asc"
+  // Note: Changing order_by between pages invalidates the page token.
+  string order_by = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of results to skip before returning.
+  // Used for random-access pagination (jumping to arbitrary pages).
+  // Can be combined with page_token to skip from cursor position.
+  // Must be non-negative.
+  int32 skip = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message CreateOverrideRequest {
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+  Override override = 2;
+}
+
+message DeleteOverrideRequest {
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
 }

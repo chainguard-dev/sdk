@@ -22,6 +22,7 @@ type MockPoliciesClients struct {
 	PoliciesOnClient  MockPoliciesClient
 	BindingsOnClient  MockBindingsClient
 	DecisionsOnClient MockDecisionsClient
+	OverridesOnClient MockOverridesClient
 
 	OnClose error
 }
@@ -36,6 +37,10 @@ func (m MockPoliciesClients) Bindings() policies.BindingsClient {
 
 func (m MockPoliciesClients) Decisions() policies.DecisionsClient {
 	return &m.DecisionsOnClient
+}
+
+func (m MockPoliciesClients) Overrides() policies.OverridesClient {
+	return &m.OverridesOnClient
 }
 
 func (m MockPoliciesClients) Close() error {
@@ -201,6 +206,61 @@ func (m *MockBindingsClient) ListBindings(_ context.Context, given *policies.Bin
 
 func (m *MockBindingsClient) DeleteBinding(_ context.Context, given *policies.DeleteBindingRequest, _ ...grpc.CallOption) (*emptypb.Empty, error) {
 	for _, o := range m.OnDeleteBinding {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return &emptypb.Empty{}, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+// MockOverridesClient mocks the Overrides service.
+var _ policies.OverridesClient = (*MockOverridesClient)(nil)
+
+type MockOverridesClient struct {
+	policies.OverridesClient
+
+	OnCreateOverride []OnCreateOverride
+	OnListOverrides  []OnListOverrides
+	OnDeleteOverride []OnDeleteOverride
+}
+
+type OnCreateOverride struct {
+	Given   *policies.CreateOverrideRequest
+	Created *policies.Override
+	Error   error
+}
+
+type OnListOverrides struct {
+	Given *policies.OverrideFilter
+	List  *policies.OverrideList
+	Error error
+}
+
+type OnDeleteOverride struct {
+	Given *policies.DeleteOverrideRequest
+	Error error
+}
+
+func (m *MockOverridesClient) CreateOverride(_ context.Context, given *policies.CreateOverrideRequest, _ ...grpc.CallOption) (*policies.Override, error) {
+	for _, o := range m.OnCreateOverride {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Created, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m *MockOverridesClient) ListOverrides(_ context.Context, given *policies.OverrideFilter, _ ...grpc.CallOption) (*policies.OverrideList, error) {
+	for _, o := range m.OnListOverrides {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.List, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m *MockOverridesClient) DeleteOverride(_ context.Context, given *policies.DeleteOverrideRequest, _ ...grpc.CallOption) (*emptypb.Empty, error) {
+	for _, o := range m.OnDeleteOverride {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return &emptypb.Empty{}, o.Error
 		}

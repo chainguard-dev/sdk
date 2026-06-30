@@ -21,6 +21,7 @@ type Clients interface {
 	Policies() PoliciesClient
 	Bindings() BindingsClient
 	Decisions() DecisionsClient
+	Overrides() OverridesClient
 
 	Close() error
 }
@@ -48,6 +49,7 @@ func NewClients(ctx context.Context, addr string, token string) (Clients, error)
 		policies:  NewPoliciesClient(conn),
 		bindings:  NewBindingsClient(conn),
 		decisions: NewDecisionsClient(conn),
+		overrides: NewOverridesClient(conn),
 
 		conn: conn,
 	}, nil
@@ -58,6 +60,7 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 		policies:  NewPoliciesClient(conn),
 		bindings:  NewBindingsClient(conn),
 		decisions: NewDecisionsClient(conn),
+		overrides: NewOverridesClient(conn),
 		// conn is not set, this client struct does not own closing it.
 	}
 }
@@ -66,6 +69,7 @@ type clients struct {
 	policies  PoliciesClient
 	bindings  BindingsClient
 	decisions DecisionsClient
+	overrides OverridesClient
 
 	conn *grpc.ClientConn
 }
@@ -80,6 +84,10 @@ func (c *clients) Bindings() BindingsClient {
 
 func (c *clients) Decisions() DecisionsClient {
 	return c.decisions
+}
+
+func (c *clients) Overrides() OverridesClient {
+	return c.overrides
 }
 
 func (c *clients) Close() error {
