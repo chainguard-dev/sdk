@@ -335,6 +335,12 @@ var (
 		Capability_CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_READ,
 		Capability_CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_REFRESH,
 		Capability_CAP_LIBRARIES_REBUILDER_MALWARE_STATUS_READ,
+		Capability_CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_LIST,
+		Capability_CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_UPDATE,
+		// This bundle grants (internal_only) capabilities, so it must also grant
+		// CAP_INTERNAL; the internal-only validation enforces that pairing, which
+		// keeps these capabilities off customer-grantable roles.
+		Capability_CAP_INTERNAL,
 	})
 
 	// GuardenerUserCaps is the minimum capability set required to run
