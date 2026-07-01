@@ -549,9 +549,10 @@ const file_aws_marketplace_subscriptions_libraries_platform_proto_rawDesc = "" +
 	" AWSMarketplaceSubscriptionFilter\x12:\n" +
 	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterR\x04uidp\"A\n" +
 	"'CancelAWSMarketplaceSubscriptionRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"\xcb\x01\n" +
-	"'UpdateAWSMarketplaceSubscriptionRequest\x12]\n" +
-	"\fsubscription\x18\x01 \x01(\v29.chainguard.platform.libraries.AWSMarketplaceSubscriptionR\fsubscription\x12A\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"\xd7\x01\n" +
+	"'UpdateAWSMarketplaceSubscriptionRequest\x12i\n" +
+	"\fsubscription\x18\x01 \x01(\v29.chainguard.platform.libraries.AWSMarketplaceSubscriptionB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\fsubscription\x12A\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x04\xe2A\x01\x01R\n" +
 	"updateMask*\xee\x01\n" +
 	"\x12SubscriptionStatus\x12#\n" +

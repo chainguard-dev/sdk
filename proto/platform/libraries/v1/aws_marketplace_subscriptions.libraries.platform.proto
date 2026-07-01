@@ -192,7 +192,10 @@ message CancelAWSMarketplaceSubscriptionRequest {
 
 message UpdateAWSMarketplaceSubscriptionRequest {
   // The subscription to update.
-  AWSMarketplaceSubscription subscription = 1;
+  AWSMarketplaceSubscription subscription = 1 [
+    (chainguard.annotations.iam_scope) = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
 
   // The list of fields to update. If not provided, an implied
   // field mask is used equivalent to all fields that are populated
