@@ -4476,7 +4476,9 @@ type Chart struct {
 	// Raw Chart.yaml content.
 	Raw string `protobuf:"bytes,101,opt,name=raw,proto3" json:"raw,omitempty"`
 	// Raw values.yaml content (default values).
-	Values        string `protobuf:"bytes,102,opt,name=values,proto3" json:"values,omitempty"`
+	Values string `protobuf:"bytes,102,opt,name=values,proto3" json:"values,omitempty"`
+	// Raw CHANGELOG.md content, if present in the chart.
+	Changelog     string `protobuf:"bytes,103,opt,name=changelog,proto3" json:"changelog,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4570,6 +4572,13 @@ func (x *Chart) GetRaw() string {
 func (x *Chart) GetValues() string {
 	if x != nil {
 		return x.Values
+	}
+	return ""
+}
+
+func (x *Chart) GetChangelog() string {
+	if x != nil {
+		return x.Changelog
 	}
 	return ""
 }
@@ -5843,7 +5852,7 @@ const file_registry_platform_proto_rawDesc = "" +
 	"\x06values\x18\x05 \x01(\tR\x06values\"J\n" +
 	"\x0fGetChartRequest\x12\x1f\n" +
 	"\arepo_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06repoId\x12\x16\n" +
-	"\x06digest\x18\x02 \x01(\tR\x06digest\"\xcf\x03\n" +
+	"\x06digest\x18\x02 \x01(\tR\x06digest\"\xed\x03\n" +
 	"\x05Chart\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\tR\aversion\x12\x1f\n" +
@@ -5854,7 +5863,8 @@ const file_registry_platform_proto_rawDesc = "" +
 	"\vannotations\x18\x06 \x03(\v24.chainguard.platform.registry.Chart.AnnotationsEntryR\vannotations\x12@\n" +
 	"\x06images\x18d \x03(\v2(.chainguard.platform.registry.ChartImageR\x06images\x12\x10\n" +
 	"\x03raw\x18e \x01(\tR\x03raw\x12\x16\n" +
-	"\x06values\x18f \x01(\tR\x06values\x1a>\n" +
+	"\x06values\x18f \x01(\tR\x06values\x12\x1c\n" +
+	"\tchangelog\x18g \x01(\tR\tchangelog\x1a>\n" +
 	"\x10AnnotationsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"_\n" +

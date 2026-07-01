@@ -1183,6 +1183,8 @@ message Chart {
   string raw = 101;
   // Raw values.yaml content (default values).
   string values = 102;
+  // Raw CHANGELOG.md content, if present in the chart.
+  string changelog = 103;
 }
 
 // ChartDependency represents a dependency of a Helm chart.

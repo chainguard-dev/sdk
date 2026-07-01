@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"io"
+	"strings"
 	"testing"
 
 	"chainguard.dev/sdk/helm/images"
@@ -54,6 +55,44 @@ func TestReadValues(t *testing.T) {
 
 			if string(got) != tt.want {
 				t.Errorf("ReadValues: got = %q, wanted = %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestReadChangelog(t *testing.T) {
+	tests := []struct {
+		name         string
+		hasChangelog bool
+		changelog    string
+		want         string
+	}{{
+		name:         "with CHANGELOG.md",
+		hasChangelog: true,
+		changelog:    "# Changelog\n\n## 1.0.0\n- initial release\n",
+		want:         "# Changelog\n\n## 1.0.0\n- initial release\n",
+	}, {
+		name:         "without CHANGELOG.md",
+		hasChangelog: false,
+		want:         "",
+	}}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var chart v1.Image
+			if tt.hasChangelog {
+				chart = createTestChartWithChangelog(t, "my-chart", "image: nginx\n", tt.changelog)
+			} else {
+				chart = createTestChart(t, "my-chart", "image: nginx\n")
+			}
+
+			got, err := ReadChangelog(chart)
+			if err != nil {
+				t.Fatalf("ReadChangelog: %v", err)
+			}
+
+			if string(got) != tt.want {
+				t.Errorf("ReadChangelog: got = %q, wanted = %q", got, tt.want)
 			}
 		})
 	}
@@ -348,6 +387,42 @@ func TestIsTopLevelChartYAML(t *testing.T) {
 	}
 }
 
+func TestIsTopLevelChangelog(t *testing.T) {
+	tests := []struct {
+		path string
+		want bool
+	}{{
+		path: "chart/CHANGELOG.md",
+		want: true,
+	}, {
+		path: "my-chart/CHANGELOG.md",
+		want: true,
+	}, {
+		path: "CHANGELOG.md",
+		want: false,
+	}, {
+		path: "chart/charts/subchart/CHANGELOG.md",
+		want: false,
+	}, {
+		path: "chart/docs/CHANGELOG.md",
+		want: false,
+	}, {
+		path: "chart/CHANGELOG.txt",
+		want: false,
+	}, {
+		path: "a/b/c/CHANGELOG.md",
+		want: false,
+	}}
+
+	for _, tt := range tests {
+		t.Run(tt.path, func(t *testing.T) {
+			if got := isTopLevelChangelog(tt.path); got != tt.want {
+				t.Errorf("isTopLevelChangelog(%q): got = %v, wanted = %v", tt.path, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestReadChartFile(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -379,6 +454,39 @@ func TestReadChartFile(t *testing.T) {
 	}
 }
 
+func TestReadChartFile_SizeLimit(t *testing.T) {
+	oversized := strings.Repeat("a", maxFileSize+1)
+
+	// The matched file is rejected when it exceeds maxFileSize.
+	t.Run("oversized matched file is rejected", func(t *testing.T) {
+		chart := createTestChart(t, "my-chart", oversized)
+
+		_, err := readChartFile(chart, isTopLevelValuesYAML)
+		if err == nil {
+			t.Fatal("readChartFile: expected error for oversized matched file, got nil")
+		}
+		if !strings.Contains(err.Error(), "exceeds maximum size") {
+			t.Errorf("readChartFile: got error %q, want it to mention exceeding maximum size", err)
+		}
+	})
+
+	// An oversized file the caller isn't reading must be skipped, not rejected,
+	// so charts shipping large unrelated files don't break ReadValues/
+	// ReadChartMeta. Here the oversized values.yaml is unmatched (no CHANGELOG.md
+	// to match), so the scan skips it and returns nil without error.
+	t.Run("oversized unmatched file is skipped", func(t *testing.T) {
+		chart := createTestChart(t, "my-chart", oversized)
+
+		got, err := readChartFile(chart, isTopLevelChangelog)
+		if err != nil {
+			t.Fatalf("readChartFile: unexpected error for oversized unmatched file: %v", err)
+		}
+		if got != nil {
+			t.Errorf("readChartFile: expected nil (no match), got %d bytes", len(got))
+		}
+	})
+}
+
 func TestReadChartMeta(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -401,7 +509,7 @@ func TestReadChartMeta(t *testing.T) {
 				t.Fatalf("ReadChartMeta: %v", err)
 			}
 
-			if cmp.Diff(meta, tt.want) != "" {
+			if cmp.Diff(tt.want, meta) != "" {
 				t.Errorf("ReadChartMeta: got = %+v, wanted = %+v", meta, tt.want)
 			}
 		})
@@ -465,7 +573,7 @@ func TestReplaceChartMeta(t *testing.T) {
 				t.Fatalf("ReadChartMeta after replace: %v", err)
 			}
 
-			if cmp.Diff(got, tt.expectedMeta) != "" {
+			if cmp.Diff(tt.expectedMeta, got) != "" {
 				t.Errorf("ReadChartMeta: got = %+v, wanted = %+v", got, tt.newMeta)
 			}
 		})
@@ -544,6 +652,39 @@ func createTestChart(t *testing.T, chartName, valuesYAML string) v1.Image {
 	}
 	if _, err := tw.Write([]byte(valuesYAML)); err != nil {
 		t.Fatalf("writing values.yaml: %v", err)
+	}
+
+	if err := tw.Close(); err != nil {
+		t.Fatalf("closing tar: %v", err)
+	}
+
+	return createImageFromTar(t, tarBuf.Bytes())
+}
+
+func createTestChartWithChangelog(t *testing.T, chartName, valuesYAML, changelog string) v1.Image {
+	t.Helper()
+
+	var tarBuf bytes.Buffer
+	tw := tar.NewWriter(&tarBuf)
+
+	files := []struct {
+		name, data string
+	}{
+		{chartName + "/Chart.yaml", "apiVersion: v2\nname: " + chartName + "\nversion: 1.0.0\n"},
+		{chartName + "/values.yaml", valuesYAML},
+		{chartName + "/CHANGELOG.md", changelog},
+	}
+	for _, f := range files {
+		if err := tw.WriteHeader(&tar.Header{
+			Name: f.name,
+			Size: int64(len(f.data)),
+			Mode: 0644,
+		}); err != nil {
+			t.Fatalf("writing %s header: %v", f.name, err)
+		}
+		if _, err := tw.Write([]byte(f.data)); err != nil {
+			t.Fatalf("writing %s: %v", f.name, err)
+		}
 	}
 
 	if err := tw.Close(); err != nil {

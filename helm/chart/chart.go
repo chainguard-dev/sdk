@@ -38,6 +38,12 @@ func ReadValues(chart v1.Image) ([]byte, error) {
 	return readChartFile(chart, isTopLevelValuesYAML)
 }
 
+// ReadChangelog extracts the top-level CHANGELOG.md from a Helm chart OCI artifact.
+// Returns nil, nil if the chart has no CHANGELOG.md.
+func ReadChangelog(chart v1.Image) ([]byte, error) {
+	return readChartFile(chart, isTopLevelChangelog)
+}
+
 // ReadChartMeta extracts and parses the top-level Chart.yaml metadata from a Helm chart OCI artifact.
 func ReadChartMeta(chart v1.Image) (*Meta, error) {
 	chartYAML, err := readChartFile(chart, isTopLevelChartYAML)
@@ -56,8 +62,10 @@ func ReadChartMeta(chart v1.Image) (*Meta, error) {
 	return &meta, nil
 }
 
-// ReadValues extracts the top-level values.yaml from a Helm chart OCI artifact.
-// Returns nil, nil if the chart has no values.yaml.
+// readChartFile returns the contents of the first file in the chart layer
+// matched by pathMatcher, or nil if no file matches. The matched file is
+// rejected if it exceeds maxFileSize; unmatched files are skipped regardless
+// of size.
 func readChartFile(chart v1.Image, pathMatcher PathMatcher) ([]byte, error) {
 	layer, err := getChartLayer(chart)
 	if err != nil {
@@ -81,9 +89,16 @@ func readChartFile(chart v1.Image, pathMatcher PathMatcher) ([]byte, error) {
 		}
 
 		if pathMatcher(header.Name) {
+			// Cap only the file we actually read. tar.Reader bounds the read to
+			// header.Size, so this guards the in-memory read without rejecting
+			// unmatched files (which would regress existing ReadValues/
+			// ReadChartMeta callers for charts shipping large unrelated files).
+			if header.Size > maxFileSize {
+				return nil, fmt.Errorf("file %q exceeds maximum size (%d > %d)", header.Name, header.Size, maxFileSize)
+			}
 			content, err := io.ReadAll(tr)
 			if err != nil {
-				return nil, fmt.Errorf("reading values.yaml: %w", err)
+				return nil, fmt.Errorf("reading chart file %q: %w", header.Name, err)
 			}
 			return content, nil
 		}
@@ -261,6 +276,17 @@ func isTopLevelValuesYAML(path string) bool {
 // Subcharts are at {chartName}/charts/{subchart}/Chart.yaml and should be excluded.
 func isTopLevelChartYAML(path string) bool {
 	if !strings.HasSuffix(path, "/Chart.yaml") {
+		return false
+	}
+	parts := strings.Split(path, "/")
+	return len(parts) == 2
+}
+
+// isTopLevelChangelog is a PathMatcher func that checks if a tar path is a top-level
+// chart's CHANGELOG.md, at {chartName}/CHANGELOG.md (one directory deep).
+// Subcharts are at {chartName}/charts/{subchart}/CHANGELOG.md and should be excluded.
+func isTopLevelChangelog(path string) bool {
+	if !strings.HasSuffix(path, "/CHANGELOG.md") {
 		return false
 	}
 	parts := strings.Split(path, "/")
