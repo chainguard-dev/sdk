@@ -326,10 +326,15 @@ enum Capability {
   CAP_CASSIE_AC_READ                 = 2804 [(name) = "cassie.ac.read",                 (bit) = 172, (internal_only) = true];
   CAP_CASSIE_AC_WRITE                = 2803 [(name) = "cassie.ac.write",                (bit) = 171, (internal_only) = true];
 
+  // Loggie: the live-log service. Readers tailing a stream hold logs.read; the
+  // exec service issuing streams and the worker appending to them hold logs.write.
+  CAP_LOGGIE_LOGS_READ               = 2901 [(name) = "loggie.logs.read",               (bit) = 179, (internal_only) = true];
+  CAP_LOGGIE_LOGS_WRITE              = 2902 [(name) = "loggie.logs.write",              (bit) = 180, (internal_only) = true];
+
   // Actions catalog — the read-only catalog of Chainguard-published GitHub
   // Actions and the upstreams they mirror. Writes are internal (importer only).
   CAP_ACTIONS_LIST = 2700 [(name) = "actions.list", (bit) = 164];
 
   reserved 1;
-  // next bit: 179
+  // next bit: 181
 }
