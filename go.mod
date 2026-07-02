@@ -24,7 +24,7 @@ require (
 	github.com/sigstore/sigstore v1.10.8
 	golang.org/x/exp v0.0.0-20260611194520-c48552f49976
 	golang.org/x/oauth2 v0.36.0
-	google.golang.org/api v0.285.0
+	google.golang.org/api v0.286.0
 	google.golang.org/genproto v0.0.0-20260406210006-6f92a3bedf2d
 	google.golang.org/genproto/googleapis/api v0.0.0-20260414002931-afd174a4e478
 	google.golang.org/grpc v1.81.1
