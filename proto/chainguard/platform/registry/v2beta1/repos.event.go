@@ -11,9 +11,24 @@ import (
 )
 
 var (
+	_ events.Eventable  = (*Repo)(nil)
+	_ events.Extendable = (*Repo)(nil)
 	_ events.Eventable  = (*DeleteRepoRequest)(nil)
 	_ events.Extendable = (*DeleteRepoRequest)(nil)
 )
+
+func (x *Repo) CloudEventsExtension(key string) (string, bool) {
+	switch key {
+	case "group":
+		return uidp.Parent(x.GetUid()), true
+	default:
+		return "", false
+	}
+}
+
+func (x *Repo) CloudEventsSubject() string {
+	return x.GetUid()
+}
 
 func (x *DeleteRepoRequest) CloudEventsExtension(key string) (string, bool) {
 	switch key {
