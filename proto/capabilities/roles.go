@@ -169,6 +169,9 @@ var (
 		// having a skills entitlement. SkillsPublishCaps can also be granted
 		// independently to a service principal or non-owner via role-bindings.
 		SkillsPublishCaps,
+		// Owners get the full guardener admin set, so they can self-service
+		// link/unlink a GitHub org to the group in addition to running DFC sessions.
+		GuardenerAdminCaps,
 	)
 
 	RegistryRepoAdminCaps = SortCaps(RegistryEditorCaps)
