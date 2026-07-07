@@ -24,6 +24,15 @@ const (
 	idHeader  = `Chainguard-Identity`
 )
 
+// emptyBodySHA256 is the SHA-256 of an empty body, hex-encoded — the payload
+// hash for the bodyless GetCallerIdentity request.
+const emptyBodySHA256 = `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` //nolint:gosec
+
+// bindingHeaders are the Chainguard headers the generator signs to bind a token
+// to an audience and identity. The verifier requires the same set to be covered
+// by the signature; deriving both sides from this one list prevents drift.
+var bindingHeaders = []string{audHeader, idHeader}
+
 // GenerateToken creates token using the supplied AWS credentials that can prove the user's AWS identity. Audience and identity are
 // the Chainguard STS url (e.g https://issuer.enforce.dev) and the UID of the Chainguard assumable identity to assume via STS.
 func GenerateToken(ctx context.Context, creds aws.Credentials, audience, identity string) (string, error) {
@@ -39,15 +48,12 @@ func GenerateToken(ctx context.Context, creds aws.Credentials, audience, identit
 	req.Header.Add(idHeader, identity)
 
 	const (
-		// hashInit is the sha256 hash of an empty buffer, hex encoded.
-		hashInit = `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` //nolint:gosec
-
 		// STS service details for signing
 		svc    = `sts`
 		region = `us-east-1`
 	)
 
-	err = v4.NewSigner().SignHTTP(ctx, creds, req, hashInit, svc, region, timeNow())
+	err = v4.NewSigner().SignHTTP(ctx, creds, req, emptyBodySHA256, svc, region, timeNow())
 	if err != nil {
 		return "", fmt.Errorf("failed to sign GetCallerIdentity request with AWS credentials: %w", err)
 	}

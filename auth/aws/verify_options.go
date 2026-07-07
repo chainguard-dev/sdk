@@ -16,14 +16,28 @@ type verifyConf struct {
 	allowedAudiences sets.Set[string]
 	identity         string
 
-	time   func() time.Time
-	stsURL string
+	time             func() time.Time
+	stsURL           string
+	expectedSTSHost  string
+	allowedClockSkew time.Duration
 }
+
+const (
+	defaultAudience        = "https://issuer.enforce.dev"
+	defaultExpectedSTSHost = "sts.amazonaws.com"
+	// stsQuery is the GetCallerIdentity query string shared by the default STS
+	// URL and any host-derived one, so the endpoint we connect to and the host
+	// the signature must cover cannot silently drift.
+	stsQuery      = "/?Action=GetCallerIdentity&Version=2011-06-15"
+	defaultSTSURL = "https://" + defaultExpectedSTSHost + stsQuery
+)
 
 func newDefaultConfig() *verifyConf {
 	return &verifyConf{
-		allowedAudiences: sets.New("https://issuer.enforce.dev"),
-		stsURL:           "https://sts.amazonaws.com/?Action=GetCallerIdentity&Version=2011-06-15",
+		allowedAudiences: sets.New(defaultAudience),
+		stsURL:           defaultSTSURL,
+		expectedSTSHost:  defaultExpectedSTSHost,
+		allowedClockSkew: defaultAllowedClockSkew,
 		time:             time.Now,
 	}
 }
@@ -49,6 +63,12 @@ func (c *verifyConf) valid() error {
 	if c.stsURL == "" {
 		return errors.New("must specify AWS STS endpoint url")
 	}
+	if c.expectedSTSHost == "" {
+		return errors.New("must specify expected AWS STS host")
+	}
+	if c.allowedClockSkew < 0 {
+		return errors.New("allowed clock skew must not be negative")
+	}
 	return nil
 }
 
@@ -63,6 +83,34 @@ func WithAudience(aud sets.Set[string]) VerifyOption {
 func WithIdentity(id string) VerifyOption {
 	return func(c *verifyConf) {
 		c.identity = id
+	}
+}
+
+// WithExpectedSTSHost sets the STS host a token's GetCallerIdentity request must
+// be addressed to: both the host required in the signed request (compared
+// against the request's Host header) and the endpoint VerifyToken forwards to.
+// It defaults to "sts.amazonaws.com"; override it to verify identities whose
+// tokens are signed against a regional, FIPS, or GovCloud/China-partition STS
+// endpoint (all of which use https://<host>/?Action=GetCallerIdentity&Version=2011-06-15).
+//
+// The value must be a lowercase, port-less hostname with no trailing dot,
+// matching the host as it appears in the SigV4 canonical request. It assumes the
+// forwarded endpoint host equals the signed host; deployments where they differ
+// (PrivateLink/VPC-interface endpoints, egress proxies) are not yet supported.
+func WithExpectedSTSHost(host string) VerifyOption {
+	return func(c *verifyConf) {
+		c.expectedSTSHost = host
+		c.stsURL = "https://" + host + stsQuery
+	}
+}
+
+// WithAllowedClockSkew sets how far a token's X-Amz-Date may be ahead of the
+// verifier's clock before it is rejected as future-dated. It defaults to
+// defaultAllowedClockSkew (5 minutes, matching AWS SigV4's tolerance). Increase
+// it for environments with looser clock synchronization.
+func WithAllowedClockSkew(skew time.Duration) VerifyOption {
+	return func(c *verifyConf) {
+		c.allowedClockSkew = skew
 	}
 }
 
