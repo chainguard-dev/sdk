@@ -37,6 +37,7 @@ func TestSkillsPublishCaps(t *testing.T) {
 func TestGuardenerAdminCaps(t *testing.T) {
 	required := map[Capability]struct{}{
 		Capability_CAP_GUARDENER_ASSOCIATION_MANAGE: {},
+		Capability_CAP_GUARDENER_ASSOCIATION_LIST:   {},
 		Capability_CAP_TERMS_ACCEPT:                 {},
 		Capability_CAP_GUARDENER_DFC_CONVERT:        {},
 	}

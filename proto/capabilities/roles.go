@@ -351,9 +351,12 @@ var (
 	// because the DFC server checks the group's terms-of-service
 	// acceptance with the caller's credentials before starting a session.
 	// Registry pull caps are included so users can fetch the base images
-	// the DFC session converts to.
+	// the DFC session converts to. association.list is the read-only
+	// counterpart to association.manage, so users can see which GitHub orgs
+	// are linked to the group without being able to link or unlink them.
 	GuardenerUserCaps = SortCaps([]Capability{
 		Capability_CAP_GUARDENER_DFC_CONVERT,
+		Capability_CAP_GUARDENER_ASSOCIATION_LIST,
 		Capability_CAP_TERMS_LIST,
 	}, RegistryPullCaps)
 

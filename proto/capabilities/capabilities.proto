@@ -277,6 +277,10 @@ enum Capability {
   // guardener.association.manage gates self-service linking/unlinking of a
   // GitHub org to a Chainguard group (the GroupAccountAssociations record).
   CAP_GUARDENER_ASSOCIATION_MANAGE = 2302 [(name) = "guardener.association.manage", (bit) = 170];
+  // guardener.association.list gates read-only listing of the GitHub org
+  // installations linked to a Chainguard group (the read counterpart to
+  // guardener.association.manage).
+  CAP_GUARDENER_ASSOCIATION_LIST = 2303 [(name) = "guardener.association.list", (bit) = 181];
 
   // MCP tool calls
   CAP_MCP_TOOL_CALL = 2401 [(name) = "mcp.tool.call", (bit) = 128];

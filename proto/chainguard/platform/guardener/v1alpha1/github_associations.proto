@@ -58,6 +58,21 @@ service GitHubAssociations {
     };
   }
 
+  // ListGitHubOrganizations lists the GitHub organizations currently linked to
+  // a Chainguard group. It is the read-only counterpart to
+  // LinkGitHubOrganization: the caller must hold
+  // CAP_GUARDENER_ASSOCIATION_LIST on the group, and no GitHub authorization is
+  // involved. The listing is sourced from the stored associations, so it
+  // reflects what guardener has recorded rather than a live GitHub query.
+  rpc ListGitHubOrganizations(ListGitHubOrganizationsRequest) returns (ListGitHubOrganizationsResponse) {
+    option (google.api.http) = {get: "/guardener/v1alpha1/githubAssociations/{group=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_GUARDENER_ASSOCIATION_LIST]
+      }
+    };
+  }
+
   // UnlinkGitHubOrganization removes a GitHub organization's association.
   //
   // The caller proves authorization one of two ways (a oneof on the request):
@@ -136,6 +151,36 @@ message LinkGitHubOrganizationRequest {
 message LinkGitHubOrganizationResponse {
   // installation_id is the GitHub App installation that was linked.
   int64 installation_id = 1;
+}
+
+message ListGitHubOrganizationsRequest {
+  // group is the Chainguard group UIDP whose linked GitHub organizations to
+  // list.
+  string group = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+message ListGitHubOrganizationsResponse {
+  // organizations are the GitHub organizations linked to the group. It is empty
+  // when the group has no linked organizations.
+  repeated LinkedGitHubOrganization organizations = 1;
+}
+
+// LinkedGitHubOrganization is a single GitHub App installation linked to the
+// group.
+message LinkedGitHubOrganization {
+  // organization is the GitHub organization (or user) login for the
+  // installation, as recorded when it was linked. Non-authoritative: it is the
+  // stored login and is not re-verified against GitHub on read.
+  string organization = 1;
+
+  // installation_id is the GitHub App installation ID.
+  int64 installation_id = 2;
+
+  // app_id is the GitHub App ID the installation belongs to.
+  int64 app_id = 3;
 }
 
 message UnlinkGitHubOrganizationRequest {

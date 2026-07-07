@@ -261,6 +261,165 @@ func (x *LinkGitHubOrganizationResponse) GetInstallationId() int64 {
 	return 0
 }
 
+type ListGitHubOrganizationsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// group is the Chainguard group UIDP whose linked GitHub organizations to
+	// list.
+	Group         string `protobuf:"bytes,1,opt,name=group,proto3" json:"group,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListGitHubOrganizationsRequest) Reset() {
+	*x = ListGitHubOrganizationsRequest{}
+	mi := &file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListGitHubOrganizationsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListGitHubOrganizationsRequest) ProtoMessage() {}
+
+func (x *ListGitHubOrganizationsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListGitHubOrganizationsRequest.ProtoReflect.Descriptor instead.
+func (*ListGitHubOrganizationsRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_guardener_v1alpha1_github_associations_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ListGitHubOrganizationsRequest) GetGroup() string {
+	if x != nil {
+		return x.Group
+	}
+	return ""
+}
+
+type ListGitHubOrganizationsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// organizations are the GitHub organizations linked to the group. It is empty
+	// when the group has no linked organizations.
+	Organizations []*LinkedGitHubOrganization `protobuf:"bytes,1,rep,name=organizations,proto3" json:"organizations,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListGitHubOrganizationsResponse) Reset() {
+	*x = ListGitHubOrganizationsResponse{}
+	mi := &file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListGitHubOrganizationsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListGitHubOrganizationsResponse) ProtoMessage() {}
+
+func (x *ListGitHubOrganizationsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListGitHubOrganizationsResponse.ProtoReflect.Descriptor instead.
+func (*ListGitHubOrganizationsResponse) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_guardener_v1alpha1_github_associations_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ListGitHubOrganizationsResponse) GetOrganizations() []*LinkedGitHubOrganization {
+	if x != nil {
+		return x.Organizations
+	}
+	return nil
+}
+
+// LinkedGitHubOrganization is a single GitHub App installation linked to the
+// group.
+type LinkedGitHubOrganization struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// organization is the GitHub organization (or user) login for the
+	// installation, as recorded when it was linked. Non-authoritative: it is the
+	// stored login and is not re-verified against GitHub on read.
+	Organization string `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
+	// installation_id is the GitHub App installation ID.
+	InstallationId int64 `protobuf:"varint,2,opt,name=installation_id,json=installationId,proto3" json:"installation_id,omitempty"`
+	// app_id is the GitHub App ID the installation belongs to.
+	AppId         int64 `protobuf:"varint,3,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LinkedGitHubOrganization) Reset() {
+	*x = LinkedGitHubOrganization{}
+	mi := &file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LinkedGitHubOrganization) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LinkedGitHubOrganization) ProtoMessage() {}
+
+func (x *LinkedGitHubOrganization) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LinkedGitHubOrganization.ProtoReflect.Descriptor instead.
+func (*LinkedGitHubOrganization) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_guardener_v1alpha1_github_associations_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *LinkedGitHubOrganization) GetOrganization() string {
+	if x != nil {
+		return x.Organization
+	}
+	return ""
+}
+
+func (x *LinkedGitHubOrganization) GetInstallationId() int64 {
+	if x != nil {
+		return x.InstallationId
+	}
+	return 0
+}
+
+func (x *LinkedGitHubOrganization) GetAppId() int64 {
+	if x != nil {
+		return x.AppId
+	}
+	return 0
+}
+
 type UnlinkGitHubOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// organization is the GitHub organization login to unlink.
@@ -278,7 +437,7 @@ type UnlinkGitHubOrganizationRequest struct {
 
 func (x *UnlinkGitHubOrganizationRequest) Reset() {
 	*x = UnlinkGitHubOrganizationRequest{}
-	mi := &file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes[4]
+	mi := &file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -290,7 +449,7 @@ func (x *UnlinkGitHubOrganizationRequest) String() string {
 func (*UnlinkGitHubOrganizationRequest) ProtoMessage() {}
 
 func (x *UnlinkGitHubOrganizationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes[4]
+	mi := &file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -303,7 +462,7 @@ func (x *UnlinkGitHubOrganizationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnlinkGitHubOrganizationRequest.ProtoReflect.Descriptor instead.
 func (*UnlinkGitHubOrganizationRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_guardener_v1alpha1_github_associations_proto_rawDescGZIP(), []int{4}
+	return file_chainguard_platform_guardener_v1alpha1_github_associations_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *UnlinkGitHubOrganizationRequest) GetOrganization() string {
@@ -381,7 +540,7 @@ type GitHubOAuthCredentials struct {
 
 func (x *GitHubOAuthCredentials) Reset() {
 	*x = GitHubOAuthCredentials{}
-	mi := &file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes[5]
+	mi := &file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -393,7 +552,7 @@ func (x *GitHubOAuthCredentials) String() string {
 func (*GitHubOAuthCredentials) ProtoMessage() {}
 
 func (x *GitHubOAuthCredentials) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes[5]
+	mi := &file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -406,7 +565,7 @@ func (x *GitHubOAuthCredentials) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GitHubOAuthCredentials.ProtoReflect.Descriptor instead.
 func (*GitHubOAuthCredentials) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_guardener_v1alpha1_github_associations_proto_rawDescGZIP(), []int{5}
+	return file_chainguard_platform_guardener_v1alpha1_github_associations_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GitHubOAuthCredentials) GetCode() string {
@@ -448,7 +607,7 @@ type UnlinkGitHubOrganizationResponse struct {
 
 func (x *UnlinkGitHubOrganizationResponse) Reset() {
 	*x = UnlinkGitHubOrganizationResponse{}
-	mi := &file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes[6]
+	mi := &file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -460,7 +619,7 @@ func (x *UnlinkGitHubOrganizationResponse) String() string {
 func (*UnlinkGitHubOrganizationResponse) ProtoMessage() {}
 
 func (x *UnlinkGitHubOrganizationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes[6]
+	mi := &file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -473,7 +632,7 @@ func (x *UnlinkGitHubOrganizationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnlinkGitHubOrganizationResponse.ProtoReflect.Descriptor instead.
 func (*UnlinkGitHubOrganizationResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_guardener_v1alpha1_github_associations_proto_rawDescGZIP(), []int{6}
+	return file_chainguard_platform_guardener_v1alpha1_github_associations_proto_rawDescGZIP(), []int{9}
 }
 
 var File_chainguard_platform_guardener_v1alpha1_github_associations_proto protoreflect.FileDescriptor
@@ -494,7 +653,16 @@ const file_chainguard_platform_guardener_v1alpha1_github_associations_proto_rawD
 	"\rcode_verifier\x18\x05 \x01(\tB\x04\xe2A\x01\x02R\fcodeVerifier\x12\x1a\n" +
 	"\x05state\x18\x06 \x01(\tB\x04\xe2A\x01\x02R\x05state\"I\n" +
 	"\x1eLinkGitHubOrganizationResponse\x12'\n" +
-	"\x0finstallation_id\x18\x01 \x01(\x03R\x0einstallationId\"\xd7\x01\n" +
+	"\x0finstallation_id\x18\x01 \x01(\x03R\x0einstallationId\"B\n" +
+	"\x1eListGitHubOrganizationsRequest\x12 \n" +
+	"\x05group\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x05group\"\x89\x01\n" +
+	"\x1fListGitHubOrganizationsResponse\x12f\n" +
+	"\rorganizations\x18\x01 \x03(\v2@.chainguard.platform.guardener.v1alpha1.LinkedGitHubOrganizationR\rorganizations\"~\n" +
+	"\x18LinkedGitHubOrganization\x12\"\n" +
+	"\forganization\x18\x01 \x01(\tR\forganization\x12'\n" +
+	"\x0finstallation_id\x18\x02 \x01(\x03R\x0einstallationId\x12\x15\n" +
+	"\x06app_id\x18\x03 \x01(\x03R\x05appId\"\xd7\x01\n" +
 	"\x1fUnlinkGitHubOrganizationRequest\x12(\n" +
 	"\forganization\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\forganization\x12\x16\n" +
 	"\x05group\x18\x02 \x01(\tH\x00R\x05group\x12c\n" +
@@ -505,12 +673,14 @@ const file_chainguard_platform_guardener_v1alpha1_github_associations_proto_rawD
 	"\fredirect_uri\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\vredirectUri\x12)\n" +
 	"\rcode_verifier\x18\x03 \x01(\tB\x04\xe2A\x01\x02R\fcodeVerifier\x12\x1a\n" +
 	"\x05state\x18\x04 \x01(\tB\x04\xe2A\x01\x02R\x05state\"\"\n" +
-	" UnlinkGitHubOrganizationResponse2\x94\x06\n" +
+	" UnlinkGitHubOrganizationResponse2\x88\b\n" +
 	"\x12GitHubAssociations\x12\xd3\x01\n" +
 	"\x10BeginGitHubOAuth\x12?.chainguard.platform.guardener.v1alpha1.BeginGitHubOAuthRequest\x1a@.chainguard.platform.guardener.v1alpha1.BeginGitHubOAuthResponse\"<\x82\xd3\xe4\x93\x02.\x12,/guardener/v1alpha1/githubAssociations:begin\x8a\xaf\xa8\xd2\x05\x02\n" +
 	"\x00\x12\xf6\x01\n" +
 	"\x16LinkGitHubOrganization\x12E.chainguard.platform.guardener.v1alpha1.LinkGitHubOrganizationRequest\x1aF.chainguard.platform.guardener.v1alpha1.LinkGitHubOrganizationResponse\"M\x82\xd3\xe4\x93\x02;:\x01*\"6/guardener/v1alpha1/githubAssociations/{group=**}:link\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xfe\x11\x12\xae\x02\n" +
+	"\x02\xfe\x11\x12\xf1\x01\n" +
+	"\x17ListGitHubOrganizations\x12F.chainguard.platform.guardener.v1alpha1.ListGitHubOrganizationsRequest\x1aG.chainguard.platform.guardener.v1alpha1.ListGitHubOrganizationsResponse\"E\x82\xd3\xe4\x93\x023\x121/guardener/v1alpha1/githubAssociations/{group=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xff\x11\x12\xae\x02\n" +
 	"\x18UnlinkGitHubOrganization\x12G.chainguard.platform.guardener.v1alpha1.UnlinkGitHubOrganizationRequest\x1aH.chainguard.platform.guardener.v1alpha1.UnlinkGitHubOrganizationResponse\"\x7f\x82\xd3\xe4\x93\x02q:\x01*Z=:\x01*\"8/guardener/v1alpha1/githubAssociations/{group=**}:unlink\"-/guardener/v1alpha1/githubAssociations:unlink\x8a\xaf\xa8\xd2\x05\x02\n" +
 	"\x00B\x88\x01\n" +
 	"*com.chainguard.platform.guardener.v1alpha1B\x17GitHubAssociationsProtoP\x01Z?chainguard.dev/sdk/proto/chainguard/platform/guardener/v1alpha1b\x06proto3"
@@ -527,29 +697,35 @@ func file_chainguard_platform_guardener_v1alpha1_github_associations_proto_rawDe
 	return file_chainguard_platform_guardener_v1alpha1_github_associations_proto_rawDescData
 }
 
-var file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_chainguard_platform_guardener_v1alpha1_github_associations_proto_goTypes = []any{
 	(*BeginGitHubOAuthRequest)(nil),          // 0: chainguard.platform.guardener.v1alpha1.BeginGitHubOAuthRequest
 	(*BeginGitHubOAuthResponse)(nil),         // 1: chainguard.platform.guardener.v1alpha1.BeginGitHubOAuthResponse
 	(*LinkGitHubOrganizationRequest)(nil),    // 2: chainguard.platform.guardener.v1alpha1.LinkGitHubOrganizationRequest
 	(*LinkGitHubOrganizationResponse)(nil),   // 3: chainguard.platform.guardener.v1alpha1.LinkGitHubOrganizationResponse
-	(*UnlinkGitHubOrganizationRequest)(nil),  // 4: chainguard.platform.guardener.v1alpha1.UnlinkGitHubOrganizationRequest
-	(*GitHubOAuthCredentials)(nil),           // 5: chainguard.platform.guardener.v1alpha1.GitHubOAuthCredentials
-	(*UnlinkGitHubOrganizationResponse)(nil), // 6: chainguard.platform.guardener.v1alpha1.UnlinkGitHubOrganizationResponse
+	(*ListGitHubOrganizationsRequest)(nil),   // 4: chainguard.platform.guardener.v1alpha1.ListGitHubOrganizationsRequest
+	(*ListGitHubOrganizationsResponse)(nil),  // 5: chainguard.platform.guardener.v1alpha1.ListGitHubOrganizationsResponse
+	(*LinkedGitHubOrganization)(nil),         // 6: chainguard.platform.guardener.v1alpha1.LinkedGitHubOrganization
+	(*UnlinkGitHubOrganizationRequest)(nil),  // 7: chainguard.platform.guardener.v1alpha1.UnlinkGitHubOrganizationRequest
+	(*GitHubOAuthCredentials)(nil),           // 8: chainguard.platform.guardener.v1alpha1.GitHubOAuthCredentials
+	(*UnlinkGitHubOrganizationResponse)(nil), // 9: chainguard.platform.guardener.v1alpha1.UnlinkGitHubOrganizationResponse
 }
 var file_chainguard_platform_guardener_v1alpha1_github_associations_proto_depIdxs = []int32{
-	5, // 0: chainguard.platform.guardener.v1alpha1.UnlinkGitHubOrganizationRequest.github_oauth:type_name -> chainguard.platform.guardener.v1alpha1.GitHubOAuthCredentials
-	0, // 1: chainguard.platform.guardener.v1alpha1.GitHubAssociations.BeginGitHubOAuth:input_type -> chainguard.platform.guardener.v1alpha1.BeginGitHubOAuthRequest
-	2, // 2: chainguard.platform.guardener.v1alpha1.GitHubAssociations.LinkGitHubOrganization:input_type -> chainguard.platform.guardener.v1alpha1.LinkGitHubOrganizationRequest
-	4, // 3: chainguard.platform.guardener.v1alpha1.GitHubAssociations.UnlinkGitHubOrganization:input_type -> chainguard.platform.guardener.v1alpha1.UnlinkGitHubOrganizationRequest
-	1, // 4: chainguard.platform.guardener.v1alpha1.GitHubAssociations.BeginGitHubOAuth:output_type -> chainguard.platform.guardener.v1alpha1.BeginGitHubOAuthResponse
-	3, // 5: chainguard.platform.guardener.v1alpha1.GitHubAssociations.LinkGitHubOrganization:output_type -> chainguard.platform.guardener.v1alpha1.LinkGitHubOrganizationResponse
-	6, // 6: chainguard.platform.guardener.v1alpha1.GitHubAssociations.UnlinkGitHubOrganization:output_type -> chainguard.platform.guardener.v1alpha1.UnlinkGitHubOrganizationResponse
-	4, // [4:7] is the sub-list for method output_type
-	1, // [1:4] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	6, // 0: chainguard.platform.guardener.v1alpha1.ListGitHubOrganizationsResponse.organizations:type_name -> chainguard.platform.guardener.v1alpha1.LinkedGitHubOrganization
+	8, // 1: chainguard.platform.guardener.v1alpha1.UnlinkGitHubOrganizationRequest.github_oauth:type_name -> chainguard.platform.guardener.v1alpha1.GitHubOAuthCredentials
+	0, // 2: chainguard.platform.guardener.v1alpha1.GitHubAssociations.BeginGitHubOAuth:input_type -> chainguard.platform.guardener.v1alpha1.BeginGitHubOAuthRequest
+	2, // 3: chainguard.platform.guardener.v1alpha1.GitHubAssociations.LinkGitHubOrganization:input_type -> chainguard.platform.guardener.v1alpha1.LinkGitHubOrganizationRequest
+	4, // 4: chainguard.platform.guardener.v1alpha1.GitHubAssociations.ListGitHubOrganizations:input_type -> chainguard.platform.guardener.v1alpha1.ListGitHubOrganizationsRequest
+	7, // 5: chainguard.platform.guardener.v1alpha1.GitHubAssociations.UnlinkGitHubOrganization:input_type -> chainguard.platform.guardener.v1alpha1.UnlinkGitHubOrganizationRequest
+	1, // 6: chainguard.platform.guardener.v1alpha1.GitHubAssociations.BeginGitHubOAuth:output_type -> chainguard.platform.guardener.v1alpha1.BeginGitHubOAuthResponse
+	3, // 7: chainguard.platform.guardener.v1alpha1.GitHubAssociations.LinkGitHubOrganization:output_type -> chainguard.platform.guardener.v1alpha1.LinkGitHubOrganizationResponse
+	5, // 8: chainguard.platform.guardener.v1alpha1.GitHubAssociations.ListGitHubOrganizations:output_type -> chainguard.platform.guardener.v1alpha1.ListGitHubOrganizationsResponse
+	9, // 9: chainguard.platform.guardener.v1alpha1.GitHubAssociations.UnlinkGitHubOrganization:output_type -> chainguard.platform.guardener.v1alpha1.UnlinkGitHubOrganizationResponse
+	6, // [6:10] is the sub-list for method output_type
+	2, // [2:6] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_guardener_v1alpha1_github_associations_proto_init() }
@@ -557,7 +733,7 @@ func file_chainguard_platform_guardener_v1alpha1_github_associations_proto_init(
 	if File_chainguard_platform_guardener_v1alpha1_github_associations_proto != nil {
 		return
 	}
-	file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes[4].OneofWrappers = []any{
+	file_chainguard_platform_guardener_v1alpha1_github_associations_proto_msgTypes[7].OneofWrappers = []any{
 		(*UnlinkGitHubOrganizationRequest_Group)(nil),
 		(*UnlinkGitHubOrganizationRequest_GithubOauth)(nil),
 	}
@@ -567,7 +743,7 @@ func file_chainguard_platform_guardener_v1alpha1_github_associations_proto_init(
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_guardener_v1alpha1_github_associations_proto_rawDesc), len(file_chainguard_platform_guardener_v1alpha1_github_associations_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

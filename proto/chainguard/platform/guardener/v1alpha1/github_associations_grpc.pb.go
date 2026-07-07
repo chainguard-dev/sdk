@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	GitHubAssociations_BeginGitHubOAuth_FullMethodName         = "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/BeginGitHubOAuth"
 	GitHubAssociations_LinkGitHubOrganization_FullMethodName   = "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/LinkGitHubOrganization"
+	GitHubAssociations_ListGitHubOrganizations_FullMethodName  = "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/ListGitHubOrganizations"
 	GitHubAssociations_UnlinkGitHubOrganization_FullMethodName = "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/UnlinkGitHubOrganization"
 )
 
@@ -58,6 +59,13 @@ type GitHubAssociationsClient interface {
 	// on the Chainguard side) AND prove, via the GitHub OAuth code, that they are
 	// an owner of the organization (owner on the GitHub side).
 	LinkGitHubOrganization(ctx context.Context, in *LinkGitHubOrganizationRequest, opts ...grpc.CallOption) (*LinkGitHubOrganizationResponse, error)
+	// ListGitHubOrganizations lists the GitHub organizations currently linked to
+	// a Chainguard group. It is the read-only counterpart to
+	// LinkGitHubOrganization: the caller must hold
+	// CAP_GUARDENER_ASSOCIATION_LIST on the group, and no GitHub authorization is
+	// involved. The listing is sourced from the stored associations, so it
+	// reflects what guardener has recorded rather than a live GitHub query.
+	ListGitHubOrganizations(ctx context.Context, in *ListGitHubOrganizationsRequest, opts ...grpc.CallOption) (*ListGitHubOrganizationsResponse, error)
 	// UnlinkGitHubOrganization removes a GitHub organization's association.
 	//
 	// The caller proves authorization one of two ways (a oneof on the request):
@@ -97,6 +105,16 @@ func (c *gitHubAssociationsClient) LinkGitHubOrganization(ctx context.Context, i
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(LinkGitHubOrganizationResponse)
 	err := c.cc.Invoke(ctx, GitHubAssociations_LinkGitHubOrganization_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gitHubAssociationsClient) ListGitHubOrganizations(ctx context.Context, in *ListGitHubOrganizationsRequest, opts ...grpc.CallOption) (*ListGitHubOrganizationsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListGitHubOrganizationsResponse)
+	err := c.cc.Invoke(ctx, GitHubAssociations_ListGitHubOrganizations_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -144,6 +162,13 @@ type GitHubAssociationsServer interface {
 	// on the Chainguard side) AND prove, via the GitHub OAuth code, that they are
 	// an owner of the organization (owner on the GitHub side).
 	LinkGitHubOrganization(context.Context, *LinkGitHubOrganizationRequest) (*LinkGitHubOrganizationResponse, error)
+	// ListGitHubOrganizations lists the GitHub organizations currently linked to
+	// a Chainguard group. It is the read-only counterpart to
+	// LinkGitHubOrganization: the caller must hold
+	// CAP_GUARDENER_ASSOCIATION_LIST on the group, and no GitHub authorization is
+	// involved. The listing is sourced from the stored associations, so it
+	// reflects what guardener has recorded rather than a live GitHub query.
+	ListGitHubOrganizations(context.Context, *ListGitHubOrganizationsRequest) (*ListGitHubOrganizationsResponse, error)
 	// UnlinkGitHubOrganization removes a GitHub organization's association.
 	//
 	// The caller proves authorization one of two ways (a oneof on the request):
@@ -174,6 +199,9 @@ func (UnimplementedGitHubAssociationsServer) BeginGitHubOAuth(context.Context, *
 }
 func (UnimplementedGitHubAssociationsServer) LinkGitHubOrganization(context.Context, *LinkGitHubOrganizationRequest) (*LinkGitHubOrganizationResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method LinkGitHubOrganization not implemented")
+}
+func (UnimplementedGitHubAssociationsServer) ListGitHubOrganizations(context.Context, *ListGitHubOrganizationsRequest) (*ListGitHubOrganizationsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListGitHubOrganizations not implemented")
 }
 func (UnimplementedGitHubAssociationsServer) UnlinkGitHubOrganization(context.Context, *UnlinkGitHubOrganizationRequest) (*UnlinkGitHubOrganizationResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UnlinkGitHubOrganization not implemented")
@@ -235,6 +263,24 @@ func _GitHubAssociations_LinkGitHubOrganization_Handler(srv interface{}, ctx con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GitHubAssociations_ListGitHubOrganizations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListGitHubOrganizationsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GitHubAssociationsServer).ListGitHubOrganizations(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GitHubAssociations_ListGitHubOrganizations_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GitHubAssociationsServer).ListGitHubOrganizations(ctx, req.(*ListGitHubOrganizationsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _GitHubAssociations_UnlinkGitHubOrganization_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UnlinkGitHubOrganizationRequest)
 	if err := dec(in); err != nil {
@@ -267,6 +313,10 @@ var GitHubAssociations_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "LinkGitHubOrganization",
 			Handler:    _GitHubAssociations_LinkGitHubOrganization_Handler,
+		},
+		{
+			MethodName: "ListGitHubOrganizations",
+			Handler:    _GitHubAssociations_ListGitHubOrganizations_Handler,
 		},
 		{
 			MethodName: "UnlinkGitHubOrganization",
