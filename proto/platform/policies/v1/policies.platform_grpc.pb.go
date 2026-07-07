@@ -20,10 +20,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Policies_CreatePolicy_FullMethodName = "/chainguard.platform.policies.v1.Policies/CreatePolicy"
-	Policies_UpdatePolicy_FullMethodName = "/chainguard.platform.policies.v1.Policies/UpdatePolicy"
-	Policies_ListPolicies_FullMethodName = "/chainguard.platform.policies.v1.Policies/ListPolicies"
-	Policies_DeletePolicy_FullMethodName = "/chainguard.platform.policies.v1.Policies/DeletePolicy"
+	Policies_CreatePolicy_FullMethodName   = "/chainguard.platform.policies.v1.Policies/CreatePolicy"
+	Policies_UpdatePolicy_FullMethodName   = "/chainguard.platform.policies.v1.Policies/UpdatePolicy"
+	Policies_ListPolicies_FullMethodName   = "/chainguard.platform.policies.v1.Policies/ListPolicies"
+	Policies_DeletePolicy_FullMethodName   = "/chainguard.platform.policies.v1.Policies/DeletePolicy"
+	Policies_ValidatePolicy_FullMethodName = "/chainguard.platform.policies.v1.Policies/ValidatePolicy"
 )
 
 // PoliciesClient is the client API for Policies service.
@@ -34,6 +35,7 @@ type PoliciesClient interface {
 	UpdatePolicy(ctx context.Context, in *Policy, opts ...grpc.CallOption) (*Policy, error)
 	ListPolicies(ctx context.Context, in *PolicyFilter, opts ...grpc.CallOption) (*PolicyList, error)
 	DeletePolicy(ctx context.Context, in *DeletePolicyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ValidatePolicy(ctx context.Context, in *ValidatePolicyRequest, opts ...grpc.CallOption) (*ValidatePolicyResponse, error)
 }
 
 type policiesClient struct {
@@ -84,6 +86,16 @@ func (c *policiesClient) DeletePolicy(ctx context.Context, in *DeletePolicyReque
 	return out, nil
 }
 
+func (c *policiesClient) ValidatePolicy(ctx context.Context, in *ValidatePolicyRequest, opts ...grpc.CallOption) (*ValidatePolicyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ValidatePolicyResponse)
+	err := c.cc.Invoke(ctx, Policies_ValidatePolicy_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PoliciesServer is the server API for Policies service.
 // All implementations must embed UnimplementedPoliciesServer
 // for forward compatibility.
@@ -92,6 +104,7 @@ type PoliciesServer interface {
 	UpdatePolicy(context.Context, *Policy) (*Policy, error)
 	ListPolicies(context.Context, *PolicyFilter) (*PolicyList, error)
 	DeletePolicy(context.Context, *DeletePolicyRequest) (*emptypb.Empty, error)
+	ValidatePolicy(context.Context, *ValidatePolicyRequest) (*ValidatePolicyResponse, error)
 	mustEmbedUnimplementedPoliciesServer()
 }
 
@@ -113,6 +126,9 @@ func (UnimplementedPoliciesServer) ListPolicies(context.Context, *PolicyFilter) 
 }
 func (UnimplementedPoliciesServer) DeletePolicy(context.Context, *DeletePolicyRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeletePolicy not implemented")
+}
+func (UnimplementedPoliciesServer) ValidatePolicy(context.Context, *ValidatePolicyRequest) (*ValidatePolicyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ValidatePolicy not implemented")
 }
 func (UnimplementedPoliciesServer) mustEmbedUnimplementedPoliciesServer() {}
 func (UnimplementedPoliciesServer) testEmbeddedByValue()                  {}
@@ -207,6 +223,24 @@ func _Policies_DeletePolicy_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Policies_ValidatePolicy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ValidatePolicyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PoliciesServer).ValidatePolicy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Policies_ValidatePolicy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PoliciesServer).ValidatePolicy(ctx, req.(*ValidatePolicyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Policies_ServiceDesc is the grpc.ServiceDesc for Policies service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -229,6 +263,10 @@ var Policies_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeletePolicy",
 			Handler:    _Policies_DeletePolicy_Handler,
+		},
+		{
+			MethodName: "ValidatePolicy",
+			Handler:    _Policies_ValidatePolicy_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
