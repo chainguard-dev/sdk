@@ -635,6 +635,10 @@ message ValidatePolicyRequest {
   string expression = 1 [(google.api.field_behavior) = REQUIRED];
   // The expression's language. Only EXPRESSION_TYPE_REGO is supported today.
   ExpressionType type = 2 [(google.api.field_behavior) = REQUIRED];
+  // Optional parameter schemas to validate alongside the expression.
+  // When set, the response's `errors` array contains diagnostics for both
+  // expression and schema problems.
+  repeated ParameterSchema parameter_schemas = 3;
 }
 
 message ValidatePolicyResponse {
