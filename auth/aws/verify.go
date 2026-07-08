@@ -138,12 +138,14 @@ func VerifyToken(ctx context.Context, token string, opts ...VerifyOption) (*Veri
 		}
 	}
 
-	if got := req.Header.Get(audHeader); !conf.allowedAudiences.Has(got) {
-		clog.WarnContext(ctx, "verification failed with audience mismatch", "received", got)
+	rawAud := req.Header.Get(audHeader)
+	if aud := sigv4CanonicalHeaderValue(rawAud); !conf.allowedAudiences.Has(aud) {
+		clog.WarnContext(ctx, "verification failed with audience mismatch", "received", aud, "received_raw", rawAud)
 		return nil, ErrInvalidAudience
 	}
-	if got := req.Header.Get(idHeader); got != conf.identity {
-		clog.WarnContext(ctx, "verification failed with identity mismatch", "wanted", conf.identity, "received", got)
+	rawID := req.Header.Get(idHeader)
+	if id := sigv4CanonicalHeaderValue(rawID); id != conf.identity {
+		clog.WarnContext(ctx, "verification failed with identity mismatch", "wanted", conf.identity, "received", id, "received_raw", rawID)
 		return nil, ErrInvalidIdentity
 	}
 
@@ -218,6 +220,55 @@ func decodeRequest(token, stsURL string) (*http.Request, error) {
 	}
 	req.URL = u
 	return req, nil
+}
+
+// sigv4CanonicalHeaderValue canonicalizes a header value to match the form
+// that the AWS SigV4 signer itself produces when constructing the canonical
+// request, closing the representation-hygiene gap noted in PSEC-1498.
+//
+// It mirrors the composition at github.com/aws/aws-sdk-go-v2/aws/signer/v4/v4.go:470:
+//
+//	cleanedValue := strings.TrimSpace(v4Internal.StripExcessSpaces(v))
+//
+// Step by step:
+//
+//  1. Collapse runs of internal ASCII space (0x20) characters to a single
+//     space, mirroring github.com/aws/aws-sdk-go-v2/aws/signer/internal/v4.StripExcessSpaces.
+//     Only 0x20 is collapsed; internal tabs and Unicode space characters are
+//     preserved (StripExcessSpaces does not touch them either).
+//
+//  2. Trim leading/trailing whitespace with strings.TrimSpace, exactly as the
+//     signer does.  Because STS must apply the same pipeline to verify the
+//     signature, a raw value "admin\t" is signed as "admin", validated by STS
+//     as "admin", and attributed here as "admin" — all three agree.
+//
+// This is applied symmetrically to both the token header values and the
+// configured audiences/identity, so both sides are compared in the same form.
+func sigv4CanonicalHeaderValue(v string) string {
+	// Step 1: collapse runs of internal ASCII 0x20 spaces (strip excess spaces).
+	// We only collapse 0x20; tab and other whitespace characters are not touched
+	// by StripExcessSpaces and are therefore preserved internally.
+	var b strings.Builder
+	b.Grow(len(v))
+	inSpace := false
+	start := true
+	for _, c := range []byte(v) {
+		if c == ' ' {
+			if !start {
+				inSpace = true
+			}
+		} else {
+			if inSpace {
+				b.WriteByte(' ')
+			}
+			b.WriteByte(c)
+			inSpace = false
+			start = false
+		}
+	}
+	// Step 2: trim leading/trailing whitespace with strings.TrimSpace, exactly
+	// as v4.go:470 does; the loop above already consumed leading 0x20 via start.
+	return strings.TrimSpace(b.String())
 }
 
 // signedHeaderNames extracts the lower-cased header names from the SignedHeaders

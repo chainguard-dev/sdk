@@ -12,6 +12,17 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 )
 
+// canonicalAudiences returns a new set containing each audience value
+// canonicalized through sigv4CanonicalHeaderValue, so configured audiences are
+// compared in the same form as header values extracted from tokens.
+func canonicalAudiences(auds sets.Set[string]) sets.Set[string] {
+	out := sets.New[string]()
+	for a := range auds {
+		out.Insert(sigv4CanonicalHeaderValue(a))
+	}
+	return out
+}
+
 type verifyConf struct {
 	allowedAudiences sets.Set[string]
 	identity         string
@@ -34,7 +45,7 @@ const (
 
 func newDefaultConfig() *verifyConf {
 	return &verifyConf{
-		allowedAudiences: sets.New(defaultAudience),
+		allowedAudiences: sets.New(sigv4CanonicalHeaderValue(defaultAudience)),
 		stsURL:           defaultSTSURL,
 		expectedSTSHost:  defaultExpectedSTSHost,
 		allowedClockSkew: defaultAllowedClockSkew,
@@ -76,13 +87,13 @@ type VerifyOption func(*verifyConf)
 
 func WithAudience(aud sets.Set[string]) VerifyOption {
 	return func(c *verifyConf) {
-		c.allowedAudiences = aud
+		c.allowedAudiences = canonicalAudiences(aud)
 	}
 }
 
 func WithIdentity(id string) VerifyOption {
 	return func(c *verifyConf) {
-		c.identity = id
+		c.identity = sigv4CanonicalHeaderValue(id)
 	}
 }
 

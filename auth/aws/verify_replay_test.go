@@ -330,6 +330,311 @@ func TestWithExpectedSTSHostDerivesURL(t *testing.T) {
 	}
 }
 
+// TestSigV4CanonicalHeaderValue unit-tests the sigv4CanonicalHeaderValue helper
+// against the full range of whitespace cases described in the problem statement.
+func TestSigV4CanonicalHeaderValue(t *testing.T) {
+	tests := []struct {
+		name string
+		in   string
+		want string
+	}{
+		// Exact matches — canonicalization is a no-op
+		{"space-free value", "https://issuer.enforce.dev", "https://issuer.enforce.dev"},
+		{"already canonical with internal space", "a b c", "a b c"},
+
+		// Leading/trailing ASCII spaces
+		{"leading spaces", "  hello", "hello"},
+		{"trailing spaces", "hello  ", "hello"},
+		{"both leading and trailing spaces", "  hello  ", "hello"},
+
+		// Leading/trailing tabs (TrimSpace handles these)
+		{"leading tab", "\thello", "hello"},
+		{"trailing tab", "hello\t", "hello"},
+		{"leading and trailing tabs", "\thello\t", "hello"},
+
+		// Trailing Unicode whitespace: NBSP U+00A0 — trimmed by strings.TrimSpace
+		// (SigV4's StripExcessSpaces only touches 0x20, but TrimSpace handles the ends)
+		{"trailing NBSP", "hello\u00a0", "hello"},
+		{"leading NBSP", "\u00a0hello", "hello"},
+
+		// Internal ASCII space collapsing (the core StripExcessSpaces behaviour)
+		{"single internal space preserved", "a b", "a b"},
+		{"double internal space collapsed", "a  b", "a b"},
+		{"triple internal space collapsed", "a   b", "a b"},
+		{"multiple distinct runs collapsed", "a  b   c", "a b c"},
+		{"several distinct runs in one value", "a  b  c   d    e", "a b c d e"},
+
+		// Internal tab — NOT touched by StripExcessSpaces (only 0x20 is collapsed)
+		{"internal tab preserved", "a\tb", "a\tb"},
+
+		// Internal Unicode space (U+2002 EN SPACE) — NOT collapsed by StripExcessSpaces
+		{"internal unicode space preserved", "a\u2002b", "a\u2002b"},
+
+		// Empty / whitespace-only
+		{"empty string", "", ""},
+		{"whitespace only spaces", "   ", ""},
+		{"whitespace only tab", "\t", ""},
+		{"whitespace only mixed", "  \t  ", ""},
+
+		// Values with spaces that are realistic in this context
+		{"URL with no spaces is unchanged", "https://issuer.enforce.dev", "https://issuer.enforce.dev"},
+		{"hex identity with no spaces is unchanged", "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef", "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got := sigv4CanonicalHeaderValue(tc.in)
+			if got != tc.want {
+				t.Fatalf("sigv4CanonicalHeaderValue(%q):\n  got  %q\n  want %q", tc.in, got, tc.want)
+			}
+		})
+	}
+}
+
+// TestVerifyWhitespaceCanonicalization verifies that whitespace variants of the
+// configured audience and identity values are accepted by VerifyToken, closing
+// the representation-hygiene gap between req.Header.Get (which preserves
+// whitespace) and the SigV4 canonical request (which collapses/trims it).
+//
+// Two axes are tested:
+//   - "header side": the token carries a whitespace-padded header value; the
+//     verifier is configured with the clean canonical value.
+//   - "config side": the token carries the clean canonical value; the verifier
+//     is configured with a whitespace-padded value.
+//
+// A genuinely different (non-whitespace) value always fails.
+func TestVerifyWhitespaceCanonicalization(t *testing.T) {
+	signAt := signAtTime()
+
+	// mintTokenWithHeaders builds a fully SigV4-signed token whose
+	// Chainguard-Audience and Chainguard-Identity headers are set to the given
+	// aud and id values (possibly with whitespace), so the signature covers
+	// those exact bytes — matching what a real generator would produce if the
+	// values contained whitespace.
+	mintTokenWithHeaders := func(t *testing.T, aud, id string) string {
+		t.Helper()
+		req, err := http.NewRequest(http.MethodPost, globalSTSURL, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		req.Header.Set("Accept", "application/json")
+		req.Header.Set(audHeader, aud)
+		req.Header.Set(idHeader, id)
+		creds := aws.Credentials{AccessKeyID: "AKID", SecretAccessKey: "SECRET"}
+		if err := v4.NewSigner().SignHTTP(t.Context(), creds, req, emptyBodySHA256, "sts", "us-east-1", signAt); err != nil {
+			t.Fatal(err)
+		}
+		return serializeToken(t, req)
+	}
+
+	type wantResult int
+	const (
+		accept wantResult = iota
+		rejectAud
+		rejectID
+	)
+
+	tests := []struct {
+		name      string
+		tokenAud  string // audience value placed in the token header
+		tokenID   string // identity value placed in the token header
+		configAud string // audience value passed to WithAudience
+		configID  string // identity value passed to WithIdentity
+		want      wantResult
+	}{
+		// Baseline: exact space-free match
+		{
+			name:     "exact match space-free",
+			tokenAud: testAud, tokenID: testID,
+			configAud: testAud, configID: testID,
+			want: accept,
+		},
+
+		// Header side: token carries whitespace, config has clean value
+		{
+			// Single internal space: SigV4 preserves one space; both sides match.
+			name:     "header: single internal space in audience (preserved, equal)",
+			tokenAud: "a b", tokenID: testID,
+			configAud: "a b", configID: testID,
+			want: accept,
+		},
+		{
+			// Single internal space in identity: SigV4 preserves one space; both sides match.
+			name:     "header: single internal space in identity (preserved, equal)",
+			tokenAud: testAud, tokenID: "a b",
+			configAud: testAud, configID: "a b",
+			want: accept,
+		},
+		{
+			name:     "header: leading spaces in audience",
+			tokenAud: "  " + testAud, tokenID: testID,
+			configAud: testAud, configID: testID,
+			want: accept,
+		},
+		{
+			name:     "header: trailing spaces in audience",
+			tokenAud: testAud + "  ", tokenID: testID,
+			configAud: testAud, configID: testID,
+			want: accept,
+		},
+		{
+			name:     "header: leading spaces in identity",
+			tokenAud: testAud, tokenID: "  " + testID,
+			configAud: testAud, configID: testID,
+			want: accept,
+		},
+		{
+			name:     "header: trailing spaces in identity",
+			tokenAud: testAud, tokenID: testID + "  ",
+			configAud: testAud, configID: testID,
+			want: accept,
+		},
+		{
+			name:     "header: leading tab in audience",
+			tokenAud: "\t" + testAud, tokenID: testID,
+			configAud: testAud, configID: testID,
+			want: accept,
+		},
+		{
+			name:     "header: trailing tab in audience",
+			tokenAud: testAud + "\t", tokenID: testID,
+			configAud: testAud, configID: testID,
+			want: accept,
+		},
+		{
+			name:     "header: trailing tab in identity",
+			tokenAud: testAud, tokenID: testID + "\t",
+			configAud: testAud, configID: testID,
+			want: accept,
+		},
+		{
+			name:     "header: trailing NBSP (U+00A0) in audience",
+			tokenAud: testAud + "\u00a0", tokenID: testID,
+			configAud: testAud, configID: testID,
+			want: accept,
+		},
+		{
+			// Synthetic audience with multiple internal space runs: SigV4 collapses
+			// them, so the verifier configured with the canonical form accepts it.
+			name:     "header: multiple internal spaces in audience (collapse)",
+			tokenAud: "a  b   c", tokenID: testID,
+			configAud: "a b c", configID: testID,
+			want: accept,
+		},
+		{
+			// Mirror of the audience case for identity: multiple distinct runs of
+			// internal spaces are collapsed to a single space on both sides.
+			name:     "header: multiple internal spaces in identity (collapse)",
+			tokenAud: testAud, tokenID: "x  y   z",
+			configAud: testAud, configID: "x y z",
+			want: accept,
+		},
+
+		// Config side: token has clean value, config has whitespace-padded value
+		{
+			name:     "config: leading spaces in configured audience",
+			tokenAud: testAud, tokenID: testID,
+			configAud: "  " + testAud, configID: testID,
+			want: accept,
+		},
+		{
+			name:     "config: trailing spaces in configured audience",
+			tokenAud: testAud, tokenID: testID,
+			configAud: testAud + "  ", configID: testID,
+			want: accept,
+		},
+		{
+			name:     "config: leading spaces in configured identity",
+			tokenAud: testAud, tokenID: testID,
+			configAud: testAud, configID: "  " + testID,
+			want: accept,
+		},
+		{
+			name:     "config: trailing spaces in configured identity",
+			tokenAud: testAud, tokenID: testID,
+			configAud: testAud, configID: testID + "  ",
+			want: accept,
+		},
+		{
+			name:     "config: leading tab in configured audience",
+			tokenAud: testAud, tokenID: testID,
+			configAud: "\t" + testAud, configID: testID,
+			want: accept,
+		},
+		{
+			name:     "config: trailing NBSP in configured identity",
+			tokenAud: testAud, tokenID: testID,
+			configAud: testAud, configID: testID + "\u00a0",
+			want: accept,
+		},
+
+		// Both sides whitespace-padded — still equal after canonicalization
+		{
+			name:     "both sides: spaces on both audience sides",
+			tokenAud: "  " + testAud + "  ", tokenID: testID,
+			configAud: "\t" + testAud + "\t", configID: testID,
+			want: accept,
+		},
+		{
+			name:     "both sides: spaces on both identity sides",
+			tokenAud: testAud, tokenID: "  " + testID + "  ",
+			configAud: testAud, configID: "\t" + testID + "\t",
+			want: accept,
+		},
+
+		// Genuinely different values — must still fail
+		{
+			name:     "wrong audience is rejected",
+			tokenAud: "https://attacker.example.com", tokenID: testID,
+			configAud: testAud, configID: testID,
+			want: rejectAud,
+		},
+		{
+			name:     "wrong identity is rejected",
+			tokenAud: testAud, tokenID: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+			configAud: testAud, configID: testID,
+			want: rejectID,
+		},
+
+		// Whitespace-only header values — canonicalize to "" and fail
+		// (the configured audience/identity are non-empty, so "" doesn't match).
+		{
+			name:     "whitespace-only audience is rejected",
+			tokenAud: "   ", tokenID: testID,
+			configAud: testAud, configID: testID,
+			want: rejectAud,
+		},
+		{
+			name:     "whitespace-only identity is rejected",
+			tokenAud: testAud, tokenID: "\t  \t",
+			configAud: testAud, configID: testID,
+			want: rejectID,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			token := mintTokenWithHeaders(t, tc.tokenAud, tc.tokenID)
+			claims, err := VerifyToken(t.Context(), token,
+				WithAudience(sets.New(tc.configAud)), WithIdentity(tc.configID),
+				withSTSURL(okSTS(t).URL), withTimestamp(signAt))
+			switch tc.want {
+			case accept:
+				if err != nil || claims == nil {
+					t.Fatalf("want acceptance, got claims=%+v err=%v", claims, err)
+				}
+			case rejectAud:
+				if claims != nil || !errors.Is(err, ErrInvalidAudience) {
+					t.Fatalf("want ErrInvalidAudience, got claims=%+v err=%v", claims, err)
+				}
+			case rejectID:
+				if claims != nil || !errors.Is(err, ErrInvalidIdentity) {
+					t.Fatalf("want ErrInvalidIdentity, got claims=%+v err=%v", claims, err)
+				}
+			}
+		})
+	}
+}
+
 func TestSignedHeaderNames(t *testing.T) {
 	tests := []struct {
 		name  string
