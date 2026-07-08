@@ -271,11 +271,20 @@ type LibraryPolicy struct {
 	AllowList []*LibraryAllowListEntry `protobuf:"bytes,7,rep,name=allow_list,json=allowList,proto3" json:"allow_list,omitempty"`
 	// Raw Rego. OUTPUT_ONLY: populated for SYSTEM policies, empty for CUSTOM.
 	// Setting it on create/update of a custom policy is rejected (INVALID_ARGUMENT) in v1.
-	Expression    string                 `protobuf:"bytes,8,opt,name=expression,proto3" json:"expression,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Expression string                 `protobuf:"bytes,8,opt,name=expression,proto3" json:"expression,omitempty"`
+	CreatedAt  *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt  *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	// SPDX license identifiers that withhold a matching version (deny-list).
+	// Matching is case-insensitive and token-based: a candidate version's
+	// declared license is tokenized (SPDX operators AND/OR/WITH and grouping
+	// parentheses stripped) and the version is withheld when any token equals a
+	// listed identifier. Distinct identifiers do not cross-match: blocking
+	// "GPL-3.0" does not block "GPL-3.0-only"; list each identifier to block.
+	// The license gate cannot be bypassed by allow-list entries. Empty disables
+	// the gate. At most 100 entries of up to 128 characters each.
+	BlockedLicenses []string `protobuf:"bytes,11,rep,name=blocked_licenses,json=blockedLicenses,proto3" json:"blocked_licenses,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *LibraryPolicy) Reset() {
@@ -374,6 +383,13 @@ func (x *LibraryPolicy) GetCreatedAt() *timestamppb.Timestamp {
 func (x *LibraryPolicy) GetUpdatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *LibraryPolicy) GetBlockedLicenses() []string {
+	if x != nil {
+		return x.BlockedLicenses
 	}
 	return nil
 }
@@ -1272,7 +1288,7 @@ const file_policy_gates_libraries_platform_proto_rawDesc = "" +
 	"\x04purl\x18\x01 \x01(\tR\x04purl\x12'\n" +
 	"\x0fbypass_cooldown\x18\x02 \x01(\bR\x0ebypassCooldown\x12%\n" +
 	"\x0ebypass_malware\x18\x03 \x01(\bR\rbypassMalware\x12$\n" +
-	"\rjustification\x18\x04 \x01(\tR\rjustification\"\xc4\x04\n" +
+	"\rjustification\x18\x04 \x01(\tR\rjustification\"\xef\x04\n" +
 	"\rLibraryPolicy\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -1291,7 +1307,8 @@ const file_policy_gates_libraries_platform_proto_rawDesc = "" +
 	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\tcreatedAt\x12?\n" +
 	"\n" +
 	"updated_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\tupdatedAtB\x10\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\tupdatedAt\x12)\n" +
+	"\x10blocked_licenses\x18\v \x03(\tR\x0fblockedLicensesB\x10\n" +
 	"\x0e_cooldown_days\"\xba\x01\n" +
 	"\x11LibraryPolicyList\x12B\n" +
 	"\x05items\x18\x01 \x03(\v2,.chainguard.platform.libraries.LibraryPolicyR\x05items\x12&\n" +

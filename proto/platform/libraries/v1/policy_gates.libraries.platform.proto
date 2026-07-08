@@ -197,6 +197,16 @@ message LibraryPolicy {
 
   google.protobuf.Timestamp created_at = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   google.protobuf.Timestamp updated_at = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // SPDX license identifiers that withhold a matching version (deny-list).
+  // Matching is case-insensitive and token-based: a candidate version's
+  // declared license is tokenized (SPDX operators AND/OR/WITH and grouping
+  // parentheses stripped) and the version is withheld when any token equals a
+  // listed identifier. Distinct identifiers do not cross-match: blocking
+  // "GPL-3.0" does not block "GPL-3.0-only"; list each identifier to block.
+  // The license gate cannot be bypassed by allow-list entries. Empty disables
+  // the gate. At most 100 entries of up to 128 characters each.
+  repeated string blocked_licenses = 11;
 }
 
 message LibraryPolicyList {
