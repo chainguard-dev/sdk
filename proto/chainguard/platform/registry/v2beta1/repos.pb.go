@@ -112,20 +112,20 @@ type Repo struct {
 	// repository's description.
 	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	// Catalog tier this repository belongs to.
-	// For repositories that sync from another repository, this is synced from
-	// that repository.
+	// Repositories that sync from another repository inherit the tier from
+	// their source, and attempts to change it fail with INVALID_ARGUMENT.
 	CatalogTier CatalogTier `protobuf:"varint,4,opt,name=catalog_tier,json=catalogTier,proto3,enum=chainguard.platform.registry.v2beta1.CatalogTier" json:"catalog_tier,omitempty"`
 	// Sales grouping labels for the repository.
-	// For repositories that sync from another repository, these are synced from
-	// that repository.
+	// Repositories that sync from another repository inherit bundles from
+	// their source, and attempts to change them fail with INVALID_ARGUMENT.
 	Bundles []string `protobuf:"bytes,5,rep,name=bundles,proto3" json:"bundles,omitempty"`
 	// List of equivalent image names/aliases.
-	// For repositories that sync from another repository, these are synced from
-	// that repository.
+	// Repositories that sync from another repository inherit aliases from
+	// their source, and attempts to change them fail with INVALID_ARGUMENT.
 	Aliases []string `protobuf:"bytes,7,rep,name=aliases,proto3" json:"aliases,omitempty"`
 	// Actively maintained tags in this repository.
-	// For repositories that sync from another repository, these are synced from
-	// that repository.
+	// Repositories that sync from another repository inherit active tags from
+	// their source, and attempts to change them fail with INVALID_ARGUMENT.
 	ActiveTags []string `protobuf:"bytes,8,rep,name=active_tags,json=activeTags,proto3" json:"active_tags,omitempty"`
 	// Repository sync configuration. If set, images and metadata are synced
 	// from the source repository to this one.
@@ -1230,10 +1230,10 @@ const file_chainguard_platform_registry_v2beta1_repos_proto_rawDesc = "" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
 	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x04name\x12&\n" +
 	"\vdescription\x18\x03 \x01(\tB\x04\xe2A\x01\x01R\vdescription\x12Z\n" +
-	"\fcatalog_tier\x18\x04 \x01(\x0e21.chainguard.platform.registry.v2beta1.CatalogTierB\x04\xe2A\x01\x03R\vcatalogTier\x12\x1e\n" +
-	"\abundles\x18\x05 \x03(\tB\x04\xe2A\x01\x03R\abundles\x12\x1e\n" +
-	"\aaliases\x18\a \x03(\tB\x04\xe2A\x01\x03R\aaliases\x12%\n" +
-	"\vactive_tags\x18\b \x03(\tB\x04\xe2A\x01\x03R\n" +
+	"\fcatalog_tier\x18\x04 \x01(\x0e21.chainguard.platform.registry.v2beta1.CatalogTierB\x04\xe2A\x01\x01R\vcatalogTier\x12\x1e\n" +
+	"\abundles\x18\x05 \x03(\tB\x04\xe2A\x01\x01R\abundles\x12\x1e\n" +
+	"\aaliases\x18\a \x03(\tB\x04\xe2A\x01\x01R\aaliases\x12%\n" +
+	"\vactive_tags\x18\b \x03(\tB\x04\xe2A\x01\x01R\n" +
 	"activeTags\x12X\n" +
 	"\vsync_config\x18\t \x01(\v20.chainguard.platform.registry.v2beta1.SyncConfigB\x04\xe2A\x01\x01R\vsync_config\x12`\n" +
 	"\x0ecustom_overlay\x18\n" +

@@ -156,27 +156,27 @@ message Repo {
   string description = 3 [(google.api.field_behavior) = OPTIONAL];
 
   // Catalog tier this repository belongs to.
-  // For repositories that sync from another repository, this is synced from
-  // that repository.
-  CatalogTier catalog_tier = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Repositories that sync from another repository inherit the tier from
+  // their source, and attempts to change it fail with INVALID_ARGUMENT.
+  CatalogTier catalog_tier = 4 [(google.api.field_behavior) = OPTIONAL];
 
   // Sales grouping labels for the repository.
-  // For repositories that sync from another repository, these are synced from
-  // that repository.
-  repeated string bundles = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Repositories that sync from another repository inherit bundles from
+  // their source, and attempts to change them fail with INVALID_ARGUMENT.
+  repeated string bundles = 5 [(google.api.field_behavior) = OPTIONAL];
 
   reserved 6;
   reserved "readme";
 
   // List of equivalent image names/aliases.
-  // For repositories that sync from another repository, these are synced from
-  // that repository.
-  repeated string aliases = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Repositories that sync from another repository inherit aliases from
+  // their source, and attempts to change them fail with INVALID_ARGUMENT.
+  repeated string aliases = 7 [(google.api.field_behavior) = OPTIONAL];
 
   // Actively maintained tags in this repository.
-  // For repositories that sync from another repository, these are synced from
-  // that repository.
-  repeated string active_tags = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Repositories that sync from another repository inherit active tags from
+  // their source, and attempts to change them fail with INVALID_ARGUMENT.
+  repeated string active_tags = 8 [(google.api.field_behavior) = OPTIONAL];
 
   // Repository sync configuration. If set, images and metadata are synced
   // from the source repository to this one.
