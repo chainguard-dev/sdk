@@ -99,6 +99,12 @@ enum Ecosystem {
   JAVA = 1;
   PYTHON = 2;
   JAVASCRIPT = 3;
+  // Athena tiers grant access to Chainguard-remediated artifacts for the
+  // paired ecosystem. These ecosystems are not eligible for self-serve
+  // provisioning and cannot be created with source=SOURCE_TRIAL.
+  JAVA_ATHENA = 4;
+  PYTHON_ATHENA = 5;
+  JAVASCRIPT_ATHENA = 6;
 }
 
 // Policy controls which package sources are available for an entitlement.

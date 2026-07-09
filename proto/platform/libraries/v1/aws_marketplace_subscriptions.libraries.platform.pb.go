@@ -104,6 +104,7 @@ type AWSMarketplaceSubscription struct {
 	// relaxed in the future.
 	DeveloperBand int32 `protobuf:"varint,2,opt,name=developer_band,json=developerBand,proto3" json:"developer_band,omitempty"`
 	// ecosystems are the Libraries ecosystems the subscription covers.
+	// Athena tiers are not available through AWS Marketplace.
 	Ecosystems []Ecosystem `protobuf:"varint,3,rep,packed,name=ecosystems,proto3,enum=chainguard.platform.libraries.Ecosystem" json:"ecosystems,omitempty"`
 	// is_free_trial indicates the subscription is on an AWS free trial (not
 	// charged while the trial is active).
@@ -251,6 +252,7 @@ type CreateAWSMarketplaceSubscriptionRequest struct {
 	// developer_band is the selected developer-count band ceiling.
 	DeveloperBand int32 `protobuf:"varint,3,opt,name=developer_band,json=developerBand,proto3" json:"developer_band,omitempty"`
 	// ecosystems are the Libraries ecosystems to subscribe to (one or more).
+	// Athena tiers are not available through AWS Marketplace.
 	Ecosystems []Ecosystem `protobuf:"varint,4,rep,packed,name=ecosystems,proto3,enum=chainguard.platform.libraries.Ecosystem" json:"ecosystems,omitempty"`
 	// is_free_trial marks the subscription as an AWS free trial, from the
 	// marketplace offer type carried on the hand-off.

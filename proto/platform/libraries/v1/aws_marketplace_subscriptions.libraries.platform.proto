@@ -137,6 +137,7 @@ message AWSMarketplaceSubscription {
   int32 developer_band = 2 [(google.api.field_behavior) = IMMUTABLE];
 
   // ecosystems are the Libraries ecosystems the subscription covers.
+  // Athena tiers are not available through AWS Marketplace.
   repeated Ecosystem ecosystems = 3;
 
   // is_free_trial indicates the subscription is on an AWS free trial (not
@@ -168,6 +169,7 @@ message CreateAWSMarketplaceSubscriptionRequest {
   int32 developer_band = 3;
 
   // ecosystems are the Libraries ecosystems to subscribe to (one or more).
+  // Athena tiers are not available through AWS Marketplace.
   repeated Ecosystem ecosystems = 4;
 
   // is_free_trial marks the subscription as an AWS free trial, from the
