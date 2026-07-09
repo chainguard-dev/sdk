@@ -52,6 +52,19 @@ func TestGuardenerAdminCaps(t *testing.T) {
 	}
 }
 
+// TestConsoleViewerCapsGuardenerEntitlement pins that reading a group's
+// guardener entitlement is a viewer capability, so a regression can't silently
+// make it require the support-only manage capability.
+func TestConsoleViewerCapsGuardenerEntitlement(t *testing.T) {
+	got := make(map[Capability]struct{}, len(ConsoleViewerCaps))
+	for _, c := range ConsoleViewerCaps {
+		got[c] = struct{}{}
+	}
+	if _, ok := got[Capability_CAP_GUARDENER_ENTITLEMENT_LIST]; !ok {
+		t.Errorf("ConsoleViewerCaps missing %v", Capability_CAP_GUARDENER_ENTITLEMENT_LIST)
+	}
+}
+
 func TestSortCaps(t *testing.T) {
 	tests := []struct {
 		name      string

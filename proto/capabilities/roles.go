@@ -64,6 +64,8 @@ var (
 		Capability_CAP_ADVISORIES_LIST,
 
 		Capability_CAP_ACTIONS_LIST,
+
+		Capability_CAP_GUARDENER_ENTITLEMENT_LIST,
 	})
 
 	// ViewerCaps are read-only capabilities that do not affect state,

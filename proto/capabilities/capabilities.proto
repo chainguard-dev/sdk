@@ -281,6 +281,15 @@ enum Capability {
   // installations linked to a Chainguard group (the read counterpart to
   // guardener.association.manage).
   CAP_GUARDENER_ASSOCIATION_LIST = 2303 [(name) = "guardener.association.list", (bit) = 181];
+  // guardener.entitlement.manage gates the support-only surface for configuring a
+  // group's guardener entitlement (e.g. which repo visibility scope guardener
+  // responds to). It is internal_only: it can never be granted by a role
+  // available to customer organizations.
+  CAP_GUARDENER_ENTITLEMENT_MANAGE = 2304 [(name) = "guardener.entitlement.manage", (bit) = 185, (internal_only) = true];
+  // guardener.entitlement.list gates read-only access to a group's guardener
+  // entitlement. Unlike guardener.entitlement.manage it is not internal_only, so
+  // normal viewers can see the settings that apply to their group.
+  CAP_GUARDENER_ENTITLEMENT_LIST = 2305 [(name) = "guardener.entitlement.list", (bit) = 186];
 
   // MCP tool calls
   CAP_MCP_TOOL_CALL = 2401 [(name) = "mcp.tool.call", (bit) = 128];

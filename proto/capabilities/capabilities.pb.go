@@ -241,6 +241,15 @@ const (
 	// installations linked to a Chainguard group (the read counterpart to
 	// guardener.association.manage).
 	Capability_CAP_GUARDENER_ASSOCIATION_LIST Capability = 2303
+	// guardener.entitlement.manage gates the support-only surface for configuring a
+	// group's guardener entitlement (e.g. which repo visibility scope guardener
+	// responds to). It is internal_only: it can never be granted by a role
+	// available to customer organizations.
+	Capability_CAP_GUARDENER_ENTITLEMENT_MANAGE Capability = 2304
+	// guardener.entitlement.list gates read-only access to a group's guardener
+	// entitlement. Unlike guardener.entitlement.manage it is not internal_only, so
+	// normal viewers can see the settings that apply to their group.
+	Capability_CAP_GUARDENER_ENTITLEMENT_LIST Capability = 2305
 	// MCP tool calls
 	Capability_CAP_MCP_TOOL_CALL Capability = 2401
 	// Skills registry — publishing skill artifacts to skills.cgr.dev
@@ -445,6 +454,8 @@ var (
 		2301:  "CAP_GUARDENER_DFC_CONVERT",
 		2302:  "CAP_GUARDENER_ASSOCIATION_MANAGE",
 		2303:  "CAP_GUARDENER_ASSOCIATION_LIST",
+		2304:  "CAP_GUARDENER_ENTITLEMENT_MANAGE",
+		2305:  "CAP_GUARDENER_ENTITLEMENT_LIST",
 		2401:  "CAP_MCP_TOOL_CALL",
 		2501:  "CAP_SKILLS_PUBLISH",
 		2502:  "CAP_SKILLS_ENTITLEMENTS_CREATE",
@@ -627,6 +638,8 @@ var (
 		"CAP_GUARDENER_DFC_CONVERT":                          2301,
 		"CAP_GUARDENER_ASSOCIATION_MANAGE":                   2302,
 		"CAP_GUARDENER_ASSOCIATION_LIST":                     2303,
+		"CAP_GUARDENER_ENTITLEMENT_MANAGE":                   2304,
+		"CAP_GUARDENER_ENTITLEMENT_LIST":                     2305,
 		"CAP_MCP_TOOL_CALL":                                  2401,
 		"CAP_SKILLS_PUBLISH":                                 2501,
 		"CAP_SKILLS_ENTITLEMENTS_CREATE":                     2502,
@@ -742,7 +755,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xda_\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xfe`\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -909,7 +922,9 @@ const file_capabilities_proto_rawDesc = "" +
 	"gulfstream\x12@\n" +
 	"\x19CAP_GUARDENER_DFC_CONVERT\x10\xfd\x11\x1a \xa8ˑM\x7f\x9a\xaf\xa8\xd2\x05\x15guardener.dfc.convert\x12O\n" +
 	" CAP_GUARDENER_ASSOCIATION_MANAGE\x10\xfe\x11\x1a(\xa8ˑM\xaa\x01\x9a\xaf\xa8\xd2\x05\x1cguardener.association.manage\x12K\n" +
-	"\x1eCAP_GUARDENER_ASSOCIATION_LIST\x10\xff\x11\x1a&\xa8ˑM\xb5\x01\x9a\xaf\xa8\xd2\x05\x1aguardener.association.list\x121\n" +
+	"\x1eCAP_GUARDENER_ASSOCIATION_LIST\x10\xff\x11\x1a&\xa8ˑM\xb5\x01\x9a\xaf\xa8\xd2\x05\x1aguardener.association.list\x12U\n" +
+	" CAP_GUARDENER_ENTITLEMENT_MANAGE\x10\x80\x12\x1a.\xa8ˑM\xb9\x01\x9a\xaf\xa8\xd2\x05\x1cguardener.entitlement.manage\xa0\xaf\xa8\xd2\x05\x01\x12K\n" +
+	"\x1eCAP_GUARDENER_ENTITLEMENT_LIST\x10\x81\x12\x1a&\xa8ˑM\xba\x01\x9a\xaf\xa8\xd2\x05\x1aguardener.entitlement.list\x121\n" +
 	"\x11CAP_MCP_TOOL_CALL\x10\xe1\x12\x1a\x19\xa8ˑM\x80\x01\x9a\xaf\xa8\xd2\x05\rmcp.tool.call\x123\n" +
 	"\x12CAP_SKILLS_PUBLISH\x10\xc5\x13\x1a\x1a\xa8ˑM\x89\x01\x9a\xaf\xa8\xd2\x05\x0eskills.publish\x12K\n" +
 	"\x1eCAP_SKILLS_ENTITLEMENTS_CREATE\x10\xc6\x13\x1a&\xa8ˑM\x8a\x01\x9a\xaf\xa8\xd2\x05\x1askills.entitlements.create\x12G\n" +

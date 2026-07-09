@@ -1,0 +1,106 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.guardener.v1alpha1;
+
+import "annotations/auth.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/guardener/v1alpha1";
+option java_multiple_files = true;
+option java_outer_classname = "GuardenerProto";
+option java_package = "com.chainguard.platform.guardener.v1alpha1";
+
+// Guardener is the surface for a group's guardener entitlement: settings that
+// only support can change. Reading the entitlement (GetEntitlement) requires
+// CAP_GUARDENER_ENTITLEMENT_LIST, a viewer capability, so a group can see the
+// settings that apply to it. Changing it (UpdateEntitlement) requires
+// CAP_GUARDENER_ENTITLEMENT_MANAGE, an internal-only capability that can never be
+// granted by a customer-facing role.
+service Guardener {
+  // GetEntitlement returns the guardener entitlement for a group. A group with no
+  // configured entitlement returns the default (repo_visibility_scope
+  // unspecified, treated as public-only) rather than NOT_FOUND.
+  rpc GetEntitlement(GetEntitlementRequest) returns (Entitlement) {
+    option (google.api.http) = {get: "/guardener/v1alpha1/entitlements/{group=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_GUARDENER_ENTITLEMENT_LIST]
+      }
+    };
+  }
+
+  // UpdateEntitlement creates or updates the guardener entitlement for a group.
+  // It requires CAP_INTERNAL in addition to CAP_GUARDENER_ENTITLEMENT_MANAGE, so
+  // only internal (support) identities can change these settings.
+  rpc UpdateEntitlement(UpdateEntitlementRequest) returns (Entitlement) {
+    option (google.api.http) = {
+      put: "/guardener/v1alpha1/entitlements/{group=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_GUARDENER_ENTITLEMENT_MANAGE,
+          CAP_INTERNAL
+        ]
+      }
+    };
+  }
+}
+
+// Entitlement holds the support-configurable settings for a group.
+message Entitlement {
+  // RepoVisibilityScope controls which repositories guardener responds to for the
+  // group.
+  enum RepoVisibilityScope {
+    // Unspecified is the default when no entitlement is configured; treated as
+    // PUBLIC.
+    REPO_VISIBILITY_SCOPE_UNSPECIFIED = 0;
+    // Guardener responds only to public repositories.
+    // buf:lint:ignore ENUM_VALUE_PREFIX
+    PUBLIC = 1;
+    // Guardener responds to all repositories (public and private).
+    // buf:lint:ignore ENUM_VALUE_PREFIX
+    ALL = 2;
+  }
+
+  // group is the Chainguard group UIDP the entitlement applies to.
+  string group = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // repo_visibility_scope controls which repositories guardener responds to for
+  // the group.
+  RepoVisibilityScope repo_visibility_scope = 2;
+
+  // create_time is when the entitlement was first configured.
+  google.protobuf.Timestamp create_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // update_time is when the entitlement was last updated.
+  google.protobuf.Timestamp update_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message GetEntitlementRequest {
+  // group is the Chainguard group UIDP whose entitlement to fetch.
+  string group = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+message UpdateEntitlementRequest {
+  // group is the Chainguard group UIDP whose entitlement to create or update.
+  string group = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // repo_visibility_scope is the repo visibility scope to set for the group.
+  Entitlement.RepoVisibilityScope repo_visibility_scope = 2;
+}
