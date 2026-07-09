@@ -74,6 +74,25 @@ service ExternalGroupRoleMappings {
       audience: CUSTOMER
     };
   }
+
+  // BatchDelete deletes the named mappings under an identity provider in one
+  // call, for cleanup, offboarding, or teardown.
+  rpc BatchDelete(BatchDeleteExternalGroupRoleMappingsRequest) returns (BatchDeleteExternalGroupRoleMappingsResponse) {
+    option (google.api.http) = {
+      post: "/iam/v1/externalGroupRoleMappings:batchDelete"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_IDENTITY_PROVIDERS_DELETE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.external_group_role_mappings.deleted.batch.v1"
+      extensions: ["group", "identityprovider"]
+      audience: CUSTOMER
+    };
+  }
 }
 
 message ExternalGroupRoleMapping {
@@ -122,4 +141,24 @@ message GetExternalGroupRoleMappingRequest {
 
 message DeleteExternalGroupRoleMappingRequest {
   string id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message BatchDeleteExternalGroupRoleMappingsRequest {
+  // parent_id is the UIDP of the identity provider the mappings belong to.
+  // Every id must be one of its mappings.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // ids are the UIDPs of the mappings to delete. Ids that no longer exist
+  // under parent_id are silently skipped; ids whose parent differs from
+  // parent_id return INVALID_ARGUMENT.
+  repeated string ids = 2;
+}
+
+message BatchDeleteExternalGroupRoleMappingsResponse {
+  // parent_id is the UIDP of the identity provider the delete targeted. Echoed
+  // so the operation can be attributed even when no mappings matched.
+  string parent_id = 1;
+
+  // The mappings that were deleted.
+  repeated ExternalGroupRoleMapping items = 2;
 }

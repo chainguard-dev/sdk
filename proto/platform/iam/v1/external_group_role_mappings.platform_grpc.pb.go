@@ -20,10 +20,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ExternalGroupRoleMappings_Create_FullMethodName = "/chainguard.platform.iam.ExternalGroupRoleMappings/Create"
-	ExternalGroupRoleMappings_Get_FullMethodName    = "/chainguard.platform.iam.ExternalGroupRoleMappings/Get"
-	ExternalGroupRoleMappings_List_FullMethodName   = "/chainguard.platform.iam.ExternalGroupRoleMappings/List"
-	ExternalGroupRoleMappings_Delete_FullMethodName = "/chainguard.platform.iam.ExternalGroupRoleMappings/Delete"
+	ExternalGroupRoleMappings_Create_FullMethodName      = "/chainguard.platform.iam.ExternalGroupRoleMappings/Create"
+	ExternalGroupRoleMappings_Get_FullMethodName         = "/chainguard.platform.iam.ExternalGroupRoleMappings/Get"
+	ExternalGroupRoleMappings_List_FullMethodName        = "/chainguard.platform.iam.ExternalGroupRoleMappings/List"
+	ExternalGroupRoleMappings_Delete_FullMethodName      = "/chainguard.platform.iam.ExternalGroupRoleMappings/Delete"
+	ExternalGroupRoleMappings_BatchDelete_FullMethodName = "/chainguard.platform.iam.ExternalGroupRoleMappings/BatchDelete"
 )
 
 // ExternalGroupRoleMappingsClient is the client API for ExternalGroupRoleMappings service.
@@ -39,6 +40,9 @@ type ExternalGroupRoleMappingsClient interface {
 	Get(ctx context.Context, in *GetExternalGroupRoleMappingRequest, opts ...grpc.CallOption) (*ExternalGroupRoleMapping, error)
 	List(ctx context.Context, in *ExternalGroupRoleMappingFilter, opts ...grpc.CallOption) (*ExternalGroupRoleMappingList, error)
 	Delete(ctx context.Context, in *DeleteExternalGroupRoleMappingRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// BatchDelete deletes the named mappings under an identity provider in one
+	// call, for cleanup, offboarding, or teardown.
+	BatchDelete(ctx context.Context, in *BatchDeleteExternalGroupRoleMappingsRequest, opts ...grpc.CallOption) (*BatchDeleteExternalGroupRoleMappingsResponse, error)
 }
 
 type externalGroupRoleMappingsClient struct {
@@ -89,6 +93,16 @@ func (c *externalGroupRoleMappingsClient) Delete(ctx context.Context, in *Delete
 	return out, nil
 }
 
+func (c *externalGroupRoleMappingsClient) BatchDelete(ctx context.Context, in *BatchDeleteExternalGroupRoleMappingsRequest, opts ...grpc.CallOption) (*BatchDeleteExternalGroupRoleMappingsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BatchDeleteExternalGroupRoleMappingsResponse)
+	err := c.cc.Invoke(ctx, ExternalGroupRoleMappings_BatchDelete_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ExternalGroupRoleMappingsServer is the server API for ExternalGroupRoleMappings service.
 // All implementations must embed UnimplementedExternalGroupRoleMappingsServer
 // for forward compatibility.
@@ -102,6 +116,9 @@ type ExternalGroupRoleMappingsServer interface {
 	Get(context.Context, *GetExternalGroupRoleMappingRequest) (*ExternalGroupRoleMapping, error)
 	List(context.Context, *ExternalGroupRoleMappingFilter) (*ExternalGroupRoleMappingList, error)
 	Delete(context.Context, *DeleteExternalGroupRoleMappingRequest) (*emptypb.Empty, error)
+	// BatchDelete deletes the named mappings under an identity provider in one
+	// call, for cleanup, offboarding, or teardown.
+	BatchDelete(context.Context, *BatchDeleteExternalGroupRoleMappingsRequest) (*BatchDeleteExternalGroupRoleMappingsResponse, error)
 	mustEmbedUnimplementedExternalGroupRoleMappingsServer()
 }
 
@@ -123,6 +140,9 @@ func (UnimplementedExternalGroupRoleMappingsServer) List(context.Context, *Exter
 }
 func (UnimplementedExternalGroupRoleMappingsServer) Delete(context.Context, *DeleteExternalGroupRoleMappingRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedExternalGroupRoleMappingsServer) BatchDelete(context.Context, *BatchDeleteExternalGroupRoleMappingsRequest) (*BatchDeleteExternalGroupRoleMappingsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method BatchDelete not implemented")
 }
 func (UnimplementedExternalGroupRoleMappingsServer) mustEmbedUnimplementedExternalGroupRoleMappingsServer() {
 }
@@ -218,6 +238,24 @@ func _ExternalGroupRoleMappings_Delete_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ExternalGroupRoleMappings_BatchDelete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatchDeleteExternalGroupRoleMappingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ExternalGroupRoleMappingsServer).BatchDelete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ExternalGroupRoleMappings_BatchDelete_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ExternalGroupRoleMappingsServer).BatchDelete(ctx, req.(*BatchDeleteExternalGroupRoleMappingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ExternalGroupRoleMappings_ServiceDesc is the grpc.ServiceDesc for ExternalGroupRoleMappings service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -240,6 +278,10 @@ var ExternalGroupRoleMappings_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Delete",
 			Handler:    _ExternalGroupRoleMappings_Delete_Handler,
+		},
+		{
+			MethodName: "BatchDelete",
+			Handler:    _ExternalGroupRoleMappings_BatchDelete_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

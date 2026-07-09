@@ -21,10 +21,11 @@ import (
 var _ iam.ExternalGroupRoleMappingsClient = (*MockExternalGroupRoleMappingsClient)(nil)
 
 type MockExternalGroupRoleMappingsClient struct {
-	OnCreate []EGRMOnCreate
-	OnGet    []EGRMOnGet
-	OnList   []EGRMOnList
-	OnDelete []EGRMOnDelete
+	OnCreate      []EGRMOnCreate
+	OnGet         []EGRMOnGet
+	OnList        []EGRMOnList
+	OnDelete      []EGRMOnDelete
+	OnBatchDelete []EGRMOnBatchDelete
 }
 
 type EGRMOnCreate struct {
@@ -43,6 +44,12 @@ type EGRMOnList struct {
 	Given *iam.ExternalGroupRoleMappingFilter
 	List  *iam.ExternalGroupRoleMappingList
 	Error error
+}
+
+type EGRMOnBatchDelete struct {
+	Given   *iam.BatchDeleteExternalGroupRoleMappingsRequest
+	Deleted *iam.BatchDeleteExternalGroupRoleMappingsResponse
+	Error   error
 }
 
 type EGRMOnDelete struct {
@@ -84,4 +91,13 @@ func (m MockExternalGroupRoleMappingsClient) Delete(_ context.Context, given *ia
 		}
 	}
 	return &emptypb.Empty{}, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockExternalGroupRoleMappingsClient) BatchDelete(_ context.Context, given *iam.BatchDeleteExternalGroupRoleMappingsRequest, _ ...grpc.CallOption) (*iam.BatchDeleteExternalGroupRoleMappingsResponse, error) {
+	for _, o := range m.OnBatchDelete {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Deleted, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
 }
