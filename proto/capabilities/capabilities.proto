@@ -335,10 +335,17 @@ enum Capability {
   CAP_LOGGIE_LOGS_READ               = 2901 [(name) = "loggie.logs.read",               (bit) = 179, (internal_only) = true];
   CAP_LOGGIE_LOGS_WRITE              = 2902 [(name) = "loggie.logs.write",              (bit) = 180, (internal_only) = true];
 
+  // Rex: the remote-execution service. The edge authorizes submitting an
+  // execution; the scheduler authorizes a worker joining the pool; the
+  // executions query surface authorizes cross-run reads at the instance.
+  CAP_REX_EXECUTIONS_CREATE = 2705 [(name) = "rex.executions.create", (bit) = 182, (internal_only) = true];
+  CAP_REX_EXECUTIONS_LIST   = 2706 [(name) = "rex.executions.list",   (bit) = 183, (internal_only) = true];
+  CAP_REX_WORKERS_CONNECT   = 2707 [(name) = "rex.workers.connect",   (bit) = 184, (internal_only) = true];
+
   // Actions catalog — the read-only catalog of Chainguard-published GitHub
   // Actions and the upstreams they mirror. Writes are internal (importer only).
   CAP_ACTIONS_LIST = 2700 [(name) = "actions.list", (bit) = 164];
 
   reserved 1;
-  // next bit: 181
+  // next bit: 185
 }

@@ -283,6 +283,12 @@ const (
 	// exec service issuing streams and the worker appending to them hold logs.write.
 	Capability_CAP_LOGGIE_LOGS_READ  Capability = 2901
 	Capability_CAP_LOGGIE_LOGS_WRITE Capability = 2902
+	// Rex: the remote-execution service. The edge authorizes submitting an
+	// execution; the scheduler authorizes a worker joining the pool; the
+	// executions query surface authorizes cross-run reads at the instance.
+	Capability_CAP_REX_EXECUTIONS_CREATE Capability = 2705
+	Capability_CAP_REX_EXECUTIONS_LIST   Capability = 2706
+	Capability_CAP_REX_WORKERS_CONNECT   Capability = 2707
 	// Actions catalog — the read-only catalog of Chainguard-published GitHub
 	// Actions and the upstreams they mirror. Writes are internal (importer only).
 	Capability_CAP_ACTIONS_LIST Capability = 2700
@@ -467,6 +473,9 @@ var (
 		2803:  "CAP_CASSIE_AC_WRITE",
 		2901:  "CAP_LOGGIE_LOGS_READ",
 		2902:  "CAP_LOGGIE_LOGS_WRITE",
+		2705:  "CAP_REX_EXECUTIONS_CREATE",
+		2706:  "CAP_REX_EXECUTIONS_LIST",
+		2707:  "CAP_REX_WORKERS_CONNECT",
 		2700:  "CAP_ACTIONS_LIST",
 	}
 	Capability_value = map[string]int32{
@@ -646,6 +655,9 @@ var (
 		"CAP_CASSIE_AC_WRITE":                                2803,
 		"CAP_LOGGIE_LOGS_READ":                               2901,
 		"CAP_LOGGIE_LOGS_WRITE":                              2902,
+		"CAP_REX_EXECUTIONS_CREATE":                          2705,
+		"CAP_REX_EXECUTIONS_LIST":                            2706,
+		"CAP_REX_WORKERS_CONNECT":                            2707,
 		"CAP_ACTIONS_LIST":                                   2700,
 	}
 )
@@ -730,7 +742,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x87^\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xda_\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -925,7 +937,10 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x12CAP_CASSIE_AC_READ\x10\xf4\x15\x1a \xa8ˑM\xac\x01\x9a\xaf\xa8\xd2\x05\x0ecassie.ac.read\xa0\xaf\xa8\xd2\x05\x01\x12;\n" +
 	"\x13CAP_CASSIE_AC_WRITE\x10\xf3\x15\x1a!\xa8ˑM\xab\x01\x9a\xaf\xa8\xd2\x05\x0fcassie.ac.write\xa0\xaf\xa8\xd2\x05\x01\x12=\n" +
 	"\x14CAP_LOGGIE_LOGS_READ\x10\xd5\x16\x1a\"\xa8ˑM\xb3\x01\x9a\xaf\xa8\xd2\x05\x10loggie.logs.read\xa0\xaf\xa8\xd2\x05\x01\x12?\n" +
-	"\x15CAP_LOGGIE_LOGS_WRITE\x10\xd6\x16\x1a#\xa8ˑM\xb4\x01\x9a\xaf\xa8\xd2\x05\x11loggie.logs.write\xa0\xaf\xa8\xd2\x05\x01\x12/\n" +
+	"\x15CAP_LOGGIE_LOGS_WRITE\x10\xd6\x16\x1a#\xa8ˑM\xb4\x01\x9a\xaf\xa8\xd2\x05\x11loggie.logs.write\xa0\xaf\xa8\xd2\x05\x01\x12G\n" +
+	"\x19CAP_REX_EXECUTIONS_CREATE\x10\x91\x15\x1a'\xa8ˑM\xb6\x01\x9a\xaf\xa8\xd2\x05\x15rex.executions.create\xa0\xaf\xa8\xd2\x05\x01\x12C\n" +
+	"\x17CAP_REX_EXECUTIONS_LIST\x10\x92\x15\x1a%\xa8ˑM\xb7\x01\x9a\xaf\xa8\xd2\x05\x13rex.executions.list\xa0\xaf\xa8\xd2\x05\x01\x12C\n" +
+	"\x17CAP_REX_WORKERS_CONNECT\x10\x93\x15\x1a%\xa8ˑM\xb8\x01\x9a\xaf\xa8\xd2\x05\x13rex.workers.connect\xa0\xaf\xa8\xd2\x05\x01\x12/\n" +
 	"\x10CAP_ACTIONS_LIST\x10\x8c\x15\x1a\x18\xa8ˑM\xa4\x01\x9a\xaf\xa8\xd2\x05\factions.list\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x06\b\xd1\x0e\x10\xd1\x0e\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +
 	"\x03bit\x12!.google.protobuf.EnumValueOptions\x18\xb5\x99\xd2\t \x01(\rR\x03bit:I\n" +
