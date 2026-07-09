@@ -23,11 +23,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ReposService_GetRepo_FullMethodName    = "/chainguard.platform.registry.v2beta1.ReposService/GetRepo"
-	ReposService_CreateRepo_FullMethodName = "/chainguard.platform.registry.v2beta1.ReposService/CreateRepo"
-	ReposService_UpdateRepo_FullMethodName = "/chainguard.platform.registry.v2beta1.ReposService/UpdateRepo"
-	ReposService_DeleteRepo_FullMethodName = "/chainguard.platform.registry.v2beta1.ReposService/DeleteRepo"
-	ReposService_ListRepos_FullMethodName  = "/chainguard.platform.registry.v2beta1.ReposService/ListRepos"
+	ReposService_GetRepo_FullMethodName          = "/chainguard.platform.registry.v2beta1.ReposService/GetRepo"
+	ReposService_CreateRepo_FullMethodName       = "/chainguard.platform.registry.v2beta1.ReposService/CreateRepo"
+	ReposService_UpdateRepo_FullMethodName       = "/chainguard.platform.registry.v2beta1.ReposService/UpdateRepo"
+	ReposService_DeleteRepo_FullMethodName       = "/chainguard.platform.registry.v2beta1.ReposService/DeleteRepo"
+	ReposService_ListRepos_FullMethodName        = "/chainguard.platform.registry.v2beta1.ReposService/ListRepos"
+	ReposService_GetRepoReadme_FullMethodName    = "/chainguard.platform.registry.v2beta1.ReposService/GetRepoReadme"
+	ReposService_UpdateRepoReadme_FullMethodName = "/chainguard.platform.registry.v2beta1.ReposService/UpdateRepoReadme"
 )
 
 // ReposServiceClient is the client API for ReposService service.
@@ -46,6 +48,10 @@ type ReposServiceClient interface {
 	DeleteRepo(ctx context.Context, in *DeleteRepoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// ListRepos returns repositories based on filter criteria with pagination support.
 	ListRepos(ctx context.Context, in *ListReposRequest, opts ...grpc.CallOption) (*ListReposResponse, error)
+	// GetRepoReadme retrieves the README for a repository.
+	GetRepoReadme(ctx context.Context, in *GetRepoReadmeRequest, opts ...grpc.CallOption) (*RepoReadme, error)
+	// UpdateRepoReadme updates the README for a repository.
+	UpdateRepoReadme(ctx context.Context, in *UpdateRepoReadmeRequest, opts ...grpc.CallOption) (*RepoReadme, error)
 }
 
 type reposServiceClient struct {
@@ -106,6 +112,26 @@ func (c *reposServiceClient) ListRepos(ctx context.Context, in *ListReposRequest
 	return out, nil
 }
 
+func (c *reposServiceClient) GetRepoReadme(ctx context.Context, in *GetRepoReadmeRequest, opts ...grpc.CallOption) (*RepoReadme, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RepoReadme)
+	err := c.cc.Invoke(ctx, ReposService_GetRepoReadme_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *reposServiceClient) UpdateRepoReadme(ctx context.Context, in *UpdateRepoReadmeRequest, opts ...grpc.CallOption) (*RepoReadme, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RepoReadme)
+	err := c.cc.Invoke(ctx, ReposService_UpdateRepoReadme_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ReposServiceServer is the server API for ReposService service.
 // All implementations must embed UnimplementedReposServiceServer
 // for forward compatibility.
@@ -122,6 +148,10 @@ type ReposServiceServer interface {
 	DeleteRepo(context.Context, *DeleteRepoRequest) (*emptypb.Empty, error)
 	// ListRepos returns repositories based on filter criteria with pagination support.
 	ListRepos(context.Context, *ListReposRequest) (*ListReposResponse, error)
+	// GetRepoReadme retrieves the README for a repository.
+	GetRepoReadme(context.Context, *GetRepoReadmeRequest) (*RepoReadme, error)
+	// UpdateRepoReadme updates the README for a repository.
+	UpdateRepoReadme(context.Context, *UpdateRepoReadmeRequest) (*RepoReadme, error)
 	mustEmbedUnimplementedReposServiceServer()
 }
 
@@ -146,6 +176,12 @@ func (UnimplementedReposServiceServer) DeleteRepo(context.Context, *DeleteRepoRe
 }
 func (UnimplementedReposServiceServer) ListRepos(context.Context, *ListReposRequest) (*ListReposResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListRepos not implemented")
+}
+func (UnimplementedReposServiceServer) GetRepoReadme(context.Context, *GetRepoReadmeRequest) (*RepoReadme, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetRepoReadme not implemented")
+}
+func (UnimplementedReposServiceServer) UpdateRepoReadme(context.Context, *UpdateRepoReadmeRequest) (*RepoReadme, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateRepoReadme not implemented")
 }
 func (UnimplementedReposServiceServer) mustEmbedUnimplementedReposServiceServer() {}
 func (UnimplementedReposServiceServer) testEmbeddedByValue()                      {}
@@ -258,6 +294,42 @@ func _ReposService_ListRepos_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ReposService_GetRepoReadme_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRepoReadmeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReposServiceServer).GetRepoReadme(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReposService_GetRepoReadme_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReposServiceServer).GetRepoReadme(ctx, req.(*GetRepoReadmeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ReposService_UpdateRepoReadme_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateRepoReadmeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReposServiceServer).UpdateRepoReadme(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReposService_UpdateRepoReadme_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReposServiceServer).UpdateRepoReadme(ctx, req.(*UpdateRepoReadmeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ReposService_ServiceDesc is the grpc.ServiceDesc for ReposService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -284,6 +356,14 @@ var ReposService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListRepos",
 			Handler:    _ReposService_ListRepos_Handler,
+		},
+		{
+			MethodName: "GetRepoReadme",
+			Handler:    _ReposService_GetRepoReadme_Handler,
+		},
+		{
+			MethodName: "UpdateRepoReadme",
+			Handler:    _ReposService_UpdateRepoReadme_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

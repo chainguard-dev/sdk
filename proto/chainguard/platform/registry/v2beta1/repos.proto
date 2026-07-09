@@ -129,6 +129,53 @@ service ReposService {
       open_world: false
     };
   }
+
+  // GetRepoReadme retrieves the README for a repository.
+  rpc GetRepoReadme(GetRepoReadmeRequest) returns (RepoReadme) {
+    option (google.api.http) = {get: "/registry/v2beta1/repos/{uid=**}/readme"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get the Markdown README for a container image repository."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+      hidden: true
+    };
+  }
+
+  // UpdateRepoReadme updates the README for a repository.
+  rpc UpdateRepoReadme(UpdateRepoReadmeRequest) returns (RepoReadme) {
+    option (google.api.http) = {
+      patch: "/registry/v2beta1/repos/{repo_readme.uid=**}/readme"
+      body: "repo_readme"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_REPO_UPDATE,
+          CAP_REPO_INTERNAL_ADMIN
+        ]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.platform.registry.repo.updated.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Update the Markdown README for a container image repository."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
+      hidden: true
+    };
+  }
 }
 
 // Repo represents a container image repository.
@@ -423,6 +470,49 @@ message ListReposResponse {
   // Number of results that were skipped.
   // Accumulates across paginated requests.
   int32 skipped = 4;
+}
+
+// RepoReadme is the Markdown README describing a repository.
+// It is a singleton sub-resource of Repo.
+message RepoReadme {
+  option (google.api.resource) = {
+    type: "registry.chainguard.dev/RepoReadme"
+    pattern: "repos/{repo}/readme"
+    singular: "repoReadme"
+    plural: "repoReadmes"
+  };
+
+  // UID of the repository this README describes.
+  string uid = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Raw Markdown content of the README.
+  // On repositories with a sync_config the README is synced from the source
+  // repository.
+  string content = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// GetRepoReadmeRequest is the request message for GetRepoReadme.
+message GetRepoReadmeRequest {
+  // UID of the repository whose README to retrieve.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// UpdateRepoReadmeRequest is the request message for UpdateRepoReadme.
+message UpdateRepoReadmeRequest {
+  // README to update. The uid identifies the repository.
+  RepoReadme repo_readme = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Fields to update. When omitted, inferred from the populated fields.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // CatalogTier represents the catalog tier classification for repositories.

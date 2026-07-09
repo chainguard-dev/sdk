@@ -15,6 +15,9 @@ var (
 	_ events.Extendable = (*Repo)(nil)
 	_ events.Eventable  = (*DeleteRepoRequest)(nil)
 	_ events.Extendable = (*DeleteRepoRequest)(nil)
+
+	_ events.Eventable  = (*RepoReadme)(nil)
+	_ events.Extendable = (*RepoReadme)(nil)
 )
 
 func (x *Repo) CloudEventsExtension(key string) (string, bool) {
@@ -40,5 +43,18 @@ func (x *DeleteRepoRequest) CloudEventsExtension(key string) (string, bool) {
 }
 
 func (x *DeleteRepoRequest) CloudEventsSubject() string {
+	return x.GetUid()
+}
+
+func (x *RepoReadme) CloudEventsExtension(key string) (string, bool) {
+	switch key {
+	case "group":
+		return uidp.Parent(x.GetUid()), true
+	default:
+		return "", false
+	}
+}
+
+func (x *RepoReadme) CloudEventsSubject() string {
 	return x.GetUid()
 }

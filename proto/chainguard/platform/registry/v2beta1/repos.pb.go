@@ -834,6 +834,165 @@ func (x *ListReposResponse) GetSkipped() int32 {
 	return 0
 }
 
+// RepoReadme is the Markdown README describing a repository.
+// It is a singleton sub-resource of Repo.
+type RepoReadme struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UID of the repository this README describes.
+	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	// Raw Markdown content of the README.
+	// On repositories with a sync_config the README is synced from the source
+	// repository.
+	Content       string `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RepoReadme) Reset() {
+	*x = RepoReadme{}
+	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RepoReadme) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RepoReadme) ProtoMessage() {}
+
+func (x *RepoReadme) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RepoReadme.ProtoReflect.Descriptor instead.
+func (*RepoReadme) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_registry_v2beta1_repos_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *RepoReadme) GetUid() string {
+	if x != nil {
+		return x.Uid
+	}
+	return ""
+}
+
+func (x *RepoReadme) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+// GetRepoReadmeRequest is the request message for GetRepoReadme.
+type GetRepoReadmeRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UID of the repository whose README to retrieve.
+	Uid           string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetRepoReadmeRequest) Reset() {
+	*x = GetRepoReadmeRequest{}
+	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetRepoReadmeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetRepoReadmeRequest) ProtoMessage() {}
+
+func (x *GetRepoReadmeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetRepoReadmeRequest.ProtoReflect.Descriptor instead.
+func (*GetRepoReadmeRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_registry_v2beta1_repos_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *GetRepoReadmeRequest) GetUid() string {
+	if x != nil {
+		return x.Uid
+	}
+	return ""
+}
+
+// UpdateRepoReadmeRequest is the request message for UpdateRepoReadme.
+type UpdateRepoReadmeRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// README to update. The uid identifies the repository.
+	RepoReadme *RepoReadme `protobuf:"bytes,1,opt,name=repo_readme,json=repoReadme,proto3" json:"repo_readme,omitempty"`
+	// Fields to update. When omitted, inferred from the populated fields.
+	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateRepoReadmeRequest) Reset() {
+	*x = UpdateRepoReadmeRequest{}
+	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateRepoReadmeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateRepoReadmeRequest) ProtoMessage() {}
+
+func (x *UpdateRepoReadmeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateRepoReadmeRequest.ProtoReflect.Descriptor instead.
+func (*UpdateRepoReadmeRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_registry_v2beta1_repos_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *UpdateRepoReadmeRequest) GetRepoReadme() *RepoReadme {
+	if x != nil {
+		return x.RepoReadme
+	}
+	return nil
+}
+
+func (x *UpdateRepoReadmeRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+	if x != nil {
+		return x.UpdateMask
+	}
+	return nil
+}
+
 // ImageContents specifies additional image content.
 type CustomOverlay_ImageContents struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -849,7 +1008,7 @@ type CustomOverlay_ImageContents struct {
 
 func (x *CustomOverlay_ImageContents) Reset() {
 	*x = CustomOverlay_ImageContents{}
-	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[11]
+	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -861,7 +1020,7 @@ func (x *CustomOverlay_ImageContents) String() string {
 func (*CustomOverlay_ImageContents) ProtoMessage() {}
 
 func (x *CustomOverlay_ImageContents) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[11]
+	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -906,7 +1065,7 @@ type CustomOverlay_Accounts struct {
 
 func (x *CustomOverlay_Accounts) Reset() {
 	*x = CustomOverlay_Accounts{}
-	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[12]
+	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -918,7 +1077,7 @@ func (x *CustomOverlay_Accounts) String() string {
 func (*CustomOverlay_Accounts) ProtoMessage() {}
 
 func (x *CustomOverlay_Accounts) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[12]
+	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -968,7 +1127,7 @@ type CustomOverlay_Certificates struct {
 
 func (x *CustomOverlay_Certificates) Reset() {
 	*x = CustomOverlay_Certificates{}
-	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[13]
+	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -980,7 +1139,7 @@ func (x *CustomOverlay_Certificates) String() string {
 func (*CustomOverlay_Certificates) ProtoMessage() {}
 
 func (x *CustomOverlay_Certificates) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[13]
+	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1031,7 +1190,7 @@ type CustomOverlay_Accounts_User struct {
 
 func (x *CustomOverlay_Accounts_User) Reset() {
 	*x = CustomOverlay_Accounts_User{}
-	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[14]
+	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1043,7 +1202,7 @@ func (x *CustomOverlay_Accounts_User) String() string {
 func (*CustomOverlay_Accounts_User) ProtoMessage() {}
 
 func (x *CustomOverlay_Accounts_User) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[14]
+	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1116,7 +1275,7 @@ type CustomOverlay_Accounts_Group struct {
 
 func (x *CustomOverlay_Accounts_Group) Reset() {
 	*x = CustomOverlay_Accounts_Group{}
-	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[15]
+	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1128,7 +1287,7 @@ func (x *CustomOverlay_Accounts_Group) String() string {
 func (*CustomOverlay_Accounts_Group) ProtoMessage() {}
 
 func (x *CustomOverlay_Accounts_Group) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[15]
+	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1178,7 +1337,7 @@ type CustomOverlay_Certificates_AdditionalEntry struct {
 
 func (x *CustomOverlay_Certificates_AdditionalEntry) Reset() {
 	*x = CustomOverlay_Certificates_AdditionalEntry{}
-	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[16]
+	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1190,7 +1349,7 @@ func (x *CustomOverlay_Certificates_AdditionalEntry) String() string {
 func (*CustomOverlay_Certificates_AdditionalEntry) ProtoMessage() {}
 
 func (x *CustomOverlay_Certificates_AdditionalEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[16]
+	mi := &file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1323,7 +1482,23 @@ const file_chainguard_platform_registry_v2beta1_repos_proto_rawDesc = "" +
 	"\vtotal_count\x18\x03 \x01(\x03H\x00R\n" +
 	"totalCount\x88\x01\x01\x12\x18\n" +
 	"\askipped\x18\x04 \x01(\x05R\askippedB\x0e\n" +
-	"\f_total_count*\xc4\x01\n" +
+	"\f_total_count\"\xa1\x01\n" +
+	"\n" +
+	"RepoReadme\x12\x1c\n" +
+	"\x03uid\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x1e\n" +
+	"\acontent\x18\x02 \x01(\tB\x04\xe2A\x01\x01R\acontent:U\xeaAR\n" +
+	"\"registry.chainguard.dev/RepoReadme\x12\x13repos/{repo}/readme*\vrepoReadmes2\n" +
+	"repoReadme\"4\n" +
+	"\x14GetRepoReadmeRequest\x12\x1c\n" +
+	"\x03uid\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\"\xbb\x01\n" +
+	"\x17UpdateRepoReadmeRequest\x12]\n" +
+	"\vrepo_readme\x18\x01 \x01(\v20.chainguard.platform.registry.v2beta1.RepoReadmeB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\n" +
+	"repoReadme\x12A\n" +
+	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x04\xe2A\x01\x01R\n" +
+	"updateMask*\xc4\x01\n" +
 	"\vCatalogTier\x12\x1c\n" +
 	"\x18CATALOG_TIER_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18CATALOG_TIER_APPLICATION\x10\x01\x12\x15\n" +
@@ -1331,7 +1506,7 @@ const file_chainguard_platform_registry_v2beta1_repos_proto_rawDesc = "" +
 	"\x11CATALOG_TIER_FIPS\x10\x03\x12\x13\n" +
 	"\x0fCATALOG_TIER_AI\x10\x04\x12\x19\n" +
 	"\x15CATALOG_TIER_DEVTOOLS\x10\x05\x12\x1b\n" +
-	"\x17CATALOG_TIER_COMMERCIAL\x10\x062\xaa\v\n" +
+	"\x17CATALOG_TIER_COMMERCIAL\x10\x062\xa3\x10\n" +
 	"\fReposService\x12\xde\x01\n" +
 	"\aGetRepo\x124.chainguard.platform.registry.v2beta1.GetRepoRequest\x1a*.chainguard.platform.registry.v2beta1.Repo\"q\x82\xd3\xe4\x93\x02\"\x12 /registry/v2beta1/repos/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xc5\f\x9a\xaf\xa8\xd2\x057\n" +
@@ -1353,7 +1528,14 @@ const file_chainguard_platform_registry_v2beta1_repos_proto_rawDesc = "" +
 	"4dev.chainguard.api.platform.registry.repo.deleted.v1\x12\x05group\x18\x01\x12\xa2\x02\n" +
 	"\tListRepos\x126.chainguard.platform.registry.v2beta1.ListReposRequest\x1a7.chainguard.platform.registry.v2beta1.ListReposResponse\"\xa3\x01\x82\xd3\xe4\x93\x02\x19\x12\x17/registry/v2beta1/repos\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\xc5\f\x10\x01\x9a\xaf\xa8\xd2\x05p\n" +
-	"fList container image repositories the caller has access to. Supports filtering by name and pagination.\x18\x01 \x00(\x010\x00Bw\n" +
+	"fList container image repositories the caller has access to. Supports filtering by name and pagination.\x18\x01 \x00(\x010\x00\x12\x86\x02\n" +
+	"\rGetRepoReadme\x12:.chainguard.platform.registry.v2beta1.GetRepoReadmeRequest\x1a0.chainguard.platform.registry.v2beta1.RepoReadme\"\x86\x01\x82\xd3\xe4\x93\x02)\x12'/registry/v2beta1/repos/{uid=**}/readme\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xc5\f\x9a\xaf\xa8\xd2\x05E\n" +
+	"9Get the Markdown README for a container image repository.\x10\x01\x18\x01 \x00(\x010\x00\x12\xed\x02\n" +
+	"\x10UpdateRepoReadme\x12=.chainguard.platform.registry.v2beta1.UpdateRepoReadmeRequest\x1a0.chainguard.platform.registry.v2beta1.RepoReadme\"\xe7\x01\x82\xd3\xe4\x93\x02B:\vrepo_readme23/registry/v2beta1/repos/{repo_readme.uid=**}/readme\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x04\xc4\f\xd1\f\x9a\xaf\xa8\xd2\x05F\n" +
+	"<Update the Markdown README for a container image repository.\x10\x01 \x00(\x010\x00\xc2\xf0\x8e\xfc\v?\n" +
+	"4dev.chainguard.api.platform.registry.repo.updated.v1\x12\x05group\x18\x01Bw\n" +
 	"(com.chainguard.platform.registry.v2beta1B\n" +
 	"ReposProtoP\x01Z=chainguard.dev/sdk/proto/chainguard/platform/registry/v2beta1b\x06proto3"
 
@@ -1370,7 +1552,7 @@ func file_chainguard_platform_registry_v2beta1_repos_proto_rawDescGZIP() []byte 
 }
 
 var file_chainguard_platform_registry_v2beta1_repos_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_chainguard_platform_registry_v2beta1_repos_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_chainguard_platform_registry_v2beta1_repos_proto_goTypes = []any{
 	(CatalogTier)(0),                     // 0: chainguard.platform.registry.v2beta1.CatalogTier
 	(*Repo)(nil),                         // 1: chainguard.platform.registry.v2beta1.Repo
@@ -1382,54 +1564,63 @@ var file_chainguard_platform_registry_v2beta1_repos_proto_goTypes = []any{
 	(*UpdateRepoRequest)(nil),            // 7: chainguard.platform.registry.v2beta1.UpdateRepoRequest
 	(*ListReposRequest)(nil),             // 8: chainguard.platform.registry.v2beta1.ListReposRequest
 	(*ListReposResponse)(nil),            // 9: chainguard.platform.registry.v2beta1.ListReposResponse
-	nil,                                  // 10: chainguard.platform.registry.v2beta1.CustomOverlay.EnvironmentEntry
-	nil,                                  // 11: chainguard.platform.registry.v2beta1.CustomOverlay.AnnotationsEntry
-	(*CustomOverlay_ImageContents)(nil),  // 12: chainguard.platform.registry.v2beta1.CustomOverlay.ImageContents
-	(*CustomOverlay_Accounts)(nil),       // 13: chainguard.platform.registry.v2beta1.CustomOverlay.Accounts
-	(*CustomOverlay_Certificates)(nil),   // 14: chainguard.platform.registry.v2beta1.CustomOverlay.Certificates
-	(*CustomOverlay_Accounts_User)(nil),  // 15: chainguard.platform.registry.v2beta1.CustomOverlay.Accounts.User
-	(*CustomOverlay_Accounts_Group)(nil), // 16: chainguard.platform.registry.v2beta1.CustomOverlay.Accounts.Group
-	(*CustomOverlay_Certificates_AdditionalEntry)(nil), // 17: chainguard.platform.registry.v2beta1.CustomOverlay.Certificates.AdditionalEntry
-	(*timestamppb.Timestamp)(nil),                      // 18: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),                      // 19: google.protobuf.FieldMask
-	(*v1.UIDPFilter)(nil),                              // 20: chainguard.platform.common.UIDPFilter
-	(*emptypb.Empty)(nil),                              // 21: google.protobuf.Empty
+	(*RepoReadme)(nil),                   // 10: chainguard.platform.registry.v2beta1.RepoReadme
+	(*GetRepoReadmeRequest)(nil),         // 11: chainguard.platform.registry.v2beta1.GetRepoReadmeRequest
+	(*UpdateRepoReadmeRequest)(nil),      // 12: chainguard.platform.registry.v2beta1.UpdateRepoReadmeRequest
+	nil,                                  // 13: chainguard.platform.registry.v2beta1.CustomOverlay.EnvironmentEntry
+	nil,                                  // 14: chainguard.platform.registry.v2beta1.CustomOverlay.AnnotationsEntry
+	(*CustomOverlay_ImageContents)(nil),  // 15: chainguard.platform.registry.v2beta1.CustomOverlay.ImageContents
+	(*CustomOverlay_Accounts)(nil),       // 16: chainguard.platform.registry.v2beta1.CustomOverlay.Accounts
+	(*CustomOverlay_Certificates)(nil),   // 17: chainguard.platform.registry.v2beta1.CustomOverlay.Certificates
+	(*CustomOverlay_Accounts_User)(nil),  // 18: chainguard.platform.registry.v2beta1.CustomOverlay.Accounts.User
+	(*CustomOverlay_Accounts_Group)(nil), // 19: chainguard.platform.registry.v2beta1.CustomOverlay.Accounts.Group
+	(*CustomOverlay_Certificates_AdditionalEntry)(nil), // 20: chainguard.platform.registry.v2beta1.CustomOverlay.Certificates.AdditionalEntry
+	(*timestamppb.Timestamp)(nil),                      // 21: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),                      // 22: google.protobuf.FieldMask
+	(*v1.UIDPFilter)(nil),                              // 23: chainguard.platform.common.UIDPFilter
+	(*emptypb.Empty)(nil),                              // 24: google.protobuf.Empty
 }
 var file_chainguard_platform_registry_v2beta1_repos_proto_depIdxs = []int32{
 	0,  // 0: chainguard.platform.registry.v2beta1.Repo.catalog_tier:type_name -> chainguard.platform.registry.v2beta1.CatalogTier
 	2,  // 1: chainguard.platform.registry.v2beta1.Repo.sync_config:type_name -> chainguard.platform.registry.v2beta1.SyncConfig
 	3,  // 2: chainguard.platform.registry.v2beta1.Repo.custom_overlay:type_name -> chainguard.platform.registry.v2beta1.CustomOverlay
-	18, // 3: chainguard.platform.registry.v2beta1.Repo.create_time:type_name -> google.protobuf.Timestamp
-	18, // 4: chainguard.platform.registry.v2beta1.Repo.update_time:type_name -> google.protobuf.Timestamp
-	18, // 5: chainguard.platform.registry.v2beta1.SyncConfig.expiration_time:type_name -> google.protobuf.Timestamp
-	12, // 6: chainguard.platform.registry.v2beta1.CustomOverlay.contents:type_name -> chainguard.platform.registry.v2beta1.CustomOverlay.ImageContents
-	10, // 7: chainguard.platform.registry.v2beta1.CustomOverlay.environment:type_name -> chainguard.platform.registry.v2beta1.CustomOverlay.EnvironmentEntry
-	11, // 8: chainguard.platform.registry.v2beta1.CustomOverlay.annotations:type_name -> chainguard.platform.registry.v2beta1.CustomOverlay.AnnotationsEntry
-	13, // 9: chainguard.platform.registry.v2beta1.CustomOverlay.accounts:type_name -> chainguard.platform.registry.v2beta1.CustomOverlay.Accounts
-	14, // 10: chainguard.platform.registry.v2beta1.CustomOverlay.certificates:type_name -> chainguard.platform.registry.v2beta1.CustomOverlay.Certificates
+	21, // 3: chainguard.platform.registry.v2beta1.Repo.create_time:type_name -> google.protobuf.Timestamp
+	21, // 4: chainguard.platform.registry.v2beta1.Repo.update_time:type_name -> google.protobuf.Timestamp
+	21, // 5: chainguard.platform.registry.v2beta1.SyncConfig.expiration_time:type_name -> google.protobuf.Timestamp
+	15, // 6: chainguard.platform.registry.v2beta1.CustomOverlay.contents:type_name -> chainguard.platform.registry.v2beta1.CustomOverlay.ImageContents
+	13, // 7: chainguard.platform.registry.v2beta1.CustomOverlay.environment:type_name -> chainguard.platform.registry.v2beta1.CustomOverlay.EnvironmentEntry
+	14, // 8: chainguard.platform.registry.v2beta1.CustomOverlay.annotations:type_name -> chainguard.platform.registry.v2beta1.CustomOverlay.AnnotationsEntry
+	16, // 9: chainguard.platform.registry.v2beta1.CustomOverlay.accounts:type_name -> chainguard.platform.registry.v2beta1.CustomOverlay.Accounts
+	17, // 10: chainguard.platform.registry.v2beta1.CustomOverlay.certificates:type_name -> chainguard.platform.registry.v2beta1.CustomOverlay.Certificates
 	1,  // 11: chainguard.platform.registry.v2beta1.CreateRepoRequest.repo:type_name -> chainguard.platform.registry.v2beta1.Repo
 	1,  // 12: chainguard.platform.registry.v2beta1.UpdateRepoRequest.repo:type_name -> chainguard.platform.registry.v2beta1.Repo
-	19, // 13: chainguard.platform.registry.v2beta1.UpdateRepoRequest.update_mask:type_name -> google.protobuf.FieldMask
-	20, // 14: chainguard.platform.registry.v2beta1.ListReposRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	22, // 13: chainguard.platform.registry.v2beta1.UpdateRepoRequest.update_mask:type_name -> google.protobuf.FieldMask
+	23, // 14: chainguard.platform.registry.v2beta1.ListReposRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
 	1,  // 15: chainguard.platform.registry.v2beta1.ListReposResponse.repos:type_name -> chainguard.platform.registry.v2beta1.Repo
-	15, // 16: chainguard.platform.registry.v2beta1.CustomOverlay.Accounts.users:type_name -> chainguard.platform.registry.v2beta1.CustomOverlay.Accounts.User
-	16, // 17: chainguard.platform.registry.v2beta1.CustomOverlay.Accounts.groups:type_name -> chainguard.platform.registry.v2beta1.CustomOverlay.Accounts.Group
-	17, // 18: chainguard.platform.registry.v2beta1.CustomOverlay.Certificates.additional:type_name -> chainguard.platform.registry.v2beta1.CustomOverlay.Certificates.AdditionalEntry
-	4,  // 19: chainguard.platform.registry.v2beta1.ReposService.GetRepo:input_type -> chainguard.platform.registry.v2beta1.GetRepoRequest
-	6,  // 20: chainguard.platform.registry.v2beta1.ReposService.CreateRepo:input_type -> chainguard.platform.registry.v2beta1.CreateRepoRequest
-	7,  // 21: chainguard.platform.registry.v2beta1.ReposService.UpdateRepo:input_type -> chainguard.platform.registry.v2beta1.UpdateRepoRequest
-	5,  // 22: chainguard.platform.registry.v2beta1.ReposService.DeleteRepo:input_type -> chainguard.platform.registry.v2beta1.DeleteRepoRequest
-	8,  // 23: chainguard.platform.registry.v2beta1.ReposService.ListRepos:input_type -> chainguard.platform.registry.v2beta1.ListReposRequest
-	1,  // 24: chainguard.platform.registry.v2beta1.ReposService.GetRepo:output_type -> chainguard.platform.registry.v2beta1.Repo
-	1,  // 25: chainguard.platform.registry.v2beta1.ReposService.CreateRepo:output_type -> chainguard.platform.registry.v2beta1.Repo
-	1,  // 26: chainguard.platform.registry.v2beta1.ReposService.UpdateRepo:output_type -> chainguard.platform.registry.v2beta1.Repo
-	21, // 27: chainguard.platform.registry.v2beta1.ReposService.DeleteRepo:output_type -> google.protobuf.Empty
-	9,  // 28: chainguard.platform.registry.v2beta1.ReposService.ListRepos:output_type -> chainguard.platform.registry.v2beta1.ListReposResponse
-	24, // [24:29] is the sub-list for method output_type
-	19, // [19:24] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	10, // 16: chainguard.platform.registry.v2beta1.UpdateRepoReadmeRequest.repo_readme:type_name -> chainguard.platform.registry.v2beta1.RepoReadme
+	22, // 17: chainguard.platform.registry.v2beta1.UpdateRepoReadmeRequest.update_mask:type_name -> google.protobuf.FieldMask
+	18, // 18: chainguard.platform.registry.v2beta1.CustomOverlay.Accounts.users:type_name -> chainguard.platform.registry.v2beta1.CustomOverlay.Accounts.User
+	19, // 19: chainguard.platform.registry.v2beta1.CustomOverlay.Accounts.groups:type_name -> chainguard.platform.registry.v2beta1.CustomOverlay.Accounts.Group
+	20, // 20: chainguard.platform.registry.v2beta1.CustomOverlay.Certificates.additional:type_name -> chainguard.platform.registry.v2beta1.CustomOverlay.Certificates.AdditionalEntry
+	4,  // 21: chainguard.platform.registry.v2beta1.ReposService.GetRepo:input_type -> chainguard.platform.registry.v2beta1.GetRepoRequest
+	6,  // 22: chainguard.platform.registry.v2beta1.ReposService.CreateRepo:input_type -> chainguard.platform.registry.v2beta1.CreateRepoRequest
+	7,  // 23: chainguard.platform.registry.v2beta1.ReposService.UpdateRepo:input_type -> chainguard.platform.registry.v2beta1.UpdateRepoRequest
+	5,  // 24: chainguard.platform.registry.v2beta1.ReposService.DeleteRepo:input_type -> chainguard.platform.registry.v2beta1.DeleteRepoRequest
+	8,  // 25: chainguard.platform.registry.v2beta1.ReposService.ListRepos:input_type -> chainguard.platform.registry.v2beta1.ListReposRequest
+	11, // 26: chainguard.platform.registry.v2beta1.ReposService.GetRepoReadme:input_type -> chainguard.platform.registry.v2beta1.GetRepoReadmeRequest
+	12, // 27: chainguard.platform.registry.v2beta1.ReposService.UpdateRepoReadme:input_type -> chainguard.platform.registry.v2beta1.UpdateRepoReadmeRequest
+	1,  // 28: chainguard.platform.registry.v2beta1.ReposService.GetRepo:output_type -> chainguard.platform.registry.v2beta1.Repo
+	1,  // 29: chainguard.platform.registry.v2beta1.ReposService.CreateRepo:output_type -> chainguard.platform.registry.v2beta1.Repo
+	1,  // 30: chainguard.platform.registry.v2beta1.ReposService.UpdateRepo:output_type -> chainguard.platform.registry.v2beta1.Repo
+	24, // 31: chainguard.platform.registry.v2beta1.ReposService.DeleteRepo:output_type -> google.protobuf.Empty
+	9,  // 32: chainguard.platform.registry.v2beta1.ReposService.ListRepos:output_type -> chainguard.platform.registry.v2beta1.ListReposResponse
+	10, // 33: chainguard.platform.registry.v2beta1.ReposService.GetRepoReadme:output_type -> chainguard.platform.registry.v2beta1.RepoReadme
+	10, // 34: chainguard.platform.registry.v2beta1.ReposService.UpdateRepoReadme:output_type -> chainguard.platform.registry.v2beta1.RepoReadme
+	28, // [28:35] is the sub-list for method output_type
+	21, // [21:28] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_registry_v2beta1_repos_proto_init() }
@@ -1445,7 +1636,7 @@ func file_chainguard_platform_registry_v2beta1_repos_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_registry_v2beta1_repos_proto_rawDesc), len(file_chainguard_platform_registry_v2beta1_repos_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   17,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
