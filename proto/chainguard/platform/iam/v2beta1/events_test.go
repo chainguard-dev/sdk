@@ -92,6 +92,9 @@ func TestGroupsEventInterfaces(t *testing.T) {
 	if got, ok := del.CloudEventsExtension("group"); !ok || got != uidp.Parent(groupUID) {
 		t.Errorf("DeleteGroupRequest.CloudEventsExtension(group) = (%q, %v), want (%q, true)", got, ok, uidp.Parent(groupUID))
 	}
+	if _, ok := del.CloudEventsExtension("unknown"); ok {
+		t.Error("DeleteGroupRequest.CloudEventsExtension(unknown) returned true")
+	}
 }
 
 func TestIdentitiesEventAnnotations(t *testing.T) {
@@ -117,10 +120,19 @@ func TestIdentitiesEventInterfaces(t *testing.T) {
 	if got, ok := id.CloudEventsExtension("group"); !ok || got != parentUID {
 		t.Errorf("Identity.CloudEventsExtension(group) = (%q, %v), want (%q, true)", got, ok, parentUID)
 	}
+	if _, ok := id.CloudEventsExtension("unknown"); ok {
+		t.Error("Identity.CloudEventsExtension(unknown) returned true")
+	}
 
 	del := &DeleteIdentityRequest{Uid: identityUID}
+	if got := del.CloudEventsSubject(); got != identityUID {
+		t.Errorf("DeleteIdentityRequest.CloudEventsSubject() = %q, want %q", got, identityUID)
+	}
 	if got, ok := del.CloudEventsExtension("group"); !ok || got != parentUID {
 		t.Errorf("DeleteIdentityRequest.CloudEventsExtension(group) = (%q, %v), want (%q, true)", got, ok, parentUID)
+	}
+	if _, ok := del.CloudEventsExtension("unknown"); ok {
+		t.Error("DeleteIdentityRequest.CloudEventsExtension(unknown) returned true")
 	}
 
 	md := &IdentityMetadata{Uid: identityUID}
@@ -171,8 +183,14 @@ func TestRoleBindingsEventInterfaces(t *testing.T) {
 	}
 
 	del := &DeleteRoleBindingRequest{Uid: rbUID}
+	if got := del.CloudEventsSubject(); got != rbUID {
+		t.Errorf("DeleteRoleBindingRequest.CloudEventsSubject() = %q, want %q", got, rbUID)
+	}
 	if got, ok := del.CloudEventsExtension("group"); !ok || got != uidp.Parent(rbUID) {
 		t.Errorf("DeleteRoleBindingRequest.CloudEventsExtension(group) = (%q, %v), want (%q, true)", got, ok, uidp.Parent(rbUID))
+	}
+	if _, ok := del.CloudEventsExtension("unknown"); ok {
+		t.Error("DeleteRoleBindingRequest.CloudEventsExtension(unknown) returned true")
 	}
 
 	// BatchCreateRoleBindingsResponse uses the parent group as subject,
@@ -480,6 +498,45 @@ func Test_ExternalGroupRoleMapping_EventInterfaces(t *testing.T) {
 	}
 }
 
+func TestRolesEventAnnotations(t *testing.T) {
+	sd := File_chainguard_platform_iam_v2beta1_roles_proto.Services().ByName("RolesService")
+	if sd == nil {
+		t.Fatal("RolesService not found")
+	}
+	runAnnotationTests(t, sd, []annotationTest{
+		{"CreateRole", "dev.chainguard.api.iam.roles.created.v1", []string{"group"}},
+		{"UpdateRole", "dev.chainguard.api.iam.roles.updated.v1", []string{"group"}},
+		{"DeleteRole", "dev.chainguard.api.iam.roles.deleted.v1", []string{"group"}},
+	})
+}
+
+func TestRolesEventInterfaces(t *testing.T) {
+	roleUID := "abc123/def456"
+	parentUID := uidp.Parent(roleUID)
+
+	r := &Role{Uid: roleUID}
+	if got := r.CloudEventsSubject(); got != roleUID {
+		t.Errorf("Role.CloudEventsSubject() = %q, want %q", got, roleUID)
+	}
+	if got, ok := r.CloudEventsExtension("group"); !ok || got != parentUID {
+		t.Errorf("Role.CloudEventsExtension(group) = (%q, %v), want (%q, true)", got, ok, parentUID)
+	}
+	if _, ok := r.CloudEventsExtension("unknown"); ok {
+		t.Error("Role.CloudEventsExtension(unknown) returned true")
+	}
+
+	del := &DeleteRoleRequest{Uid: roleUID}
+	if got := del.CloudEventsSubject(); got != roleUID {
+		t.Errorf("DeleteRoleRequest.CloudEventsSubject() = %q, want %q", got, roleUID)
+	}
+	if got, ok := del.CloudEventsExtension("group"); !ok || got != parentUID {
+		t.Errorf("DeleteRoleRequest.CloudEventsExtension(group) = (%q, %v), want (%q, true)", got, ok, parentUID)
+	}
+	if _, ok := del.CloudEventsExtension("unknown"); ok {
+		t.Error("DeleteRoleRequest.CloudEventsExtension(unknown) returned true")
+	}
+}
+
 // TestReadOnlyMethodsHaveNoEvents verifies List/Get methods don't have event annotations.
 func TestReadOnlyMethodsHaveNoEvents(t *testing.T) {
 	readOnlyMethods := []struct {
@@ -501,6 +558,8 @@ func TestReadOnlyMethodsHaveNoEvents(t *testing.T) {
 		{File_chainguard_platform_iam_v2beta1_account_associations_proto, "AccountAssociationsService", "ListAccountAssociations"},
 		{File_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto, "ExternalGroupRoleMappingsService", "GetExternalGroupRoleMapping"},
 		{File_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto, "ExternalGroupRoleMappingsService", "ListExternalGroupRoleMappings"},
+		{File_chainguard_platform_iam_v2beta1_roles_proto, "RolesService", "GetRole"},
+		{File_chainguard_platform_iam_v2beta1_roles_proto, "RolesService", "ListRoles"},
 	}
 
 	for _, tt := range readOnlyMethods {

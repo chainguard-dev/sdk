@@ -6,6 +6,7 @@ syntax = "proto3";
 package chainguard.platform.iam.v2beta1;
 
 import "annotations/auth.proto";
+import "annotations/events.proto";
 import "annotations/mcp.proto";
 import "capabilities/capabilities.proto";
 import "google/api/annotations.proto";
@@ -72,6 +73,11 @@ service RolesService {
         capabilities: [CAP_IAM_ROLES_CREATE]
       }
     };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.roles.created.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
     option (chainguard.annotations.mcp) = {
       description: "Create a new custom IAM role with a specified set of capabilities under a group."
       read_only: false
@@ -93,6 +99,11 @@ service RolesService {
         capabilities: [CAP_IAM_ROLES_UPDATE]
       }
     };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.roles.updated.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
     option (chainguard.annotations.mcp) = {
       description: "Update a custom IAM role's name, description, or capabilities."
       read_only: false
@@ -111,6 +122,11 @@ service RolesService {
       enabled: {
         capabilities: [CAP_IAM_ROLES_DELETE]
       }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.roles.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
     };
     option (chainguard.annotations.mcp) = {
       description: "Delete a custom IAM role by its UIDP. Fails if the role is still bound to any identities."
