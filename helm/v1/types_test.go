@@ -258,6 +258,348 @@ func TestChartImages_Images_EarlyTermination(t *testing.T) {
 	}
 }
 
+func TestChartImages_RequiredImages(t *testing.T) {
+	required := &images.Image{Requirement: images.Required, Values: map[string]any{"image": "${ref}"}}
+	optional := &images.Image{Requirement: images.Optional, Values: map[string]any{"image": "${ref}"}}
+	unspecified := &images.Image{Values: map[string]any{"image": "${ref}"}}
+
+	tests := []struct {
+		name string
+		ci   *ChartImages
+		// want is the sorted list of "repoName:tag@digest" keys yielded,
+		// including duplicates (RequiredImages does not deduplicate).
+		want []string
+	}{
+		{
+			name: "nil receiver yields nothing",
+			ci:   nil,
+		},
+		{
+			name: "no template yields every ref",
+			ci: &ChartImages{
+				Refs: map[string]*ChartImage{
+					"nginx": {RepoName: "nginx", Tag: "latest", Digest: "sha256:a"},
+				},
+			},
+			want: []string{"nginx:latest@sha256:a"},
+		},
+		{
+			name: "optional refs are skipped",
+			ci: &ChartImages{
+				Refs: map[string]*ChartImage{
+					"nginx":   {RepoName: "nginx", Tag: "latest", Digest: "sha256:a"},
+					"sidecar": {RepoName: "sidecar", Tag: "v1", Digest: "sha256:b"},
+				},
+				Template: &images.Mapping{
+					Images: map[string]*images.Image{
+						"nginx":   required,
+						"sidecar": optional,
+					},
+				},
+			},
+			want: []string{"nginx:latest@sha256:a"},
+		},
+		{
+			name: "unspecified requirement yields the ref",
+			ci: &ChartImages{
+				Refs: map[string]*ChartImage{
+					"nginx": {RepoName: "nginx", Tag: "latest", Digest: "sha256:a"},
+				},
+				Template: &images.Mapping{
+					Images: map[string]*images.Image{
+						"nginx": unspecified,
+					},
+				},
+			},
+			want: []string{"nginx:latest@sha256:a"},
+		},
+		{
+			name: "refs missing from template are yielded",
+			ci: &ChartImages{
+				Refs: map[string]*ChartImage{
+					"nginx":     {RepoName: "nginx", Tag: "latest", Digest: "sha256:a"},
+					"untracked": {RepoName: "untracked", Tag: "v1", Digest: "sha256:b"},
+				},
+				Template: &images.Mapping{
+					Images: map[string]*images.Image{
+						"nginx": optional,
+					},
+				},
+			},
+			want: []string{"untracked:v1@sha256:b"},
+		},
+		{
+			name: "nil refs entries are skipped",
+			ci: &ChartImages{
+				Refs: map[string]*ChartImage{
+					"good":  {RepoName: "nginx", Tag: "latest", Digest: "sha256:a"},
+					"ghost": nil,
+				},
+				Template: &images.Mapping{
+					Images: map[string]*images.Image{
+						"good": required,
+					},
+				},
+			},
+			want: []string{"nginx:latest@sha256:a"},
+		},
+		{
+			name: "filter applies per subchart level",
+			ci: &ChartImages{
+				Refs: map[string]*ChartImage{
+					"main": {RepoName: "main", Tag: "1.0", Digest: "sha256:a"},
+				},
+				Template: &images.Mapping{
+					Images: map[string]*images.Image{
+						"main": required,
+					},
+				},
+				Subcharts: map[string]*ChartImages{
+					"redis": {
+						Refs: map[string]*ChartImage{
+							"server":   {RepoName: "redis", Tag: "7.0", Digest: "sha256:b"},
+							"exporter": {RepoName: "redis-exporter", Tag: "v1", Digest: "sha256:c"},
+						},
+						Template: &images.Mapping{
+							Images: map[string]*images.Image{
+								"server":   required,
+								"exporter": optional,
+							},
+						},
+					},
+				},
+			},
+			want: []string{"main:1.0@sha256:a", "redis:7.0@sha256:b"},
+		},
+		{
+			name: "same ref optional at one level and required at another is yielded once",
+			ci: &ChartImages{
+				Refs: map[string]*ChartImage{
+					"shared": {RepoName: "shared", Tag: "1.0", Digest: "sha256:a"},
+				},
+				Template: &images.Mapping{
+					Images: map[string]*images.Image{
+						"shared": optional,
+					},
+				},
+				Subcharts: map[string]*ChartImages{
+					"sub": {
+						Refs: map[string]*ChartImage{
+							"shared": {RepoName: "shared", Tag: "1.0", Digest: "sha256:a"},
+						},
+						Template: &images.Mapping{
+							Images: map[string]*images.Image{
+								"shared": required,
+							},
+						},
+					},
+				},
+			},
+			want: []string{"shared:1.0@sha256:a"},
+		},
+		{
+			name: "nil subchart entry does not panic",
+			ci: &ChartImages{
+				Refs: map[string]*ChartImage{
+					"nginx": {RepoName: "nginx", Tag: "latest", Digest: "sha256:a"},
+				},
+				Subcharts: map[string]*ChartImages{
+					"empty": nil,
+				},
+			},
+			want: []string{"nginx:latest@sha256:a"},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			var got []string
+			for img := range tc.ci.RequiredImages() {
+				got = append(got, fmt.Sprintf("%s:%s@%s", img.RepoName, img.Tag, img.Digest))
+			}
+			slices.Sort(got)
+			if diff := cmp.Diff(tc.want, got); diff != "" {
+				t.Errorf("mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestChartImages_RequiredImages_EarlyTermination(t *testing.T) {
+	ci := &ChartImages{
+		Refs: map[string]*ChartImage{
+			"a": {RepoName: "a"},
+			"b": {RepoName: "b"},
+			"c": {RepoName: "c"},
+		},
+	}
+
+	var count int
+	for range ci.RequiredImages() {
+		count++
+		break
+	}
+	if count != 1 {
+		t.Errorf("breaking after the first image visited %d images, want 1", count)
+	}
+}
+
+func TestChartImages_OptionalImages(t *testing.T) {
+	required := &images.Image{Requirement: images.Required, Values: map[string]any{"image": "${ref}"}}
+	optional := &images.Image{Requirement: images.Optional, Values: map[string]any{"image": "${ref}"}}
+	unspecified := &images.Image{Values: map[string]any{"image": "${ref}"}}
+
+	tests := []struct {
+		name string
+		ci   *ChartImages
+		// want is the sorted list of "repoName:tag@digest" keys yielded,
+		// including duplicates (OptionalImages does not deduplicate).
+		want []string
+	}{
+		{
+			name: "nil receiver yields nothing",
+			ci:   nil,
+		},
+		{
+			name: "no template yields nothing",
+			ci: &ChartImages{
+				Refs: map[string]*ChartImage{
+					"nginx": {RepoName: "nginx", Tag: "latest", Digest: "sha256:a"},
+				},
+			},
+		},
+		{
+			name: "only optional refs are yielded",
+			ci: &ChartImages{
+				Refs: map[string]*ChartImage{
+					"nginx":   {RepoName: "nginx", Tag: "latest", Digest: "sha256:a"},
+					"sidecar": {RepoName: "sidecar", Tag: "v1", Digest: "sha256:b"},
+				},
+				Template: &images.Mapping{
+					Images: map[string]*images.Image{
+						"nginx":   required,
+						"sidecar": optional,
+					},
+				},
+			},
+			want: []string{"sidecar:v1@sha256:b"},
+		},
+		{
+			name: "unspecified requirement is treated as required",
+			ci: &ChartImages{
+				Refs: map[string]*ChartImage{
+					"nginx": {RepoName: "nginx", Tag: "latest", Digest: "sha256:a"},
+				},
+				Template: &images.Mapping{
+					Images: map[string]*images.Image{
+						"nginx": unspecified,
+					},
+				},
+			},
+		},
+		{
+			name: "refs missing from template are skipped",
+			ci: &ChartImages{
+				Refs: map[string]*ChartImage{
+					"nginx":     {RepoName: "nginx", Tag: "latest", Digest: "sha256:a"},
+					"untracked": {RepoName: "untracked", Tag: "v1", Digest: "sha256:b"},
+				},
+				Template: &images.Mapping{
+					Images: map[string]*images.Image{
+						"nginx": optional,
+					},
+				},
+			},
+			want: []string{"nginx:latest@sha256:a"},
+		},
+		{
+			name: "filter applies per subchart level",
+			ci: &ChartImages{
+				Refs: map[string]*ChartImage{
+					"main": {RepoName: "main", Tag: "1.0", Digest: "sha256:a"},
+				},
+				Template: &images.Mapping{
+					Images: map[string]*images.Image{
+						"main": required,
+					},
+				},
+				Subcharts: map[string]*ChartImages{
+					"redis": {
+						Refs: map[string]*ChartImage{
+							"server":   {RepoName: "redis", Tag: "7.0", Digest: "sha256:b"},
+							"exporter": {RepoName: "redis-exporter", Tag: "v1", Digest: "sha256:c"},
+						},
+						Template: &images.Mapping{
+							Images: map[string]*images.Image{
+								"server":   required,
+								"exporter": optional,
+							},
+						},
+					},
+				},
+			},
+			want: []string{"redis-exporter:v1@sha256:c"},
+		},
+		{
+			name: "nil subchart entry does not panic",
+			ci: &ChartImages{
+				Template: &images.Mapping{
+					Images: map[string]*images.Image{
+						"nginx": optional,
+					},
+				},
+				Refs: map[string]*ChartImage{
+					"nginx": {RepoName: "nginx", Tag: "latest", Digest: "sha256:a"},
+				},
+				Subcharts: map[string]*ChartImages{
+					"empty": nil,
+				},
+			},
+			want: []string{"nginx:latest@sha256:a"},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			var got []string
+			for img := range tc.ci.OptionalImages() {
+				got = append(got, fmt.Sprintf("%s:%s@%s", img.RepoName, img.Tag, img.Digest))
+			}
+			slices.Sort(got)
+			if diff := cmp.Diff(tc.want, got); diff != "" {
+				t.Errorf("mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestChartImages_OptionalImages_EarlyTermination(t *testing.T) {
+	optional := &images.Image{Requirement: images.Optional, Values: map[string]any{"image": "${ref}"}}
+	ci := &ChartImages{
+		Refs: map[string]*ChartImage{
+			"a": {RepoName: "a"},
+			"b": {RepoName: "b"},
+			"c": {RepoName: "c"},
+		},
+		Template: &images.Mapping{
+			Images: map[string]*images.Image{
+				"a": optional,
+				"b": optional,
+				"c": optional,
+			},
+		},
+	}
+
+	var count int
+	for range ci.OptionalImages() {
+		count++
+		break
+	}
+	if count != 1 {
+		t.Errorf("breaking after the first image visited %d images, want 1", count)
+	}
+}
+
 func TestChartImages_Walk(t *testing.T) {
 	registryOnly := func(_ string, ref *ChartImage, tokens images.TokenList) (any, error) {
 		for _, tok := range tokens {

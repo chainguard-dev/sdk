@@ -136,14 +136,40 @@ func (ci *ChartImages) Walk(fn WalkFunc) (map[string]any, error) {
 // subcharts in unspecified order; a nil receiver yields nothing. Unlike Walk
 // it ignores the template, so it also visits images with no template mapping.
 func (ci *ChartImages) Images() iter.Seq[*ChartImage] {
+	return ci.filteredImages(nil)
+}
+
+// RequiredImages iterates every pinned image in this ChartImages, excluding
+// those that are marked as optional in the template mapping.
+func (ci *ChartImages) RequiredImages() iter.Seq[*ChartImage] {
+	return ci.filteredImages(func(c *ChartImages, id string) bool {
+		return !c.IsOptionalImage(id)
+	})
+}
+
+// OptionalImages iterates every pinned image in this ChartImages, returning
+// only those that are marked as optional in the template mapping.
+func (ci *ChartImages) OptionalImages() iter.Seq[*ChartImage] {
+	return ci.filteredImages(func(c *ChartImages, id string) bool {
+		return c.IsOptionalImage(id)
+	})
+}
+
+func (ci *ChartImages) filteredImages(keep func(*ChartImages, string) bool) iter.Seq[*ChartImage] {
 	return func(yield func(*ChartImage) bool) {
 		var walk func(*ChartImages) bool
 		walk = func(c *ChartImages) bool {
 			if c == nil {
 				return true
 			}
-			for _, img := range c.Refs {
-				if img != nil && !yield(img) {
+			for id, img := range c.Refs {
+				if img == nil {
+					continue
+				}
+				if keep != nil && !keep(c, id) {
+					continue
+				}
+				if !yield(img) {
 					return false
 				}
 			}
