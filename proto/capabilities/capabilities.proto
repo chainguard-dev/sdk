@@ -339,10 +339,14 @@ enum Capability {
   CAP_CASSIE_AC_READ                 = 2804 [(name) = "cassie.ac.read",                 (bit) = 172, (internal_only) = true];
   CAP_CASSIE_AC_WRITE                = 2803 [(name) = "cassie.ac.write",                (bit) = 171, (internal_only) = true];
 
-  // Loggie: the live-log service. Readers tailing a stream hold logs.read; the
-  // exec service issuing streams and the worker appending to them hold logs.write.
+  // Loggie: the live-log service. Readers tailing a stream hold logs.read;
+  // a producer appending to its streams holds logs.write; the orchestrator
+  // issuing streams holds logs.create. Appending also requires the stream's
+  // signed write name, so a logs.write holder can only append to streams it
+  // was handed.
   CAP_LOGGIE_LOGS_READ               = 2901 [(name) = "loggie.logs.read",               (bit) = 179, (internal_only) = true];
   CAP_LOGGIE_LOGS_WRITE              = 2902 [(name) = "loggie.logs.write",              (bit) = 180, (internal_only) = true];
+  CAP_LOGGIE_LOGS_CREATE             = 2903 [(name) = "loggie.logs.create",             (bit) = 187, (internal_only) = true];
 
   // Rex: the remote-execution service. The edge authorizes submitting an
   // execution; the scheduler authorizes a worker joining the pool; the
@@ -356,5 +360,5 @@ enum Capability {
   CAP_ACTIONS_LIST = 2700 [(name) = "actions.list", (bit) = 164];
 
   reserved 1;
-  // next bit: 185
+  // next bit: 188
 }

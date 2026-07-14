@@ -288,10 +288,14 @@ const (
 	Capability_CAP_CASSIE_CAS_WRITE Capability = 2802
 	Capability_CAP_CASSIE_AC_READ   Capability = 2804
 	Capability_CAP_CASSIE_AC_WRITE  Capability = 2803
-	// Loggie: the live-log service. Readers tailing a stream hold logs.read; the
-	// exec service issuing streams and the worker appending to them hold logs.write.
-	Capability_CAP_LOGGIE_LOGS_READ  Capability = 2901
-	Capability_CAP_LOGGIE_LOGS_WRITE Capability = 2902
+	// Loggie: the live-log service. Readers tailing a stream hold logs.read;
+	// a producer appending to its streams holds logs.write; the orchestrator
+	// issuing streams holds logs.create. Appending also requires the stream's
+	// signed write name, so a logs.write holder can only append to streams it
+	// was handed.
+	Capability_CAP_LOGGIE_LOGS_READ   Capability = 2901
+	Capability_CAP_LOGGIE_LOGS_WRITE  Capability = 2902
+	Capability_CAP_LOGGIE_LOGS_CREATE Capability = 2903
 	// Rex: the remote-execution service. The edge authorizes submitting an
 	// execution; the scheduler authorizes a worker joining the pool; the
 	// executions query surface authorizes cross-run reads at the instance.
@@ -484,6 +488,7 @@ var (
 		2803:  "CAP_CASSIE_AC_WRITE",
 		2901:  "CAP_LOGGIE_LOGS_READ",
 		2902:  "CAP_LOGGIE_LOGS_WRITE",
+		2903:  "CAP_LOGGIE_LOGS_CREATE",
 		2705:  "CAP_REX_EXECUTIONS_CREATE",
 		2706:  "CAP_REX_EXECUTIONS_LIST",
 		2707:  "CAP_REX_WORKERS_CONNECT",
@@ -668,6 +673,7 @@ var (
 		"CAP_CASSIE_AC_WRITE":                                2803,
 		"CAP_LOGGIE_LOGS_READ":                               2901,
 		"CAP_LOGGIE_LOGS_WRITE":                              2902,
+		"CAP_LOGGIE_LOGS_CREATE":                             2903,
 		"CAP_REX_EXECUTIONS_CREATE":                          2705,
 		"CAP_REX_EXECUTIONS_LIST":                            2706,
 		"CAP_REX_WORKERS_CONNECT":                            2707,
@@ -755,7 +761,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xfe`\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xc1a\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -952,7 +958,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x12CAP_CASSIE_AC_READ\x10\xf4\x15\x1a \xa8ˑM\xac\x01\x9a\xaf\xa8\xd2\x05\x0ecassie.ac.read\xa0\xaf\xa8\xd2\x05\x01\x12;\n" +
 	"\x13CAP_CASSIE_AC_WRITE\x10\xf3\x15\x1a!\xa8ˑM\xab\x01\x9a\xaf\xa8\xd2\x05\x0fcassie.ac.write\xa0\xaf\xa8\xd2\x05\x01\x12=\n" +
 	"\x14CAP_LOGGIE_LOGS_READ\x10\xd5\x16\x1a\"\xa8ˑM\xb3\x01\x9a\xaf\xa8\xd2\x05\x10loggie.logs.read\xa0\xaf\xa8\xd2\x05\x01\x12?\n" +
-	"\x15CAP_LOGGIE_LOGS_WRITE\x10\xd6\x16\x1a#\xa8ˑM\xb4\x01\x9a\xaf\xa8\xd2\x05\x11loggie.logs.write\xa0\xaf\xa8\xd2\x05\x01\x12G\n" +
+	"\x15CAP_LOGGIE_LOGS_WRITE\x10\xd6\x16\x1a#\xa8ˑM\xb4\x01\x9a\xaf\xa8\xd2\x05\x11loggie.logs.write\xa0\xaf\xa8\xd2\x05\x01\x12A\n" +
+	"\x16CAP_LOGGIE_LOGS_CREATE\x10\xd7\x16\x1a$\xa8ˑM\xbb\x01\x9a\xaf\xa8\xd2\x05\x12loggie.logs.create\xa0\xaf\xa8\xd2\x05\x01\x12G\n" +
 	"\x19CAP_REX_EXECUTIONS_CREATE\x10\x91\x15\x1a'\xa8ˑM\xb6\x01\x9a\xaf\xa8\xd2\x05\x15rex.executions.create\xa0\xaf\xa8\xd2\x05\x01\x12C\n" +
 	"\x17CAP_REX_EXECUTIONS_LIST\x10\x92\x15\x1a%\xa8ˑM\xb7\x01\x9a\xaf\xa8\xd2\x05\x13rex.executions.list\xa0\xaf\xa8\xd2\x05\x01\x12C\n" +
 	"\x17CAP_REX_WORKERS_CONNECT\x10\x93\x15\x1a%\xa8ˑM\xb8\x01\x9a\xaf\xa8\xd2\x05\x13rex.workers.connect\xa0\xaf\xa8\xd2\x05\x01\x12/\n" +
