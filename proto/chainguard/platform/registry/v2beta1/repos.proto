@@ -312,6 +312,25 @@ message CustomOverlay {
     // assembled image. When set, these replace the default virtualapk.cgr.dev
     // repositories.
     repeated string runtime_repositories = 2 [(google.api.field_behavior) = OPTIONAL];
+
+    // Customer-supplied APK signing public keys to write to /etc/apk/keys.
+    // Mirrors apko's contents.runtime_keyring (same name, shape, and
+    // placement), which carries these keys into the build.
+    repeated RuntimeKeyringEntry runtime_keyring = 3 [(google.api.field_behavior) = OPTIONAL];
+
+    // RuntimeKeyringEntry is a single customer-supplied APK signing public
+    // key, written to /etc/apk/keys so runtime apk add can verify packages
+    // from mirrors that re-sign them. Inline key content, not URLs.
+    message RuntimeKeyringEntry {
+      // Key filename under /etc/apk/keys (a safe filename; dots allowed,
+      // but not as the first character). Must match the filename the
+      // repository's APKINDEX signature references (.SIGN.RSA256.<name>),
+      // or apk will not find the key at runtime.
+      string name = 1 [(google.api.field_behavior) = REQUIRED];
+
+      // PEM-encoded RSA public key content.
+      string content = 2 [(google.api.field_behavior) = REQUIRED];
+    }
   }
 
   // Accounts specifies user/group configuration.
