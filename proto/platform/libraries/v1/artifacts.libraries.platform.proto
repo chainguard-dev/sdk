@@ -100,6 +100,9 @@ message ArtifactFilter {
   string cuda_version = 3;
   // Flag to return only remediated packages for the ecosystems
   bool remediated = 4;
+  // Flag to also include upstream-registry packages. By default only
+  // Chainguard-built packages are returned.
+  bool include_upstream = 5;
 
   // Pagination options
 
@@ -121,6 +124,9 @@ message ArtifactFilter {
 message ArtifactVersionFilter {
   // The artifact's unique identifier, as returned by ListArtifacts
   string id = 1;
+  // Flag to also include upstream-registry versions. By default only
+  // Chainguard-built versions are returned.
+  bool include_upstream = 2;
 }
 
 message ArtifactVersionList {
@@ -129,7 +135,11 @@ message ArtifactVersionList {
 
 // Metadata about a version of an artifact.
 message ArtifactVersion {
-  // A unique identifier for this version of the artifact.
+  // A unique identifier for this version of the artifact, formatted as
+  // "<artifact-id>:<version>:<source_type>". The same version string can be
+  // present under more than one source_type (e.g. a Chainguard-built version
+  // and its upstream-registry origin), each returned as a distinct entry with
+  // its own id.
   string id = 1;
   // The name of the artifact.
   string name = 2;
@@ -143,6 +153,14 @@ message ArtifactVersion {
   google.protobuf.Timestamp updated_at = 6;
   // The estimated size of this artifact in bytes.
   int64 size_bytes = 7;
+  // The origin of this version.
+  SourceType source_type = 8;
+  // Whether this version has been scanned for malware.
+  bool malware_scanned = 9;
+  // Whether this version was flagged as malicious by a malware scan.
+  bool malware_malicious = 10;
+  // When this version was published to its upstream registry, if known.
+  google.protobuf.Timestamp upstream_published_date = 11;
 }
 
 // Request the total number of artifacts for the given ecosystems.
@@ -161,4 +179,16 @@ message GetArtifactCountResponse {
   }
 
   repeated Count counts = 1;
+}
+
+// SourceType indicates the origin of an artifact version.
+enum SourceType {
+  // Unspecified or unknown origin.
+  SOURCE_TYPE_UNSPECIFIED = 0;
+  // A Chainguard-built internal version.
+  SOURCE_TYPE_INTERNAL = 1;
+  // A remediated rebuild of a version.
+  SOURCE_TYPE_INTERNAL_REMEDIATED = 2;
+  // A version mirrored from its upstream registry.
+  SOURCE_TYPE_UPSTREAM_REGISTRY = 3;
 }

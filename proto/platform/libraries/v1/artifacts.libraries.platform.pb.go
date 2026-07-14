@@ -24,6 +24,63 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// SourceType indicates the origin of an artifact version.
+type SourceType int32
+
+const (
+	// Unspecified or unknown origin.
+	SourceType_SOURCE_TYPE_UNSPECIFIED SourceType = 0
+	// A Chainguard-built internal version.
+	SourceType_SOURCE_TYPE_INTERNAL SourceType = 1
+	// A remediated rebuild of a version.
+	SourceType_SOURCE_TYPE_INTERNAL_REMEDIATED SourceType = 2
+	// A version mirrored from its upstream registry.
+	SourceType_SOURCE_TYPE_UPSTREAM_REGISTRY SourceType = 3
+)
+
+// Enum value maps for SourceType.
+var (
+	SourceType_name = map[int32]string{
+		0: "SOURCE_TYPE_UNSPECIFIED",
+		1: "SOURCE_TYPE_INTERNAL",
+		2: "SOURCE_TYPE_INTERNAL_REMEDIATED",
+		3: "SOURCE_TYPE_UPSTREAM_REGISTRY",
+	}
+	SourceType_value = map[string]int32{
+		"SOURCE_TYPE_UNSPECIFIED":         0,
+		"SOURCE_TYPE_INTERNAL":            1,
+		"SOURCE_TYPE_INTERNAL_REMEDIATED": 2,
+		"SOURCE_TYPE_UPSTREAM_REGISTRY":   3,
+	}
+)
+
+func (x SourceType) Enum() *SourceType {
+	p := new(SourceType)
+	*p = x
+	return p
+}
+
+func (x SourceType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SourceType) Descriptor() protoreflect.EnumDescriptor {
+	return file_artifacts_libraries_platform_proto_enumTypes[0].Descriptor()
+}
+
+func (SourceType) Type() protoreflect.EnumType {
+	return &file_artifacts_libraries_platform_proto_enumTypes[0]
+}
+
+func (x SourceType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SourceType.Descriptor instead.
+func (SourceType) EnumDescriptor() ([]byte, []int) {
+	return file_artifacts_libraries_platform_proto_rawDescGZIP(), []int{0}
+}
+
 // Artifact contains metadata related to a a software artifact for a language
 // ecosystem. The id returned by this Artifact can be used to retrieve further
 // data, including more detailed version information.
@@ -226,6 +283,9 @@ type ArtifactFilter struct {
 	CudaVersion string `protobuf:"bytes,3,opt,name=cuda_version,json=cudaVersion,proto3" json:"cuda_version,omitempty"`
 	// Flag to return only remediated packages for the ecosystems
 	Remediated bool `protobuf:"varint,4,opt,name=remediated,proto3" json:"remediated,omitempty"`
+	// Flag to also include upstream-registry packages. By default only
+	// Chainguard-built packages are returned.
+	IncludeUpstream bool `protobuf:"varint,5,opt,name=include_upstream,json=includeUpstream,proto3" json:"include_upstream,omitempty"`
 	// The maximum number of artifacts to return per request.
 	// The service may return fewer than this value.
 	PageSize int32 `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
@@ -300,6 +360,13 @@ func (x *ArtifactFilter) GetRemediated() bool {
 	return false
 }
 
+func (x *ArtifactFilter) GetIncludeUpstream() bool {
+	if x != nil {
+		return x.IncludeUpstream
+	}
+	return false
+}
+
 func (x *ArtifactFilter) GetPageSize() int32 {
 	if x != nil {
 		return x.PageSize
@@ -325,9 +392,12 @@ func (x *ArtifactFilter) GetSkip() int32 {
 type ArtifactVersionFilter struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The artifact's unique identifier, as returned by ListArtifacts
-	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Flag to also include upstream-registry versions. By default only
+	// Chainguard-built versions are returned.
+	IncludeUpstream bool `protobuf:"varint,2,opt,name=include_upstream,json=includeUpstream,proto3" json:"include_upstream,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *ArtifactVersionFilter) Reset() {
@@ -365,6 +435,13 @@ func (x *ArtifactVersionFilter) GetId() string {
 		return x.Id
 	}
 	return ""
+}
+
+func (x *ArtifactVersionFilter) GetIncludeUpstream() bool {
+	if x != nil {
+		return x.IncludeUpstream
+	}
+	return false
 }
 
 type ArtifactVersionList struct {
@@ -414,7 +491,11 @@ func (x *ArtifactVersionList) GetItems() []*ArtifactVersion {
 // Metadata about a version of an artifact.
 type ArtifactVersion struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// A unique identifier for this version of the artifact.
+	// A unique identifier for this version of the artifact, formatted as
+	// "<artifact-id>:<version>:<source_type>". The same version string can be
+	// present under more than one source_type (e.g. a Chainguard-built version
+	// and its upstream-registry origin), each returned as a distinct entry with
+	// its own id.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// The name of the artifact.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
@@ -427,9 +508,17 @@ type ArtifactVersion struct {
 	// When this version was last published to Chainguard Libraries.
 	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	// The estimated size of this artifact in bytes.
-	SizeBytes     int64 `protobuf:"varint,7,opt,name=size_bytes,json=sizeBytes,proto3" json:"size_bytes,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	SizeBytes int64 `protobuf:"varint,7,opt,name=size_bytes,json=sizeBytes,proto3" json:"size_bytes,omitempty"`
+	// The origin of this version.
+	SourceType SourceType `protobuf:"varint,8,opt,name=source_type,json=sourceType,proto3,enum=chainguard.platform.libraries.SourceType" json:"source_type,omitempty"`
+	// Whether this version has been scanned for malware.
+	MalwareScanned bool `protobuf:"varint,9,opt,name=malware_scanned,json=malwareScanned,proto3" json:"malware_scanned,omitempty"`
+	// Whether this version was flagged as malicious by a malware scan.
+	MalwareMalicious bool `protobuf:"varint,10,opt,name=malware_malicious,json=malwareMalicious,proto3" json:"malware_malicious,omitempty"`
+	// When this version was published to its upstream registry, if known.
+	UpstreamPublishedDate *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=upstream_published_date,json=upstreamPublishedDate,proto3" json:"upstream_published_date,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *ArtifactVersion) Reset() {
@@ -509,6 +598,34 @@ func (x *ArtifactVersion) GetSizeBytes() int64 {
 		return x.SizeBytes
 	}
 	return 0
+}
+
+func (x *ArtifactVersion) GetSourceType() SourceType {
+	if x != nil {
+		return x.SourceType
+	}
+	return SourceType_SOURCE_TYPE_UNSPECIFIED
+}
+
+func (x *ArtifactVersion) GetMalwareScanned() bool {
+	if x != nil {
+		return x.MalwareScanned
+	}
+	return false
+}
+
+func (x *ArtifactVersion) GetMalwareMalicious() bool {
+	if x != nil {
+		return x.MalwareMalicious
+	}
+	return false
+}
+
+func (x *ArtifactVersion) GetUpstreamPublishedDate() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpstreamPublishedDate
+	}
+	return nil
 }
 
 // Request the total number of artifacts for the given ecosystems.
@@ -676,7 +793,7 @@ const file_artifacts_libraries_platform_proto_rawDesc = "" +
 	"\x05items\x18\x01 \x03(\v2'.chainguard.platform.libraries.ArtifactR\x05items\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12'\n" +
 	"\x0ftotal_artifacts\x18\x03 \x01(\x05R\x0etotalArtifacts\x12\x18\n" +
-	"\askipped\x18\x04 \x01(\x05R\askipped\"\x83\x02\n" +
+	"\askipped\x18\x04 \x01(\x05R\askipped\"\xae\x02\n" +
 	"\x0eArtifactFilter\x12H\n" +
 	"\n" +
 	"ecosystems\x18\x01 \x03(\x0e2(.chainguard.platform.libraries.EcosystemR\n" +
@@ -685,16 +802,18 @@ const file_artifacts_libraries_platform_proto_rawDesc = "" +
 	"\fcuda_version\x18\x03 \x01(\tR\vcudaVersion\x12\x1e\n" +
 	"\n" +
 	"remediated\x18\x04 \x01(\bR\n" +
-	"remediated\x12\x1b\n" +
+	"remediated\x12)\n" +
+	"\x10include_upstream\x18\x05 \x01(\bR\x0fincludeUpstream\x12\x1b\n" +
 	"\tpage_size\x18\n" +
 	" \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\v \x01(\tR\tpageToken\x12\x12\n" +
-	"\x04skip\x18\f \x01(\x05R\x04skip\"'\n" +
+	"\x04skip\x18\f \x01(\x05R\x04skip\"R\n" +
 	"\x15ArtifactVersionFilter\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"[\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12)\n" +
+	"\x10include_upstream\x18\x02 \x01(\bR\x0fincludeUpstream\"[\n" +
 	"\x13ArtifactVersionList\x12D\n" +
-	"\x05items\x18\x01 \x03(\v2..chainguard.platform.libraries.ArtifactVersionR\x05items\"\x86\x02\n" +
+	"\x05items\x18\x01 \x03(\v2..chainguard.platform.libraries.ArtifactVersionR\x05items\"\xfc\x03\n" +
 	"\x0fArtifactVersion\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
@@ -705,7 +824,13 @@ const file_artifacts_libraries_platform_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x1d\n" +
 	"\n" +
-	"size_bytes\x18\a \x01(\x03R\tsizeBytes\"c\n" +
+	"size_bytes\x18\a \x01(\x03R\tsizeBytes\x12J\n" +
+	"\vsource_type\x18\b \x01(\x0e2).chainguard.platform.libraries.SourceTypeR\n" +
+	"sourceType\x12'\n" +
+	"\x0fmalware_scanned\x18\t \x01(\bR\x0emalwareScanned\x12+\n" +
+	"\x11malware_malicious\x18\n" +
+	" \x01(\bR\x10malwareMalicious\x12R\n" +
+	"\x17upstream_published_date\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\x15upstreamPublishedDate\"c\n" +
 	"\x17GetArtifactCountRequest\x12H\n" +
 	"\n" +
 	"ecosystems\x18\x01 \x03(\x0e2(.chainguard.platform.libraries.EcosystemR\n" +
@@ -714,7 +839,13 @@ const file_artifacts_libraries_platform_proto_rawDesc = "" +
 	"\x06counts\x18\x01 \x03(\v2=.chainguard.platform.libraries.GetArtifactCountResponse.CountR\x06counts\x1ax\n" +
 	"\x05Count\x12F\n" +
 	"\tecosystem\x18\x01 \x01(\x0e2(.chainguard.platform.libraries.EcosystemR\tecosystem\x12'\n" +
-	"\x0ftotal_artifacts\x18\x02 \x01(\x05R\x0etotalArtifacts2\x94\x04\n" +
+	"\x0ftotal_artifacts\x18\x02 \x01(\x05R\x0etotalArtifacts*\x8b\x01\n" +
+	"\n" +
+	"SourceType\x12\x1b\n" +
+	"\x17SOURCE_TYPE_UNSPECIFIED\x10\x00\x12\x18\n" +
+	"\x14SOURCE_TYPE_INTERNAL\x10\x01\x12#\n" +
+	"\x1fSOURCE_TYPE_INTERNAL_REMEDIATED\x10\x02\x12!\n" +
+	"\x1dSOURCE_TYPE_UPSTREAM_REGISTRY\x10\x032\x94\x04\n" +
 	"\tArtifacts\x12\x91\x01\n" +
 	"\x04List\x12-.chainguard.platform.libraries.ArtifactFilter\x1a+.chainguard.platform.libraries.ArtifactList\"-\x82\xd3\xe4\x93\x02\x19\x12\x17/libraries/v1/artifacts\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\x8b\x0e\x10\x01\x12\xb7\x01\n" +
@@ -735,43 +866,47 @@ func file_artifacts_libraries_platform_proto_rawDescGZIP() []byte {
 	return file_artifacts_libraries_platform_proto_rawDescData
 }
 
+var file_artifacts_libraries_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_artifacts_libraries_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_artifacts_libraries_platform_proto_goTypes = []any{
-	(*Artifact)(nil),                       // 0: chainguard.platform.libraries.Artifact
-	(*ArtifactList)(nil),                   // 1: chainguard.platform.libraries.ArtifactList
-	(*ArtifactFilter)(nil),                 // 2: chainguard.platform.libraries.ArtifactFilter
-	(*ArtifactVersionFilter)(nil),          // 3: chainguard.platform.libraries.ArtifactVersionFilter
-	(*ArtifactVersionList)(nil),            // 4: chainguard.platform.libraries.ArtifactVersionList
-	(*ArtifactVersion)(nil),                // 5: chainguard.platform.libraries.ArtifactVersion
-	(*GetArtifactCountRequest)(nil),        // 6: chainguard.platform.libraries.GetArtifactCountRequest
-	(*GetArtifactCountResponse)(nil),       // 7: chainguard.platform.libraries.GetArtifactCountResponse
-	(*GetArtifactCountResponse_Count)(nil), // 8: chainguard.platform.libraries.GetArtifactCountResponse.Count
-	(Ecosystem)(0),                         // 9: chainguard.platform.libraries.Ecosystem
-	(*timestamppb.Timestamp)(nil),          // 10: google.protobuf.Timestamp
+	(SourceType)(0),                        // 0: chainguard.platform.libraries.SourceType
+	(*Artifact)(nil),                       // 1: chainguard.platform.libraries.Artifact
+	(*ArtifactList)(nil),                   // 2: chainguard.platform.libraries.ArtifactList
+	(*ArtifactFilter)(nil),                 // 3: chainguard.platform.libraries.ArtifactFilter
+	(*ArtifactVersionFilter)(nil),          // 4: chainguard.platform.libraries.ArtifactVersionFilter
+	(*ArtifactVersionList)(nil),            // 5: chainguard.platform.libraries.ArtifactVersionList
+	(*ArtifactVersion)(nil),                // 6: chainguard.platform.libraries.ArtifactVersion
+	(*GetArtifactCountRequest)(nil),        // 7: chainguard.platform.libraries.GetArtifactCountRequest
+	(*GetArtifactCountResponse)(nil),       // 8: chainguard.platform.libraries.GetArtifactCountResponse
+	(*GetArtifactCountResponse_Count)(nil), // 9: chainguard.platform.libraries.GetArtifactCountResponse.Count
+	(Ecosystem)(0),                         // 10: chainguard.platform.libraries.Ecosystem
+	(*timestamppb.Timestamp)(nil),          // 11: google.protobuf.Timestamp
 }
 var file_artifacts_libraries_platform_proto_depIdxs = []int32{
-	9,  // 0: chainguard.platform.libraries.Artifact.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
-	10, // 1: chainguard.platform.libraries.Artifact.created_at:type_name -> google.protobuf.Timestamp
-	10, // 2: chainguard.platform.libraries.Artifact.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 3: chainguard.platform.libraries.ArtifactList.items:type_name -> chainguard.platform.libraries.Artifact
-	9,  // 4: chainguard.platform.libraries.ArtifactFilter.ecosystems:type_name -> chainguard.platform.libraries.Ecosystem
-	5,  // 5: chainguard.platform.libraries.ArtifactVersionList.items:type_name -> chainguard.platform.libraries.ArtifactVersion
-	10, // 6: chainguard.platform.libraries.ArtifactVersion.created_at:type_name -> google.protobuf.Timestamp
-	10, // 7: chainguard.platform.libraries.ArtifactVersion.updated_at:type_name -> google.protobuf.Timestamp
-	9,  // 8: chainguard.platform.libraries.GetArtifactCountRequest.ecosystems:type_name -> chainguard.platform.libraries.Ecosystem
-	8,  // 9: chainguard.platform.libraries.GetArtifactCountResponse.counts:type_name -> chainguard.platform.libraries.GetArtifactCountResponse.Count
-	9,  // 10: chainguard.platform.libraries.GetArtifactCountResponse.Count.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
-	2,  // 11: chainguard.platform.libraries.Artifacts.List:input_type -> chainguard.platform.libraries.ArtifactFilter
-	3,  // 12: chainguard.platform.libraries.Artifacts.ListVersions:input_type -> chainguard.platform.libraries.ArtifactVersionFilter
-	6,  // 13: chainguard.platform.libraries.Artifacts.GetArtifactCount:input_type -> chainguard.platform.libraries.GetArtifactCountRequest
-	1,  // 14: chainguard.platform.libraries.Artifacts.List:output_type -> chainguard.platform.libraries.ArtifactList
-	4,  // 15: chainguard.platform.libraries.Artifacts.ListVersions:output_type -> chainguard.platform.libraries.ArtifactVersionList
-	7,  // 16: chainguard.platform.libraries.Artifacts.GetArtifactCount:output_type -> chainguard.platform.libraries.GetArtifactCountResponse
-	14, // [14:17] is the sub-list for method output_type
-	11, // [11:14] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	10, // 0: chainguard.platform.libraries.Artifact.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
+	11, // 1: chainguard.platform.libraries.Artifact.created_at:type_name -> google.protobuf.Timestamp
+	11, // 2: chainguard.platform.libraries.Artifact.updated_at:type_name -> google.protobuf.Timestamp
+	1,  // 3: chainguard.platform.libraries.ArtifactList.items:type_name -> chainguard.platform.libraries.Artifact
+	10, // 4: chainguard.platform.libraries.ArtifactFilter.ecosystems:type_name -> chainguard.platform.libraries.Ecosystem
+	6,  // 5: chainguard.platform.libraries.ArtifactVersionList.items:type_name -> chainguard.platform.libraries.ArtifactVersion
+	11, // 6: chainguard.platform.libraries.ArtifactVersion.created_at:type_name -> google.protobuf.Timestamp
+	11, // 7: chainguard.platform.libraries.ArtifactVersion.updated_at:type_name -> google.protobuf.Timestamp
+	0,  // 8: chainguard.platform.libraries.ArtifactVersion.source_type:type_name -> chainguard.platform.libraries.SourceType
+	11, // 9: chainguard.platform.libraries.ArtifactVersion.upstream_published_date:type_name -> google.protobuf.Timestamp
+	10, // 10: chainguard.platform.libraries.GetArtifactCountRequest.ecosystems:type_name -> chainguard.platform.libraries.Ecosystem
+	9,  // 11: chainguard.platform.libraries.GetArtifactCountResponse.counts:type_name -> chainguard.platform.libraries.GetArtifactCountResponse.Count
+	10, // 12: chainguard.platform.libraries.GetArtifactCountResponse.Count.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
+	3,  // 13: chainguard.platform.libraries.Artifacts.List:input_type -> chainguard.platform.libraries.ArtifactFilter
+	4,  // 14: chainguard.platform.libraries.Artifacts.ListVersions:input_type -> chainguard.platform.libraries.ArtifactVersionFilter
+	7,  // 15: chainguard.platform.libraries.Artifacts.GetArtifactCount:input_type -> chainguard.platform.libraries.GetArtifactCountRequest
+	2,  // 16: chainguard.platform.libraries.Artifacts.List:output_type -> chainguard.platform.libraries.ArtifactList
+	5,  // 17: chainguard.platform.libraries.Artifacts.ListVersions:output_type -> chainguard.platform.libraries.ArtifactVersionList
+	8,  // 18: chainguard.platform.libraries.Artifacts.GetArtifactCount:output_type -> chainguard.platform.libraries.GetArtifactCountResponse
+	16, // [16:19] is the sub-list for method output_type
+	13, // [13:16] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_artifacts_libraries_platform_proto_init() }
@@ -785,13 +920,14 @@ func file_artifacts_libraries_platform_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_artifacts_libraries_platform_proto_rawDesc), len(file_artifacts_libraries_platform_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_artifacts_libraries_platform_proto_goTypes,
 		DependencyIndexes: file_artifacts_libraries_platform_proto_depIdxs,
+		EnumInfos:         file_artifacts_libraries_platform_proto_enumTypes,
 		MessageInfos:      file_artifacts_libraries_platform_proto_msgTypes,
 	}.Build()
 	File_artifacts_libraries_platform_proto = out.File
