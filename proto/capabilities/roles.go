@@ -358,9 +358,12 @@ var (
 	// the DFC session converts to. association.list is the read-only
 	// counterpart to association.manage, so users can see which GitHub orgs
 	// are linked to the group without being able to link or unlink them.
+	// actions.migrate lets users enqueue an on-demand GitHub Actions
+	// migration for a repository in the group.
 	GuardenerUserCaps = SortCaps([]Capability{
 		Capability_CAP_GUARDENER_DFC_CONVERT,
 		Capability_CAP_GUARDENER_ASSOCIATION_LIST,
+		Capability_CAP_GUARDENER_ACTIONS_MIGRATE,
 		Capability_CAP_TERMS_LIST,
 	}, RegistryPullCaps)
 

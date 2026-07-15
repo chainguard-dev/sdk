@@ -10,6 +10,7 @@
 package v1alpha1
 
 import (
+	longrunningpb "cloud.google.com/go/longrunning/autogen/longrunningpb"
 	context "context"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -22,20 +23,20 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Guardener_GetEntitlement_FullMethodName    = "/chainguard.platform.guardener.v1alpha1.Guardener/GetEntitlement"
-	Guardener_UpdateEntitlement_FullMethodName = "/chainguard.platform.guardener.v1alpha1.Guardener/UpdateEntitlement"
+	Guardener_GetEntitlement_FullMethodName        = "/chainguard.platform.guardener.v1alpha1.Guardener/GetEntitlement"
+	Guardener_UpdateEntitlement_FullMethodName     = "/chainguard.platform.guardener.v1alpha1.Guardener/UpdateEntitlement"
+	Guardener_MigrateRepository_FullMethodName     = "/chainguard.platform.guardener.v1alpha1.Guardener/MigrateRepository"
+	Guardener_GetMigrationOperation_FullMethodName = "/chainguard.platform.guardener.v1alpha1.Guardener/GetMigrationOperation"
 )
 
 // GuardenerClient is the client API for Guardener service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// Guardener is the surface for a group's guardener entitlement: settings that
-// only support can change. Reading the entitlement (GetEntitlement) requires
-// CAP_GUARDENER_ENTITLEMENT_LIST, a viewer capability, so a group can see the
-// settings that apply to it. Changing it (UpdateEntitlement) requires
-// CAP_GUARDENER_ENTITLEMENT_MANAGE, an internal-only capability that can never be
-// granted by a customer-facing role.
+// Guardener is the customer-facing surface for the guardener platform. It covers
+// a group's guardener entitlement (settings only support can change) and the
+// on-demand GitHub Actions migration API (enqueue a migration for a repository
+// and track it via a long-running operation).
 type GuardenerClient interface {
 	// GetEntitlement returns the guardener entitlement for a group. A group with no
 	// configured entitlement returns the default (repo_visibility_scope
@@ -45,6 +46,19 @@ type GuardenerClient interface {
 	// It requires CAP_INTERNAL in addition to CAP_GUARDENER_ENTITLEMENT_MANAGE, so
 	// only internal (support) identities can change these settings.
 	UpdateEntitlement(ctx context.Context, in *UpdateEntitlementRequest, opts ...grpc.CallOption) (*Entitlement, error)
+	// MigrateRepository enqueues a GitHub Actions migration for the given
+	// repository and returns a long-running operation. The migration opens (or
+	// updates) a single pull request replacing upstream GitHub Actions with their
+	// Chainguard equivalents at version-equivalent tags.
+	//
+	// The caller's group must own the repository's GitHub installation (verified
+	// via a matching account_association); the resulting operation is namespaced
+	// under that group's UIDP.
+	MigrateRepository(ctx context.Context, in *MigrateRepositoryRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
+	// GetMigrationOperation returns the current state of a migration operation
+	// previously returned by MigrateRepository. The operation name embeds the
+	// owning group's UIDP; group must match and is the IAM scope.
+	GetMigrationOperation(ctx context.Context, in *GetMigrationOperationRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
 }
 
 type guardenerClient struct {
@@ -75,16 +89,34 @@ func (c *guardenerClient) UpdateEntitlement(ctx context.Context, in *UpdateEntit
 	return out, nil
 }
 
+func (c *guardenerClient) MigrateRepository(ctx context.Context, in *MigrateRepositoryRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(longrunningpb.Operation)
+	err := c.cc.Invoke(ctx, Guardener_MigrateRepository_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *guardenerClient) GetMigrationOperation(ctx context.Context, in *GetMigrationOperationRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(longrunningpb.Operation)
+	err := c.cc.Invoke(ctx, Guardener_GetMigrationOperation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GuardenerServer is the server API for Guardener service.
 // All implementations must embed UnimplementedGuardenerServer
 // for forward compatibility.
 //
-// Guardener is the surface for a group's guardener entitlement: settings that
-// only support can change. Reading the entitlement (GetEntitlement) requires
-// CAP_GUARDENER_ENTITLEMENT_LIST, a viewer capability, so a group can see the
-// settings that apply to it. Changing it (UpdateEntitlement) requires
-// CAP_GUARDENER_ENTITLEMENT_MANAGE, an internal-only capability that can never be
-// granted by a customer-facing role.
+// Guardener is the customer-facing surface for the guardener platform. It covers
+// a group's guardener entitlement (settings only support can change) and the
+// on-demand GitHub Actions migration API (enqueue a migration for a repository
+// and track it via a long-running operation).
 type GuardenerServer interface {
 	// GetEntitlement returns the guardener entitlement for a group. A group with no
 	// configured entitlement returns the default (repo_visibility_scope
@@ -94,6 +126,19 @@ type GuardenerServer interface {
 	// It requires CAP_INTERNAL in addition to CAP_GUARDENER_ENTITLEMENT_MANAGE, so
 	// only internal (support) identities can change these settings.
 	UpdateEntitlement(context.Context, *UpdateEntitlementRequest) (*Entitlement, error)
+	// MigrateRepository enqueues a GitHub Actions migration for the given
+	// repository and returns a long-running operation. The migration opens (or
+	// updates) a single pull request replacing upstream GitHub Actions with their
+	// Chainguard equivalents at version-equivalent tags.
+	//
+	// The caller's group must own the repository's GitHub installation (verified
+	// via a matching account_association); the resulting operation is namespaced
+	// under that group's UIDP.
+	MigrateRepository(context.Context, *MigrateRepositoryRequest) (*longrunningpb.Operation, error)
+	// GetMigrationOperation returns the current state of a migration operation
+	// previously returned by MigrateRepository. The operation name embeds the
+	// owning group's UIDP; group must match and is the IAM scope.
+	GetMigrationOperation(context.Context, *GetMigrationOperationRequest) (*longrunningpb.Operation, error)
 	mustEmbedUnimplementedGuardenerServer()
 }
 
@@ -109,6 +154,12 @@ func (UnimplementedGuardenerServer) GetEntitlement(context.Context, *GetEntitlem
 }
 func (UnimplementedGuardenerServer) UpdateEntitlement(context.Context, *UpdateEntitlementRequest) (*Entitlement, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateEntitlement not implemented")
+}
+func (UnimplementedGuardenerServer) MigrateRepository(context.Context, *MigrateRepositoryRequest) (*longrunningpb.Operation, error) {
+	return nil, status.Error(codes.Unimplemented, "method MigrateRepository not implemented")
+}
+func (UnimplementedGuardenerServer) GetMigrationOperation(context.Context, *GetMigrationOperationRequest) (*longrunningpb.Operation, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetMigrationOperation not implemented")
 }
 func (UnimplementedGuardenerServer) mustEmbedUnimplementedGuardenerServer() {}
 func (UnimplementedGuardenerServer) testEmbeddedByValue()                   {}
@@ -167,6 +218,42 @@ func _Guardener_UpdateEntitlement_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Guardener_MigrateRepository_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MigrateRepositoryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GuardenerServer).MigrateRepository(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Guardener_MigrateRepository_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GuardenerServer).MigrateRepository(ctx, req.(*MigrateRepositoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Guardener_GetMigrationOperation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMigrationOperationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GuardenerServer).GetMigrationOperation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Guardener_GetMigrationOperation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GuardenerServer).GetMigrationOperation(ctx, req.(*GetMigrationOperationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Guardener_ServiceDesc is the grpc.ServiceDesc for Guardener service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -181,6 +268,14 @@ var Guardener_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateEntitlement",
 			Handler:    _Guardener_UpdateEntitlement_Handler,
+		},
+		{
+			MethodName: "MigrateRepository",
+			Handler:    _Guardener_MigrateRepository_Handler,
+		},
+		{
+			MethodName: "GetMigrationOperation",
+			Handler:    _Guardener_GetMigrationOperation_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

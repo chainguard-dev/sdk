@@ -6,8 +6,10 @@ syntax = "proto3";
 package chainguard.platform.guardener.v1alpha1;
 
 import "annotations/auth.proto";
+import "annotations/mcp.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
+import "google/longrunning/operations.proto";
 import "google/protobuf/timestamp.proto";
 
 option go_package = "chainguard.dev/sdk/proto/chainguard/platform/guardener/v1alpha1";
@@ -15,12 +17,10 @@ option java_multiple_files = true;
 option java_outer_classname = "GuardenerProto";
 option java_package = "com.chainguard.platform.guardener.v1alpha1";
 
-// Guardener is the surface for a group's guardener entitlement: settings that
-// only support can change. Reading the entitlement (GetEntitlement) requires
-// CAP_GUARDENER_ENTITLEMENT_LIST, a viewer capability, so a group can see the
-// settings that apply to it. Changing it (UpdateEntitlement) requires
-// CAP_GUARDENER_ENTITLEMENT_MANAGE, an internal-only capability that can never be
-// granted by a customer-facing role.
+// Guardener is the customer-facing surface for the guardener platform. It covers
+// a group's guardener entitlement (settings only support can change) and the
+// on-demand GitHub Actions migration API (enqueue a migration for a repository
+// and track it via a long-running operation).
 service Guardener {
   // GetEntitlement returns the guardener entitlement for a group. A group with no
   // configured entitlement returns the default (repo_visibility_scope
@@ -49,6 +49,56 @@ service Guardener {
           CAP_INTERNAL
         ]
       }
+    };
+  }
+
+  // MigrateRepository enqueues a GitHub Actions migration for the given
+  // repository and returns a long-running operation. The migration opens (or
+  // updates) a single pull request replacing upstream GitHub Actions with their
+  // Chainguard equivalents at version-equivalent tags.
+  //
+  // The caller's group must own the repository's GitHub installation (verified
+  // via a matching account_association); the resulting operation is namespaced
+  // under that group's UIDP.
+  rpc MigrateRepository(MigrateRepositoryRequest) returns (google.longrunning.Operation) {
+    option (google.api.http) = {
+      post: "/guardener/v1alpha1/migrate"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_GUARDENER_ACTIONS_MIGRATE]
+      }
+    };
+    option (google.longrunning.operation_info) = {
+      response_type: "chainguard.platform.guardener.v1alpha1.MigrateOperationResponse"
+      metadata_type: "chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata"
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Enqueue a GitHub Actions migration for a repository, returning a long-running operation that opens a migration pull request."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // GetMigrationOperation returns the current state of a migration operation
+  // previously returned by MigrateRepository. The operation name embeds the
+  // owning group's UIDP; group must match and is the IAM scope.
+  rpc GetMigrationOperation(GetMigrationOperationRequest) returns (google.longrunning.Operation) {
+    option (google.api.http) = {get: "/guardener/v1alpha1/{name=operations/migrate/**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_GUARDENER_ACTIONS_MIGRATE]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get the state of a guardener migration long-running operation by its name."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
     };
   }
 }
@@ -103,4 +153,68 @@ message UpdateEntitlementRequest {
 
   // repo_visibility_scope is the repo visibility scope to set for the group.
   Entitlement.RepoVisibilityScope repo_visibility_scope = 2;
+}
+
+message MigrateRepositoryRequest {
+  // UIDP of the caller's group (org). Must own the repository's installation.
+  string group = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Full URL of the repository to migrate, e.g.
+  // "https://github.com/owner/repo". Only github.com is supported today; the
+  // field is a URL so other forges (GitHub Enterprise, GitLab) can be supported
+  // without a request change.
+  string url = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetMigrationOperationRequest {
+  // UIDP of the owning group; the IAM scope. Must match the UIDP embedded in
+  // the operation name.
+  string group = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The operation name, as returned by MigrateRepository
+  // (operations/migrate/{uidp}/{uuid}).
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// Trigger identifies what initiated a migration run.
+enum Trigger {
+  TRIGGER_UNSPECIFIED = 0;
+  // A user enqueued the migration via MigrateRepository.
+  TRIGGER_USER = 1;
+  // The system (cron migrator) enqueued the migration.
+  TRIGGER_SYSTEM = 2;
+}
+
+// MigrateOperationMetadata is carried in Operation.metadata while a migration
+// is running and when it is done.
+message MigrateOperationMetadata {
+  // Full URL of the repository being migrated, e.g.
+  // "https://github.com/owner/repo".
+  string url = 1;
+  // The workqueue key for the repository's migration.
+  string repo_key = 2;
+  // When the operation was created.
+  google.protobuf.Timestamp create_time = 3;
+  // What triggered the run (user vs system).
+  Trigger trigger = 4;
+  // The identity that triggered the run: the caller's subject for user-
+  // triggered runs, or the reconciler/cron identity for system-triggered runs.
+  string actor = 5;
+}
+
+// MigrateOperationResponse is carried in Operation.response when a migration
+// completes successfully. Terminal failures are reported via Operation.error.
+message MigrateOperationResponse {
+  // The migration pull request opened or updated by the run. Empty when the
+  // run was a no-op (nothing to migrate).
+  string pull_request_url = 1;
+  // True when the run completed but produced no pull request (opted out, no
+  // edits, or no net changes).
+  bool no_op = 2;
 }

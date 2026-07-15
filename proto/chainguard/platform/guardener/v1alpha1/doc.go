@@ -8,6 +8,7 @@ SPDX-License-Identifier: Apache-2.0
 
 // Package v1alpha1 contains the guardener platform services: GitHubAssociations
 // (the self-service surface for linking and unlinking a GitHub organization to a
-// Chainguard group) and Guardener (the support-only surface for configuring a
-// group's guardener settings).
+// Chainguard group) and Guardener, which covers a group's guardener entitlement
+// (support-only settings) and the on-demand GitHub Actions migration API that
+// enqueues a repository's migration and returns a long-running operation.
 package v1alpha1

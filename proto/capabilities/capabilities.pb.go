@@ -250,6 +250,10 @@ const (
 	// entitlement. Unlike guardener.entitlement.manage it is not internal_only, so
 	// normal viewers can see the settings that apply to their group.
 	Capability_CAP_GUARDENER_ENTITLEMENT_LIST Capability = 2305
+	// Guardener actions migrator — on-demand enqueue of a repository's GitHub
+	// Actions migration (opens a pull request), tracked via a long-running
+	// operation. Mutating, so distinct from the read-only actions catalog cap.
+	Capability_CAP_GUARDENER_ACTIONS_MIGRATE Capability = 2306
 	// MCP tool calls
 	Capability_CAP_MCP_TOOL_CALL Capability = 2401
 	// Skills registry — publishing skill artifacts to skills.cgr.dev
@@ -460,6 +464,7 @@ var (
 		2303:  "CAP_GUARDENER_ASSOCIATION_LIST",
 		2304:  "CAP_GUARDENER_ENTITLEMENT_MANAGE",
 		2305:  "CAP_GUARDENER_ENTITLEMENT_LIST",
+		2306:  "CAP_GUARDENER_ACTIONS_MIGRATE",
 		2401:  "CAP_MCP_TOOL_CALL",
 		2501:  "CAP_SKILLS_PUBLISH",
 		2502:  "CAP_SKILLS_ENTITLEMENTS_CREATE",
@@ -645,6 +650,7 @@ var (
 		"CAP_GUARDENER_ASSOCIATION_LIST":                     2303,
 		"CAP_GUARDENER_ENTITLEMENT_MANAGE":                   2304,
 		"CAP_GUARDENER_ENTITLEMENT_LIST":                     2305,
+		"CAP_GUARDENER_ACTIONS_MIGRATE":                      2306,
 		"CAP_MCP_TOOL_CALL":                                  2401,
 		"CAP_SKILLS_PUBLISH":                                 2501,
 		"CAP_SKILLS_ENTITLEMENTS_CREATE":                     2502,
@@ -761,7 +767,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xc1a\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x8cb\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -930,7 +936,8 @@ const file_capabilities_proto_rawDesc = "" +
 	" CAP_GUARDENER_ASSOCIATION_MANAGE\x10\xfe\x11\x1a(\xa8ˑM\xaa\x01\x9a\xaf\xa8\xd2\x05\x1cguardener.association.manage\x12K\n" +
 	"\x1eCAP_GUARDENER_ASSOCIATION_LIST\x10\xff\x11\x1a&\xa8ˑM\xb5\x01\x9a\xaf\xa8\xd2\x05\x1aguardener.association.list\x12U\n" +
 	" CAP_GUARDENER_ENTITLEMENT_MANAGE\x10\x80\x12\x1a.\xa8ˑM\xb9\x01\x9a\xaf\xa8\xd2\x05\x1cguardener.entitlement.manage\xa0\xaf\xa8\xd2\x05\x01\x12K\n" +
-	"\x1eCAP_GUARDENER_ENTITLEMENT_LIST\x10\x81\x12\x1a&\xa8ˑM\xba\x01\x9a\xaf\xa8\xd2\x05\x1aguardener.entitlement.list\x121\n" +
+	"\x1eCAP_GUARDENER_ENTITLEMENT_LIST\x10\x81\x12\x1a&\xa8ˑM\xba\x01\x9a\xaf\xa8\xd2\x05\x1aguardener.entitlement.list\x12I\n" +
+	"\x1dCAP_GUARDENER_ACTIONS_MIGRATE\x10\x82\x12\x1a%\xa8ˑM\xbc\x01\x9a\xaf\xa8\xd2\x05\x19guardener.actions.migrate\x121\n" +
 	"\x11CAP_MCP_TOOL_CALL\x10\xe1\x12\x1a\x19\xa8ˑM\x80\x01\x9a\xaf\xa8\xd2\x05\rmcp.tool.call\x123\n" +
 	"\x12CAP_SKILLS_PUBLISH\x10\xc5\x13\x1a\x1a\xa8ˑM\x89\x01\x9a\xaf\xa8\xd2\x05\x0eskills.publish\x12K\n" +
 	"\x1eCAP_SKILLS_ENTITLEMENTS_CREATE\x10\xc6\x13\x1a&\xa8ˑM\x8a\x01\x9a\xaf\xa8\xd2\x05\x1askills.entitlements.create\x12G\n" +

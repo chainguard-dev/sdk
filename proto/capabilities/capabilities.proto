@@ -291,6 +291,11 @@ enum Capability {
   // normal viewers can see the settings that apply to their group.
   CAP_GUARDENER_ENTITLEMENT_LIST = 2305 [(name) = "guardener.entitlement.list", (bit) = 186];
 
+  // Guardener actions migrator — on-demand enqueue of a repository's GitHub
+  // Actions migration (opens a pull request), tracked via a long-running
+  // operation. Mutating, so distinct from the read-only actions catalog cap.
+  CAP_GUARDENER_ACTIONS_MIGRATE = 2306 [(name) = "guardener.actions.migrate", (bit) = 188];
+
   // MCP tool calls
   CAP_MCP_TOOL_CALL = 2401 [(name) = "mcp.tool.call", (bit) = 128];
 
@@ -360,5 +365,5 @@ enum Capability {
   CAP_ACTIONS_LIST = 2700 [(name) = "actions.list", (bit) = 164];
 
   reserved 1;
-  // next bit: 188
+  // next bit: 189
 }

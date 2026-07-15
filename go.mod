@@ -7,6 +7,7 @@ require (
 	chainguard.dev/go-grpc-kit v0.17.17
 	chainguard.dev/go-oidctest v0.4.0
 	cloud.google.com/go/compute/metadata v0.9.0
+	cloud.google.com/go/longrunning v0.9.0
 	github.com/aws/aws-sdk-go-v2 v1.42.0
 	github.com/bits-and-blooms/bitset v1.24.5
 	github.com/chainguard-dev/clog v1.8.0
