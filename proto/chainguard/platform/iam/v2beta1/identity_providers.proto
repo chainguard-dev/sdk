@@ -184,7 +184,7 @@ message IdentityProvider {
   // Exactly one must be set.
   oneof configuration {
     // Defines the parameters necessary for authenticating with the OIDC flow.
-    OIDC oidc = 20;
+    OIDC oidc = 20 [(google.api.field_behavior) = OPTIONAL];
   }
 
   // SCIM provisioning configuration for this identity provider.

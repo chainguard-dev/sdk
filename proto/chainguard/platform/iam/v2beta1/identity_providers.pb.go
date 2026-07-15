@@ -703,7 +703,7 @@ var File_chainguard_platform_iam_v2beta1_identity_providers_proto protoreflect.F
 
 const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = "" +
 	"\n" +
-	"8chainguard/platform/iam/v2beta1/identity_providers.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xfe\x06\n" +
+	"8chainguard/platform/iam/v2beta1/identity_providers.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\x84\a\n" +
 	"\x10IdentityProvider\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
@@ -713,8 +713,8 @@ const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = ""
 	"createTime\x12A\n" +
 	"\vupdate_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
 	"updateTime\x12'\n" +
-	"\fdefault_role\x18\x06 \x01(\tB\x04\xe2A\x01\x02R\vdefaultRole\x12L\n" +
-	"\x04oidc\x18\x14 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.OIDCH\x00R\x04oidc\x12P\n" +
+	"\fdefault_role\x18\x06 \x01(\tB\x04\xe2A\x01\x02R\vdefaultRole\x12R\n" +
+	"\x04oidc\x18\x14 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.OIDCB\x04\xe2A\x01\x01H\x00R\x04oidc\x12P\n" +
 	"\x04scim\x18\x15 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.SCIMB\x04\xe2A\x01\x01R\x04scim\x1a\xce\x01\n" +
 	"\x04OIDC\x12\x1c\n" +
 	"\x06issuer\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x06issuer\x12!\n" +
