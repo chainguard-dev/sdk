@@ -3,19 +3,6 @@ Copyright 2026 Chainguard, Inc.
 SPDX-License-Identifier: Apache-2.0
 */
 
-// Package uploads provides helpers for client-side-encrypted upload
-// storage: the wire envelope shape and Seal / Parse / Open functions
-// that mirror the browser's encryption.ts. Consumers:
-//
-//   - Client-side, on upload: Seal a fresh AES-256 key around the
-//     plaintext, wrap the key under the org's RSA-OAEP public key, and
-//     ship the JSON envelope.
-//   - Server-side, on upload: Parse the envelope to validate its shape
-//     without ever touching the plaintext.
-//   - Client-side, on break-glass read: Open the envelope, which
-//     verifies the JSON shell with Parse and AES-GCM-decrypts the
-//     ciphertext using an injected unwrap callback (typically a KMS
-//     AsymmetricDecrypt against the version recorded in the envelope).
 package uploads
 
 import (
