@@ -257,7 +257,7 @@ func TestPaginate(t *testing.T) {
 		req := &pb.ListExemplarsRequest{Parent: fmt.Sprintf("parent-%d", rand.Int64()), PageSize: 2}
 		origParent := req.GetParent()
 		seq := iter.Paginate(ctx, req, "exemplars", func(_ context.Context, _ *pb.ListExemplarsRequest) ([]*pb.Exemplar, string, error) {
-			return []*pb.Exemplar{{Uid: "1"}}, "", nil
+			return []*pb.Exemplar{{Uid: "31"}}, "", nil
 		})
 		if _, err := iter.All(seq); err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -320,7 +320,7 @@ func TestPaginate(t *testing.T) {
 		seq := iter.Paginate(ctx, &pb.ListExemplarsRequest{PageSize: 1}, "exemplars", func(_ context.Context, _ *pb.ListExemplarsRequest) ([]*pb.Exemplar, string, error) {
 			fetchCount++
 			cancel()
-			return []*pb.Exemplar{{Uid: "1"}}, "next", nil
+			return []*pb.Exemplar{{Uid: "31"}}, "next", nil
 		})
 		_, err := iter.All(seq)
 		if err == nil {

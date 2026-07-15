@@ -20,6 +20,11 @@ const (
 	// DefaultPageSize is the default number of items per page when not specified.
 	// TODO(colin): find a more appropriate place for this
 	DefaultPageSize = 50
+
+	// maxPages is the maximum number of pages the iterator will fetch before
+	// stopping, to prevent infinite loops caused by servers that return
+	// non-terminating page tokens.
+	maxPages = 1000
 )
 
 // PagedRequest is a constraint for protobuf list request types that support
@@ -98,7 +103,7 @@ func List[T any](ctx context.Context, resourceName string, fetch func(pageToken 
 	return func(yield func(T, error) bool) {
 		var zero T
 		var pageToken string
-		for {
+		for range maxPages {
 			if err := ctx.Err(); err != nil {
 				yield(zero, err)
 				return
