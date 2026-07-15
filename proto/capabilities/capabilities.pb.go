@@ -306,6 +306,11 @@ const (
 	Capability_CAP_REX_EXECUTIONS_CREATE Capability = 2705
 	Capability_CAP_REX_EXECUTIONS_LIST   Capability = 2706
 	Capability_CAP_REX_WORKERS_CONNECT   Capability = 2707
+	// Gated platform classes. USE authorizes submitting an execution that
+	// demands a gated class; SERVE authorizes a worker pool advertising one.
+	// Both are evaluated at the class's own UIDP node, never at the instance.
+	Capability_CAP_REX_CLASS_USE   Capability = 2708
+	Capability_CAP_REX_CLASS_SERVE Capability = 2709
 	// Actions catalog — the read-only catalog of Chainguard-published GitHub
 	// Actions and the upstreams they mirror. Writes are internal (importer only).
 	Capability_CAP_ACTIONS_LIST Capability = 2700
@@ -497,6 +502,8 @@ var (
 		2705:  "CAP_REX_EXECUTIONS_CREATE",
 		2706:  "CAP_REX_EXECUTIONS_LIST",
 		2707:  "CAP_REX_WORKERS_CONNECT",
+		2708:  "CAP_REX_CLASS_USE",
+		2709:  "CAP_REX_CLASS_SERVE",
 		2700:  "CAP_ACTIONS_LIST",
 	}
 	Capability_value = map[string]int32{
@@ -683,6 +690,8 @@ var (
 		"CAP_REX_EXECUTIONS_CREATE":                          2705,
 		"CAP_REX_EXECUTIONS_LIST":                            2706,
 		"CAP_REX_WORKERS_CONNECT":                            2707,
+		"CAP_REX_CLASS_USE":                                  2708,
+		"CAP_REX_CLASS_SERVE":                                2709,
 		"CAP_ACTIONS_LIST":                                   2700,
 	}
 )
@@ -767,7 +776,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x8cb\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x82c\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -969,7 +978,9 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x16CAP_LOGGIE_LOGS_CREATE\x10\xd7\x16\x1a$\xa8ˑM\xbb\x01\x9a\xaf\xa8\xd2\x05\x12loggie.logs.create\xa0\xaf\xa8\xd2\x05\x01\x12G\n" +
 	"\x19CAP_REX_EXECUTIONS_CREATE\x10\x91\x15\x1a'\xa8ˑM\xb6\x01\x9a\xaf\xa8\xd2\x05\x15rex.executions.create\xa0\xaf\xa8\xd2\x05\x01\x12C\n" +
 	"\x17CAP_REX_EXECUTIONS_LIST\x10\x92\x15\x1a%\xa8ˑM\xb7\x01\x9a\xaf\xa8\xd2\x05\x13rex.executions.list\xa0\xaf\xa8\xd2\x05\x01\x12C\n" +
-	"\x17CAP_REX_WORKERS_CONNECT\x10\x93\x15\x1a%\xa8ˑM\xb8\x01\x9a\xaf\xa8\xd2\x05\x13rex.workers.connect\xa0\xaf\xa8\xd2\x05\x01\x12/\n" +
+	"\x17CAP_REX_WORKERS_CONNECT\x10\x93\x15\x1a%\xa8ˑM\xb8\x01\x9a\xaf\xa8\xd2\x05\x13rex.workers.connect\xa0\xaf\xa8\xd2\x05\x01\x127\n" +
+	"\x11CAP_REX_CLASS_USE\x10\x94\x15\x1a\x1f\xa8ˑM\xbd\x01\x9a\xaf\xa8\xd2\x05\rrex.class.use\xa0\xaf\xa8\xd2\x05\x01\x12;\n" +
+	"\x13CAP_REX_CLASS_SERVE\x10\x95\x15\x1a!\xa8ˑM\xbe\x01\x9a\xaf\xa8\xd2\x05\x0frex.class.serve\xa0\xaf\xa8\xd2\x05\x01\x12/\n" +
 	"\x10CAP_ACTIONS_LIST\x10\x8c\x15\x1a\x18\xa8ˑM\xa4\x01\x9a\xaf\xa8\xd2\x05\factions.list\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x06\b\xd1\x0e\x10\xd1\x0e\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +
 	"\x03bit\x12!.google.protobuf.EnumValueOptions\x18\xb5\x99\xd2\t \x01(\rR\x03bit:I\n" +

@@ -360,10 +360,16 @@ enum Capability {
   CAP_REX_EXECUTIONS_LIST   = 2706 [(name) = "rex.executions.list",   (bit) = 183, (internal_only) = true];
   CAP_REX_WORKERS_CONNECT   = 2707 [(name) = "rex.workers.connect",   (bit) = 184, (internal_only) = true];
 
+  // Gated platform classes. USE authorizes submitting an execution that
+  // demands a gated class; SERVE authorizes a worker pool advertising one.
+  // Both are evaluated at the class's own UIDP node, never at the instance.
+  CAP_REX_CLASS_USE   = 2708 [(name) = "rex.class.use",   (bit) = 189, (internal_only) = true];
+  CAP_REX_CLASS_SERVE = 2709 [(name) = "rex.class.serve", (bit) = 190, (internal_only) = true];
+
   // Actions catalog — the read-only catalog of Chainguard-published GitHub
   // Actions and the upstreams they mirror. Writes are internal (importer only).
   CAP_ACTIONS_LIST = 2700 [(name) = "actions.list", (bit) = 164];
 
   reserved 1;
-  // next bit: 189
+  // next bit: 191
 }
