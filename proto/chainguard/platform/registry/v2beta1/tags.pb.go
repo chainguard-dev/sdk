@@ -15,6 +15,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -31,7 +32,7 @@ const (
 // Tag is a container image tag that points to a specific digest of an image manifest.
 type Tag struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The unique dentifier of this Tag, a UIDP under a Repo.
+	// The unique identifier of this Tag, a UIDP under a Repo.
 	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	// The name of the Tag.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
@@ -166,6 +167,107 @@ func (x *GetTagRequest) GetUid() string {
 	return ""
 }
 
+// CreateTagRequest is the request message for creating a Tag under a Repo.
+type CreateTagRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The Repo UIDP under which the Tag is created.
+	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	// The Tag to create.
+	Tag           *Tag `protobuf:"bytes,2,opt,name=tag,proto3" json:"tag,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateTagRequest) Reset() {
+	*x = CreateTagRequest{}
+	mi := &file_chainguard_platform_registry_v2beta1_tags_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateTagRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateTagRequest) ProtoMessage() {}
+
+func (x *CreateTagRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_registry_v2beta1_tags_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateTagRequest.ProtoReflect.Descriptor instead.
+func (*CreateTagRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_registry_v2beta1_tags_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *CreateTagRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
+func (x *CreateTagRequest) GetTag() *Tag {
+	if x != nil {
+		return x.Tag
+	}
+	return nil
+}
+
+// DeleteTagRequest is the request message for deleting a single Tag by UID.
+type DeleteTagRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UID of the tag to delete.
+	Uid           string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteTagRequest) Reset() {
+	*x = DeleteTagRequest{}
+	mi := &file_chainguard_platform_registry_v2beta1_tags_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteTagRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteTagRequest) ProtoMessage() {}
+
+func (x *DeleteTagRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_registry_v2beta1_tags_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteTagRequest.ProtoReflect.Descriptor instead.
+func (*DeleteTagRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_registry_v2beta1_tags_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *DeleteTagRequest) GetUid() string {
+	if x != nil {
+		return x.Uid
+	}
+	return ""
+}
+
 // ListTagsRequest provides filtering options for ListTags.
 type ListTagsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -208,7 +310,7 @@ type ListTagsRequest struct {
 
 func (x *ListTagsRequest) Reset() {
 	*x = ListTagsRequest{}
-	mi := &file_chainguard_platform_registry_v2beta1_tags_proto_msgTypes[2]
+	mi := &file_chainguard_platform_registry_v2beta1_tags_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -220,7 +322,7 @@ func (x *ListTagsRequest) String() string {
 func (*ListTagsRequest) ProtoMessage() {}
 
 func (x *ListTagsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2beta1_tags_proto_msgTypes[2]
+	mi := &file_chainguard_platform_registry_v2beta1_tags_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -233,7 +335,7 @@ func (x *ListTagsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTagsRequest.ProtoReflect.Descriptor instead.
 func (*ListTagsRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_registry_v2beta1_tags_proto_rawDescGZIP(), []int{2}
+	return file_chainguard_platform_registry_v2beta1_tags_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ListTagsRequest) GetUidp() *v1.UIDPFilter {
@@ -333,7 +435,7 @@ type ListTagsResponse struct {
 
 func (x *ListTagsResponse) Reset() {
 	*x = ListTagsResponse{}
-	mi := &file_chainguard_platform_registry_v2beta1_tags_proto_msgTypes[3]
+	mi := &file_chainguard_platform_registry_v2beta1_tags_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -345,7 +447,7 @@ func (x *ListTagsResponse) String() string {
 func (*ListTagsResponse) ProtoMessage() {}
 
 func (x *ListTagsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2beta1_tags_proto_msgTypes[3]
+	mi := &file_chainguard_platform_registry_v2beta1_tags_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -358,7 +460,7 @@ func (x *ListTagsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTagsResponse.ProtoReflect.Descriptor instead.
 func (*ListTagsResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_registry_v2beta1_tags_proto_rawDescGZIP(), []int{3}
+	return file_chainguard_platform_registry_v2beta1_tags_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ListTagsResponse) GetTags() []*Tag {
@@ -393,7 +495,7 @@ var File_chainguard_platform_registry_v2beta1_tags_proto protoreflect.FileDescri
 
 const file_chainguard_platform_registry_v2beta1_tags_proto_rawDesc = "" +
 	"\n" +
-	"/chainguard/platform/registry/v2beta1/tags.proto\x12$chainguard.platform.registry.v2beta1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\x96\x02\n" +
+	"/chainguard/platform/registry/v2beta1/tags.proto\x12$chainguard.platform.registry.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\x97\x02\n" +
 	"\x03Tag\x12\x16\n" +
 	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12\x18\n" +
 	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x04name\x12\x1c\n" +
@@ -403,10 +505,17 @@ const file_chainguard_platform_registry_v2beta1_tags_proto_rawDesc = "" +
 	"\n" +
 	"deprecated\x18\x05 \x01(\bB\x04\xe2A\x01\x01R\n" +
 	"deprecated\x12\x1e\n" +
-	"\abundles\x18\x06 \x03(\tB\x04\xe2A\x01\x01R\abundles:6\xeaA3\n" +
-	"\x1aregisry.chainguard.dev/Tag\x12\n" +
+	"\abundles\x18\x06 \x03(\tB\x04\xe2A\x01\x01R\abundles:7\xeaA4\n" +
+	"\x1bregistry.chainguard.dev/Tag\x12\n" +
 	"tags/{tag}*\x04tags2\x03tag\"-\n" +
 	"\rGetTagRequest\x12\x1c\n" +
+	"\x03uid\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\"y\n" +
+	"\x10CreateTagRequest\x12\"\n" +
+	"\x06parent\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12A\n" +
+	"\x03tag\x18\x02 \x01(\v2).chainguard.platform.registry.v2beta1.TagB\x04\xe2A\x01\x02R\x03tag\"0\n" +
+	"\x10DeleteTagRequest\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\"\xe0\x03\n" +
 	"\x0fListTagsRequest\x12@\n" +
@@ -429,14 +538,22 @@ const file_chainguard_platform_registry_v2beta1_tags_proto_rawDesc = "" +
 	"\vtotal_count\x18\x03 \x01(\x03H\x00R\n" +
 	"totalCount\x88\x01\x01\x12\x18\n" +
 	"\askipped\x18\x04 \x01(\x05R\askippedB\x0e\n" +
-	"\f_total_count2\x85\x04\n" +
+	"\f_total_count2\xc3\b\n" +
 	"\vTagsService\x12\xd3\x01\n" +
 	"\x06GetTag\x123.chainguard.platform.registry.v2beta1.GetTagRequest\x1a).chainguard.platform.registry.v2beta1.Tag\"i\x82\xd3\xe4\x93\x02!\x12\x1f/registry/v2beta1/tags/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xcd\f\x9a\xaf\xa8\xd2\x050\n" +
 	"&Get a container image tag by its UIDP.\x18\x01 \x00(\x010\x00\x12\x9f\x02\n" +
 	"\bListTags\x125.chainguard.platform.registry.v2beta1.ListTagsRequest\x1a6.chainguard.platform.registry.v2beta1.ListTagsResponse\"\xa3\x01\x82\xd3\xe4\x93\x02\x18\x12\x16/registry/v2beta1/tags\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\xcd\f\x10\x01\x9a\xaf\xa8\xd2\x05q\n" +
-	"gList container image tags the caller has access to. Supports filtering by name, digest, and date range.\x18\x01 \x00(\x010\x00Bv\n" +
+	"gList container image tags the caller has access to. Supports filtering by name, digest, and date range.\x18\x01 \x00(\x010\x00\x12\xaa\x02\n" +
+	"\tCreateTag\x126.chainguard.platform.registry.v2beta1.CreateTagRequest\x1a).chainguard.platform.registry.v2beta1.Tag\"\xb9\x01\x82\xd3\xe4\x93\x02):\x03tag\"\"/registry/v2beta1/tags/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xcb\f\x9a\xaf\xa8\xd2\x054\n" +
+	"*Create a container image tag under a repo.\x10\x01 \x00(\x010\x00\xc2\xf0\x8e\xfc\v>\n" +
+	"3dev.chainguard.api.platform.registry.tag.created.v1\x12\x05group\x18\x01\x12\x8e\x02\n" +
+	"\tDeleteTag\x126.chainguard.platform.registry.v2beta1.DeleteTagRequest\x1a\x16.google.protobuf.Empty\"\xb0\x01\x82\xd3\xe4\x93\x02!*\x1f/registry/v2beta1/tags/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xce\f\x9a\xaf\xa8\xd2\x053\n" +
+	")Delete a container image tag by its UIDP.\x10\x01 \x01(\x010\x00\xc2\xf0\x8e\xfc\v>\n" +
+	"3dev.chainguard.api.platform.registry.tag.deleted.v1\x12\x05group\x18\x01Bv\n" +
 	"(com.chainguard.platform.registry.v2beta1B\tTagsProtoP\x01Z=chainguard.dev/sdk/proto/chainguard/platform/registry/v2beta1b\x06proto3"
 
 var (
@@ -451,29 +568,37 @@ func file_chainguard_platform_registry_v2beta1_tags_proto_rawDescGZIP() []byte {
 	return file_chainguard_platform_registry_v2beta1_tags_proto_rawDescData
 }
 
-var file_chainguard_platform_registry_v2beta1_tags_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_chainguard_platform_registry_v2beta1_tags_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_chainguard_platform_registry_v2beta1_tags_proto_goTypes = []any{
 	(*Tag)(nil),                   // 0: chainguard.platform.registry.v2beta1.Tag
 	(*GetTagRequest)(nil),         // 1: chainguard.platform.registry.v2beta1.GetTagRequest
-	(*ListTagsRequest)(nil),       // 2: chainguard.platform.registry.v2beta1.ListTagsRequest
-	(*ListTagsResponse)(nil),      // 3: chainguard.platform.registry.v2beta1.ListTagsResponse
-	(*timestamppb.Timestamp)(nil), // 4: google.protobuf.Timestamp
-	(*v1.UIDPFilter)(nil),         // 5: chainguard.platform.common.UIDPFilter
+	(*CreateTagRequest)(nil),      // 2: chainguard.platform.registry.v2beta1.CreateTagRequest
+	(*DeleteTagRequest)(nil),      // 3: chainguard.platform.registry.v2beta1.DeleteTagRequest
+	(*ListTagsRequest)(nil),       // 4: chainguard.platform.registry.v2beta1.ListTagsRequest
+	(*ListTagsResponse)(nil),      // 5: chainguard.platform.registry.v2beta1.ListTagsResponse
+	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),         // 7: chainguard.platform.common.UIDPFilter
+	(*emptypb.Empty)(nil),         // 8: google.protobuf.Empty
 }
 var file_chainguard_platform_registry_v2beta1_tags_proto_depIdxs = []int32{
-	4, // 0: chainguard.platform.registry.v2beta1.Tag.update_time:type_name -> google.protobuf.Timestamp
-	5, // 1: chainguard.platform.registry.v2beta1.ListTagsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	4, // 2: chainguard.platform.registry.v2beta1.ListTagsRequest.updated_since:type_name -> google.protobuf.Timestamp
-	0, // 3: chainguard.platform.registry.v2beta1.ListTagsResponse.tags:type_name -> chainguard.platform.registry.v2beta1.Tag
-	1, // 4: chainguard.platform.registry.v2beta1.TagsService.GetTag:input_type -> chainguard.platform.registry.v2beta1.GetTagRequest
-	2, // 5: chainguard.platform.registry.v2beta1.TagsService.ListTags:input_type -> chainguard.platform.registry.v2beta1.ListTagsRequest
-	0, // 6: chainguard.platform.registry.v2beta1.TagsService.GetTag:output_type -> chainguard.platform.registry.v2beta1.Tag
-	3, // 7: chainguard.platform.registry.v2beta1.TagsService.ListTags:output_type -> chainguard.platform.registry.v2beta1.ListTagsResponse
-	6, // [6:8] is the sub-list for method output_type
-	4, // [4:6] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	6, // 0: chainguard.platform.registry.v2beta1.Tag.update_time:type_name -> google.protobuf.Timestamp
+	0, // 1: chainguard.platform.registry.v2beta1.CreateTagRequest.tag:type_name -> chainguard.platform.registry.v2beta1.Tag
+	7, // 2: chainguard.platform.registry.v2beta1.ListTagsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	6, // 3: chainguard.platform.registry.v2beta1.ListTagsRequest.updated_since:type_name -> google.protobuf.Timestamp
+	0, // 4: chainguard.platform.registry.v2beta1.ListTagsResponse.tags:type_name -> chainguard.platform.registry.v2beta1.Tag
+	1, // 5: chainguard.platform.registry.v2beta1.TagsService.GetTag:input_type -> chainguard.platform.registry.v2beta1.GetTagRequest
+	4, // 6: chainguard.platform.registry.v2beta1.TagsService.ListTags:input_type -> chainguard.platform.registry.v2beta1.ListTagsRequest
+	2, // 7: chainguard.platform.registry.v2beta1.TagsService.CreateTag:input_type -> chainguard.platform.registry.v2beta1.CreateTagRequest
+	3, // 8: chainguard.platform.registry.v2beta1.TagsService.DeleteTag:input_type -> chainguard.platform.registry.v2beta1.DeleteTagRequest
+	0, // 9: chainguard.platform.registry.v2beta1.TagsService.GetTag:output_type -> chainguard.platform.registry.v2beta1.Tag
+	5, // 10: chainguard.platform.registry.v2beta1.TagsService.ListTags:output_type -> chainguard.platform.registry.v2beta1.ListTagsResponse
+	0, // 11: chainguard.platform.registry.v2beta1.TagsService.CreateTag:output_type -> chainguard.platform.registry.v2beta1.Tag
+	8, // 12: chainguard.platform.registry.v2beta1.TagsService.DeleteTag:output_type -> google.protobuf.Empty
+	9, // [9:13] is the sub-list for method output_type
+	5, // [5:9] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_registry_v2beta1_tags_proto_init() }
@@ -481,14 +606,14 @@ func file_chainguard_platform_registry_v2beta1_tags_proto_init() {
 	if File_chainguard_platform_registry_v2beta1_tags_proto != nil {
 		return
 	}
-	file_chainguard_platform_registry_v2beta1_tags_proto_msgTypes[3].OneofWrappers = []any{}
+	file_chainguard_platform_registry_v2beta1_tags_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_registry_v2beta1_tags_proto_rawDesc), len(file_chainguard_platform_registry_v2beta1_tags_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

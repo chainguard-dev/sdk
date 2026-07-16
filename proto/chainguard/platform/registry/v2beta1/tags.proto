@@ -6,10 +6,12 @@ syntax = "proto3";
 package chainguard.platform.registry.v2beta1;
 
 import "annotations/auth.proto";
+import "annotations/events.proto";
 import "annotations/mcp.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "platform/common/v1/uidp.platform.proto";
 
@@ -54,18 +56,67 @@ service TagsService {
       open_world: false
     };
   }
+
+  // CreateTag creates (or updates) a tag under a repo.
+  rpc CreateTag(CreateTagRequest) returns (Tag) {
+    option (google.api.http) = {
+      post: "/registry/v2beta1/tags/{parent=**}"
+      body: "tag"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TAG_CREATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.platform.registry.tag.created.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Create a container image tag under a repo."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
+      hidden: true
+    };
+  }
+
+  // DeleteTag deletes a tag by UID.
+  rpc DeleteTag(DeleteTagRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/registry/v2beta1/tags/{uid=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TAG_DELETE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.platform.registry.tag.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Delete a container image tag by its UIDP."
+      read_only: false
+      destructive: true
+      idempotent: true
+      open_world: false
+      hidden: true
+    };
+  }
 }
 
 // Tag is a container image tag that points to a specific digest of an image manifest.
 message Tag {
   option (google.api.resource) = {
-    type: "regisry.chainguard.dev/Tag"
+    type: "registry.chainguard.dev/Tag"
     pattern: "tags/{tag}"
     singular: "tag"
     plural: "tags"
   };
 
-  // The unique dentifier of this Tag, a UIDP under a Repo.
+  // The unique identifier of this Tag, a UIDP under a Repo.
   string uid = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The name of the Tag.
@@ -88,6 +139,27 @@ message Tag {
 // GetTagRequest is the request message for getting a single Tag by UID.
 message GetTagRequest {
   // UID of the tag to retrieve.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// CreateTagRequest is the request message for creating a Tag under a Repo.
+message CreateTagRequest {
+  // The Repo UIDP under which the Tag is created.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The Tag to create.
+  Tag tag = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// DeleteTagRequest is the request message for deleting a single Tag by UID.
+message DeleteTagRequest {
+  // UID of the tag to delete.
   string uid = 1 [
     (google.api.field_behavior) = REQUIRED,
     (chainguard.annotations.iam_scope) = true
