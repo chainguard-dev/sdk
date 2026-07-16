@@ -25,6 +25,7 @@ const (
 	ArgosOSV_Query_FullMethodName      = "/chainguard.platform.argos.ArgosOSV/Query"
 	ArgosOSV_QueryBatch_FullMethodName = "/chainguard.platform.argos.ArgosOSV/QueryBatch"
 	ArgosOSV_GetVuln_FullMethodName    = "/chainguard.platform.argos.ArgosOSV/GetVuln"
+	ArgosOSV_Dump_FullMethodName       = "/chainguard.platform.argos.ArgosOSV/Dump"
 )
 
 // ArgosOSVClient is the client API for ArgosOSV service.
@@ -38,6 +39,7 @@ type ArgosOSVClient interface {
 	Query(ctx context.Context, in *OSVQueryRequest, opts ...grpc.CallOption) (*OSVQueryResponse, error)
 	QueryBatch(ctx context.Context, in *OSVQueryBatchRequest, opts ...grpc.CallOption) (*OSVQueryBatchResponse, error)
 	GetVuln(ctx context.Context, in *GetOSVRequest, opts ...grpc.CallOption) (*OSVRecord, error)
+	Dump(ctx context.Context, in *DumpOSVRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[DumpOSVResponse], error)
 }
 
 type argosOSVClient struct {
@@ -78,6 +80,25 @@ func (c *argosOSVClient) GetVuln(ctx context.Context, in *GetOSVRequest, opts ..
 	return out, nil
 }
 
+func (c *argosOSVClient) Dump(ctx context.Context, in *DumpOSVRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[DumpOSVResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &ArgosOSV_ServiceDesc.Streams[0], ArgosOSV_Dump_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[DumpOSVRequest, DumpOSVResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ArgosOSV_DumpClient = grpc.ServerStreamingClient[DumpOSVResponse]
+
 // ArgosOSVServer is the server API for ArgosOSV service.
 // All implementations must embed UnimplementedArgosOSVServer
 // for forward compatibility.
@@ -89,6 +110,7 @@ type ArgosOSVServer interface {
 	Query(context.Context, *OSVQueryRequest) (*OSVQueryResponse, error)
 	QueryBatch(context.Context, *OSVQueryBatchRequest) (*OSVQueryBatchResponse, error)
 	GetVuln(context.Context, *GetOSVRequest) (*OSVRecord, error)
+	Dump(*DumpOSVRequest, grpc.ServerStreamingServer[DumpOSVResponse]) error
 	mustEmbedUnimplementedArgosOSVServer()
 }
 
@@ -107,6 +129,9 @@ func (UnimplementedArgosOSVServer) QueryBatch(context.Context, *OSVQueryBatchReq
 }
 func (UnimplementedArgosOSVServer) GetVuln(context.Context, *GetOSVRequest) (*OSVRecord, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetVuln not implemented")
+}
+func (UnimplementedArgosOSVServer) Dump(*DumpOSVRequest, grpc.ServerStreamingServer[DumpOSVResponse]) error {
+	return status.Error(codes.Unimplemented, "method Dump not implemented")
 }
 func (UnimplementedArgosOSVServer) mustEmbedUnimplementedArgosOSVServer() {}
 func (UnimplementedArgosOSVServer) testEmbeddedByValue()                  {}
@@ -183,6 +208,17 @@ func _ArgosOSV_GetVuln_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ArgosOSV_Dump_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(DumpOSVRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ArgosOSVServer).Dump(m, &grpc.GenericServerStream[DumpOSVRequest, DumpOSVResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ArgosOSV_DumpServer = grpc.ServerStreamingServer[DumpOSVResponse]
+
 // ArgosOSV_ServiceDesc is the grpc.ServiceDesc for ArgosOSV service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -203,6 +239,12 @@ var ArgosOSV_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ArgosOSV_GetVuln_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Dump",
+			Handler:       _ArgosOSV_Dump_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "argos_osv.platform.proto",
 }

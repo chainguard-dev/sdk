@@ -51,6 +51,17 @@ service ArgosOSV {
       }
     };
   }
+  rpc Dump(DumpOSVRequest) returns (stream DumpOSVResponse) {
+    option (google.api.http) = {
+      get: "/argos/v1/osv/dump"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ARGOS_OSV_READ]
+        unscoped: true
+      }
+    };
+  }
 }
 
 message Package {
@@ -185,4 +196,22 @@ message OSVQueryBatchResponse {
 
 message GetOSVRequest {
   string id = 1;
+}
+
+message DumpOSVRequest {}
+
+// DumpOSVMetadata is the first message in a Dump stream, carrying archive
+// provenance. Subsequent messages carry raw tar.gz chunks via DumpOSVResponse.
+message DumpOSVMetadata {
+  google.protobuf.Timestamp generated_at = 1 [json_name = "generated_at"];
+  int64 size_bytes = 2 [json_name = "size_bytes"];
+  string sha256 = 3;
+}
+
+// DumpOSVResponse is either the leading metadata frame or a raw archive chunk.
+message DumpOSVResponse {
+  oneof content {
+    DumpOSVMetadata metadata = 1;
+    bytes chunk = 2;
+  }
 }
