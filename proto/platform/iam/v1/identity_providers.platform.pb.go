@@ -341,7 +341,10 @@ type IdentityProvider_OIDC struct {
 	AdditionalScopes []string `protobuf:"bytes,4,rep,name=additional_scopes,json=additionalScopes,proto3" json:"additional_scopes,omitempty"`
 	// groups_claim is the name of the OIDC token claim containing group memberships.
 	// Required for IdP group-based role mapping.
-	GroupsClaim   string `protobuf:"bytes,5,opt,name=groups_claim,json=groupsClaim,proto3" json:"groups_claim,omitempty"`
+	GroupsClaim string `protobuf:"bytes,5,opt,name=groups_claim,json=groupsClaim,proto3" json:"groups_claim,omitempty"`
+	// pkce_enabled is whether to use PKCE (RFC 7636) when exchanging authorization codes
+	// with this upstream identity provider. Required by OAuth 2.1.
+	PkceEnabled   bool `protobuf:"varint,7,opt,name=pkce_enabled,json=pkceEnabled,proto3" json:"pkce_enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -411,23 +414,31 @@ func (x *IdentityProvider_OIDC) GetGroupsClaim() string {
 	return ""
 }
 
+func (x *IdentityProvider_OIDC) GetPkceEnabled() bool {
+	if x != nil {
+		return x.PkceEnabled
+	}
+	return false
+}
+
 var File_identity_providers_platform_proto protoreflect.FileDescriptor
 
 const file_identity_providers_platform_proto_rawDesc = "" +
 	"\n" +
-	"!identity_providers.platform.proto\x12\x17chainguard.platform.iam\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a&platform/common/v1/uidp.platform.proto\"\x8d\x03\n" +
+	"!identity_providers.platform.proto\x12\x17chainguard.platform.iam\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a&platform/common/v1/uidp.platform.proto\"\xb6\x03\n" +
 	"\x10IdentityProvider\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12!\n" +
 	"\fdefault_role\x18\x04 \x01(\tR\vdefaultRole\x12D\n" +
-	"\x04oidc\x18\x14 \x01(\v2..chainguard.platform.iam.IdentityProvider.OIDCH\x00R\x04oidc\x1a\xb0\x01\n" +
+	"\x04oidc\x18\x14 \x01(\v2..chainguard.platform.iam.IdentityProvider.OIDCH\x00R\x04oidc\x1a\xd9\x01\n" +
 	"\x04OIDC\x12\x16\n" +
 	"\x06issuer\x18\x01 \x01(\tR\x06issuer\x12\x1b\n" +
 	"\tclient_id\x18\x02 \x01(\tR\bclientId\x12#\n" +
 	"\rclient_secret\x18\x03 \x01(\tR\fclientSecret\x12+\n" +
 	"\x11additional_scopes\x18\x04 \x03(\tR\x10additionalScopes\x12!\n" +
-	"\fgroups_claim\x18\x05 \x01(\tR\vgroupsClaimB\x0f\n" +
+	"\fgroups_claim\x18\x05 \x01(\tR\vgroupsClaim\x12!\n" +
+	"\fpkce_enabled\x18\a \x01(\bR\vpkceEnabledJ\x04\b\x06\x10\aB\x0f\n" +
 	"\rconfiguration\"\x9c\x01\n" +
 	"\x1dCreateIdentityProviderRequest\x12#\n" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12V\n" +

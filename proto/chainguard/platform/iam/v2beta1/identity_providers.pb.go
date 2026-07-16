@@ -569,7 +569,10 @@ type IdentityProvider_OIDC struct {
 	// Name of the OIDC token claim that carries the user's group memberships
 	// (e.g. "groups" for Entra, a custom claim name for Okta). Required for
 	// IdP group-based role mapping; when empty, group extraction is skipped.
-	GroupsClaim   string `protobuf:"bytes,5,opt,name=groups_claim,json=groupsClaim,proto3" json:"groups_claim,omitempty"`
+	GroupsClaim string `protobuf:"bytes,5,opt,name=groups_claim,json=groupsClaim,proto3" json:"groups_claim,omitempty"`
+	// Whether to use PKCE (RFC 7636) when exchanging authorization codes
+	// with this upstream identity provider. Required by OAuth 2.1.
+	PkceEnabled   bool `protobuf:"varint,7,opt,name=pkce_enabled,json=pkceEnabled,proto3" json:"pkce_enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -639,6 +642,13 @@ func (x *IdentityProvider_OIDC) GetGroupsClaim() string {
 	return ""
 }
 
+func (x *IdentityProvider_OIDC) GetPkceEnabled() bool {
+	if x != nil {
+		return x.PkceEnabled
+	}
+	return false
+}
+
 // SCIM holds the System for Cross-domain Identity Management provisioning
 // configuration for an identity provider.
 type IdentityProvider_SCIM struct {
@@ -703,7 +713,7 @@ var File_chainguard_platform_iam_v2beta1_identity_providers_proto protoreflect.F
 
 const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = "" +
 	"\n" +
-	"8chainguard/platform/iam/v2beta1/identity_providers.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\x84\a\n" +
+	"8chainguard/platform/iam/v2beta1/identity_providers.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xb3\a\n" +
 	"\x10IdentityProvider\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
@@ -715,13 +725,14 @@ const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = ""
 	"updateTime\x12'\n" +
 	"\fdefault_role\x18\x06 \x01(\tB\x04\xe2A\x01\x02R\vdefaultRole\x12R\n" +
 	"\x04oidc\x18\x14 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.OIDCB\x04\xe2A\x01\x01H\x00R\x04oidc\x12P\n" +
-	"\x04scim\x18\x15 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.SCIMB\x04\xe2A\x01\x01R\x04scim\x1a\xce\x01\n" +
+	"\x04scim\x18\x15 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.SCIMB\x04\xe2A\x01\x01R\x04scim\x1a\xfd\x01\n" +
 	"\x04OIDC\x12\x1c\n" +
 	"\x06issuer\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x06issuer\x12!\n" +
 	"\tclient_id\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\bclientId\x12)\n" +
 	"\rclient_secret\x18\x03 \x01(\tB\x04\xe2A\x01\x02R\fclientSecret\x121\n" +
 	"\x11additional_scopes\x18\x04 \x03(\tB\x04\xe2A\x01\x01R\x10additionalScopes\x12'\n" +
-	"\fgroups_claim\x18\x05 \x01(\tB\x04\xe2A\x01\x01R\vgroupsClaim\x1ac\n" +
+	"\fgroups_claim\x18\x05 \x01(\tB\x04\xe2A\x01\x01R\vgroupsClaim\x12'\n" +
+	"\fpkce_enabled\x18\a \x01(\bB\x04\xe2A\x01\x01R\vpkceEnabledJ\x04\b\x06\x10\a\x1ac\n" +
 	"\x04SCIM\x12\x1e\n" +
 	"\aenabled\x18\x01 \x01(\bB\x04\xe2A\x01\x01R\aenabled\x12'\n" +
 	"\fendpoint_url\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\vendpointUrlJ\x04\b\x02\x10\x03R\fbearer_token:t\xeaAq\n" +

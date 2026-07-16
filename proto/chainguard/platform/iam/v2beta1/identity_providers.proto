@@ -215,6 +215,13 @@ message IdentityProvider {
     // (e.g. "groups" for Entra, a custom claim name for Okta). Required for
     // IdP group-based role mapping; when empty, group extraction is skipped.
     string groups_claim = 5 [(google.api.field_behavior) = OPTIONAL];
+
+    // Reserved for correlation_rule
+    reserved 6;
+
+    // Whether to use PKCE (RFC 7636) when exchanging authorization codes
+    // with this upstream identity provider. Required by OAuth 2.1.
+    bool pkce_enabled = 7 [(google.api.field_behavior) = OPTIONAL];
   }
 
   // SCIM holds the System for Cross-domain Identity Management provisioning
