@@ -537,4 +537,6 @@ enum ServicePrincipal {
   SERVICE_PRINCIPAL_MATERIALIZER = 9;
   // Microflow service for running a pull request's committed CI workflows in microVMs.
   SERVICE_PRINCIPAL_MICROFLOW = 10;
+  // Guardener service, Chainguard's GitHub automation app for securing and maintaining repositories.
+  SERVICE_PRINCIPAL_GUARDENER = 11;
 }

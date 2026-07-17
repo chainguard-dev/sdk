@@ -120,6 +120,7 @@ enum ServicePrincipal {
   SKILLUP        = 8;
   MATERIALIZER   = 9;
   MICROFLOW      = 10;
+  GUARDENER      = 11;
 }
 
 message Identity {
