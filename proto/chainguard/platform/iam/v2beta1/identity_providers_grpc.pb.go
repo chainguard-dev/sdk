@@ -28,6 +28,10 @@ const (
 	IdentityProvidersService_CreateIdentityProvider_FullMethodName = "/chainguard.platform.iam.v2beta1.IdentityProvidersService/CreateIdentityProvider"
 	IdentityProvidersService_UpdateIdentityProvider_FullMethodName = "/chainguard.platform.iam.v2beta1.IdentityProvidersService/UpdateIdentityProvider"
 	IdentityProvidersService_DeleteIdentityProvider_FullMethodName = "/chainguard.platform.iam.v2beta1.IdentityProvidersService/DeleteIdentityProvider"
+	IdentityProvidersService_GenerateScimToken_FullMethodName      = "/chainguard.platform.iam.v2beta1.IdentityProvidersService/GenerateScimToken"
+	IdentityProvidersService_RegenerateScimToken_FullMethodName    = "/chainguard.platform.iam.v2beta1.IdentityProvidersService/RegenerateScimToken"
+	IdentityProvidersService_RevokeScimToken_FullMethodName        = "/chainguard.platform.iam.v2beta1.IdentityProvidersService/RevokeScimToken"
+	IdentityProvidersService_SetScimEnabled_FullMethodName         = "/chainguard.platform.iam.v2beta1.IdentityProvidersService/SetScimEnabled"
 )
 
 // IdentityProvidersServiceClient is the client API for IdentityProvidersService service.
@@ -46,6 +50,43 @@ type IdentityProvidersServiceClient interface {
 	UpdateIdentityProvider(ctx context.Context, in *UpdateIdentityProviderRequest, opts ...grpc.CallOption) (*IdentityProvider, error)
 	// DeleteIdentityProvider deletes an identity provider by UID.
 	DeleteIdentityProvider(ctx context.Context, in *DeleteIdentityProviderRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// GenerateScimToken issues the first SCIM bearer token for an identity
+	// provider, creating its SCIM provisioning configuration in a disabled state.
+	// Tokens and enablement are separate controls: provisioning stays off until
+	// SCIM is explicitly enabled on the identity provider. The plaintext token is
+	// returned exactly once in the response; only its SHA-256 digest is
+	// persisted, and it is never logged. Use RegenerateScimToken to replace a
+	// token that already exists. This reveal-once operation is not idempotent:
+	// after an ambiguous transport failure, read status before deciding whether
+	// to generate or regenerate rather than blindly retrying.
+	//
+	// Returns FAILED_PRECONDITION if the provider already has a SCIM token
+	// (regenerate it instead).
+	GenerateScimToken(ctx context.Context, in *GenerateScimTokenRequest, opts ...grpc.CallOption) (*GenerateScimTokenResponse, error)
+	// RegenerateScimToken re-keys an identity provider's SCIM bearer token,
+	// whether the current one is live, expired, or revoked. When it is live, the
+	// replacement is make-before-break: the previous token keeps authenticating
+	// for the requested overlap (capped server-side at 24h), so the IdP connector
+	// can be reconfigured with no downtime. The new plaintext token is returned
+	// exactly once.
+	// This reveal-once operation is not safe to retry after an ambiguous
+	// transport failure: read status and its new etag before taking another
+	// lifecycle action.
+	//
+	// Returns NOT_FOUND if the provider has never had a SCIM token (generate first).
+	RegenerateScimToken(ctx context.Context, in *RegenerateScimTokenRequest, opts ...grpc.CallOption) (*RegenerateScimTokenResponse, error)
+	// RevokeScimToken immediately invalidates the current and overlap SCIM bearer
+	// tokens for an identity provider; inbound provisioning stops on the next
+	// request and disables provisioning. A later RegenerateScimToken installs a
+	// credential but leaves provisioning disabled until explicitly enabled.
+	RevokeScimToken(ctx context.Context, in *RevokeScimTokenRequest, opts ...grpc.CallOption) (*RevokeScimTokenResponse, error)
+	// SetScimEnabled explicitly starts or pauses SCIM provisioning. Enabling
+	// requires a live current token and fails with FAILED_PRECONDITION for an
+	// organization with fewer than two manually assigned owner-tier role
+	// bindings, so SCIM can never take over an organization's only owner. Token
+	// generation and rotation never change this switch; revocation always turns
+	// it off.
+	SetScimEnabled(ctx context.Context, in *SetScimEnabledRequest, opts ...grpc.CallOption) (*SetScimEnabledResponse, error)
 }
 
 type identityProvidersServiceClient struct {
@@ -106,6 +147,46 @@ func (c *identityProvidersServiceClient) DeleteIdentityProvider(ctx context.Cont
 	return out, nil
 }
 
+func (c *identityProvidersServiceClient) GenerateScimToken(ctx context.Context, in *GenerateScimTokenRequest, opts ...grpc.CallOption) (*GenerateScimTokenResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GenerateScimTokenResponse)
+	err := c.cc.Invoke(ctx, IdentityProvidersService_GenerateScimToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *identityProvidersServiceClient) RegenerateScimToken(ctx context.Context, in *RegenerateScimTokenRequest, opts ...grpc.CallOption) (*RegenerateScimTokenResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RegenerateScimTokenResponse)
+	err := c.cc.Invoke(ctx, IdentityProvidersService_RegenerateScimToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *identityProvidersServiceClient) RevokeScimToken(ctx context.Context, in *RevokeScimTokenRequest, opts ...grpc.CallOption) (*RevokeScimTokenResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RevokeScimTokenResponse)
+	err := c.cc.Invoke(ctx, IdentityProvidersService_RevokeScimToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *identityProvidersServiceClient) SetScimEnabled(ctx context.Context, in *SetScimEnabledRequest, opts ...grpc.CallOption) (*SetScimEnabledResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetScimEnabledResponse)
+	err := c.cc.Invoke(ctx, IdentityProvidersService_SetScimEnabled_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // IdentityProvidersServiceServer is the server API for IdentityProvidersService service.
 // All implementations must embed UnimplementedIdentityProvidersServiceServer
 // for forward compatibility.
@@ -122,6 +203,43 @@ type IdentityProvidersServiceServer interface {
 	UpdateIdentityProvider(context.Context, *UpdateIdentityProviderRequest) (*IdentityProvider, error)
 	// DeleteIdentityProvider deletes an identity provider by UID.
 	DeleteIdentityProvider(context.Context, *DeleteIdentityProviderRequest) (*emptypb.Empty, error)
+	// GenerateScimToken issues the first SCIM bearer token for an identity
+	// provider, creating its SCIM provisioning configuration in a disabled state.
+	// Tokens and enablement are separate controls: provisioning stays off until
+	// SCIM is explicitly enabled on the identity provider. The plaintext token is
+	// returned exactly once in the response; only its SHA-256 digest is
+	// persisted, and it is never logged. Use RegenerateScimToken to replace a
+	// token that already exists. This reveal-once operation is not idempotent:
+	// after an ambiguous transport failure, read status before deciding whether
+	// to generate or regenerate rather than blindly retrying.
+	//
+	// Returns FAILED_PRECONDITION if the provider already has a SCIM token
+	// (regenerate it instead).
+	GenerateScimToken(context.Context, *GenerateScimTokenRequest) (*GenerateScimTokenResponse, error)
+	// RegenerateScimToken re-keys an identity provider's SCIM bearer token,
+	// whether the current one is live, expired, or revoked. When it is live, the
+	// replacement is make-before-break: the previous token keeps authenticating
+	// for the requested overlap (capped server-side at 24h), so the IdP connector
+	// can be reconfigured with no downtime. The new plaintext token is returned
+	// exactly once.
+	// This reveal-once operation is not safe to retry after an ambiguous
+	// transport failure: read status and its new etag before taking another
+	// lifecycle action.
+	//
+	// Returns NOT_FOUND if the provider has never had a SCIM token (generate first).
+	RegenerateScimToken(context.Context, *RegenerateScimTokenRequest) (*RegenerateScimTokenResponse, error)
+	// RevokeScimToken immediately invalidates the current and overlap SCIM bearer
+	// tokens for an identity provider; inbound provisioning stops on the next
+	// request and disables provisioning. A later RegenerateScimToken installs a
+	// credential but leaves provisioning disabled until explicitly enabled.
+	RevokeScimToken(context.Context, *RevokeScimTokenRequest) (*RevokeScimTokenResponse, error)
+	// SetScimEnabled explicitly starts or pauses SCIM provisioning. Enabling
+	// requires a live current token and fails with FAILED_PRECONDITION for an
+	// organization with fewer than two manually assigned owner-tier role
+	// bindings, so SCIM can never take over an organization's only owner. Token
+	// generation and rotation never change this switch; revocation always turns
+	// it off.
+	SetScimEnabled(context.Context, *SetScimEnabledRequest) (*SetScimEnabledResponse, error)
 	mustEmbedUnimplementedIdentityProvidersServiceServer()
 }
 
@@ -146,6 +264,18 @@ func (UnimplementedIdentityProvidersServiceServer) UpdateIdentityProvider(contex
 }
 func (UnimplementedIdentityProvidersServiceServer) DeleteIdentityProvider(context.Context, *DeleteIdentityProviderRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteIdentityProvider not implemented")
+}
+func (UnimplementedIdentityProvidersServiceServer) GenerateScimToken(context.Context, *GenerateScimTokenRequest) (*GenerateScimTokenResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GenerateScimToken not implemented")
+}
+func (UnimplementedIdentityProvidersServiceServer) RegenerateScimToken(context.Context, *RegenerateScimTokenRequest) (*RegenerateScimTokenResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RegenerateScimToken not implemented")
+}
+func (UnimplementedIdentityProvidersServiceServer) RevokeScimToken(context.Context, *RevokeScimTokenRequest) (*RevokeScimTokenResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RevokeScimToken not implemented")
+}
+func (UnimplementedIdentityProvidersServiceServer) SetScimEnabled(context.Context, *SetScimEnabledRequest) (*SetScimEnabledResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetScimEnabled not implemented")
 }
 func (UnimplementedIdentityProvidersServiceServer) mustEmbedUnimplementedIdentityProvidersServiceServer() {
 }
@@ -259,6 +389,78 @@ func _IdentityProvidersService_DeleteIdentityProvider_Handler(srv interface{}, c
 	return interceptor(ctx, in, info, handler)
 }
 
+func _IdentityProvidersService_GenerateScimToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GenerateScimTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IdentityProvidersServiceServer).GenerateScimToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IdentityProvidersService_GenerateScimToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IdentityProvidersServiceServer).GenerateScimToken(ctx, req.(*GenerateScimTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IdentityProvidersService_RegenerateScimToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegenerateScimTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IdentityProvidersServiceServer).RegenerateScimToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IdentityProvidersService_RegenerateScimToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IdentityProvidersServiceServer).RegenerateScimToken(ctx, req.(*RegenerateScimTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IdentityProvidersService_RevokeScimToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RevokeScimTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IdentityProvidersServiceServer).RevokeScimToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IdentityProvidersService_RevokeScimToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IdentityProvidersServiceServer).RevokeScimToken(ctx, req.(*RevokeScimTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IdentityProvidersService_SetScimEnabled_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetScimEnabledRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IdentityProvidersServiceServer).SetScimEnabled(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IdentityProvidersService_SetScimEnabled_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IdentityProvidersServiceServer).SetScimEnabled(ctx, req.(*SetScimEnabledRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // IdentityProvidersService_ServiceDesc is the grpc.ServiceDesc for IdentityProvidersService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -285,6 +487,22 @@ var IdentityProvidersService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteIdentityProvider",
 			Handler:    _IdentityProvidersService_DeleteIdentityProvider_Handler,
+		},
+		{
+			MethodName: "GenerateScimToken",
+			Handler:    _IdentityProvidersService_GenerateScimToken_Handler,
+		},
+		{
+			MethodName: "RegenerateScimToken",
+			Handler:    _IdentityProvidersService_RegenerateScimToken_Handler,
+		},
+		{
+			MethodName: "RevokeScimToken",
+			Handler:    _IdentityProvidersService_RevokeScimToken_Handler,
+		},
+		{
+			MethodName: "SetScimEnabled",
+			Handler:    _IdentityProvidersService_SetScimEnabled_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

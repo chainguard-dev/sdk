@@ -8,13 +8,37 @@ package v2beta1
 import (
 	"slices"
 	"testing"
+	"time"
 
 	cgannotations "chainguard.dev/sdk/proto/annotations"
+	capabilities "chainguard.dev/sdk/proto/capabilities"
 	"chainguard.dev/sdk/uidp"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/descriptorpb"
+	"google.golang.org/protobuf/types/known/durationpb"
 )
+
+func TestScimLifecycleCapabilityBundle(t *testing.T) {
+	sd := File_chainguard_platform_iam_v2beta1_identity_providers_proto.Services().ByName("IdentityProvidersService")
+	for _, methodName := range []string{"GenerateScimToken", "RegenerateScimToken", "RevokeScimToken", "SetScimEnabled"} {
+		method := sd.Methods().ByName(protoreflect.Name(methodName))
+		opts := method.Options().(*descriptorpb.MethodOptions)
+		iam, ok := proto.GetExtension(opts, cgannotations.E_Iam).(*cgannotations.IAM)
+		if !ok || iam.GetEnabled() == nil {
+			t.Fatalf("%s missing IAM rules", methodName)
+		}
+		got := iam.GetEnabled().GetCapabilities()
+		for _, want := range []capabilities.Capability{
+			capabilities.Capability_CAP_IAM_SCIM_MANAGE,
+			capabilities.Capability_CAP_IAM_IDENTITY_PROVIDERS_LIST,
+		} {
+			if !slices.Contains(got, want) {
+				t.Errorf("%s capabilities = %v, missing %v", methodName, got, want)
+			}
+		}
+	}
+}
 
 // getEventAttributes extracts EventAttributes from a proto method descriptor.
 func getEventAttributes(t *testing.T, sd protoreflect.ServiceDescriptor, methodName string) *cgannotations.EventAttributes {
@@ -326,6 +350,53 @@ func TestIdentityProvidersEventInterfaces(t *testing.T) {
 	}
 	if redactedBoth.GetScim() == nil || !redactedBoth.GetScim().GetEnabled() {
 		t.Error("redacted IdentityProvider lost Scim config with both configs set")
+	}
+}
+
+func TestScimLifecycleEventAnnotationsAndRedaction(t *testing.T) {
+	sd := File_chainguard_platform_iam_v2beta1_identity_providers_proto.Services().ByName("IdentityProvidersService")
+	runAnnotationTests(t, sd, []annotationTest{
+		{"GenerateScimToken", "dev.chainguard.api.iam.identity_providers.scim_token.generated.v1", []string{"group"}},
+		{"RegenerateScimToken", "dev.chainguard.api.iam.identity_providers.scim_token.regenerated.v1", []string{"group"}},
+		{"RevokeScimToken", "dev.chainguard.api.iam.identity_providers.scim_token.revoked.v1", []string{"group"}},
+		{"SetScimEnabled", "dev.chainguard.api.iam.identity_providers.scim_enabled.updated.v1", []string{"group"}},
+	})
+
+	uid := "abc123/def456"
+	generated := &GenerateScimTokenResponse{Token: "must-not-appear", IdentityProviderUid: uid, Etag: "etag"}
+	redactedGenerated := generated.CloudEventsRedact().(*GenerateScimTokenResponse)
+	if redactedGenerated.GetToken() != "" {
+		t.Fatal("generated-token event redaction retained the plaintext token")
+	}
+	if redactedGenerated.GetIdentityProviderUid() != uid || redactedGenerated.GetEtag() != "etag" {
+		t.Fatal("generated-token event redaction dropped lifecycle metadata")
+	}
+
+	regenerated := &RegenerateScimTokenResponse{
+		Token:               "must-not-appear",
+		IdentityProviderUid: uid,
+		Etag:                "etag2",
+		RequestedOverlap:    durationpb.New(time.Hour),
+	}
+	redactedRegenerated := regenerated.CloudEventsRedact().(*RegenerateScimTokenResponse)
+	if redactedRegenerated.GetToken() != "" {
+		t.Fatal("regenerated-token event redaction retained the plaintext token")
+	}
+	if got, ok := regenerated.CloudEventsExtension("group"); !ok || got != uidp.Parent(uid) {
+		t.Fatalf("SCIM event group extension = (%q, %v), want (%q, true)", got, ok, uidp.Parent(uid))
+	}
+	if got := redactedRegenerated.GetRequestedOverlap(); got == nil || got.AsDuration() != time.Hour {
+		t.Fatalf("regenerated-token event requested overlap = %v, want 1h", got)
+	}
+
+	// The issuance responses carry the one-time plaintext token, so their
+	// events must not hold up the response behind synchronous delivery. The
+	// compile-time assertions only prove the method exists; pin its value.
+	if !generated.CloudEventsAsync() {
+		t.Error("GenerateScimTokenResponse.CloudEventsAsync() = false, want true")
+	}
+	if !regenerated.CloudEventsAsync() {
+		t.Error("RegenerateScimTokenResponse.CloudEventsAsync() = false, want true")
 	}
 }
 

@@ -31,6 +31,14 @@ type Eventable interface {
 	CloudEventsSubject() string
 }
 
+// AsyncEventable opts an Eventable response into asynchronous delivery after
+// the event has been fully constructed and redacted. Use this only when waiting
+// for the event sink would make delivery of the primary response materially
+// less safe, such as a reveal-once credential response.
+type AsyncEventable interface {
+	CloudEventsAsync() bool
+}
+
 // Extendable allows us to define a generic method to return extensions based on name.
 type Extendable interface {
 	CloudEventsExtension(key string) (string, bool)

@@ -11,6 +11,7 @@ import "annotations/mcp.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
+import "google/protobuf/duration.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
@@ -143,6 +144,123 @@ service IdentityProvidersService {
       open_world: false
     };
   }
+
+  // GenerateScimToken issues the first SCIM bearer token for an identity
+  // provider, creating its SCIM provisioning configuration in a disabled state.
+  // Tokens and enablement are separate controls: provisioning stays off until
+  // SCIM is explicitly enabled on the identity provider. The plaintext token is
+  // returned exactly once in the response; only its SHA-256 digest is
+  // persisted, and it is never logged. Use RegenerateScimToken to replace a
+  // token that already exists. This reveal-once operation is not idempotent:
+  // after an ambiguous transport failure, read status before deciding whether
+  // to generate or regenerate rather than blindly retrying.
+  //
+  // Returns FAILED_PRECONDITION if the provider already has a SCIM token
+  // (regenerate it instead).
+  rpc GenerateScimToken(GenerateScimTokenRequest) returns (GenerateScimTokenResponse) {
+    option (google.api.http) = {
+      post: "/iam/v2beta1/identityProviders/{identity_provider_uid=**}:generateScimToken"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_IAM_SCIM_MANAGE,
+          CAP_IAM_IDENTITY_PROVIDERS_LIST
+        ]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.identity_providers.scim_token.generated.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {hidden: true};
+  }
+
+  // RegenerateScimToken re-keys an identity provider's SCIM bearer token,
+  // whether the current one is live, expired, or revoked. When it is live, the
+  // replacement is make-before-break: the previous token keeps authenticating
+  // for the requested overlap (capped server-side at 24h), so the IdP connector
+  // can be reconfigured with no downtime. The new plaintext token is returned
+  // exactly once.
+  // This reveal-once operation is not safe to retry after an ambiguous
+  // transport failure: read status and its new etag before taking another
+  // lifecycle action.
+  //
+  // Returns NOT_FOUND if the provider has never had a SCIM token (generate first).
+  rpc RegenerateScimToken(RegenerateScimTokenRequest) returns (RegenerateScimTokenResponse) {
+    option (google.api.http) = {
+      post: "/iam/v2beta1/identityProviders/{identity_provider_uid=**}:regenerateScimToken"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_IAM_SCIM_MANAGE,
+          CAP_IAM_IDENTITY_PROVIDERS_LIST
+        ]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.identity_providers.scim_token.regenerated.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {hidden: true};
+  }
+
+  // RevokeScimToken immediately invalidates the current and overlap SCIM bearer
+  // tokens for an identity provider; inbound provisioning stops on the next
+  // request and disables provisioning. A later RegenerateScimToken installs a
+  // credential but leaves provisioning disabled until explicitly enabled.
+  rpc RevokeScimToken(RevokeScimTokenRequest) returns (RevokeScimTokenResponse) {
+    option (google.api.http) = {
+      post: "/iam/v2beta1/identityProviders/{identity_provider_uid=**}:revokeScimToken"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_IAM_SCIM_MANAGE,
+          CAP_IAM_IDENTITY_PROVIDERS_LIST
+        ]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.identity_providers.scim_token.revoked.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {hidden: true};
+  }
+
+  // SetScimEnabled explicitly starts or pauses SCIM provisioning. Enabling
+  // requires a live current token and fails with FAILED_PRECONDITION for an
+  // organization with fewer than two manually assigned owner-tier role
+  // bindings, so SCIM can never take over an organization's only owner. Token
+  // generation and rotation never change this switch; revocation always turns
+  // it off.
+  rpc SetScimEnabled(SetScimEnabledRequest) returns (SetScimEnabledResponse) {
+    option (google.api.http) = {
+      post: "/iam/v2beta1/identityProviders/{identity_provider_uid=**}:setScimEnabled"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_IAM_SCIM_MANAGE,
+          CAP_IAM_IDENTITY_PROVIDERS_LIST
+        ]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.identity_providers.scim_enabled.updated.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {hidden: true};
+  }
 }
 
 // IdentityProvider represents the configuration parameters necessary for performing
@@ -187,13 +305,18 @@ message IdentityProvider {
     OIDC oidc = 20 [(google.api.field_behavior) = OPTIONAL];
   }
 
-  // SCIM provisioning configuration for this identity provider.
+  // SCIM provisioning status for this identity provider.
   //
   // SCIM is a provisioning protocol and is independent of the authentication
   // mechanism in `configuration`: an identity provider may use OIDC for
   // authentication and SCIM for provisioning at the same time. It is therefore
   // a top-level field rather than a member of the `configuration` oneof.
-  SCIM scim = 21 [(google.api.field_behavior) = OPTIONAL];
+  //
+  // Output only: populated on reads and ignored on create and update (a
+  // read-modify-write client may echo it back safely). Token state changes
+  // only through the SCIM token methods, and enabling provisioning is its own
+  // gated action.
+  SCIM scim = 21 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Configuration parameters for performing an OIDC token exchange.
   message OIDC {
@@ -227,22 +350,62 @@ message IdentityProvider {
   // SCIM holds the System for Cross-domain Identity Management provisioning
   // configuration for an identity provider.
   message SCIM {
+    // CredentialState is the server-derived lifecycle state of the SCIM
+    // bearer credential. It describes the credential only; whether
+    // provisioning is on is the separate `enabled` switch.
+    enum CredentialState {
+      // The state is not reported (for example on List responses, which omit
+      // SCIM status).
+      CREDENTIAL_STATE_UNSPECIFIED = 0;
+      // No token has ever been generated for this identity provider.
+      CREDENTIAL_STATE_NOT_ISSUED = 1;
+      // The current token authenticates.
+      CREDENTIAL_STATE_LIVE = 2;
+      // The current token passed its declared expiry and no longer
+      // authenticates. Regenerate to issue a replacement.
+      CREDENTIAL_STATE_EXPIRED = 3;
+      // The token was explicitly revoked; nothing authenticates and
+      // provisioning was switched off. Regenerating issues a new credential
+      // but does not re-enable provisioning.
+      CREDENTIAL_STATE_REVOKED = 4;
+      // A regeneration overlap is active: the new token authenticates and the
+      // previous one keeps authenticating until previous_token_expire_time.
+      CREDENTIAL_STATE_ROTATING = 5;
+    }
     // Whether SCIM provisioning is enabled for this identity provider.
-    bool enabled = 1 [(google.api.field_behavior) = OPTIONAL];
+    // Changing it is a dedicated gated action, not an identity provider write.
+    bool enabled = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-    // Field 2 is reserved for `bearer_token`, the SCIM bearer token used to
-    // authenticate provisioning requests. Generation and rotation land in
-    // CUS-450; the number is reserved now to prevent a silent deserialization
-    // collision when that field is added.
+    // Field 2 stays reserved for `bearer_token`: the SCIM bearer token is a
+    // reveal-once credential that never fits resource read/update semantics,
+    // so it is not modelled as a field here. Its lifecycle is the
+    // GenerateScimToken / RegenerateScimToken / RevokeScimToken methods, and
+    // only its digest is persisted, never a field on this resource.
     reserved 2;
     reserved "bearer_token";
 
     // Server-derived SCIM endpoint URL for this identity provider, computed
-    // from the identity provider UIDP. Not user-configurable. OUTPUT_ONLY:
-    // the persistence layer must strip this before writing, since an
-    // implied/inferred field mask does not exclude OUTPUT_ONLY paths
-    // (enforcement lands with SCIM config persistence, CUS-450).
+    // from the identity provider UIDP. Not user-configurable and never
+    // persisted; the token method responses carry the same derived value.
     string endpoint_url = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+    // When the current SCIM bearer token stops authenticating. Unset when no
+    // token has been issued or the token does not expire; a past value means
+    // the token is expired or revoked. Populated on GetIdentityProvider;
+    // omitted from List responses.
+    google.protobuf.Timestamp token_expire_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+    // When a previous token remains valid during rotation overlap.
+    google.protobuf.Timestamp previous_token_expire_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+    // Explicit credential lifecycle state, derived by the server. Whether a
+    // token has ever been issued is readable here: CREDENTIAL_STATE_NOT_ISSUED
+    // means never. Populated on GetIdentityProvider; omitted from List
+    // responses.
+    CredentialState credential_state = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+    // Opaque version for optimistic concurrency on lifecycle mutations.
+    string etag = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
   }
 }
 
@@ -335,4 +498,170 @@ message DeleteIdentityProviderRequest {
     (google.api.field_behavior) = REQUIRED,
     (chainguard.annotations.iam_scope) = true
   ];
+}
+
+// GenerateScimTokenRequest asks for an identity provider's first SCIM bearer
+// token.
+message GenerateScimTokenRequest {
+  // UID of the identity provider to generate a SCIM bearer token for.
+  string identity_provider_uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Optional expiry for the generated token. When neither this nor
+  // never_expires is set, the server defaults to one year.
+  google.protobuf.Timestamp expire_time = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Explicitly request a token without a planned expiry. Setting this together
+  // with expire_time is INVALID_ARGUMENT.
+  bool never_expires = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// GenerateScimTokenResponse carries the one-time plaintext token and the SCIM
+// endpoint to configure in the identity provider.
+message GenerateScimTokenResponse {
+  // The plaintext SCIM bearer token, returned exactly once. Store it now: it is
+  // never retrievable again, and only its SHA-256 digest is persisted.
+  string token = 1;
+
+  // The SCIM endpoint the identity provider must be configured to call.
+  string endpoint_url = 2;
+
+  // The effective server-selected token expiry. Unset only for never_expires.
+  google.protobuf.Timestamp expire_time = 3;
+
+  // UID of the identity provider the token was generated for, echoed for
+  // attribution.
+  string identity_provider_uid = 4;
+
+  // Opaque version of the SCIM configuration after this call, for optimistic
+  // concurrency on subsequent lifecycle mutations.
+  string etag = 5;
+}
+
+// RegenerateScimTokenRequest asks for a replacement SCIM bearer token for an
+// identity provider.
+message RegenerateScimTokenRequest {
+  // UID of the identity provider whose SCIM bearer token is being regenerated.
+  string identity_provider_uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // How long the previous token keeps authenticating after the regeneration
+  // (make-before-break), capped server-side at 24h. Zero means immediate
+  // cutover; when omitted the server defaults to one hour. A token
+  // that is already expired or revoked stays dead regardless.
+  google.protobuf.Duration overlap = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional expiry for the new token. When neither this nor never_expires is
+  // set, the server defaults to one year.
+  google.protobuf.Timestamp expire_time = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Etag returned by GetIdentityProvider. Required to prevent concurrent
+  // reveal-once rotations from silently invalidating one another.
+  string etag = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // Explicitly request a token without a planned expiry. Setting this together
+  // with expire_time is INVALID_ARGUMENT.
+  bool never_expires = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// RegenerateScimTokenResponse carries the one-time plaintext replacement token
+// and the SCIM endpoint to configure in the identity provider.
+message RegenerateScimTokenResponse {
+  // The plaintext SCIM bearer token, returned exactly once. Store it now: it is
+  // never retrievable again, and only its SHA-256 digest is persisted.
+  string token = 1;
+
+  // The SCIM endpoint the identity provider must be configured to call.
+  string endpoint_url = 2;
+
+  // The effective server-selected token expiry. Unset only for never_expires.
+  google.protobuf.Timestamp expire_time = 3;
+
+  // UID of the identity provider the token was regenerated for, echoed for
+  // attribution.
+  string identity_provider_uid = 4;
+
+  // Opaque version of the SCIM configuration after this call, for optimistic
+  // concurrency on subsequent lifecycle mutations.
+  string etag = 5;
+
+  // When the previous token stops authenticating (the effective end of the
+  // make-before-break overlap). Unset when the previous token was already
+  // dead, so no overlap is active.
+  google.protobuf.Timestamp previous_token_expire_time = 6;
+
+  // The overlap requested by the caller after server defaulting. Audit events
+  // carry this separately from the effective previous-token cutoff so operator
+  // intent remains reconstructable when the old token was already dead or
+  // expired before the full overlap elapsed.
+  google.protobuf.Duration requested_overlap = 7;
+}
+
+// RevokeScimTokenRequest immediately invalidates an identity provider's SCIM
+// bearer tokens (current and regeneration-overlap).
+message RevokeScimTokenRequest {
+  // UID of the identity provider whose SCIM bearer token is being revoked.
+  string identity_provider_uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+  // Revocation is an unconditional, monotonic containment action and therefore
+  // intentionally has no optimistic-concurrency precondition.
+  reserved 2;
+  reserved "etag";
+}
+
+// RevokeScimTokenResponse reports the resulting disabled/revoked state for
+// auditing and subsequent optimistic concurrency.
+message RevokeScimTokenResponse {
+  // UID of the identity provider whose tokens were revoked, echoed for
+  // attribution.
+  string identity_provider_uid = 1;
+
+  // Opaque version of the SCIM configuration after this call, for optimistic
+  // concurrency on subsequent lifecycle mutations.
+  string etag = 2;
+
+  // Whether provisioning is enabled after the revocation: always false, since
+  // revocation switches provisioning off as part of containment.
+  bool enabled = 3;
+
+  // When the revocation took effect.
+  google.protobuf.Timestamp revoke_time = 4;
+}
+
+// SetScimEnabledRequest starts or pauses SCIM provisioning for an identity
+// provider.
+message SetScimEnabledRequest {
+  // UID of the identity provider whose provisioning is being switched.
+  string identity_provider_uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The desired provisioning state. Enabling requires a live current token;
+  // disabling pauses provisioning while leaving the credential, provisioned
+  // users, and bindings intact.
+  bool enabled = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Etag returned by GetIdentityProvider or a token lifecycle response.
+  // Required so a switch cannot race a concurrent lifecycle mutation.
+  string etag = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// SetScimEnabledResponse reports the resulting provisioning state.
+message SetScimEnabledResponse {
+  // UID of the identity provider, echoed for attribution.
+  string identity_provider_uid = 1;
+
+  // The provisioning state after this call.
+  bool enabled = 2;
+
+  // Opaque version of the SCIM configuration after this call, for optimistic
+  // concurrency on subsequent lifecycle mutations.
+  string etag = 3;
 }

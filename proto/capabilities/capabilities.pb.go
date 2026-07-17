@@ -92,6 +92,7 @@ const (
 	Capability_CAP_IAM_IDENTITY_PROVIDERS_UPDATE Capability = 1302
 	Capability_CAP_IAM_IDENTITY_PROVIDERS_LIST   Capability = 1303
 	Capability_CAP_IAM_IDENTITY_PROVIDERS_DELETE Capability = 1304
+	Capability_CAP_IAM_SCIM_MANAGE               Capability = 1305
 	Capability_CAP_EVENTS_SUBSCRIPTION_CREATE    Capability = 1501
 	Capability_CAP_EVENTS_SUBSCRIPTION_UPDATE    Capability = 1502
 	Capability_CAP_EVENTS_SUBSCRIPTION_LIST      Capability = 1503
@@ -368,6 +369,7 @@ var (
 		1302:  "CAP_IAM_IDENTITY_PROVIDERS_UPDATE",
 		1303:  "CAP_IAM_IDENTITY_PROVIDERS_LIST",
 		1304:  "CAP_IAM_IDENTITY_PROVIDERS_DELETE",
+		1305:  "CAP_IAM_SCIM_MANAGE",
 		1501:  "CAP_EVENTS_SUBSCRIPTION_CREATE",
 		1502:  "CAP_EVENTS_SUBSCRIPTION_UPDATE",
 		1503:  "CAP_EVENTS_SUBSCRIPTION_LIST",
@@ -556,6 +558,7 @@ var (
 		"CAP_IAM_IDENTITY_PROVIDERS_UPDATE":                  1302,
 		"CAP_IAM_IDENTITY_PROVIDERS_LIST":                    1303,
 		"CAP_IAM_IDENTITY_PROVIDERS_DELETE":                  1304,
+		"CAP_IAM_SCIM_MANAGE":                                1305,
 		"CAP_EVENTS_SUBSCRIPTION_CREATE":                     1501,
 		"CAP_EVENTS_SUBSCRIPTION_UPDATE":                     1502,
 		"CAP_EVENTS_SUBSCRIPTION_LIST":                       1503,
@@ -776,7 +779,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xd0c\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x96d\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -837,6 +840,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x1a\"\xa8ˑM6\x9a\xaf\xa8\xd2\x05\x17identity_providers.list\x12L\n" +
 	"!CAP_IAM_IDENTITY_PROVIDERS_DELETE\x10\x98\n" +
 	"\x1a$\xa8ˑM7\x9a\xaf\xa8\xd2\x05\x19identity_providers.delete\x12D\n" +
+	"\x13CAP_IAM_SCIM_MANAGE\x10\x99\n" +
+	"\x1a*\xa8ˑM\xbf\x01\x9a\xaf\xa8\xd2\x05\x1eidentity_providers.scim.manage\x12D\n" +
 	"\x1eCAP_EVENTS_SUBSCRIPTION_CREATE\x10\xdd\v\x1a\x1f\xa8ˑM$\x9a\xaf\xa8\xd2\x05\x14subscriptions.create\x12D\n" +
 	"\x1eCAP_EVENTS_SUBSCRIPTION_UPDATE\x10\xde\v\x1a\x1f\xa8ˑM%\x9a\xaf\xa8\xd2\x05\x14subscriptions.update\x12@\n" +
 	"\x1cCAP_EVENTS_SUBSCRIPTION_LIST\x10\xdf\v\x1a\x1d\xa8ˑM&\x9a\xaf\xa8\xd2\x05\x12subscriptions.list\x12D\n" +

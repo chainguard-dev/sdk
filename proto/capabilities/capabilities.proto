@@ -94,6 +94,7 @@ enum Capability {
   CAP_IAM_IDENTITY_PROVIDERS_UPDATE = 1302 [(name) = "identity_providers.update", (bit) = 53];
   CAP_IAM_IDENTITY_PROVIDERS_LIST = 1303 [(name)   = "identity_providers.list", (bit) = 54];
   CAP_IAM_IDENTITY_PROVIDERS_DELETE = 1304 [(name) = "identity_providers.delete", (bit) = 55];
+  CAP_IAM_SCIM_MANAGE = 1305 [(name) = "identity_providers.scim.manage", (bit) = 191];
 
   // Events
 
@@ -371,5 +372,5 @@ enum Capability {
   CAP_ACTIONS_LIST = 2700 [(name) = "actions.list", (bit) = 164];
 
   reserved 1;
-  // next bit: 191
+  // next bit: 192
 }

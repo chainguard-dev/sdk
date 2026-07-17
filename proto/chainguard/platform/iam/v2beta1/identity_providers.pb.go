@@ -15,6 +15,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -29,6 +30,78 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+// CredentialState is the server-derived lifecycle state of the SCIM
+// bearer credential. It describes the credential only; whether
+// provisioning is on is the separate `enabled` switch.
+type IdentityProvider_SCIM_CredentialState int32
+
+const (
+	// The state is not reported (for example on List responses, which omit
+	// SCIM status).
+	IdentityProvider_SCIM_CREDENTIAL_STATE_UNSPECIFIED IdentityProvider_SCIM_CredentialState = 0
+	// No token has ever been generated for this identity provider.
+	IdentityProvider_SCIM_CREDENTIAL_STATE_NOT_ISSUED IdentityProvider_SCIM_CredentialState = 1
+	// The current token authenticates.
+	IdentityProvider_SCIM_CREDENTIAL_STATE_LIVE IdentityProvider_SCIM_CredentialState = 2
+	// The current token passed its declared expiry and no longer
+	// authenticates. Regenerate to issue a replacement.
+	IdentityProvider_SCIM_CREDENTIAL_STATE_EXPIRED IdentityProvider_SCIM_CredentialState = 3
+	// The token was explicitly revoked; nothing authenticates and
+	// provisioning was switched off. Regenerating issues a new credential
+	// but does not re-enable provisioning.
+	IdentityProvider_SCIM_CREDENTIAL_STATE_REVOKED IdentityProvider_SCIM_CredentialState = 4
+	// A regeneration overlap is active: the new token authenticates and the
+	// previous one keeps authenticating until previous_token_expire_time.
+	IdentityProvider_SCIM_CREDENTIAL_STATE_ROTATING IdentityProvider_SCIM_CredentialState = 5
+)
+
+// Enum value maps for IdentityProvider_SCIM_CredentialState.
+var (
+	IdentityProvider_SCIM_CredentialState_name = map[int32]string{
+		0: "CREDENTIAL_STATE_UNSPECIFIED",
+		1: "CREDENTIAL_STATE_NOT_ISSUED",
+		2: "CREDENTIAL_STATE_LIVE",
+		3: "CREDENTIAL_STATE_EXPIRED",
+		4: "CREDENTIAL_STATE_REVOKED",
+		5: "CREDENTIAL_STATE_ROTATING",
+	}
+	IdentityProvider_SCIM_CredentialState_value = map[string]int32{
+		"CREDENTIAL_STATE_UNSPECIFIED": 0,
+		"CREDENTIAL_STATE_NOT_ISSUED":  1,
+		"CREDENTIAL_STATE_LIVE":        2,
+		"CREDENTIAL_STATE_EXPIRED":     3,
+		"CREDENTIAL_STATE_REVOKED":     4,
+		"CREDENTIAL_STATE_ROTATING":    5,
+	}
+)
+
+func (x IdentityProvider_SCIM_CredentialState) Enum() *IdentityProvider_SCIM_CredentialState {
+	p := new(IdentityProvider_SCIM_CredentialState)
+	*p = x
+	return p
+}
+
+func (x IdentityProvider_SCIM_CredentialState) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (IdentityProvider_SCIM_CredentialState) Descriptor() protoreflect.EnumDescriptor {
+	return file_chainguard_platform_iam_v2beta1_identity_providers_proto_enumTypes[0].Descriptor()
+}
+
+func (IdentityProvider_SCIM_CredentialState) Type() protoreflect.EnumType {
+	return &file_chainguard_platform_iam_v2beta1_identity_providers_proto_enumTypes[0]
+}
+
+func (x IdentityProvider_SCIM_CredentialState) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use IdentityProvider_SCIM_CredentialState.Descriptor instead.
+func (IdentityProvider_SCIM_CredentialState) EnumDescriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDescGZIP(), []int{0, 1, 0}
+}
 
 // IdentityProvider represents the configuration parameters necessary for performing
 // authentication with an upstream identity provider.
@@ -57,12 +130,17 @@ type IdentityProvider struct {
 	//
 	//	*IdentityProvider_Oidc
 	Configuration isIdentityProvider_Configuration `protobuf_oneof:"configuration"`
-	// SCIM provisioning configuration for this identity provider.
+	// SCIM provisioning status for this identity provider.
 	//
 	// SCIM is a provisioning protocol and is independent of the authentication
 	// mechanism in `configuration`: an identity provider may use OIDC for
 	// authentication and SCIM for provisioning at the same time. It is therefore
 	// a top-level field rather than a member of the `configuration` oneof.
+	//
+	// Output only: populated on reads and ignored on create and update (a
+	// read-modify-write client may echo it back safely). Token state changes
+	// only through the SCIM token methods, and enabling provisioning is its own
+	// gated action.
 	Scim          *IdentityProvider_SCIM `protobuf:"bytes,21,opt,name=scim,proto3" json:"scim,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -553,6 +631,614 @@ func (x *DeleteIdentityProviderRequest) GetUid() string {
 	return ""
 }
 
+// GenerateScimTokenRequest asks for an identity provider's first SCIM bearer
+// token.
+type GenerateScimTokenRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UID of the identity provider to generate a SCIM bearer token for.
+	IdentityProviderUid string `protobuf:"bytes,1,opt,name=identity_provider_uid,json=identityProviderUid,proto3" json:"identity_provider_uid,omitempty"`
+	// Optional expiry for the generated token. When neither this nor
+	// never_expires is set, the server defaults to one year.
+	ExpireTime *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
+	// Explicitly request a token without a planned expiry. Setting this together
+	// with expire_time is INVALID_ARGUMENT.
+	NeverExpires  bool `protobuf:"varint,3,opt,name=never_expires,json=neverExpires,proto3" json:"never_expires,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GenerateScimTokenRequest) Reset() {
+	*x = GenerateScimTokenRequest{}
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GenerateScimTokenRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GenerateScimTokenRequest) ProtoMessage() {}
+
+func (x *GenerateScimTokenRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GenerateScimTokenRequest.ProtoReflect.Descriptor instead.
+func (*GenerateScimTokenRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *GenerateScimTokenRequest) GetIdentityProviderUid() string {
+	if x != nil {
+		return x.IdentityProviderUid
+	}
+	return ""
+}
+
+func (x *GenerateScimTokenRequest) GetExpireTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpireTime
+	}
+	return nil
+}
+
+func (x *GenerateScimTokenRequest) GetNeverExpires() bool {
+	if x != nil {
+		return x.NeverExpires
+	}
+	return false
+}
+
+// GenerateScimTokenResponse carries the one-time plaintext token and the SCIM
+// endpoint to configure in the identity provider.
+type GenerateScimTokenResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The plaintext SCIM bearer token, returned exactly once. Store it now: it is
+	// never retrievable again, and only its SHA-256 digest is persisted.
+	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	// The SCIM endpoint the identity provider must be configured to call.
+	EndpointUrl string `protobuf:"bytes,2,opt,name=endpoint_url,json=endpointUrl,proto3" json:"endpoint_url,omitempty"`
+	// The effective server-selected token expiry. Unset only for never_expires.
+	ExpireTime *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
+	// UID of the identity provider the token was generated for, echoed for
+	// attribution.
+	IdentityProviderUid string `protobuf:"bytes,4,opt,name=identity_provider_uid,json=identityProviderUid,proto3" json:"identity_provider_uid,omitempty"`
+	// Opaque version of the SCIM configuration after this call, for optimistic
+	// concurrency on subsequent lifecycle mutations.
+	Etag          string `protobuf:"bytes,5,opt,name=etag,proto3" json:"etag,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GenerateScimTokenResponse) Reset() {
+	*x = GenerateScimTokenResponse{}
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GenerateScimTokenResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GenerateScimTokenResponse) ProtoMessage() {}
+
+func (x *GenerateScimTokenResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GenerateScimTokenResponse.ProtoReflect.Descriptor instead.
+func (*GenerateScimTokenResponse) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GenerateScimTokenResponse) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+func (x *GenerateScimTokenResponse) GetEndpointUrl() string {
+	if x != nil {
+		return x.EndpointUrl
+	}
+	return ""
+}
+
+func (x *GenerateScimTokenResponse) GetExpireTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpireTime
+	}
+	return nil
+}
+
+func (x *GenerateScimTokenResponse) GetIdentityProviderUid() string {
+	if x != nil {
+		return x.IdentityProviderUid
+	}
+	return ""
+}
+
+func (x *GenerateScimTokenResponse) GetEtag() string {
+	if x != nil {
+		return x.Etag
+	}
+	return ""
+}
+
+// RegenerateScimTokenRequest asks for a replacement SCIM bearer token for an
+// identity provider.
+type RegenerateScimTokenRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UID of the identity provider whose SCIM bearer token is being regenerated.
+	IdentityProviderUid string `protobuf:"bytes,1,opt,name=identity_provider_uid,json=identityProviderUid,proto3" json:"identity_provider_uid,omitempty"`
+	// How long the previous token keeps authenticating after the regeneration
+	// (make-before-break), capped server-side at 24h. Zero means immediate
+	// cutover; when omitted the server defaults to one hour. A token
+	// that is already expired or revoked stays dead regardless.
+	Overlap *durationpb.Duration `protobuf:"bytes,2,opt,name=overlap,proto3" json:"overlap,omitempty"`
+	// Optional expiry for the new token. When neither this nor never_expires is
+	// set, the server defaults to one year.
+	ExpireTime *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
+	// Etag returned by GetIdentityProvider. Required to prevent concurrent
+	// reveal-once rotations from silently invalidating one another.
+	Etag string `protobuf:"bytes,4,opt,name=etag,proto3" json:"etag,omitempty"`
+	// Explicitly request a token without a planned expiry. Setting this together
+	// with expire_time is INVALID_ARGUMENT.
+	NeverExpires  bool `protobuf:"varint,5,opt,name=never_expires,json=neverExpires,proto3" json:"never_expires,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RegenerateScimTokenRequest) Reset() {
+	*x = RegenerateScimTokenRequest{}
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegenerateScimTokenRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegenerateScimTokenRequest) ProtoMessage() {}
+
+func (x *RegenerateScimTokenRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegenerateScimTokenRequest.ProtoReflect.Descriptor instead.
+func (*RegenerateScimTokenRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *RegenerateScimTokenRequest) GetIdentityProviderUid() string {
+	if x != nil {
+		return x.IdentityProviderUid
+	}
+	return ""
+}
+
+func (x *RegenerateScimTokenRequest) GetOverlap() *durationpb.Duration {
+	if x != nil {
+		return x.Overlap
+	}
+	return nil
+}
+
+func (x *RegenerateScimTokenRequest) GetExpireTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpireTime
+	}
+	return nil
+}
+
+func (x *RegenerateScimTokenRequest) GetEtag() string {
+	if x != nil {
+		return x.Etag
+	}
+	return ""
+}
+
+func (x *RegenerateScimTokenRequest) GetNeverExpires() bool {
+	if x != nil {
+		return x.NeverExpires
+	}
+	return false
+}
+
+// RegenerateScimTokenResponse carries the one-time plaintext replacement token
+// and the SCIM endpoint to configure in the identity provider.
+type RegenerateScimTokenResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The plaintext SCIM bearer token, returned exactly once. Store it now: it is
+	// never retrievable again, and only its SHA-256 digest is persisted.
+	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	// The SCIM endpoint the identity provider must be configured to call.
+	EndpointUrl string `protobuf:"bytes,2,opt,name=endpoint_url,json=endpointUrl,proto3" json:"endpoint_url,omitempty"`
+	// The effective server-selected token expiry. Unset only for never_expires.
+	ExpireTime *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
+	// UID of the identity provider the token was regenerated for, echoed for
+	// attribution.
+	IdentityProviderUid string `protobuf:"bytes,4,opt,name=identity_provider_uid,json=identityProviderUid,proto3" json:"identity_provider_uid,omitempty"`
+	// Opaque version of the SCIM configuration after this call, for optimistic
+	// concurrency on subsequent lifecycle mutations.
+	Etag string `protobuf:"bytes,5,opt,name=etag,proto3" json:"etag,omitempty"`
+	// When the previous token stops authenticating (the effective end of the
+	// make-before-break overlap). Unset when the previous token was already
+	// dead, so no overlap is active.
+	PreviousTokenExpireTime *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=previous_token_expire_time,json=previousTokenExpireTime,proto3" json:"previous_token_expire_time,omitempty"`
+	// The overlap requested by the caller after server defaulting. Audit events
+	// carry this separately from the effective previous-token cutoff so operator
+	// intent remains reconstructable when the old token was already dead or
+	// expired before the full overlap elapsed.
+	RequestedOverlap *durationpb.Duration `protobuf:"bytes,7,opt,name=requested_overlap,json=requestedOverlap,proto3" json:"requested_overlap,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *RegenerateScimTokenResponse) Reset() {
+	*x = RegenerateScimTokenResponse{}
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegenerateScimTokenResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegenerateScimTokenResponse) ProtoMessage() {}
+
+func (x *RegenerateScimTokenResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegenerateScimTokenResponse.ProtoReflect.Descriptor instead.
+func (*RegenerateScimTokenResponse) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *RegenerateScimTokenResponse) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+func (x *RegenerateScimTokenResponse) GetEndpointUrl() string {
+	if x != nil {
+		return x.EndpointUrl
+	}
+	return ""
+}
+
+func (x *RegenerateScimTokenResponse) GetExpireTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpireTime
+	}
+	return nil
+}
+
+func (x *RegenerateScimTokenResponse) GetIdentityProviderUid() string {
+	if x != nil {
+		return x.IdentityProviderUid
+	}
+	return ""
+}
+
+func (x *RegenerateScimTokenResponse) GetEtag() string {
+	if x != nil {
+		return x.Etag
+	}
+	return ""
+}
+
+func (x *RegenerateScimTokenResponse) GetPreviousTokenExpireTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.PreviousTokenExpireTime
+	}
+	return nil
+}
+
+func (x *RegenerateScimTokenResponse) GetRequestedOverlap() *durationpb.Duration {
+	if x != nil {
+		return x.RequestedOverlap
+	}
+	return nil
+}
+
+// RevokeScimTokenRequest immediately invalidates an identity provider's SCIM
+// bearer tokens (current and regeneration-overlap).
+type RevokeScimTokenRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UID of the identity provider whose SCIM bearer token is being revoked.
+	IdentityProviderUid string `protobuf:"bytes,1,opt,name=identity_provider_uid,json=identityProviderUid,proto3" json:"identity_provider_uid,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *RevokeScimTokenRequest) Reset() {
+	*x = RevokeScimTokenRequest{}
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RevokeScimTokenRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RevokeScimTokenRequest) ProtoMessage() {}
+
+func (x *RevokeScimTokenRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RevokeScimTokenRequest.ProtoReflect.Descriptor instead.
+func (*RevokeScimTokenRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *RevokeScimTokenRequest) GetIdentityProviderUid() string {
+	if x != nil {
+		return x.IdentityProviderUid
+	}
+	return ""
+}
+
+// RevokeScimTokenResponse reports the resulting disabled/revoked state for
+// auditing and subsequent optimistic concurrency.
+type RevokeScimTokenResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UID of the identity provider whose tokens were revoked, echoed for
+	// attribution.
+	IdentityProviderUid string `protobuf:"bytes,1,opt,name=identity_provider_uid,json=identityProviderUid,proto3" json:"identity_provider_uid,omitempty"`
+	// Opaque version of the SCIM configuration after this call, for optimistic
+	// concurrency on subsequent lifecycle mutations.
+	Etag string `protobuf:"bytes,2,opt,name=etag,proto3" json:"etag,omitempty"`
+	// Whether provisioning is enabled after the revocation: always false, since
+	// revocation switches provisioning off as part of containment.
+	Enabled bool `protobuf:"varint,3,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	// When the revocation took effect.
+	RevokeTime    *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=revoke_time,json=revokeTime,proto3" json:"revoke_time,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RevokeScimTokenResponse) Reset() {
+	*x = RevokeScimTokenResponse{}
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RevokeScimTokenResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RevokeScimTokenResponse) ProtoMessage() {}
+
+func (x *RevokeScimTokenResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RevokeScimTokenResponse.ProtoReflect.Descriptor instead.
+func (*RevokeScimTokenResponse) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *RevokeScimTokenResponse) GetIdentityProviderUid() string {
+	if x != nil {
+		return x.IdentityProviderUid
+	}
+	return ""
+}
+
+func (x *RevokeScimTokenResponse) GetEtag() string {
+	if x != nil {
+		return x.Etag
+	}
+	return ""
+}
+
+func (x *RevokeScimTokenResponse) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+func (x *RevokeScimTokenResponse) GetRevokeTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.RevokeTime
+	}
+	return nil
+}
+
+// SetScimEnabledRequest starts or pauses SCIM provisioning for an identity
+// provider.
+type SetScimEnabledRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UID of the identity provider whose provisioning is being switched.
+	IdentityProviderUid string `protobuf:"bytes,1,opt,name=identity_provider_uid,json=identityProviderUid,proto3" json:"identity_provider_uid,omitempty"`
+	// The desired provisioning state. Enabling requires a live current token;
+	// disabling pauses provisioning while leaving the credential, provisioned
+	// users, and bindings intact.
+	Enabled bool `protobuf:"varint,2,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	// Etag returned by GetIdentityProvider or a token lifecycle response.
+	// Required so a switch cannot race a concurrent lifecycle mutation.
+	Etag          string `protobuf:"bytes,3,opt,name=etag,proto3" json:"etag,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetScimEnabledRequest) Reset() {
+	*x = SetScimEnabledRequest{}
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetScimEnabledRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetScimEnabledRequest) ProtoMessage() {}
+
+func (x *SetScimEnabledRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetScimEnabledRequest.ProtoReflect.Descriptor instead.
+func (*SetScimEnabledRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *SetScimEnabledRequest) GetIdentityProviderUid() string {
+	if x != nil {
+		return x.IdentityProviderUid
+	}
+	return ""
+}
+
+func (x *SetScimEnabledRequest) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+func (x *SetScimEnabledRequest) GetEtag() string {
+	if x != nil {
+		return x.Etag
+	}
+	return ""
+}
+
+// SetScimEnabledResponse reports the resulting provisioning state.
+type SetScimEnabledResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UID of the identity provider, echoed for attribution.
+	IdentityProviderUid string `protobuf:"bytes,1,opt,name=identity_provider_uid,json=identityProviderUid,proto3" json:"identity_provider_uid,omitempty"`
+	// The provisioning state after this call.
+	Enabled bool `protobuf:"varint,2,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	// Opaque version of the SCIM configuration after this call, for optimistic
+	// concurrency on subsequent lifecycle mutations.
+	Etag          string `protobuf:"bytes,3,opt,name=etag,proto3" json:"etag,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetScimEnabledResponse) Reset() {
+	*x = SetScimEnabledResponse{}
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetScimEnabledResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetScimEnabledResponse) ProtoMessage() {}
+
+func (x *SetScimEnabledResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetScimEnabledResponse.ProtoReflect.Descriptor instead.
+func (*SetScimEnabledResponse) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *SetScimEnabledResponse) GetIdentityProviderUid() string {
+	if x != nil {
+		return x.IdentityProviderUid
+	}
+	return ""
+}
+
+func (x *SetScimEnabledResponse) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+func (x *SetScimEnabledResponse) GetEtag() string {
+	if x != nil {
+		return x.Etag
+	}
+	return ""
+}
+
 // Configuration parameters for performing an OIDC token exchange.
 type IdentityProvider_OIDC struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -579,7 +1265,7 @@ type IdentityProvider_OIDC struct {
 
 func (x *IdentityProvider_OIDC) Reset() {
 	*x = IdentityProvider_OIDC{}
-	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[7]
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -591,7 +1277,7 @@ func (x *IdentityProvider_OIDC) String() string {
 func (*IdentityProvider_OIDC) ProtoMessage() {}
 
 func (x *IdentityProvider_OIDC) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[7]
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -654,20 +1340,33 @@ func (x *IdentityProvider_OIDC) GetPkceEnabled() bool {
 type IdentityProvider_SCIM struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Whether SCIM provisioning is enabled for this identity provider.
+	// Changing it is a dedicated gated action, not an identity provider write.
 	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Server-derived SCIM endpoint URL for this identity provider, computed
-	// from the identity provider UIDP. Not user-configurable. OUTPUT_ONLY:
-	// the persistence layer must strip this before writing, since an
-	// implied/inferred field mask does not exclude OUTPUT_ONLY paths
-	// (enforcement lands with SCIM config persistence, CUS-450).
-	EndpointUrl   string `protobuf:"bytes,3,opt,name=endpoint_url,json=endpointUrl,proto3" json:"endpoint_url,omitempty"`
+	// from the identity provider UIDP. Not user-configurable and never
+	// persisted; the token method responses carry the same derived value.
+	EndpointUrl string `protobuf:"bytes,3,opt,name=endpoint_url,json=endpointUrl,proto3" json:"endpoint_url,omitempty"`
+	// When the current SCIM bearer token stops authenticating. Unset when no
+	// token has been issued or the token does not expire; a past value means
+	// the token is expired or revoked. Populated on GetIdentityProvider;
+	// omitted from List responses.
+	TokenExpireTime *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=token_expire_time,json=tokenExpireTime,proto3" json:"token_expire_time,omitempty"`
+	// When a previous token remains valid during rotation overlap.
+	PreviousTokenExpireTime *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=previous_token_expire_time,json=previousTokenExpireTime,proto3" json:"previous_token_expire_time,omitempty"`
+	// Explicit credential lifecycle state, derived by the server. Whether a
+	// token has ever been issued is readable here: CREDENTIAL_STATE_NOT_ISSUED
+	// means never. Populated on GetIdentityProvider; omitted from List
+	// responses.
+	CredentialState IdentityProvider_SCIM_CredentialState `protobuf:"varint,6,opt,name=credential_state,json=credentialState,proto3,enum=chainguard.platform.iam.v2beta1.IdentityProvider_SCIM_CredentialState" json:"credential_state,omitempty"`
+	// Opaque version for optimistic concurrency on lifecycle mutations.
+	Etag          string `protobuf:"bytes,7,opt,name=etag,proto3" json:"etag,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *IdentityProvider_SCIM) Reset() {
 	*x = IdentityProvider_SCIM{}
-	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[8]
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -679,7 +1378,7 @@ func (x *IdentityProvider_SCIM) String() string {
 func (*IdentityProvider_SCIM) ProtoMessage() {}
 
 func (x *IdentityProvider_SCIM) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[8]
+	mi := &file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -709,11 +1408,39 @@ func (x *IdentityProvider_SCIM) GetEndpointUrl() string {
 	return ""
 }
 
+func (x *IdentityProvider_SCIM) GetTokenExpireTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.TokenExpireTime
+	}
+	return nil
+}
+
+func (x *IdentityProvider_SCIM) GetPreviousTokenExpireTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.PreviousTokenExpireTime
+	}
+	return nil
+}
+
+func (x *IdentityProvider_SCIM) GetCredentialState() IdentityProvider_SCIM_CredentialState {
+	if x != nil {
+		return x.CredentialState
+	}
+	return IdentityProvider_SCIM_CREDENTIAL_STATE_UNSPECIFIED
+}
+
+func (x *IdentityProvider_SCIM) GetEtag() string {
+	if x != nil {
+		return x.Etag
+	}
+	return ""
+}
+
 var File_chainguard_platform_iam_v2beta1_identity_providers_proto protoreflect.FileDescriptor
 
 const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = "" +
 	"\n" +
-	"8chainguard/platform/iam/v2beta1/identity_providers.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xb3\a\n" +
+	"8chainguard/platform/iam/v2beta1/identity_providers.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xc1\v\n" +
 	"\x10IdentityProvider\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
@@ -725,17 +1452,28 @@ const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = ""
 	"updateTime\x12'\n" +
 	"\fdefault_role\x18\x06 \x01(\tB\x04\xe2A\x01\x02R\vdefaultRole\x12R\n" +
 	"\x04oidc\x18\x14 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.OIDCB\x04\xe2A\x01\x01H\x00R\x04oidc\x12P\n" +
-	"\x04scim\x18\x15 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.SCIMB\x04\xe2A\x01\x01R\x04scim\x1a\xfd\x01\n" +
+	"\x04scim\x18\x15 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.SCIMB\x04\xe2A\x01\x03R\x04scim\x1a\xfd\x01\n" +
 	"\x04OIDC\x12\x1c\n" +
 	"\x06issuer\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x06issuer\x12!\n" +
 	"\tclient_id\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\bclientId\x12)\n" +
 	"\rclient_secret\x18\x03 \x01(\tB\x04\xe2A\x01\x02R\fclientSecret\x121\n" +
 	"\x11additional_scopes\x18\x04 \x03(\tB\x04\xe2A\x01\x01R\x10additionalScopes\x12'\n" +
 	"\fgroups_claim\x18\x05 \x01(\tB\x04\xe2A\x01\x01R\vgroupsClaim\x12'\n" +
-	"\fpkce_enabled\x18\a \x01(\bB\x04\xe2A\x01\x01R\vpkceEnabledJ\x04\b\x06\x10\a\x1ac\n" +
+	"\fpkce_enabled\x18\a \x01(\bB\x04\xe2A\x01\x01R\vpkceEnabledJ\x04\b\x06\x10\a\x1a\xf0\x04\n" +
 	"\x04SCIM\x12\x1e\n" +
-	"\aenabled\x18\x01 \x01(\bB\x04\xe2A\x01\x01R\aenabled\x12'\n" +
-	"\fendpoint_url\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\vendpointUrlJ\x04\b\x02\x10\x03R\fbearer_token:t\xeaAq\n" +
+	"\aenabled\x18\x01 \x01(\bB\x04\xe2A\x01\x03R\aenabled\x12'\n" +
+	"\fendpoint_url\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\vendpointUrl\x12L\n" +
+	"\x11token_expire_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\x0ftokenExpireTime\x12]\n" +
+	"\x1aprevious_token_expire_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\x17previousTokenExpireTime\x12w\n" +
+	"\x10credential_state\x18\x06 \x01(\x0e2F.chainguard.platform.iam.v2beta1.IdentityProvider.SCIM.CredentialStateB\x04\xe2A\x01\x03R\x0fcredentialState\x12\x18\n" +
+	"\x04etag\x18\a \x01(\tB\x04\xe2A\x01\x03R\x04etag\"\xca\x01\n" +
+	"\x0fCredentialState\x12 \n" +
+	"\x1cCREDENTIAL_STATE_UNSPECIFIED\x10\x00\x12\x1f\n" +
+	"\x1bCREDENTIAL_STATE_NOT_ISSUED\x10\x01\x12\x19\n" +
+	"\x15CREDENTIAL_STATE_LIVE\x10\x02\x12\x1c\n" +
+	"\x18CREDENTIAL_STATE_EXPIRED\x10\x03\x12\x1c\n" +
+	"\x18CREDENTIAL_STATE_REVOKED\x10\x04\x12\x1d\n" +
+	"\x19CREDENTIAL_STATE_ROTATING\x10\x05J\x04\b\x02\x10\x03R\fbearer_token:t\xeaAq\n" +
 	"#iam.chainguard.dev/IdentityProvider\x12%identityProviders/{identity_provider}*\x11identityProviders2\x10identityProviderB\x0f\n" +
 	"\rconfiguration\"\xfd\x01\n" +
 	"\x1cListIdentityProvidersRequest\x12@\n" +
@@ -768,7 +1506,55 @@ const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = ""
 	"updateMask\"=\n" +
 	"\x1dDeleteIdentityProviderRequest\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid2\xe9\r\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\"\xc8\x01\n" +
+	"\x18GenerateScimTokenRequest\x12>\n" +
+	"\x15identity_provider_uid\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x13identityProviderUid\x12A\n" +
+	"\vexpire_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x01R\n" +
+	"expireTime\x12)\n" +
+	"\rnever_expires\x18\x03 \x01(\bB\x04\xe2A\x01\x01R\fneverExpires\"\xd9\x01\n" +
+	"\x19GenerateScimTokenResponse\x12\x14\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\x12!\n" +
+	"\fendpoint_url\x18\x02 \x01(\tR\vendpointUrl\x12;\n" +
+	"\vexpire_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"expireTime\x122\n" +
+	"\x15identity_provider_uid\x18\x04 \x01(\tR\x13identityProviderUid\x12\x12\n" +
+	"\x04etag\x18\x05 \x01(\tR\x04etag\"\x9f\x02\n" +
+	"\x1aRegenerateScimTokenRequest\x12>\n" +
+	"\x15identity_provider_uid\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x13identityProviderUid\x129\n" +
+	"\aoverlap\x18\x02 \x01(\v2\x19.google.protobuf.DurationB\x04\xe2A\x01\x01R\aoverlap\x12A\n" +
+	"\vexpire_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x01R\n" +
+	"expireTime\x12\x18\n" +
+	"\x04etag\x18\x04 \x01(\tB\x04\xe2A\x01\x02R\x04etag\x12)\n" +
+	"\rnever_expires\x18\x05 \x01(\bB\x04\xe2A\x01\x01R\fneverExpires\"\xfc\x02\n" +
+	"\x1bRegenerateScimTokenResponse\x12\x14\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\x12!\n" +
+	"\fendpoint_url\x18\x02 \x01(\tR\vendpointUrl\x12;\n" +
+	"\vexpire_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"expireTime\x122\n" +
+	"\x15identity_provider_uid\x18\x04 \x01(\tR\x13identityProviderUid\x12\x12\n" +
+	"\x04etag\x18\x05 \x01(\tR\x04etag\x12W\n" +
+	"\x1aprevious_token_expire_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x17previousTokenExpireTime\x12F\n" +
+	"\x11requested_overlap\x18\a \x01(\v2\x19.google.protobuf.DurationR\x10requestedOverlap\"d\n" +
+	"\x16RevokeScimTokenRequest\x12>\n" +
+	"\x15identity_provider_uid\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x13identityProviderUidJ\x04\b\x02\x10\x03R\x04etag\"\xb8\x01\n" +
+	"\x17RevokeScimTokenResponse\x122\n" +
+	"\x15identity_provider_uid\x18\x01 \x01(\tR\x13identityProviderUid\x12\x12\n" +
+	"\x04etag\x18\x02 \x01(\tR\x04etag\x12\x18\n" +
+	"\aenabled\x18\x03 \x01(\bR\aenabled\x12;\n" +
+	"\vrevoke_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"revokeTime\"\x91\x01\n" +
+	"\x15SetScimEnabledRequest\x12>\n" +
+	"\x15identity_provider_uid\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x13identityProviderUid\x12\x1e\n" +
+	"\aenabled\x18\x02 \x01(\bB\x04\xe2A\x01\x02R\aenabled\x12\x18\n" +
+	"\x04etag\x18\x03 \x01(\tB\x04\xe2A\x01\x02R\x04etag\"z\n" +
+	"\x16SetScimEnabledResponse\x122\n" +
+	"\x15identity_provider_uid\x18\x01 \x01(\tR\x13identityProviderUid\x12\x18\n" +
+	"\aenabled\x18\x02 \x01(\bR\aenabled\x12\x12\n" +
+	"\x04etag\x18\x03 \x01(\tR\x04etag2\x95\x18\n" +
 	"\x18IdentityProvidersService\x12\xc1\x02\n" +
 	"\x15ListIdentityProviders\x12=.chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest\x1a>.chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse\"\xa8\x01\x82\xd3\xe4\x93\x02 \x12\x1e/iam/v2beta1/identityProviders\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\x97\n" +
@@ -792,7 +1578,27 @@ const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = ""
 	"\x02\x98\n" +
 	"\x9a\xaf\xa8\xd2\x05Z\n" +
 	"RDelete an external identity provider by its UIDP, disabling SSO for that provider. \x01(\x010\x00\xc2\xf0\x8e\xfc\v?\n" +
-	"4dev.chainguard.api.iam.identity_providers.deleted.v1\x12\x05group\x18\x01By\n" +
+	"4dev.chainguard.api.iam.identity_providers.deleted.v1\x12\x05group\x18\x01\x12\xcb\x02\n" +
+	"\x11GenerateScimToken\x129.chainguard.platform.iam.v2beta1.GenerateScimTokenRequest\x1a:.chainguard.platform.iam.v2beta1.GenerateScimTokenResponse\"\xbe\x01\x82\xd3\xe4\x93\x02P:\x01*\"K/iam/v2beta1/identityProviders/{identity_provider_uid=**}:generateScimToken\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x04\x99\n" +
+	"\x97\n" +
+	"\x9a\xaf\xa8\xd2\x05\x02\x10\x01\xc2\xf0\x8e\xfc\vL\n" +
+	"Adev.chainguard.api.iam.identity_providers.scim_token.generated.v1\x12\x05group\x18\x01\x12\xd5\x02\n" +
+	"\x13RegenerateScimToken\x12;.chainguard.platform.iam.v2beta1.RegenerateScimTokenRequest\x1a<.chainguard.platform.iam.v2beta1.RegenerateScimTokenResponse\"\xc2\x01\x82\xd3\xe4\x93\x02R:\x01*\"M/iam/v2beta1/identityProviders/{identity_provider_uid=**}:regenerateScimToken\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x04\x99\n" +
+	"\x97\n" +
+	"\x9a\xaf\xa8\xd2\x05\x02\x10\x01\xc2\xf0\x8e\xfc\vN\n" +
+	"Cdev.chainguard.api.iam.identity_providers.scim_token.regenerated.v1\x12\x05group\x18\x01\x12\xc1\x02\n" +
+	"\x0fRevokeScimToken\x127.chainguard.platform.iam.v2beta1.RevokeScimTokenRequest\x1a8.chainguard.platform.iam.v2beta1.RevokeScimTokenResponse\"\xba\x01\x82\xd3\xe4\x93\x02N:\x01*\"I/iam/v2beta1/identityProviders/{identity_provider_uid=**}:revokeScimToken\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x04\x99\n" +
+	"\x97\n" +
+	"\x9a\xaf\xa8\xd2\x05\x02\x10\x01\xc2\xf0\x8e\xfc\vJ\n" +
+	"?dev.chainguard.api.iam.identity_providers.scim_token.revoked.v1\x12\x05group\x18\x01\x12\xbf\x02\n" +
+	"\x0eSetScimEnabled\x126.chainguard.platform.iam.v2beta1.SetScimEnabledRequest\x1a7.chainguard.platform.iam.v2beta1.SetScimEnabledResponse\"\xbb\x01\x82\xd3\xe4\x93\x02M:\x01*\"H/iam/v2beta1/identityProviders/{identity_provider_uid=**}:setScimEnabled\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x04\x99\n" +
+	"\x97\n" +
+	"\x9a\xaf\xa8\xd2\x05\x02\x10\x01\xc2\xf0\x8e\xfc\vL\n" +
+	"Adev.chainguard.api.iam.identity_providers.scim_enabled.updated.v1\x12\x05group\x18\x01By\n" +
 	"#com.chainguard.platform.iam.v2beta1B\x16IdentityProvidersProtoP\x01Z8chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1b\x06proto3"
 
 var (
@@ -807,47 +1613,77 @@ func file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDescGZIP()
 	return file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDescData
 }
 
-var file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_chainguard_platform_iam_v2beta1_identity_providers_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_chainguard_platform_iam_v2beta1_identity_providers_proto_goTypes = []any{
-	(*IdentityProvider)(nil),              // 0: chainguard.platform.iam.v2beta1.IdentityProvider
-	(*ListIdentityProvidersRequest)(nil),  // 1: chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest
-	(*ListIdentityProvidersResponse)(nil), // 2: chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse
-	(*GetIdentityProviderRequest)(nil),    // 3: chainguard.platform.iam.v2beta1.GetIdentityProviderRequest
-	(*CreateIdentityProviderRequest)(nil), // 4: chainguard.platform.iam.v2beta1.CreateIdentityProviderRequest
-	(*UpdateIdentityProviderRequest)(nil), // 5: chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest
-	(*DeleteIdentityProviderRequest)(nil), // 6: chainguard.platform.iam.v2beta1.DeleteIdentityProviderRequest
-	(*IdentityProvider_OIDC)(nil),         // 7: chainguard.platform.iam.v2beta1.IdentityProvider.OIDC
-	(*IdentityProvider_SCIM)(nil),         // 8: chainguard.platform.iam.v2beta1.IdentityProvider.SCIM
-	(*timestamppb.Timestamp)(nil),         // 9: google.protobuf.Timestamp
-	(*v1.UIDPFilter)(nil),                 // 10: chainguard.platform.common.UIDPFilter
-	(*fieldmaskpb.FieldMask)(nil),         // 11: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),                 // 12: google.protobuf.Empty
+	(IdentityProvider_SCIM_CredentialState)(0), // 0: chainguard.platform.iam.v2beta1.IdentityProvider.SCIM.CredentialState
+	(*IdentityProvider)(nil),                   // 1: chainguard.platform.iam.v2beta1.IdentityProvider
+	(*ListIdentityProvidersRequest)(nil),       // 2: chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest
+	(*ListIdentityProvidersResponse)(nil),      // 3: chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse
+	(*GetIdentityProviderRequest)(nil),         // 4: chainguard.platform.iam.v2beta1.GetIdentityProviderRequest
+	(*CreateIdentityProviderRequest)(nil),      // 5: chainguard.platform.iam.v2beta1.CreateIdentityProviderRequest
+	(*UpdateIdentityProviderRequest)(nil),      // 6: chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest
+	(*DeleteIdentityProviderRequest)(nil),      // 7: chainguard.platform.iam.v2beta1.DeleteIdentityProviderRequest
+	(*GenerateScimTokenRequest)(nil),           // 8: chainguard.platform.iam.v2beta1.GenerateScimTokenRequest
+	(*GenerateScimTokenResponse)(nil),          // 9: chainguard.platform.iam.v2beta1.GenerateScimTokenResponse
+	(*RegenerateScimTokenRequest)(nil),         // 10: chainguard.platform.iam.v2beta1.RegenerateScimTokenRequest
+	(*RegenerateScimTokenResponse)(nil),        // 11: chainguard.platform.iam.v2beta1.RegenerateScimTokenResponse
+	(*RevokeScimTokenRequest)(nil),             // 12: chainguard.platform.iam.v2beta1.RevokeScimTokenRequest
+	(*RevokeScimTokenResponse)(nil),            // 13: chainguard.platform.iam.v2beta1.RevokeScimTokenResponse
+	(*SetScimEnabledRequest)(nil),              // 14: chainguard.platform.iam.v2beta1.SetScimEnabledRequest
+	(*SetScimEnabledResponse)(nil),             // 15: chainguard.platform.iam.v2beta1.SetScimEnabledResponse
+	(*IdentityProvider_OIDC)(nil),              // 16: chainguard.platform.iam.v2beta1.IdentityProvider.OIDC
+	(*IdentityProvider_SCIM)(nil),              // 17: chainguard.platform.iam.v2beta1.IdentityProvider.SCIM
+	(*timestamppb.Timestamp)(nil),              // 18: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),                      // 19: chainguard.platform.common.UIDPFilter
+	(*fieldmaskpb.FieldMask)(nil),              // 20: google.protobuf.FieldMask
+	(*durationpb.Duration)(nil),                // 21: google.protobuf.Duration
+	(*emptypb.Empty)(nil),                      // 22: google.protobuf.Empty
 }
 var file_chainguard_platform_iam_v2beta1_identity_providers_proto_depIdxs = []int32{
-	9,  // 0: chainguard.platform.iam.v2beta1.IdentityProvider.create_time:type_name -> google.protobuf.Timestamp
-	9,  // 1: chainguard.platform.iam.v2beta1.IdentityProvider.update_time:type_name -> google.protobuf.Timestamp
-	7,  // 2: chainguard.platform.iam.v2beta1.IdentityProvider.oidc:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider.OIDC
-	8,  // 3: chainguard.platform.iam.v2beta1.IdentityProvider.scim:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider.SCIM
-	10, // 4: chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	0,  // 5: chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse.identity_providers:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider
-	0,  // 6: chainguard.platform.iam.v2beta1.CreateIdentityProviderRequest.identity_provider:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider
-	0,  // 7: chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest.identity_provider:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider
-	11, // 8: chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest.update_mask:type_name -> google.protobuf.FieldMask
-	1,  // 9: chainguard.platform.iam.v2beta1.IdentityProvidersService.ListIdentityProviders:input_type -> chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest
-	3,  // 10: chainguard.platform.iam.v2beta1.IdentityProvidersService.GetIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.GetIdentityProviderRequest
-	4,  // 11: chainguard.platform.iam.v2beta1.IdentityProvidersService.CreateIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.CreateIdentityProviderRequest
-	5,  // 12: chainguard.platform.iam.v2beta1.IdentityProvidersService.UpdateIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest
-	6,  // 13: chainguard.platform.iam.v2beta1.IdentityProvidersService.DeleteIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.DeleteIdentityProviderRequest
-	2,  // 14: chainguard.platform.iam.v2beta1.IdentityProvidersService.ListIdentityProviders:output_type -> chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse
-	0,  // 15: chainguard.platform.iam.v2beta1.IdentityProvidersService.GetIdentityProvider:output_type -> chainguard.platform.iam.v2beta1.IdentityProvider
-	0,  // 16: chainguard.platform.iam.v2beta1.IdentityProvidersService.CreateIdentityProvider:output_type -> chainguard.platform.iam.v2beta1.IdentityProvider
-	0,  // 17: chainguard.platform.iam.v2beta1.IdentityProvidersService.UpdateIdentityProvider:output_type -> chainguard.platform.iam.v2beta1.IdentityProvider
-	12, // 18: chainguard.platform.iam.v2beta1.IdentityProvidersService.DeleteIdentityProvider:output_type -> google.protobuf.Empty
-	14, // [14:19] is the sub-list for method output_type
-	9,  // [9:14] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	18, // 0: chainguard.platform.iam.v2beta1.IdentityProvider.create_time:type_name -> google.protobuf.Timestamp
+	18, // 1: chainguard.platform.iam.v2beta1.IdentityProvider.update_time:type_name -> google.protobuf.Timestamp
+	16, // 2: chainguard.platform.iam.v2beta1.IdentityProvider.oidc:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider.OIDC
+	17, // 3: chainguard.platform.iam.v2beta1.IdentityProvider.scim:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider.SCIM
+	19, // 4: chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	1,  // 5: chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse.identity_providers:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider
+	1,  // 6: chainguard.platform.iam.v2beta1.CreateIdentityProviderRequest.identity_provider:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider
+	1,  // 7: chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest.identity_provider:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider
+	20, // 8: chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest.update_mask:type_name -> google.protobuf.FieldMask
+	18, // 9: chainguard.platform.iam.v2beta1.GenerateScimTokenRequest.expire_time:type_name -> google.protobuf.Timestamp
+	18, // 10: chainguard.platform.iam.v2beta1.GenerateScimTokenResponse.expire_time:type_name -> google.protobuf.Timestamp
+	21, // 11: chainguard.platform.iam.v2beta1.RegenerateScimTokenRequest.overlap:type_name -> google.protobuf.Duration
+	18, // 12: chainguard.platform.iam.v2beta1.RegenerateScimTokenRequest.expire_time:type_name -> google.protobuf.Timestamp
+	18, // 13: chainguard.platform.iam.v2beta1.RegenerateScimTokenResponse.expire_time:type_name -> google.protobuf.Timestamp
+	18, // 14: chainguard.platform.iam.v2beta1.RegenerateScimTokenResponse.previous_token_expire_time:type_name -> google.protobuf.Timestamp
+	21, // 15: chainguard.platform.iam.v2beta1.RegenerateScimTokenResponse.requested_overlap:type_name -> google.protobuf.Duration
+	18, // 16: chainguard.platform.iam.v2beta1.RevokeScimTokenResponse.revoke_time:type_name -> google.protobuf.Timestamp
+	18, // 17: chainguard.platform.iam.v2beta1.IdentityProvider.SCIM.token_expire_time:type_name -> google.protobuf.Timestamp
+	18, // 18: chainguard.platform.iam.v2beta1.IdentityProvider.SCIM.previous_token_expire_time:type_name -> google.protobuf.Timestamp
+	0,  // 19: chainguard.platform.iam.v2beta1.IdentityProvider.SCIM.credential_state:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider.SCIM.CredentialState
+	2,  // 20: chainguard.platform.iam.v2beta1.IdentityProvidersService.ListIdentityProviders:input_type -> chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest
+	4,  // 21: chainguard.platform.iam.v2beta1.IdentityProvidersService.GetIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.GetIdentityProviderRequest
+	5,  // 22: chainguard.platform.iam.v2beta1.IdentityProvidersService.CreateIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.CreateIdentityProviderRequest
+	6,  // 23: chainguard.platform.iam.v2beta1.IdentityProvidersService.UpdateIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest
+	7,  // 24: chainguard.platform.iam.v2beta1.IdentityProvidersService.DeleteIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.DeleteIdentityProviderRequest
+	8,  // 25: chainguard.platform.iam.v2beta1.IdentityProvidersService.GenerateScimToken:input_type -> chainguard.platform.iam.v2beta1.GenerateScimTokenRequest
+	10, // 26: chainguard.platform.iam.v2beta1.IdentityProvidersService.RegenerateScimToken:input_type -> chainguard.platform.iam.v2beta1.RegenerateScimTokenRequest
+	12, // 27: chainguard.platform.iam.v2beta1.IdentityProvidersService.RevokeScimToken:input_type -> chainguard.platform.iam.v2beta1.RevokeScimTokenRequest
+	14, // 28: chainguard.platform.iam.v2beta1.IdentityProvidersService.SetScimEnabled:input_type -> chainguard.platform.iam.v2beta1.SetScimEnabledRequest
+	3,  // 29: chainguard.platform.iam.v2beta1.IdentityProvidersService.ListIdentityProviders:output_type -> chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse
+	1,  // 30: chainguard.platform.iam.v2beta1.IdentityProvidersService.GetIdentityProvider:output_type -> chainguard.platform.iam.v2beta1.IdentityProvider
+	1,  // 31: chainguard.platform.iam.v2beta1.IdentityProvidersService.CreateIdentityProvider:output_type -> chainguard.platform.iam.v2beta1.IdentityProvider
+	1,  // 32: chainguard.platform.iam.v2beta1.IdentityProvidersService.UpdateIdentityProvider:output_type -> chainguard.platform.iam.v2beta1.IdentityProvider
+	22, // 33: chainguard.platform.iam.v2beta1.IdentityProvidersService.DeleteIdentityProvider:output_type -> google.protobuf.Empty
+	9,  // 34: chainguard.platform.iam.v2beta1.IdentityProvidersService.GenerateScimToken:output_type -> chainguard.platform.iam.v2beta1.GenerateScimTokenResponse
+	11, // 35: chainguard.platform.iam.v2beta1.IdentityProvidersService.RegenerateScimToken:output_type -> chainguard.platform.iam.v2beta1.RegenerateScimTokenResponse
+	13, // 36: chainguard.platform.iam.v2beta1.IdentityProvidersService.RevokeScimToken:output_type -> chainguard.platform.iam.v2beta1.RevokeScimTokenResponse
+	15, // 37: chainguard.platform.iam.v2beta1.IdentityProvidersService.SetScimEnabled:output_type -> chainguard.platform.iam.v2beta1.SetScimEnabledResponse
+	29, // [29:38] is the sub-list for method output_type
+	20, // [20:29] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_iam_v2beta1_identity_providers_proto_init() }
@@ -864,13 +1700,14 @@ func file_chainguard_platform_iam_v2beta1_identity_providers_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc), len(file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   9,
+			NumEnums:      1,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_chainguard_platform_iam_v2beta1_identity_providers_proto_goTypes,
 		DependencyIndexes: file_chainguard_platform_iam_v2beta1_identity_providers_proto_depIdxs,
+		EnumInfos:         file_chainguard_platform_iam_v2beta1_identity_providers_proto_enumTypes,
 		MessageInfos:      file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes,
 	}.Build()
 	File_chainguard_platform_iam_v2beta1_identity_providers_proto = out.File
