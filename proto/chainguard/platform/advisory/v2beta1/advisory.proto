@@ -1,0 +1,443 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.advisory.v2beta1;
+
+import "annotations/auth.proto";
+import "annotations/mcp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/advisory/v2beta1";
+option java_multiple_files = true;
+option java_outer_classname = "AdvisoryProto";
+option java_package = "com.chainguard.platform.advisory.v2beta1";
+
+// SecurityAdvisoryService provides access to Chainguard security advisory data.
+service SecurityAdvisoryService {
+  // ListDocuments returns advisory documents grouped by origin package.
+  rpc ListDocuments(ListDocumentsRequest) returns (ListDocumentsResponse) {
+    option (google.api.http) = {get: "/advisory/v2beta1/documents"};
+    option (chainguard.annotations.iam) = {
+      // This method doesn't require authentication.
+      disabled: {}
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List advisory documents grouped by origin package. Supports filtering by package name and CVE aliases."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // ListVulnerabilityMetadata returns vulnerability metadata (summary, severity, references) for given CVE IDs.
+  rpc ListVulnerabilityMetadata(ListVulnerabilityMetadataRequest) returns (ListVulnerabilityMetadataResponse) {
+    option (google.api.http) = {get: "/advisory/v2beta1/metadata"};
+    option (chainguard.annotations.iam) = {
+      // This method doesn't require authentication.
+      disabled: {}
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List vulnerability metadata including severity scores and references for given CVE identifiers."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // ListResolvedVulnsReports returns daily resolved vulnerability reports for given images over a date range.
+  rpc ListResolvedVulnsReports(ListResolvedVulnsReportsRequest) returns (ListResolvedVulnsReportsResponse) {
+    option (google.api.http) = {get: "/advisory/v2beta1/images/resolvedVulns"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_APK_LIST,
+          CAP_REPO_LIST,
+          CAP_MANIFEST_METADATA_LIST,
+          CAP_TAG_LIST
+        ]
+        unscoped: true
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List daily resolved vulnerability reports for specified container images over a date range."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+}
+
+// --- ListDocuments messages ---
+// ListDocumentsRequest provides options to filter advisory documents.
+// (-- api-linter: core::0158::request-page-size-field=disabled
+//     aip.dev/not-precedent: This endpoint returns a bounded result set and does not use pagination. --)
+// (-- api-linter: core::0158::request-page-token-field=disabled
+//     aip.dev/not-precedent: This endpoint returns a bounded result set and does not use pagination. --)
+message ListDocumentsRequest {
+  // Filter by package name (origin package ID).
+  string id = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter by CVE aliases (e.g., CVE-2024-1234).
+  repeated string cves = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListDocumentsResponse is the response to ListDocuments.
+// (-- api-linter: core::0158::response-next-page-token-field=disabled
+//     aip.dev/not-precedent: This endpoint returns a bounded result set and does not use pagination. --)
+message ListDocumentsResponse {
+  // Advisory documents matching the filter criteria.
+  repeated Document documents = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Document represents a collection of advisories for an origin package.
+message Document {
+  // The origin package name that this document covers.
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Advisories associated with this package.
+  repeated DocumentAdvisory advisories = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// DocumentAdvisory represents a single advisory within a document.
+message DocumentAdvisory {
+  // The advisory identifier (CGA ID).
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Events in the advisory lifecycle.
+  repeated DocumentEvent events = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Other vulnerability identifiers (CVE, GHSA, etc.).
+  repeated string aliases = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The repository namespace the origin package belongs to (e.g., wolfi, chainguard).
+  string package_namespace = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// DocumentEvent represents a lifecycle event within an advisory.
+message DocumentEvent {
+  // When the event occurred.
+  // (-- api-linter: core::0142::time-field-names=disabled
+  //     aip.dev/not-precedent: Field name matches the v1 API for consistency. --)
+  google.protobuf.Timestamp timestamp = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Event-specific data.
+  oneof data {
+    // The vulnerability was determined to actively affect the artifact.
+    TruePositiveDetermination true_positive_determination = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // The vulnerability was determined not to affect the artifact.
+    FalsePositiveDetermination false_positive_determination = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // The vulnerability has been fixed.
+    Fixed fixed = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // The vulnerability was detected.
+    Detection detection = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // Analysis of the vulnerability is not planned.
+    AnalysisNotPlanned analysis_not_planned = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // No fix is planned for this vulnerability.
+    FixNotPlanned fix_not_planned = 15 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // A fix is pending on the upstream repository.
+    PendingUpstreamFix pending_upstream_fix = 16 [(google.api.field_behavior) = OUTPUT_ONLY];
+  }
+}
+
+// --- ListVulnerabilityMetadata messages ---
+// ListVulnerabilityMetadataRequest provides options for fetching vulnerability metadata.
+message ListVulnerabilityMetadataRequest {
+  // A single vulnerability ID (e.g., CVE-2024-1234).
+  string id = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // Multiple vulnerability IDs to fetch metadata for.
+  // Limited to 1000 unique IDs per request.
+  repeated string ids = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Maximum number of results to return per page.
+  // Default: 50, Maximum: 200.
+  int32 page_size = 10 [(google.api.field_behavior) = OPTIONAL];
+
+  // Page token from a previous response for pagination.
+  // Opaque token with 3-day expiration.
+  string page_token = 11 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order results by field. Format: "field [asc|desc]".
+  // Default: "id asc".
+  string order_by = 12 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of results to skip before returning.
+  int32 skip = 13 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListVulnerabilityMetadataResponse is the response to ListVulnerabilityMetadata.
+message ListVulnerabilityMetadataResponse {
+  // Vulnerability metadata entries matching the request.
+  repeated VulnerabilityMetadata vulnerability_metadata = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Token for retrieving the next page of results.
+  // Empty if no more results.
+  string next_page_token = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Total number of results matching the filter.
+  // Optional, provided for UI pagination.
+  optional int64 total_count = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Number of results that were skipped.
+  // Accumulates across paginated requests.
+  int32 skipped = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// VulnerabilityMetadata contains metadata about a specific vulnerability.
+message VulnerabilityMetadata {
+  // The vulnerability identifier (e.g., CVE-2024-1234).
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // A brief summary of the vulnerability.
+  string summary = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Detailed description of the vulnerability.
+  string details = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // External references related to this vulnerability.
+  repeated Reference references = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Severity scores for this vulnerability.
+  repeated Severity severities = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// --- ListResolvedVulnsReports messages ---
+// ListResolvedVulnsReportsRequest provides options for fetching resolved vulnerability reports.
+// (-- api-linter: core::0132::request-parent-required=disabled
+//     aip.dev/not-precedent: This endpoint is unscoped and does not require a parent resource. --)
+// (-- api-linter: core::0132::request-required-fields=disabled
+//     aip.dev/not-precedent: This is a compute endpoint that requires a date range and image references to produce results. --)
+// (-- api-linter: core::0158::request-page-size-field=disabled
+//     aip.dev/not-precedent: This endpoint returns a bounded result set and does not use pagination. --)
+// (-- api-linter: core::0158::request-page-token-field=disabled
+//     aip.dev/not-precedent: This endpoint returns a bounded result set and does not use pagination. --)
+message ListResolvedVulnsReportsRequest {
+  // The container images to compute resolved vulnerabilities for.
+  repeated ImageRef image_refs = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Start of the date range (inclusive).
+  google.protobuf.Timestamp start_time = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // End of the date range (inclusive).
+  google.protobuf.Timestamp end_time = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListResolvedVulnsReportsResponse is the response to ListResolvedVulnsReports.
+// (-- api-linter: core::0158::response-next-page-token-field=disabled
+//     aip.dev/not-precedent: This endpoint returns a bounded result set and does not use pagination. --)
+message ListResolvedVulnsReportsResponse {
+  // Resolved vulnerability reports, one per day in the requested range.
+  repeated ResolvedVulnsReport reports = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ImageRef identifies a container image by repository and optional tags.
+message ImageRef {
+  // The image repository name.
+  string repo = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Optional tags. If empty, defaults to "latest".
+  repeated string tags = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ResolvedVulnsReport contains resolved vulnerabilities for a single day.
+message ResolvedVulnsReport {
+  // The date these vulnerabilities were resolved.
+  // (-- api-linter: core::0142::time-field-names=disabled
+  //     aip.dev/not-precedent: Field represents a calendar date, not a point-in-time. --)
+  google.protobuf.Timestamp date = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Vulnerabilities resolved on this date.
+  repeated ResolvedVuln resolved_vulns = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ResolvedVuln represents a single resolved vulnerability.
+message ResolvedVuln {
+  // The CGA ID for the associated advisory.
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Other vulnerability identifiers (CVE, GHSA, etc.).
+  repeated string aliases = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // CVSS severity scores from OSV metadata.
+  repeated Severity cvss_severities = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// --- Shared types ---
+// Reference is an external reference related to a vulnerability.
+message Reference {
+  // The type of reference.
+  Type type = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The URL of the reference.
+  string url = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Type of external reference.
+  enum Type {
+    // Unspecified reference type.
+    TYPE_UNSPECIFIED = 0;
+    // Published security advisory.
+    TYPE_ADVISORY = 1;
+    // Article or blog post.
+    TYPE_ARTICLE = 2;
+    // Detection tool or scanner.
+    TYPE_DETECTION = 3;
+    // Social media discussion.
+    TYPE_DISCUSSION = 4;
+    // Vulnerability report.
+    TYPE_REPORT = 5;
+    // Link to fix in source code.
+    TYPE_FIX = 6;
+    // Link to introduction of vulnerability.
+    TYPE_INTRODUCED = 7;
+    // Package home page.
+    TYPE_PACKAGE = 8;
+    // Demonstration of vulnerability.
+    TYPE_EVIDENCE = 9;
+    // Web page of unspecified kind.
+    TYPE_WEB = 10;
+  }
+}
+
+// Severity represents a quantitative severity scoring method.
+message Severity {
+  // Type of severity scoring method.
+  enum Type {
+    // Unspecified severity type.
+    TYPE_UNSPECIFIED = 0;
+    // CVSS version 2.
+    TYPE_CVSS_V2 = 1;
+    // CVSS version 3.x.
+    TYPE_CVSS_V3 = 2;
+    // CVSS version 4.x.
+    TYPE_CVSS_V4 = 3;
+  }
+
+  // The type of severity scoring method used.
+  Type type = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // The score string (CVSS vector string or numeric value depending on type).
+  string score = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// --- Event sub-message types ---
+// TruePositiveDetermination indicates the vulnerability actively affects the artifact.
+message TruePositiveDetermination {
+  // Justification note.
+  string note = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// FalsePositiveDetermination indicates the vulnerability does not affect the artifact.
+message FalsePositiveDetermination {
+  // The type of false positive.
+  Type type = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Justification note.
+  string note = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Type of false positive determination.
+  enum Type {
+    // Unspecified false positive type.
+    TYPE_UNSPECIFIED = 0;
+    // The vulnerability record itself is contested.
+    TYPE_VULNERABILITY_RECORD_ANALYSIS_CONTESTED = 1;
+    // The component is mismatched with the vulnerability.
+    TYPE_COMPONENT_VULNERABILITY_MISMATCH = 2;
+    // The vulnerable code version was never included.
+    TYPE_VULNERABLE_CODE_VERSION_NOT_USED = 3;
+    // Vulnerable code not included in the package.
+    TYPE_VULNERABLE_CODE_NOT_INCLUDED_IN_PACKAGE = 4;
+    // Vulnerable code exists but cannot be executed.
+    TYPE_VULNERABLE_CODE_NOT_IN_EXECUTION_PATH = 5;
+    // Vulnerable code cannot be controlled by an adversary.
+    TYPE_VULNERABLE_CODE_CANNOT_BE_CONTROLLED_BY_ADVERSARY = 6;
+    // Inline mitigations exist for the vulnerability.
+    TYPE_INLINE_MITIGATIONS_EXIST = 7;
+  }
+}
+
+// Fixed indicates the vulnerability has been fixed at a specific version.
+message Fixed {
+  // The version at which the vulnerability was fixed.
+  string fixed_version = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // The vulnerability scanner version.
+  string scanner_version = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Build timestamp of the grype DB.
+  string grype_db_built = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Integrity checksum of the grype DB.
+  string grype_db_checksum = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Detection indicates the vulnerability was detected.
+message Detection {
+  // Detection method.
+  oneof type {
+    // Detected via NVD API.
+    DetectionTypeNVDAPI nvdapi = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // Detected manually.
+    DetectionTypeManual manual = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // Detected via scanner.
+    DetectionTypeScanV1 scanv1 = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  }
+
+  // NVD API detection data.
+  message DetectionTypeNVDAPI {
+    // CPE used in the search.
+    string cpe_searched = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // Matching CPE found.
+    string cpe_found = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  }
+
+  // Manual detection (no additional data).
+  message DetectionTypeManual {}
+
+  // Scanner-based detection data.
+  // (-- api-linter: core::0122::name-suffix=disabled
+  //     aip.dev/not-precedent: name suffix distinguishes between related component fields. --)
+  message DetectionTypeScanV1 {
+    // The scanner name.
+    string scanner = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // Subpackage name.
+    string subpackage_name = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // Scanner-assigned component ID.
+    string component_id = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // Component name.
+    string component_name = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // Component version.
+    string component_version = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // Component type.
+    string component_type = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // Component filesystem location.
+    string component_location = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // Artifact version scanned.
+    string artifact_version = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // Scanner version.
+    string scanner_version = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // Grype DB build timestamp.
+    string grype_db_built = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // Grype DB checksum.
+    string grype_db_checksum = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+  }
+}
+
+// AnalysisNotPlanned indicates no analysis is planned.
+message AnalysisNotPlanned {
+  // Justification note.
+  string note = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// FixNotPlanned indicates no fix is planned.
+message FixNotPlanned {
+  // Justification note.
+  string note = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// PendingUpstreamFix indicates a fix is pending upstream.
+message PendingUpstreamFix {
+  // Note about the upstream fix status.
+  string note = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

@@ -14,6 +14,7 @@ import (
 	"google.golang.org/grpc/credentials"
 
 	delegate "chainguard.dev/go-grpc-kit/pkg/options"
+	advisory "chainguard.dev/sdk/proto/chainguard/platform/advisory/v2beta1"
 	iamv2 "chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1"
 	registry "chainguard.dev/sdk/proto/chainguard/platform/registry/v2beta1"
 	vuln "chainguard.dev/sdk/proto/chainguard/platform/vulnerabilities/v2beta1"
@@ -22,6 +23,7 @@ import (
 
 // Clients provides access to v2beta1 API clients.
 type Clients interface {
+	Advisory() advisory.Clients
 	IAM() iamv2.Clients
 	Registry() registry.Clients
 	Vulnerabilities() vuln.Clients
@@ -29,6 +31,7 @@ type Clients interface {
 }
 
 type clients struct {
+	advisory advisory.Clients
 	iam      iamv2.Clients
 	registry registry.Clients
 	vuln     vuln.Clients
@@ -63,11 +66,16 @@ func NewClients(ctx context.Context, apiURL, userAgent string, cred credentials.
 	}
 
 	return &clients{
+		advisory: advisory.NewClientsFromConnection(conn),
 		iam:      iamv2.NewClientsFromConnection(conn),
 		registry: registry.NewClientsFromConnection(conn),
 		vuln:     vuln.NewClientsFromConnection(conn),
 		conn:     conn,
 	}, nil
+}
+
+func (c *clients) Advisory() advisory.Clients {
+	return c.advisory
 }
 
 func (c *clients) IAM() iamv2.Clients {
