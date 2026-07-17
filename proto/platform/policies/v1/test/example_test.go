@@ -160,6 +160,33 @@ func ExampleMockPoliciesClient_DeletePolicy() {
 	// Output: Policy deleted successfully
 }
 
+// ExampleMockPoliciesClient_ValidatePolicy demonstrates mocking the
+// dry-run validate endpoint used by `chainctl policies custom validate`.
+func ExampleMockPoliciesClient_ValidatePolicy() {
+	ctx := context.Background()
+
+	req := &policies.ValidatePolicyRequest{
+		Expression: `package chainguard.policies
+default allow = true`,
+		Type: policies.ExpressionType_EXPRESSION_TYPE_REGO,
+	}
+
+	mock := &test.MockPoliciesClient{
+		OnValidatePolicy: []test.OnValidatePolicy{{
+			Given:    req,
+			Response: &policies.ValidatePolicyResponse{Valid: true},
+		}},
+	}
+
+	resp, err := mock.ValidatePolicy(ctx, req)
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+		return
+	}
+
+	fmt.Printf("Valid: %v\n", resp.GetValid())
+}
+
 // ExampleMockBindingsClient_CreateBinding demonstrates mocking binding creation.
 func ExampleMockBindingsClient_CreateBinding() {
 	ctx := context.Background()

@@ -53,16 +53,23 @@ var _ policies.PoliciesClient = (*MockPoliciesClient)(nil)
 type MockPoliciesClient struct {
 	policies.PoliciesClient
 
-	OnCreatePolicy []OnCreatePolicy
-	OnUpdatePolicy []OnUpdatePolicy
-	OnListPolicies []OnListPolicies
-	OnDeletePolicy []OnDeletePolicy
+	OnCreatePolicy   []OnCreatePolicy
+	OnUpdatePolicy   []OnUpdatePolicy
+	OnListPolicies   []OnListPolicies
+	OnDeletePolicy   []OnDeletePolicy
+	OnValidatePolicy []OnValidatePolicy
 }
 
 type OnCreatePolicy struct {
 	Given   *policies.CreatePolicyRequest
 	Created *policies.Policy
 	Error   error
+}
+
+type OnValidatePolicy struct {
+	Given    *policies.ValidatePolicyRequest
+	Response *policies.ValidatePolicyResponse
+	Error    error
 }
 
 type OnUpdatePolicy struct {
@@ -113,6 +120,15 @@ func (m *MockPoliciesClient) DeletePolicy(_ context.Context, given *policies.Del
 	for _, o := range m.OnDeletePolicy {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return &emptypb.Empty{}, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m *MockPoliciesClient) ValidatePolicy(_ context.Context, given *policies.ValidatePolicyRequest, _ ...grpc.CallOption) (*policies.ValidatePolicyResponse, error) {
+	for _, o := range m.OnValidatePolicy {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)
