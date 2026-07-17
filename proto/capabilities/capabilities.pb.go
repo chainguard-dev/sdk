@@ -776,7 +776,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x82c\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xd0c\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -883,20 +883,20 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x19CAP_LIBRARIES_JAVA_CREATE\x10\x9d\x0e\x1a \xa8ˑMn\x9a\xaf\xa8\xd2\x05\x15libraries.java.create\x12H\n" +
 	"\x1dCAP_LIBRARIES_JAVASCRIPT_LIST\x10\xa6\x0e\x1a$\xa8ˑMX\x9a\xaf\xa8\xd2\x05\x19libraries.javascript.list\x12L\n" +
 	"\x1fCAP_LIBRARIES_JAVASCRIPT_CREATE\x10\xa7\x0e\x1a&\xa8ˑMm\x9a\xaf\xa8\xd2\x05\x1blibraries.javascript.create\x12K\n" +
-	"\x1eCAP_LIBRARIES_CACHE_INVALIDATE\x10\xc4\x0e\x1a&\xa8ˑM\x81\x01\x9a\xaf\xa8\xd2\x05\x1alibraries.cache.invalidate\x12\\\n" +
-	"'CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE\x10\xb0\x0e\x1a.\xa8ˑMg\x9a\xaf\xa8\xd2\x05#libraries.rebuilder.requests.create\x12X\n" +
-	"%CAP_LIBRARIES_REBUILDER_REQUESTS_LIST\x10\xb1\x0e\x1a,\xa8ˑMh\x9a\xaf\xa8\xd2\x05!libraries.rebuilder.requests.list\x12\\\n" +
-	"'CAP_LIBRARIES_REBUILDER_REQUESTS_CANCEL\x10\xb2\x0e\x1a.\xa8ˑMi\x9a\xaf\xa8\xd2\x05#libraries.rebuilder.requests.cancel\x12h\n" +
-	"-CAP_LIBRARIES_REBUILDER_REQUESTS_GROUP_UPDATE\x10\xb3\x0e\x1a4\xa8ˑMy\x9a\xaf\xa8\xd2\x05)libraries.rebuilder.requests.group.update\x12f\n" +
-	",CAP_LIBRARIES_REBUILDER_ARTIFACTS_INVALIDATE\x10\xba\x0e\x1a3\xa8ˑMj\x9a\xaf\xa8\xd2\x05(libraries.rebuilder.artifacts.invalidate\x12`\n" +
-	")CAP_LIBRARIES_REBUILDER_EXCLUSIONS_MANAGE\x10\xbb\x0e\x1a0\xa8ˑMp\x9a\xaf\xa8\xd2\x05%libraries.rebuilder.exclusions.manage\x12T\n" +
-	"#CAP_LIBRARIES_REBUILDER_BUILDS_READ\x10\xbc\x0e\x1a*\xa8ˑMz\x9a\xaf\xa8\xd2\x05\x1flibraries.rebuilder.builds.read\x12e\n" +
-	"+CAP_LIBRARIES_REBUILDER_BUILDS_TOKENS_FETCH\x10\xbd\x0e\x1a3\xa8ˑM\x82\x01\x9a\xaf\xa8\xd2\x05'libraries.rebuilder.builds.tokens.fetch\x12_\n" +
-	"(CAP_LIBRARIES_REBUILDER_BUILDS_UNTRUSTED\x10\xbe\x0e\x1a0\xa8ˑM\x83\x01\x9a\xaf\xa8\xd2\x05$libraries.rebuilder.builds.untrusted\x12q\n" +
-	"1CAP_LIBRARIES_REBUILDER_REMEDIATED_ARTIFACTS_READ\x10\xbf\x0e\x1a9\xa8ˑM\x84\x01\x9a\xaf\xa8\xd2\x05-libraries.rebuilder.remediated_artifacts.read\x12a\n" +
-	")CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_READ\x10\xc0\x0e\x1a1\xa8ˑM\x8d\x01\x9a\xaf\xa8\xd2\x05%libraries.rebuilder.new_versions.read\x12g\n" +
-	",CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_REFRESH\x10\xc1\x0e\x1a4\xa8ˑM\x8e\x01\x9a\xaf\xa8\xd2\x05(libraries.rebuilder.new_versions.refresh\x12e\n" +
-	"+CAP_LIBRARIES_REBUILDER_MALWARE_STATUS_READ\x10\xc2\x0e\x1a3\xa8ˑM\x9d\x01\x9a\xaf\xa8\xd2\x05'libraries.rebuilder.malware.status.read\x12o\n" +
+	"\x1eCAP_LIBRARIES_CACHE_INVALIDATE\x10\xc4\x0e\x1a&\xa8ˑM\x81\x01\x9a\xaf\xa8\xd2\x05\x1alibraries.cache.invalidate\x12b\n" +
+	"'CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE\x10\xb0\x0e\x1a4\xa8ˑMg\x9a\xaf\xa8\xd2\x05#libraries.rebuilder.requests.create\xa0\xaf\xa8\xd2\x05\x01\x12^\n" +
+	"%CAP_LIBRARIES_REBUILDER_REQUESTS_LIST\x10\xb1\x0e\x1a2\xa8ˑMh\x9a\xaf\xa8\xd2\x05!libraries.rebuilder.requests.list\xa0\xaf\xa8\xd2\x05\x01\x12b\n" +
+	"'CAP_LIBRARIES_REBUILDER_REQUESTS_CANCEL\x10\xb2\x0e\x1a4\xa8ˑMi\x9a\xaf\xa8\xd2\x05#libraries.rebuilder.requests.cancel\xa0\xaf\xa8\xd2\x05\x01\x12n\n" +
+	"-CAP_LIBRARIES_REBUILDER_REQUESTS_GROUP_UPDATE\x10\xb3\x0e\x1a:\xa8ˑMy\x9a\xaf\xa8\xd2\x05)libraries.rebuilder.requests.group.update\xa0\xaf\xa8\xd2\x05\x01\x12l\n" +
+	",CAP_LIBRARIES_REBUILDER_ARTIFACTS_INVALIDATE\x10\xba\x0e\x1a9\xa8ˑMj\x9a\xaf\xa8\xd2\x05(libraries.rebuilder.artifacts.invalidate\xa0\xaf\xa8\xd2\x05\x01\x12f\n" +
+	")CAP_LIBRARIES_REBUILDER_EXCLUSIONS_MANAGE\x10\xbb\x0e\x1a6\xa8ˑMp\x9a\xaf\xa8\xd2\x05%libraries.rebuilder.exclusions.manage\xa0\xaf\xa8\xd2\x05\x01\x12Z\n" +
+	"#CAP_LIBRARIES_REBUILDER_BUILDS_READ\x10\xbc\x0e\x1a0\xa8ˑMz\x9a\xaf\xa8\xd2\x05\x1flibraries.rebuilder.builds.read\xa0\xaf\xa8\xd2\x05\x01\x12k\n" +
+	"+CAP_LIBRARIES_REBUILDER_BUILDS_TOKENS_FETCH\x10\xbd\x0e\x1a9\xa8ˑM\x82\x01\x9a\xaf\xa8\xd2\x05'libraries.rebuilder.builds.tokens.fetch\xa0\xaf\xa8\xd2\x05\x01\x12e\n" +
+	"(CAP_LIBRARIES_REBUILDER_BUILDS_UNTRUSTED\x10\xbe\x0e\x1a6\xa8ˑM\x83\x01\x9a\xaf\xa8\xd2\x05$libraries.rebuilder.builds.untrusted\xa0\xaf\xa8\xd2\x05\x01\x12w\n" +
+	"1CAP_LIBRARIES_REBUILDER_REMEDIATED_ARTIFACTS_READ\x10\xbf\x0e\x1a?\xa8ˑM\x84\x01\x9a\xaf\xa8\xd2\x05-libraries.rebuilder.remediated_artifacts.read\xa0\xaf\xa8\xd2\x05\x01\x12g\n" +
+	")CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_READ\x10\xc0\x0e\x1a7\xa8ˑM\x8d\x01\x9a\xaf\xa8\xd2\x05%libraries.rebuilder.new_versions.read\xa0\xaf\xa8\xd2\x05\x01\x12m\n" +
+	",CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_REFRESH\x10\xc1\x0e\x1a:\xa8ˑM\x8e\x01\x9a\xaf\xa8\xd2\x05(libraries.rebuilder.new_versions.refresh\xa0\xaf\xa8\xd2\x05\x01\x12k\n" +
+	"+CAP_LIBRARIES_REBUILDER_MALWARE_STATUS_READ\x10\xc2\x0e\x1a9\xa8ˑM\x9d\x01\x9a\xaf\xa8\xd2\x05'libraries.rebuilder.malware.status.read\xa0\xaf\xa8\xd2\x05\x01\x12o\n" +
 	"-CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_LIST\x10\xc3\x0e\x1a;\xa8ˑM\xb1\x01\x9a\xaf\xa8\xd2\x05)libraries.rebuilder.cve_remediations.list\xa0\xaf\xa8\xd2\x05\x01\x12s\n" +
 	"/CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_UPDATE\x10\xc5\x0e\x1a=\xa8ˑM\xb2\x01\x9a\xaf\xa8\xd2\x05+libraries.rebuilder.cve_remediations.update\xa0\xaf\xa8\xd2\x05\x01\x12s\n" +
 	"2CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE\x10\xce\x0e\x1a:\xa8ˑM\xa5\x01\x9a\xaf\xa8\xd2\x05.libraries.aws_marketplace.subscriptions.create\x12s\n" +

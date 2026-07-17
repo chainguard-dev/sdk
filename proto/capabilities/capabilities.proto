@@ -181,19 +181,19 @@ enum Capability {
 
 
   // Rebuilder API capabilities
-  CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE = 1840 [(name) = "libraries.rebuilder.requests.create", (bit) = 103];
-  CAP_LIBRARIES_REBUILDER_REQUESTS_LIST = 1841 [(name) = "libraries.rebuilder.requests.list", (bit) = 104];
-  CAP_LIBRARIES_REBUILDER_REQUESTS_CANCEL = 1842 [(name) = "libraries.rebuilder.requests.cancel", (bit) = 105];
-  CAP_LIBRARIES_REBUILDER_REQUESTS_GROUP_UPDATE = 1843 [(name) = "libraries.rebuilder.requests.group.update", (bit) = 121];
-  CAP_LIBRARIES_REBUILDER_ARTIFACTS_INVALIDATE = 1850 [(name) = "libraries.rebuilder.artifacts.invalidate", (bit) = 106];
-  CAP_LIBRARIES_REBUILDER_EXCLUSIONS_MANAGE = 1851 [(name) = "libraries.rebuilder.exclusions.manage", (bit) = 112];
-  CAP_LIBRARIES_REBUILDER_BUILDS_READ = 1852 [(name) = "libraries.rebuilder.builds.read", (bit) = 122];
-  CAP_LIBRARIES_REBUILDER_BUILDS_TOKENS_FETCH = 1853 [(name) = "libraries.rebuilder.builds.tokens.fetch", (bit) = 130];
-  CAP_LIBRARIES_REBUILDER_BUILDS_UNTRUSTED = 1854 [(name) = "libraries.rebuilder.builds.untrusted", (bit) = 131];
-  CAP_LIBRARIES_REBUILDER_REMEDIATED_ARTIFACTS_READ = 1855 [(name) = "libraries.rebuilder.remediated_artifacts.read", (bit) = 132];
-  CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_READ = 1856 [(name) = "libraries.rebuilder.new_versions.read", (bit) = 141];
-  CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_REFRESH = 1857 [(name) = "libraries.rebuilder.new_versions.refresh", (bit) = 142];
-  CAP_LIBRARIES_REBUILDER_MALWARE_STATUS_READ = 1858 [(name) = "libraries.rebuilder.malware.status.read", (bit) = 157];
+  CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE = 1840 [(name) = "libraries.rebuilder.requests.create", (bit) = 103, (internal_only) = true];
+  CAP_LIBRARIES_REBUILDER_REQUESTS_LIST = 1841 [(name) = "libraries.rebuilder.requests.list", (bit) = 104, (internal_only) = true];
+  CAP_LIBRARIES_REBUILDER_REQUESTS_CANCEL = 1842 [(name) = "libraries.rebuilder.requests.cancel", (bit) = 105, (internal_only) = true];
+  CAP_LIBRARIES_REBUILDER_REQUESTS_GROUP_UPDATE = 1843 [(name) = "libraries.rebuilder.requests.group.update", (bit) = 121, (internal_only) = true];
+  CAP_LIBRARIES_REBUILDER_ARTIFACTS_INVALIDATE = 1850 [(name) = "libraries.rebuilder.artifacts.invalidate", (bit) = 106, (internal_only) = true];
+  CAP_LIBRARIES_REBUILDER_EXCLUSIONS_MANAGE = 1851 [(name) = "libraries.rebuilder.exclusions.manage", (bit) = 112, (internal_only) = true];
+  CAP_LIBRARIES_REBUILDER_BUILDS_READ = 1852 [(name) = "libraries.rebuilder.builds.read", (bit) = 122, (internal_only) = true];
+  CAP_LIBRARIES_REBUILDER_BUILDS_TOKENS_FETCH = 1853 [(name) = "libraries.rebuilder.builds.tokens.fetch", (bit) = 130, (internal_only) = true];
+  CAP_LIBRARIES_REBUILDER_BUILDS_UNTRUSTED = 1854 [(name) = "libraries.rebuilder.builds.untrusted", (bit) = 131, (internal_only) = true];
+  CAP_LIBRARIES_REBUILDER_REMEDIATED_ARTIFACTS_READ = 1855 [(name) = "libraries.rebuilder.remediated_artifacts.read", (bit) = 132, (internal_only) = true];
+  CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_READ = 1856 [(name) = "libraries.rebuilder.new_versions.read", (bit) = 141, (internal_only) = true];
+  CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_REFRESH = 1857 [(name) = "libraries.rebuilder.new_versions.refresh", (bit) = 142, (internal_only) = true];
+  CAP_LIBRARIES_REBUILDER_MALWARE_STATUS_READ = 1858 [(name) = "libraries.rebuilder.malware.status.read", (bit) = 157, (internal_only) = true];
   CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_LIST = 1859 [(name) = "libraries.rebuilder.cve_remediations.list", (bit) = 177, (internal_only) = true];
   CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_UPDATE = 1861 [(name) = "libraries.rebuilder.cve_remediations.update", (bit) = 178, (internal_only) = true];
 

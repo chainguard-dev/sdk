@@ -301,9 +301,13 @@ var (
 		Capability_CAP_LIBRARIES_JAVASCRIPT_CREATE,
 	}, LibrariesJavascriptPullCaps)
 
+	// The rebuilder capabilities are all (internal_only), so every rebuilder
+	// bundle must also grant CAP_INTERNAL — the internal-only validation enforces
+	// that pairing, which keeps these capabilities off customer-grantable roles.
 	LibrariesRebuilderRequestsCreateCaps = SortCaps([]Capability{
 		Capability_CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE,
 		Capability_CAP_LIBRARIES_REBUILDER_REQUESTS_LIST,
+		Capability_CAP_INTERNAL,
 	})
 
 	LibrariesRebuilderViewerCaps = SortCaps([]Capability{
@@ -311,6 +315,7 @@ var (
 		Capability_CAP_LIBRARIES_REBUILDER_REMEDIATED_ARTIFACTS_READ,
 		Capability_CAP_LIBRARIES_REBUILDER_REQUESTS_LIST,
 		Capability_CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_READ,
+		Capability_CAP_INTERNAL,
 	})
 
 	// LibrariesRebuilderTrustedCaps is for the trusted SA (e.g. prepare phase) that
@@ -318,6 +323,7 @@ var (
 	LibrariesRebuilderTrustedCaps = SortCaps([]Capability{
 		Capability_CAP_LIBRARIES_REBUILDER_BUILDS_TOKENS_FETCH,
 		Capability_CAP_LIBRARIES_REBUILDER_BUILDS_READ,
+		Capability_CAP_INTERNAL,
 	})
 
 	// LibrariesRebuilderUntrustedCaps is for untrusted build/test pods. They combine
@@ -329,6 +335,7 @@ var (
 	LibrariesRebuilderUntrustedCaps = SortCaps([]Capability{
 		Capability_CAP_LIBRARIES_REBUILDER_BUILDS_UNTRUSTED,
 		Capability_CAP_LIBRARIES_REBUILDER_MALWARE_STATUS_READ,
+		Capability_CAP_INTERNAL,
 	})
 
 	LibrariesRebuilderAdminCaps = SortCaps([]Capability{
