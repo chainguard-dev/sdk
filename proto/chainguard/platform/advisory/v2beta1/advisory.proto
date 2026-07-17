@@ -234,7 +234,7 @@ message ListResolvedVulnsReportsRequest {
 //     aip.dev/not-precedent: This endpoint returns a bounded result set and does not use pagination. --)
 message ListResolvedVulnsReportsResponse {
   // Resolved vulnerability reports, one per day in the requested range.
-  repeated ResolvedVulnsReport reports = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  repeated ResolvedVulnsReport resolved_vulns_reports = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ImageRef identifies a container image by repository and optional tags.

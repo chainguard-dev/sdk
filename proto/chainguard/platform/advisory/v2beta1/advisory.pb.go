@@ -1007,9 +1007,9 @@ func (x *ListResolvedVulnsReportsRequest) GetEndTime() *timestamppb.Timestamp {
 type ListResolvedVulnsReportsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Resolved vulnerability reports, one per day in the requested range.
-	Reports       []*ResolvedVulnsReport `protobuf:"bytes,1,rep,name=reports,proto3" json:"reports,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ResolvedVulnsReports []*ResolvedVulnsReport `protobuf:"bytes,1,rep,name=resolved_vulns_reports,json=resolvedVulnsReports,proto3" json:"resolved_vulns_reports,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ListResolvedVulnsReportsResponse) Reset() {
@@ -1042,9 +1042,9 @@ func (*ListResolvedVulnsReportsResponse) Descriptor() ([]byte, []int) {
 	return file_chainguard_platform_advisory_v2beta1_advisory_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *ListResolvedVulnsReportsResponse) GetReports() []*ResolvedVulnsReport {
+func (x *ListResolvedVulnsReportsResponse) GetResolvedVulnsReports() []*ResolvedVulnsReport {
 	if x != nil {
-		return x.Reports
+		return x.ResolvedVulnsReports
 	}
 	return nil
 }
@@ -2047,9 +2047,9 @@ const file_chainguard_platform_advisory_v2beta1_advisory_proto_rawDesc = "" +
 	"image_refs\x18\x01 \x03(\v2..chainguard.platform.advisory.v2beta1.ImageRefB\x04\xe2A\x01\x02R\timageRefs\x12?\n" +
 	"\n" +
 	"start_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x02R\tstartTime\x12;\n" +
-	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x02R\aendTime\"}\n" +
-	" ListResolvedVulnsReportsResponse\x12Y\n" +
-	"\areports\x18\x01 \x03(\v29.chainguard.platform.advisory.v2beta1.ResolvedVulnsReportB\x04\xe2A\x01\x03R\areports\">\n" +
+	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x02R\aendTime\"\x99\x01\n" +
+	" ListResolvedVulnsReportsResponse\x12u\n" +
+	"\x16resolved_vulns_reports\x18\x01 \x03(\v29.chainguard.platform.advisory.v2beta1.ResolvedVulnsReportB\x04\xe2A\x01\x03R\x14resolvedVulnsReports\">\n" +
 	"\bImageRef\x12\x18\n" +
 	"\x04repo\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x04repo\x12\x18\n" +
 	"\x04tags\x18\x02 \x03(\tB\x04\xe2A\x01\x01R\x04tags\"\xac\x01\n" +
@@ -2206,7 +2206,7 @@ var file_chainguard_platform_advisory_v2beta1_advisory_proto_depIdxs = []int32{
 	13, // 14: chainguard.platform.advisory.v2beta1.ListResolvedVulnsReportsRequest.image_refs:type_name -> chainguard.platform.advisory.v2beta1.ImageRef
 	28, // 15: chainguard.platform.advisory.v2beta1.ListResolvedVulnsReportsRequest.start_time:type_name -> google.protobuf.Timestamp
 	28, // 16: chainguard.platform.advisory.v2beta1.ListResolvedVulnsReportsRequest.end_time:type_name -> google.protobuf.Timestamp
-	14, // 17: chainguard.platform.advisory.v2beta1.ListResolvedVulnsReportsResponse.reports:type_name -> chainguard.platform.advisory.v2beta1.ResolvedVulnsReport
+	14, // 17: chainguard.platform.advisory.v2beta1.ListResolvedVulnsReportsResponse.resolved_vulns_reports:type_name -> chainguard.platform.advisory.v2beta1.ResolvedVulnsReport
 	28, // 18: chainguard.platform.advisory.v2beta1.ResolvedVulnsReport.date:type_name -> google.protobuf.Timestamp
 	15, // 19: chainguard.platform.advisory.v2beta1.ResolvedVulnsReport.resolved_vulns:type_name -> chainguard.platform.advisory.v2beta1.ResolvedVuln
 	17, // 20: chainguard.platform.advisory.v2beta1.ResolvedVuln.cvss_severities:type_name -> chainguard.platform.advisory.v2beta1.Severity
