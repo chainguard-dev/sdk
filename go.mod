@@ -3,14 +3,14 @@ module chainguard.dev/sdk
 go 1.26.0
 
 require (
-	chainguard.dev/apko v1.2.18
+	chainguard.dev/apko v1.2.23
 	chainguard.dev/go-grpc-kit v0.17.17
 	chainguard.dev/go-oidctest v0.4.0
 	cloud.google.com/go/compute/metadata v0.9.0
 	cloud.google.com/go/longrunning v0.9.0
 	github.com/aws/aws-sdk-go-v2 v1.42.0
 	github.com/bits-and-blooms/bitset v1.24.5
-	github.com/chainguard-dev/clog v1.8.0
+	github.com/chainguard-dev/clog v1.8.1
 	github.com/cloudevents/sdk-go/v2 v2.16.2
 	github.com/coreos/go-oidc/v3 v3.19.0
 	github.com/go-jose/go-jose/v4 v4.1.4
@@ -68,7 +68,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
-	github.com/klauspost/compress v1.18.6 // indirect
+	github.com/klauspost/compress v1.19.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.3-0.20250322232337-35a7c28c31ee // indirect

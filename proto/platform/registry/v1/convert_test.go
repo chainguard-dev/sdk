@@ -26,11 +26,14 @@ func TestRoundTrip(t *testing.T) {
 		apko2 := ToApkoNative(pb)
 		// Include was deprecated in the proto.
 		// BaseImage is not supported in the registry proto.
+		// RuntimeKeyring is deliberately absent from ApkoConfig: customer
+		// signing keys ride CustomOverlay.contents.runtime_keyring, never the
+		// raw apko service surface.
 		// We ignore them here to avoid the diff.
 		// https://github.com/chainguard-dev/apko/blob/main/pkg/build/types/types.go#L185-L186
 		if d := cmp.Diff(apko, apko2,
 			cmpopts.IgnoreFields(apkotypes.ImageConfiguration{}, "Include"),
-			cmpopts.IgnoreFields(apkotypes.ImageContents{}, "BaseImage")); d != "" {
+			cmpopts.IgnoreFields(apkotypes.ImageContents{}, "BaseImage", "RuntimeKeyring")); d != "" {
 			t.Errorf("apko diff(-want,+got): %s", d)
 			return false
 		}

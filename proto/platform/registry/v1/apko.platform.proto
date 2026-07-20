@@ -90,8 +90,12 @@ message ApkoConfig {
   message PathMutation {
     string path = 1;
     string type = 2;
-    uint32 uid = 3;
-    uint32 gid = 4;
+    // uid/gid mirror apko's nullable PathMutation UID/GID (apko#2281,
+    // v1.2.19+): absent means ownership is left untouched; an explicit 0
+    // chowns to root. `optional` preserves that distinction on the wire,
+    // like User.gid above (apko#1449 / mono#22196).
+    optional uint32 uid = 3;
+    optional uint32 gid = 4;
     uint32 permissions = 5;
     string source = 6;
     bool recursive = 7;

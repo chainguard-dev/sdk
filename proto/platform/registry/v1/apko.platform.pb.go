@@ -579,14 +579,18 @@ func (x *ApkoConfig_Entrypoint) GetServices() map[string]string {
 }
 
 type ApkoConfig_PathMutation struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Path          string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
-	Type          string                 `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
-	Uid           uint32                 `protobuf:"varint,3,opt,name=uid,proto3" json:"uid,omitempty"`
-	Gid           uint32                 `protobuf:"varint,4,opt,name=gid,proto3" json:"gid,omitempty"`
-	Permissions   uint32                 `protobuf:"varint,5,opt,name=permissions,proto3" json:"permissions,omitempty"`
-	Source        string                 `protobuf:"bytes,6,opt,name=source,proto3" json:"source,omitempty"`
-	Recursive     bool                   `protobuf:"varint,7,opt,name=recursive,proto3" json:"recursive,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Path  string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	Type  string                 `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
+	// uid/gid mirror apko's nullable PathMutation UID/GID (apko#2281,
+	// v1.2.19+): absent means ownership is left untouched; an explicit 0
+	// chowns to root. `optional` preserves that distinction on the wire,
+	// like User.gid above (apko#1449 / mono#22196).
+	Uid           *uint32 `protobuf:"varint,3,opt,name=uid,proto3,oneof" json:"uid,omitempty"`
+	Gid           *uint32 `protobuf:"varint,4,opt,name=gid,proto3,oneof" json:"gid,omitempty"`
+	Permissions   uint32  `protobuf:"varint,5,opt,name=permissions,proto3" json:"permissions,omitempty"`
+	Source        string  `protobuf:"bytes,6,opt,name=source,proto3" json:"source,omitempty"`
+	Recursive     bool    `protobuf:"varint,7,opt,name=recursive,proto3" json:"recursive,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -636,15 +640,15 @@ func (x *ApkoConfig_PathMutation) GetType() string {
 }
 
 func (x *ApkoConfig_PathMutation) GetUid() uint32 {
-	if x != nil {
-		return x.Uid
+	if x != nil && x.Uid != nil {
+		return *x.Uid
 	}
 	return 0
 }
 
 func (x *ApkoConfig_PathMutation) GetGid() uint32 {
-	if x != nil {
-		return x.Gid
+	if x != nil && x.Gid != nil {
+		return *x.Gid
 	}
 	return 0
 }
@@ -977,7 +981,7 @@ const file_apko_platform_proto_rawDesc = "" +
 	"\x13apko.platform.proto\x12\x1cchainguard.platform.registry\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16annotations/auth.proto\"}\n" +
 	"\x14ResolveConfigRequest\x12@\n" +
 	"\x06config\x18\x01 \x01(\v2(.chainguard.platform.registry.ApkoConfigR\x06config\x12#\n" +
-	"\trepo_uidp\x18\x02 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\brepoUidp\"\xb4\x12\n" +
+	"\trepo_uidp\x18\x02 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\brepoUidp\"\xce\x12\n" +
 	"\n" +
 	"ApkoConfig\x12M\n" +
 	"\bcontents\x18\x01 \x01(\v21.chainguard.platform.registry.ApkoConfig.ContentsR\bcontents\x12[\n" +
@@ -1037,15 +1041,17 @@ const file_apko_platform_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +
 	"\x10AnnotationsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a\xb2\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a\xcc\x01\n" +
 	"\fPathMutation\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\x12\x12\n" +
-	"\x04type\x18\x02 \x01(\tR\x04type\x12\x10\n" +
-	"\x03uid\x18\x03 \x01(\rR\x03uid\x12\x10\n" +
-	"\x03gid\x18\x04 \x01(\rR\x03gid\x12 \n" +
+	"\x04type\x18\x02 \x01(\tR\x04type\x12\x15\n" +
+	"\x03uid\x18\x03 \x01(\rH\x00R\x03uid\x88\x01\x01\x12\x15\n" +
+	"\x03gid\x18\x04 \x01(\rH\x01R\x03gid\x88\x01\x01\x12 \n" +
 	"\vpermissions\x18\x05 \x01(\rR\vpermissions\x12\x16\n" +
 	"\x06source\x18\x06 \x01(\tR\x06source\x12\x1c\n" +
-	"\trecursive\x18\a \x01(\bR\trecursive\x1a>\n" +
+	"\trecursive\x18\a \x01(\bR\trecursiveB\x06\n" +
+	"\x04_uidB\x06\n" +
+	"\x04_gid\x1a>\n" +
 	"\bLayering\x12\x1a\n" +
 	"\bstrategy\x18\x01 \x01(\tR\bstrategy\x12\x16\n" +
 	"\x06budget\x18\x02 \x01(\x03R\x06budget\x1a\xd4\x01\n" +
@@ -1140,6 +1146,7 @@ func file_apko_platform_proto_init() {
 	if File_apko_platform_proto != nil {
 		return
 	}
+	file_apko_platform_proto_msgTypes[9].OneofWrappers = []any{}
 	file_apko_platform_proto_msgTypes[13].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
