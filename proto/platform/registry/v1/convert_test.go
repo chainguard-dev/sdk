@@ -58,3 +58,21 @@ func TestRoundTrip(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+// TestPathMutationPresence pins the uid/gid cases quick.Check essentially
+// never samples (a zero pointee is one value in 2^32): nil and explicit 0
+// are distinct — nil leaves ownership untouched, 0 chowns to root — and
+// must survive the round trip distinctly.
+func TestPathMutationPresence(t *testing.T) {
+	zero, nonzero := uint32(0), uint32(65532)
+	in := apkotypes.ImageConfiguration{Paths: []apkotypes.PathMutation{
+		{Path: "/absent", Type: "permissions"},
+		{Path: "/root", Type: "permissions", UID: &zero, GID: &zero},
+		{Path: "/nonroot", Type: "permissions", UID: &nonzero, GID: &nonzero},
+		{Path: "/mixed", Type: "permissions", UID: &zero},
+	}}
+	got := ToApkoNative(ToApkoProto(in))
+	if d := cmp.Diff(in.Paths, got.Paths); d != "" {
+		t.Errorf("paths round-trip (-want, +got): %s", d)
+	}
+}

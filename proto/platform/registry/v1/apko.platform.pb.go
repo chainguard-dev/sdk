@@ -585,7 +585,7 @@ type ApkoConfig_PathMutation struct {
 	// uid/gid mirror apko's nullable PathMutation UID/GID (apko#2281,
 	// v1.2.19+): absent means ownership is left untouched; an explicit 0
 	// chowns to root. `optional` preserves that distinction on the wire,
-	// like User.gid above (apko#1449 / mono#22196).
+	// like User.gid above (apko#1449).
 	Uid           *uint32 `protobuf:"varint,3,opt,name=uid,proto3,oneof" json:"uid,omitempty"`
 	Gid           *uint32 `protobuf:"varint,4,opt,name=gid,proto3,oneof" json:"gid,omitempty"`
 	Permissions   uint32  `protobuf:"varint,5,opt,name=permissions,proto3" json:"permissions,omitempty"`
