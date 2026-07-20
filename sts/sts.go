@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"io"
 	"math/rand/v2"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -352,6 +353,48 @@ func NewHTTP1DowngradeExchanger(issuer, audience string, opts ...ExchangerOption
 	return i
 }
 
+// newHTTP1Transport returns http.DefaultTransport with HTTP/2 disabled and
+// nothing else changed. The downgrade transport must match the default
+// client's behavior in every other respect — in particular proxy support
+// (HTTP_PROXY/HTTPS_PROXY via ProxyFromEnvironment), which the customers
+// this exchanger exists for typically depend on. Cloning rather than
+// constructing field-by-field keeps that property across Go versions.
+func newHTTP1Transport() *http.Transport {
+	var t *http.Transport
+	if dt, ok := http.DefaultTransport.(*http.Transport); ok {
+		t = dt.Clone()
+	} else {
+		// Consumers may legitimately replace http.DefaultTransport with a
+		// wrapping RoundTripper (instrumentation, test doubles); this public
+		// SDK must not depend on its concrete type. Mirror the stdlib
+		// defaults instead — proxy support is the load-bearing property.
+		t = &http.Transport{
+			Proxy: http.ProxyFromEnvironment,
+			DialContext: (&net.Dialer{
+				Timeout:   30 * time.Second,
+				KeepAlive: 30 * time.Second,
+			}).DialContext,
+			MaxIdleConns:          100,
+			IdleConnTimeout:       90 * time.Second,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ExpectContinueTimeout: 1 * time.Second,
+		}
+	}
+	t.ForceAttemptHTTP2 = false
+	// Disable HTTP/2 by setting TLSNextProto to a non-nil empty map.
+	// ref: https://pkg.go.dev/net/http#hdr-HTTP_2
+	t.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
+	// If the process has already used http.DefaultTransport for an HTTPS
+	// request, its TLS config advertises "h2" via ALPN and the clone inherits
+	// that; a server selecting h2 would then speak HTTP/2 frames at this
+	// HTTP/1.1-only transport. Advertise exactly what we speak.
+	if t.TLSClientConfig == nil {
+		t.TLSClientConfig = &tls.Config{}
+	}
+	t.TLSClientConfig.NextProtos = []string{"http/1.1"}
+	return t
+}
+
 func (i *HTTP1DowngradeExchanger) doHTTP1(ctx context.Context,
 	auth string,
 	path string, in proto.Message, out proto.Message, opts options) error {
@@ -380,30 +423,38 @@ func (i *HTTP1DowngradeExchanger) doHTTP1(ctx context.Context,
 		}
 	}
 
-	// Explicitly disable HTTP/2 support by setting the
-	// client Transport's TLSNextProto to an empty map.
-	// ref: https://pkg.go.dev/net/http#hdr-HTTP_2
 	client := &http.Client{
 		Transport: &oauth2.Transport{
-			Base: &http.Transport{
-				TLSNextProto: map[string]func(string, *tls.Conn) http.RoundTripper{},
-			},
+			Base:   newHTTP1Transport(),
 			Source: oauth2.StaticTokenSource(&oauth2.Token{AccessToken: auth}),
+		},
+		// STS endpoints never redirect; refusing to follow prevents
+		// oauth2.Transport from re-sending the bearer token to a redirect
+		// target (golang/oauth2#314).
+		CheckRedirect: func(*http.Request, []*http.Request) error {
+			return http.ErrUseLastResponse
 		},
 	}
 	resp, err := client.Do(req) //nolint:gosec // G704: URL from internal STS config
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
+		// Surface the error body (bounded); STS returns the actual failure
+		// reason there, and the status line alone is not actionable.
+		b, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
+		if msg := bytes.TrimSpace(b); len(msg) > 0 {
+			return fmt.Errorf("%s: %s", resp.Status, msg)
+		}
 		return fmt.Errorf("%s", resp.Status)
 	}
 
-	b, err := io.ReadAll(resp.Body)
+	// Bounded like the error path; token-pair responses are a few KiB.
+	b, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
 	return protojson.Unmarshal(b, out)
 }
 

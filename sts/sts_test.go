@@ -7,7 +7,12 @@ package sts
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"sync/atomic"
 	"testing"
 
@@ -637,5 +642,207 @@ func TestRefreshRetry(t *testing.T) {
 				t.Errorf("Refresh() attempts = %d, want %d", gotAttempts, tt.wantAttempts)
 			}
 		})
+	}
+}
+
+func TestNewHTTP1Transport(t *testing.T) {
+	// Do not invoke tr.Proxy here: http.ProxyFromEnvironment latches the
+	// proxy environment process-wide on first call, which would break
+	// TestHTTP1DowngradeExchangerHonorsProxy's t.Setenv.
+	tr := newHTTP1Transport()
+	if tr.Proxy == nil {
+		t.Error("Proxy is nil; HTTP(S)_PROXY would be ignored (CUS-1012)")
+	}
+	if tr.TLSNextProto == nil || len(tr.TLSNextProto) != 0 {
+		t.Errorf("TLSNextProto = %v, want non-nil empty map to disable HTTP/2", tr.TLSNextProto)
+	}
+	if tr.ForceAttemptHTTP2 {
+		t.Error("ForceAttemptHTTP2 = true, want false")
+	}
+	// The ALPN offer must not include h2: a cloned DefaultTransport that was
+	// previously h2-initialized carries NextProtos = ["h2", "http/1.1"], and
+	// a server selecting h2 speaks HTTP/2 frames at this HTTP/1.1-only
+	// transport.
+	if tr.TLSClientConfig == nil {
+		t.Fatal("TLSClientConfig is nil, want NextProtos pinned to http/1.1")
+	}
+	if got := tr.TLSClientConfig.NextProtos; len(got) != 1 || got[0] != "http/1.1" {
+		t.Errorf("TLSClientConfig.NextProtos = %v, want [http/1.1]", got)
+	}
+}
+
+// TestHTTP1DowngradeExchangerHonorsProxy reproduces CUS-1012: the downgrade
+// exchange must route through the proxy from the environment rather than
+// dialing the issuer directly. A plain-HTTP issuer is used so the proxied
+// request arrives at the proxy in absolute-URI form and can be answered
+// there; the .invalid issuer host guarantees a direct dial would fail.
+//
+// Not parallel, and the only proxy-environment test in this binary:
+// http.ProxyFromEnvironment caches the proxy environment process-wide on
+// first use, so exactly one t.Setenv configuration can take effect per test
+// process. Both exchanger methods are therefore exercised as subtests under
+// the single latched environment.
+func TestHTTP1DowngradeExchangerHonorsProxy(t *testing.T) {
+	const issuerHost = "sts-cus-1012.invalid"
+	var proxied atomic.Int32
+	proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		proxied.Add(1)
+		// Absolute-form URL (host present) proves the client treated us as
+		// a proxy rather than the origin server.
+		if r.URL.Host != issuerHost {
+			t.Errorf("proxied request host = %q, want %q", r.URL.Host, issuerHost)
+		}
+		if r.Proto != "HTTP/1.1" {
+			t.Errorf("proxied request proto = %q, want HTTP/1.1", r.Proto)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case "/sts/exchange":
+			if got := r.Header.Get("Authorization"); got != "Bearer id-token" {
+				t.Errorf("Authorization = %q, want %q", got, "Bearer id-token")
+			}
+			fmt.Fprint(w, `{"token": "cg-token", "refreshToken": "cg-refresh"}`)
+		case "/sts/access_token":
+			if got := r.Header.Get("Authorization"); got != "Bearer refresh-token" {
+				t.Errorf("Authorization = %q, want %q", got, "Bearer refresh-token")
+			}
+			fmt.Fprint(w, `{"token": {"token": "new-access"}, "refreshToken": {"token": "new-refresh"}}`)
+		default:
+			t.Errorf("unexpected proxied request path %q", r.URL.Path)
+			http.NotFound(w, r)
+		}
+	}))
+	defer proxy.Close()
+
+	for _, k := range []string{"HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy"} {
+		t.Setenv(k, proxy.URL)
+	}
+	for _, k := range []string{"NO_PROXY", "no_proxy"} {
+		t.Setenv(k, "")
+	}
+
+	exch := NewHTTP1DowngradeExchanger("http://"+issuerHost, "aud")
+
+	t.Run("Exchange", func(t *testing.T) {
+		pair, err := exch.Exchange(t.Context(), "id-token")
+		if err != nil {
+			t.Fatalf("Exchange() error = %v", err)
+		}
+		if pair.AccessToken != "cg-token" {
+			t.Errorf("Exchange() access token = %q, want %q", pair.AccessToken, "cg-token")
+		}
+		if pair.RefreshToken != "cg-refresh" {
+			t.Errorf("Exchange() refresh token = %q, want %q", pair.RefreshToken, "cg-refresh")
+		}
+	})
+
+	t.Run("Refresh", func(t *testing.T) {
+		access, refresh, err := exch.Refresh(t.Context(), "refresh-token")
+		if err != nil {
+			t.Fatalf("Refresh() error = %v", err)
+		}
+		if access != "new-access" {
+			t.Errorf("Refresh() access token = %q, want %q", access, "new-access")
+		}
+		if refresh != "new-refresh" {
+			t.Errorf("Refresh() refresh token = %q, want %q", refresh, "new-refresh")
+		}
+	})
+
+	if got := int(proxied.Load()); got != 2 {
+		t.Errorf("proxied request count = %d, want 2", got)
+	}
+}
+
+type roundTripperFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripperFunc) RoundTrip(r *http.Request) (*http.Response, error) { return f(r) }
+
+// TestNewHTTP1TransportFallback covers a replaced http.DefaultTransport:
+// consumers may wrap it with a non-*http.Transport RoundTripper
+// (instrumentation, test doubles), and the constructor must fall back to
+// stdlib-default construction rather than depend on the concrete type.
+func TestNewHTTP1TransportFallback(t *testing.T) {
+	orig := http.DefaultTransport
+	http.DefaultTransport = roundTripperFunc(func(*http.Request) (*http.Response, error) {
+		return nil, errors.New("not used")
+	})
+	defer func() { http.DefaultTransport = orig }()
+
+	tr := newHTTP1Transport()
+	if tr.Proxy == nil {
+		t.Error("fallback Proxy is nil; HTTP(S)_PROXY would be ignored")
+	}
+	if tr.TLSNextProto == nil || len(tr.TLSNextProto) != 0 {
+		t.Errorf("fallback TLSNextProto = %v, want non-nil empty map", tr.TLSNextProto)
+	}
+	if tr.TLSClientConfig == nil || len(tr.TLSClientConfig.NextProtos) != 1 || tr.TLSClientConfig.NextProtos[0] != "http/1.1" {
+		t.Errorf("fallback NextProtos = %v, want [http/1.1]", tr.TLSClientConfig)
+	}
+}
+
+// TestHTTP1DowngradeALPNOffer verifies at the TLS layer that the downgrade
+// client's ClientHello offers exactly ["http/1.1"] via ALPN. A cloned
+// DefaultTransport that was previously h2-initialized would offer h2, letting
+// a server negotiate HTTP/2 frames at this HTTP/1.1-only client. The exchange
+// itself fails on certificate verification, which is irrelevant here — the
+// server records the ALPN offer before the client rejects the cert.
+func TestHTTP1DowngradeALPNOffer(t *testing.T) {
+	var protos atomic.Value
+	srv := httptest.NewUnstartedServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
+	srv.TLS = &tls.Config{
+		GetConfigForClient: func(chi *tls.ClientHelloInfo) (*tls.Config, error) {
+			protos.Store(append([]string{}, chi.SupportedProtos...))
+			return nil, nil
+		},
+	}
+	srv.StartTLS()
+	defer srv.Close()
+
+	exch := NewHTTP1DowngradeExchanger(srv.URL, "aud")
+	_, _ = exch.Exchange(t.Context(), "tok")
+
+	got, _ := protos.Load().([]string)
+	if len(got) != 1 || got[0] != "http/1.1" {
+		t.Errorf("ClientHello ALPN offer = %v, want [http/1.1]", got)
+	}
+}
+
+// TestHTTP1DowngradeExchangerRefusesRedirects guards the CheckRedirect
+// behavior: a redirecting STS response must fail the exchange without the
+// client following it, since oauth2.Transport would re-send the bearer token
+// to the redirect target (golang/oauth2#314).
+func TestHTTP1DowngradeExchangerRefusesRedirects(t *testing.T) {
+	var followed atomic.Bool
+	target := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+		followed.Store(true)
+	}))
+	defer target.Close()
+
+	issuer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, target.URL, http.StatusFound)
+	}))
+	defer issuer.Close()
+
+	exch := NewHTTP1DowngradeExchanger(issuer.URL, "aud")
+	_, err := exch.Exchange(t.Context(), "secret-token")
+	if err == nil || !strings.Contains(err.Error(), "302") {
+		t.Errorf("Exchange() error = %v, want error carrying the 302 status", err)
+	}
+	if followed.Load() {
+		t.Error("redirect was followed; bearer token would have been re-sent to the target")
+	}
+}
+
+func TestHTTP1DowngradeExchangerSurfacesErrorBody(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		http.Error(w, `{"code":16,"message":"JWT validation failed"}`, http.StatusBadRequest)
+	}))
+	defer srv.Close()
+
+	exch := NewHTTP1DowngradeExchanger(srv.URL, "aud")
+	_, err := exch.Exchange(t.Context(), "bad-token")
+	if err == nil || !strings.Contains(err.Error(), "JWT validation failed") {
+		t.Errorf("Exchange() error = %v, want error containing the response body", err)
 	}
 }
