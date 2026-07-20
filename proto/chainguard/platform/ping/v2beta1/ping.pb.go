@@ -116,10 +116,11 @@ const file_chainguard_platform_ping_v2beta1_ping_proto_rawDesc = "" +
 	"+chainguard/platform/ping/v2beta1/ping.proto\x12 chainguard.platform.ping.v2beta1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\"\r\n" +
 	"\vPingRequest\"*\n" +
 	"\fPingResponse\x12\x1a\n" +
-	"\bresponse\x18\x01 \x01(\tR\bresponse2\xa1\x01\n" +
-	"\vPingService\x12\x91\x01\n" +
-	"\x04Ping\x12-.chainguard.platform.ping.v2beta1.PingRequest\x1a..chainguard.platform.ping.v2beta1.PingResponse\"*\x82\xd3\xe4\x93\x02\x14\x12\x12/ping/v2beta1/ping\x8a\xaf\xa8\xd2\x05\x02\n" +
-	"\x00\x9a\xaf\xa8\xd2\x05\x02\x10\x01Bn\n" +
+	"\bresponse\x18\x01 \x01(\tR\bresponse2\xd6\x01\n" +
+	"\vPingService\x12\xc6\x01\n" +
+	"\x04Ping\x12-.chainguard.platform.ping.v2beta1.PingRequest\x1a..chainguard.platform.ping.v2beta1.PingResponse\"_\x82\xd3\xe4\x93\x02\x14\x12\x12/ping/v2beta1/ping\x8a\xaf\xa8\xd2\x05\x02\n" +
+	"\x00\x9a\xaf\xa8\xd2\x057\n" +
+	"3Check API availability. No authentication required.\x10\x01Bn\n" +
 	"$com.chainguard.platform.ping.v2beta1B\tPingProtoP\x01Z9chainguard.dev/sdk/proto/chainguard/platform/ping/v2beta1b\x06proto3"
 
 var (

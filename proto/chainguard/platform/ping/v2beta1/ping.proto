@@ -25,6 +25,7 @@ service PingService {
     };
     option (chainguard.annotations.mcp) = {
       hidden: true
+      description: "Check API availability. No authentication required."
     };
   }
 }
