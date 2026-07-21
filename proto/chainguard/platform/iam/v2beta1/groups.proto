@@ -151,7 +151,10 @@ service GroupsService {
     option (chainguard.annotations.iam) = {
       enabled: {unscoped: true}
     };
-    option (chainguard.annotations.mcp) = {hidden: true};
+    option (chainguard.annotations.mcp) = {
+      hidden: true
+      description: "Look up the verified root group whose name matches the email domain on the caller's token."
+    };
   }
 
   // RequestGroupAccess sends an access request from the caller to the owners
@@ -180,7 +183,10 @@ service GroupsService {
     option (chainguard.annotations.iam) = {
       enabled: {unscoped: true}
     };
-    option (chainguard.annotations.mcp) = {hidden: true};
+    option (chainguard.annotations.mcp) = {
+      hidden: true
+      description: "Send an access request from the caller to the owners of the verified root group matching their email domain."
+    };
   }
 
   // CheckEligibility reports whether the caller passes the same eligibility
@@ -192,7 +198,10 @@ service GroupsService {
     option (chainguard.annotations.iam) = {
       enabled: {unscoped: true}
     };
-    option (chainguard.annotations.mcp) = {hidden: true};
+    option (chainguard.annotations.mcp) = {
+      hidden: true
+      description: "Check whether the caller's email domain is eligible for email-domain-gated group access flows."
+    };
   }
 }
 

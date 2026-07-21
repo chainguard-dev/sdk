@@ -987,7 +987,7 @@ const file_chainguard_platform_iam_v2beta1_groups_proto_rawDesc = "" +
 	"\x16ORG_STATUS_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17ORG_STATUS_INITIALIZING\x10\x01\x12\x14\n" +
 	"\x10ORG_STATUS_READY\x10\x02\x12\x18\n" +
-	"\x14ORG_STATUS_SUSPENDED\x10\x032\xfc\x0f\n" +
+	"\x14ORG_STATUS_SUSPENDED\x10\x032\xa9\x12\n" +
 	"\rGroupsService\x12\xd6\x01\n" +
 	"\bGetGroup\x120.chainguard.platform.iam.v2beta1.GetGroupRequest\x1a&.chainguard.platform.iam.v2beta1.Group\"p\x82\xd3\xe4\x93\x02\x1e\x12\x1c/iam/v2beta1/groups/{uid=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
 	"\x01g\x9a\xaf\xa8\xd2\x05;\n" +
@@ -1007,10 +1007,13 @@ const file_chainguard_platform_iam_v2beta1_groups_proto_rawDesc = "" +
 	"\vUpdateGroup\x123.chainguard.platform.iam.v2beta1.UpdateGroupRequest\x1a&.chainguard.platform.iam.v2beta1.Group\"\xbe\x01\x82\xd3\xe4\x93\x02+:\x05group2\"/iam/v2beta1/groups/{group.uid=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
 	"\x01f\x9a\xaf\xa8\xd2\x05D\n" +
 	"<Update a group's name, description, or other mutable fields. \x00(\x010\x00\xc2\xf0\x8e\xfc\v2\n" +
-	"'dev.chainguard.api.iam.group.updated.v1\x12\x05group\x18\x01\x12\xb3\x01\n" +
-	"\vLookupGroup\x123.chainguard.platform.iam.v2beta1.LookupGroupRequest\x1a4.chainguard.platform.iam.v2beta1.LookupGroupResponse\"9\x82\xd3\xe4\x93\x02!\x12\x1f/iam/v2beta1/groups:lookupGroup\x8a\xaf\xa8\xd2\x05\x04\x12\x02\x10\x01\x9a\xaf\xa8\xd2\x05\x02\x10\x01\x12\xe1\x01\n" +
-	"\x12RequestGroupAccess\x12:.chainguard.platform.iam.v2beta1.RequestGroupAccessRequest\x1a;.chainguard.platform.iam.v2beta1.RequestGroupAccessResponse\"R\x82\xd3\xe4\x93\x02::\x01*\"5/iam/v2beta1/groups/{group_uid=**}:requestGroupAccess\x8a\xaf\xa8\xd2\x05\x04\x12\x02\x10\x01\x9a\xaf\xa8\xd2\x05\x02\x10\x01\x12\xc7\x01\n" +
-	"\x10CheckEligibility\x128.chainguard.platform.iam.v2beta1.CheckEligibilityRequest\x1a9.chainguard.platform.iam.v2beta1.CheckEligibilityResponse\">\x82\xd3\xe4\x93\x02&\x12$/iam/v2beta1/groups:checkEligibility\x8a\xaf\xa8\xd2\x05\x04\x12\x02\x10\x01\x9a\xaf\xa8\xd2\x05\x02\x10\x01Bn\n" +
+	"'dev.chainguard.api.iam.group.updated.v1\x12\x05group\x18\x01\x12\x90\x02\n" +
+	"\vLookupGroup\x123.chainguard.platform.iam.v2beta1.LookupGroupRequest\x1a4.chainguard.platform.iam.v2beta1.LookupGroupResponse\"\x95\x01\x82\xd3\xe4\x93\x02!\x12\x1f/iam/v2beta1/groups:lookupGroup\x8a\xaf\xa8\xd2\x05\x04\x12\x02\x10\x01\x9a\xaf\xa8\xd2\x05^\n" +
+	"ZLook up the verified root group whose name matches the email domain on the caller's token.\x10\x01\x12\xd0\x02\n" +
+	"\x12RequestGroupAccess\x12:.chainguard.platform.iam.v2beta1.RequestGroupAccessRequest\x1a;.chainguard.platform.iam.v2beta1.RequestGroupAccessResponse\"\xc0\x01\x82\xd3\xe4\x93\x02::\x01*\"5/iam/v2beta1/groups/{group_uid=**}:requestGroupAccess\x8a\xaf\xa8\xd2\x05\x04\x12\x02\x10\x01\x9a\xaf\xa8\xd2\x05p\n" +
+	"lSend an access request from the caller to the owners of the verified root group matching their email domain.\x10\x01\x12\xa8\x02\n" +
+	"\x10CheckEligibility\x128.chainguard.platform.iam.v2beta1.CheckEligibilityRequest\x1a9.chainguard.platform.iam.v2beta1.CheckEligibilityResponse\"\x9e\x01\x82\xd3\xe4\x93\x02&\x12$/iam/v2beta1/groups:checkEligibility\x8a\xaf\xa8\xd2\x05\x04\x12\x02\x10\x01\x9a\xaf\xa8\xd2\x05b\n" +
+	"^Check whether the caller's email domain is eligible for email-domain-gated group access flows.\x10\x01Bn\n" +
 	"#com.chainguard.platform.iam.v2beta1B\vGroupsProtoP\x01Z8chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1b\x06proto3"
 
 var (
