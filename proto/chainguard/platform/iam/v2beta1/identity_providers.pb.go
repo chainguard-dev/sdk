@@ -51,8 +51,9 @@ const (
 	// provisioning was switched off. Regenerating issues a new credential
 	// but does not re-enable provisioning.
 	IdentityProvider_SCIM_CREDENTIAL_STATE_REVOKED IdentityProvider_SCIM_CredentialState = 4
-	// A regeneration overlap is active: the new token authenticates and the
-	// previous one keeps authenticating until previous_token_expire_time.
+	// A regeneration overlap is active: the previous token keeps
+	// authenticating until previous_token_expire_time, alongside the current
+	// token unless the current token's own expiry has already passed.
 	IdentityProvider_SCIM_CREDENTIAL_STATE_ROTATING IdentityProvider_SCIM_CredentialState = 5
 )
 
@@ -637,8 +638,8 @@ type GenerateScimTokenRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// UID of the identity provider to generate a SCIM bearer token for.
 	IdentityProviderUid string `protobuf:"bytes,1,opt,name=identity_provider_uid,json=identityProviderUid,proto3" json:"identity_provider_uid,omitempty"`
-	// Optional expiry for the generated token. When neither this nor
-	// never_expires is set, the server defaults to one year.
+	// Optional expiry for the generated token, at most two years from now. When
+	// neither this nor never_expires is set, the server defaults to one year.
 	ExpireTime *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
 	// Explicitly request a token without a planned expiry. Setting this together
 	// with expire_time is INVALID_ARGUMENT.
@@ -704,6 +705,7 @@ type GenerateScimTokenResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The plaintext SCIM bearer token, returned exactly once. Store it now: it is
 	// never retrievable again, and only its SHA-256 digest is persisted.
+	// Format: "cgscim_" followed by 64 hexadecimal characters.
 	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 	// The SCIM endpoint the identity provider must be configured to call.
 	EndpointUrl string `protobuf:"bytes,2,opt,name=endpoint_url,json=endpointUrl,proto3" json:"endpoint_url,omitempty"`
@@ -795,8 +797,8 @@ type RegenerateScimTokenRequest struct {
 	// cutover; when omitted the server defaults to one hour. A token
 	// that is already expired or revoked stays dead regardless.
 	Overlap *durationpb.Duration `protobuf:"bytes,2,opt,name=overlap,proto3" json:"overlap,omitempty"`
-	// Optional expiry for the new token. When neither this nor never_expires is
-	// set, the server defaults to one year.
+	// Optional expiry for the new token, at most two years from now. When
+	// neither this nor never_expires is set, the server defaults to one year.
 	ExpireTime *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
 	// Etag returned by GetIdentityProvider. Required to prevent concurrent
 	// reveal-once rotations from silently invalidating one another.
@@ -879,6 +881,7 @@ type RegenerateScimTokenResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The plaintext SCIM bearer token, returned exactly once. Store it now: it is
 	// never retrievable again, and only its SHA-256 digest is persisted.
+	// Format: "cgscim_" followed by 64 hexadecimal characters.
 	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 	// The SCIM endpoint the identity provider must be configured to call.
 	EndpointUrl string `protobuf:"bytes,2,opt,name=endpoint_url,json=endpointUrl,proto3" json:"endpoint_url,omitempty"`

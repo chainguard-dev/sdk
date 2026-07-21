@@ -368,8 +368,9 @@ message IdentityProvider {
       // provisioning was switched off. Regenerating issues a new credential
       // but does not re-enable provisioning.
       CREDENTIAL_STATE_REVOKED = 4;
-      // A regeneration overlap is active: the new token authenticates and the
-      // previous one keeps authenticating until previous_token_expire_time.
+      // A regeneration overlap is active: the previous token keeps
+      // authenticating until previous_token_expire_time, alongside the current
+      // token unless the current token's own expiry has already passed.
       CREDENTIAL_STATE_ROTATING = 5;
     }
     // Whether SCIM provisioning is enabled for this identity provider.
@@ -509,8 +510,8 @@ message GenerateScimTokenRequest {
     (chainguard.annotations.iam_scope) = true
   ];
 
-  // Optional expiry for the generated token. When neither this nor
-  // never_expires is set, the server defaults to one year.
+  // Optional expiry for the generated token, at most two years from now. When
+  // neither this nor never_expires is set, the server defaults to one year.
   google.protobuf.Timestamp expire_time = 2 [(google.api.field_behavior) = OPTIONAL];
 
   // Explicitly request a token without a planned expiry. Setting this together
@@ -523,6 +524,7 @@ message GenerateScimTokenRequest {
 message GenerateScimTokenResponse {
   // The plaintext SCIM bearer token, returned exactly once. Store it now: it is
   // never retrievable again, and only its SHA-256 digest is persisted.
+  // Format: "cgscim_" followed by 64 hexadecimal characters.
   string token = 1;
 
   // The SCIM endpoint the identity provider must be configured to call.
@@ -555,8 +557,8 @@ message RegenerateScimTokenRequest {
   // that is already expired or revoked stays dead regardless.
   google.protobuf.Duration overlap = 2 [(google.api.field_behavior) = OPTIONAL];
 
-  // Optional expiry for the new token. When neither this nor never_expires is
-  // set, the server defaults to one year.
+  // Optional expiry for the new token, at most two years from now. When
+  // neither this nor never_expires is set, the server defaults to one year.
   google.protobuf.Timestamp expire_time = 3 [(google.api.field_behavior) = OPTIONAL];
 
   // Etag returned by GetIdentityProvider. Required to prevent concurrent
@@ -573,6 +575,7 @@ message RegenerateScimTokenRequest {
 message RegenerateScimTokenResponse {
   // The plaintext SCIM bearer token, returned exactly once. Store it now: it is
   // never retrievable again, and only its SHA-256 digest is persisted.
+  // Format: "cgscim_" followed by 64 hexadecimal characters.
   string token = 1;
 
   // The SCIM endpoint the identity provider must be configured to call.
