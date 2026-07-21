@@ -6,9 +6,13 @@ SPDX-License-Identifier: Apache-2.0
 package capabilities
 
 import (
+	"bytes"
 	"encoding/json"
+	"log/slog"
+	"strings"
 	"testing"
 
+	"github.com/chainguard-dev/clog"
 	"github.com/google/go-cmp/cmp"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -177,13 +181,145 @@ func TestDeprecated(t *testing.T) {
 	}
 }
 
+// TestRoundTrip is the merge-time completeness proof for the Parse name map:
+// every enum value must carry a resolvable (name) option and round-trip
+// through Parse.
 func TestRoundTrip(t *testing.T) {
 	for cap := range Capability_name {
-		scap, _ := Stringify(Capability(cap))
-		got, _ := Parse(scap)
+		scap, err := Stringify(Capability(cap))
+		if err != nil {
+			t.Fatalf("Stringify(%d): got error %v, want nil", cap, err)
+		}
+		got, err := Parse(scap)
+		if err != nil {
+			t.Fatalf("Parse(%q): got error %v, want nil", scap, err)
+		}
 		if Capability(cap) != got {
 			t.Fatalf("Parse(Stringify()) = %v, wanted %v", got, Capability(cap))
 		}
+	}
+}
+
+// TestParse_UnknownName pins the documented contract: unknown names are not an
+// error; they resolve to (Capability_UNKNOWN, nil). Callers detect bad input by
+// checking for Capability_UNKNOWN explicitly.
+func TestParse_UnknownName(t *testing.T) {
+	got, err := Parse("no.such.capability")
+	if err != nil {
+		t.Fatalf("Parse(unknown name) error = %v, want nil", err)
+	}
+	if got != Capability_UNKNOWN {
+		t.Fatalf("Parse(unknown name) = %v, want Capability_UNKNOWN", got)
+	}
+}
+
+func TestStringifyAllContext_WarnOncePerValue(t *testing.T) {
+	// Dedicated stale values: the warn dedup is process-global, so this test
+	// must not share stale values with other tests in the package.
+	const staleA, staleB = Capability(424201), Capability(424202)
+	for _, c := range []Capability{staleA, staleB} {
+		if _, err := Stringify(c); err == nil {
+			t.Fatalf("capability %d has a descriptor; pick another dedicated stale value", c)
+		}
+	}
+
+	var buf bytes.Buffer
+	ctx := clog.WithLogger(t.Context(), clog.New(slog.NewTextHandler(&buf, nil)))
+
+	for range 3 {
+		got, err := StringifyAllContext(ctx, []Capability{staleA, Capability_CAP_IAM_GROUPS_LIST, staleB})
+		if err != nil {
+			t.Fatalf("StringifyAllContext(): got error %v, want nil", err)
+		}
+		if diff := cmp.Diff([]string{"groups.list"}, got); diff != "" {
+			t.Errorf("StringifyAllContext() mismatch (-want +got):\n%s", diff)
+		}
+	}
+
+	logs := buf.String()
+	if n := strings.Count(logs, "skipping capability 424201 "); n != 1 {
+		t.Errorf("warned about %d %d times, want exactly 1; logs:\n%s", staleA, n, logs)
+	}
+	if n := strings.Count(logs, "skipping capability 424202 "); n != 1 {
+		t.Errorf("warned about %d %d times, want exactly 1; logs:\n%s", staleB, n, logs)
+	}
+}
+
+// TestWarnUnknownCapability_DedupLimit exercises the dedup map's boundary
+// behavior: the one-time limit-reached log, continued dedup of already-seen
+// values, and degrade-to-per-occurrence for novel values once the map is
+// full. The process-global map is swapped out and restored so this test does
+// not interfere with other tests' dedicated stale values.
+//
+// NOTE: no test in this package may call t.Parallel() — the swap/restore
+// window here would race with any concurrent caller of
+// warnUnknownCapability and silently corrupt dedup-count assertions.
+func TestWarnUnknownCapability_DedupLimit(t *testing.T) {
+	warnedUnknownCaps.Lock()
+	saved := warnedUnknownCaps.seen
+	warnedUnknownCaps.seen = make(map[Capability]struct{}, warnedUnknownCapsLimit)
+	warnedUnknownCaps.Unlock()
+	t.Cleanup(func() {
+		warnedUnknownCaps.Lock()
+		warnedUnknownCaps.seen = saved
+		warnedUnknownCaps.Unlock()
+	})
+
+	var buf bytes.Buffer
+	ctx := clog.WithLogger(t.Context(), clog.New(slog.NewTextHandler(&buf, nil)))
+
+	const base = Capability(500000)
+	for i := range warnedUnknownCapsLimit {
+		warnUnknownCapability(ctx, base+Capability(i))
+	}
+	if n := strings.Count(buf.String(), "warn-dedup limit"); n != 1 {
+		t.Fatalf("boundary log fired %d times while filling to the limit, want exactly 1", n)
+	}
+
+	// An already-seen value stays deduped after the map is full.
+	warnUnknownCapability(ctx, base)
+	if n := strings.Count(buf.String(), "skipping capability 500000 "); n != 1 {
+		t.Errorf("already-seen value logged %d times, want exactly 1", n)
+	}
+
+	// A novel value past the limit degrades to logging every occurrence.
+	novel := base + Capability(warnedUnknownCapsLimit)
+	warnUnknownCapability(ctx, novel)
+	warnUnknownCapability(ctx, novel)
+	if n := strings.Count(buf.String(), "skipping capability 501024 "); n != 2 {
+		t.Errorf("post-limit novel value logged %d times, want 2 (degraded, not silent)", n)
+	}
+	if n := strings.Count(buf.String(), "warn-dedup limit"); n != 1 {
+		t.Errorf("boundary log fired %d times total, want exactly 1", n)
+	}
+}
+
+func TestSetString_UnknownCap(t *testing.T) {
+	const unknown = Capability(1601) // CAP_REGISTRY_PULL: reserved in the proto, removed in mono#23247
+	if _, err := Stringify(unknown); err == nil {
+		t.Fatal("capability 1601 has a descriptor again; pick another reserved value")
+	}
+
+	tests := []struct {
+		name string
+		caps Set
+		want string
+	}{{
+		name: "unknown cap renders placeholder",
+		caps: Set{Capability_CAP_IAM_GROUPS_LIST, unknown},
+		want: "groups.list,unknown(cap=1601)",
+	}, {
+		name: "healthy set unchanged",
+		caps: Set{Capability_CAP_IAM_GROUPS_LIST},
+		want: "groups.list",
+	}}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if got := test.caps.String(); got != test.want {
+				t.Errorf("Set.String() = %q, want %q", got, test.want)
+			}
+		})
 	}
 }
 
