@@ -395,24 +395,25 @@ func newHTTP1Transport() *http.Transport {
 	return t
 }
 
+// doHTTP1 sends the request fields as a form-encoded POST body. The gateway
+// bindings for the STS endpoints carry no `body` mapping, so the server
+// populates the request message via ParseForm + PopulateQueryParameters and
+// never reads a JSON body — form encoding is the contract the deployed
+// issuer honors (see TestGateway_ExchangeFormBody in the oidc module).
 func (i *HTTP1DowngradeExchanger) doHTTP1(ctx context.Context,
 	auth string,
-	path string, in proto.Message, out proto.Message, opts options) error {
-	body, err := protojson.Marshal(in)
-	if err != nil {
-		return err
-	}
+	path string, form url.Values, out proto.Message, userAgent string) error {
 	u, err := url.JoinPath(i.opts.issuer, path)
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, u, bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, u, strings.NewReader(form.Encode()))
 	if err != nil {
 		return err
 	}
-	req.Header.Set("Content-Type", "application/json")
-	if opts.userAgent != "" {
-		req.Header.Set("User-Agent", opts.userAgent)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	if userAgent != "" {
+		req.Header.Set("User-Agent", userAgent)
 	}
 
 	if md, ok := metadata.FromOutgoingContext(ctx); ok {
@@ -463,16 +464,28 @@ func (i *HTTP1DowngradeExchanger) Exchange(ctx context.Context, token string, op
 	for _, opt := range opts {
 		opt(&o)
 	}
-	in := &oidc.ExchangeRequest{
-		Aud:              o.audiences,
-		Scope:            o.firstScope, //nolint:staticcheck // Populating for backward compatibility
-		Scopes:           o.scope,
-		Identity:         o.identity,
-		Cap:              o.capabilities,
-		IdentityProvider: o.identityProvider,
+	form := url.Values{}
+	for _, aud := range o.audiences {
+		form.Add("aud", aud)
+	}
+	if o.firstScope != "" {
+		// Populating for backward compatibility.
+		form.Set("scope", o.firstScope)
+	}
+	for _, scope := range o.scope {
+		form.Add("scopes", scope)
+	}
+	if o.identity != "" {
+		form.Set("identity", o.identity)
+	}
+	for _, cap := range o.capabilities {
+		form.Add("cap", cap)
+	}
+	if o.identityProvider != "" {
+		form.Set("identity_provider", o.identityProvider)
 	}
 	out := new(oidc.RawToken)
-	if err := i.doHTTP1(ctx, token, "/sts/exchange", in, out, o); err != nil {
+	if err := i.doHTTP1(ctx, token, "/sts/exchange", form, out, o.userAgent); err != nil {
 		return TokenPair{}, err
 	}
 
@@ -489,17 +502,25 @@ func (i *HTTP1DowngradeExchanger) Refresh(ctx context.Context, token string, opt
 		opt(&o)
 	}
 
-	in := &oidc.ExchangeRefreshTokenRequest{
-		Aud:    o.audiences,
-		Scope:  o.firstScope, //nolint:staticcheck // Populating for backward compatibility
-		Scopes: o.scope,
-		Cap:    o.capabilities,
+	form := url.Values{}
+	for _, aud := range o.audiences {
+		form.Add("aud", aud)
+	}
+	if o.firstScope != "" {
+		// Populating for backward compatibility.
+		form.Set("scope", o.firstScope)
+	}
+	for _, scope := range o.scope {
+		form.Add("scopes", scope)
+	}
+	for _, cap := range o.capabilities {
+		form.Add("cap", cap)
 	}
 
 	out := new(oidc.TokenPair)
-	if err := i.doHTTP1(ctx, token, "sts/access_token", in, out, o); err != nil {
+	if err := i.doHTTP1(ctx, token, "/sts/exchange_refresh_token", form, out, o.userAgent); err != nil {
 		return "", "", err
 	}
 
-	return out.GetToken().Token, out.GetRefreshToken().Token, nil
+	return out.GetToken().GetToken(), out.GetRefreshToken().GetToken(), nil
 }

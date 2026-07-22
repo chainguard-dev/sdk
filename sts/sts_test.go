@@ -13,14 +13,17 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
 
 	oidc "chainguard.dev/sdk/proto/platform/oidc/v1"
 	"chainguard.dev/sdk/proto/platform/oidc/v1/test"
 	"github.com/google/go-cmp/cmp"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/testing/protocmp"
 )
 
 func TestRefresh(t *testing.T) {
@@ -702,7 +705,7 @@ func TestHTTP1DowngradeExchangerHonorsProxy(t *testing.T) {
 				t.Errorf("Authorization = %q, want %q", got, "Bearer id-token")
 			}
 			fmt.Fprint(w, `{"token": "cg-token", "refreshToken": "cg-refresh"}`)
-		case "/sts/access_token":
+		case "/sts/exchange_refresh_token":
 			if got := r.Header.Get("Authorization"); got != "Bearer refresh-token" {
 				t.Errorf("Authorization = %q, want %q", got, "Bearer refresh-token")
 			}
@@ -844,5 +847,120 @@ func TestHTTP1DowngradeExchangerSurfacesErrorBody(t *testing.T) {
 	_, err := exch.Exchange(t.Context(), "bad-token")
 	if err == nil || !strings.Contains(err.Error(), "JWT validation failed") {
 		t.Errorf("Exchange() error = %v, want error containing the response body", err)
+	}
+}
+
+// gatewayFakeSTS implements the generated SecurityTokenServiceServer so the
+// downgrade exchanger can be exercised against the real grpc-gateway HTTP
+// bindings — the same code path the issuer serves. Recording the decoded
+// requests pins the client/server contract: every field the exchanger sends
+// must survive the gateway's binding into the RPC request message.
+type gatewayFakeSTS struct {
+	oidc.UnimplementedSecurityTokenServiceServer
+	// mu orders handler-goroutine writes before test-goroutine reads; the
+	// in-process HTTP round-trip alone is not a memory-model sync point.
+	mu          sync.Mutex
+	exchangeReq *oidc.ExchangeRequest
+	refreshReq  *oidc.ExchangeRefreshTokenRequest
+}
+
+func (f *gatewayFakeSTS) Exchange(_ context.Context, req *oidc.ExchangeRequest) (*oidc.RawToken, error) {
+	f.mu.Lock()
+	f.exchangeReq = req
+	f.mu.Unlock()
+	if len(req.GetAud()) == 0 {
+		return nil, status.Error(codes.InvalidArgument, "Audience must be specified")
+	}
+	return &oidc.RawToken{Token: "access", RefreshToken: "refresh"}, nil
+}
+
+func (f *gatewayFakeSTS) ExchangeRefreshToken(_ context.Context, req *oidc.ExchangeRefreshTokenRequest) (*oidc.TokenPair, error) {
+	f.mu.Lock()
+	f.refreshReq = req
+	f.mu.Unlock()
+	if len(req.GetAud()) == 0 {
+		return nil, status.Error(codes.InvalidArgument, "Audience must be specified")
+	}
+	return &oidc.TokenPair{
+		Token:        &oidc.RawToken{Token: "access"},
+		RefreshToken: &oidc.RawToken{Token: "refresh"},
+	}, nil
+}
+
+func newGatewaySTSServer(t *testing.T) (*gatewayFakeSTS, *httptest.Server) {
+	t.Helper()
+	fake := &gatewayFakeSTS{}
+	mux := runtime.NewServeMux()
+	if err := oidc.RegisterSecurityTokenServiceHandlerServer(t.Context(), mux, fake); err != nil {
+		t.Fatalf("RegisterSecurityTokenServiceHandlerServer() = %v", err)
+	}
+	srv := httptest.NewServer(mux)
+	t.Cleanup(srv.Close)
+	return fake, srv
+}
+
+// TestHTTP1DowngradeExchangeGatewayContract verifies the exchange request
+// fields reach the server through the gateway's POST /sts/exchange binding.
+// The binding has no body mapping — the gateway populates the request via
+// ParseForm, which reads a body only when it is form-encoded. A JSON body
+// is silently dropped and the issuer rejects the exchange with "Audience
+// must be specified" even though the client sent an audience.
+func TestHTTP1DowngradeExchangeGatewayContract(t *testing.T) {
+	fake, srv := newGatewaySTSServer(t)
+
+	exch := NewHTTP1DowngradeExchanger(srv.URL, "aud1,aud2",
+		WithIdentity("identity-uid"),
+		WithScope("scope-a", "scope-b"),
+		WithCapabilities("cap1"),
+		WithIdentityProvider("idp-uidp"),
+	)
+	pair, err := exch.Exchange(t.Context(), "external-token")
+	if err != nil {
+		t.Fatalf("Exchange() = %v", err)
+	}
+	if pair.AccessToken != "access" || pair.RefreshToken != "refresh" {
+		t.Errorf("Exchange() = %+v, want access/refresh tokens", pair)
+	}
+
+	want := &oidc.ExchangeRequest{
+		Aud:              []string{"aud1", "aud2"},
+		Scope:            "scope-a",
+		Scopes:           []string{"scope-a", "scope-b"},
+		Identity:         "identity-uid",
+		Cap:              []string{"cap1"},
+		IdentityProvider: "idp-uidp",
+	}
+	fake.mu.Lock()
+	got := fake.exchangeReq
+	fake.mu.Unlock()
+	if diff := cmp.Diff(want, got, protocmp.Transform()); diff != "" {
+		t.Errorf("server-side ExchangeRequest (-want +got):\n%s", diff)
+	}
+}
+
+// TestHTTP1DowngradeRefreshGatewayContract does the same for the refresh
+// path, which must POST to the bound /sts/exchange_refresh_token route.
+func TestHTTP1DowngradeRefreshGatewayContract(t *testing.T) {
+	fake, srv := newGatewaySTSServer(t)
+
+	exch := NewHTTP1DowngradeExchanger(srv.URL, "aud1", WithScope("scope-a"))
+	access, refresh, err := exch.Refresh(t.Context(), "refresh-token")
+	if err != nil {
+		t.Fatalf("Refresh() = %v", err)
+	}
+	if access != "access" || refresh != "refresh" {
+		t.Errorf("Refresh() = (%q, %q), want (access, refresh)", access, refresh)
+	}
+
+	want := &oidc.ExchangeRefreshTokenRequest{
+		Aud:    []string{"aud1"},
+		Scope:  "scope-a",
+		Scopes: []string{"scope-a"},
+	}
+	fake.mu.Lock()
+	got := fake.refreshReq
+	fake.mu.Unlock()
+	if diff := cmp.Diff(want, got, protocmp.Transform()); diff != "" {
+		t.Errorf("server-side ExchangeRefreshTokenRequest (-want +got):\n%s", diff)
 	}
 }
