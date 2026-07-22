@@ -56,6 +56,12 @@ type EntitlementsClient interface {
 	// Images are specified by name and resolved against the catalog.
 	// The backend selects an eligible entitlement with matching tier capacity,
 	// preferring the newest, unless an explicit entitlement_id is provided.
+	//
+	// May return RESOURCE_EXHAUSTED when the organization has exceeded its
+	// rolling 30-day catalog-image swap quota: customer-initiated removals
+	// beyond the quota consume per-tier image capacity until they age out of the
+	// window, reducing what can be added. See GetEffectiveEntitlements
+	// (swap_quota, swaps_used) for the current budget.
 	AddEntitlementImages(ctx context.Context, in *AddEntitlementImagesRequest, opts ...grpc.CallOption) (*AddEntitlementImagesResponse, error)
 	// RemoveEntitlementImages removes catalog images from an organization's
 	// entitlements. Images are specified by name and matched against the names
@@ -68,6 +74,11 @@ type EntitlementsClient interface {
 	//
 	// Removal is a soft delete: the underlying rows are retained with a deletion
 	// timestamp so that history can be reconstructed for audit purposes.
+	//
+	// Customer-initiated removals count against the organization's rolling
+	// 30-day catalog-image swap quota (see GetEffectiveEntitlements). Removals
+	// beyond the quota reduce the per-tier image capacity available for future
+	// additions until they age out of the window.
 	RemoveEntitlementImages(ctx context.Context, in *RemoveEntitlementImagesRequest, opts ...grpc.CallOption) (*RemoveEntitlementImagesResponse, error)
 }
 
@@ -203,6 +214,12 @@ type EntitlementsServer interface {
 	// Images are specified by name and resolved against the catalog.
 	// The backend selects an eligible entitlement with matching tier capacity,
 	// preferring the newest, unless an explicit entitlement_id is provided.
+	//
+	// May return RESOURCE_EXHAUSTED when the organization has exceeded its
+	// rolling 30-day catalog-image swap quota: customer-initiated removals
+	// beyond the quota consume per-tier image capacity until they age out of the
+	// window, reducing what can be added. See GetEffectiveEntitlements
+	// (swap_quota, swaps_used) for the current budget.
 	AddEntitlementImages(context.Context, *AddEntitlementImagesRequest) (*AddEntitlementImagesResponse, error)
 	// RemoveEntitlementImages removes catalog images from an organization's
 	// entitlements. Images are specified by name and matched against the names
@@ -215,6 +232,11 @@ type EntitlementsServer interface {
 	//
 	// Removal is a soft delete: the underlying rows are retained with a deletion
 	// timestamp so that history can be reconstructed for audit purposes.
+	//
+	// Customer-initiated removals count against the organization's rolling
+	// 30-day catalog-image swap quota (see GetEffectiveEntitlements). Removals
+	// beyond the quota reduce the per-tier image capacity available for future
+	// additions until they age out of the window.
 	RemoveEntitlementImages(context.Context, *RemoveEntitlementImagesRequest) (*RemoveEntitlementImagesResponse, error)
 	mustEmbedUnimplementedEntitlementsServer()
 }

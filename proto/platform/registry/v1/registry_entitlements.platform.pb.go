@@ -960,8 +960,18 @@ type GetEffectiveEntitlementsResponse struct {
 	// Maximum number of images that can be entitled to this organization.
 	// A value of -1 means this organization has no maximum quota enforced.
 	MaxTotalImages int32 `protobuf:"varint,5,opt,name=max_total_images,json=maxTotalImages,proto3" json:"max_total_images,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// The organization's rolling 30-day catalog-image swap quota, aggregated
+	// across its active entitlements. Customer-initiated image removals count
+	// against this quota. A value of -1 means unlimited (no swap limit is
+	// enforced); 0 means no swaps are permitted. Removals beyond the quota
+	// within the window consume per-tier image capacity until they age out.
+	SwapQuota int32 `protobuf:"varint,6,opt,name=swap_quota,json=swapQuota,proto3" json:"swap_quota,omitempty"`
+	// Customer-initiated catalog-image removals in the current rolling 30-day
+	// window. When this exceeds swap_quota, the excess reduces the per-tier
+	// image capacity available for new additions.
+	SwapsUsed     int32 `protobuf:"varint,7,opt,name=swaps_used,json=swapsUsed,proto3" json:"swaps_used,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetEffectiveEntitlementsResponse) Reset() {
@@ -1025,6 +1035,20 @@ func (x *GetEffectiveEntitlementsResponse) GetQuota() map[string]*ImageQuota {
 func (x *GetEffectiveEntitlementsResponse) GetMaxTotalImages() int32 {
 	if x != nil {
 		return x.MaxTotalImages
+	}
+	return 0
+}
+
+func (x *GetEffectiveEntitlementsResponse) GetSwapQuota() int32 {
+	if x != nil {
+		return x.SwapQuota
+	}
+	return 0
+}
+
+func (x *GetEffectiveEntitlementsResponse) GetSwapsUsed() int32 {
+	if x != nil {
+		return x.SwapsUsed
 	}
 	return 0
 }
@@ -1415,13 +1439,17 @@ const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\x04type\x18\x04 \x01(\x0e2..chainguard.platform.registry.Entitlement.TypeR\x04type\x12C\n" +
 	"\x0fexpiration_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x0eexpirationTime\"A\n" +
 	"\x1fGetEffectiveEntitlementsRequest\x12\x1e\n" +
-	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\xe9\x03\n" +
+	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\xa7\x04\n" +
 	" GetEffectiveEntitlementsResponse\x126\n" +
 	"\x04plan\x18\x01 \x01(\x0e2\".chainguard.platform.registry.PlanR\x04plan\x12L\n" +
 	"\factive_tiers\x18\x02 \x03(\x0e2).chainguard.platform.registry.CatalogTierR\vactiveTiers\x12P\n" +
 	"\ractive_images\x18\x03 \x03(\v2+.chainguard.platform.registry.EntitledImageR\factiveImages\x12_\n" +
 	"\x05quota\x18\x04 \x03(\v2I.chainguard.platform.registry.GetEffectiveEntitlementsResponse.QuotaEntryR\x05quota\x12(\n" +
-	"\x10max_total_images\x18\x05 \x01(\x05R\x0emaxTotalImages\x1ab\n" +
+	"\x10max_total_images\x18\x05 \x01(\x05R\x0emaxTotalImages\x12\x1d\n" +
+	"\n" +
+	"swap_quota\x18\x06 \x01(\x05R\tswapQuota\x12\x1d\n" +
+	"\n" +
+	"swaps_used\x18\a \x01(\x05R\tswapsUsed\x1ab\n" +
 	"\n" +
 	"QuotaEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12>\n" +
