@@ -22,6 +22,7 @@ func TestOSVRecordJSONConformsToOSVSpec(t *testing.T) {
 		SchemaVersion: "1.6.0",
 		Summary:       "example",
 		Modified:      timestamppb.Now(),
+		Withdrawn:     timestamppb.Now(),
 		Affected: []*argosv1.Affected{{
 			Package: &argosv1.Package{Ecosystem: "PyPI", Name: "example"},
 			Ranges: []*argosv1.Range{{
@@ -49,7 +50,7 @@ func TestOSVRecordJSONConformsToOSVSpec(t *testing.T) {
 	}
 	got := string(b)
 	for _, want := range []string{
-		`"affected"`, `"ranges"`, `"introduced"`, `"fixed"`,
+		`"affected"`, `"ranges"`, `"introduced"`, `"fixed"`, `"withdrawn"`,
 		// Multi-word OSV keys are the ones protojson would lowerCamelCase
 		// without their json_name pins — assert the exact spec form.
 		`"schema_version"`, `"last_affected"`, `"database_specific"`,

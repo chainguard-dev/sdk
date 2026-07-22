@@ -605,6 +605,9 @@ type OSVRecord struct {
 	Published     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=published,proto3" json:"published,omitempty"`
 	Modified      *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=modified,proto3" json:"modified,omitempty"`
 	Related       []string               `protobuf:"bytes,10,rep,name=related,proto3" json:"related,omitempty"`
+	// withdrawn is the time the entry should be considered withdrawn, per OSV
+	// spec. Unset means the record has not been withdrawn.
+	Withdrawn     *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=withdrawn,proto3" json:"withdrawn,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -705,6 +708,13 @@ func (x *OSVRecord) GetModified() *timestamppb.Timestamp {
 func (x *OSVRecord) GetRelated() []string {
 	if x != nil {
 		return x.Related
+	}
+	return nil
+}
+
+func (x *OSVRecord) GetWithdrawn() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Withdrawn
 	}
 	return nil
 }
@@ -1289,7 +1299,7 @@ const file_argos_osv_platform_proto_rawDesc = "" +
 	"\tfile_line\x18\x04 \x01(\tR\tfile_line\"4\n" +
 	"\bSeverity\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x14\n" +
-	"\x05score\x18\x02 \x01(\tR\x05score\"\x9f\x03\n" +
+	"\x05score\x18\x02 \x01(\tR\x05score\"\xd9\x03\n" +
 	"\tOSVRecord\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12&\n" +
 	"\x0eschema_version\x18\x02 \x01(\tR\x0eschema_version\x12\x18\n" +
@@ -1301,7 +1311,8 @@ const file_argos_osv_platform_proto_rawDesc = "" +
 	"\tpublished\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tpublished\x126\n" +
 	"\bmodified\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\bmodified\x12\x18\n" +
 	"\arelated\x18\n" +
-	" \x03(\tR\arelated\"\x89\x01\n" +
+	" \x03(\tR\arelated\x128\n" +
+	"\twithdrawn\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\twithdrawn\"\x89\x01\n" +
 	"\x0fOSVQueryRequest\x12<\n" +
 	"\apackage\x18\x01 \x01(\v2\".chainguard.platform.argos.PackageR\apackage\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\tR\aversion\x12\x1e\n" +
@@ -1394,27 +1405,28 @@ var file_argos_osv_platform_proto_depIdxs = []int32{
 	4,  // 8: chainguard.platform.argos.OSVRecord.affected:type_name -> chainguard.platform.argos.Affected
 	20, // 9: chainguard.platform.argos.OSVRecord.published:type_name -> google.protobuf.Timestamp
 	20, // 10: chainguard.platform.argos.OSVRecord.modified:type_name -> google.protobuf.Timestamp
-	1,  // 11: chainguard.platform.argos.OSVQueryRequest.package:type_name -> chainguard.platform.argos.Package
-	8,  // 12: chainguard.platform.argos.OSVQueryResponse.vulns:type_name -> chainguard.platform.argos.OSVRecord
-	20, // 13: chainguard.platform.argos.MinimalOSVRecord.modified:type_name -> google.protobuf.Timestamp
-	9,  // 14: chainguard.platform.argos.OSVQueryBatchRequest.queries:type_name -> chainguard.platform.argos.OSVQueryRequest
-	11, // 15: chainguard.platform.argos.OSVQueryBatchResult.vulns:type_name -> chainguard.platform.argos.MinimalOSVRecord
-	13, // 16: chainguard.platform.argos.OSVQueryBatchResponse.results:type_name -> chainguard.platform.argos.OSVQueryBatchResult
-	20, // 17: chainguard.platform.argos.DumpOSVMetadata.generated_at:type_name -> google.protobuf.Timestamp
-	17, // 18: chainguard.platform.argos.DumpOSVResponse.metadata:type_name -> chainguard.platform.argos.DumpOSVMetadata
-	9,  // 19: chainguard.platform.argos.ArgosOSV.Query:input_type -> chainguard.platform.argos.OSVQueryRequest
-	12, // 20: chainguard.platform.argos.ArgosOSV.QueryBatch:input_type -> chainguard.platform.argos.OSVQueryBatchRequest
-	15, // 21: chainguard.platform.argos.ArgosOSV.GetVuln:input_type -> chainguard.platform.argos.GetOSVRequest
-	16, // 22: chainguard.platform.argos.ArgosOSV.Dump:input_type -> chainguard.platform.argos.DumpOSVRequest
-	10, // 23: chainguard.platform.argos.ArgosOSV.Query:output_type -> chainguard.platform.argos.OSVQueryResponse
-	14, // 24: chainguard.platform.argos.ArgosOSV.QueryBatch:output_type -> chainguard.platform.argos.OSVQueryBatchResponse
-	8,  // 25: chainguard.platform.argos.ArgosOSV.GetVuln:output_type -> chainguard.platform.argos.OSVRecord
-	18, // 26: chainguard.platform.argos.ArgosOSV.Dump:output_type -> chainguard.platform.argos.DumpOSVResponse
-	23, // [23:27] is the sub-list for method output_type
-	19, // [19:23] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	20, // 11: chainguard.platform.argos.OSVRecord.withdrawn:type_name -> google.protobuf.Timestamp
+	1,  // 12: chainguard.platform.argos.OSVQueryRequest.package:type_name -> chainguard.platform.argos.Package
+	8,  // 13: chainguard.platform.argos.OSVQueryResponse.vulns:type_name -> chainguard.platform.argos.OSVRecord
+	20, // 14: chainguard.platform.argos.MinimalOSVRecord.modified:type_name -> google.protobuf.Timestamp
+	9,  // 15: chainguard.platform.argos.OSVQueryBatchRequest.queries:type_name -> chainguard.platform.argos.OSVQueryRequest
+	11, // 16: chainguard.platform.argos.OSVQueryBatchResult.vulns:type_name -> chainguard.platform.argos.MinimalOSVRecord
+	13, // 17: chainguard.platform.argos.OSVQueryBatchResponse.results:type_name -> chainguard.platform.argos.OSVQueryBatchResult
+	20, // 18: chainguard.platform.argos.DumpOSVMetadata.generated_at:type_name -> google.protobuf.Timestamp
+	17, // 19: chainguard.platform.argos.DumpOSVResponse.metadata:type_name -> chainguard.platform.argos.DumpOSVMetadata
+	9,  // 20: chainguard.platform.argos.ArgosOSV.Query:input_type -> chainguard.platform.argos.OSVQueryRequest
+	12, // 21: chainguard.platform.argos.ArgosOSV.QueryBatch:input_type -> chainguard.platform.argos.OSVQueryBatchRequest
+	15, // 22: chainguard.platform.argos.ArgosOSV.GetVuln:input_type -> chainguard.platform.argos.GetOSVRequest
+	16, // 23: chainguard.platform.argos.ArgosOSV.Dump:input_type -> chainguard.platform.argos.DumpOSVRequest
+	10, // 24: chainguard.platform.argos.ArgosOSV.Query:output_type -> chainguard.platform.argos.OSVQueryResponse
+	14, // 25: chainguard.platform.argos.ArgosOSV.QueryBatch:output_type -> chainguard.platform.argos.OSVQueryBatchResponse
+	8,  // 26: chainguard.platform.argos.ArgosOSV.GetVuln:output_type -> chainguard.platform.argos.OSVRecord
+	18, // 27: chainguard.platform.argos.ArgosOSV.Dump:output_type -> chainguard.platform.argos.DumpOSVResponse
+	24, // [24:28] is the sub-list for method output_type
+	20, // [20:24] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_argos_osv_platform_proto_init() }

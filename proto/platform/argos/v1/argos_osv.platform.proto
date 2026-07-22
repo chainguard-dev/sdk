@@ -156,6 +156,9 @@ message OSVRecord {
   google.protobuf.Timestamp published = 8;
   google.protobuf.Timestamp modified = 9;
   repeated string related = 10;
+  // withdrawn is the time the entry should be considered withdrawn, per OSV
+  // spec. Unset means the record has not been withdrawn.
+  google.protobuf.Timestamp withdrawn = 11;
 }
 
 message OSVQueryRequest {
