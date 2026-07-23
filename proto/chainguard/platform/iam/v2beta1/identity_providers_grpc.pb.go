@@ -77,15 +77,18 @@ type IdentityProvidersServiceClient interface {
 	RegenerateScimToken(ctx context.Context, in *RegenerateScimTokenRequest, opts ...grpc.CallOption) (*RegenerateScimTokenResponse, error)
 	// RevokeScimToken immediately invalidates the current and overlap SCIM bearer
 	// tokens for an identity provider; inbound provisioning stops on the next
-	// request and disables provisioning. A later RegenerateScimToken installs a
-	// credential but leaves provisioning disabled until explicitly enabled.
+	// request because no credential authenticates. The enabled switch is not
+	// changed (token lifecycle and enablement are independent controls), so a
+	// later RegenerateScimToken installs a credential that serves under the
+	// existing enabled state.
 	RevokeScimToken(ctx context.Context, in *RevokeScimTokenRequest, opts ...grpc.CallOption) (*RevokeScimTokenResponse, error)
 	// SetScimEnabled explicitly starts or pauses SCIM provisioning. Enabling
-	// requires a live current token and fails with FAILED_PRECONDITION for an
-	// organization with fewer than two manually assigned owner-tier role
-	// bindings, so SCIM can never take over an organization's only owner. Token
-	// generation and rotation never change this switch; revocation always turns
-	// it off.
+	// fails with FAILED_PRECONDITION for an organization with fewer than two
+	// manually assigned owner-tier role bindings, so SCIM can never take over
+	// an organization's only owner. Enabling does not require a live token: an
+	// expired or revoked credential simply rejects every provisioning request
+	// until a new one is issued. Token generation, regeneration, and revocation
+	// never change this switch.
 	SetScimEnabled(ctx context.Context, in *SetScimEnabledRequest, opts ...grpc.CallOption) (*SetScimEnabledResponse, error)
 }
 
@@ -230,15 +233,18 @@ type IdentityProvidersServiceServer interface {
 	RegenerateScimToken(context.Context, *RegenerateScimTokenRequest) (*RegenerateScimTokenResponse, error)
 	// RevokeScimToken immediately invalidates the current and overlap SCIM bearer
 	// tokens for an identity provider; inbound provisioning stops on the next
-	// request and disables provisioning. A later RegenerateScimToken installs a
-	// credential but leaves provisioning disabled until explicitly enabled.
+	// request because no credential authenticates. The enabled switch is not
+	// changed (token lifecycle and enablement are independent controls), so a
+	// later RegenerateScimToken installs a credential that serves under the
+	// existing enabled state.
 	RevokeScimToken(context.Context, *RevokeScimTokenRequest) (*RevokeScimTokenResponse, error)
 	// SetScimEnabled explicitly starts or pauses SCIM provisioning. Enabling
-	// requires a live current token and fails with FAILED_PRECONDITION for an
-	// organization with fewer than two manually assigned owner-tier role
-	// bindings, so SCIM can never take over an organization's only owner. Token
-	// generation and rotation never change this switch; revocation always turns
-	// it off.
+	// fails with FAILED_PRECONDITION for an organization with fewer than two
+	// manually assigned owner-tier role bindings, so SCIM can never take over
+	// an organization's only owner. Enabling does not require a live token: an
+	// expired or revoked credential simply rejects every provisioning request
+	// until a new one is issued. Token generation, regeneration, and revocation
+	// never change this switch.
 	SetScimEnabled(context.Context, *SetScimEnabledRequest) (*SetScimEnabledResponse, error)
 	mustEmbedUnimplementedIdentityProvidersServiceServer()
 }

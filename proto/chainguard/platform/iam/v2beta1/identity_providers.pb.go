@@ -47,9 +47,9 @@ const (
 	// The current token passed its declared expiry and no longer
 	// authenticates. Regenerate to issue a replacement.
 	IdentityProvider_SCIM_CREDENTIAL_STATE_EXPIRED IdentityProvider_SCIM_CredentialState = 3
-	// The token was explicitly revoked; nothing authenticates and
-	// provisioning was switched off. Regenerating issues a new credential
-	// but does not re-enable provisioning.
+	// The token was explicitly revoked; nothing authenticates until a new
+	// credential is issued. The enabled switch is unchanged: regenerating
+	// issues a credential that serves under the existing enabled state.
 	IdentityProvider_SCIM_CREDENTIAL_STATE_REVOKED IdentityProvider_SCIM_CredentialState = 4
 	// A regeneration overlap is active: the previous token keeps
 	// authenticating until previous_token_expire_time, alongside the current
@@ -1032,8 +1032,8 @@ func (x *RevokeScimTokenRequest) GetIdentityProviderUid() string {
 	return ""
 }
 
-// RevokeScimTokenResponse reports the resulting disabled/revoked state for
-// auditing and subsequent optimistic concurrency.
+// RevokeScimTokenResponse reports the resulting credential and provisioning
+// state for auditing and subsequent optimistic concurrency.
 type RevokeScimTokenResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// UID of the identity provider whose tokens were revoked, echoed for
@@ -1042,8 +1042,10 @@ type RevokeScimTokenResponse struct {
 	// Opaque version of the SCIM configuration after this call, for optimistic
 	// concurrency on subsequent lifecycle mutations.
 	Etag string `protobuf:"bytes,2,opt,name=etag,proto3" json:"etag,omitempty"`
-	// Whether provisioning is enabled after the revocation: always false, since
-	// revocation switches provisioning off as part of containment.
+	// Whether provisioning is enabled after the revocation. Revocation never
+	// changes this switch: the dead credential is itself the containment, and
+	// an explicit SetScimEnabled call turns provisioning off when that is also
+	// wanted.
 	Enabled bool `protobuf:"varint,3,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// When the revocation took effect.
 	RevokeTime    *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=revoke_time,json=revokeTime,proto3" json:"revoke_time,omitempty"`
@@ -1115,9 +1117,10 @@ type SetScimEnabledRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// UID of the identity provider whose provisioning is being switched.
 	IdentityProviderUid string `protobuf:"bytes,1,opt,name=identity_provider_uid,json=identityProviderUid,proto3" json:"identity_provider_uid,omitempty"`
-	// The desired provisioning state. Enabling requires a live current token;
-	// disabling pauses provisioning while leaving the credential, provisioned
-	// users, and bindings intact.
+	// The desired provisioning state. Enabling does not require a live token
+	// (a dead credential rejects provisioning requests until a new one is
+	// issued); disabling pauses provisioning while leaving the credential,
+	// provisioned users, and bindings intact.
 	Enabled bool `protobuf:"varint,2,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Etag returned by GetIdentityProvider or a token lifecycle response.
 	// Required so a switch cannot race a concurrent lifecycle mutation.
