@@ -20,10 +20,14 @@ import (
 var _ api.IdentityProvidersClient = (*MockIdentityProvidersClient)(nil)
 
 type MockIdentityProvidersClient struct {
-	OnCreate []IdentityProvidersOnCreate
-	OnUpdate []IdentityProvidersOnUpdate
-	OnDelete []IdentityProvidersOnDelete
-	OnList   []IdentityProvidersOnList
+	OnCreate              []IdentityProvidersOnCreate
+	OnUpdate              []IdentityProvidersOnUpdate
+	OnDelete              []IdentityProvidersOnDelete
+	OnList                []IdentityProvidersOnList
+	OnGenerateScimToken   []IdentityProvidersOnGenerateScimToken
+	OnRegenerateScimToken []IdentityProvidersOnRegenerateScimToken
+	OnRevokeScimToken     []IdentityProvidersOnRevokeScimToken
+	OnSetScimEnabled      []IdentityProvidersOnSetScimEnabled
 }
 
 type IdentityProvidersOnCreate struct {
@@ -80,6 +84,66 @@ func (m MockIdentityProvidersClient) List(_ context.Context, given *api.Identity
 	for _, o := range m.OnList {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.List, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+type IdentityProvidersOnGenerateScimToken struct {
+	Given    *api.GenerateScimTokenRequest
+	Response *api.GenerateScimTokenResponse
+	Error    error
+}
+
+type IdentityProvidersOnRegenerateScimToken struct {
+	Given    *api.RegenerateScimTokenRequest
+	Response *api.RegenerateScimTokenResponse
+	Error    error
+}
+
+type IdentityProvidersOnRevokeScimToken struct {
+	Given    *api.RevokeScimTokenRequest
+	Response *api.RevokeScimTokenResponse
+	Error    error
+}
+
+type IdentityProvidersOnSetScimEnabled struct {
+	Given    *api.SetScimEnabledRequest
+	Response *api.SetScimEnabledResponse
+	Error    error
+}
+
+func (m MockIdentityProvidersClient) GenerateScimToken(_ context.Context, given *api.GenerateScimTokenRequest, _ ...grpc.CallOption) (*api.GenerateScimTokenResponse, error) {
+	for _, o := range m.OnGenerateScimToken {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockIdentityProvidersClient) RegenerateScimToken(_ context.Context, given *api.RegenerateScimTokenRequest, _ ...grpc.CallOption) (*api.RegenerateScimTokenResponse, error) {
+	for _, o := range m.OnRegenerateScimToken {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockIdentityProvidersClient) RevokeScimToken(_ context.Context, given *api.RevokeScimTokenRequest, _ ...grpc.CallOption) (*api.RevokeScimTokenResponse, error) {
+	for _, o := range m.OnRevokeScimToken {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockIdentityProvidersClient) SetScimEnabled(_ context.Context, given *api.SetScimEnabledRequest, _ ...grpc.CallOption) (*api.SetScimEnabledResponse, error) {
+	for _, o := range m.OnSetScimEnabled {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)
