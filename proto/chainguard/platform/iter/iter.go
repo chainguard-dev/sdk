@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package iter //nolint:revive // redefines-builtin-id: collides with stdlib iter, but renaming would break API
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"iter"
@@ -56,10 +57,7 @@ func Paginate[Req PagedRequest, Res any](ctx context.Context, req Req, resourceN
 		req = reflect.New(reflect.TypeOf(req).Elem()).Interface().(Req)
 	}
 	r := proto.Clone(req).(Req)
-	pageSize := r.GetPageSize()
-	if pageSize == 0 {
-		pageSize = DefaultPageSize
-	}
+	pageSize := cmp.Or(r.GetPageSize(), DefaultPageSize)
 	setPageFields(r, pageSize, "")
 	return List(ctx, resourceName, func(pageToken string) ([]Res, string, error) {
 		setPageFields(r, pageSize, pageToken)
