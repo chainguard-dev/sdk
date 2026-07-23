@@ -285,13 +285,23 @@ message Policy {
   // Custom policies may be created and modified by users with the relevant IAM permissions.
   PolicyType policy_type = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The resource types this policy supports.
-  // Each value is a Chainguard API resource type with a version suffix
+  // Deprecated: use supported_resource_type. This repeated field is retained
+  // for backward compatibility with existing SDK consumers; the server
+  // populates it with the single supported_resource_type value. New code
+  // should read and write supported_resource_type instead.
+  repeated string supported_resource_types = 5 [deprecated = true];
+
+  // The resource type this policy supports.
+  // The value is a Chainguard API resource type with a version suffix
   // (e.g. "registry.chainguard.dev/Repo@v1"). The version determines
   // which PolicyInput schema is used when evaluating the policy expression.
   // Supported resource types:
   //   - registry.chainguard.dev/Repo@v1
-  repeated string supported_resource_types = 5;
+  //
+  // Immutable: set at creation and cannot be changed on update. A policy's
+  // name and supported_resource_type together identify it, so changing the
+  // type would move the policy into a different identity.
+  string supported_resource_type = 10 [(google.api.field_behavior) = IMMUTABLE];
 
   // The policy expression.
   string expression = 6;

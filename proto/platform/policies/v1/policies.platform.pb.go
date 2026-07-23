@@ -430,13 +430,24 @@ type Policy struct {
 	// System policies are created automatically by the system and may not be modified.
 	// Custom policies may be created and modified by users with the relevant IAM permissions.
 	PolicyType PolicyType `protobuf:"varint,4,opt,name=policy_type,json=policyType,proto3,enum=chainguard.platform.policies.v1.PolicyType" json:"policy_type,omitempty"`
-	// The resource types this policy supports.
-	// Each value is a Chainguard API resource type with a version suffix
+	// Deprecated: use supported_resource_type. This repeated field is retained
+	// for backward compatibility with existing SDK consumers; the server
+	// populates it with the single supported_resource_type value. New code
+	// should read and write supported_resource_type instead.
+	//
+	// Deprecated: Marked as deprecated in policies.platform.proto.
+	SupportedResourceTypes []string `protobuf:"bytes,5,rep,name=supported_resource_types,json=supportedResourceTypes,proto3" json:"supported_resource_types,omitempty"`
+	// The resource type this policy supports.
+	// The value is a Chainguard API resource type with a version suffix
 	// (e.g. "registry.chainguard.dev/Repo@v1"). The version determines
 	// which PolicyInput schema is used when evaluating the policy expression.
 	// Supported resource types:
 	//   - registry.chainguard.dev/Repo@v1
-	SupportedResourceTypes []string `protobuf:"bytes,5,rep,name=supported_resource_types,json=supportedResourceTypes,proto3" json:"supported_resource_types,omitempty"`
+	//
+	// Immutable: set at creation and cannot be changed on update. A policy's
+	// name and supported_resource_type together identify it, so changing the
+	// type would move the policy into a different identity.
+	SupportedResourceType string `protobuf:"bytes,10,opt,name=supported_resource_type,json=supportedResourceType,proto3" json:"supported_resource_type,omitempty"`
 	// The policy expression.
 	Expression string `protobuf:"bytes,6,opt,name=expression,proto3" json:"expression,omitempty"`
 	// When the policy was created.
@@ -509,11 +520,19 @@ func (x *Policy) GetPolicyType() PolicyType {
 	return PolicyType_POLICY_TYPE_UNSPECIFIED
 }
 
+// Deprecated: Marked as deprecated in policies.platform.proto.
 func (x *Policy) GetSupportedResourceTypes() []string {
 	if x != nil {
 		return x.SupportedResourceTypes
 	}
 	return nil
+}
+
+func (x *Policy) GetSupportedResourceType() string {
+	if x != nil {
+		return x.SupportedResourceType
+	}
+	return ""
 }
 
 func (x *Policy) GetExpression() string {
@@ -2066,14 +2085,16 @@ const file_policies_platform_proto_rawDesc = "" +
 	"\brequired\x18\b \x01(\bR\brequired\x12\x1e\n" +
 	"\n" +
 	"deprecated\x18\t \x01(\bR\n" +
-	"deprecated\"\xeb\x03\n" +
+	"deprecated\"\xad\x04\n" +
 	"\x06Policy\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12R\n" +
 	"\vpolicy_type\x18\x04 \x01(\x0e2+.chainguard.platform.policies.v1.PolicyTypeB\x04\xe2A\x01\x03R\n" +
-	"policyType\x128\n" +
-	"\x18supported_resource_types\x18\x05 \x03(\tR\x16supportedResourceTypes\x12\x1e\n" +
+	"policyType\x12<\n" +
+	"\x18supported_resource_types\x18\x05 \x03(\tB\x02\x18\x01R\x16supportedResourceTypes\x12<\n" +
+	"\x17supported_resource_type\x18\n" +
+	" \x01(\tB\x04\xe2A\x01\x05R\x15supportedResourceType\x12\x1e\n" +
 	"\n" +
 	"expression\x18\x06 \x01(\tR\n" +
 	"expression\x12?\n" +
