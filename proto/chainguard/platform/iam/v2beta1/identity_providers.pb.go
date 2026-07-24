@@ -1253,7 +1253,19 @@ type IdentityProvider_OIDC struct {
 	// Client ID of the identity provider. This is not considered sensitive.
 	ClientId string `protobuf:"bytes,2,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
 	// Client secret of the identity provider. This is a sensitive value
-	// and is not returned for list/get calls.
+	// and is not returned for list/get calls. Required for a confidential
+	// client; may be omitted for a public client, which instead authenticates
+	// with PKCE (set pkce_enabled). At least one of client_secret or
+	// pkce_enabled must be provided.
+	//
+	// On update, an empty client_secret means "keep the existing secret"
+	// unless oidc.client_secret is named explicitly in the update mask, in
+	// which case the empty value clears the stored secret (transitioning a
+	// confidential client to a public, PKCE-only client). A direct HTTP REST
+	// request that does not set the update mask explicitly infers it from the
+	// fields present in the request body, so sending an empty client_secret
+	// will clear it; set the update mask explicitly (or use the generated
+	// gRPC clients, which send only the fields you set) to avoid this.
 	ClientSecret string `protobuf:"bytes,3,opt,name=client_secret,json=clientSecret,proto3" json:"client_secret,omitempty"`
 	// Additional scopes to request for ID tokens from the upstream IdP.
 	// Scope openid is always requested as part of the authentication flow.
@@ -1462,7 +1474,7 @@ const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = ""
 	"\x04OIDC\x12\x1c\n" +
 	"\x06issuer\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x06issuer\x12!\n" +
 	"\tclient_id\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\bclientId\x12)\n" +
-	"\rclient_secret\x18\x03 \x01(\tB\x04\xe2A\x01\x02R\fclientSecret\x121\n" +
+	"\rclient_secret\x18\x03 \x01(\tB\x04\xe2A\x01\x01R\fclientSecret\x121\n" +
 	"\x11additional_scopes\x18\x04 \x03(\tB\x04\xe2A\x01\x01R\x10additionalScopes\x12'\n" +
 	"\fgroups_claim\x18\x05 \x01(\tB\x04\xe2A\x01\x01R\vgroupsClaim\x12'\n" +
 	"\fpkce_enabled\x18\a \x01(\bB\x04\xe2A\x01\x01R\vpkceEnabledJ\x04\b\x06\x10\a\x1a\xf0\x04\n" +

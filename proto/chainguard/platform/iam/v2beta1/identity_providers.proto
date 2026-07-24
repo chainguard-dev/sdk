@@ -330,8 +330,20 @@ message IdentityProvider {
     string client_id = 2 [(google.api.field_behavior) = REQUIRED];
 
     // Client secret of the identity provider. This is a sensitive value
-    // and is not returned for list/get calls.
-    string client_secret = 3 [(google.api.field_behavior) = REQUIRED];
+    // and is not returned for list/get calls. Required for a confidential
+    // client; may be omitted for a public client, which instead authenticates
+    // with PKCE (set pkce_enabled). At least one of client_secret or
+    // pkce_enabled must be provided.
+    //
+    // On update, an empty client_secret means "keep the existing secret"
+    // unless oidc.client_secret is named explicitly in the update mask, in
+    // which case the empty value clears the stored secret (transitioning a
+    // confidential client to a public, PKCE-only client). A direct HTTP REST
+    // request that does not set the update mask explicitly infers it from the
+    // fields present in the request body, so sending an empty client_secret
+    // will clear it; set the update mask explicitly (or use the generated
+    // gRPC clients, which send only the fields you set) to avoid this.
+    string client_secret = 3 [(google.api.field_behavior) = OPTIONAL];
 
     // Additional scopes to request for ID tokens from the upstream IdP.
     // Scope openid is always requested as part of the authentication flow.
