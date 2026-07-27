@@ -52,15 +52,27 @@ The iterator automatically:
 # Integration Patterns
 
 The package is designed to work with v2 API clients. The typical
-integration pattern is to wrap the client's List method in a fetch function
-that extracts the items and next page token from the response.
-
-For services with multiple list endpoints, create helper functions:
+integration pattern is to use the Paginate helper, which clones the
+request before mutation and sets page_size and page_token automatically:
 
 	func ListGroups(ctx context.Context, client *Client, req *iamv2.ListGroupsRequest) iter.Seq2[*iamv2.Group, error] {
+		return iter.Paginate(ctx, req, "groups", func(ctx context.Context, r *iamv2.ListGroupsRequest) ([]*iamv2.Group, string, error) {
+			resp, err := client.ListGroups(ctx, r)
+			if err != nil {
+				return nil, "", err
+			}
+			return resp.GetGroups(), resp.GetNextPageToken(), nil
+		})
+	}
+
+When using the lower-level List function directly, NEVER mutate the
+caller's original request. Clone it first with proto.Clone:
+
+	func ListGroups(ctx context.Context, client *Client, req *iamv2.ListGroupsRequest) iter.Seq2[*iamv2.Group, error] {
+		cloned := proto.Clone(req).(*iamv2.ListGroupsRequest)
 		return iter.List(ctx, "groups", func(pageToken string) ([]*iamv2.Group, string, error) {
-			req.PageToken = pageToken
-			resp, err := client.ListGroups(ctx, req)
+			cloned.PageToken = pageToken
+			resp, err := client.ListGroups(ctx, cloned)
 			if err != nil {
 				return nil, "", err
 			}
