@@ -207,6 +207,20 @@ service Registry {
     };
   }
 
+  // ListChartsByImageRepo returns every chart that depends on the
+  // given image repo. Backed by the chart_image_dependency reverse index
+  // populated from chart-lock attestations on catalog pushes
+  rpc ListChartsByImageRepo(ListChartsByImageRepoRequest) returns (ListChartsByImageRepoResponse) {
+    option (google.api.http) = {
+      get: "/registry/v1/repos/{repo_id=**}/chart-image-bindings"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST]
+      }
+    };
+  }
+
   rpc GetImageConfig(ImageConfigRequest) returns (ImageConfig) {
     option (google.api.http) = {
       get: "/registry/v1/repos/{repo_id=**}/digests/{digest=*}/imageconfig"
@@ -1236,6 +1250,27 @@ enum ChartImageRequirement {
   REQUIREMENT_UNSPECIFIED = 0;
   REQUIREMENT_REQUIRED = 1;
   REQUIREMENT_OPTIONAL = 2;
+}
+
+message ListChartsByImageRepoRequest {
+  // The UIDP of the image repo to look up chart-image bindings for.
+  string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message ListChartsByImageRepoResponse {
+  // Chart-image bindings for the given image repo, sorted
+  // by chart_repo.
+  repeated ChartImageBinding chart_image_bindings = 1;
+}
+
+// ChartImageBinding describes a chart in the CG catalog
+// that references a specific image, populated by the registry ingester
+// entries derived from chart-lock attestations.
+message ChartImageBinding {
+  // The bare name of the chart repo that references the image (e.g. "akhq").
+  string chart_repo = 1;
+  // Whether the image is required or optional for this chart.
+  ChartImageRequirement requirement = 2;
 }
 
 // Deployment configuration for a repository

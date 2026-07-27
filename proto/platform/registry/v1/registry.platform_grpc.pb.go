@@ -35,6 +35,7 @@ const (
 	Registry_GetSbom_FullMethodName                   = "/chainguard.platform.registry.Registry/GetSbom"
 	Registry_GetHelm_FullMethodName                   = "/chainguard.platform.registry.Registry/GetHelm"
 	Registry_GetChart_FullMethodName                  = "/chainguard.platform.registry.Registry/GetChart"
+	Registry_ListChartsByImageRepo_FullMethodName     = "/chainguard.platform.registry.Registry/ListChartsByImageRepo"
 	Registry_GetImageConfig_FullMethodName            = "/chainguard.platform.registry.Registry/GetImageConfig"
 	Registry_GetArchs_FullMethodName                  = "/chainguard.platform.registry.Registry/GetArchs"
 	Registry_GetSize_FullMethodName                   = "/chainguard.platform.registry.Registry/GetSize"
@@ -74,6 +75,10 @@ type RegistryClient interface {
 	GetSbom(ctx context.Context, in *SbomRequest, opts ...grpc.CallOption) (*v1.Sbom2, error)
 	GetHelm(ctx context.Context, in *HelmRequest, opts ...grpc.CallOption) (*Helm, error)
 	GetChart(ctx context.Context, in *GetChartRequest, opts ...grpc.CallOption) (*Chart, error)
+	// ListChartsByImageRepo returns every chart that depends on the
+	// given image repo. Backed by the chart_image_dependency reverse index
+	// populated from chart-lock attestations on catalog pushes
+	ListChartsByImageRepo(ctx context.Context, in *ListChartsByImageRepoRequest, opts ...grpc.CallOption) (*ListChartsByImageRepoResponse, error)
 	GetImageConfig(ctx context.Context, in *ImageConfigRequest, opts ...grpc.CallOption) (*ImageConfig, error)
 	GetArchs(ctx context.Context, in *ArchRequest, opts ...grpc.CallOption) (*Archs, error)
 	GetSize(ctx context.Context, in *SizeRequest, opts ...grpc.CallOption) (*Size, error)
@@ -237,6 +242,16 @@ func (c *registryClient) GetChart(ctx context.Context, in *GetChartRequest, opts
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Chart)
 	err := c.cc.Invoke(ctx, Registry_GetChart_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *registryClient) ListChartsByImageRepo(ctx context.Context, in *ListChartsByImageRepoRequest, opts ...grpc.CallOption) (*ListChartsByImageRepoResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListChartsByImageRepoResponse)
+	err := c.cc.Invoke(ctx, Registry_ListChartsByImageRepo_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -442,6 +457,10 @@ type RegistryServer interface {
 	GetSbom(context.Context, *SbomRequest) (*v1.Sbom2, error)
 	GetHelm(context.Context, *HelmRequest) (*Helm, error)
 	GetChart(context.Context, *GetChartRequest) (*Chart, error)
+	// ListChartsByImageRepo returns every chart that depends on the
+	// given image repo. Backed by the chart_image_dependency reverse index
+	// populated from chart-lock attestations on catalog pushes
+	ListChartsByImageRepo(context.Context, *ListChartsByImageRepoRequest) (*ListChartsByImageRepoResponse, error)
 	GetImageConfig(context.Context, *ImageConfigRequest) (*ImageConfig, error)
 	GetArchs(context.Context, *ArchRequest) (*Archs, error)
 	GetSize(context.Context, *SizeRequest) (*Size, error)
@@ -512,6 +531,9 @@ func (UnimplementedRegistryServer) GetHelm(context.Context, *HelmRequest) (*Helm
 }
 func (UnimplementedRegistryServer) GetChart(context.Context, *GetChartRequest) (*Chart, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetChart not implemented")
+}
+func (UnimplementedRegistryServer) ListChartsByImageRepo(context.Context, *ListChartsByImageRepoRequest) (*ListChartsByImageRepoResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListChartsByImageRepo not implemented")
 }
 func (UnimplementedRegistryServer) GetImageConfig(context.Context, *ImageConfigRequest) (*ImageConfig, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetImageConfig not implemented")
@@ -836,6 +858,24 @@ func _Registry_GetChart_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RegistryServer).GetChart(ctx, req.(*GetChartRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Registry_ListChartsByImageRepo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListChartsByImageRepoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).ListChartsByImageRepo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_ListChartsByImageRepo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).ListChartsByImageRepo(ctx, req.(*ListChartsByImageRepoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1226,6 +1266,10 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetChart",
 			Handler:    _Registry_GetChart_Handler,
+		},
+		{
+			MethodName: "ListChartsByImageRepo",
+			Handler:    _Registry_ListChartsByImageRepo_Handler,
 		},
 		{
 			MethodName: "GetImageConfig",
