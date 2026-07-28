@@ -1,0 +1,124 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.skills.v1alpha1;
+
+import "annotations/auth.proto";
+import "annotations/mcp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/skills/v1alpha1";
+option java_multiple_files = true;
+option java_outer_classname = "CatalogProto";
+option java_package = "com.chainguard.platform.skills.v1alpha1";
+
+// Skills is the customer-facing catalog surface for hardened Chainguard skills.
+// It is a read API over the skill catalog — the shared backend consumed by the
+// cgr-skills MCP, chainctl, and the community UI (one backend, many front doors,
+// mirroring the registry ListRepos/ListTags endpoints). Skill content is pulled
+// from the OCI registry (skills.cgr.dev); this API serves catalog metadata
+// (name, description, category) that the registry does not carry.
+//
+// This file scaffolds the service (ACID-363). ListSkills/GetSkill are backed by
+// the skills catalog datastore table in ACID-367; search is added in ACID-381.
+service Skills {
+  // ListSkills lists skills in the catalog under a group, paginated. It never
+  // returns the whole catalog in one response (bounded page_size).
+  rpc ListSkills(ListSkillsRequest) returns (ListSkillsResponse) {
+    option (google.api.http) = {get: "/skills/v1alpha1/{parent_id}/skills"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List hardened Chainguard skills in the catalog under a group (name + description + category), one bounded page at a time. To find a specific skill prefer search; use this to browse."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // GetSkill returns a single catalog Skill by its UIDP.
+  rpc GetSkill(GetSkillRequest) returns (Skill) {
+    option (google.api.http) = {get: "/skills/v1alpha1/skill/{id=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get a hardened Chainguard skill catalog entry by its UIDP."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+}
+
+// Skill is one hardened skill in the catalog. Content (SKILL.md + references)
+// lives in the OCI registry; this record carries the catalog metadata the
+// registry does not (description, license, category). Read-only over the public
+// API — populated internally at publish time.
+message Skill {
+  // id, the skill's UIDP under the owning Group.
+  string id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (chainguard.annotations.iam_scope) = true
+  ];
+  // name is the skill's catalog name (its path under the skills folder), e.g.
+  // "github.com/anthropics/skills/pdf".
+  string name = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // description is a human-readable one-line summary.
+  string description = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // license is the skill's SPDX license identifier, if declared.
+  string license = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // category groups the skill in the catalog, if declared.
+  string category = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // digest is the manifest digest ("sha256:…") the served version resolves to —
+  // the immutable pointer for pulling the skill's content. (The catalog serves
+  // the promoted version; the full tag/version list comes from the registry.)
+  string digest = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // create_time is when the skill was first recorded.
+  google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // update_time is when the skill was last updated.
+  google.protobuf.Timestamp update_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // next id: 9
+}
+
+message GetSkillRequest {
+  // id, the UIDP of the Skill to retrieve.
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+message ListSkillsRequest {
+  // parent_id, the Group UIDP under which to list skills (scopes access).
+  string parent_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+  // category optionally narrows results to a single category.
+  string category = 2;
+  // page_size is the maximum number of results to return per page.
+  int32 page_size = 3;
+  // page_token is a token from a previous response's next_page_token.
+  string page_token = 4;
+  // next id: 5
+}
+
+message ListSkillsResponse {
+  repeated Skill items = 1;
+  // next_page_token is the token for the next page (empty if no more pages).
+  string next_page_token = 2;
+  // total_count is the total number of skills matching the filter.
+  int64 total_count = 3;
+}
