@@ -1,0 +1,265 @@
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/libraries/v1";
+
+package chainguard.platform.libraries;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "annotations/auth.proto";
+import "annotations/events.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "entitlements.libraries.platform.proto";
+
+// ResolutionCache manages an org's Libraries resolution cache: the ledger of
+// which tier (Chainguard-built or upstream) the org was served per package
+// version, held stable until the org zaps it.
+service ResolutionCache {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    description: "Libraries Resolution Cache API"
+    name: "LibrariesResolutionCache"
+  };
+
+  // Zap retires resolution cache entries at the requested scope: a group or
+  // scope prefix, a package, a single version, an ecosystem, or the whole
+  // org. With dry_run set it reports how many entries the zap would retire
+  // without changing anything.
+  rpc Zap(ZapResolutionCacheRequest) returns (ZapResolutionCacheSummary) {
+    option (google.api.http) = {
+      post: "/libraries/v1/resolutioncache/{parent_id=**}:zap"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "LibrariesResolutionCache"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_LIBRARIES_CACHE_INVALIDATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.libraries.resolutioncache.zapped.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  // SetOptOut sets or clears the org's resolution cache opt-out. An opted-out
+  // org neither records new resolutions nor has recorded ones enforced; its
+  // entries are retained so opting back in resumes from the recorded state.
+  rpc SetOptOut(ResolutionCacheOptOutRequest) returns (ResolutionCacheOptOut) {
+    option (google.api.http) = {
+      post: "/libraries/v1/resolutioncache/{parent_id=**}:optout"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "LibrariesResolutionCache"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_LIBRARIES_CACHE_INVALIDATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.libraries.resolutioncache.optout.updated.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+  }
+
+  // Status reports the org's per-ecosystem resolution cache state: current
+  // generation, how many zaps have run, opt-out state, and the most recent
+  // zap time.
+  rpc Status(ResolutionCacheStatusFilter) returns (ResolutionCacheStatus) {
+    option (google.api.http) = {
+      get: "/libraries/v1/resolutioncache/{parent_id=**}/status"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "LibrariesResolutionCache"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_LIBRARIES_CACHE_LIST]
+      }
+    };
+  }
+
+  // List pages through the org's resolution cache entries.
+  rpc List(ResolutionCacheEntryFilter) returns (ResolutionCacheEntryList) {
+    option (google.api.http) = {
+      get: "/libraries/v1/resolutioncache/{parent_id=**}/entries"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "LibrariesResolutionCache"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_LIBRARIES_CACHE_LIST]
+      }
+    };
+  }
+}
+
+// Tier identifies where an artifact's bytes come from.
+enum Tier {
+  TIER_UNSPECIFIED = 0;
+  // Chainguard-built artifacts.
+  TIER_CHAINGUARD = 1;
+  // Upstream artifacts mirrored or proxied from the public registry.
+  TIER_UPSTREAM = 2;
+}
+
+// ZapResolutionCacheRequest selects the scope of a zap, from widest to
+// narrowest:
+//   - org-wide: no ecosystem, no package fields.
+//   - ecosystem: ecosystem only.
+//   - group/scope: ecosystem + package_prefix (e.g. a Maven group or npm
+//     scope).
+//   - package: ecosystem + package_name.
+//   - version: ecosystem + package_name + version.
+message ZapResolutionCacheRequest {
+  // parent_id is the org whose resolution cache to zap.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+  // ecosystem scopes the zap to one ecosystem. UNKNOWN means every ecosystem
+  // (org-wide zap; package fields must be empty).
+  Ecosystem ecosystem = 2;
+  // package_prefix retires entries whose normalized package name starts with
+  // this prefix followed by a separator (".", ":" or "/"), e.g. a Maven group
+  // ("com.fasterxml.jackson") or an npm scope ("@angular"). Mutually
+  // exclusive with package_name; requires ecosystem.
+  string package_prefix = 3;
+  // package_name retires entries for one normalized package name (java:
+  // "group:artifact"). Requires ecosystem.
+  string package_name = 4;
+  // version narrows a package zap to a single version. Requires package_name.
+  string version = 5;
+  // registry narrows a package or prefix zap to one registry. Empty means all
+  // registries.
+  string registry = 6;
+  // dry_run reports the count of entries the zap would retire without
+  // changing anything. Counts are advisory: they race concurrent recording.
+  bool dry_run = 7;
+  // idempotency_key makes a retried zap safe: a retry carrying the key of the
+  // org's most recent zap returns the original result instead of zapping
+  // again. Replay is guaranteed only until the next zap on the same
+  // (org, ecosystem).
+  string idempotency_key = 8;
+}
+
+// ZapResolutionCacheSummary reports the outcome of a zap.
+message ZapResolutionCacheSummary {
+  // id is the org group UIDP the zap ran against.
+  string id = 1;
+  // results holds one entry per affected ecosystem.
+  repeated ZapResolutionCacheResult results = 2;
+  // dry_run echoes whether this was a dry run.
+  bool dry_run = 3;
+  // replayed is true when the response was served from a stored
+  // idempotency-key result instead of performing a new zap.
+  bool replayed = 4;
+}
+
+message ZapResolutionCacheResult {
+  Ecosystem ecosystem = 1;
+  // generation after the zap.
+  int64 generation = 2;
+  google.protobuf.Timestamp zapped_at = 3;
+  // retired_count is how many live entries the zap retired (or would retire,
+  // for dry runs).
+  int64 retired_count = 4;
+}
+
+message ResolutionCacheOptOutRequest {
+  // parent_id is the org whose opt-out to change.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+  // ecosystem scopes the change to one ecosystem. UNKNOWN means every
+  // ecosystem.
+  Ecosystem ecosystem = 2;
+  // opted_out is the desired state.
+  bool opted_out = 3;
+}
+
+// ResolutionCacheOptOut reports the org's opt-out state after a change.
+message ResolutionCacheOptOut {
+  // id is the org group UIDP.
+  string id = 1;
+  // watermarks holds the affected ecosystems' state.
+  repeated ResolutionCacheWatermark watermarks = 2;
+}
+
+message ResolutionCacheStatusFilter {
+  // parent_id is the org to report on.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+// ResolutionCacheStatus reports the org's per-ecosystem resolution cache
+// state. Ecosystems without a watermark are in the default state (recording,
+// never zapped, not opted out) and are omitted.
+message ResolutionCacheStatus {
+  // id is the org group UIDP.
+  string id = 1;
+  repeated ResolutionCacheWatermark watermarks = 2;
+}
+
+message ResolutionCacheWatermark {
+  Ecosystem ecosystem = 1;
+  // generation is the current zap generation; entries recorded under older
+  // generations are retired.
+  int64 generation = 2;
+  // zap_count is how many zaps (of any scope) the org has run for the
+  // ecosystem.
+  int64 zap_count = 3;
+  // opted_out reports whether the ecosystem is opted out of the resolution
+  // cache.
+  bool opted_out = 4;
+  google.protobuf.Timestamp last_zapped_at = 5;
+}
+
+message ResolutionCacheEntryFilter {
+  // parent_id is the org whose entries to list. Required.
+  string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
+  // ecosystem lists entries for one ecosystem (UNKNOWN = all).
+  Ecosystem ecosystem = 2;
+  // registry lists entries for one registry (empty = all).
+  string registry = 3;
+  // package_name lists entries for one normalized package name. Requires
+  // ecosystem.
+  string package_name = 4;
+  // package_prefix lists entries whose package name starts with the prefix,
+  // with the same separator-boundary rule as ZapResolutionCacheRequest.
+  // Mutually exclusive with package_name; requires ecosystem.
+  string package_prefix = 5;
+  // tier lists entries recording one tier (UNSPECIFIED = all).
+  Tier tier = 6;
+  // live_only lists only entries at the current generation (the ones that
+  // govern serving).
+  bool live_only = 7;
+  int32 page_size = 8;
+  string cursor = 9;
+}
+
+// ResolutionCacheEntry is one recorded resolution: the org was served this
+// tier for this package version and keeps receiving it until zapped.
+message ResolutionCacheEntry {
+  // id is the entry's UIDP.
+  string id = 1;
+  Ecosystem ecosystem = 2;
+  // registry within the ecosystem; empty is the default registry.
+  string registry = 3;
+  string package_name = 4;
+  string version = 5;
+  Tier tier = 6;
+  // digest of the artifact that was served when the entry was recorded.
+  string digest = 7;
+  // observed_at is when the recorded serve decision was made.
+  google.protobuf.Timestamp observed_at = 8;
+  // live reports whether the entry is at the current generation (governing
+  // serving) or retired by a zap.
+  bool live = 9;
+}
+
+message ResolutionCacheEntryList {
+  repeated ResolutionCacheEntry items = 1;
+  int64 total_count = 2;
+  string next_cursor = 3;
+}

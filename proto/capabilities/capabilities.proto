@@ -179,6 +179,10 @@ enum Capability {
   // Cache invalidation capability for the libraries cache (covers all ecosystems).
   // Granted to org owners and account admins; not to regular developer members.
   CAP_LIBRARIES_CACHE_INVALIDATE = 1860 [(name) = "libraries.cache.invalidate", (bit) = 129];
+  // Read capability for the libraries resolution cache (status and entry
+  // listing). Separate from CAP_LIBRARIES_ENTITLEMENTS_LIST on purpose: an
+  // org's dependency-consumption history is sensitive data.
+  CAP_LIBRARIES_CACHE_LIST = 1862 [(name) = "libraries.cache.list", (bit) = 192];
 
 
   // Rebuilder API capabilities
@@ -372,5 +376,5 @@ enum Capability {
   CAP_ACTIONS_LIST = 2700 [(name) = "actions.list", (bit) = 164];
 
   reserved 1;
-  // next bit: 192
+  // next bit: 193
 }

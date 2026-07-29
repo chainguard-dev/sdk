@@ -156,6 +156,10 @@ const (
 	// Cache invalidation capability for the libraries cache (covers all ecosystems).
 	// Granted to org owners and account admins; not to regular developer members.
 	Capability_CAP_LIBRARIES_CACHE_INVALIDATE Capability = 1860
+	// Read capability for the libraries resolution cache (status and entry
+	// listing). Separate from CAP_LIBRARIES_ENTITLEMENTS_LIST on purpose: an
+	// org's dependency-consumption history is sensitive data.
+	Capability_CAP_LIBRARIES_CACHE_LIST Capability = 1862
 	// Rebuilder API capabilities
 	Capability_CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE           Capability = 1840
 	Capability_CAP_LIBRARIES_REBUILDER_REQUESTS_LIST             Capability = 1841
@@ -411,6 +415,7 @@ var (
 		1830:  "CAP_LIBRARIES_JAVASCRIPT_LIST",
 		1831:  "CAP_LIBRARIES_JAVASCRIPT_CREATE",
 		1860:  "CAP_LIBRARIES_CACHE_INVALIDATE",
+		1862:  "CAP_LIBRARIES_CACHE_LIST",
 		1840:  "CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE",
 		1841:  "CAP_LIBRARIES_REBUILDER_REQUESTS_LIST",
 		1842:  "CAP_LIBRARIES_REBUILDER_REQUESTS_CANCEL",
@@ -600,6 +605,7 @@ var (
 		"CAP_LIBRARIES_JAVASCRIPT_LIST":                      1830,
 		"CAP_LIBRARIES_JAVASCRIPT_CREATE":                    1831,
 		"CAP_LIBRARIES_CACHE_INVALIDATE":                     1860,
+		"CAP_LIBRARIES_CACHE_LIST":                           1862,
 		"CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE":            1840,
 		"CAP_LIBRARIES_REBUILDER_REQUESTS_LIST":              1841,
 		"CAP_LIBRARIES_REBUILDER_REQUESTS_CANCEL":            1842,
@@ -779,7 +785,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x96d\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xd7d\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -888,7 +894,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x19CAP_LIBRARIES_JAVA_CREATE\x10\x9d\x0e\x1a \xa8ˑMn\x9a\xaf\xa8\xd2\x05\x15libraries.java.create\x12H\n" +
 	"\x1dCAP_LIBRARIES_JAVASCRIPT_LIST\x10\xa6\x0e\x1a$\xa8ˑMX\x9a\xaf\xa8\xd2\x05\x19libraries.javascript.list\x12L\n" +
 	"\x1fCAP_LIBRARIES_JAVASCRIPT_CREATE\x10\xa7\x0e\x1a&\xa8ˑMm\x9a\xaf\xa8\xd2\x05\x1blibraries.javascript.create\x12K\n" +
-	"\x1eCAP_LIBRARIES_CACHE_INVALIDATE\x10\xc4\x0e\x1a&\xa8ˑM\x81\x01\x9a\xaf\xa8\xd2\x05\x1alibraries.cache.invalidate\x12b\n" +
+	"\x1eCAP_LIBRARIES_CACHE_INVALIDATE\x10\xc4\x0e\x1a&\xa8ˑM\x81\x01\x9a\xaf\xa8\xd2\x05\x1alibraries.cache.invalidate\x12?\n" +
+	"\x18CAP_LIBRARIES_CACHE_LIST\x10\xc6\x0e\x1a \xa8ˑM\xc0\x01\x9a\xaf\xa8\xd2\x05\x14libraries.cache.list\x12b\n" +
 	"'CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE\x10\xb0\x0e\x1a4\xa8ˑMg\x9a\xaf\xa8\xd2\x05#libraries.rebuilder.requests.create\xa0\xaf\xa8\xd2\x05\x01\x12^\n" +
 	"%CAP_LIBRARIES_REBUILDER_REQUESTS_LIST\x10\xb1\x0e\x1a2\xa8ˑMh\x9a\xaf\xa8\xd2\x05!libraries.rebuilder.requests.list\xa0\xaf\xa8\xd2\x05\x01\x12b\n" +
 	"'CAP_LIBRARIES_REBUILDER_REQUESTS_CANCEL\x10\xb2\x0e\x1a4\xa8ˑMi\x9a\xaf\xa8\xd2\x05#libraries.rebuilder.requests.cancel\xa0\xaf\xa8\xd2\x05\x01\x12n\n" +
