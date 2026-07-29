@@ -99,6 +99,14 @@ message ArgosDocument {
   // submission resolved to, populated once processing completes.
   repeated string cgp_ids = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 
+  // bindings is the document's file manifest joined to per-file analysis
+  // outcomes: one entry per markdown file in the uploaded archive, carrying
+  // the analysis status and the CGP identifiers attributed to that file.
+  // The platform derives the manifest from the submission itself; bindings
+  // are empty until that derivation has run (and stay empty for uploads
+  // that are not zip archives of markdown files).
+  repeated ArgosDocumentFileBinding bindings = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
   enum Status {
     STATUS_UNSPECIFIED = 0;
     // Payload received; pending downstream processing.
@@ -109,6 +117,36 @@ message ArgosDocument {
     STATUS_FAILED = 3;
     // Processing determined the finding is not a true positive.
     STATUS_FALSE_POSITIVE = 4;
+  }
+}
+
+// ArgosDocumentFileBinding is one archive file joined to its per-file
+// analysis outcome. Deliberately filename-keyed: the platform-internal
+// content digest is NOT exposed here, since an unsalted digest of
+// customer-authored content would let any org reader test whether exact
+// candidate content was uploaded (a content-membership oracle bypassing
+// the gated plaintext path).
+message ArgosDocumentFileBinding {
+  // filename is the archive-relative path from the manifest.
+  string filename = 1;
+
+  // status is the analysis outcome attributable to this file.
+  Status status = 3;
+
+  // cgp_ids are the Chainguard vulnerability identifiers (CGP-...) this
+  // file's analysis resolved to, sorted.
+  repeated string cgp_ids = 4;
+
+  enum Status {
+    // No per-file outcome is attributable: the file was not analyzed as its
+    // own unit, or the analysis predates per-file tracking.
+    STATUS_UNSPECIFIED = 0;
+    // Analysis is still in progress.
+    STATUS_PENDING = 1;
+    // Analysis completed; cgp_ids carries any identifiers it resolved.
+    STATUS_ANALYZED = 2;
+    // Analysis failed for this file.
+    STATUS_FAILED = 3;
   }
 }
 
