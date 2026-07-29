@@ -23,6 +23,171 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// ChartCatalog selects which managed chart catalog a FindChart lookup targets.
+// The server maps the selector to the environment's catalog folder UIDP, so
+// clients never carry environment-specific catalog UIDPs.
+type ChartCatalog int32
+
+const (
+	ChartCatalog_CHART_CATALOG_UNSPECIFIED ChartCatalog = 0
+	// The community chart catalog (the default).
+	ChartCatalog_CHART_CATALOG_COMMUNITY ChartCatalog = 1
+	// The iamguarded chart catalog.
+	ChartCatalog_CHART_CATALOG_IAMGUARDED ChartCatalog = 2
+)
+
+// Enum value maps for ChartCatalog.
+var (
+	ChartCatalog_name = map[int32]string{
+		0: "CHART_CATALOG_UNSPECIFIED",
+		1: "CHART_CATALOG_COMMUNITY",
+		2: "CHART_CATALOG_IAMGUARDED",
+	}
+	ChartCatalog_value = map[string]int32{
+		"CHART_CATALOG_UNSPECIFIED": 0,
+		"CHART_CATALOG_COMMUNITY":   1,
+		"CHART_CATALOG_IAMGUARDED":  2,
+	}
+)
+
+func (x ChartCatalog) Enum() *ChartCatalog {
+	p := new(ChartCatalog)
+	*p = x
+	return p
+}
+
+func (x ChartCatalog) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ChartCatalog) Descriptor() protoreflect.EnumDescriptor {
+	return file_charts_platform_proto_enumTypes[0].Descriptor()
+}
+
+func (ChartCatalog) Type() protoreflect.EnumType {
+	return &file_charts_platform_proto_enumTypes[0]
+}
+
+func (x ChartCatalog) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ChartCatalog.Descriptor instead.
+func (ChartCatalog) EnumDescriptor() ([]byte, []int) {
+	return file_charts_platform_proto_rawDescGZIP(), []int{0}
+}
+
+// FindChartRequest resolves a chart name within a managed catalog.
+type FindChartRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Which managed chart catalog to search.
+	Catalog ChartCatalog `protobuf:"varint,1,opt,name=catalog,proto3,enum=chainguard.platform.registry.ChartCatalog" json:"catalog,omitempty"`
+	// The chart name to resolve (e.g. "argo-cd").
+	Name          string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FindChartRequest) Reset() {
+	*x = FindChartRequest{}
+	mi := &file_charts_platform_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FindChartRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FindChartRequest) ProtoMessage() {}
+
+func (x *FindChartRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_charts_platform_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FindChartRequest.ProtoReflect.Descriptor instead.
+func (*FindChartRequest) Descriptor() ([]byte, []int) {
+	return file_charts_platform_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *FindChartRequest) GetCatalog() ChartCatalog {
+	if x != nil {
+		return x.Catalog
+	}
+	return ChartCatalog_CHART_CATALOG_UNSPECIFIED
+}
+
+func (x *FindChartRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+// FindChartResponse carries the resolved source chart repo.
+type FindChartResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The UIDP of the resolved source chart repo, suitable for
+	// AddChartRequest.source_repo_id.
+	SourceRepoId string `protobuf:"bytes,1,opt,name=source_repo_id,json=sourceRepoId,proto3" json:"source_repo_id,omitempty"`
+	// The resolved chart name.
+	Name          string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FindChartResponse) Reset() {
+	*x = FindChartResponse{}
+	mi := &file_charts_platform_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FindChartResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FindChartResponse) ProtoMessage() {}
+
+func (x *FindChartResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_charts_platform_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FindChartResponse.ProtoReflect.Descriptor instead.
+func (*FindChartResponse) Descriptor() ([]byte, []int) {
+	return file_charts_platform_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *FindChartResponse) GetSourceRepoId() string {
+	if x != nil {
+		return x.SourceRepoId
+	}
+	return ""
+}
+
+func (x *FindChartResponse) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
 type AddChartRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The UIDP of the destination organization.
@@ -40,7 +205,7 @@ type AddChartRequest struct {
 
 func (x *AddChartRequest) Reset() {
 	*x = AddChartRequest{}
-	mi := &file_charts_platform_proto_msgTypes[0]
+	mi := &file_charts_platform_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -52,7 +217,7 @@ func (x *AddChartRequest) String() string {
 func (*AddChartRequest) ProtoMessage() {}
 
 func (x *AddChartRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_charts_platform_proto_msgTypes[0]
+	mi := &file_charts_platform_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -65,7 +230,7 @@ func (x *AddChartRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddChartRequest.ProtoReflect.Descriptor instead.
 func (*AddChartRequest) Descriptor() ([]byte, []int) {
-	return file_charts_platform_proto_rawDescGZIP(), []int{0}
+	return file_charts_platform_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *AddChartRequest) GetParentId() string {
@@ -106,7 +271,7 @@ type AddChartResponse struct {
 
 func (x *AddChartResponse) Reset() {
 	*x = AddChartResponse{}
-	mi := &file_charts_platform_proto_msgTypes[1]
+	mi := &file_charts_platform_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -118,7 +283,7 @@ func (x *AddChartResponse) String() string {
 func (*AddChartResponse) ProtoMessage() {}
 
 func (x *AddChartResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_charts_platform_proto_msgTypes[1]
+	mi := &file_charts_platform_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -131,7 +296,7 @@ func (x *AddChartResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddChartResponse.ProtoReflect.Descriptor instead.
 func (*AddChartResponse) Descriptor() ([]byte, []int) {
-	return file_charts_platform_proto_rawDescGZIP(), []int{1}
+	return file_charts_platform_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *AddChartResponse) GetRepos() []*AddChartResult {
@@ -162,7 +327,7 @@ type AddChartResult struct {
 
 func (x *AddChartResult) Reset() {
 	*x = AddChartResult{}
-	mi := &file_charts_platform_proto_msgTypes[2]
+	mi := &file_charts_platform_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -174,7 +339,7 @@ func (x *AddChartResult) String() string {
 func (*AddChartResult) ProtoMessage() {}
 
 func (x *AddChartResult) ProtoReflect() protoreflect.Message {
-	mi := &file_charts_platform_proto_msgTypes[2]
+	mi := &file_charts_platform_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -187,7 +352,7 @@ func (x *AddChartResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddChartResult.ProtoReflect.Descriptor instead.
 func (*AddChartResult) Descriptor() ([]byte, []int) {
-	return file_charts_platform_proto_rawDescGZIP(), []int{2}
+	return file_charts_platform_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *AddChartResult) GetName() string {
@@ -215,7 +380,13 @@ var File_charts_platform_proto protoreflect.FileDescriptor
 
 const file_charts_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x15charts.platform.proto\x12\x1cchainguard.platform.registry\x1a\x1cgoogle/api/annotations.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\"\x87\x01\n" +
+	"\x15charts.platform.proto\x12\x1cchainguard.platform.registry\x1a\x1cgoogle/api/annotations.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\"l\n" +
+	"\x10FindChartRequest\x12D\n" +
+	"\acatalog\x18\x01 \x01(\x0e2*.chainguard.platform.registry.ChartCatalogR\acatalog\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"M\n" +
+	"\x11FindChartResponse\x12$\n" +
+	"\x0esource_repo_id\x18\x01 \x01(\tR\fsourceRepoId\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\x87\x01\n" +
 	"\x0fAddChartRequest\x12#\n" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12$\n" +
 	"\x0esource_repo_id\x18\x02 \x01(\tR\fsourceRepoId\x12\x17\n" +
@@ -226,11 +397,17 @@ const file_charts_platform_proto_rawDesc = "" +
 	"\x0eAddChartResult\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\acreated\x18\x02 \x01(\bR\acreated\x12\x0e\n" +
-	"\x02id\x18\x03 \x01(\tR\x02id2\xfd\x01\n" +
+	"\x02id\x18\x03 \x01(\tR\x02id*h\n" +
+	"\fChartCatalog\x12\x1d\n" +
+	"\x19CHART_CATALOG_UNSPECIFIED\x10\x00\x12\x1b\n" +
+	"\x17CHART_CATALOG_COMMUNITY\x10\x01\x12\x1c\n" +
+	"\x18CHART_CATALOG_IAMGUARDED\x10\x022\x9c\x03\n" +
 	"\x06Charts\x12\xf2\x01\n" +
 	"\bAddChart\x12-.chainguard.platform.registry.AddChartRequest\x1a..chainguard.platform.registry.AddChartResponse\"\x86\x01\x82\xd3\xe4\x93\x02/:\x01*\"*/registry/v1/repos/{parent_id=**}:addChart\x8a\xaf\xa8\xd2\x05\a\x12\x05\n" +
 	"\x03\xc3\fe\xc2\xf0\x8e\xfc\v>\n" +
-	"3dev.chainguard.api.platform.registry.chart.added.v1\x12\x05group\x18\x01B/Z-chainguard.dev/sdk/proto/platform/registry/v1b\x06proto3"
+	"3dev.chainguard.api.platform.registry.chart.added.v1\x12\x05group\x18\x01\x12\x9c\x01\n" +
+	"\tFindChart\x12..chainguard.platform.registry.FindChartRequest\x1a/.chainguard.platform.registry.FindChartResponse\".\x82\xd3\xe4\x93\x02\x1a\x12\x18/registry/v1/charts:find\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02\xc5\f\x10\x01B/Z-chainguard.dev/sdk/proto/platform/registry/v1b\x06proto3"
 
 var (
 	file_charts_platform_proto_rawDescOnce sync.Once
@@ -244,21 +421,28 @@ func file_charts_platform_proto_rawDescGZIP() []byte {
 	return file_charts_platform_proto_rawDescData
 }
 
-var file_charts_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_charts_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_charts_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_charts_platform_proto_goTypes = []any{
-	(*AddChartRequest)(nil),  // 0: chainguard.platform.registry.AddChartRequest
-	(*AddChartResponse)(nil), // 1: chainguard.platform.registry.AddChartResponse
-	(*AddChartResult)(nil),   // 2: chainguard.platform.registry.AddChartResult
+	(ChartCatalog)(0),         // 0: chainguard.platform.registry.ChartCatalog
+	(*FindChartRequest)(nil),  // 1: chainguard.platform.registry.FindChartRequest
+	(*FindChartResponse)(nil), // 2: chainguard.platform.registry.FindChartResponse
+	(*AddChartRequest)(nil),   // 3: chainguard.platform.registry.AddChartRequest
+	(*AddChartResponse)(nil),  // 4: chainguard.platform.registry.AddChartResponse
+	(*AddChartResult)(nil),    // 5: chainguard.platform.registry.AddChartResult
 }
 var file_charts_platform_proto_depIdxs = []int32{
-	2, // 0: chainguard.platform.registry.AddChartResponse.repos:type_name -> chainguard.platform.registry.AddChartResult
-	0, // 1: chainguard.platform.registry.Charts.AddChart:input_type -> chainguard.platform.registry.AddChartRequest
-	1, // 2: chainguard.platform.registry.Charts.AddChart:output_type -> chainguard.platform.registry.AddChartResponse
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	0, // 0: chainguard.platform.registry.FindChartRequest.catalog:type_name -> chainguard.platform.registry.ChartCatalog
+	5, // 1: chainguard.platform.registry.AddChartResponse.repos:type_name -> chainguard.platform.registry.AddChartResult
+	3, // 2: chainguard.platform.registry.Charts.AddChart:input_type -> chainguard.platform.registry.AddChartRequest
+	1, // 3: chainguard.platform.registry.Charts.FindChart:input_type -> chainguard.platform.registry.FindChartRequest
+	4, // 4: chainguard.platform.registry.Charts.AddChart:output_type -> chainguard.platform.registry.AddChartResponse
+	2, // 5: chainguard.platform.registry.Charts.FindChart:output_type -> chainguard.platform.registry.FindChartResponse
+	4, // [4:6] is the sub-list for method output_type
+	2, // [2:4] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_charts_platform_proto_init() }
@@ -271,13 +455,14 @@ func file_charts_platform_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_charts_platform_proto_rawDesc), len(file_charts_platform_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   3,
+			NumEnums:      1,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_charts_platform_proto_goTypes,
 		DependencyIndexes: file_charts_platform_proto_depIdxs,
+		EnumInfos:         file_charts_platform_proto_enumTypes,
 		MessageInfos:      file_charts_platform_proto_msgTypes,
 	}.Build()
 	File_charts_platform_proto = out.File

@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Charts_AddChart_FullMethodName = "/chainguard.platform.registry.Charts/AddChart"
+	Charts_AddChart_FullMethodName  = "/chainguard.platform.registry.Charts/AddChart"
+	Charts_FindChart_FullMethodName = "/chainguard.platform.registry.Charts/FindChart"
 )
 
 // ChartsClient is the client API for Charts service.
@@ -29,6 +30,12 @@ type ChartsClient interface {
 	// AddChart adds a Helm chart and its image dependencies as synced repos in
 	// the destination organization.
 	AddChart(ctx context.Context, in *AddChartRequest, opts ...grpc.CallOption) (*AddChartResponse, error)
+	// FindChart resolves a chart name to its source repo within a managed chart
+	// catalog. The lookup runs server-side under the catalog identity, so callers
+	// need no catalog-scoped credentials; the returned source_repo_id is then
+	// passed to AddChart. Mirrors the browse-then-add flow the console performs
+	// via the graphql catalog interceptor.
+	FindChart(ctx context.Context, in *FindChartRequest, opts ...grpc.CallOption) (*FindChartResponse, error)
 }
 
 type chartsClient struct {
@@ -49,6 +56,16 @@ func (c *chartsClient) AddChart(ctx context.Context, in *AddChartRequest, opts .
 	return out, nil
 }
 
+func (c *chartsClient) FindChart(ctx context.Context, in *FindChartRequest, opts ...grpc.CallOption) (*FindChartResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FindChartResponse)
+	err := c.cc.Invoke(ctx, Charts_FindChart_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ChartsServer is the server API for Charts service.
 // All implementations must embed UnimplementedChartsServer
 // for forward compatibility.
@@ -56,6 +73,12 @@ type ChartsServer interface {
 	// AddChart adds a Helm chart and its image dependencies as synced repos in
 	// the destination organization.
 	AddChart(context.Context, *AddChartRequest) (*AddChartResponse, error)
+	// FindChart resolves a chart name to its source repo within a managed chart
+	// catalog. The lookup runs server-side under the catalog identity, so callers
+	// need no catalog-scoped credentials; the returned source_repo_id is then
+	// passed to AddChart. Mirrors the browse-then-add flow the console performs
+	// via the graphql catalog interceptor.
+	FindChart(context.Context, *FindChartRequest) (*FindChartResponse, error)
 	mustEmbedUnimplementedChartsServer()
 }
 
@@ -68,6 +91,9 @@ type UnimplementedChartsServer struct{}
 
 func (UnimplementedChartsServer) AddChart(context.Context, *AddChartRequest) (*AddChartResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method AddChart not implemented")
+}
+func (UnimplementedChartsServer) FindChart(context.Context, *FindChartRequest) (*FindChartResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method FindChart not implemented")
 }
 func (UnimplementedChartsServer) mustEmbedUnimplementedChartsServer() {}
 func (UnimplementedChartsServer) testEmbeddedByValue()                {}
@@ -108,6 +134,24 @@ func _Charts_AddChart_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Charts_FindChart_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindChartRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChartsServer).FindChart(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Charts_FindChart_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChartsServer).FindChart(ctx, req.(*FindChartRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Charts_ServiceDesc is the grpc.ServiceDesc for Charts service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -118,6 +162,10 @@ var Charts_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddChart",
 			Handler:    _Charts_AddChart_Handler,
+		},
+		{
+			MethodName: "FindChart",
+			Handler:    _Charts_FindChart_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

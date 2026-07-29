@@ -27,6 +27,54 @@ service Charts {
       audience: CUSTOMER
     };
   }
+
+  // FindChart resolves a chart name to its source repo within a managed chart
+  // catalog. The lookup runs server-side under the catalog identity, so callers
+  // need no catalog-scoped credentials; the returned source_repo_id is then
+  // passed to AddChart. Mirrors the browse-then-add flow the console performs
+  // via the graphql catalog interceptor.
+  rpc FindChart(FindChartRequest) returns (FindChartResponse) {
+    option (google.api.http) = {
+      get: "/registry/v1/charts:find"
+    };
+    // The catalog read is performed under the catalog identity; the caller only
+    // needs to be an authenticated principal (unscoped CAP_REPO_LIST), not to
+    // hold any capability on the private catalog folders.
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST]
+        unscoped: true
+      }
+    };
+  }
+}
+
+// ChartCatalog selects which managed chart catalog a FindChart lookup targets.
+// The server maps the selector to the environment's catalog folder UIDP, so
+// clients never carry environment-specific catalog UIDPs.
+enum ChartCatalog {
+  CHART_CATALOG_UNSPECIFIED = 0;
+  // The community chart catalog (the default).
+  CHART_CATALOG_COMMUNITY = 1;
+  // The iamguarded chart catalog.
+  CHART_CATALOG_IAMGUARDED = 2;
+}
+
+// FindChartRequest resolves a chart name within a managed catalog.
+message FindChartRequest {
+  // Which managed chart catalog to search.
+  ChartCatalog catalog = 1;
+  // The chart name to resolve (e.g. "argo-cd").
+  string name = 2;
+}
+
+// FindChartResponse carries the resolved source chart repo.
+message FindChartResponse {
+  // The UIDP of the resolved source chart repo, suitable for
+  // AddChartRequest.source_repo_id.
+  string source_repo_id = 1;
+  // The resolved chart name.
+  string name = 2;
 }
 
 message AddChartRequest {
