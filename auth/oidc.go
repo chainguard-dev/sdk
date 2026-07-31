@@ -108,6 +108,41 @@ func ExtractEmail(token string) (email string, verified bool, err error) {
 	return payload.Email, payload.EmailVerified, nil
 }
 
+// audienceClaim decodes the JWT "aud" claim, which per RFC 7519 may be encoded
+// either as a single string or as an array of strings.
+type audienceClaim []string
+
+func (a *audienceClaim) UnmarshalJSON(b []byte) error {
+	var s string
+	if err := json.Unmarshal(b, &s); err == nil {
+		*a = []string{s}
+		return nil
+	}
+	var ss []string
+	if err := json.Unmarshal(b, &ss); err != nil {
+		return err
+	}
+	*a = ss
+	return nil
+}
+
+// ExtractAudiences returns the "aud" claim from the given token. The aud claim
+// may be a single string or an array of strings; all values are returned.
+func ExtractAudiences(token string) ([]string, error) {
+	raw, err := decodeToken(token)
+	if err != nil {
+		return nil, err
+	}
+
+	var payload struct {
+		Audience audienceClaim `json:"aud"`
+	}
+	if err := json.Unmarshal(raw, &payload); err != nil {
+		return nil, fmt.Errorf("oidc: failed to unmarshal claims: %w", err)
+	}
+	return payload.Audience, nil
+}
+
 func ExtractIssuer(token string) (string, error) {
 	iss, _, err := ExtractIssuerAndSubject(token)
 	return iss, err

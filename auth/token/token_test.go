@@ -239,6 +239,76 @@ func TestDelete(t *testing.T) {
 	}
 }
 
+func TestListAudiences(t *testing.T) {
+	now := time.Now()
+
+	t.Run("no cache dir yet", func(t *testing.T) {
+		t.Setenv("HOME", t.TempDir())
+		got, err := ListAudiences()
+		if err != nil {
+			t.Fatalf("ListAudiences() = %v", err)
+		}
+		if len(got) != 0 {
+			t.Errorf("ListAudiences() = %v, want empty", got)
+		}
+	})
+
+	t.Run("recovers real audiences from token claims", func(t *testing.T) {
+		t.Setenv("HOME", t.TempDir())
+
+		// Audiences include "/" which is lossily munged in the on-disk
+		// directory name; ListAudiences must recover the original from the
+		// token's "aud" claim.
+		auds := []string{
+			"https://console-api.enforce.dev",
+			"cgr.dev",
+		}
+		for _, aud := range auds {
+			tok := testToken(t, aud, "subject", now, time.Hour)
+			if err := Save([]byte(tok), KindAccess, aud); err != nil {
+				t.Fatalf("Save(%q) = %v", aud, err)
+			}
+			// A refresh token alongside it should not produce a duplicate or
+			// a spurious entry.
+			rt := testRefreshToken(t, "issuer", aud, "subject", now, time.Hour)
+			if err := Save([]byte(rt), KindRefresh, aud); err != nil {
+				t.Fatalf("Save(refresh %q) = %v", aud, err)
+			}
+		}
+
+		got, err := ListAudiences()
+		if err != nil {
+			t.Fatalf("ListAudiences() = %v", err)
+		}
+		want := []string{"cgr.dev", "https://console-api.enforce.dev"} // sorted
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("ListAudiences() mismatch (-want +got):\n%s", diff)
+		}
+	})
+
+	t.Run("skips unparseable token files", func(t *testing.T) {
+		t.Setenv("HOME", t.TempDir())
+
+		tok := testToken(t, "good.aud", "subject", now, time.Hour)
+		if err := Save([]byte(tok), KindAccess, "good.aud"); err != nil {
+			t.Fatalf("Save() = %v", err)
+		}
+		// Write a garbage oidc-token that is not a valid JWT.
+		if err := Save([]byte("not-a-jwt"), KindAccess, "bad.aud"); err != nil {
+			t.Fatalf("Save() = %v", err)
+		}
+
+		got, err := ListAudiences()
+		if err != nil {
+			t.Fatalf("ListAudiences() = %v", err)
+		}
+		want := []string{"good.aud"}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("ListAudiences() mismatch (-want +got):\n%s", diff)
+		}
+	})
+}
+
 func TestDeleteAll(t *testing.T) {
 	tests := []struct {
 		name           string

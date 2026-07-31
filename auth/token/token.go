@@ -180,6 +180,58 @@ func DeleteAll() error {
 	return nil
 }
 
+// ListAudiences returns the set of audiences for which an access token
+// (KindAccess) currently exists in the local token cache.
+//
+// Audiences are recovered from each token's "aud" claim rather than from the
+// on-disk directory name, since the directory name is a lossy encoding of the
+// audience (e.g. "/" is replaced with "-"). The returned slice is sorted and
+// de-duplicated. Files that cannot be read or parsed as tokens are skipped.
+func ListAudiences() ([]string, error) {
+	base, err := cacheFilePath("")
+	if err != nil {
+		return nil, fmt.Errorf("error locating Chainguard token dir: %w", err)
+	}
+
+	seen := map[string]struct{}{}
+	if err := filepath.WalkDir(base, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			// The cache dir may not exist yet; treat as no audiences.
+			if errors.Is(err, os.ErrNotExist) {
+				return nil
+			}
+			return err
+		}
+		if d.IsDir() || d.Name() != string(KindAccess) {
+			return nil
+		}
+		raw, err := os.ReadFile(path) //nolint:gosec // G304: reading user's own token cache
+		if err != nil {
+			return fmt.Errorf("reading %s: %w", path, err)
+		}
+		auds, err := auth.ExtractAudiences(string(raw))
+		if err != nil {
+			// Skip files we can't parse as a token.
+			return nil //nolint:nilerr
+		}
+		for _, aud := range auds {
+			if aud != "" {
+				seen[aud] = struct{}{}
+			}
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	auds := make([]string, 0, len(seen))
+	for a := range seen {
+		auds = append(auds, a)
+	}
+	sort.Strings(auds)
+	return auds, nil
+}
+
 // Path is the filepath of the token for the given audience.
 func Path(kind Kind, audience string, opts ...Option) (string, error) {
 	t := newToken(opts...)
