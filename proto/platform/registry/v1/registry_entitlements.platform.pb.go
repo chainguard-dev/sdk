@@ -969,9 +969,14 @@ type GetEffectiveEntitlementsResponse struct {
 	// Customer-initiated catalog-image removals in the current rolling 30-day
 	// window. When this exceeds swap_quota, the excess reduces the per-tier
 	// image capacity available for new additions.
-	SwapsUsed     int32 `protobuf:"varint,7,opt,name=swaps_used,json=swapsUsed,proto3" json:"swaps_used,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	SwapsUsed int32 `protobuf:"varint,7,opt,name=swaps_used,json=swapsUsed,proto3" json:"swaps_used,omitempty"`
+	// Time at which the next swap becomes available. Set only when no swaps are
+	// available now (swaps_used >= swap_quota); unset when a swap is already
+	// available or when the quota is either 0 or unlimited.
+	// Clients should check swap_quota first before using this field.
+	SwapRefillTime *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=swap_refill_time,json=swapRefillTime,proto3" json:"swap_refill_time,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *GetEffectiveEntitlementsResponse) Reset() {
@@ -1051,6 +1056,13 @@ func (x *GetEffectiveEntitlementsResponse) GetSwapsUsed() int32 {
 		return x.SwapsUsed
 	}
 	return 0
+}
+
+func (x *GetEffectiveEntitlementsResponse) GetSwapRefillTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.SwapRefillTime
+	}
+	return nil
 }
 
 type AddEntitlementImagesRequest struct {
@@ -1439,7 +1451,7 @@ const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\x04type\x18\x04 \x01(\x0e2..chainguard.platform.registry.Entitlement.TypeR\x04type\x12C\n" +
 	"\x0fexpiration_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x0eexpirationTime\"A\n" +
 	"\x1fGetEffectiveEntitlementsRequest\x12\x1e\n" +
-	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\xa7\x04\n" +
+	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\xed\x04\n" +
 	" GetEffectiveEntitlementsResponse\x126\n" +
 	"\x04plan\x18\x01 \x01(\x0e2\".chainguard.platform.registry.PlanR\x04plan\x12L\n" +
 	"\factive_tiers\x18\x02 \x03(\x0e2).chainguard.platform.registry.CatalogTierR\vactiveTiers\x12P\n" +
@@ -1449,7 +1461,8 @@ const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\n" +
 	"swap_quota\x18\x06 \x01(\x05R\tswapQuota\x12\x1d\n" +
 	"\n" +
-	"swaps_used\x18\a \x01(\x05R\tswapsUsed\x1ab\n" +
+	"swaps_used\x18\a \x01(\x05R\tswapsUsed\x12D\n" +
+	"\x10swap_refill_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\x0eswapRefillTime\x1ab\n" +
 	"\n" +
 	"QuotaEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12>\n" +
@@ -1576,36 +1589,37 @@ var file_registry_entitlements_platform_proto_depIdxs = []int32{
 	26, // 16: chainguard.platform.registry.GetEffectiveEntitlementsResponse.active_tiers:type_name -> chainguard.platform.registry.CatalogTier
 	15, // 17: chainguard.platform.registry.GetEffectiveEntitlementsResponse.active_images:type_name -> chainguard.platform.registry.EntitledImage
 	24, // 18: chainguard.platform.registry.GetEffectiveEntitlementsResponse.quota:type_name -> chainguard.platform.registry.GetEffectiveEntitlementsResponse.QuotaEntry
-	15, // 19: chainguard.platform.registry.AddEntitlementImagesResponse.images:type_name -> chainguard.platform.registry.EntitledImage
-	15, // 20: chainguard.platform.registry.RemoveEntitlementImagesResponse.images:type_name -> chainguard.platform.registry.EntitledImage
-	3,  // 21: chainguard.platform.registry.Entitlement.QuotaEntry.value:type_name -> chainguard.platform.registry.ImageQuota
-	3,  // 22: chainguard.platform.registry.EntitlementSummaryResponse.QuotaEntry.value:type_name -> chainguard.platform.registry.ImageQuota
-	3,  // 23: chainguard.platform.registry.GetEffectiveEntitlementsResponse.QuotaEntry.value:type_name -> chainguard.platform.registry.ImageQuota
-	4,  // 24: chainguard.platform.registry.Entitlements.ListEntitlements:input_type -> chainguard.platform.registry.EntitlementFilter
-	7,  // 25: chainguard.platform.registry.Entitlements.ListEntitlementImages:input_type -> chainguard.platform.registry.EntitlementImagesFilter
-	7,  // 26: chainguard.platform.registry.Entitlements.ListEntitlementCatalogImages:input_type -> chainguard.platform.registry.EntitlementImagesFilter
-	9,  // 27: chainguard.platform.registry.Entitlements.Summary:input_type -> chainguard.platform.registry.EntitlementSummaryRequest
-	16, // 28: chainguard.platform.registry.Entitlements.GetEffectiveEntitlements:input_type -> chainguard.platform.registry.GetEffectiveEntitlementsRequest
-	11, // 29: chainguard.platform.registry.Entitlements.GetFeatures:input_type -> chainguard.platform.registry.GetFeaturesRequest
-	13, // 30: chainguard.platform.registry.Entitlements.CreateEntitlement:input_type -> chainguard.platform.registry.CreateEntitlementRequest
-	14, // 31: chainguard.platform.registry.Entitlements.DeleteEntitlement:input_type -> chainguard.platform.registry.DeleteEntitlementRequest
-	18, // 32: chainguard.platform.registry.Entitlements.AddEntitlementImages:input_type -> chainguard.platform.registry.AddEntitlementImagesRequest
-	20, // 33: chainguard.platform.registry.Entitlements.RemoveEntitlementImages:input_type -> chainguard.platform.registry.RemoveEntitlementImagesRequest
-	5,  // 34: chainguard.platform.registry.Entitlements.ListEntitlements:output_type -> chainguard.platform.registry.EntitlementList
-	8,  // 35: chainguard.platform.registry.Entitlements.ListEntitlementImages:output_type -> chainguard.platform.registry.EntitlementImagesList
-	8,  // 36: chainguard.platform.registry.Entitlements.ListEntitlementCatalogImages:output_type -> chainguard.platform.registry.EntitlementImagesList
-	10, // 37: chainguard.platform.registry.Entitlements.Summary:output_type -> chainguard.platform.registry.EntitlementSummaryResponse
-	17, // 38: chainguard.platform.registry.Entitlements.GetEffectiveEntitlements:output_type -> chainguard.platform.registry.GetEffectiveEntitlementsResponse
-	12, // 39: chainguard.platform.registry.Entitlements.GetFeatures:output_type -> chainguard.platform.registry.GetFeaturesResponse
-	2,  // 40: chainguard.platform.registry.Entitlements.CreateEntitlement:output_type -> chainguard.platform.registry.Entitlement
-	27, // 41: chainguard.platform.registry.Entitlements.DeleteEntitlement:output_type -> google.protobuf.Empty
-	19, // 42: chainguard.platform.registry.Entitlements.AddEntitlementImages:output_type -> chainguard.platform.registry.AddEntitlementImagesResponse
-	21, // 43: chainguard.platform.registry.Entitlements.RemoveEntitlementImages:output_type -> chainguard.platform.registry.RemoveEntitlementImagesResponse
-	34, // [34:44] is the sub-list for method output_type
-	24, // [24:34] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	25, // 19: chainguard.platform.registry.GetEffectiveEntitlementsResponse.swap_refill_time:type_name -> google.protobuf.Timestamp
+	15, // 20: chainguard.platform.registry.AddEntitlementImagesResponse.images:type_name -> chainguard.platform.registry.EntitledImage
+	15, // 21: chainguard.platform.registry.RemoveEntitlementImagesResponse.images:type_name -> chainguard.platform.registry.EntitledImage
+	3,  // 22: chainguard.platform.registry.Entitlement.QuotaEntry.value:type_name -> chainguard.platform.registry.ImageQuota
+	3,  // 23: chainguard.platform.registry.EntitlementSummaryResponse.QuotaEntry.value:type_name -> chainguard.platform.registry.ImageQuota
+	3,  // 24: chainguard.platform.registry.GetEffectiveEntitlementsResponse.QuotaEntry.value:type_name -> chainguard.platform.registry.ImageQuota
+	4,  // 25: chainguard.platform.registry.Entitlements.ListEntitlements:input_type -> chainguard.platform.registry.EntitlementFilter
+	7,  // 26: chainguard.platform.registry.Entitlements.ListEntitlementImages:input_type -> chainguard.platform.registry.EntitlementImagesFilter
+	7,  // 27: chainguard.platform.registry.Entitlements.ListEntitlementCatalogImages:input_type -> chainguard.platform.registry.EntitlementImagesFilter
+	9,  // 28: chainguard.platform.registry.Entitlements.Summary:input_type -> chainguard.platform.registry.EntitlementSummaryRequest
+	16, // 29: chainguard.platform.registry.Entitlements.GetEffectiveEntitlements:input_type -> chainguard.platform.registry.GetEffectiveEntitlementsRequest
+	11, // 30: chainguard.platform.registry.Entitlements.GetFeatures:input_type -> chainguard.platform.registry.GetFeaturesRequest
+	13, // 31: chainguard.platform.registry.Entitlements.CreateEntitlement:input_type -> chainguard.platform.registry.CreateEntitlementRequest
+	14, // 32: chainguard.platform.registry.Entitlements.DeleteEntitlement:input_type -> chainguard.platform.registry.DeleteEntitlementRequest
+	18, // 33: chainguard.platform.registry.Entitlements.AddEntitlementImages:input_type -> chainguard.platform.registry.AddEntitlementImagesRequest
+	20, // 34: chainguard.platform.registry.Entitlements.RemoveEntitlementImages:input_type -> chainguard.platform.registry.RemoveEntitlementImagesRequest
+	5,  // 35: chainguard.platform.registry.Entitlements.ListEntitlements:output_type -> chainguard.platform.registry.EntitlementList
+	8,  // 36: chainguard.platform.registry.Entitlements.ListEntitlementImages:output_type -> chainguard.platform.registry.EntitlementImagesList
+	8,  // 37: chainguard.platform.registry.Entitlements.ListEntitlementCatalogImages:output_type -> chainguard.platform.registry.EntitlementImagesList
+	10, // 38: chainguard.platform.registry.Entitlements.Summary:output_type -> chainguard.platform.registry.EntitlementSummaryResponse
+	17, // 39: chainguard.platform.registry.Entitlements.GetEffectiveEntitlements:output_type -> chainguard.platform.registry.GetEffectiveEntitlementsResponse
+	12, // 40: chainguard.platform.registry.Entitlements.GetFeatures:output_type -> chainguard.platform.registry.GetFeaturesResponse
+	2,  // 41: chainguard.platform.registry.Entitlements.CreateEntitlement:output_type -> chainguard.platform.registry.Entitlement
+	27, // 42: chainguard.platform.registry.Entitlements.DeleteEntitlement:output_type -> google.protobuf.Empty
+	19, // 43: chainguard.platform.registry.Entitlements.AddEntitlementImages:output_type -> chainguard.platform.registry.AddEntitlementImagesResponse
+	21, // 44: chainguard.platform.registry.Entitlements.RemoveEntitlementImages:output_type -> chainguard.platform.registry.RemoveEntitlementImagesResponse
+	35, // [35:45] is the sub-list for method output_type
+	25, // [25:35] is the sub-list for method input_type
+	25, // [25:25] is the sub-list for extension type_name
+	25, // [25:25] is the sub-list for extension extendee
+	0,  // [0:25] is the sub-list for field type_name
 }
 
 func init() { file_registry_entitlements_platform_proto_init() }

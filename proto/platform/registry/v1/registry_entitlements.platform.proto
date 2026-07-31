@@ -311,6 +311,11 @@ message GetEffectiveEntitlementsResponse {
   // window. When this exceeds swap_quota, the excess reduces the per-tier
   // image capacity available for new additions.
   int32 swaps_used = 7;
+  // Time at which the next swap becomes available. Set only when no swaps are
+  // available now (swaps_used >= swap_quota); unset when a swap is already
+  // available or when the quota is either 0 or unlimited.
+  // Clients should check swap_quota first before using this field.
+  google.protobuf.Timestamp swap_refill_time = 8;
 }
 
 message AddEntitlementImagesRequest {
