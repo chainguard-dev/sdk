@@ -36,50 +36,15 @@ func exchangeTimeout() time.Duration {
 
 // Token mints a new octo sts token based on the policy for a given repo.
 func Token(ctx context.Context, policyName, org, repo string) (string, error) {
-	if _, ok := ctx.Deadline(); !ok {
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(ctx, exchangeTimeout())
-		defer cancel()
-	}
-
-	// To help enable local development, we allow the use of a GitHub token,
-	// but *only when not running on GCE*.
-	if tok := os.Getenv("GH_TOKEN"); tok != "" && !metadata.OnGCE() {
-		clog.Warnf("using GH_TOKEN for token exchange")
-		return tok, nil
-	}
-	if tok := os.Getenv("GITHUB_TOKEN"); tok != "" && !metadata.OnGCE() {
-		clog.Warnf("using GITHUB_TOKEN for token exchange")
-		return tok, nil
-	}
-
-	scope := org
-	if repo != "" {
-		scope = fmt.Sprintf("%s/%s", org, repo)
-	}
-
-	xchg := sts.New(
-		OctoSTSEndpoint,
-		policyName,
-		sts.WithScope(scope),
-		sts.WithIdentity(policyName),
-	)
-
-	ts, err := idtoken.NewTokenSource(ctx, "octo-sts.dev" /* aud */)
+	ts, err := NewTokenSourceFromValues(ctx, policyName, org, repo)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create token source: %w", err)
 	}
 
-	token, err := ts.Token()
+	tok, err := ts.Token()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to fetch token: %w", err)
 	}
-
-	tok, err := xchg.Exchange(ctx, token.AccessToken)
-	if err != nil {
-		return "", err
-	}
-
 	return tok.AccessToken, nil
 }
 
@@ -107,8 +72,15 @@ func Revoke(ctx context.Context, tok string) error {
 
 // NewTokenSource creates an octoSTSTokenSource, similar to sts.NewTokenSource
 func NewTokenSource(ts oauth2.TokenSource, xchg sts.Exchanger) oauth2.TokenSource {
+	return NewTokenSourceContext(context.Background(), ts, xchg)
+}
+
+// NewTokenSource creates an octoSTSTokenSource, similar to sts.NewTokenSource.
+// The context is used for all token exchanges for the lifetime of the token source,
+// so it should be long-lived.
+func NewTokenSourceContext(ctx context.Context, ts oauth2.TokenSource, xchg sts.Exchanger) oauth2.TokenSource {
 	return &octoSTSTokenSource{
-		ctx:  context.Background(),
+		ctx:  ctx,
 		ts:   ts,
 		xchg: xchg,
 	}
@@ -120,6 +92,21 @@ func NewTokenSourceFromValues(ctx context.Context, policyName, org, repo string)
 	scope := org
 	if repo != "" {
 		scope = fmt.Sprintf("%s/%s", org, repo)
+	}
+
+	// To help enable local development, we allow the use of a GitHub token,
+	// but *only when not running on GCE*.
+	if tok := os.Getenv("GH_TOKEN"); tok != "" && !metadata.OnGCE() {
+		clog.WarnContextf(ctx, "using GH_TOKEN for token exchange")
+		return oauth2.StaticTokenSource(&oauth2.Token{
+			AccessToken: tok,
+		}), nil
+	}
+	if tok := os.Getenv("GITHUB_TOKEN"); tok != "" && !metadata.OnGCE() {
+		clog.WarnContextf(ctx, "using GITHUB_TOKEN for token exchange")
+		return oauth2.StaticTokenSource(&oauth2.Token{
+			AccessToken: tok,
+		}), nil
 	}
 
 	xchg := sts.New(
@@ -134,7 +121,7 @@ func NewTokenSourceFromValues(ctx context.Context, policyName, org, repo string)
 		return nil, err
 	}
 
-	return NewTokenSource(ts, xchg), nil
+	return oauth2.ReuseTokenSource(nil, NewTokenSourceContext(ctx, ts, xchg)), nil
 }
 
 type octoSTSTokenSource struct {
@@ -145,25 +132,37 @@ type octoSTSTokenSource struct {
 
 // Token implements oauth2.TokenSource
 func (sts *octoSTSTokenSource) Token() (*oauth2.Token, error) {
+	ctx := sts.ctx
+	if _, ok := ctx.Deadline(); !ok {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, exchangeTimeout())
+		defer cancel()
+	}
+
 	tok, err := sts.ts.Token()
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch base token: %w", err)
 	}
 
-	idt, err := sts.xchg.Exchange(sts.ctx, tok.AccessToken)
+	idt, err := sts.xchg.Exchange(ctx, tok.AccessToken)
 	if err != nil {
 		return nil, fmt.Errorf("failed to exchange base token: %w", err)
 	}
 
 	accessToken := idt.AccessToken
 
-	return &oauth2.Token{
-		AccessToken: accessToken,
+	exp := idt.Expiry
+	if exp.IsZero() {
+		// If the Exchanger doesn't provide an expiry time, we set a default expiry time of 20 minutes from now.
 		// This is an approximation, as we don't have the actual expiry time from the Exchanger.
 		// Tokens are usually valid for 1 hour, but we refresh at the 20-minute mark so we
 		// pick up fresh tokens more often, rather than staying stuck with a noisy quota
 		// neighbor for the full hour.
-		// TODO: Return exact expiry time from the Exchanger if available.
-		Expiry: time.Now().Add(20 * time.Minute),
+		exp = time.Now().Add(20 * time.Minute)
+	}
+
+	return &oauth2.Token{
+		AccessToken: accessToken,
+		Expiry:      exp,
 	}, nil
 }
