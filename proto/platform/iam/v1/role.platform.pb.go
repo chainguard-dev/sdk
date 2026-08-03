@@ -316,7 +316,7 @@ var File_role_platform_proto protoreflect.FileDescriptor
 
 const file_role_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x13role.platform.proto\x12\x17chainguard.platform.iam\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16annotations/auth.proto\x1a&platform/common/v1/uidp.platform.proto\"x\n" +
+	"\x13role.platform.proto\x12\x17chainguard.platform.iam\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a&platform/common/v1/uidp.platform.proto\"x\n" +
 	"\x04Role\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -334,16 +334,19 @@ const file_role_platform_proto_rawDesc = "" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x121\n" +
 	"\x04role\x18\x02 \x01(\v2\x1d.chainguard.platform.iam.RoleR\x04role\"+\n" +
 	"\x11DeleteRoleRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id2\xf9\x03\n" +
-	"\x05Roles\x12\x8b\x01\n" +
-	"\x06Create\x12*.chainguard.platform.iam.CreateRoleRequest\x1a\x1d.chainguard.platform.iam.Role\"6\x82\xd3\xe4\x93\x02$:\x04role\"\x1c/iam/v1/roles/{parent_id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xad\x02\x12t\n" +
-	"\x06Update\x12\x1d.chainguard.platform.iam.Role\x1a\x1d.chainguard.platform.iam.Role\",\x82\xd3\xe4\x93\x02\x1a:\x01*\x1a\x15/iam/v1/roles/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xae\x02\x12s\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id2\xa3\x05\n" +
+	"\x05Roles\x12\xc3\x01\n" +
+	"\x06Create\x12*.chainguard.platform.iam.CreateRoleRequest\x1a\x1d.chainguard.platform.iam.Role\"n\x82\xd3\xe4\x93\x02$:\x04role\"\x1c/iam/v1/roles/{parent_id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xad\x02\xc2\xf0\x8e\xfc\v2\n" +
+	"'dev.chainguard.api.iam.roles.created.v1\x12\x05group\x18\x01\x12\xac\x01\n" +
+	"\x06Update\x12\x1d.chainguard.platform.iam.Role\x1a\x1d.chainguard.platform.iam.Role\"d\x82\xd3\xe4\x93\x02\x1a:\x01*\x1a\x15/iam/v1/roles/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xae\x02\xc2\xf0\x8e\xfc\v2\n" +
+	"'dev.chainguard.api.iam.roles.updated.v1\x12\x05group\x18\x01\x12s\n" +
 	"\x04List\x12#.chainguard.platform.iam.RoleFilter\x1a!.chainguard.platform.iam.RoleList\"#\x82\xd3\xe4\x93\x02\x0f\x12\r/iam/v1/roles\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x02\xaf\x02\x10\x01\x12w\n" +
-	"\x06Delete\x12*.chainguard.platform.iam.DeleteRoleRequest\x1a\x16.google.protobuf.Empty\")\x82\xd3\xe4\x93\x02\x17*\x15/iam/v1/roles/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xb0\x02B*Z(chainguard.dev/sdk/proto/platform/iam/v1b\x06proto3"
+	"\x02\xaf\x02\x10\x01\x12\xaf\x01\n" +
+	"\x06Delete\x12*.chainguard.platform.iam.DeleteRoleRequest\x1a\x16.google.protobuf.Empty\"a\x82\xd3\xe4\x93\x02\x17*\x15/iam/v1/roles/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xb0\x02\xc2\xf0\x8e\xfc\v2\n" +
+	"'dev.chainguard.api.iam.roles.deleted.v1\x12\x05group\x18\x01B*Z(chainguard.dev/sdk/proto/platform/iam/v1b\x06proto3"
 
 var (
 	file_role_platform_proto_rawDescOnce sync.Once

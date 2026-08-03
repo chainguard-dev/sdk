@@ -7,6 +7,7 @@ package chainguard.platform.iam;
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "annotations/auth.proto";
+import "annotations/events.proto";
 import "platform/common/v1/uidp.platform.proto";
 
 service Roles {
@@ -20,6 +21,11 @@ service Roles {
         capabilities: [CAP_IAM_ROLES_CREATE]
       }
     };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.roles.created.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
   }
 
   rpc Update(Role) returns (Role) {
@@ -31,6 +37,11 @@ service Roles {
       enabled: {
         capabilities: [CAP_IAM_ROLES_UPDATE]
       }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.roles.updated.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
     };
   }
 
@@ -54,6 +65,11 @@ service Roles {
       enabled: {
         capabilities: [CAP_IAM_ROLES_DELETE]
       }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.roles.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
     };
   }
 }
