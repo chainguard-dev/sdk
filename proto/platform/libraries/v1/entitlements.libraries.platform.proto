@@ -105,6 +105,13 @@ enum Ecosystem {
   JAVA_ATHENA = 4;
   PYTHON_ATHENA = 5;
   JAVASCRIPT_ATHENA = 6;
+  // .NET (NuGet) ecosystem. Numbered after the Athena tiers to avoid
+  // colliding with them (mirrors DOTNET = 7 in the datastore Ecosystem enum).
+  DOTNET = 7;
+  // Athena tier for .NET, paired with DOTNET (mirrors DOTNET_SECURE = 8 in the
+  // datastore Ecosystem enum). Grants access to Chainguard-remediated NuGet
+  // artifacts and, like the other Athena tiers, is not self-serve provisionable.
+  DOTNET_ATHENA = 8;
 }
 
 // Policy controls which package sources are available for an entitlement.

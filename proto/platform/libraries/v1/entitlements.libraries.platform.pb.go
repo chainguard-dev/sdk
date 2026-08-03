@@ -39,6 +39,13 @@ const (
 	Ecosystem_JAVA_ATHENA       Ecosystem = 4
 	Ecosystem_PYTHON_ATHENA     Ecosystem = 5
 	Ecosystem_JAVASCRIPT_ATHENA Ecosystem = 6
+	// .NET (NuGet) ecosystem. Numbered after the Athena tiers to avoid
+	// colliding with them (mirrors DOTNET = 7 in the datastore Ecosystem enum).
+	Ecosystem_DOTNET Ecosystem = 7
+	// Athena tier for .NET, paired with DOTNET (mirrors DOTNET_SECURE = 8 in the
+	// datastore Ecosystem enum). Grants access to Chainguard-remediated NuGet
+	// artifacts and, like the other Athena tiers, is not self-serve provisionable.
+	Ecosystem_DOTNET_ATHENA Ecosystem = 8
 )
 
 // Enum value maps for Ecosystem.
@@ -51,6 +58,8 @@ var (
 		4: "JAVA_ATHENA",
 		5: "PYTHON_ATHENA",
 		6: "JAVASCRIPT_ATHENA",
+		7: "DOTNET",
+		8: "DOTNET_ATHENA",
 	}
 	Ecosystem_value = map[string]int32{
 		"UNKNOWN":           0,
@@ -60,6 +69,8 @@ var (
 		"JAVA_ATHENA":       4,
 		"PYTHON_ATHENA":     5,
 		"JAVASCRIPT_ATHENA": 6,
+		"DOTNET":            7,
+		"DOTNET_ATHENA":     8,
 	}
 )
 
@@ -529,7 +540,7 @@ const file_entitlements_libraries_platform_proto_rawDesc = "" +
 	"ecosystems\x18\x02 \x03(\x0e2(.chainguard.platform.libraries.EcosystemR\n" +
 	"ecosystems\"2\n" +
 	"\x18DeleteEntitlementRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id*y\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id*\x98\x01\n" +
 	"\tEcosystem\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\b\n" +
 	"\x04JAVA\x10\x01\x12\n" +
@@ -539,7 +550,10 @@ const file_entitlements_libraries_platform_proto_rawDesc = "" +
 	"JAVASCRIPT\x10\x03\x12\x0f\n" +
 	"\vJAVA_ATHENA\x10\x04\x12\x11\n" +
 	"\rPYTHON_ATHENA\x10\x05\x12\x15\n" +
-	"\x11JAVASCRIPT_ATHENA\x10\x06*W\n" +
+	"\x11JAVASCRIPT_ATHENA\x10\x06\x12\n" +
+	"\n" +
+	"\x06DOTNET\x10\a\x12\x11\n" +
+	"\rDOTNET_ATHENA\x10\b*W\n" +
 	"\x06Policy\x12\x12\n" +
 	"\x0ePOLICY_UNKNOWN\x10\x00\x12\x15\n" +
 	"\x11POLICY_CHAINGUARD\x10\x01\x12\"\n" +
