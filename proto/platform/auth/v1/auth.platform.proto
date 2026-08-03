@@ -126,8 +126,14 @@ message WhoAmI {
   message Capability {
     // group of the bound role.
     chainguard.platform.iam.Group group = 1;
-    // role of the bound identity.
+    // role of the bound identity. Unset when the token's capability set for
+    // this group matches no known role; capabilities below still describe it.
     chainguard.platform.iam.Role role = 2;
+    // Set only when role is unset: the group's verbatim token capability set
+    // for an entry that matches no known role. When role is resolved, its
+    // capabilities are on the role instead and this is empty. A group's
+    // entries together cover its full token set.
+    repeated string capabilities = 3;
   }
   // The capabilities referenced in the token.
   repeated Capability capabilities = 101;

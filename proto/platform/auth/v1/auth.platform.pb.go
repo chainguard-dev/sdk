@@ -493,8 +493,14 @@ type WhoAmI_Capability struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// group of the bound role.
 	Group *v1.Group `protobuf:"bytes,1,opt,name=group,proto3" json:"group,omitempty"`
-	// role of the bound identity.
-	Role          *v1.Role `protobuf:"bytes,2,opt,name=role,proto3" json:"role,omitempty"`
+	// role of the bound identity. Unset when the token's capability set for
+	// this group matches no known role; capabilities below still describe it.
+	Role *v1.Role `protobuf:"bytes,2,opt,name=role,proto3" json:"role,omitempty"`
+	// Set only when role is unset: the group's verbatim token capability set
+	// for an entry that matches no known role. When role is resolved, its
+	// capabilities are on the role instead and this is empty. A group's
+	// entries together cover its full token set.
+	Capabilities  []string `protobuf:"bytes,3,rep,name=capabilities,proto3" json:"capabilities,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -543,6 +549,13 @@ func (x *WhoAmI_Capability) GetRole() *v1.Role {
 	return nil
 }
 
+func (x *WhoAmI_Capability) GetCapabilities() []string {
+	if x != nil {
+		return x.Capabilities
+	}
+	return nil
+}
+
 var File_auth_platform_proto protoreflect.FileDescriptor
 
 const file_auth_platform_proto_rawDesc = "" +
@@ -556,7 +569,7 @@ const file_auth_platform_proto_rawDesc = "" +
 	"identityIdJ\x04\b\x02\x10\x03J\x04\b\x04\x10\x05J\x04\b\x05\x10\x06J\x04\b\x06\x10\a\";\n" +
 	"\aSession\x12\x1a\n" +
 	"\bidentity\x18\x01 \x01(\tR\bidentity\x12\x14\n" +
-	"\x05group\x18\x02 \x01(\tR\x05group\"\xde\x03\n" +
+	"\x05group\x18\x02 \x01(\tR\x05group\"\x83\x04\n" +
 	"\x06WhoAmI\x12\x16\n" +
 	"\x06issuer\x18\x01 \x01(\tR\x06issuer\x12\x18\n" +
 	"\asubject\x18\x02 \x01(\tR\asubject\x12\x1a\n" +
@@ -565,11 +578,12 @@ const file_auth_platform_proto_rawDesc = "" +
 	"\tissued_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\bissuedAt\x12O\n" +
 	"\fcapabilities\x18e \x03(\v2+.chainguard.platform.auth.WhoAmI.CapabilityR\fcapabilities\x12\x14\n" +
 	"\x05email\x18f \x01(\tR\x05email\x12;\n" +
-	"\aprofile\x18g \x01(\v2!.chainguard.platform.auth.ProfileR\aprofile\x1au\n" +
+	"\aprofile\x18g \x01(\v2!.chainguard.platform.auth.ProfileR\aprofile\x1a\x99\x01\n" +
 	"\n" +
 	"Capability\x124\n" +
 	"\x05group\x18\x01 \x01(\v2\x1e.chainguard.platform.iam.GroupR\x05group\x121\n" +
-	"\x04role\x18\x02 \x01(\v2\x1d.chainguard.platform.iam.RoleR\x04role\"w\n" +
+	"\x04role\x18\x02 \x01(\v2\x1d.chainguard.platform.iam.RoleR\x04role\x12\"\n" +
+	"\fcapabilities\x18\x03 \x03(\tR\fcapabilities\"w\n" +
 	"\aProfile\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\apicture\x18\x02 \x01(\tR\apicture\x12\x1d\n" +
