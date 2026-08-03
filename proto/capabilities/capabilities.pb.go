@@ -267,6 +267,21 @@ const (
 	Capability_CAP_SKILLS_ENTITLEMENTS_CREATE Capability = 2502
 	Capability_CAP_SKILLS_ENTITLEMENTS_LIST   Capability = 2503
 	Capability_CAP_SKILLS_ENTITLEMENTS_DELETE Capability = 2504
+	// Skills catalog metadata table (description / license / category) backing
+	// ListSkills/GetSkill and search. One org-agnostic set: per-org isolation is
+	// the UIDP scope on each RPC, not separate caps. These gate the catalog
+	// table's CRUD only; publishing skill artifacts to the registry stays
+	// CAP_SKILLS_PUBLISH and entitlements stay CAP_SKILLS_ENTITLEMENTS_*.
+	//
+	// skills.list is customer-facing (read the catalog for orgs you can access).
+	// The writes are internal_only: the catalog is populated by the Chainguard
+	// publish pipeline, not by customer orgs, so a customer role can never be
+	// granted them (a role carrying them must also grant CAP_INTERNAL).
+	// skills.write is a single create-or-update cap: UpdateSkill is one
+	// AIP-134 create-or-update RPC, so there is no separate create vs update.
+	Capability_CAP_SKILLS_LIST   Capability = 2507
+	Capability_CAP_SKILLS_WRITE  Capability = 2505
+	Capability_CAP_SKILLS_DELETE Capability = 2506
 	// Argos — client-side encrypted document records.
 	Capability_CAP_ARGOS_DOCUMENTS_CREATE Capability = 2601
 	Capability_CAP_ARGOS_DOCUMENTS_LIST   Capability = 2602
@@ -482,6 +497,9 @@ var (
 		2502:  "CAP_SKILLS_ENTITLEMENTS_CREATE",
 		2503:  "CAP_SKILLS_ENTITLEMENTS_LIST",
 		2504:  "CAP_SKILLS_ENTITLEMENTS_DELETE",
+		2507:  "CAP_SKILLS_LIST",
+		2505:  "CAP_SKILLS_WRITE",
+		2506:  "CAP_SKILLS_DELETE",
 		2601:  "CAP_ARGOS_DOCUMENTS_CREATE",
 		2602:  "CAP_ARGOS_DOCUMENTS_LIST",
 		2603:  "CAP_ARGOS_DOCUMENTS_DELETE",
@@ -672,6 +690,9 @@ var (
 		"CAP_SKILLS_ENTITLEMENTS_CREATE":                     2502,
 		"CAP_SKILLS_ENTITLEMENTS_LIST":                       2503,
 		"CAP_SKILLS_ENTITLEMENTS_DELETE":                     2504,
+		"CAP_SKILLS_LIST":                                    2507,
+		"CAP_SKILLS_WRITE":                                   2505,
+		"CAP_SKILLS_DELETE":                                  2506,
 		"CAP_ARGOS_DOCUMENTS_CREATE":                         2601,
 		"CAP_ARGOS_DOCUMENTS_LIST":                           2602,
 		"CAP_ARGOS_DOCUMENTS_DELETE":                         2603,
@@ -785,7 +806,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xd7d\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xf6e\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -963,7 +984,10 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x12CAP_SKILLS_PUBLISH\x10\xc5\x13\x1a\x1a\xa8ˑM\x89\x01\x9a\xaf\xa8\xd2\x05\x0eskills.publish\x12K\n" +
 	"\x1eCAP_SKILLS_ENTITLEMENTS_CREATE\x10\xc6\x13\x1a&\xa8ˑM\x8a\x01\x9a\xaf\xa8\xd2\x05\x1askills.entitlements.create\x12G\n" +
 	"\x1cCAP_SKILLS_ENTITLEMENTS_LIST\x10\xc7\x13\x1a$\xa8ˑM\x8b\x01\x9a\xaf\xa8\xd2\x05\x18skills.entitlements.list\x12K\n" +
-	"\x1eCAP_SKILLS_ENTITLEMENTS_DELETE\x10\xc8\x13\x1a&\xa8ˑM\x8c\x01\x9a\xaf\xa8\xd2\x05\x1askills.entitlements.delete\x12C\n" +
+	"\x1eCAP_SKILLS_ENTITLEMENTS_DELETE\x10\xc8\x13\x1a&\xa8ˑM\x8c\x01\x9a\xaf\xa8\xd2\x05\x1askills.entitlements.delete\x12-\n" +
+	"\x0fCAP_SKILLS_LIST\x10\xcb\x13\x1a\x17\xa8ˑM\xc3\x01\x9a\xaf\xa8\xd2\x05\vskills.list\x125\n" +
+	"\x10CAP_SKILLS_WRITE\x10\xc9\x13\x1a\x1e\xa8ˑM\xc1\x01\x9a\xaf\xa8\xd2\x05\fskills.write\xa0\xaf\xa8\xd2\x05\x01\x127\n" +
+	"\x11CAP_SKILLS_DELETE\x10\xca\x13\x1a\x1f\xa8ˑM\xc2\x01\x9a\xaf\xa8\xd2\x05\rskills.delete\xa0\xaf\xa8\xd2\x05\x01\x12C\n" +
 	"\x1aCAP_ARGOS_DOCUMENTS_CREATE\x10\xa9\x14\x1a\"\xa8ˑM\x90\x01\x9a\xaf\xa8\xd2\x05\x16argos.documents.create\x12?\n" +
 	"\x18CAP_ARGOS_DOCUMENTS_LIST\x10\xaa\x14\x1a \xa8ˑM\x91\x01\x9a\xaf\xa8\xd2\x05\x14argos.documents.list\x12C\n" +
 	"\x1aCAP_ARGOS_DOCUMENTS_DELETE\x10\xab\x14\x1a\"\xa8ˑM\x92\x01\x9a\xaf\xa8\xd2\x05\x16argos.documents.delete\x123\n" +

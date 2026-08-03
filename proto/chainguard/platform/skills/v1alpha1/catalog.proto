@@ -9,30 +9,40 @@ import "annotations/auth.proto";
 import "annotations/mcp.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
+import "platform/common/v1/uidp.platform.proto";
 
 option go_package = "chainguard.dev/sdk/proto/chainguard/platform/skills/v1alpha1";
 option java_multiple_files = true;
 option java_outer_classname = "CatalogProto";
 option java_package = "com.chainguard.platform.skills.v1alpha1";
 
-// Skills is the customer-facing catalog surface for hardened Chainguard skills.
-// It is a read API over the skill catalog — the shared backend consumed by the
+// Skills is the catalog surface for hardened Chainguard skills. Its customer-
+// facing side is a read API (ListSkills) — the shared backend consumed by the
 // cgr-skills MCP, chainctl, and the community UI (one backend, many front doors,
-// mirroring the registry ListRepos/ListTags endpoints). Skill content is pulled
-// from the OCI registry (skills.cgr.dev); this API serves catalog metadata
-// (name, description, category) that the registry does not carry.
+// mirroring the registry ListRepos/ListTags endpoints). It also carries the
+// publish-time writes (UpdateSkill/DeleteSkill), which are internal_only and
+// hidden from the tool surface. Skill content is pulled from the OCI registry
+// (skills.cgr.dev); this API serves the catalog metadata (name, description,
+// category) the registry does not carry.
 //
-// This file scaffolds the service (ACID-363). ListSkills/GetSkill are backed by
-// the skills catalog datastore table in ACID-367; search is added in ACID-381.
+// A skill is a registry Repo, so versions, digests, and content come from the
+// registry API (ListRepos/ListTags/GetTag + OCI). Ranked catalog search is a
+// follow-up (ACID-381).
 service Skills {
   // ListSkills lists skills in the catalog under a group, paginated. It never
   // returns the whole catalog in one response (bounded page_size).
   rpc ListSkills(ListSkillsRequest) returns (ListSkillsResponse) {
-    option (google.api.http) = {get: "/skills/v1alpha1/{parent_id}/skills"};
+    option (google.api.http) = {get: "/skills/v1alpha1/skills"};
+    // Org-agnostic like registry ListRepos: the caller passes a UIDP filter and
+    // the results self-scope to the orgs the caller holds CAP_SKILLS_LIST
+    // on (unscoped). The cgr-skills MCP is one caller that filters the public
+    // skills group.
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [CAP_REPO_LIST]
+        capabilities: [CAP_SKILLS_LIST]
+        unscoped: true
       }
     };
     option (chainguard.annotations.mcp) = {
@@ -44,21 +54,39 @@ service Skills {
     };
   }
 
-  // GetSkill returns a single catalog Skill by its UIDP.
-  rpc GetSkill(GetSkillRequest) returns (Skill) {
-    option (google.api.http) = {get: "/skills/v1alpha1/skill/{id=**}"};
+  // UpdateSkill writes a skill's catalog metadata row at publish time, keyed by
+  // repo_uidp (the skill's id — a skill is a registry repo). It follows AIP-134
+  // create-or-update: with allow_missing=true the row is created when none
+  // exists; otherwise a missing row is NotFound. Internal publish-path use only:
+  // its skills.write capability is internal_only and it is hidden from the tool
+  // surface, so it is never customer-callable — the skillchain-megaserver client
+  // holds the internal grant.
+  rpc UpdateSkill(UpdateSkillRequest) returns (Skill) {
+    option (google.api.http) = {
+      patch: "/skills/v1alpha1/skills/{repo_uidp=**}"
+      body: "*"
+    };
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [CAP_REPO_LIST]
+        capabilities: [CAP_SKILLS_WRITE]
       }
     };
-    option (chainguard.annotations.mcp) = {
-      description: "Get a hardened Chainguard skill catalog entry by its UIDP."
-      read_only: true
-      destructive: false
-      idempotent: true
-      open_world: false
+    // Internal publish-path RPC — keep it off the agent/MCP tool surface.
+    option (chainguard.annotations.mcp) = {hidden: true};
+  }
+
+  // DeleteSkill soft-deletes a skill's catalog row by UIDP on demote/removal, so
+  // ListSkills stops surfacing it. Internal publish-path use only (skills.delete
+  // is internal_only), hidden from the tool surface.
+  rpc DeleteSkill(DeleteSkillRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/skills/v1alpha1/skill/{id=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_SKILLS_DELETE]
+      }
     };
+    // Internal publish-path RPC — keep it off the agent/MCP tool surface.
+    option (chainguard.annotations.mcp) = {hidden: true};
   }
 }
 
@@ -81,10 +109,7 @@ message Skill {
   string license = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
   // category groups the skill in the catalog, if declared.
   string category = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // digest is the manifest digest ("sha256:…") the served version resolves to —
-  // the immutable pointer for pulling the skill's content. (The catalog serves
-  // the promoted version; the full tag/version list comes from the registry.)
-  string digest = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  reserved 6; // was digest — versions/digests come from the registry (ListTags/GetTag)
   // create_time is when the skill was first recorded.
   google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
   // update_time is when the skill was last updated.
@@ -92,8 +117,37 @@ message Skill {
   // next id: 9
 }
 
-message GetSkillRequest {
-  // id, the UIDP of the Skill to retrieve.
+message UpdateSkillRequest {
+  // repo_uidp is the UIDP of the registry repo backing this skill — the stable
+  // key the row is matched on (create-or-update), carried in the resource path.
+  string repo_uidp = 1 [(google.api.field_behavior) = REQUIRED];
+  // parent_id is the owning Group UIDP. It only scopes the capability check
+  // (iam_scope); the row's identity is repo_uidp (the skill is keyed by its
+  // backing repo's UIDP), so parent_id is not stored. repo_uidp must be within
+  // parent_id's subtree.
+  string parent_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+  // name is the skill's catalog name (its path under the skills folder).
+  string name = 3 [(google.api.field_behavior) = REQUIRED];
+  // description is a human-readable one-line summary.
+  string description = 4 [(google.api.field_behavior) = OPTIONAL];
+  // license is the skill's SPDX license identifier, if declared.
+  string license = 5 [(google.api.field_behavior) = OPTIONAL];
+  // category groups the skill in the catalog, if declared.
+  string category = 6 [(google.api.field_behavior) = OPTIONAL];
+  // keywords are free-form tags associated with the skill.
+  repeated string keywords = 7 [(google.api.field_behavior) = OPTIONAL];
+  reserved 8; // was digest — the catalog is version-independent; digests are the registry's
+  // allow_missing, per AIP-134 create-or-update: when true, create the row if it
+  // does not exist; when false (default), a missing row is NotFound.
+  bool allow_missing = 9 [(google.api.field_behavior) = OPTIONAL];
+  // next id: 10
+}
+
+message DeleteSkillRequest {
+  // id, the UIDP of the Skill to soft-delete.
   string id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (chainguard.annotations.iam_scope) = true
@@ -101,16 +155,20 @@ message GetSkillRequest {
 }
 
 message ListSkillsRequest {
-  // parent_id, the Group UIDP under which to list skills (scopes access).
-  string parent_id = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (chainguard.annotations.iam_scope) = true
-  ];
+  // uidp is a UIDP-based filter naming the org (group) to list skills under.
+  // Any org may be filtered, but one is required — there is no cross-org
+  // "list everything" mode. Results still self-scope to the orgs the caller is
+  // authorized for (the RPC is unscoped), so naming an org the caller cannot
+  // access returns nothing rather than another org's skills.
+  chainguard.platform.common.UIDPFilter uidp = 1 [(google.api.field_behavior) = REQUIRED];
   // category optionally narrows results to a single category.
   string category = 2;
-  // page_size is the maximum number of results to return per page.
+  // page_size is the maximum number of results to return per page. Pagination
+  // is optional: omit page_size (and page_token) to return all skills under the
+  // org in one response — there is no forced default page size.
   int32 page_size = 3;
-  // page_token is a token from a previous response's next_page_token.
+  // page_token is a token from a previous response's next_page_token. Omit to
+  // start from the first page (or, with no page_size, to return everything).
   string page_token = 4;
   // next id: 5
 }

@@ -14,6 +14,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,29 +23,43 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Skills_ListSkills_FullMethodName = "/chainguard.platform.skills.v1alpha1.Skills/ListSkills"
-	Skills_GetSkill_FullMethodName   = "/chainguard.platform.skills.v1alpha1.Skills/GetSkill"
+	Skills_ListSkills_FullMethodName  = "/chainguard.platform.skills.v1alpha1.Skills/ListSkills"
+	Skills_UpdateSkill_FullMethodName = "/chainguard.platform.skills.v1alpha1.Skills/UpdateSkill"
+	Skills_DeleteSkill_FullMethodName = "/chainguard.platform.skills.v1alpha1.Skills/DeleteSkill"
 )
 
 // SkillsClient is the client API for Skills service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// Skills is the customer-facing catalog surface for hardened Chainguard skills.
-// It is a read API over the skill catalog — the shared backend consumed by the
+// Skills is the catalog surface for hardened Chainguard skills. Its customer-
+// facing side is a read API (ListSkills) — the shared backend consumed by the
 // cgr-skills MCP, chainctl, and the community UI (one backend, many front doors,
-// mirroring the registry ListRepos/ListTags endpoints). Skill content is pulled
-// from the OCI registry (skills.cgr.dev); this API serves catalog metadata
-// (name, description, category) that the registry does not carry.
+// mirroring the registry ListRepos/ListTags endpoints). It also carries the
+// publish-time writes (UpdateSkill/DeleteSkill), which are internal_only and
+// hidden from the tool surface. Skill content is pulled from the OCI registry
+// (skills.cgr.dev); this API serves the catalog metadata (name, description,
+// category) the registry does not carry.
 //
-// This file scaffolds the service (ACID-363). ListSkills/GetSkill are backed by
-// the skills catalog datastore table in ACID-367; search is added in ACID-381.
+// A skill is a registry Repo, so versions, digests, and content come from the
+// registry API (ListRepos/ListTags/GetTag + OCI). Ranked catalog search is a
+// follow-up (ACID-381).
 type SkillsClient interface {
 	// ListSkills lists skills in the catalog under a group, paginated. It never
 	// returns the whole catalog in one response (bounded page_size).
 	ListSkills(ctx context.Context, in *ListSkillsRequest, opts ...grpc.CallOption) (*ListSkillsResponse, error)
-	// GetSkill returns a single catalog Skill by its UIDP.
-	GetSkill(ctx context.Context, in *GetSkillRequest, opts ...grpc.CallOption) (*Skill, error)
+	// UpdateSkill writes a skill's catalog metadata row at publish time, keyed by
+	// repo_uidp (the skill's id — a skill is a registry repo). It follows AIP-134
+	// create-or-update: with allow_missing=true the row is created when none
+	// exists; otherwise a missing row is NotFound. Internal publish-path use only:
+	// its skills.write capability is internal_only and it is hidden from the tool
+	// surface, so it is never customer-callable — the skillchain-megaserver client
+	// holds the internal grant.
+	UpdateSkill(ctx context.Context, in *UpdateSkillRequest, opts ...grpc.CallOption) (*Skill, error)
+	// DeleteSkill soft-deletes a skill's catalog row by UIDP on demote/removal, so
+	// ListSkills stops surfacing it. Internal publish-path use only (skills.delete
+	// is internal_only), hidden from the tool surface.
+	DeleteSkill(ctx context.Context, in *DeleteSkillRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type skillsClient struct {
@@ -65,10 +80,20 @@ func (c *skillsClient) ListSkills(ctx context.Context, in *ListSkillsRequest, op
 	return out, nil
 }
 
-func (c *skillsClient) GetSkill(ctx context.Context, in *GetSkillRequest, opts ...grpc.CallOption) (*Skill, error) {
+func (c *skillsClient) UpdateSkill(ctx context.Context, in *UpdateSkillRequest, opts ...grpc.CallOption) (*Skill, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Skill)
-	err := c.cc.Invoke(ctx, Skills_GetSkill_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Skills_UpdateSkill_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *skillsClient) DeleteSkill(ctx context.Context, in *DeleteSkillRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Skills_DeleteSkill_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -79,21 +104,34 @@ func (c *skillsClient) GetSkill(ctx context.Context, in *GetSkillRequest, opts .
 // All implementations must embed UnimplementedSkillsServer
 // for forward compatibility.
 //
-// Skills is the customer-facing catalog surface for hardened Chainguard skills.
-// It is a read API over the skill catalog — the shared backend consumed by the
+// Skills is the catalog surface for hardened Chainguard skills. Its customer-
+// facing side is a read API (ListSkills) — the shared backend consumed by the
 // cgr-skills MCP, chainctl, and the community UI (one backend, many front doors,
-// mirroring the registry ListRepos/ListTags endpoints). Skill content is pulled
-// from the OCI registry (skills.cgr.dev); this API serves catalog metadata
-// (name, description, category) that the registry does not carry.
+// mirroring the registry ListRepos/ListTags endpoints). It also carries the
+// publish-time writes (UpdateSkill/DeleteSkill), which are internal_only and
+// hidden from the tool surface. Skill content is pulled from the OCI registry
+// (skills.cgr.dev); this API serves the catalog metadata (name, description,
+// category) the registry does not carry.
 //
-// This file scaffolds the service (ACID-363). ListSkills/GetSkill are backed by
-// the skills catalog datastore table in ACID-367; search is added in ACID-381.
+// A skill is a registry Repo, so versions, digests, and content come from the
+// registry API (ListRepos/ListTags/GetTag + OCI). Ranked catalog search is a
+// follow-up (ACID-381).
 type SkillsServer interface {
 	// ListSkills lists skills in the catalog under a group, paginated. It never
 	// returns the whole catalog in one response (bounded page_size).
 	ListSkills(context.Context, *ListSkillsRequest) (*ListSkillsResponse, error)
-	// GetSkill returns a single catalog Skill by its UIDP.
-	GetSkill(context.Context, *GetSkillRequest) (*Skill, error)
+	// UpdateSkill writes a skill's catalog metadata row at publish time, keyed by
+	// repo_uidp (the skill's id — a skill is a registry repo). It follows AIP-134
+	// create-or-update: with allow_missing=true the row is created when none
+	// exists; otherwise a missing row is NotFound. Internal publish-path use only:
+	// its skills.write capability is internal_only and it is hidden from the tool
+	// surface, so it is never customer-callable — the skillchain-megaserver client
+	// holds the internal grant.
+	UpdateSkill(context.Context, *UpdateSkillRequest) (*Skill, error)
+	// DeleteSkill soft-deletes a skill's catalog row by UIDP on demote/removal, so
+	// ListSkills stops surfacing it. Internal publish-path use only (skills.delete
+	// is internal_only), hidden from the tool surface.
+	DeleteSkill(context.Context, *DeleteSkillRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedSkillsServer()
 }
 
@@ -107,8 +145,11 @@ type UnimplementedSkillsServer struct{}
 func (UnimplementedSkillsServer) ListSkills(context.Context, *ListSkillsRequest) (*ListSkillsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListSkills not implemented")
 }
-func (UnimplementedSkillsServer) GetSkill(context.Context, *GetSkillRequest) (*Skill, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetSkill not implemented")
+func (UnimplementedSkillsServer) UpdateSkill(context.Context, *UpdateSkillRequest) (*Skill, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateSkill not implemented")
+}
+func (UnimplementedSkillsServer) DeleteSkill(context.Context, *DeleteSkillRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteSkill not implemented")
 }
 func (UnimplementedSkillsServer) mustEmbedUnimplementedSkillsServer() {}
 func (UnimplementedSkillsServer) testEmbeddedByValue()                {}
@@ -149,20 +190,38 @@ func _Skills_ListSkills_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Skills_GetSkill_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetSkillRequest)
+func _Skills_UpdateSkill_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateSkillRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SkillsServer).GetSkill(ctx, in)
+		return srv.(SkillsServer).UpdateSkill(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Skills_GetSkill_FullMethodName,
+		FullMethod: Skills_UpdateSkill_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SkillsServer).GetSkill(ctx, req.(*GetSkillRequest))
+		return srv.(SkillsServer).UpdateSkill(ctx, req.(*UpdateSkillRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Skills_DeleteSkill_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteSkillRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SkillsServer).DeleteSkill(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Skills_DeleteSkill_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SkillsServer).DeleteSkill(ctx, req.(*DeleteSkillRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -179,8 +238,12 @@ var Skills_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Skills_ListSkills_Handler,
 		},
 		{
-			MethodName: "GetSkill",
-			Handler:    _Skills_GetSkill_Handler,
+			MethodName: "UpdateSkill",
+			Handler:    _Skills_UpdateSkill_Handler,
+		},
+		{
+			MethodName: "DeleteSkill",
+			Handler:    _Skills_DeleteSkill_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

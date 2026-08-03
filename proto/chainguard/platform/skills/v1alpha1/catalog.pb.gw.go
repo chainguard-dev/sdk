@@ -27,29 +27,12 @@ var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
 var (
-	filter_Skills_ListSkills_0 = &utilities.DoubleArray{Encoding: map[string]int{"parent_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+	filter_Skills_ListSkills_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 )
 
 func request_Skills_ListSkills_0(ctx context.Context, marshaler runtime.Marshaler, client SkillsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListSkillsRequest
 	var metadata runtime.ServerMetadata
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["parent_id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent_id")
-	}
-
-	protoReq.ParentId, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent_id", err)
-	}
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -67,23 +50,6 @@ func local_request_Skills_ListSkills_0(ctx context.Context, marshaler runtime.Ma
 	var protoReq ListSkillsRequest
 	var metadata runtime.ServerMetadata
 
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["parent_id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent_id")
-	}
-
-	protoReq.ParentId, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent_id", err)
-	}
-
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
@@ -96,9 +62,13 @@ func local_request_Skills_ListSkills_0(ctx context.Context, marshaler runtime.Ma
 
 }
 
-func request_Skills_GetSkill_0(ctx context.Context, marshaler runtime.Marshaler, client SkillsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetSkillRequest
+func request_Skills_UpdateSkill_0(ctx context.Context, marshaler runtime.Marshaler, client SkillsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq UpdateSkillRequest
 	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 
 	var (
 		val string
@@ -107,23 +77,53 @@ func request_Skills_GetSkill_0(ctx context.Context, marshaler runtime.Marshaler,
 		_   = err
 	)
 
-	val, ok = pathParams["id"]
+	val, ok = pathParams["repo_uidp"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_uidp")
 	}
 
-	protoReq.Id, err = runtime.String(val)
+	protoReq.RepoUidp, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_uidp", err)
 	}
 
-	msg, err := client.GetSkill(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.UpdateSkill(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_Skills_GetSkill_0(ctx context.Context, marshaler runtime.Marshaler, server SkillsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetSkillRequest
+func local_request_Skills_UpdateSkill_0(ctx context.Context, marshaler runtime.Marshaler, server SkillsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq UpdateSkillRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["repo_uidp"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "repo_uidp")
+	}
+
+	protoReq.RepoUidp, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "repo_uidp", err)
+	}
+
+	msg, err := server.UpdateSkill(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_Skills_DeleteSkill_0(ctx context.Context, marshaler runtime.Marshaler, client SkillsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq DeleteSkillRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -143,7 +143,33 @@ func local_request_Skills_GetSkill_0(ctx context.Context, marshaler runtime.Mars
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
-	msg, err := server.GetSkill(ctx, &protoReq)
+	msg, err := client.DeleteSkill(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_Skills_DeleteSkill_0(ctx context.Context, marshaler runtime.Marshaler, server SkillsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq DeleteSkillRequest
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+
+	protoReq.Id, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+
+	msg, err := server.DeleteSkill(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -163,7 +189,7 @@ func RegisterSkillsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.skills.v1alpha1.Skills/ListSkills", runtime.WithHTTPPathPattern("/skills/v1alpha1/{parent_id}/skills"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.skills.v1alpha1.Skills/ListSkills", runtime.WithHTTPPathPattern("/skills/v1alpha1/skills"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -180,7 +206,7 @@ func RegisterSkillsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 
 	})
 
-	mux.Handle("GET", pattern_Skills_GetSkill_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("PATCH", pattern_Skills_UpdateSkill_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -188,12 +214,12 @@ func RegisterSkillsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.skills.v1alpha1.Skills/GetSkill", runtime.WithHTTPPathPattern("/skills/v1alpha1/skill/{id=**}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.skills.v1alpha1.Skills/UpdateSkill", runtime.WithHTTPPathPattern("/skills/v1alpha1/skills/{repo_uidp=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Skills_GetSkill_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Skills_UpdateSkill_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -201,7 +227,32 @@ func RegisterSkillsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 			return
 		}
 
-		forward_Skills_GetSkill_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Skills_UpdateSkill_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("DELETE", pattern_Skills_DeleteSkill_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.skills.v1alpha1.Skills/DeleteSkill", runtime.WithHTTPPathPattern("/skills/v1alpha1/skill/{id=**}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_Skills_DeleteSkill_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Skills_DeleteSkill_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -252,7 +303,7 @@ func RegisterSkillsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.skills.v1alpha1.Skills/ListSkills", runtime.WithHTTPPathPattern("/skills/v1alpha1/{parent_id}/skills"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.skills.v1alpha1.Skills/ListSkills", runtime.WithHTTPPathPattern("/skills/v1alpha1/skills"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -268,25 +319,47 @@ func RegisterSkillsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 
 	})
 
-	mux.Handle("GET", pattern_Skills_GetSkill_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("PATCH", pattern_Skills_UpdateSkill_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.skills.v1alpha1.Skills/GetSkill", runtime.WithHTTPPathPattern("/skills/v1alpha1/skill/{id=**}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.skills.v1alpha1.Skills/UpdateSkill", runtime.WithHTTPPathPattern("/skills/v1alpha1/skills/{repo_uidp=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Skills_GetSkill_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Skills_UpdateSkill_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Skills_GetSkill_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Skills_UpdateSkill_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("DELETE", pattern_Skills_DeleteSkill_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.skills.v1alpha1.Skills/DeleteSkill", runtime.WithHTTPPathPattern("/skills/v1alpha1/skill/{id=**}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_Skills_DeleteSkill_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_Skills_DeleteSkill_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -294,13 +367,17 @@ func RegisterSkillsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 }
 
 var (
-	pattern_Skills_ListSkills_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 0}, []string{"skills", "v1alpha1", "parent_id"}, ""))
+	pattern_Skills_ListSkills_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 0}, []string{"skills", "v1alpha1"}, ""))
 
-	pattern_Skills_GetSkill_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"skills", "v1alpha1", "skill", "id"}, ""))
+	pattern_Skills_UpdateSkill_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 0, 3, 0, 4, 1, 5, 2}, []string{"skills", "v1alpha1", "repo_uidp"}, ""))
+
+	pattern_Skills_DeleteSkill_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"skills", "v1alpha1", "skill", "id"}, ""))
 )
 
 var (
 	forward_Skills_ListSkills_0 = runtime.ForwardResponseMessage
 
-	forward_Skills_GetSkill_0 = runtime.ForwardResponseMessage
+	forward_Skills_UpdateSkill_0 = runtime.ForwardResponseMessage
+
+	forward_Skills_DeleteSkill_0 = runtime.ForwardResponseMessage
 )

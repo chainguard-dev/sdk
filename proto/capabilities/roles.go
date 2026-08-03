@@ -46,6 +46,7 @@ var (
 		Capability_CAP_LIBRARIES_CACHE_LIST,
 
 		Capability_CAP_SKILLS_ENTITLEMENTS_LIST,
+		Capability_CAP_SKILLS_LIST,
 
 		Capability_CAP_REGISTRY_ENTITLEMENTS_LIST,
 		Capability_CAP_REGISTRY_DEPLOYMENTS_LIST,
@@ -94,6 +95,11 @@ var (
 	//
 	// CAP_TERMS_LIST lets chainctl's pre-flight read the org's accepted-docs
 	// list so it knows whether to prompt with the TUI before remote.Write.
+	//
+	// The skills.{write,delete} catalog-write caps are internal_only and
+	// deliberately NOT here: this bundle is customer-grantable, and the catalog
+	// is written by the Chainguard publish pipeline via a CAP_INTERNAL role, not
+	// by customer skills publishers.
 	SkillsPublishCaps = SortCaps([]Capability{
 		Capability_CAP_SKILLS_PUBLISH,
 		Capability_CAP_SKILLS_ENTITLEMENTS_LIST,
@@ -141,6 +147,7 @@ var (
 
 		Capability_CAP_SKILLS_ENTITLEMENTS_CREATE,
 		Capability_CAP_SKILLS_ENTITLEMENTS_DELETE,
+
 		Capability_CAP_LIBRARIES_CACHE_INVALIDATE,
 		Capability_CAP_REPO_CHECK_POLICIES,
 

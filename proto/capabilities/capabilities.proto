@@ -312,6 +312,22 @@ enum Capability {
   CAP_SKILLS_ENTITLEMENTS_LIST   = 2503 [(name) = "skills.entitlements.list",   (bit) = 139];
   CAP_SKILLS_ENTITLEMENTS_DELETE = 2504 [(name) = "skills.entitlements.delete", (bit) = 140];
 
+  // Skills catalog metadata table (description / license / category) backing
+  // ListSkills/GetSkill and search. One org-agnostic set: per-org isolation is
+  // the UIDP scope on each RPC, not separate caps. These gate the catalog
+  // table's CRUD only; publishing skill artifacts to the registry stays
+  // CAP_SKILLS_PUBLISH and entitlements stay CAP_SKILLS_ENTITLEMENTS_*.
+  //
+  // skills.list is customer-facing (read the catalog for orgs you can access).
+  // The writes are internal_only: the catalog is populated by the Chainguard
+  // publish pipeline, not by customer orgs, so a customer role can never be
+  // granted them (a role carrying them must also grant CAP_INTERNAL).
+  // skills.write is a single create-or-update cap: UpdateSkill is one
+  // AIP-134 create-or-update RPC, so there is no separate create vs update.
+  CAP_SKILLS_LIST   = 2507 [(name) = "skills.list",   (bit) = 195];
+  CAP_SKILLS_WRITE  = 2505 [(name) = "skills.write",  (bit) = 193, (internal_only) = true];
+  CAP_SKILLS_DELETE = 2506 [(name) = "skills.delete", (bit) = 194, (internal_only) = true];
+
   // Argos — client-side encrypted document records.
   CAP_ARGOS_DOCUMENTS_CREATE = 2601 [(name) = "argos.documents.create", (bit) = 144];
   CAP_ARGOS_DOCUMENTS_LIST   = 2602 [(name) = "argos.documents.list",   (bit) = 145];
@@ -376,5 +392,5 @@ enum Capability {
   CAP_ACTIONS_LIST = 2700 [(name) = "actions.list", (bit) = 164];
 
   reserved 1;
-  // next bit: 193
+  // next bit: 196
 }

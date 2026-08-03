@@ -11,9 +11,11 @@ package v1alpha1
 
 import (
 	_ "chainguard.dev/sdk/proto/annotations"
+	v1 "chainguard.dev/sdk/proto/platform/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -44,10 +46,6 @@ type Skill struct {
 	License string `protobuf:"bytes,4,opt,name=license,proto3" json:"license,omitempty"`
 	// category groups the skill in the catalog, if declared.
 	Category string `protobuf:"bytes,5,opt,name=category,proto3" json:"category,omitempty"`
-	// digest is the manifest digest ("sha256:…") the served version resolves to —
-	// the immutable pointer for pulling the skill's content. (The catalog serves
-	// the promoted version; the full tag/version list comes from the registry.)
-	Digest string `protobuf:"bytes,6,opt,name=digest,proto3" json:"digest,omitempty"`
 	// create_time is when the skill was first recorded.
 	CreateTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
 	// update_time is when the skill was last updated.
@@ -121,13 +119,6 @@ func (x *Skill) GetCategory() string {
 	return ""
 }
 
-func (x *Skill) GetDigest() string {
-	if x != nil {
-		return x.Digest
-	}
-	return ""
-}
-
 func (x *Skill) GetCreateTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreateTime
@@ -142,28 +133,47 @@ func (x *Skill) GetUpdateTime() *timestamppb.Timestamp {
 	return nil
 }
 
-type GetSkillRequest struct {
+type UpdateSkillRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// id, the UIDP of the Skill to retrieve.
-	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// repo_uidp is the UIDP of the registry repo backing this skill — the stable
+	// key the row is matched on (create-or-update), carried in the resource path.
+	RepoUidp string `protobuf:"bytes,1,opt,name=repo_uidp,json=repoUidp,proto3" json:"repo_uidp,omitempty"`
+	// parent_id is the owning Group UIDP. It only scopes the capability check
+	// (iam_scope); the row's identity is repo_uidp (the skill is keyed by its
+	// backing repo's UIDP), so parent_id is not stored. repo_uidp must be within
+	// parent_id's subtree.
+	ParentId string `protobuf:"bytes,2,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
+	// name is the skill's catalog name (its path under the skills folder).
+	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	// description is a human-readable one-line summary.
+	Description string `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	// license is the skill's SPDX license identifier, if declared.
+	License string `protobuf:"bytes,5,opt,name=license,proto3" json:"license,omitempty"`
+	// category groups the skill in the catalog, if declared.
+	Category string `protobuf:"bytes,6,opt,name=category,proto3" json:"category,omitempty"`
+	// keywords are free-form tags associated with the skill.
+	Keywords []string `protobuf:"bytes,7,rep,name=keywords,proto3" json:"keywords,omitempty"`
+	// allow_missing, per AIP-134 create-or-update: when true, create the row if it
+	// does not exist; when false (default), a missing row is NotFound.
+	AllowMissing  bool `protobuf:"varint,9,opt,name=allow_missing,json=allowMissing,proto3" json:"allow_missing,omitempty"` // next id: 10
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetSkillRequest) Reset() {
-	*x = GetSkillRequest{}
+func (x *UpdateSkillRequest) Reset() {
+	*x = UpdateSkillRequest{}
 	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetSkillRequest) String() string {
+func (x *UpdateSkillRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetSkillRequest) ProtoMessage() {}
+func (*UpdateSkillRequest) ProtoMessage() {}
 
-func (x *GetSkillRequest) ProtoReflect() protoreflect.Message {
+func (x *UpdateSkillRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -175,12 +185,106 @@ func (x *GetSkillRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetSkillRequest.ProtoReflect.Descriptor instead.
-func (*GetSkillRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use UpdateSkillRequest.ProtoReflect.Descriptor instead.
+func (*UpdateSkillRequest) Descriptor() ([]byte, []int) {
 	return file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *GetSkillRequest) GetId() string {
+func (x *UpdateSkillRequest) GetRepoUidp() string {
+	if x != nil {
+		return x.RepoUidp
+	}
+	return ""
+}
+
+func (x *UpdateSkillRequest) GetParentId() string {
+	if x != nil {
+		return x.ParentId
+	}
+	return ""
+}
+
+func (x *UpdateSkillRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *UpdateSkillRequest) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *UpdateSkillRequest) GetLicense() string {
+	if x != nil {
+		return x.License
+	}
+	return ""
+}
+
+func (x *UpdateSkillRequest) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+func (x *UpdateSkillRequest) GetKeywords() []string {
+	if x != nil {
+		return x.Keywords
+	}
+	return nil
+}
+
+func (x *UpdateSkillRequest) GetAllowMissing() bool {
+	if x != nil {
+		return x.AllowMissing
+	}
+	return false
+}
+
+type DeleteSkillRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id, the UIDP of the Skill to soft-delete.
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteSkillRequest) Reset() {
+	*x = DeleteSkillRequest{}
+	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteSkillRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteSkillRequest) ProtoMessage() {}
+
+func (x *DeleteSkillRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteSkillRequest.ProtoReflect.Descriptor instead.
+func (*DeleteSkillRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *DeleteSkillRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
@@ -189,13 +293,20 @@ func (x *GetSkillRequest) GetId() string {
 
 type ListSkillsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// parent_id, the Group UIDP under which to list skills (scopes access).
-	ParentId string `protobuf:"bytes,1,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
+	// uidp is a UIDP-based filter naming the org (group) to list skills under.
+	// Any org may be filtered, but one is required — there is no cross-org
+	// "list everything" mode. Results still self-scope to the orgs the caller is
+	// authorized for (the RPC is unscoped), so naming an org the caller cannot
+	// access returns nothing rather than another org's skills.
+	Uidp *v1.UIDPFilter `protobuf:"bytes,1,opt,name=uidp,proto3" json:"uidp,omitempty"`
 	// category optionally narrows results to a single category.
 	Category string `protobuf:"bytes,2,opt,name=category,proto3" json:"category,omitempty"`
-	// page_size is the maximum number of results to return per page.
+	// page_size is the maximum number of results to return per page. Pagination
+	// is optional: omit page_size (and page_token) to return all skills under the
+	// org in one response — there is no forced default page size.
 	PageSize int32 `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	// page_token is a token from a previous response's next_page_token.
+	// page_token is a token from a previous response's next_page_token. Omit to
+	// start from the first page (or, with no page_size, to return everything).
 	PageToken     string `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"` // next id: 5
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -203,7 +314,7 @@ type ListSkillsRequest struct {
 
 func (x *ListSkillsRequest) Reset() {
 	*x = ListSkillsRequest{}
-	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[2]
+	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -215,7 +326,7 @@ func (x *ListSkillsRequest) String() string {
 func (*ListSkillsRequest) ProtoMessage() {}
 
 func (x *ListSkillsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[2]
+	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -228,14 +339,14 @@ func (x *ListSkillsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSkillsRequest.ProtoReflect.Descriptor instead.
 func (*ListSkillsRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDescGZIP(), []int{2}
+	return file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *ListSkillsRequest) GetParentId() string {
+func (x *ListSkillsRequest) GetUidp() *v1.UIDPFilter {
 	if x != nil {
-		return x.ParentId
+		return x.Uidp
 	}
-	return ""
+	return nil
 }
 
 func (x *ListSkillsRequest) GetCategory() string {
@@ -272,7 +383,7 @@ type ListSkillsResponse struct {
 
 func (x *ListSkillsResponse) Reset() {
 	*x = ListSkillsResponse{}
-	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[3]
+	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -284,7 +395,7 @@ func (x *ListSkillsResponse) String() string {
 func (*ListSkillsResponse) ProtoMessage() {}
 
 func (x *ListSkillsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[3]
+	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -297,7 +408,7 @@ func (x *ListSkillsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSkillsResponse.ProtoReflect.Descriptor instead.
 func (*ListSkillsResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDescGZIP(), []int{3}
+	return file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ListSkillsResponse) GetItems() []*Skill {
@@ -325,25 +436,33 @@ var File_chainguard_platform_skills_v1alpha1_catalog_proto protoreflect.FileDesc
 
 const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	"\n" +
-	"1chainguard/platform/skills/v1alpha1/catalog.proto\x12#chainguard.platform.skills.v1alpha1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xcb\x02\n" +
+	"1chainguard/platform/skills/v1alpha1/catalog.proto\x12#chainguard.platform.skills.v1alpha1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xb3\x02\n" +
 	"\x05Skill\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x18\n" +
 	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x04name\x12&\n" +
 	"\vdescription\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\vdescription\x12\x1e\n" +
 	"\alicense\x18\x04 \x01(\tB\x04\xe2A\x01\x03R\alicense\x12 \n" +
-	"\bcategory\x18\x05 \x01(\tB\x04\xe2A\x01\x03R\bcategory\x12\x1c\n" +
-	"\x06digest\x18\x06 \x01(\tB\x04\xe2A\x01\x03R\x06digest\x12A\n" +
+	"\bcategory\x18\x05 \x01(\tB\x04\xe2A\x01\x03R\bcategory\x12A\n" +
 	"\vcreate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
 	"createTime\x12A\n" +
 	"\vupdate_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
-	"updateTime\"-\n" +
-	"\x0fGetSkillRequest\x12\x1a\n" +
+	"updateTimeJ\x04\b\x06\x10\a\"\xb7\x02\n" +
+	"\x12UpdateSkillRequest\x12!\n" +
+	"\trepo_uidp\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\brepoUidp\x12'\n" +
+	"\tparent_id\x18\x02 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12\x18\n" +
+	"\x04name\x18\x03 \x01(\tB\x04\xe2A\x01\x02R\x04name\x12&\n" +
+	"\vdescription\x18\x04 \x01(\tB\x04\xe2A\x01\x01R\vdescription\x12\x1e\n" +
+	"\alicense\x18\x05 \x01(\tB\x04\xe2A\x01\x01R\alicense\x12 \n" +
+	"\bcategory\x18\x06 \x01(\tB\x04\xe2A\x01\x01R\bcategory\x12 \n" +
+	"\bkeywords\x18\a \x03(\tB\x04\xe2A\x01\x01R\bkeywords\x12)\n" +
+	"\rallow_missing\x18\t \x01(\bB\x04\xe2A\x01\x01R\fallowMissingJ\x04\b\b\x10\t\"0\n" +
+	"\x12DeleteSkillRequest\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x02id\"\x94\x01\n" +
-	"\x11ListSkillsRequest\x12'\n" +
-	"\tparent_id\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12\x1a\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x02id\"\xad\x01\n" +
+	"\x11ListSkillsRequest\x12@\n" +
+	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterB\x04\xe2A\x01\x02R\x04uidp\x12\x1a\n" +
 	"\bcategory\x18\x02 \x01(\tR\bcategory\x12\x1b\n" +
 	"\tpage_size\x18\x03 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
@@ -352,15 +471,16 @@ const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	"\x05items\x18\x01 \x03(\v2*.chainguard.platform.skills.v1alpha1.SkillR\x05items\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
 	"\vtotal_count\x18\x03 \x01(\x03R\n" +
-	"totalCount2\xf6\x04\n" +
-	"\x06Skills\x12\xfe\x02\n" +
+	"totalCount2\xd8\x05\n" +
+	"\x06Skills\x12\xf4\x02\n" +
 	"\n" +
-	"ListSkills\x126.chainguard.platform.skills.v1alpha1.ListSkillsRequest\x1a7.chainguard.platform.skills.v1alpha1.ListSkillsResponse\"\xfe\x01\x82\xd3\xe4\x93\x02%\x12#/skills/v1alpha1/{parent_id}/skills\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xc5\f\x9a\xaf\xa8\xd2\x05\xc0\x01\n" +
-	"\xb5\x01List hardened Chainguard skills in the catalog under a group (name + description + category), one bounded page at a time. To find a specific skill prefer search; use this to browse.\x18\x01 \x00(\x010\x00\x12\xea\x01\n" +
-	"\bGetSkill\x124.chainguard.platform.skills.v1alpha1.GetSkillRequest\x1a*.chainguard.platform.skills.v1alpha1.Skill\"|\x82\xd3\xe4\x93\x02 \x12\x1e/skills/v1alpha1/skill/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xc5\f\x9a\xaf\xa8\xd2\x05D\n" +
-	":Get a hardened Chainguard skill catalog entry by its UIDP.\x18\x01 \x00(\x010\x00Bw\n" +
+	"ListSkills\x126.chainguard.platform.skills.v1alpha1.ListSkillsRequest\x1a7.chainguard.platform.skills.v1alpha1.ListSkillsResponse\"\xf4\x01\x82\xd3\xe4\x93\x02\x19\x12\x17/skills/v1alpha1/skills\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02\xcb\x13\x10\x01\x9a\xaf\xa8\xd2\x05\xc0\x01\n" +
+	"\xb5\x01List hardened Chainguard skills in the catalog under a group (name + description + category), one bounded page at a time. To find a specific skill prefer search; use this to browse.\x18\x01 \x00(\x010\x00\x12\xb9\x01\n" +
+	"\vUpdateSkill\x127.chainguard.platform.skills.v1alpha1.UpdateSkillRequest\x1a*.chainguard.platform.skills.v1alpha1.Skill\"E\x82\xd3\xe4\x93\x02+:\x01*2&/skills/v1alpha1/skills/{repo_uidp=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xc9\x13\x9a\xaf\xa8\xd2\x05\x02\x10\x01\x12\x9a\x01\n" +
+	"\vDeleteSkill\x127.chainguard.platform.skills.v1alpha1.DeleteSkillRequest\x1a\x16.google.protobuf.Empty\":\x82\xd3\xe4\x93\x02 *\x1e/skills/v1alpha1/skill/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xca\x13\x9a\xaf\xa8\xd2\x05\x02\x10\x01Bw\n" +
 	"'com.chainguard.platform.skills.v1alpha1B\fCatalogProtoP\x01Z<chainguard.dev/sdk/proto/chainguard/platform/skills/v1alpha1b\x06proto3"
 
 var (
@@ -375,27 +495,33 @@ func file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDescGZIP() []byte
 	return file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDescData
 }
 
-var file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_chainguard_platform_skills_v1alpha1_catalog_proto_goTypes = []any{
 	(*Skill)(nil),                 // 0: chainguard.platform.skills.v1alpha1.Skill
-	(*GetSkillRequest)(nil),       // 1: chainguard.platform.skills.v1alpha1.GetSkillRequest
-	(*ListSkillsRequest)(nil),     // 2: chainguard.platform.skills.v1alpha1.ListSkillsRequest
-	(*ListSkillsResponse)(nil),    // 3: chainguard.platform.skills.v1alpha1.ListSkillsResponse
-	(*timestamppb.Timestamp)(nil), // 4: google.protobuf.Timestamp
+	(*UpdateSkillRequest)(nil),    // 1: chainguard.platform.skills.v1alpha1.UpdateSkillRequest
+	(*DeleteSkillRequest)(nil),    // 2: chainguard.platform.skills.v1alpha1.DeleteSkillRequest
+	(*ListSkillsRequest)(nil),     // 3: chainguard.platform.skills.v1alpha1.ListSkillsRequest
+	(*ListSkillsResponse)(nil),    // 4: chainguard.platform.skills.v1alpha1.ListSkillsResponse
+	(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),         // 6: chainguard.platform.common.UIDPFilter
+	(*emptypb.Empty)(nil),         // 7: google.protobuf.Empty
 }
 var file_chainguard_platform_skills_v1alpha1_catalog_proto_depIdxs = []int32{
-	4, // 0: chainguard.platform.skills.v1alpha1.Skill.create_time:type_name -> google.protobuf.Timestamp
-	4, // 1: chainguard.platform.skills.v1alpha1.Skill.update_time:type_name -> google.protobuf.Timestamp
-	0, // 2: chainguard.platform.skills.v1alpha1.ListSkillsResponse.items:type_name -> chainguard.platform.skills.v1alpha1.Skill
-	2, // 3: chainguard.platform.skills.v1alpha1.Skills.ListSkills:input_type -> chainguard.platform.skills.v1alpha1.ListSkillsRequest
-	1, // 4: chainguard.platform.skills.v1alpha1.Skills.GetSkill:input_type -> chainguard.platform.skills.v1alpha1.GetSkillRequest
-	3, // 5: chainguard.platform.skills.v1alpha1.Skills.ListSkills:output_type -> chainguard.platform.skills.v1alpha1.ListSkillsResponse
-	0, // 6: chainguard.platform.skills.v1alpha1.Skills.GetSkill:output_type -> chainguard.platform.skills.v1alpha1.Skill
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	5, // 0: chainguard.platform.skills.v1alpha1.Skill.create_time:type_name -> google.protobuf.Timestamp
+	5, // 1: chainguard.platform.skills.v1alpha1.Skill.update_time:type_name -> google.protobuf.Timestamp
+	6, // 2: chainguard.platform.skills.v1alpha1.ListSkillsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	0, // 3: chainguard.platform.skills.v1alpha1.ListSkillsResponse.items:type_name -> chainguard.platform.skills.v1alpha1.Skill
+	3, // 4: chainguard.platform.skills.v1alpha1.Skills.ListSkills:input_type -> chainguard.platform.skills.v1alpha1.ListSkillsRequest
+	1, // 5: chainguard.platform.skills.v1alpha1.Skills.UpdateSkill:input_type -> chainguard.platform.skills.v1alpha1.UpdateSkillRequest
+	2, // 6: chainguard.platform.skills.v1alpha1.Skills.DeleteSkill:input_type -> chainguard.platform.skills.v1alpha1.DeleteSkillRequest
+	4, // 7: chainguard.platform.skills.v1alpha1.Skills.ListSkills:output_type -> chainguard.platform.skills.v1alpha1.ListSkillsResponse
+	0, // 8: chainguard.platform.skills.v1alpha1.Skills.UpdateSkill:output_type -> chainguard.platform.skills.v1alpha1.Skill
+	7, // 9: chainguard.platform.skills.v1alpha1.Skills.DeleteSkill:output_type -> google.protobuf.Empty
+	7, // [7:10] is the sub-list for method output_type
+	4, // [4:7] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_skills_v1alpha1_catalog_proto_init() }
@@ -409,7 +535,7 @@ func file_chainguard_platform_skills_v1alpha1_catalog_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc), len(file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
