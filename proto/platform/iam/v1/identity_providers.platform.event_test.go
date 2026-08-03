@@ -140,6 +140,7 @@ func TestScimTokenEventRedaction(t *testing.T) {
 					ClientId:     "client-id",
 					ClientSecret: "super-secret",
 					GroupsClaim:  "groups",
+					PkceEnabled:  true,
 				},
 			},
 			Scim: &v1.IdentityProvider_SCIM{
@@ -158,6 +159,11 @@ func TestScimTokenEventRedaction(t *testing.T) {
 		}
 		if got, want := redacted.GetOidc().GetGroupsClaim(), "groups"; got != want {
 			t.Errorf("groups_claim: got = %q, want = %q", got, want)
+		}
+		// pkce_enabled is config, not a credential, and the only event-visible
+		// signal of a confidential <-> public (PKCE-only) client transition.
+		if !redacted.GetOidc().GetPkceEnabled() {
+			t.Error("pkce_enabled: got = false, want preserved")
 		}
 		scim := redacted.GetScim()
 		if scim == nil {

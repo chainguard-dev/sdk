@@ -62,6 +62,10 @@ func (x *IdentityProvider) CloudEventsRedact() any {
 				ClientId:         cfg.Oidc.ClientId,
 				AdditionalScopes: cfg.Oidc.AdditionalScopes,
 				GroupsClaim:      cfg.Oidc.GroupsClaim,
+				// pkce_enabled is configuration, not a credential: the audit
+				// event must record whether the client authenticates with a
+				// secret or PKCE.
+				PkceEnabled: cfg.Oidc.PkceEnabled,
 				// ClientSecret is redacted.
 			},
 		}

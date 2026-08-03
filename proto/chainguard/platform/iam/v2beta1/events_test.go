@@ -267,6 +267,7 @@ func TestIdentityProvidersEventInterfaces(t *testing.T) {
 				ClientId:     "client-id",
 				ClientSecret: "super-secret",
 				GroupsClaim:  "okta_groups",
+				PkceEnabled:  true,
 			},
 		},
 	}
@@ -296,6 +297,11 @@ func TestIdentityProvidersEventInterfaces(t *testing.T) {
 	// the IdP-update event records changes to the trusted group claim.
 	if oidc.GetGroupsClaim() != "okta_groups" {
 		t.Errorf("redacted groups_claim = %q, want preserved", oidc.GetGroupsClaim())
+	}
+	// pkce_enabled is likewise config — how the client authenticates (secret
+	// vs PKCE) belongs in the audit record.
+	if !oidc.GetPkceEnabled() {
+		t.Error("redacted pkce_enabled = false, want preserved")
 	}
 	// An IdP with no SCIM config must stay nil after redaction — guards against a
 	// refactor that unconditionally allocates an (empty) Scim sub-message.

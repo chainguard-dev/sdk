@@ -66,6 +66,10 @@ func (x *IdentityProvider) CloudEventsRedact() any {
 				// GroupsClaim must survive redaction so the audit event records
 				// changes to the trusted group-mapping claim.
 				GroupsClaim: cfg.Oidc.GroupsClaim,
+				// PkceEnabled is configuration, not a credential: with the
+				// client_secret redacted, it is the only signal in the event of
+				// a confidential <-> public (PKCE-only) client transition.
+				PkceEnabled: cfg.Oidc.PkceEnabled,
 			},
 		}
 	default:
