@@ -57,7 +57,7 @@ service ArgosOSV {
     };
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [CAP_ARGOS_OSV_READ]
+        capabilities: [CAP_ARGOS_OSV_DUMP]
         unscoped: true
       }
     };

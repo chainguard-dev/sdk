@@ -337,6 +337,7 @@ enum Capability {
 
   // Argos — Private OSV API (customer-facing OSV query surface).
   CAP_ARGOS_OSV_READ = 2604 [(name) = "argos.osv.read", (bit) = 147];
+  CAP_ARGOS_OSV_DUMP = 2614 [(name) = "argos.osv.dump", (bit) = 198];
 
   // Libraries Policy Gates — customer-facing policies and bindings that
   // configure the cooldown and malware gates applied to upstream package pulls,
@@ -394,5 +395,5 @@ enum Capability {
   CAP_ACTIONS_LIST = 2700 [(name) = "actions.list", (bit) = 164];
 
   reserved 1;
-  // next bit: 198
+  // next bit: 199
 }

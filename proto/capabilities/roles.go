@@ -425,6 +425,13 @@ var (
 	ArgosOSVReaderCaps = SortCaps([]Capability{
 		Capability_CAP_ARGOS_OSV_READ,
 	})
+
+	// ArgosOSVDumperCaps is the capability set for bulk-exporting the shared
+	// Private OSV corpus via the Dump RPC. The Dump RPC requires
+	// CAP_ARGOS_OSV_DUMP.
+	ArgosOSVDumperCaps = SortCaps([]Capability{
+		Capability_CAP_ARGOS_OSV_DUMP,
+	})
 )
 
 func SortCaps(caps ...[]Capability) []Capability {

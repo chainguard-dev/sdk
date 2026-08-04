@@ -1354,7 +1354,7 @@ const file_argos_osv_platform_proto_rawDesc = "" +
 	"\aGetVuln\x12(.chainguard.platform.argos.GetOSVRequest\x1a$.chainguard.platform.argos.OSVRecord\"1\x82\xd3\xe4\x93\x02\x1d\x12\x1b/argos/v1/osv/vulns/{id=**}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\xac\x14\x10\x01\x12\x89\x01\n" +
 	"\x04Dump\x12).chainguard.platform.argos.DumpOSVRequest\x1a*.chainguard.platform.argos.DumpOSVResponse\"(\x82\xd3\xe4\x93\x02\x14\x12\x12/argos/v1/osv/dump\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x02\xac\x14\x10\x010\x01B,Z*chainguard.dev/sdk/proto/platform/argos/v1b\x06proto3"
+	"\x02\xb6\x14\x10\x010\x01B,Z*chainguard.dev/sdk/proto/platform/argos/v1b\x06proto3"
 
 var (
 	file_argos_osv_platform_proto_rawDescOnce sync.Once
