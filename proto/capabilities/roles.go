@@ -100,9 +100,15 @@ var (
 	// deliberately NOT here: this bundle is customer-grantable, and the catalog
 	// is written by the Chainguard publish pipeline via a CAP_INTERNAL role, not
 	// by customer skills publishers.
+	//
+	// CAP_SKILLS_HARDEN is customer-facing: it grants access to the Skills
+	// harden API (submit/track a harden job), so a skills-entitled publisher can
+	// also harden. The internal result-record leg is guarded by CAP_INTERNAL, so
+	// this bundle stays customer-safe.
 	SkillsPublishCaps = SortCaps([]Capability{
 		Capability_CAP_SKILLS_PUBLISH,
 		Capability_CAP_SKILLS_ENTITLEMENTS_LIST,
+		Capability_CAP_SKILLS_HARDEN,
 		Capability_CAP_TERMS_LIST,
 	})
 

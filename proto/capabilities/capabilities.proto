@@ -330,6 +330,15 @@ enum Capability {
   CAP_SKILLS_WRITE  = 2505 [(name) = "skills.write",  (bit) = 193, (internal_only) = true];
   CAP_SKILLS_DELETE = 2506 [(name) = "skills.delete", (bit) = 194, (internal_only) = true];
 
+  // Skills harden — access to the Skills harden API (submit a skill for
+  // hardening + track the job: HardenSkill / GetHardenOperation /
+  // GetHardenStatus / CancelHardenOperation). Customer-facing: an org member
+  // holds it on the target group named by `chainctl skills harden --group`.
+  // One cap gates the harden API for now; it can be split into finer
+  // create/read/cancel caps later without a rewrite. The internal
+  // result-record leg is guarded by CAP_INTERNAL, not this cap.
+  CAP_SKILLS_HARDEN = 2508 [(name) = "skills.harden", (bit) = 199];
+
   // Argos — client-side encrypted document records.
   CAP_ARGOS_DOCUMENTS_CREATE = 2601 [(name) = "argos.documents.create", (bit) = 144];
   CAP_ARGOS_DOCUMENTS_LIST   = 2602 [(name) = "argos.documents.list",   (bit) = 145];
@@ -395,5 +404,5 @@ enum Capability {
   CAP_ACTIONS_LIST = 2700 [(name) = "actions.list", (bit) = 164];
 
   reserved 1;
-  // next bit: 199
+  // next bit: 200
 }
