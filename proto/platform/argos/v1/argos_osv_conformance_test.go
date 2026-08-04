@@ -6,6 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 package v1_test
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 
@@ -35,11 +36,12 @@ func TestOSVRecordJSONConformsToOSVSpec(t *testing.T) {
 			}},
 			DatabaseSpecific: &argosv1.DatabaseSpecific{
 				CweIds: []string{"CWE-0000"},
-				SinkLocator: &argosv1.SinkLocator{
-					Class:    "example.pkg.Sink",
-					Method:   "method(str)",
-					FileLine: "example/pkg/sink.py:1-2",
-				},
+				SinkLocator: []*argosv1.SinkLocator{{
+					Class:            "example.pkg.Sink",
+					Method:           "method(str)",
+					FileLine:         "example/pkg/sink.py:1-2",
+					ObservedVersions: []string{"1.2.2"},
+				}},
 				DefectKind: "incorrect-control",
 			},
 		}},
@@ -55,6 +57,7 @@ func TestOSVRecordJSONConformsToOSVSpec(t *testing.T) {
 		// without their json_name pins — assert the exact spec form.
 		`"schema_version"`, `"last_affected"`, `"database_specific"`,
 		`"cwe_ids"`, `"sink_locator"`, `"class"`, `"file_line"`, `"defect_kind"`,
+		`"observed_versions"`,
 		// Range type must render the bare OSV enum form ("ECOSYSTEM"), not a
 		// proto-prefixed value name.
 		`"ECOSYSTEM"`,
@@ -66,11 +69,31 @@ func TestOSVRecordJSONConformsToOSVSpec(t *testing.T) {
 	for _, reject := range []string{
 		"schemaVersion", "lastAffected", "databaseSpecific",
 		"cweIds", "sinkLocator", "fileLine", "defectKind",
+		"observedVersions",
 		"RANGE_TYPE_",
 	} {
 		if strings.Contains(got, reject) {
 			t.Errorf("non-OSV-spec token %q leaked into customer OSV JSON: %s", reject, got)
 		}
+	}
+
+	// sink_locator is repeated: the served JSON shape is an array of entry
+	// objects, never a bare object. Assert structurally (protojson output
+	// spacing is deliberately non-deterministic, so no substring check).
+	var top struct {
+		Affected []struct {
+			DatabaseSpecific struct {
+				SinkLocator []struct {
+					ObservedVersions []string `json:"observed_versions"`
+				} `json:"sink_locator"`
+			} `json:"database_specific"`
+		} `json:"affected"`
+	}
+	if err := json.Unmarshal(b, &top); err != nil {
+		t.Fatalf("sink_locator is not an array of objects: %v in %s", err, got)
+	}
+	if n := len(top.Affected[0].DatabaseSpecific.SinkLocator); n != 1 {
+		t.Errorf("sink_locator entries: got = %d, want = 1: %s", n, got)
 	}
 }
 

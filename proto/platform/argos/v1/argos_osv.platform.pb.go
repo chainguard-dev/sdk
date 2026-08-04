@@ -406,9 +406,14 @@ type DatabaseSpecific struct {
 	// cwe_ids is the ordered list of CWE classifications; the lead (most
 	// specific) CWE is cwe_ids[0].
 	CweIds []string `protobuf:"bytes,1,rep,name=cwe_ids,proto3" json:"cwe_ids,omitempty"`
-	// sink_locator is the structured sink of the defect within the upstream
-	// package's own source. Unset for non-flow defects.
-	SinkLocator *SinkLocator `protobuf:"bytes,2,opt,name=sink_locator,proto3" json:"sink_locator,omitempty"`
+	// sink_locator lists every confirmed sink of the defect within the
+	// upstream package's own source. Empty for non-flow defects. The list is
+	// unordered and no entry is privileged; the same sink identity (class +
+	// method) may appear more than once with different file_line values when
+	// the code moved between releases — each entry is a dated observation (see
+	// observed_versions), not an affected-range claim. Version applicability
+	// lives in the OSV `ranges` on the Affected entry.
+	SinkLocator []*SinkLocator `protobuf:"bytes,2,rep,name=sink_locator,proto3" json:"sink_locator,omitempty"`
 	// defect_kind is the coarse defect class: "missing-control",
 	// "incorrect-control", or "configuration-default".
 	DefectKind    string `protobuf:"bytes,3,opt,name=defect_kind,proto3" json:"defect_kind,omitempty"`
@@ -453,7 +458,7 @@ func (x *DatabaseSpecific) GetCweIds() []string {
 	return nil
 }
 
-func (x *DatabaseSpecific) GetSinkLocator() *SinkLocator {
+func (x *DatabaseSpecific) GetSinkLocator() []*SinkLocator {
 	if x != nil {
 		return x.SinkLocator
 	}
@@ -467,7 +472,10 @@ func (x *DatabaseSpecific) GetDefectKind() string {
 	return ""
 }
 
-// SinkLocator locates a defect's sink within the upstream package source.
+// SinkLocator locates one confirmed sink of a defect within the upstream
+// package source. A DatabaseSpecific carries a repeated, unordered list of
+// these; each entry is a dated observation of the sink at the versions in
+// observed_versions.
 type SinkLocator struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// class is the fully-qualified class/type of the sink (or module path for
@@ -478,9 +486,15 @@ type SinkLocator struct {
 	// arg_signature is the sink's argument signature, when known.
 	ArgSignature string `protobuf:"bytes,3,opt,name=arg_signature,proto3" json:"arg_signature,omitempty"`
 	// file_line is the sink's source location, e.g. "src/.../X.java:NNN".
-	FileLine      string `protobuf:"bytes,4,opt,name=file_line,proto3" json:"file_line,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	FileLine string `protobuf:"bytes,4,opt,name=file_line,proto3" json:"file_line,omitempty"`
+	// observed_versions lists the package versions at which this exact
+	// location (class + method + file_line) was confirmed by analysis. It is
+	// an observation record, not an affected-range claim — version
+	// applicability lives in the OSV `ranges` on the Affected entry. Empty on
+	// records that predate the field.
+	ObservedVersions []string `protobuf:"bytes,5,rep,name=observed_versions,proto3" json:"observed_versions,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *SinkLocator) Reset() {
@@ -539,6 +553,13 @@ func (x *SinkLocator) GetFileLine() string {
 		return x.FileLine
 	}
 	return ""
+}
+
+func (x *SinkLocator) GetObservedVersions() []string {
+	if x != nil {
+		return x.ObservedVersions
+	}
+	return nil
 }
 
 type Severity struct {
@@ -1290,13 +1311,14 @@ const file_argos_osv_platform_proto_rawDesc = "" +
 	"\x11database_specific\x18\x05 \x01(\v2+.chainguard.platform.argos.DatabaseSpecificR\x11database_specific\"\x9a\x01\n" +
 	"\x10DatabaseSpecific\x12\x18\n" +
 	"\acwe_ids\x18\x01 \x03(\tR\acwe_ids\x12J\n" +
-	"\fsink_locator\x18\x02 \x01(\v2&.chainguard.platform.argos.SinkLocatorR\fsink_locator\x12 \n" +
-	"\vdefect_kind\x18\x03 \x01(\tR\vdefect_kind\"\x7f\n" +
+	"\fsink_locator\x18\x02 \x03(\v2&.chainguard.platform.argos.SinkLocatorR\fsink_locator\x12 \n" +
+	"\vdefect_kind\x18\x03 \x01(\tR\vdefect_kind\"\xad\x01\n" +
 	"\vSinkLocator\x12\x14\n" +
 	"\x05class\x18\x01 \x01(\tR\x05class\x12\x16\n" +
 	"\x06method\x18\x02 \x01(\tR\x06method\x12$\n" +
 	"\rarg_signature\x18\x03 \x01(\tR\rarg_signature\x12\x1c\n" +
-	"\tfile_line\x18\x04 \x01(\tR\tfile_line\"4\n" +
+	"\tfile_line\x18\x04 \x01(\tR\tfile_line\x12,\n" +
+	"\x11observed_versions\x18\x05 \x03(\tR\x11observed_versions\"4\n" +
 	"\bSeverity\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x14\n" +
 	"\x05score\x18\x02 \x01(\tR\x05score\"\xd9\x03\n" +

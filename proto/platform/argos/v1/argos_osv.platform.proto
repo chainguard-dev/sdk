@@ -115,16 +115,24 @@ message DatabaseSpecific {
   // specific) CWE is cwe_ids[0].
   repeated string cwe_ids = 1 [json_name = "cwe_ids"];
 
-  // sink_locator is the structured sink of the defect within the upstream
-  // package's own source. Unset for non-flow defects.
-  SinkLocator sink_locator = 2 [json_name = "sink_locator"];
+  // sink_locator lists every confirmed sink of the defect within the
+  // upstream package's own source. Empty for non-flow defects. The list is
+  // unordered and no entry is privileged; the same sink identity (class +
+  // method) may appear more than once with different file_line values when
+  // the code moved between releases — each entry is a dated observation (see
+  // observed_versions), not an affected-range claim. Version applicability
+  // lives in the OSV `ranges` on the Affected entry.
+  repeated SinkLocator sink_locator = 2 [json_name = "sink_locator"];
 
   // defect_kind is the coarse defect class: "missing-control",
   // "incorrect-control", or "configuration-default".
   string defect_kind = 3 [json_name = "defect_kind"];
 }
 
-// SinkLocator locates a defect's sink within the upstream package source.
+// SinkLocator locates one confirmed sink of a defect within the upstream
+// package source. A DatabaseSpecific carries a repeated, unordered list of
+// these; each entry is a dated observation of the sink at the versions in
+// observed_versions.
 message SinkLocator {
   // class is the fully-qualified class/type of the sink (or module path for
   // non-OO languages).
@@ -138,6 +146,13 @@ message SinkLocator {
 
   // file_line is the sink's source location, e.g. "src/.../X.java:NNN".
   string file_line = 4 [json_name = "file_line"];
+
+  // observed_versions lists the package versions at which this exact
+  // location (class + method + file_line) was confirmed by analysis. It is
+  // an observation record, not an affected-range claim — version
+  // applicability lives in the OSV `ranges` on the Affected entry. Empty on
+  // records that predate the field.
+  repeated string observed_versions = 5 [json_name = "observed_versions"];
 }
 
 message Severity {
