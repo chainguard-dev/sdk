@@ -42,6 +42,7 @@ const (
 	ServicePrincipal_MATERIALIZER       ServicePrincipal = 9
 	ServicePrincipal_MICROFLOW          ServicePrincipal = 10
 	ServicePrincipal_GUARDENER          ServicePrincipal = 11
+	ServicePrincipal_MICROVM            ServicePrincipal = 12
 )
 
 // Enum value maps for ServicePrincipal.
@@ -59,6 +60,7 @@ var (
 		9:  "MATERIALIZER",
 		10: "MICROFLOW",
 		11: "GUARDENER",
+		12: "MICROVM",
 	}
 	ServicePrincipal_value = map[string]int32{
 		"UNKNOWN":            0,
@@ -73,6 +75,7 @@ var (
 		"MATERIALIZER":       9,
 		"MICROFLOW":          10,
 		"GUARDENER":          11,
+		"MICROVM":            12,
 	}
 )
 
@@ -1060,7 +1063,7 @@ const file_identity_platform_proto_rawDesc = "" +
 	"\x02id\x18\x02 \x01(\tR\x02id\"A\n" +
 	"\rLookupRequest\x12\x16\n" +
 	"\x06issuer\x18\x01 \x01(\tR\x06issuer\x12\x18\n" +
-	"\asubject\x18\x02 \x01(\tR\asubject*\xdd\x01\n" +
+	"\asubject\x18\x02 \x01(\tR\asubject*\xea\x01\n" +
 	"\x10ServicePrincipal\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\f\n" +
 	"\bCOSIGNED\x10\x01\x12\f\n" +
@@ -1074,7 +1077,8 @@ const file_identity_platform_proto_rawDesc = "" +
 	"\fMATERIALIZER\x10\t\x12\r\n" +
 	"\tMICROFLOW\x10\n" +
 	"\x12\r\n" +
-	"\tGUARDENER\x10\v2\xec\a\n" +
+	"\tGUARDENER\x10\v\x12\v\n" +
+	"\aMICROVM\x10\f2\xec\a\n" +
 	"\n" +
 	"Identities\x12\xea\x01\n" +
 	"\x06Create\x12..chainguard.platform.iam.CreateIdentityRequest\x1a!.chainguard.platform.iam.Identity\"\x8c\x01\x92A\x0f\n" +

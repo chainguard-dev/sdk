@@ -121,6 +121,7 @@ enum ServicePrincipal {
   MATERIALIZER   = 9;
   MICROFLOW      = 10;
   GUARDENER      = 11;
+  MICROVM        = 12;
 }
 
 message Identity {

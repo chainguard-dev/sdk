@@ -539,4 +539,6 @@ enum ServicePrincipal {
   SERVICE_PRINCIPAL_MICROFLOW = 10;
   // Guardener service, Chainguard's GitHub automation app for securing and maintaining repositories.
   SERVICE_PRINCIPAL_GUARDENER = 11;
+  // MicroVM service for running ephemeral microVM sandboxes and pulling their guest packages.
+  SERVICE_PRINCIPAL_MICROVM = 12;
 }

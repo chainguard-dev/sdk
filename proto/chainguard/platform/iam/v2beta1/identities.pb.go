@@ -119,6 +119,8 @@ const (
 	ServicePrincipal_SERVICE_PRINCIPAL_MICROFLOW ServicePrincipal = 10
 	// Guardener service, Chainguard's GitHub automation app for securing and maintaining repositories.
 	ServicePrincipal_SERVICE_PRINCIPAL_GUARDENER ServicePrincipal = 11
+	// MicroVM service for running ephemeral microVM sandboxes and pulling their guest packages.
+	ServicePrincipal_SERVICE_PRINCIPAL_MICROVM ServicePrincipal = 12
 )
 
 // Enum value maps for ServicePrincipal.
@@ -136,6 +138,7 @@ var (
 		9:  "SERVICE_PRINCIPAL_MATERIALIZER",
 		10: "SERVICE_PRINCIPAL_MICROFLOW",
 		11: "SERVICE_PRINCIPAL_GUARDENER",
+		12: "SERVICE_PRINCIPAL_MICROVM",
 	}
 	ServicePrincipal_value = map[string]int32{
 		"SERVICE_PRINCIPAL_UNSPECIFIED":        0,
@@ -150,6 +153,7 @@ var (
 		"SERVICE_PRINCIPAL_MATERIALIZER":       9,
 		"SERVICE_PRINCIPAL_MICROFLOW":          10,
 		"SERVICE_PRINCIPAL_GUARDENER":          11,
+		"SERVICE_PRINCIPAL_MICROVM":            12,
 	}
 )
 
@@ -1713,7 +1717,7 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\x1dRELATIONSHIP_TYPE_CLAIM_MATCH\x10\x01\x12\x1c\n" +
 	"\x18RELATIONSHIP_TYPE_STATIC\x10\x02\x12\"\n" +
 	"\x1eRELATIONSHIP_TYPE_AWS_IDENTITY\x10\x03\x12'\n" +
-	"#RELATIONSHIP_TYPE_SERVICE_PRINCIPAL\x10\x04*\xb9\x03\n" +
+	"#RELATIONSHIP_TYPE_SERVICE_PRINCIPAL\x10\x04*\xd8\x03\n" +
 	"\x10ServicePrincipal\x12!\n" +
 	"\x1dSERVICE_PRINCIPAL_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aSERVICE_PRINCIPAL_COSIGNED\x10\x01\x12\x1e\n" +
@@ -1727,7 +1731,8 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\x1eSERVICE_PRINCIPAL_MATERIALIZER\x10\t\x12\x1f\n" +
 	"\x1bSERVICE_PRINCIPAL_MICROFLOW\x10\n" +
 	"\x12\x1f\n" +
-	"\x1bSERVICE_PRINCIPAL_GUARDENER\x10\v2\xb7\x0f\n" +
+	"\x1bSERVICE_PRINCIPAL_GUARDENER\x10\v\x12\x1d\n" +
+	"\x19SERVICE_PRINCIPAL_MICROVM\x10\f2\xb7\x0f\n" +
 	"\x11IdentitiesService\x12\xe5\x02\n" +
 	"\x0eCreateIdentity\x126.chainguard.platform.iam.v2beta1.CreateIdentityRequest\x1a).chainguard.platform.iam.v2beta1.Identity\"\xef\x01\x82\xd3\xe4\x93\x02/:\bidentity\"#/iam/v2beta1/identities/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x85\a\x9a\xaf\xa8\xd2\x05m\n" +
