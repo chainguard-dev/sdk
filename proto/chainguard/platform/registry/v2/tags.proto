@@ -1,0 +1,233 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.registry.v2;
+
+import "annotations/auth.proto";
+import "annotations/events.proto";
+import "annotations/mcp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "platform/common/v1/uidp.platform.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/registry/v2";
+option java_multiple_files = true;
+option java_outer_classname = "TagsProto";
+option java_package = "com.chainguard.platform.registry.v2";
+
+// TagsService manages image tags.
+service TagsService {
+  // GetTag retrieves a single tag by UID.
+  rpc GetTag(GetTagRequest) returns (Tag) {
+    option (google.api.http) = {get: "/registry/v2/tags/{uid=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TAG_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get a container image tag by its UIDP."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // ListTags returns tags based on filter criteria with pagination support.
+  rpc ListTags(ListTagsRequest) returns (ListTagsResponse) {
+    option (google.api.http) = {get: "/registry/v2/tags"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TAG_LIST]
+        unscoped: true
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List container image tags the caller has access to. Supports filtering by name, digest, and date range."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // CreateTag creates (or updates) a tag under a repo.
+  rpc CreateTag(CreateTagRequest) returns (Tag) {
+    option (google.api.http) = {
+      post: "/registry/v2/tags/{parent=**}"
+      body: "tag"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TAG_CREATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.platform.registry.tag.created.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Create a container image tag under a repo."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
+      hidden: true
+    };
+  }
+
+  // DeleteTag deletes a tag by UID.
+  rpc DeleteTag(DeleteTagRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/registry/v2/tags/{uid=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TAG_DELETE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.platform.registry.tag.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Delete a container image tag by its UIDP."
+      read_only: false
+      destructive: true
+      idempotent: true
+      open_world: false
+      hidden: true
+    };
+  }
+}
+
+// Tag is a container image tag that points to a specific digest of an image manifest.
+message Tag {
+  option (google.api.resource) = {
+    type: "registry.chainguard.dev/Tag"
+    pattern: "tags/{tag}"
+    singular: "tag"
+    plural: "tags"
+  };
+
+  // The unique identifier of this Tag, a UIDP under a Repo.
+  string uid = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The name of the Tag.
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The digest of the manifest with this tag.
+  string digest = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // When this tag was last updated.
+  google.protobuf.Timestamp update_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Flag for if the tag is deprecated.
+  bool deprecated = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // A list of tags/labels for sales purposes.
+  // (-- TODO(colin): verify this is still used --)
+  repeated string bundles = 6 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// GetTagRequest is the request message for getting a single Tag by UID.
+message GetTagRequest {
+  // UID of the tag to retrieve.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// CreateTagRequest is the request message for creating a Tag under a Repo.
+message CreateTagRequest {
+  // The Repo UIDP under which the Tag is created.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The Tag to create.
+  Tag tag = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// DeleteTagRequest is the request message for deleting a single Tag by UID.
+message DeleteTagRequest {
+  // UID of the tag to delete.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// ListTagsRequest provides filtering options for ListTags.
+message ListTagsRequest {
+  // Filters records based on their position in the group hierarchy.
+  chainguard.platform.common.UIDPFilter uidp = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // The unique name of the Tag to list.
+  string name = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // The timestamp after which returned records were updated.
+  // (-- api-linter: core::0142::time-field-names=disabled
+  //     api-linter: core::0140::prepositions=disabled
+  //     aip.dev/not-precedent: This is a filter field, not a timestamp. --)
+  google.protobuf.Timestamp updated_since = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Include tags of the form "sha256-*".
+  bool include_referrers = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Include tags of the form "*-20yymmdd".
+  bool include_dates = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // Include tags of the form "*-r[0-9]+".
+  bool include_epochs = 6 [(google.api.field_behavior) = OPTIONAL];
+
+  // Return tags with this digest.
+  string digest = 7 [(google.api.field_behavior) = OPTIONAL];
+
+  // (-- Pagination Fields --)
+
+  // Maximum number of results to return per page.
+  // Default: 50, Maximum: 200.
+  int32 page_size = 10 [(google.api.field_behavior) = OPTIONAL];
+
+  // Page token from a previous List response for pagination.
+  // Opaque token with 3-day expiration.
+  string page_token = 11 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order results by field. Format: "field [asc|desc]"
+  // Default: "uid asc"
+  // Note: Changing order_by between pages invalidates the page token.
+  string order_by = 12 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of results to skip before returning.
+  // Used for random-access pagination (jumping to arbitrary pages).
+  // Can be combined with page_token to skip from cursor position.
+  // Must be non-negative.
+  int32 skip = 13 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListTagsResponse is the response to ListTags, with pagination.
+message ListTagsResponse {
+  // Tags matching the filter criteria.
+  repeated Tag tags = 1;
+
+  // Token for retrieving the next page of results.
+  // Empty if no more results.
+  string next_page_token = 2;
+
+  // Total number of results matching the filter.
+  // Optional, provided for UI pagination.
+  optional int64 total_count = 3;
+
+  // Number of results that were skipped.
+  // Accumulates across paginated requests.
+  int32 skipped = 4;
+}
