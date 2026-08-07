@@ -204,6 +204,7 @@ enum Capability {
   CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_LIST = 1859 [(name) = "libraries.rebuilder.cve_remediations.list", (bit) = 177, (internal_only) = true];
   CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_UPDATE = 1861 [(name) = "libraries.rebuilder.cve_remediations.update", (bit) = 178, (internal_only) = true];
   CAP_LIBRARIES_REBUILDER_SOURCE_COORDINATES_WRITE = 1863 [(name) = "libraries.rebuilder.source_coordinates.write", (bit) = 200, (internal_only) = true];
+  CAP_LIBRARIES_REBUILDER_SOURCE_COORDINATES_RESOLVE = 1864 [(name) = "libraries.rebuilder.source_coordinates.resolve", (bit) = 201, (internal_only) = true];
 
   // AWS Marketplace Subscriptions (Chainguard Libraries on AWS Security Hub Extended)
   CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE = 1870 [(name) = "libraries.aws_marketplace.subscriptions.create", (bit) = 165];
@@ -405,5 +406,5 @@ enum Capability {
   CAP_ACTIONS_LIST = 2700 [(name) = "actions.list", (bit) = 164];
 
   reserved 1;
-  // next bit: 201
+  // next bit: 202
 }

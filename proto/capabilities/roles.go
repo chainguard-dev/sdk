@@ -379,6 +379,15 @@ var (
 		Capability_CAP_LIBRARIES_REBUILDER_MALWARE_STATUS_READ,
 		Capability_CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_LIST,
 		Capability_CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_UPDATE,
+		// source_coordinates.resolve lets a staff operator enqueue on-demand source
+		// resolution (DESIGN-rebuilder-api-integration.md §5.1: "exercised by cg and
+		// tests until a first driver is chosen"). Admin already holds
+		// artifacts.invalidate / exclusions.manage, so enqueueing a resolve is no
+		// privilege escalation here. Note source_coordinates.write is deliberately
+		// NOT in this bundle — persisting canonical coordinates is reconciler-only
+		// (LibrariesRebuilderSourceResolverCaps), and admin must not be able to
+		// forge resolved rows.
+		Capability_CAP_LIBRARIES_REBUILDER_SOURCE_COORDINATES_RESOLVE,
 		// This bundle grants (internal_only) capabilities, so it must also grant
 		// CAP_INTERNAL; the internal-only validation enforces that pairing, which
 		// keeps these capabilities off customer-grantable roles.
