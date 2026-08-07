@@ -645,7 +645,7 @@ type LibraryPolicyBinding struct {
 	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// The UIDP of the policy to apply.
 	Policy string `protobuf:"bytes,2,opt,name=policy,proto3" json:"policy,omitempty"`
-	// The ecosystem this binding applies to (JAVASCRIPT or PYTHON; JAVA rejected).
+	// The ecosystem this binding applies to (JAVASCRIPT, PYTHON, or JAVA).
 	Ecosystem Ecosystem `protobuf:"varint,3,opt,name=ecosystem,proto3,enum=chainguard.platform.libraries.Ecosystem" json:"ecosystem,omitempty"`
 	// ENFORCED or LOG.
 	Mode          LibraryPolicyBindingMode `protobuf:"varint,4,opt,name=mode,proto3,enum=chainguard.platform.libraries.LibraryPolicyBindingMode" json:"mode,omitempty"`

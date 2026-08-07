@@ -271,7 +271,8 @@ const (
 type LibraryPolicyBindingsClient interface {
 	// CreateBinding activates a policy. Returns ALREADY_EXISTS if a binding for
 	// the same (org, ecosystem, mode) already exists; use UpdateBinding instead.
-	// A JAVA ecosystem is rejected (INVALID_ARGUMENT) until enforcement exists.
+	// JAVASCRIPT, PYTHON, and JAVA ecosystems are accepted; any other ecosystem
+	// is rejected (INVALID_ARGUMENT).
 	CreateBinding(ctx context.Context, in *CreateLibraryPolicyBindingRequest, opts ...grpc.CallOption) (*LibraryPolicyBinding, error)
 	UpdateBinding(ctx context.Context, in *LibraryPolicyBinding, opts ...grpc.CallOption) (*LibraryPolicyBinding, error)
 	ListBindings(ctx context.Context, in *LibraryPolicyBindingFilter, opts ...grpc.CallOption) (*LibraryPolicyBindingList, error)
@@ -335,7 +336,8 @@ func (c *libraryPolicyBindingsClient) DeleteBinding(ctx context.Context, in *Del
 type LibraryPolicyBindingsServer interface {
 	// CreateBinding activates a policy. Returns ALREADY_EXISTS if a binding for
 	// the same (org, ecosystem, mode) already exists; use UpdateBinding instead.
-	// A JAVA ecosystem is rejected (INVALID_ARGUMENT) until enforcement exists.
+	// JAVASCRIPT, PYTHON, and JAVA ecosystems are accepted; any other ecosystem
+	// is rejected (INVALID_ARGUMENT).
 	CreateBinding(context.Context, *CreateLibraryPolicyBindingRequest) (*LibraryPolicyBinding, error)
 	UpdateBinding(context.Context, *LibraryPolicyBinding) (*LibraryPolicyBinding, error)
 	ListBindings(context.Context, *LibraryPolicyBindingFilter) (*LibraryPolicyBindingList, error)

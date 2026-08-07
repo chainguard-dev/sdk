@@ -68,7 +68,8 @@ service LibraryPolicies {
 service LibraryPolicyBindings {
   // CreateBinding activates a policy. Returns ALREADY_EXISTS if a binding for
   // the same (org, ecosystem, mode) already exists; use UpdateBinding instead.
-  // A JAVA ecosystem is rejected (INVALID_ARGUMENT) until enforcement exists.
+  // JAVASCRIPT, PYTHON, and JAVA ecosystems are accepted; any other ecosystem
+  // is rejected (INVALID_ARGUMENT).
   rpc CreateBinding(CreateLibraryPolicyBindingRequest) returns (LibraryPolicyBinding) {
     option (google.api.http) = {
       post: "/libraries/v1/policy-bindings/{parent_id=**}"
@@ -245,7 +246,7 @@ message LibraryPolicyBinding {
   // The UIDP of the policy to apply.
   string policy = 2;
 
-  // The ecosystem this binding applies to (JAVASCRIPT or PYTHON; JAVA rejected).
+  // The ecosystem this binding applies to (JAVASCRIPT, PYTHON, or JAVA).
   Ecosystem ecosystem = 3;
 
   // ENFORCED or LOG.
