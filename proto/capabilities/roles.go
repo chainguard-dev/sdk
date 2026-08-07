@@ -385,6 +385,19 @@ var (
 		Capability_CAP_INTERNAL,
 	})
 
+	// LibrariesRebuilderSourceResolverCaps is for the source-coordinate reconciler's
+	// identity (the source-resolver-reconciler service). It resolves not-yet-built
+	// coordinates and persists the result through rebuilder-api's write-back endpoint,
+	// so it needs source_coordinates.write; it also runs a canonical-presence check
+	// against the read path first, so it needs builds.read. Least-privilege: only those
+	// two, plus CAP_INTERNAL for the internal-only pairing — deliberately not the broad
+	// admin bundle.
+	LibrariesRebuilderSourceResolverCaps = SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_REBUILDER_BUILDS_READ,
+		Capability_CAP_LIBRARIES_REBUILDER_SOURCE_COORDINATES_WRITE,
+		Capability_CAP_INTERNAL,
+	})
+
 	// GuardenerUserCaps is the minimum capability set required to run
 	// guardener (DFC) sessions against a group. terms.list is required
 	// because the DFC server checks the group's terms-of-service

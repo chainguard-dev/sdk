@@ -178,6 +178,7 @@ const (
 	Capability_CAP_LIBRARIES_REBUILDER_MALWARE_STATUS_READ       Capability = 1858
 	Capability_CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_LIST     Capability = 1859
 	Capability_CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_UPDATE   Capability = 1861
+	Capability_CAP_LIBRARIES_REBUILDER_SOURCE_COORDINATES_WRITE  Capability = 1863
 	// AWS Marketplace Subscriptions (Chainguard Libraries on AWS Security Hub Extended)
 	Capability_CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE Capability = 1870
 	Capability_CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE Capability = 1871
@@ -459,6 +460,7 @@ var (
 		1858:  "CAP_LIBRARIES_REBUILDER_MALWARE_STATUS_READ",
 		1859:  "CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_LIST",
 		1861:  "CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_UPDATE",
+		1863:  "CAP_LIBRARIES_REBUILDER_SOURCE_COORDINATES_WRITE",
 		1870:  "CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE",
 		1871:  "CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE",
 		1872:  "CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST",
@@ -656,6 +658,7 @@ var (
 		"CAP_LIBRARIES_REBUILDER_MALWARE_STATUS_READ":        1858,
 		"CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_LIST":      1859,
 		"CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_UPDATE":    1861,
+		"CAP_LIBRARIES_REBUILDER_SOURCE_COORDINATES_WRITE":   1863,
 		"CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE": 1870,
 		"CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE": 1871,
 		"CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST":   1872,
@@ -825,7 +828,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xe8g\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xdfh\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -952,7 +955,8 @@ const file_capabilities_proto_rawDesc = "" +
 	",CAP_LIBRARIES_REBUILDER_NEW_VERSIONS_REFRESH\x10\xc1\x0e\x1a:\xa8ˑM\x8e\x01\x9a\xaf\xa8\xd2\x05(libraries.rebuilder.new_versions.refresh\xa0\xaf\xa8\xd2\x05\x01\x12k\n" +
 	"+CAP_LIBRARIES_REBUILDER_MALWARE_STATUS_READ\x10\xc2\x0e\x1a9\xa8ˑM\x9d\x01\x9a\xaf\xa8\xd2\x05'libraries.rebuilder.malware.status.read\xa0\xaf\xa8\xd2\x05\x01\x12o\n" +
 	"-CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_LIST\x10\xc3\x0e\x1a;\xa8ˑM\xb1\x01\x9a\xaf\xa8\xd2\x05)libraries.rebuilder.cve_remediations.list\xa0\xaf\xa8\xd2\x05\x01\x12s\n" +
-	"/CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_UPDATE\x10\xc5\x0e\x1a=\xa8ˑM\xb2\x01\x9a\xaf\xa8\xd2\x05+libraries.rebuilder.cve_remediations.update\xa0\xaf\xa8\xd2\x05\x01\x12s\n" +
+	"/CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_UPDATE\x10\xc5\x0e\x1a=\xa8ˑM\xb2\x01\x9a\xaf\xa8\xd2\x05+libraries.rebuilder.cve_remediations.update\xa0\xaf\xa8\xd2\x05\x01\x12u\n" +
+	"0CAP_LIBRARIES_REBUILDER_SOURCE_COORDINATES_WRITE\x10\xc7\x0e\x1a>\xa8ˑM\xc8\x01\x9a\xaf\xa8\xd2\x05,libraries.rebuilder.source_coordinates.write\xa0\xaf\xa8\xd2\x05\x01\x12s\n" +
 	"2CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE\x10\xce\x0e\x1a:\xa8ˑM\xa5\x01\x9a\xaf\xa8\xd2\x05.libraries.aws_marketplace.subscriptions.create\x12s\n" +
 	"2CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE\x10\xcf\x0e\x1a:\xa8ˑM\xa6\x01\x9a\xaf\xa8\xd2\x05.libraries.aws_marketplace.subscriptions.update\x12o\n" +
 	"0CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST\x10\xd0\x0e\x1a8\xa8ˑM\xa7\x01\x9a\xaf\xa8\xd2\x05,libraries.aws_marketplace.subscriptions.list\x12J\n" +
