@@ -263,11 +263,12 @@ func TestIdentityProvidersEventInterfaces(t *testing.T) {
 		Name: "test-idp",
 		Configuration: &IdentityProvider_Oidc{
 			Oidc: &IdentityProvider_OIDC{
-				Issuer:       "https://accounts.google.com",
-				ClientId:     "client-id",
-				ClientSecret: "super-secret",
-				GroupsClaim:  "okta_groups",
-				PkceEnabled:  true,
+				Issuer:          "https://accounts.google.com",
+				ClientId:        "client-id",
+				ClientSecret:    "super-secret",
+				GroupsClaim:     "okta_groups",
+				PkceEnabled:     true,
+				CorrelationRule: IdentityProvider_OIDC_CORRELATION_RULE_OID_EQUALS_EXTERNAL_ID,
 			},
 		},
 	}
@@ -302,6 +303,11 @@ func TestIdentityProvidersEventInterfaces(t *testing.T) {
 	// vs PKCE) belongs in the audit record.
 	if !oidc.GetPkceEnabled() {
 		t.Error("redacted pkce_enabled = false, want preserved")
+	}
+	// correlation_rule is likewise config, and write-once: the create event is
+	// the only audit record of how logins bind to SCIM-provisioned users.
+	if oidc.GetCorrelationRule() != IdentityProvider_OIDC_CORRELATION_RULE_OID_EQUALS_EXTERNAL_ID {
+		t.Errorf("redacted correlation_rule = %v, want preserved", oidc.GetCorrelationRule())
 	}
 	// An IdP with no SCIM config must stay nil after redaction — guards against a
 	// refactor that unconditionally allocates an (empty) Scim sub-message.

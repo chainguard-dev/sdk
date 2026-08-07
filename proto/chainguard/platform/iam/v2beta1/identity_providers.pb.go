@@ -31,6 +31,72 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// CorrelationRule enumerates how an OIDC login is matched to the SCIM user
+// provisioned by this identity provider (identity linking at login). A
+// closed enum: matching is never free-form, and email-based matching is
+// deliberately absent — an attacker could provision a SCIM user carrying a
+// victim's email and capture the victim's login.
+type IdentityProvider_OIDC_CorrelationRule int32
+
+const (
+	// Treated as CORRELATION_RULE_SUB_EQUALS_EXTERNAL_ID, the stock-Okta
+	// alignment where the OIDC sub claim and the SCIM externalId carry the
+	// same IdP user ID.
+	IdentityProvider_OIDC_CORRELATION_RULE_UNSPECIFIED IdentityProvider_OIDC_CorrelationRule = 0
+	// The OIDC sub claim equals the SCIM externalId, scoped to this identity
+	// provider.
+	IdentityProvider_OIDC_CORRELATION_RULE_SUB_EQUALS_EXTERNAL_ID IdentityProvider_OIDC_CorrelationRule = 1
+	// The OIDC oid claim equals the SCIM externalId, scoped to this identity
+	// provider. For Microsoft Entra ID, whose sub claim is pairwise per
+	// application and never matches the provisioned externalId; oid (the
+	// directory objectId) is the durable user identifier. Use only for IdPs
+	// whose issuer asserts oid itself; the server does not verify this —
+	// where oid is an admin-mapped custom claim a user can edit, this rule
+	// re-opens the claim-capture attack email matching avoids.
+	IdentityProvider_OIDC_CORRELATION_RULE_OID_EQUALS_EXTERNAL_ID IdentityProvider_OIDC_CorrelationRule = 2
+)
+
+// Enum value maps for IdentityProvider_OIDC_CorrelationRule.
+var (
+	IdentityProvider_OIDC_CorrelationRule_name = map[int32]string{
+		0: "CORRELATION_RULE_UNSPECIFIED",
+		1: "CORRELATION_RULE_SUB_EQUALS_EXTERNAL_ID",
+		2: "CORRELATION_RULE_OID_EQUALS_EXTERNAL_ID",
+	}
+	IdentityProvider_OIDC_CorrelationRule_value = map[string]int32{
+		"CORRELATION_RULE_UNSPECIFIED":            0,
+		"CORRELATION_RULE_SUB_EQUALS_EXTERNAL_ID": 1,
+		"CORRELATION_RULE_OID_EQUALS_EXTERNAL_ID": 2,
+	}
+)
+
+func (x IdentityProvider_OIDC_CorrelationRule) Enum() *IdentityProvider_OIDC_CorrelationRule {
+	p := new(IdentityProvider_OIDC_CorrelationRule)
+	*p = x
+	return p
+}
+
+func (x IdentityProvider_OIDC_CorrelationRule) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (IdentityProvider_OIDC_CorrelationRule) Descriptor() protoreflect.EnumDescriptor {
+	return file_chainguard_platform_iam_v2beta1_identity_providers_proto_enumTypes[0].Descriptor()
+}
+
+func (IdentityProvider_OIDC_CorrelationRule) Type() protoreflect.EnumType {
+	return &file_chainguard_platform_iam_v2beta1_identity_providers_proto_enumTypes[0]
+}
+
+func (x IdentityProvider_OIDC_CorrelationRule) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use IdentityProvider_OIDC_CorrelationRule.Descriptor instead.
+func (IdentityProvider_OIDC_CorrelationRule) EnumDescriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDescGZIP(), []int{0, 0, 0}
+}
+
 // CredentialState is the server-derived lifecycle state of the SCIM
 // bearer credential. It describes the credential only; whether
 // provisioning is on is the separate `enabled` switch.
@@ -88,11 +154,11 @@ func (x IdentityProvider_SCIM_CredentialState) String() string {
 }
 
 func (IdentityProvider_SCIM_CredentialState) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_iam_v2beta1_identity_providers_proto_enumTypes[0].Descriptor()
+	return file_chainguard_platform_iam_v2beta1_identity_providers_proto_enumTypes[1].Descriptor()
 }
 
 func (IdentityProvider_SCIM_CredentialState) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_iam_v2beta1_identity_providers_proto_enumTypes[0]
+	return &file_chainguard_platform_iam_v2beta1_identity_providers_proto_enumTypes[1]
 }
 
 func (x IdentityProvider_SCIM_CredentialState) Number() protoreflect.EnumNumber {
@@ -1274,6 +1340,16 @@ type IdentityProvider_OIDC struct {
 	// (e.g. "groups" for Entra, a custom claim name for Okta). Required for
 	// IdP group-based role mapping; when empty, group extraction is skipped.
 	GroupsClaim string `protobuf:"bytes,5,opt,name=groups_claim,json=groupsClaim,proto3" json:"groups_claim,omitempty"`
+	// Selects how OIDC logins are matched to SCIM-provisioned users. Unset
+	// selects CORRELATION_RULE_SUB_EQUALS_EXTERNAL_ID. Immutable after the
+	// identity provider is created: changing the rule that maps token claims
+	// to identities would re-open attacker-controllable-claim attacks; a
+	// different rule requires creating a new identity provider. Updates that
+	// restate the current rule (or leave it unset) are a no-op — a
+	// read-modify-write client may echo the field back safely, including over
+	// HTTP PATCH, where the update mask is derived from the request-body keys.
+	// Updates that change it are rejected.
+	CorrelationRule IdentityProvider_OIDC_CorrelationRule `protobuf:"varint,6,opt,name=correlation_rule,json=correlationRule,proto3,enum=chainguard.platform.iam.v2beta1.IdentityProvider_OIDC_CorrelationRule" json:"correlation_rule,omitempty"`
 	// Whether to use PKCE (RFC 7636) when exchanging authorization codes
 	// with this upstream identity provider. Required by OAuth 2.1.
 	PkceEnabled   bool `protobuf:"varint,7,opt,name=pkce_enabled,json=pkceEnabled,proto3" json:"pkce_enabled,omitempty"`
@@ -1344,6 +1420,13 @@ func (x *IdentityProvider_OIDC) GetGroupsClaim() string {
 		return x.GroupsClaim
 	}
 	return ""
+}
+
+func (x *IdentityProvider_OIDC) GetCorrelationRule() IdentityProvider_OIDC_CorrelationRule {
+	if x != nil {
+		return x.CorrelationRule
+	}
+	return IdentityProvider_OIDC_CORRELATION_RULE_UNSPECIFIED
 }
 
 func (x *IdentityProvider_OIDC) GetPkceEnabled() bool {
@@ -1458,7 +1541,7 @@ var File_chainguard_platform_iam_v2beta1_identity_providers_proto protoreflect.F
 
 const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = "" +
 	"\n" +
-	"8chainguard/platform/iam/v2beta1/identity_providers.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xc1\v\n" +
+	"8chainguard/platform/iam/v2beta1/identity_providers.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xc5\r\n" +
 	"\x10IdentityProvider\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
@@ -1470,14 +1553,19 @@ const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = ""
 	"updateTime\x12'\n" +
 	"\fdefault_role\x18\x06 \x01(\tB\x04\xe2A\x01\x02R\vdefaultRole\x12R\n" +
 	"\x04oidc\x18\x14 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.OIDCB\x04\xe2A\x01\x01H\x00R\x04oidc\x12P\n" +
-	"\x04scim\x18\x15 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.SCIMB\x04\xe2A\x01\x03R\x04scim\x1a\xfd\x01\n" +
+	"\x04scim\x18\x15 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.SCIMB\x04\xe2A\x01\x03R\x04scim\x1a\x81\x04\n" +
 	"\x04OIDC\x12\x1c\n" +
 	"\x06issuer\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x06issuer\x12!\n" +
 	"\tclient_id\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\bclientId\x12)\n" +
 	"\rclient_secret\x18\x03 \x01(\tB\x04\xe2A\x01\x01R\fclientSecret\x121\n" +
 	"\x11additional_scopes\x18\x04 \x03(\tB\x04\xe2A\x01\x01R\x10additionalScopes\x12'\n" +
-	"\fgroups_claim\x18\x05 \x01(\tB\x04\xe2A\x01\x01R\vgroupsClaim\x12'\n" +
-	"\fpkce_enabled\x18\a \x01(\bB\x04\xe2A\x01\x01R\vpkceEnabledJ\x04\b\x06\x10\a\x1a\xf0\x04\n" +
+	"\fgroups_claim\x18\x05 \x01(\tB\x04\xe2A\x01\x01R\vgroupsClaim\x12x\n" +
+	"\x10correlation_rule\x18\x06 \x01(\x0e2F.chainguard.platform.iam.v2beta1.IdentityProvider.OIDC.CorrelationRuleB\x05\xe2A\x02\x01\x05R\x0fcorrelationRule\x12'\n" +
+	"\fpkce_enabled\x18\a \x01(\bB\x04\xe2A\x01\x01R\vpkceEnabled\"\x8d\x01\n" +
+	"\x0fCorrelationRule\x12 \n" +
+	"\x1cCORRELATION_RULE_UNSPECIFIED\x10\x00\x12+\n" +
+	"'CORRELATION_RULE_SUB_EQUALS_EXTERNAL_ID\x10\x01\x12+\n" +
+	"'CORRELATION_RULE_OID_EQUALS_EXTERNAL_ID\x10\x02\x1a\xf0\x04\n" +
 	"\x04SCIM\x12\x1e\n" +
 	"\aenabled\x18\x01 \x01(\bB\x04\xe2A\x01\x03R\aenabled\x12'\n" +
 	"\fendpoint_url\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\vendpointUrl\x12L\n" +
@@ -1631,77 +1719,79 @@ func file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDescGZIP()
 	return file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDescData
 }
 
-var file_chainguard_platform_iam_v2beta1_identity_providers_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_chainguard_platform_iam_v2beta1_identity_providers_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_chainguard_platform_iam_v2beta1_identity_providers_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_chainguard_platform_iam_v2beta1_identity_providers_proto_goTypes = []any{
-	(IdentityProvider_SCIM_CredentialState)(0), // 0: chainguard.platform.iam.v2beta1.IdentityProvider.SCIM.CredentialState
-	(*IdentityProvider)(nil),                   // 1: chainguard.platform.iam.v2beta1.IdentityProvider
-	(*ListIdentityProvidersRequest)(nil),       // 2: chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest
-	(*ListIdentityProvidersResponse)(nil),      // 3: chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse
-	(*GetIdentityProviderRequest)(nil),         // 4: chainguard.platform.iam.v2beta1.GetIdentityProviderRequest
-	(*CreateIdentityProviderRequest)(nil),      // 5: chainguard.platform.iam.v2beta1.CreateIdentityProviderRequest
-	(*UpdateIdentityProviderRequest)(nil),      // 6: chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest
-	(*DeleteIdentityProviderRequest)(nil),      // 7: chainguard.platform.iam.v2beta1.DeleteIdentityProviderRequest
-	(*GenerateScimTokenRequest)(nil),           // 8: chainguard.platform.iam.v2beta1.GenerateScimTokenRequest
-	(*GenerateScimTokenResponse)(nil),          // 9: chainguard.platform.iam.v2beta1.GenerateScimTokenResponse
-	(*RegenerateScimTokenRequest)(nil),         // 10: chainguard.platform.iam.v2beta1.RegenerateScimTokenRequest
-	(*RegenerateScimTokenResponse)(nil),        // 11: chainguard.platform.iam.v2beta1.RegenerateScimTokenResponse
-	(*RevokeScimTokenRequest)(nil),             // 12: chainguard.platform.iam.v2beta1.RevokeScimTokenRequest
-	(*RevokeScimTokenResponse)(nil),            // 13: chainguard.platform.iam.v2beta1.RevokeScimTokenResponse
-	(*SetScimEnabledRequest)(nil),              // 14: chainguard.platform.iam.v2beta1.SetScimEnabledRequest
-	(*SetScimEnabledResponse)(nil),             // 15: chainguard.platform.iam.v2beta1.SetScimEnabledResponse
-	(*IdentityProvider_OIDC)(nil),              // 16: chainguard.platform.iam.v2beta1.IdentityProvider.OIDC
-	(*IdentityProvider_SCIM)(nil),              // 17: chainguard.platform.iam.v2beta1.IdentityProvider.SCIM
-	(*timestamppb.Timestamp)(nil),              // 18: google.protobuf.Timestamp
-	(*v1.UIDPFilter)(nil),                      // 19: chainguard.platform.common.UIDPFilter
-	(*fieldmaskpb.FieldMask)(nil),              // 20: google.protobuf.FieldMask
-	(*durationpb.Duration)(nil),                // 21: google.protobuf.Duration
-	(*emptypb.Empty)(nil),                      // 22: google.protobuf.Empty
+	(IdentityProvider_OIDC_CorrelationRule)(0), // 0: chainguard.platform.iam.v2beta1.IdentityProvider.OIDC.CorrelationRule
+	(IdentityProvider_SCIM_CredentialState)(0), // 1: chainguard.platform.iam.v2beta1.IdentityProvider.SCIM.CredentialState
+	(*IdentityProvider)(nil),                   // 2: chainguard.platform.iam.v2beta1.IdentityProvider
+	(*ListIdentityProvidersRequest)(nil),       // 3: chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest
+	(*ListIdentityProvidersResponse)(nil),      // 4: chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse
+	(*GetIdentityProviderRequest)(nil),         // 5: chainguard.platform.iam.v2beta1.GetIdentityProviderRequest
+	(*CreateIdentityProviderRequest)(nil),      // 6: chainguard.platform.iam.v2beta1.CreateIdentityProviderRequest
+	(*UpdateIdentityProviderRequest)(nil),      // 7: chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest
+	(*DeleteIdentityProviderRequest)(nil),      // 8: chainguard.platform.iam.v2beta1.DeleteIdentityProviderRequest
+	(*GenerateScimTokenRequest)(nil),           // 9: chainguard.platform.iam.v2beta1.GenerateScimTokenRequest
+	(*GenerateScimTokenResponse)(nil),          // 10: chainguard.platform.iam.v2beta1.GenerateScimTokenResponse
+	(*RegenerateScimTokenRequest)(nil),         // 11: chainguard.platform.iam.v2beta1.RegenerateScimTokenRequest
+	(*RegenerateScimTokenResponse)(nil),        // 12: chainguard.platform.iam.v2beta1.RegenerateScimTokenResponse
+	(*RevokeScimTokenRequest)(nil),             // 13: chainguard.platform.iam.v2beta1.RevokeScimTokenRequest
+	(*RevokeScimTokenResponse)(nil),            // 14: chainguard.platform.iam.v2beta1.RevokeScimTokenResponse
+	(*SetScimEnabledRequest)(nil),              // 15: chainguard.platform.iam.v2beta1.SetScimEnabledRequest
+	(*SetScimEnabledResponse)(nil),             // 16: chainguard.platform.iam.v2beta1.SetScimEnabledResponse
+	(*IdentityProvider_OIDC)(nil),              // 17: chainguard.platform.iam.v2beta1.IdentityProvider.OIDC
+	(*IdentityProvider_SCIM)(nil),              // 18: chainguard.platform.iam.v2beta1.IdentityProvider.SCIM
+	(*timestamppb.Timestamp)(nil),              // 19: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),                      // 20: chainguard.platform.common.UIDPFilter
+	(*fieldmaskpb.FieldMask)(nil),              // 21: google.protobuf.FieldMask
+	(*durationpb.Duration)(nil),                // 22: google.protobuf.Duration
+	(*emptypb.Empty)(nil),                      // 23: google.protobuf.Empty
 }
 var file_chainguard_platform_iam_v2beta1_identity_providers_proto_depIdxs = []int32{
-	18, // 0: chainguard.platform.iam.v2beta1.IdentityProvider.create_time:type_name -> google.protobuf.Timestamp
-	18, // 1: chainguard.platform.iam.v2beta1.IdentityProvider.update_time:type_name -> google.protobuf.Timestamp
-	16, // 2: chainguard.platform.iam.v2beta1.IdentityProvider.oidc:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider.OIDC
-	17, // 3: chainguard.platform.iam.v2beta1.IdentityProvider.scim:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider.SCIM
-	19, // 4: chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	1,  // 5: chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse.identity_providers:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider
-	1,  // 6: chainguard.platform.iam.v2beta1.CreateIdentityProviderRequest.identity_provider:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider
-	1,  // 7: chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest.identity_provider:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider
-	20, // 8: chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest.update_mask:type_name -> google.protobuf.FieldMask
-	18, // 9: chainguard.platform.iam.v2beta1.GenerateScimTokenRequest.expire_time:type_name -> google.protobuf.Timestamp
-	18, // 10: chainguard.platform.iam.v2beta1.GenerateScimTokenResponse.expire_time:type_name -> google.protobuf.Timestamp
-	21, // 11: chainguard.platform.iam.v2beta1.RegenerateScimTokenRequest.overlap:type_name -> google.protobuf.Duration
-	18, // 12: chainguard.platform.iam.v2beta1.RegenerateScimTokenRequest.expire_time:type_name -> google.protobuf.Timestamp
-	18, // 13: chainguard.platform.iam.v2beta1.RegenerateScimTokenResponse.expire_time:type_name -> google.protobuf.Timestamp
-	18, // 14: chainguard.platform.iam.v2beta1.RegenerateScimTokenResponse.previous_token_expire_time:type_name -> google.protobuf.Timestamp
-	21, // 15: chainguard.platform.iam.v2beta1.RegenerateScimTokenResponse.requested_overlap:type_name -> google.protobuf.Duration
-	18, // 16: chainguard.platform.iam.v2beta1.RevokeScimTokenResponse.revoke_time:type_name -> google.protobuf.Timestamp
-	18, // 17: chainguard.platform.iam.v2beta1.IdentityProvider.SCIM.token_expire_time:type_name -> google.protobuf.Timestamp
-	18, // 18: chainguard.platform.iam.v2beta1.IdentityProvider.SCIM.previous_token_expire_time:type_name -> google.protobuf.Timestamp
-	0,  // 19: chainguard.platform.iam.v2beta1.IdentityProvider.SCIM.credential_state:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider.SCIM.CredentialState
-	2,  // 20: chainguard.platform.iam.v2beta1.IdentityProvidersService.ListIdentityProviders:input_type -> chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest
-	4,  // 21: chainguard.platform.iam.v2beta1.IdentityProvidersService.GetIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.GetIdentityProviderRequest
-	5,  // 22: chainguard.platform.iam.v2beta1.IdentityProvidersService.CreateIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.CreateIdentityProviderRequest
-	6,  // 23: chainguard.platform.iam.v2beta1.IdentityProvidersService.UpdateIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest
-	7,  // 24: chainguard.platform.iam.v2beta1.IdentityProvidersService.DeleteIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.DeleteIdentityProviderRequest
-	8,  // 25: chainguard.platform.iam.v2beta1.IdentityProvidersService.GenerateScimToken:input_type -> chainguard.platform.iam.v2beta1.GenerateScimTokenRequest
-	10, // 26: chainguard.platform.iam.v2beta1.IdentityProvidersService.RegenerateScimToken:input_type -> chainguard.platform.iam.v2beta1.RegenerateScimTokenRequest
-	12, // 27: chainguard.platform.iam.v2beta1.IdentityProvidersService.RevokeScimToken:input_type -> chainguard.platform.iam.v2beta1.RevokeScimTokenRequest
-	14, // 28: chainguard.platform.iam.v2beta1.IdentityProvidersService.SetScimEnabled:input_type -> chainguard.platform.iam.v2beta1.SetScimEnabledRequest
-	3,  // 29: chainguard.platform.iam.v2beta1.IdentityProvidersService.ListIdentityProviders:output_type -> chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse
-	1,  // 30: chainguard.platform.iam.v2beta1.IdentityProvidersService.GetIdentityProvider:output_type -> chainguard.platform.iam.v2beta1.IdentityProvider
-	1,  // 31: chainguard.platform.iam.v2beta1.IdentityProvidersService.CreateIdentityProvider:output_type -> chainguard.platform.iam.v2beta1.IdentityProvider
-	1,  // 32: chainguard.platform.iam.v2beta1.IdentityProvidersService.UpdateIdentityProvider:output_type -> chainguard.platform.iam.v2beta1.IdentityProvider
-	22, // 33: chainguard.platform.iam.v2beta1.IdentityProvidersService.DeleteIdentityProvider:output_type -> google.protobuf.Empty
-	9,  // 34: chainguard.platform.iam.v2beta1.IdentityProvidersService.GenerateScimToken:output_type -> chainguard.platform.iam.v2beta1.GenerateScimTokenResponse
-	11, // 35: chainguard.platform.iam.v2beta1.IdentityProvidersService.RegenerateScimToken:output_type -> chainguard.platform.iam.v2beta1.RegenerateScimTokenResponse
-	13, // 36: chainguard.platform.iam.v2beta1.IdentityProvidersService.RevokeScimToken:output_type -> chainguard.platform.iam.v2beta1.RevokeScimTokenResponse
-	15, // 37: chainguard.platform.iam.v2beta1.IdentityProvidersService.SetScimEnabled:output_type -> chainguard.platform.iam.v2beta1.SetScimEnabledResponse
-	29, // [29:38] is the sub-list for method output_type
-	20, // [20:29] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	19, // 0: chainguard.platform.iam.v2beta1.IdentityProvider.create_time:type_name -> google.protobuf.Timestamp
+	19, // 1: chainguard.platform.iam.v2beta1.IdentityProvider.update_time:type_name -> google.protobuf.Timestamp
+	17, // 2: chainguard.platform.iam.v2beta1.IdentityProvider.oidc:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider.OIDC
+	18, // 3: chainguard.platform.iam.v2beta1.IdentityProvider.scim:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider.SCIM
+	20, // 4: chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	2,  // 5: chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse.identity_providers:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider
+	2,  // 6: chainguard.platform.iam.v2beta1.CreateIdentityProviderRequest.identity_provider:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider
+	2,  // 7: chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest.identity_provider:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider
+	21, // 8: chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest.update_mask:type_name -> google.protobuf.FieldMask
+	19, // 9: chainguard.platform.iam.v2beta1.GenerateScimTokenRequest.expire_time:type_name -> google.protobuf.Timestamp
+	19, // 10: chainguard.platform.iam.v2beta1.GenerateScimTokenResponse.expire_time:type_name -> google.protobuf.Timestamp
+	22, // 11: chainguard.platform.iam.v2beta1.RegenerateScimTokenRequest.overlap:type_name -> google.protobuf.Duration
+	19, // 12: chainguard.platform.iam.v2beta1.RegenerateScimTokenRequest.expire_time:type_name -> google.protobuf.Timestamp
+	19, // 13: chainguard.platform.iam.v2beta1.RegenerateScimTokenResponse.expire_time:type_name -> google.protobuf.Timestamp
+	19, // 14: chainguard.platform.iam.v2beta1.RegenerateScimTokenResponse.previous_token_expire_time:type_name -> google.protobuf.Timestamp
+	22, // 15: chainguard.platform.iam.v2beta1.RegenerateScimTokenResponse.requested_overlap:type_name -> google.protobuf.Duration
+	19, // 16: chainguard.platform.iam.v2beta1.RevokeScimTokenResponse.revoke_time:type_name -> google.protobuf.Timestamp
+	0,  // 17: chainguard.platform.iam.v2beta1.IdentityProvider.OIDC.correlation_rule:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider.OIDC.CorrelationRule
+	19, // 18: chainguard.platform.iam.v2beta1.IdentityProvider.SCIM.token_expire_time:type_name -> google.protobuf.Timestamp
+	19, // 19: chainguard.platform.iam.v2beta1.IdentityProvider.SCIM.previous_token_expire_time:type_name -> google.protobuf.Timestamp
+	1,  // 20: chainguard.platform.iam.v2beta1.IdentityProvider.SCIM.credential_state:type_name -> chainguard.platform.iam.v2beta1.IdentityProvider.SCIM.CredentialState
+	3,  // 21: chainguard.platform.iam.v2beta1.IdentityProvidersService.ListIdentityProviders:input_type -> chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest
+	5,  // 22: chainguard.platform.iam.v2beta1.IdentityProvidersService.GetIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.GetIdentityProviderRequest
+	6,  // 23: chainguard.platform.iam.v2beta1.IdentityProvidersService.CreateIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.CreateIdentityProviderRequest
+	7,  // 24: chainguard.platform.iam.v2beta1.IdentityProvidersService.UpdateIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest
+	8,  // 25: chainguard.platform.iam.v2beta1.IdentityProvidersService.DeleteIdentityProvider:input_type -> chainguard.platform.iam.v2beta1.DeleteIdentityProviderRequest
+	9,  // 26: chainguard.platform.iam.v2beta1.IdentityProvidersService.GenerateScimToken:input_type -> chainguard.platform.iam.v2beta1.GenerateScimTokenRequest
+	11, // 27: chainguard.platform.iam.v2beta1.IdentityProvidersService.RegenerateScimToken:input_type -> chainguard.platform.iam.v2beta1.RegenerateScimTokenRequest
+	13, // 28: chainguard.platform.iam.v2beta1.IdentityProvidersService.RevokeScimToken:input_type -> chainguard.platform.iam.v2beta1.RevokeScimTokenRequest
+	15, // 29: chainguard.platform.iam.v2beta1.IdentityProvidersService.SetScimEnabled:input_type -> chainguard.platform.iam.v2beta1.SetScimEnabledRequest
+	4,  // 30: chainguard.platform.iam.v2beta1.IdentityProvidersService.ListIdentityProviders:output_type -> chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse
+	2,  // 31: chainguard.platform.iam.v2beta1.IdentityProvidersService.GetIdentityProvider:output_type -> chainguard.platform.iam.v2beta1.IdentityProvider
+	2,  // 32: chainguard.platform.iam.v2beta1.IdentityProvidersService.CreateIdentityProvider:output_type -> chainguard.platform.iam.v2beta1.IdentityProvider
+	2,  // 33: chainguard.platform.iam.v2beta1.IdentityProvidersService.UpdateIdentityProvider:output_type -> chainguard.platform.iam.v2beta1.IdentityProvider
+	23, // 34: chainguard.platform.iam.v2beta1.IdentityProvidersService.DeleteIdentityProvider:output_type -> google.protobuf.Empty
+	10, // 35: chainguard.platform.iam.v2beta1.IdentityProvidersService.GenerateScimToken:output_type -> chainguard.platform.iam.v2beta1.GenerateScimTokenResponse
+	12, // 36: chainguard.platform.iam.v2beta1.IdentityProvidersService.RegenerateScimToken:output_type -> chainguard.platform.iam.v2beta1.RegenerateScimTokenResponse
+	14, // 37: chainguard.platform.iam.v2beta1.IdentityProvidersService.RevokeScimToken:output_type -> chainguard.platform.iam.v2beta1.RevokeScimTokenResponse
+	16, // 38: chainguard.platform.iam.v2beta1.IdentityProvidersService.SetScimEnabled:output_type -> chainguard.platform.iam.v2beta1.SetScimEnabledResponse
+	30, // [30:39] is the sub-list for method output_type
+	21, // [21:30] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_iam_v2beta1_identity_providers_proto_init() }
@@ -1718,7 +1808,7 @@ func file_chainguard_platform_iam_v2beta1_identity_providers_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc), len(file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      2,
 			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,

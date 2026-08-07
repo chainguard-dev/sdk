@@ -354,8 +354,42 @@ message IdentityProvider {
     // IdP group-based role mapping; when empty, group extraction is skipped.
     string groups_claim = 5 [(google.api.field_behavior) = OPTIONAL];
 
-    // Reserved for correlation_rule
-    reserved 6;
+    // CorrelationRule enumerates how an OIDC login is matched to the SCIM user
+    // provisioned by this identity provider (identity linking at login). A
+    // closed enum: matching is never free-form, and email-based matching is
+    // deliberately absent — an attacker could provision a SCIM user carrying a
+    // victim's email and capture the victim's login.
+    enum CorrelationRule {
+      // Treated as CORRELATION_RULE_SUB_EQUALS_EXTERNAL_ID, the stock-Okta
+      // alignment where the OIDC sub claim and the SCIM externalId carry the
+      // same IdP user ID.
+      CORRELATION_RULE_UNSPECIFIED = 0;
+      // The OIDC sub claim equals the SCIM externalId, scoped to this identity
+      // provider.
+      CORRELATION_RULE_SUB_EQUALS_EXTERNAL_ID = 1;
+      // The OIDC oid claim equals the SCIM externalId, scoped to this identity
+      // provider. For Microsoft Entra ID, whose sub claim is pairwise per
+      // application and never matches the provisioned externalId; oid (the
+      // directory objectId) is the durable user identifier. Use only for IdPs
+      // whose issuer asserts oid itself; the server does not verify this —
+      // where oid is an admin-mapped custom claim a user can edit, this rule
+      // re-opens the claim-capture attack email matching avoids.
+      CORRELATION_RULE_OID_EQUALS_EXTERNAL_ID = 2;
+    }
+
+    // Selects how OIDC logins are matched to SCIM-provisioned users. Unset
+    // selects CORRELATION_RULE_SUB_EQUALS_EXTERNAL_ID. Immutable after the
+    // identity provider is created: changing the rule that maps token claims
+    // to identities would re-open attacker-controllable-claim attacks; a
+    // different rule requires creating a new identity provider. Updates that
+    // restate the current rule (or leave it unset) are a no-op — a
+    // read-modify-write client may echo the field back safely, including over
+    // HTTP PATCH, where the update mask is derived from the request-body keys.
+    // Updates that change it are rejected.
+    CorrelationRule correlation_rule = 6 [
+      (google.api.field_behavior) = OPTIONAL,
+      (google.api.field_behavior) = IMMUTABLE
+    ];
 
     // Whether to use PKCE (RFC 7636) when exchanging authorization codes
     // with this upstream identity provider. Required by OAuth 2.1.

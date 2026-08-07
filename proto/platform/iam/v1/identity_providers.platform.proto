@@ -229,7 +229,8 @@ message IdentityProvider {
     // Required for IdP group-based role mapping.
     string groups_claim = 5;
 
-    // Reserved for correlation_rule
+    // Field 6 stays reserved: correlation_rule exists only on the v2beta1
+    // surface (this keeps the field numbering aligned across versions).
     reserved 6;
 
     // pkce_enabled is whether to use PKCE (RFC 7636) when exchanging authorization codes
