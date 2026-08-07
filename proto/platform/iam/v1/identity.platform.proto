@@ -122,6 +122,7 @@ enum ServicePrincipal {
   MICROFLOW      = 10;
   GUARDENER      = 11;
   MICROVM        = 12;
+  SKILLS         = 13;
 }
 
 message Identity {

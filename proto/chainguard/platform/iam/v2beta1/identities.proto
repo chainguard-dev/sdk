@@ -541,4 +541,6 @@ enum ServicePrincipal {
   SERVICE_PRINCIPAL_GUARDENER = 11;
   // MicroVM service for running ephemeral microVM sandboxes and pulling their guest packages.
   SERVICE_PRINCIPAL_MICROVM = 12;
+  // Skills service principal for the harden pipeline's customer-org access.
+  SERVICE_PRINCIPAL_SKILLS = 13;
 }
