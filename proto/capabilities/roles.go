@@ -411,6 +411,20 @@ var (
 		Capability_CAP_INTERNAL,
 	})
 
+	// LibrariesRebuilderResolveCaps is the enqueue-only counterpart to the
+	// reconciler's write bundle above: it lets a caller request on-demand source
+	// resolution via rebuilder-api's :resolve endpoint (source_coordinates.resolve),
+	// and nothing more. It deliberately excludes source_coordinates.write —
+	// enqueueing a resolve must not confer the ability to write canonical
+	// coordinates (that stays reconciler-only, LibrariesRebuilderSourceResolverCaps).
+	// Granting this rather than the broad admin bundle (which also carries resolve)
+	// gives staff / libraries engineers a least-privilege way to drive resolution.
+	// CAP_INTERNAL is required because source_coordinates.resolve is (internal_only).
+	LibrariesRebuilderResolveCaps = SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_REBUILDER_SOURCE_COORDINATES_RESOLVE,
+		Capability_CAP_INTERNAL,
+	})
+
 	// GuardenerUserCaps is the minimum capability set required to run
 	// guardener (DFC) sessions against a group. terms.list is required
 	// because the DFC server checks the group's terms-of-service
