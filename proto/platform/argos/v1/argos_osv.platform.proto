@@ -160,6 +160,27 @@ message Severity {
   string score = 2;
 }
 
+// PatchStatus is the patch-generation state of a CGP record. Values are
+// identical to the internal PatchStatus enum; UNSPECIFIED means the record
+// predates patch-status tracking or its status has not yet been evaluated.
+enum PatchStatus {
+  PATCH_STATUS_UNSPECIFIED = 0;
+  PATCH_STATUS_NOT_PATCHED = 1;
+  PATCH_STATUS_IN_PROGRESS = 2;
+  PATCH_STATUS_FAILED = 3;
+  PATCH_STATUS_PATCHED = 4;
+}
+
+// TopLevelDatabaseSpecific is the Chainguard-defined content for the OSV-spec
+// top-level database_specific field: a JSON object holding additional
+// information about the vulnerability as defined by the database from which
+// the record was obtained. Unlike the per-Affected DatabaseSpecific, this
+// applies to the whole vulnerability record.
+message TopLevelDatabaseSpecific {
+  // patch_status is the patch-generation state of this record.
+  PatchStatus patch_status = 1 [json_name = "patch_status"];
+}
+
 message OSVRecord {
   string id = 1;
   string schema_version = 2 [json_name = "schema_version"];
@@ -174,6 +195,9 @@ message OSVRecord {
   // withdrawn is the time the entry should be considered withdrawn, per OSV
   // spec. Unset means the record has not been withdrawn.
   google.protobuf.Timestamp withdrawn = 11;
+  // database_specific is the OSV-spec top-level extension object carrying
+  // Chainguard-defined record-level metadata (OSV spec §database_specific-field).
+  TopLevelDatabaseSpecific database_specific = 12 [json_name = "database_specific"];
 }
 
 message OSVQueryRequest {

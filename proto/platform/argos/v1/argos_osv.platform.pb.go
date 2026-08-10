@@ -28,6 +28,64 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// PatchStatus is the patch-generation state of a CGP record. Values are
+// identical to the internal PatchStatus enum; UNSPECIFIED means the record
+// predates patch-status tracking or its status has not yet been evaluated.
+type PatchStatus int32
+
+const (
+	PatchStatus_PATCH_STATUS_UNSPECIFIED PatchStatus = 0
+	PatchStatus_PATCH_STATUS_NOT_PATCHED PatchStatus = 1
+	PatchStatus_PATCH_STATUS_IN_PROGRESS PatchStatus = 2
+	PatchStatus_PATCH_STATUS_FAILED      PatchStatus = 3
+	PatchStatus_PATCH_STATUS_PATCHED     PatchStatus = 4
+)
+
+// Enum value maps for PatchStatus.
+var (
+	PatchStatus_name = map[int32]string{
+		0: "PATCH_STATUS_UNSPECIFIED",
+		1: "PATCH_STATUS_NOT_PATCHED",
+		2: "PATCH_STATUS_IN_PROGRESS",
+		3: "PATCH_STATUS_FAILED",
+		4: "PATCH_STATUS_PATCHED",
+	}
+	PatchStatus_value = map[string]int32{
+		"PATCH_STATUS_UNSPECIFIED": 0,
+		"PATCH_STATUS_NOT_PATCHED": 1,
+		"PATCH_STATUS_IN_PROGRESS": 2,
+		"PATCH_STATUS_FAILED":      3,
+		"PATCH_STATUS_PATCHED":     4,
+	}
+)
+
+func (x PatchStatus) Enum() *PatchStatus {
+	p := new(PatchStatus)
+	*p = x
+	return p
+}
+
+func (x PatchStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (PatchStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_argos_osv_platform_proto_enumTypes[0].Descriptor()
+}
+
+func (PatchStatus) Type() protoreflect.EnumType {
+	return &file_argos_osv_platform_proto_enumTypes[0]
+}
+
+func (x PatchStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use PatchStatus.Descriptor instead.
+func (PatchStatus) EnumDescriptor() ([]byte, []int) {
+	return file_argos_osv_platform_proto_rawDescGZIP(), []int{0}
+}
+
 // RangeType mirrors the OSV spec's `type` enum. Value names are
 // deliberately unprefixed so the protojson wire form matches OSV verbatim
 // (the spec uses bare "SEMVER" / "ECOSYSTEM" / "GIT"); nested-enum scoping
@@ -68,11 +126,11 @@ func (x Range_RangeType) String() string {
 }
 
 func (Range_RangeType) Descriptor() protoreflect.EnumDescriptor {
-	return file_argos_osv_platform_proto_enumTypes[0].Descriptor()
+	return file_argos_osv_platform_proto_enumTypes[1].Descriptor()
 }
 
 func (Range_RangeType) Type() protoreflect.EnumType {
-	return &file_argos_osv_platform_proto_enumTypes[0]
+	return &file_argos_osv_platform_proto_enumTypes[1]
 }
 
 func (x Range_RangeType) Number() protoreflect.EnumNumber {
@@ -614,6 +672,56 @@ func (x *Severity) GetScore() string {
 	return ""
 }
 
+// TopLevelDatabaseSpecific is the Chainguard-defined content for the OSV-spec
+// top-level database_specific field: a JSON object holding additional
+// information about the vulnerability as defined by the database from which
+// the record was obtained. Unlike the per-Affected DatabaseSpecific, this
+// applies to the whole vulnerability record.
+type TopLevelDatabaseSpecific struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// patch_status is the patch-generation state of this record.
+	PatchStatus   PatchStatus `protobuf:"varint,1,opt,name=patch_status,proto3,enum=chainguard.platform.argos.PatchStatus" json:"patch_status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TopLevelDatabaseSpecific) Reset() {
+	*x = TopLevelDatabaseSpecific{}
+	mi := &file_argos_osv_platform_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TopLevelDatabaseSpecific) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TopLevelDatabaseSpecific) ProtoMessage() {}
+
+func (x *TopLevelDatabaseSpecific) ProtoReflect() protoreflect.Message {
+	mi := &file_argos_osv_platform_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TopLevelDatabaseSpecific.ProtoReflect.Descriptor instead.
+func (*TopLevelDatabaseSpecific) Descriptor() ([]byte, []int) {
+	return file_argos_osv_platform_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *TopLevelDatabaseSpecific) GetPatchStatus() PatchStatus {
+	if x != nil {
+		return x.PatchStatus
+	}
+	return PatchStatus_PATCH_STATUS_UNSPECIFIED
+}
+
 type OSVRecord struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -628,14 +736,17 @@ type OSVRecord struct {
 	Related       []string               `protobuf:"bytes,10,rep,name=related,proto3" json:"related,omitempty"`
 	// withdrawn is the time the entry should be considered withdrawn, per OSV
 	// spec. Unset means the record has not been withdrawn.
-	Withdrawn     *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=withdrawn,proto3" json:"withdrawn,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Withdrawn *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=withdrawn,proto3" json:"withdrawn,omitempty"`
+	// database_specific is the OSV-spec top-level extension object carrying
+	// Chainguard-defined record-level metadata (OSV spec §database_specific-field).
+	DatabaseSpecific *TopLevelDatabaseSpecific `protobuf:"bytes,12,opt,name=database_specific,proto3" json:"database_specific,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *OSVRecord) Reset() {
 	*x = OSVRecord{}
-	mi := &file_argos_osv_platform_proto_msgTypes[7]
+	mi := &file_argos_osv_platform_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -647,7 +758,7 @@ func (x *OSVRecord) String() string {
 func (*OSVRecord) ProtoMessage() {}
 
 func (x *OSVRecord) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_osv_platform_proto_msgTypes[7]
+	mi := &file_argos_osv_platform_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -660,7 +771,7 @@ func (x *OSVRecord) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OSVRecord.ProtoReflect.Descriptor instead.
 func (*OSVRecord) Descriptor() ([]byte, []int) {
-	return file_argos_osv_platform_proto_rawDescGZIP(), []int{7}
+	return file_argos_osv_platform_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *OSVRecord) GetId() string {
@@ -740,6 +851,13 @@ func (x *OSVRecord) GetWithdrawn() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *OSVRecord) GetDatabaseSpecific() *TopLevelDatabaseSpecific {
+	if x != nil {
+		return x.DatabaseSpecific
+	}
+	return nil
+}
+
 type OSVQueryRequest struct {
 	state   protoimpl.MessageState `protogen:"open.v1"`
 	Package *Package               `protobuf:"bytes,1,opt,name=package,proto3" json:"package,omitempty"`
@@ -753,7 +871,7 @@ type OSVQueryRequest struct {
 
 func (x *OSVQueryRequest) Reset() {
 	*x = OSVQueryRequest{}
-	mi := &file_argos_osv_platform_proto_msgTypes[8]
+	mi := &file_argos_osv_platform_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -765,7 +883,7 @@ func (x *OSVQueryRequest) String() string {
 func (*OSVQueryRequest) ProtoMessage() {}
 
 func (x *OSVQueryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_osv_platform_proto_msgTypes[8]
+	mi := &file_argos_osv_platform_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -778,7 +896,7 @@ func (x *OSVQueryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OSVQueryRequest.ProtoReflect.Descriptor instead.
 func (*OSVQueryRequest) Descriptor() ([]byte, []int) {
-	return file_argos_osv_platform_proto_rawDescGZIP(), []int{8}
+	return file_argos_osv_platform_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *OSVQueryRequest) GetPackage() *Package {
@@ -813,7 +931,7 @@ type OSVQueryResponse struct {
 
 func (x *OSVQueryResponse) Reset() {
 	*x = OSVQueryResponse{}
-	mi := &file_argos_osv_platform_proto_msgTypes[9]
+	mi := &file_argos_osv_platform_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -825,7 +943,7 @@ func (x *OSVQueryResponse) String() string {
 func (*OSVQueryResponse) ProtoMessage() {}
 
 func (x *OSVQueryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_osv_platform_proto_msgTypes[9]
+	mi := &file_argos_osv_platform_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -838,7 +956,7 @@ func (x *OSVQueryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OSVQueryResponse.ProtoReflect.Descriptor instead.
 func (*OSVQueryResponse) Descriptor() ([]byte, []int) {
-	return file_argos_osv_platform_proto_rawDescGZIP(), []int{9}
+	return file_argos_osv_platform_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *OSVQueryResponse) GetVulns() []*OSVRecord {
@@ -868,7 +986,7 @@ type MinimalOSVRecord struct {
 
 func (x *MinimalOSVRecord) Reset() {
 	*x = MinimalOSVRecord{}
-	mi := &file_argos_osv_platform_proto_msgTypes[10]
+	mi := &file_argos_osv_platform_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -880,7 +998,7 @@ func (x *MinimalOSVRecord) String() string {
 func (*MinimalOSVRecord) ProtoMessage() {}
 
 func (x *MinimalOSVRecord) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_osv_platform_proto_msgTypes[10]
+	mi := &file_argos_osv_platform_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -893,7 +1011,7 @@ func (x *MinimalOSVRecord) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MinimalOSVRecord.ProtoReflect.Descriptor instead.
 func (*MinimalOSVRecord) Descriptor() ([]byte, []int) {
-	return file_argos_osv_platform_proto_rawDescGZIP(), []int{10}
+	return file_argos_osv_platform_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *MinimalOSVRecord) GetId() string {
@@ -919,7 +1037,7 @@ type OSVQueryBatchRequest struct {
 
 func (x *OSVQueryBatchRequest) Reset() {
 	*x = OSVQueryBatchRequest{}
-	mi := &file_argos_osv_platform_proto_msgTypes[11]
+	mi := &file_argos_osv_platform_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -931,7 +1049,7 @@ func (x *OSVQueryBatchRequest) String() string {
 func (*OSVQueryBatchRequest) ProtoMessage() {}
 
 func (x *OSVQueryBatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_osv_platform_proto_msgTypes[11]
+	mi := &file_argos_osv_platform_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -944,7 +1062,7 @@ func (x *OSVQueryBatchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OSVQueryBatchRequest.ProtoReflect.Descriptor instead.
 func (*OSVQueryBatchRequest) Descriptor() ([]byte, []int) {
-	return file_argos_osv_platform_proto_rawDescGZIP(), []int{11}
+	return file_argos_osv_platform_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *OSVQueryBatchRequest) GetQueries() []*OSVQueryRequest {
@@ -965,7 +1083,7 @@ type OSVQueryBatchResult struct {
 
 func (x *OSVQueryBatchResult) Reset() {
 	*x = OSVQueryBatchResult{}
-	mi := &file_argos_osv_platform_proto_msgTypes[12]
+	mi := &file_argos_osv_platform_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -977,7 +1095,7 @@ func (x *OSVQueryBatchResult) String() string {
 func (*OSVQueryBatchResult) ProtoMessage() {}
 
 func (x *OSVQueryBatchResult) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_osv_platform_proto_msgTypes[12]
+	mi := &file_argos_osv_platform_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -990,7 +1108,7 @@ func (x *OSVQueryBatchResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OSVQueryBatchResult.ProtoReflect.Descriptor instead.
 func (*OSVQueryBatchResult) Descriptor() ([]byte, []int) {
-	return file_argos_osv_platform_proto_rawDescGZIP(), []int{12}
+	return file_argos_osv_platform_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *OSVQueryBatchResult) GetVulns() []*MinimalOSVRecord {
@@ -1016,7 +1134,7 @@ type OSVQueryBatchResponse struct {
 
 func (x *OSVQueryBatchResponse) Reset() {
 	*x = OSVQueryBatchResponse{}
-	mi := &file_argos_osv_platform_proto_msgTypes[13]
+	mi := &file_argos_osv_platform_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1028,7 +1146,7 @@ func (x *OSVQueryBatchResponse) String() string {
 func (*OSVQueryBatchResponse) ProtoMessage() {}
 
 func (x *OSVQueryBatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_osv_platform_proto_msgTypes[13]
+	mi := &file_argos_osv_platform_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1041,7 +1159,7 @@ func (x *OSVQueryBatchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OSVQueryBatchResponse.ProtoReflect.Descriptor instead.
 func (*OSVQueryBatchResponse) Descriptor() ([]byte, []int) {
-	return file_argos_osv_platform_proto_rawDescGZIP(), []int{13}
+	return file_argos_osv_platform_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *OSVQueryBatchResponse) GetResults() []*OSVQueryBatchResult {
@@ -1060,7 +1178,7 @@ type GetOSVRequest struct {
 
 func (x *GetOSVRequest) Reset() {
 	*x = GetOSVRequest{}
-	mi := &file_argos_osv_platform_proto_msgTypes[14]
+	mi := &file_argos_osv_platform_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1072,7 +1190,7 @@ func (x *GetOSVRequest) String() string {
 func (*GetOSVRequest) ProtoMessage() {}
 
 func (x *GetOSVRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_osv_platform_proto_msgTypes[14]
+	mi := &file_argos_osv_platform_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1085,7 +1203,7 @@ func (x *GetOSVRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOSVRequest.ProtoReflect.Descriptor instead.
 func (*GetOSVRequest) Descriptor() ([]byte, []int) {
-	return file_argos_osv_platform_proto_rawDescGZIP(), []int{14}
+	return file_argos_osv_platform_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetOSVRequest) GetId() string {
@@ -1103,7 +1221,7 @@ type DumpOSVRequest struct {
 
 func (x *DumpOSVRequest) Reset() {
 	*x = DumpOSVRequest{}
-	mi := &file_argos_osv_platform_proto_msgTypes[15]
+	mi := &file_argos_osv_platform_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1115,7 +1233,7 @@ func (x *DumpOSVRequest) String() string {
 func (*DumpOSVRequest) ProtoMessage() {}
 
 func (x *DumpOSVRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_osv_platform_proto_msgTypes[15]
+	mi := &file_argos_osv_platform_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1128,7 +1246,7 @@ func (x *DumpOSVRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DumpOSVRequest.ProtoReflect.Descriptor instead.
 func (*DumpOSVRequest) Descriptor() ([]byte, []int) {
-	return file_argos_osv_platform_proto_rawDescGZIP(), []int{15}
+	return file_argos_osv_platform_proto_rawDescGZIP(), []int{16}
 }
 
 // DumpOSVMetadata is the first message in a Dump stream, carrying archive
@@ -1144,7 +1262,7 @@ type DumpOSVMetadata struct {
 
 func (x *DumpOSVMetadata) Reset() {
 	*x = DumpOSVMetadata{}
-	mi := &file_argos_osv_platform_proto_msgTypes[16]
+	mi := &file_argos_osv_platform_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1156,7 +1274,7 @@ func (x *DumpOSVMetadata) String() string {
 func (*DumpOSVMetadata) ProtoMessage() {}
 
 func (x *DumpOSVMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_osv_platform_proto_msgTypes[16]
+	mi := &file_argos_osv_platform_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1169,7 +1287,7 @@ func (x *DumpOSVMetadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DumpOSVMetadata.ProtoReflect.Descriptor instead.
 func (*DumpOSVMetadata) Descriptor() ([]byte, []int) {
-	return file_argos_osv_platform_proto_rawDescGZIP(), []int{16}
+	return file_argos_osv_platform_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *DumpOSVMetadata) GetGeneratedAt() *timestamppb.Timestamp {
@@ -1207,7 +1325,7 @@ type DumpOSVResponse struct {
 
 func (x *DumpOSVResponse) Reset() {
 	*x = DumpOSVResponse{}
-	mi := &file_argos_osv_platform_proto_msgTypes[17]
+	mi := &file_argos_osv_platform_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1219,7 +1337,7 @@ func (x *DumpOSVResponse) String() string {
 func (*DumpOSVResponse) ProtoMessage() {}
 
 func (x *DumpOSVResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_osv_platform_proto_msgTypes[17]
+	mi := &file_argos_osv_platform_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1232,7 +1350,7 @@ func (x *DumpOSVResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DumpOSVResponse.ProtoReflect.Descriptor instead.
 func (*DumpOSVResponse) Descriptor() ([]byte, []int) {
-	return file_argos_osv_platform_proto_rawDescGZIP(), []int{17}
+	return file_argos_osv_platform_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *DumpOSVResponse) GetContent() isDumpOSVResponse_Content {
@@ -1321,7 +1439,9 @@ const file_argos_osv_platform_proto_rawDesc = "" +
 	"\x11observed_versions\x18\x05 \x03(\tR\x11observed_versions\"4\n" +
 	"\bSeverity\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x14\n" +
-	"\x05score\x18\x02 \x01(\tR\x05score\"\xd9\x03\n" +
+	"\x05score\x18\x02 \x01(\tR\x05score\"f\n" +
+	"\x18TopLevelDatabaseSpecific\x12J\n" +
+	"\fpatch_status\x18\x01 \x01(\x0e2&.chainguard.platform.argos.PatchStatusR\fpatch_status\"\xbc\x04\n" +
 	"\tOSVRecord\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12&\n" +
 	"\x0eschema_version\x18\x02 \x01(\tR\x0eschema_version\x12\x18\n" +
@@ -1334,7 +1454,8 @@ const file_argos_osv_platform_proto_rawDesc = "" +
 	"\bmodified\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\bmodified\x12\x18\n" +
 	"\arelated\x18\n" +
 	" \x03(\tR\arelated\x128\n" +
-	"\twithdrawn\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\twithdrawn\"\x89\x01\n" +
+	"\twithdrawn\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\twithdrawn\x12a\n" +
+	"\x11database_specific\x18\f \x01(\v23.chainguard.platform.argos.TopLevelDatabaseSpecificR\x11database_specific\"\x89\x01\n" +
 	"\x0fOSVQueryRequest\x12<\n" +
 	"\apackage\x18\x01 \x01(\v2\".chainguard.platform.argos.PackageR\apackage\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\tR\aversion\x12\x1e\n" +
@@ -1366,7 +1487,13 @@ const file_argos_osv_platform_proto_rawDesc = "" +
 	"\x0fDumpOSVResponse\x12H\n" +
 	"\bmetadata\x18\x01 \x01(\v2*.chainguard.platform.argos.DumpOSVMetadataH\x00R\bmetadata\x12\x16\n" +
 	"\x05chunk\x18\x02 \x01(\fH\x00R\x05chunkB\t\n" +
-	"\acontent2\xdb\x04\n" +
+	"\acontent*\x9a\x01\n" +
+	"\vPatchStatus\x12\x1c\n" +
+	"\x18PATCH_STATUS_UNSPECIFIED\x10\x00\x12\x1c\n" +
+	"\x18PATCH_STATUS_NOT_PATCHED\x10\x01\x12\x1c\n" +
+	"\x18PATCH_STATUS_IN_PROGRESS\x10\x02\x12\x17\n" +
+	"\x13PATCH_STATUS_FAILED\x10\x03\x12\x18\n" +
+	"\x14PATCH_STATUS_PATCHED\x10\x042\xdb\x04\n" +
 	"\bArgosOSV\x12\x8e\x01\n" +
 	"\x05Query\x12*.chainguard.platform.argos.OSVQueryRequest\x1a+.chainguard.platform.argos.OSVQueryResponse\",\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/argos/v1/osv/query\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\xac\x14\x10\x01\x12\xa2\x01\n" +
@@ -1390,65 +1517,69 @@ func file_argos_osv_platform_proto_rawDescGZIP() []byte {
 	return file_argos_osv_platform_proto_rawDescData
 }
 
-var file_argos_osv_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_argos_osv_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_argos_osv_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_argos_osv_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_argos_osv_platform_proto_goTypes = []any{
-	(Range_RangeType)(0),          // 0: chainguard.platform.argos.Range.RangeType
-	(*Package)(nil),               // 1: chainguard.platform.argos.Package
-	(*Event)(nil),                 // 2: chainguard.platform.argos.Event
-	(*Range)(nil),                 // 3: chainguard.platform.argos.Range
-	(*Affected)(nil),              // 4: chainguard.platform.argos.Affected
-	(*DatabaseSpecific)(nil),      // 5: chainguard.platform.argos.DatabaseSpecific
-	(*SinkLocator)(nil),           // 6: chainguard.platform.argos.SinkLocator
-	(*Severity)(nil),              // 7: chainguard.platform.argos.Severity
-	(*OSVRecord)(nil),             // 8: chainguard.platform.argos.OSVRecord
-	(*OSVQueryRequest)(nil),       // 9: chainguard.platform.argos.OSVQueryRequest
-	(*OSVQueryResponse)(nil),      // 10: chainguard.platform.argos.OSVQueryResponse
-	(*MinimalOSVRecord)(nil),      // 11: chainguard.platform.argos.MinimalOSVRecord
-	(*OSVQueryBatchRequest)(nil),  // 12: chainguard.platform.argos.OSVQueryBatchRequest
-	(*OSVQueryBatchResult)(nil),   // 13: chainguard.platform.argos.OSVQueryBatchResult
-	(*OSVQueryBatchResponse)(nil), // 14: chainguard.platform.argos.OSVQueryBatchResponse
-	(*GetOSVRequest)(nil),         // 15: chainguard.platform.argos.GetOSVRequest
-	(*DumpOSVRequest)(nil),        // 16: chainguard.platform.argos.DumpOSVRequest
-	(*DumpOSVMetadata)(nil),       // 17: chainguard.platform.argos.DumpOSVMetadata
-	(*DumpOSVResponse)(nil),       // 18: chainguard.platform.argos.DumpOSVResponse
-	(*structpb.Struct)(nil),       // 19: google.protobuf.Struct
-	(*timestamppb.Timestamp)(nil), // 20: google.protobuf.Timestamp
+	(PatchStatus)(0),                 // 0: chainguard.platform.argos.PatchStatus
+	(Range_RangeType)(0),             // 1: chainguard.platform.argos.Range.RangeType
+	(*Package)(nil),                  // 2: chainguard.platform.argos.Package
+	(*Event)(nil),                    // 3: chainguard.platform.argos.Event
+	(*Range)(nil),                    // 4: chainguard.platform.argos.Range
+	(*Affected)(nil),                 // 5: chainguard.platform.argos.Affected
+	(*DatabaseSpecific)(nil),         // 6: chainguard.platform.argos.DatabaseSpecific
+	(*SinkLocator)(nil),              // 7: chainguard.platform.argos.SinkLocator
+	(*Severity)(nil),                 // 8: chainguard.platform.argos.Severity
+	(*TopLevelDatabaseSpecific)(nil), // 9: chainguard.platform.argos.TopLevelDatabaseSpecific
+	(*OSVRecord)(nil),                // 10: chainguard.platform.argos.OSVRecord
+	(*OSVQueryRequest)(nil),          // 11: chainguard.platform.argos.OSVQueryRequest
+	(*OSVQueryResponse)(nil),         // 12: chainguard.platform.argos.OSVQueryResponse
+	(*MinimalOSVRecord)(nil),         // 13: chainguard.platform.argos.MinimalOSVRecord
+	(*OSVQueryBatchRequest)(nil),     // 14: chainguard.platform.argos.OSVQueryBatchRequest
+	(*OSVQueryBatchResult)(nil),      // 15: chainguard.platform.argos.OSVQueryBatchResult
+	(*OSVQueryBatchResponse)(nil),    // 16: chainguard.platform.argos.OSVQueryBatchResponse
+	(*GetOSVRequest)(nil),            // 17: chainguard.platform.argos.GetOSVRequest
+	(*DumpOSVRequest)(nil),           // 18: chainguard.platform.argos.DumpOSVRequest
+	(*DumpOSVMetadata)(nil),          // 19: chainguard.platform.argos.DumpOSVMetadata
+	(*DumpOSVResponse)(nil),          // 20: chainguard.platform.argos.DumpOSVResponse
+	(*structpb.Struct)(nil),          // 21: google.protobuf.Struct
+	(*timestamppb.Timestamp)(nil),    // 22: google.protobuf.Timestamp
 }
 var file_argos_osv_platform_proto_depIdxs = []int32{
-	0,  // 0: chainguard.platform.argos.Range.type:type_name -> chainguard.platform.argos.Range.RangeType
-	2,  // 1: chainguard.platform.argos.Range.events:type_name -> chainguard.platform.argos.Event
-	1,  // 2: chainguard.platform.argos.Affected.package:type_name -> chainguard.platform.argos.Package
-	3,  // 3: chainguard.platform.argos.Affected.ranges:type_name -> chainguard.platform.argos.Range
-	19, // 4: chainguard.platform.argos.Affected.ecosystem_specific:type_name -> google.protobuf.Struct
-	5,  // 5: chainguard.platform.argos.Affected.database_specific:type_name -> chainguard.platform.argos.DatabaseSpecific
-	6,  // 6: chainguard.platform.argos.DatabaseSpecific.sink_locator:type_name -> chainguard.platform.argos.SinkLocator
-	7,  // 7: chainguard.platform.argos.OSVRecord.severity:type_name -> chainguard.platform.argos.Severity
-	4,  // 8: chainguard.platform.argos.OSVRecord.affected:type_name -> chainguard.platform.argos.Affected
-	20, // 9: chainguard.platform.argos.OSVRecord.published:type_name -> google.protobuf.Timestamp
-	20, // 10: chainguard.platform.argos.OSVRecord.modified:type_name -> google.protobuf.Timestamp
-	20, // 11: chainguard.platform.argos.OSVRecord.withdrawn:type_name -> google.protobuf.Timestamp
-	1,  // 12: chainguard.platform.argos.OSVQueryRequest.package:type_name -> chainguard.platform.argos.Package
-	8,  // 13: chainguard.platform.argos.OSVQueryResponse.vulns:type_name -> chainguard.platform.argos.OSVRecord
-	20, // 14: chainguard.platform.argos.MinimalOSVRecord.modified:type_name -> google.protobuf.Timestamp
-	9,  // 15: chainguard.platform.argos.OSVQueryBatchRequest.queries:type_name -> chainguard.platform.argos.OSVQueryRequest
-	11, // 16: chainguard.platform.argos.OSVQueryBatchResult.vulns:type_name -> chainguard.platform.argos.MinimalOSVRecord
-	13, // 17: chainguard.platform.argos.OSVQueryBatchResponse.results:type_name -> chainguard.platform.argos.OSVQueryBatchResult
-	20, // 18: chainguard.platform.argos.DumpOSVMetadata.generated_at:type_name -> google.protobuf.Timestamp
-	17, // 19: chainguard.platform.argos.DumpOSVResponse.metadata:type_name -> chainguard.platform.argos.DumpOSVMetadata
-	9,  // 20: chainguard.platform.argos.ArgosOSV.Query:input_type -> chainguard.platform.argos.OSVQueryRequest
-	12, // 21: chainguard.platform.argos.ArgosOSV.QueryBatch:input_type -> chainguard.platform.argos.OSVQueryBatchRequest
-	15, // 22: chainguard.platform.argos.ArgosOSV.GetVuln:input_type -> chainguard.platform.argos.GetOSVRequest
-	16, // 23: chainguard.platform.argos.ArgosOSV.Dump:input_type -> chainguard.platform.argos.DumpOSVRequest
-	10, // 24: chainguard.platform.argos.ArgosOSV.Query:output_type -> chainguard.platform.argos.OSVQueryResponse
-	14, // 25: chainguard.platform.argos.ArgosOSV.QueryBatch:output_type -> chainguard.platform.argos.OSVQueryBatchResponse
-	8,  // 26: chainguard.platform.argos.ArgosOSV.GetVuln:output_type -> chainguard.platform.argos.OSVRecord
-	18, // 27: chainguard.platform.argos.ArgosOSV.Dump:output_type -> chainguard.platform.argos.DumpOSVResponse
-	24, // [24:28] is the sub-list for method output_type
-	20, // [20:24] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	1,  // 0: chainguard.platform.argos.Range.type:type_name -> chainguard.platform.argos.Range.RangeType
+	3,  // 1: chainguard.platform.argos.Range.events:type_name -> chainguard.platform.argos.Event
+	2,  // 2: chainguard.platform.argos.Affected.package:type_name -> chainguard.platform.argos.Package
+	4,  // 3: chainguard.platform.argos.Affected.ranges:type_name -> chainguard.platform.argos.Range
+	21, // 4: chainguard.platform.argos.Affected.ecosystem_specific:type_name -> google.protobuf.Struct
+	6,  // 5: chainguard.platform.argos.Affected.database_specific:type_name -> chainguard.platform.argos.DatabaseSpecific
+	7,  // 6: chainguard.platform.argos.DatabaseSpecific.sink_locator:type_name -> chainguard.platform.argos.SinkLocator
+	0,  // 7: chainguard.platform.argos.TopLevelDatabaseSpecific.patch_status:type_name -> chainguard.platform.argos.PatchStatus
+	8,  // 8: chainguard.platform.argos.OSVRecord.severity:type_name -> chainguard.platform.argos.Severity
+	5,  // 9: chainguard.platform.argos.OSVRecord.affected:type_name -> chainguard.platform.argos.Affected
+	22, // 10: chainguard.platform.argos.OSVRecord.published:type_name -> google.protobuf.Timestamp
+	22, // 11: chainguard.platform.argos.OSVRecord.modified:type_name -> google.protobuf.Timestamp
+	22, // 12: chainguard.platform.argos.OSVRecord.withdrawn:type_name -> google.protobuf.Timestamp
+	9,  // 13: chainguard.platform.argos.OSVRecord.database_specific:type_name -> chainguard.platform.argos.TopLevelDatabaseSpecific
+	2,  // 14: chainguard.platform.argos.OSVQueryRequest.package:type_name -> chainguard.platform.argos.Package
+	10, // 15: chainguard.platform.argos.OSVQueryResponse.vulns:type_name -> chainguard.platform.argos.OSVRecord
+	22, // 16: chainguard.platform.argos.MinimalOSVRecord.modified:type_name -> google.protobuf.Timestamp
+	11, // 17: chainguard.platform.argos.OSVQueryBatchRequest.queries:type_name -> chainguard.platform.argos.OSVQueryRequest
+	13, // 18: chainguard.platform.argos.OSVQueryBatchResult.vulns:type_name -> chainguard.platform.argos.MinimalOSVRecord
+	15, // 19: chainguard.platform.argos.OSVQueryBatchResponse.results:type_name -> chainguard.platform.argos.OSVQueryBatchResult
+	22, // 20: chainguard.platform.argos.DumpOSVMetadata.generated_at:type_name -> google.protobuf.Timestamp
+	19, // 21: chainguard.platform.argos.DumpOSVResponse.metadata:type_name -> chainguard.platform.argos.DumpOSVMetadata
+	11, // 22: chainguard.platform.argos.ArgosOSV.Query:input_type -> chainguard.platform.argos.OSVQueryRequest
+	14, // 23: chainguard.platform.argos.ArgosOSV.QueryBatch:input_type -> chainguard.platform.argos.OSVQueryBatchRequest
+	17, // 24: chainguard.platform.argos.ArgosOSV.GetVuln:input_type -> chainguard.platform.argos.GetOSVRequest
+	18, // 25: chainguard.platform.argos.ArgosOSV.Dump:input_type -> chainguard.platform.argos.DumpOSVRequest
+	12, // 26: chainguard.platform.argos.ArgosOSV.Query:output_type -> chainguard.platform.argos.OSVQueryResponse
+	16, // 27: chainguard.platform.argos.ArgosOSV.QueryBatch:output_type -> chainguard.platform.argos.OSVQueryBatchResponse
+	10, // 28: chainguard.platform.argos.ArgosOSV.GetVuln:output_type -> chainguard.platform.argos.OSVRecord
+	20, // 29: chainguard.platform.argos.ArgosOSV.Dump:output_type -> chainguard.platform.argos.DumpOSVResponse
+	26, // [26:30] is the sub-list for method output_type
+	22, // [22:26] is the sub-list for method input_type
+	22, // [22:22] is the sub-list for extension type_name
+	22, // [22:22] is the sub-list for extension extendee
+	0,  // [0:22] is the sub-list for field type_name
 }
 
 func init() { file_argos_osv_platform_proto_init() }
@@ -1462,7 +1593,7 @@ func file_argos_osv_platform_proto_init() {
 		(*Event_LastAffected)(nil),
 		(*Event_Limit)(nil),
 	}
-	file_argos_osv_platform_proto_msgTypes[17].OneofWrappers = []any{
+	file_argos_osv_platform_proto_msgTypes[18].OneofWrappers = []any{
 		(*DumpOSVResponse_Metadata)(nil),
 		(*DumpOSVResponse_Chunk)(nil),
 	}
@@ -1471,8 +1602,8 @@ func file_argos_osv_platform_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_argos_osv_platform_proto_rawDesc), len(file_argos_osv_platform_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   18,
+			NumEnums:      2,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
