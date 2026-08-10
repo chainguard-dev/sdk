@@ -74,3 +74,20 @@ func (x *RemoveEntitlementImagesResponse) CloudEventsExtension(key string) (stri
 func (x *RemoveEntitlementImagesResponse) CloudEventsSubject() string {
 	return x.GetParent()
 }
+
+// CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension
+func (x *SwapEntitlementImagesResponse) CloudEventsExtension(key string) (string, bool) {
+	switch key {
+	case "group":
+		return x.GetParent(), true
+	default:
+		return "", false
+	}
+}
+
+// CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
+// Returns the resolved customer org UIDP; the multi-event-handler enqueues it
+// for reconciliation, the same as the added event.
+func (x *SwapEntitlementImagesResponse) CloudEventsSubject() string {
+	return x.GetParent()
+}

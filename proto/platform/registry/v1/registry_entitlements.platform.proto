@@ -114,7 +114,7 @@ service Entitlements {
   // preferring the newest, unless an explicit entitlement_id is provided.
   //
   // May return RESOURCE_EXHAUSTED when the organization has exceeded its
-  // rolling 30-day catalog-image swap quota: customer-initiated removals
+  // rolling 30-day catalog-image swap quota: swaps and standalone removals
   // beyond the quota consume per-tier image capacity until they age out of the
   // window, reducing what can be added. See GetEffectiveEntitlements
   // (swap_quota, swaps_used) for the current budget.
@@ -149,10 +149,12 @@ service Entitlements {
   // Removal is a soft delete: the underlying rows are retained with a deletion
   // timestamp so that history can be reconstructed for audit purposes.
   //
-  // Customer-initiated removals count against the organization's rolling
-  // 30-day catalog-image swap quota (see GetEffectiveEntitlements). Removals
-  // beyond the quota reduce the per-tier image capacity available for future
-  // additions until they age out of the window.
+  // Standalone removals count against the organization's rolling 30-day
+  // catalog-image swap quota, the same as swaps (see GetEffectiveEntitlements).
+  // Removals beyond the quota reduce the per-tier image capacity available for
+  // future additions until they age out of the window. For atomic image
+  // replacement prefer SwapEntitlementImages, which removes and adds in one
+  // transaction.
   rpc RemoveEntitlementImages(RemoveEntitlementImagesRequest) returns (RemoveEntitlementImagesResponse) {
     option (google.api.http) = {
       post: "/registry/v1/entitlements/{parent=**}:removeImages"
@@ -167,6 +169,40 @@ service Entitlements {
     };
     option (chainguard.annotations.events) = {
       type: "dev.chainguard.api.registry.entitlement.images.removed.v1"
+      extensions: ["group"]
+      audience: INTERNAL
+    };
+  }
+
+  // SwapEntitlementImages atomically removes and adds catalog images on an
+  // organization's entitlements in one transaction — the whole swap applies or
+  // nothing does, so it can't leave an image removed without its replacement.
+  // remove_image_names and add_image_names resolve as in RemoveEntitlementImages
+  // and AddEntitlementImages. A swap must be an effective replace: it is
+  // INVALID_ARGUMENT if either list is empty, if none of the removes are
+  // currently entitled, or if every add is already entitled (individual no-op
+  // names within a non-empty side are still skipped).
+  //
+  // A swap is the unit charged against the rolling 30-day swap quota: an N-for-N
+  // swap costs N. May return RESOURCE_EXHAUSTED when it would exceed the quota;
+  // see GetEffectiveEntitlements (swap_quota, swaps_used).
+  rpc SwapEntitlementImages(SwapEntitlementImagesRequest) returns (SwapEntitlementImagesResponse) {
+    option (google.api.http) = {
+      post: "/registry/v1/entitlements/{parent=**}:swapImages"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {tags: "RegistryEntitlements"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        // Swap has its own dedicated capability, distinct from images.add and
+        // images.remove: it is the customer-facing, quota-charged, atomic
+        // replacement operation. Owners are granted swap.
+        capabilities: [CAP_REGISTRY_ENTITLEMENTS_IMAGES_SWAP]
+        unscoped: true
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.registry.entitlement.images.swapped.v1"
       extensions: ["group"]
       audience: INTERNAL
     };
@@ -302,14 +338,15 @@ message GetEffectiveEntitlementsResponse {
   // A value of -1 means this organization has no maximum quota enforced.
   int32 max_total_images = 5;
   // The organization's rolling 30-day catalog-image swap quota, aggregated
-  // across its active entitlements. Customer-initiated image removals count
-  // against this quota. A value of -1 means unlimited (no swap limit is
-  // enforced); 0 means no swaps are permitted. Removals beyond the quota
-  // within the window consume per-tier image capacity until they age out.
+  // across its active entitlements. Both swaps (see SwapEntitlementImages) and
+  // standalone image removals count against this quota. A value of -1 means
+  // unlimited (no swap limit is enforced); 0 means no swaps are permitted.
+  // Usage beyond the quota within the window consumes per-tier image capacity
+  // until it ages out.
   int32 swap_quota = 6;
-  // Customer-initiated catalog-image removals in the current rolling 30-day
-  // window. When this exceeds swap_quota, the excess reduces the per-tier
-  // image capacity available for new additions.
+  // Catalog-image swaps and standalone removals in the current rolling 30-day
+  // window. When this exceeds swap_quota, the excess reduces the per-tier image
+  // capacity available for new additions.
   int32 swaps_used = 7;
   // Time at which the next swap becomes available. Set only when no swaps are
   // available now (swaps_used >= swap_quota); unset when a swap is already
@@ -373,4 +410,37 @@ message RemoveEntitlementImagesResponse {
   // selected by parent or by entitlement id. Used as the CloudEvents
   // subject for downstream subscribers.
   string parent = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message SwapEntitlementImagesRequest {
+  // Specify how to select which entitlements to swap images on.
+  // Callers must have scope over the id in the provided field.
+  oneof entitlement {
+    // The organization to swap images on. Removals apply to every active
+    // entitlement under the org that has the named images; additions go to an
+    // eligible entitlement with matching tier capacity.
+    string parent = 1;
+    // The exact id of the entitlement to swap images on.
+    string id = 2;
+  }
+  // Names to remove; names not currently entitled are silent no-ops. Required:
+  // a swap is an atomic replace and must name both a remove and an add side
+  // (INVALID_ARGUMENT if either is empty).
+  repeated string remove_image_names = 3;
+  // Names to add, resolved against the catalog; names already entitled are
+  // skipped. Required (see remove_image_names). A name may not appear in both
+  // lists (INVALID_ARGUMENT).
+  repeated string add_image_names = 4;
+}
+
+message SwapEntitlementImagesResponse {
+  // The images that were removed — one entry per removed image, across all
+  // affected entitlements.
+  repeated EntitledImage removed = 1;
+
+  // The images that were added.
+  repeated EntitledImage added = 2;
+
+  // The resolved customer org UIDP, used as the CloudEvents subject.
+  string parent = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }

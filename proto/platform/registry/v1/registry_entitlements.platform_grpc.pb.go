@@ -30,6 +30,7 @@ const (
 	Entitlements_DeleteEntitlement_FullMethodName            = "/chainguard.platform.registry.Entitlements/DeleteEntitlement"
 	Entitlements_AddEntitlementImages_FullMethodName         = "/chainguard.platform.registry.Entitlements/AddEntitlementImages"
 	Entitlements_RemoveEntitlementImages_FullMethodName      = "/chainguard.platform.registry.Entitlements/RemoveEntitlementImages"
+	Entitlements_SwapEntitlementImages_FullMethodName        = "/chainguard.platform.registry.Entitlements/SwapEntitlementImages"
 )
 
 // EntitlementsClient is the client API for Entitlements service.
@@ -58,7 +59,7 @@ type EntitlementsClient interface {
 	// preferring the newest, unless an explicit entitlement_id is provided.
 	//
 	// May return RESOURCE_EXHAUSTED when the organization has exceeded its
-	// rolling 30-day catalog-image swap quota: customer-initiated removals
+	// rolling 30-day catalog-image swap quota: swaps and standalone removals
 	// beyond the quota consume per-tier image capacity until they age out of the
 	// window, reducing what can be added. See GetEffectiveEntitlements
 	// (swap_quota, swaps_used) for the current budget.
@@ -75,11 +76,26 @@ type EntitlementsClient interface {
 	// Removal is a soft delete: the underlying rows are retained with a deletion
 	// timestamp so that history can be reconstructed for audit purposes.
 	//
-	// Customer-initiated removals count against the organization's rolling
-	// 30-day catalog-image swap quota (see GetEffectiveEntitlements). Removals
-	// beyond the quota reduce the per-tier image capacity available for future
-	// additions until they age out of the window.
+	// Standalone removals count against the organization's rolling 30-day
+	// catalog-image swap quota, the same as swaps (see GetEffectiveEntitlements).
+	// Removals beyond the quota reduce the per-tier image capacity available for
+	// future additions until they age out of the window. For atomic image
+	// replacement prefer SwapEntitlementImages, which removes and adds in one
+	// transaction.
 	RemoveEntitlementImages(ctx context.Context, in *RemoveEntitlementImagesRequest, opts ...grpc.CallOption) (*RemoveEntitlementImagesResponse, error)
+	// SwapEntitlementImages atomically removes and adds catalog images on an
+	// organization's entitlements in one transaction — the whole swap applies or
+	// nothing does, so it can't leave an image removed without its replacement.
+	// remove_image_names and add_image_names resolve as in RemoveEntitlementImages
+	// and AddEntitlementImages. A swap must be an effective replace: it is
+	// INVALID_ARGUMENT if either list is empty, if none of the removes are
+	// currently entitled, or if every add is already entitled (individual no-op
+	// names within a non-empty side are still skipped).
+	//
+	// A swap is the unit charged against the rolling 30-day swap quota: an N-for-N
+	// swap costs N. May return RESOURCE_EXHAUSTED when it would exceed the quota;
+	// see GetEffectiveEntitlements (swap_quota, swaps_used).
+	SwapEntitlementImages(ctx context.Context, in *SwapEntitlementImagesRequest, opts ...grpc.CallOption) (*SwapEntitlementImagesResponse, error)
 }
 
 type entitlementsClient struct {
@@ -190,6 +206,16 @@ func (c *entitlementsClient) RemoveEntitlementImages(ctx context.Context, in *Re
 	return out, nil
 }
 
+func (c *entitlementsClient) SwapEntitlementImages(ctx context.Context, in *SwapEntitlementImagesRequest, opts ...grpc.CallOption) (*SwapEntitlementImagesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SwapEntitlementImagesResponse)
+	err := c.cc.Invoke(ctx, Entitlements_SwapEntitlementImages_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // EntitlementsServer is the server API for Entitlements service.
 // All implementations must embed UnimplementedEntitlementsServer
 // for forward compatibility.
@@ -216,7 +242,7 @@ type EntitlementsServer interface {
 	// preferring the newest, unless an explicit entitlement_id is provided.
 	//
 	// May return RESOURCE_EXHAUSTED when the organization has exceeded its
-	// rolling 30-day catalog-image swap quota: customer-initiated removals
+	// rolling 30-day catalog-image swap quota: swaps and standalone removals
 	// beyond the quota consume per-tier image capacity until they age out of the
 	// window, reducing what can be added. See GetEffectiveEntitlements
 	// (swap_quota, swaps_used) for the current budget.
@@ -233,11 +259,26 @@ type EntitlementsServer interface {
 	// Removal is a soft delete: the underlying rows are retained with a deletion
 	// timestamp so that history can be reconstructed for audit purposes.
 	//
-	// Customer-initiated removals count against the organization's rolling
-	// 30-day catalog-image swap quota (see GetEffectiveEntitlements). Removals
-	// beyond the quota reduce the per-tier image capacity available for future
-	// additions until they age out of the window.
+	// Standalone removals count against the organization's rolling 30-day
+	// catalog-image swap quota, the same as swaps (see GetEffectiveEntitlements).
+	// Removals beyond the quota reduce the per-tier image capacity available for
+	// future additions until they age out of the window. For atomic image
+	// replacement prefer SwapEntitlementImages, which removes and adds in one
+	// transaction.
 	RemoveEntitlementImages(context.Context, *RemoveEntitlementImagesRequest) (*RemoveEntitlementImagesResponse, error)
+	// SwapEntitlementImages atomically removes and adds catalog images on an
+	// organization's entitlements in one transaction — the whole swap applies or
+	// nothing does, so it can't leave an image removed without its replacement.
+	// remove_image_names and add_image_names resolve as in RemoveEntitlementImages
+	// and AddEntitlementImages. A swap must be an effective replace: it is
+	// INVALID_ARGUMENT if either list is empty, if none of the removes are
+	// currently entitled, or if every add is already entitled (individual no-op
+	// names within a non-empty side are still skipped).
+	//
+	// A swap is the unit charged against the rolling 30-day swap quota: an N-for-N
+	// swap costs N. May return RESOURCE_EXHAUSTED when it would exceed the quota;
+	// see GetEffectiveEntitlements (swap_quota, swaps_used).
+	SwapEntitlementImages(context.Context, *SwapEntitlementImagesRequest) (*SwapEntitlementImagesResponse, error)
 	mustEmbedUnimplementedEntitlementsServer()
 }
 
@@ -277,6 +318,9 @@ func (UnimplementedEntitlementsServer) AddEntitlementImages(context.Context, *Ad
 }
 func (UnimplementedEntitlementsServer) RemoveEntitlementImages(context.Context, *RemoveEntitlementImagesRequest) (*RemoveEntitlementImagesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RemoveEntitlementImages not implemented")
+}
+func (UnimplementedEntitlementsServer) SwapEntitlementImages(context.Context, *SwapEntitlementImagesRequest) (*SwapEntitlementImagesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SwapEntitlementImages not implemented")
 }
 func (UnimplementedEntitlementsServer) mustEmbedUnimplementedEntitlementsServer() {}
 func (UnimplementedEntitlementsServer) testEmbeddedByValue()                      {}
@@ -479,6 +523,24 @@ func _Entitlements_RemoveEntitlementImages_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Entitlements_SwapEntitlementImages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SwapEntitlementImagesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EntitlementsServer).SwapEntitlementImages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Entitlements_SwapEntitlementImages_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EntitlementsServer).SwapEntitlementImages(ctx, req.(*SwapEntitlementImagesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Entitlements_ServiceDesc is the grpc.ServiceDesc for Entitlements service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -525,6 +587,10 @@ var Entitlements_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveEntitlementImages",
 			Handler:    _Entitlements_RemoveEntitlementImages_Handler,
+		},
+		{
+			MethodName: "SwapEntitlementImages",
+			Handler:    _Entitlements_SwapEntitlementImages_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
