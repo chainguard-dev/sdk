@@ -101,14 +101,18 @@ var (
 	// is written by the Chainguard publish pipeline via a CAP_INTERNAL role, not
 	// by customer skills publishers.
 	//
-	// CAP_SKILLS_HARDEN is customer-facing: it grants access to the Skills
-	// harden API (submit/track a harden job), so a skills-entitled publisher can
-	// also harden. The internal result-record leg is guarded by CAP_INTERNAL, so
-	// this bundle stays customer-safe.
+	// The skills.harden.{read,write,cancel} caps are customer-facing: they let a
+	// skills-entitled publisher submit, track, and cancel harden jobs. They do
+	// NOT write the hardened output — publishing the hardened artifact and
+	// recording the job result is done by internal identities (skills.write is
+	// internal_only; the record-result RPC is gated on CAP_INTERNAL), so this
+	// bundle stays customer-safe.
 	SkillsPublishCaps = SortCaps([]Capability{
 		Capability_CAP_SKILLS_PUBLISH,
 		Capability_CAP_SKILLS_ENTITLEMENTS_LIST,
-		Capability_CAP_SKILLS_HARDEN,
+		Capability_CAP_SKILLS_HARDEN_READ,
+		Capability_CAP_SKILLS_HARDEN_WRITE,
+		Capability_CAP_SKILLS_HARDEN_CANCEL,
 		Capability_CAP_TERMS_LIST,
 	})
 

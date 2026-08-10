@@ -287,14 +287,24 @@ const (
 	Capability_CAP_SKILLS_LIST   Capability = 2507
 	Capability_CAP_SKILLS_WRITE  Capability = 2505
 	Capability_CAP_SKILLS_DELETE Capability = 2506
-	// Skills harden — access to the Skills harden API (submit a skill for
-	// hardening + track the job: HardenSkill / GetHardenOperation /
-	// GetHardenStatus / CancelHardenOperation). Customer-facing: an org member
-	// holds it on the target group named by `chainctl skills harden --group`.
-	// One cap gates the harden API for now; it can be split into finer
-	// create/read/cancel caps later without a rewrite. The internal
-	// result-record leg is guarded by CAP_INTERNAL, not this cap.
-	Capability_CAP_SKILLS_HARDEN Capability = 2508
+	// Skills harden — access to the Skills harden API, split per RPC so read,
+	// submit, and cancel can be granted independently. Customer-facing: an org
+	// member holds these on the target group named by `chainctl skills harden
+	// --group`.
+	//
+	//	read   -> GetHardenOperation
+	//	write  -> HardenSkill (submit)
+	//	cancel -> CancelHardenOperation
+	//
+	// These let a customer kick off and track a harden; they do NOT let the caller
+	// write the hardened output. Publishing the hardened artifact and recording the
+	// job result into the skills registry/catalog is done by internal identities
+	// via the internal_only skills.write cap, and the pipeline's record-result RPC
+	// is gated on CAP_INTERNAL — so a customer can never push into the hardened
+	// area directly.
+	Capability_CAP_SKILLS_HARDEN_READ   Capability = 2508
+	Capability_CAP_SKILLS_HARDEN_WRITE  Capability = 2509
+	Capability_CAP_SKILLS_HARDEN_CANCEL Capability = 2510
 	// Argos — client-side encrypted document records.
 	Capability_CAP_ARGOS_DOCUMENTS_CREATE Capability = 2601
 	Capability_CAP_ARGOS_DOCUMENTS_LIST   Capability = 2602
@@ -519,7 +529,9 @@ var (
 		2507:  "CAP_SKILLS_LIST",
 		2505:  "CAP_SKILLS_WRITE",
 		2506:  "CAP_SKILLS_DELETE",
-		2508:  "CAP_SKILLS_HARDEN",
+		2508:  "CAP_SKILLS_HARDEN_READ",
+		2509:  "CAP_SKILLS_HARDEN_WRITE",
+		2510:  "CAP_SKILLS_HARDEN_CANCEL",
 		2601:  "CAP_ARGOS_DOCUMENTS_CREATE",
 		2602:  "CAP_ARGOS_DOCUMENTS_LIST",
 		2603:  "CAP_ARGOS_DOCUMENTS_DELETE",
@@ -719,7 +731,9 @@ var (
 		"CAP_SKILLS_LIST":                                    2507,
 		"CAP_SKILLS_WRITE":                                   2505,
 		"CAP_SKILLS_DELETE":                                  2506,
-		"CAP_SKILLS_HARDEN":                                  2508,
+		"CAP_SKILLS_HARDEN_READ":                             2508,
+		"CAP_SKILLS_HARDEN_WRITE":                            2509,
+		"CAP_SKILLS_HARDEN_CANCEL":                           2510,
 		"CAP_ARGOS_DOCUMENTS_CREATE":                         2601,
 		"CAP_ARGOS_DOCUMENTS_LIST":                           2602,
 		"CAP_ARGOS_DOCUMENTS_DELETE":                         2603,
@@ -834,7 +848,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xb5j\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xbfk\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1020,8 +1034,10 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x1eCAP_SKILLS_ENTITLEMENTS_DELETE\x10\xc8\x13\x1a&\xa8ˑM\x8c\x01\x9a\xaf\xa8\xd2\x05\x1askills.entitlements.delete\x12-\n" +
 	"\x0fCAP_SKILLS_LIST\x10\xcb\x13\x1a\x17\xa8ˑM\xc3\x01\x9a\xaf\xa8\xd2\x05\vskills.list\x125\n" +
 	"\x10CAP_SKILLS_WRITE\x10\xc9\x13\x1a\x1e\xa8ˑM\xc1\x01\x9a\xaf\xa8\xd2\x05\fskills.write\xa0\xaf\xa8\xd2\x05\x01\x127\n" +
-	"\x11CAP_SKILLS_DELETE\x10\xca\x13\x1a\x1f\xa8ˑM\xc2\x01\x9a\xaf\xa8\xd2\x05\rskills.delete\xa0\xaf\xa8\xd2\x05\x01\x121\n" +
-	"\x11CAP_SKILLS_HARDEN\x10\xcc\x13\x1a\x19\xa8ˑM\xc7\x01\x9a\xaf\xa8\xd2\x05\rskills.harden\x12C\n" +
+	"\x11CAP_SKILLS_DELETE\x10\xca\x13\x1a\x1f\xa8ˑM\xc2\x01\x9a\xaf\xa8\xd2\x05\rskills.delete\xa0\xaf\xa8\xd2\x05\x01\x12;\n" +
+	"\x16CAP_SKILLS_HARDEN_READ\x10\xcc\x13\x1a\x1e\xa8ˑM\xc7\x01\x9a\xaf\xa8\xd2\x05\x12skills.harden.read\x12=\n" +
+	"\x17CAP_SKILLS_HARDEN_WRITE\x10\xcd\x13\x1a\x1f\xa8ˑM\xcb\x01\x9a\xaf\xa8\xd2\x05\x13skills.harden.write\x12?\n" +
+	"\x18CAP_SKILLS_HARDEN_CANCEL\x10\xce\x13\x1a \xa8ˑM\xcc\x01\x9a\xaf\xa8\xd2\x05\x14skills.harden.cancel\x12C\n" +
 	"\x1aCAP_ARGOS_DOCUMENTS_CREATE\x10\xa9\x14\x1a\"\xa8ˑM\x90\x01\x9a\xaf\xa8\xd2\x05\x16argos.documents.create\x12?\n" +
 	"\x18CAP_ARGOS_DOCUMENTS_LIST\x10\xaa\x14\x1a \xa8ˑM\x91\x01\x9a\xaf\xa8\xd2\x05\x14argos.documents.list\x12C\n" +
 	"\x1aCAP_ARGOS_DOCUMENTS_DELETE\x10\xab\x14\x1a\"\xa8ˑM\x92\x01\x9a\xaf\xa8\xd2\x05\x16argos.documents.delete\x123\n" +

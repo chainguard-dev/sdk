@@ -333,14 +333,22 @@ enum Capability {
   CAP_SKILLS_WRITE  = 2505 [(name) = "skills.write",  (bit) = 193, (internal_only) = true];
   CAP_SKILLS_DELETE = 2506 [(name) = "skills.delete", (bit) = 194, (internal_only) = true];
 
-  // Skills harden — access to the Skills harden API (submit a skill for
-  // hardening + track the job: HardenSkill / GetHardenOperation /
-  // GetHardenStatus / CancelHardenOperation). Customer-facing: an org member
-  // holds it on the target group named by `chainctl skills harden --group`.
-  // One cap gates the harden API for now; it can be split into finer
-  // create/read/cancel caps later without a rewrite. The internal
-  // result-record leg is guarded by CAP_INTERNAL, not this cap.
-  CAP_SKILLS_HARDEN = 2508 [(name) = "skills.harden", (bit) = 199];
+  // Skills harden — access to the Skills harden API, split per RPC so read,
+  // submit, and cancel can be granted independently. Customer-facing: an org
+  // member holds these on the target group named by `chainctl skills harden
+  // --group`.
+  //   read   -> GetHardenOperation
+  //   write  -> HardenSkill (submit)
+  //   cancel -> CancelHardenOperation
+  // These let a customer kick off and track a harden; they do NOT let the caller
+  // write the hardened output. Publishing the hardened artifact and recording the
+  // job result into the skills registry/catalog is done by internal identities
+  // via the internal_only skills.write cap, and the pipeline's record-result RPC
+  // is gated on CAP_INTERNAL — so a customer can never push into the hardened
+  // area directly.
+  CAP_SKILLS_HARDEN_READ   = 2508 [(name) = "skills.harden.read",   (bit) = 199];
+  CAP_SKILLS_HARDEN_WRITE  = 2509 [(name) = "skills.harden.write",  (bit) = 203];
+  CAP_SKILLS_HARDEN_CANCEL = 2510 [(name) = "skills.harden.cancel", (bit) = 204];
 
   // Argos — client-side encrypted document records.
   CAP_ARGOS_DOCUMENTS_CREATE = 2601 [(name) = "argos.documents.create", (bit) = 144];
@@ -407,5 +415,5 @@ enum Capability {
   CAP_ACTIONS_LIST = 2700 [(name) = "actions.list", (bit) = 164];
 
   reserved 1;
-  // next bit: 203
+  // next bit: 205
 }

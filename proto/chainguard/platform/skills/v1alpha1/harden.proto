@@ -1,0 +1,245 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.skills.v1alpha1;
+
+import "annotations/auth.proto";
+import "annotations/mcp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/longrunning/operations.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/skills/v1alpha1";
+option java_multiple_files = true;
+option java_outer_classname = "HardenProto";
+option java_package = "com.chainguard.platform.skills.v1alpha1";
+
+// SkillsHarden is the customer-facing on-demand skill-harden API. A caller
+// submits a skill artifact — already uploaded to uploads.cgr.dev — targeted at
+// a group, and receives a long-running Operation to track the harden pipeline.
+// It is the API-driven sibling of the synchronous `chainctl skills harden` MVP
+// and the registry-push-triggered reconciler, and the one path that lets a
+// caller submit a specific skill on demand and get a handle to track it.
+service SkillsHarden {
+  // HardenSkill enqueues a harden job for a caller-submitted skill artifact and
+  // returns a long-running operation. The submit is idempotent: an identical
+  // (group, skill_name, content) submission returns the existing operation
+  // rather than starting duplicate work.
+  //
+  // The operation name is the deterministic job id derived from the group, the
+  // submitting user, the skill name, and the content digest, so a client can
+  // recompute it locally and poll GetHardenOperation without the submit
+  // round-trip.
+  rpc HardenSkill(HardenSkillRequest) returns (google.longrunning.Operation) {
+    option (google.api.http) = {
+      post: "/skills/v1alpha1/harden"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_SKILLS_HARDEN_WRITE]
+      }
+    };
+    option (google.longrunning.operation_info) = {
+      response_type: "chainguard.platform.skills.v1alpha1.HardenOperationResponse"
+      metadata_type: "chainguard.platform.skills.v1alpha1.HardenOperationMetadata"
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Submit a skill artifact (already uploaded to uploads.cgr.dev) to be hardened into a group, returning a long-running operation to track the harden job."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // GetHardenOperation returns the current state of a harden operation
+  // previously returned by HardenSkill. The operation name embeds the owning
+  // group's UIDP; group must match and is the IAM scope.
+  rpc GetHardenOperation(GetHardenOperationRequest) returns (google.longrunning.Operation) {
+    option (google.api.http) = {get: "/skills/v1alpha1/{name=harden/**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_SKILLS_HARDEN_READ]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get the state of a skill-harden long-running operation by its name."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // CancelHardenOperation requests cancellation of a running harden job and
+  // returns the operation. Idempotent: cancelling an already-terminal operation
+  // is a no-op that returns it unchanged.
+  rpc CancelHardenOperation(CancelHardenOperationRequest) returns (google.longrunning.Operation) {
+    option (google.api.http) = {
+      post: "/skills/v1alpha1/harden/{job_id}:cancel"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_SKILLS_HARDEN_CANCEL]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Request cancellation of a running skill-harden job by its operation name."
+      read_only: false
+      destructive: true
+      idempotent: true
+      open_world: false
+    };
+  }
+}
+
+// HardenPhase tracks a harden job's lifecycle progress only. The terminal
+// outcome is not a phase: success is carried in Operation.response (the hardened
+// artifact ref) and failure in Operation.error. COMPLETED means the job reached
+// a terminal state — read the Operation's response/error for the result.
+enum HardenPhase {
+  // HARDEN_PHASE_UNSPECIFIED: phase not set.
+  HARDEN_PHASE_UNSPECIFIED = 0;
+  // HARDEN_PHASE_QUEUED: enqueued, not yet picked up by the pipeline.
+  HARDEN_PHASE_QUEUED = 1;
+  // HARDEN_PHASE_RUNNING: the pipeline is running.
+  HARDEN_PHASE_RUNNING = 2;
+  // HARDEN_PHASE_COMPLETED: terminal; the job finished. Outcome is in the
+  // Operation — response on success, error on failure.
+  HARDEN_PHASE_COMPLETED = 3;
+  // HARDEN_PHASE_CANCELLED: terminal; the run was cancelled.
+  HARDEN_PHASE_CANCELLED = 4;
+}
+
+// HardenTrigger identifies what initiated a harden run.
+enum HardenTrigger {
+  HARDEN_TRIGGER_UNSPECIFIED = 0;
+  // A user enqueued the harden via HardenSkill.
+  HARDEN_TRIGGER_USER = 1;
+  // The system (registry-push reconciler or cron) enqueued the harden.
+  HARDEN_TRIGGER_SYSTEM = 2;
+}
+
+// HardenSkillRequest names a skill artifact already uploaded to uploads.cgr.dev
+// and the group to harden it into. The caller supplies components, not a ref:
+// the server builds the digest-pinned source ref
+// uploads.cgr.dev/<group>/<skill_name>@sha256:<content_digest> from the fields
+// below — the host is a server constant, never caller input, so a caller can
+// never point the harden pipeline at an arbitrary registry. On success the
+// hardened result is published to a per-user path,
+// skills.cgr.dev/<group>/<user>/<skill_name> (the user-less
+// skills.cgr.dev/<group>/<skill_name> path is reserved for promotion).
+//
+// Every source normalizes to an uploads.cgr.dev artifact before harden: customer
+// uploads (chainctl skills push), public Chainguard skills, and Chainguard's
+// internal skills are all pushed to uploads.cgr.dev by the pipeline's ingest
+// phase — the only stage that fetches upstream content. So this endpoint only
+// ever names an uploads artifact by digest; there is no remote/git source on
+// this surface.
+message HardenSkillRequest {
+  // group is the target group (org UIDP) the skill is hardened into. It is
+  // authorized against the caller (the IAM scope for CAP_SKILLS_HARDEN_WRITE),
+  // never derived from identity. The hardened skill lands under a per-user path,
+  // skills.cgr.dev/<group>/<user>/<skill_name>; the user-less
+  // skills.cgr.dev/<group>/<skill_name> path is reserved for promotion.
+  string group = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // skill_name is the skill's catalog name (from --name or SKILL.md
+  // frontmatter). It is the path the hardened skill takes under the group's
+  // skills folder.
+  string skill_name = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // content_digest is the sha256 digest of the uploaded artifact, as
+  // "sha256:<64-hex>". It is the content dimension of the source ref: the server
+  // builds the pinned OCI ref uploads.cgr.dev/<group>/<skill_name>@<content_digest>
+  // (host fixed server-side) and the pipeline pulls the artifact by it. The API
+  // never carries file bytes — the --folder and --digest client modes both
+  // resolve to this digest. The server validates the format and rejects anything
+  // that is not a well-formed sha256 digest.
+  string content_digest = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetHardenOperationRequest {
+  // group is the owning group UIDP; the IAM scope. Must match the UIDP embedded
+  // in the operation name.
+  string group = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // name is the operation name as returned by HardenSkill (harden/{uidp}/{id}).
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message CancelHardenOperationRequest {
+  // group is the owning group UIDP; the IAM scope. The operation cancelled is
+  // harden/{group}/{job_id}.
+  string group = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // job_id is the deterministic harden job id to cancel (the final segment of
+  // the operation name; see HardenOperationMetadata.job_id).
+  string job_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// HardenOperationMetadata carries a harden job's identity and progress in
+// Operation.metadata for the operation's whole life — from queue through
+// completion. The terminal outcome is not here: success is Operation.response
+// (HardenOperationResponse) and failure is Operation.error.
+message HardenOperationMetadata {
+  // job_id is the deterministic, content-addressed harden job id. It is derived
+  // from the group, actor, skill_name, and content digest, and forms the final
+  // segment of the operation name (harden/{group}/{job_id}). Surfaced here so a
+  // client reads it directly instead of parsing Operation.name.
+  string job_id = 1;
+  // group is the target group the skill is hardened into.
+  string group = 2;
+  // skill_name is the skill's catalog name.
+  string skill_name = 3;
+  // content_digest is the sha256 digest of the uploaded artifact (the content
+  // dimension of the job id).
+  string content_digest = 4;
+  // trigger identifies what initiated the run (user vs system).
+  HardenTrigger trigger = 5;
+  // actor is the identity that triggered the run: the caller's subject for
+  // user-triggered runs, or the reconciler/cron identity for system runs.
+  string actor = 6;
+  // create_time is when the operation was created.
+  google.protobuf.Timestamp create_time = 7;
+  // update_time is when the operation was last modified (the timestamp of the
+  // most recent phase change).
+  google.protobuf.Timestamp update_time = 8;
+  // phase is the current lifecycle phase of the harden job.
+  HardenPhase phase = 9;
+  // phase_changes is the ordered history of phase transitions this job has gone
+  // through, oldest first.
+  repeated PhaseChange phase_changes = 10;
+
+  // PhaseChange records a single phase transition and when it occurred.
+  message PhaseChange {
+    // phase is the phase entered at this transition.
+    HardenPhase phase = 1;
+    // time is when the job entered this phase.
+    google.protobuf.Timestamp time = 2;
+  }
+}
+
+// HardenOperationResponse is carried in Operation.response when a harden job
+// completes successfully. Terminal failures are reported via Operation.error.
+message HardenOperationResponse {
+  // hardened_ref is the published hardened skill artifact ref — a per-user path,
+  // skills.cgr.dev/<group>/<user>/<skill_name>@<digest>, so two users hardening
+  // the same input never collide on one digest. The job's identity (job_id,
+  // group, skill_name) is on Operation.metadata, present on success and failure.
+  string hardened_ref = 1;
+}
