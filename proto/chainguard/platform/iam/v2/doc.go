@@ -1,0 +1,147 @@
+/*
+Copyright 2026 Chainguard, Inc.
+SPDX-License-Identifier: Apache-2.0
+*/
+
+/*
+Package v2 provides Go clients for the Chainguard IAM v2 API.
+
+# Overview
+
+This package contains generated protobuf types and gRPC clients for managing
+Chainguard IAM resources including groups, identities, roles, role bindings,
+account associations, group invites, and identity providers. It provides a
+unified Clients interface for accessing all IAM services with built-in
+pagination support.
+
+# Features
+
+  - Groups: Manage organizations and folders in the IAM hierarchy
+  - Identities: Manage IAM identities with OIDC, static keys, or AWS IAM
+  - Roles: Manage custom roles and query available roles and their capabilities
+  - RoleBindings: Associate identities with roles within group scopes
+  - AccountAssociations: Manage cloud provider account associations for groups
+  - GroupInvites: Manage group invitations with role assignment and email notification
+  - IdentityProviders: Manage external OIDC identity providers for SSO authentication
+  - ExternalGroupRoleMappings: Map external IdP groups to Chainguard roles for SSO federation
+  - Terms: Manage legal document acceptance for organizations
+  - Pagination: Iterator-based and slice-based pagination helpers
+
+# Services
+
+GroupsService provides operations for managing IAM groups:
+  - CreateGroup: Create a new group (organization or folder)
+  - GetGroup: Retrieve a single group by UID
+  - UpdateGroup: Update group properties
+  - DeleteGroup: Delete a group by UID
+  - ListGroups: List groups with filtering and pagination
+
+IdentitiesService provides operations for managing IAM identities:
+  - CreateIdentity: Create a new identity
+  - GetIdentity: Retrieve a single identity by UID
+  - DeleteIdentity: Delete an identity by UID
+  - UpdateIdentity: Update an identity's properties
+  - ListIdentities: List identities with filtering and pagination
+
+RolesService provides operations for managing IAM roles:
+  - CreateRole: Create a new custom role
+  - GetRole: Retrieve a single role by UID
+  - ListRoles: List roles with filtering and pagination
+  - UpdateRole: Update a custom role's properties
+  - DeleteRole: Delete a custom role
+
+RoleBindingsService provides operations for managing role bindings:
+  - GetRoleBinding: Retrieve a single role binding by UID
+  - CreateRoleBinding: Create a new role binding (identity + role + group)
+  - DeleteRoleBinding: Delete a role binding by UID (idempotent)
+  - ListRoleBindings: List role bindings with filtering and pagination
+  - UpdateRoleBinding: Update a role binding's identity or role assignment
+
+AccountAssociationsService provides operations for managing cloud provider associations:
+  - GetAccountAssociation: Retrieve a single account association by group UID
+  - CreateAccountAssociation: Create a new account association for a group
+  - UpdateAccountAssociation: Update an account association's fields
+  - DeleteAccountAssociation: Delete an account association by group UID (idempotent)
+  - ListAccountAssociations: List account associations with filtering and pagination
+
+GroupInvitesService provides operations for managing group invitations:
+  - CreateGroupInvite: Create a new invite with role assignment and optional email
+  - GetGroupInvite: Retrieve a single group invite by UID
+  - DeleteGroupInvite: Delete a group invite by UID (idempotent)
+  - ListGroupInvites: List group invites with filtering and pagination
+
+IdentityProvidersService provides operations for managing external identity providers:
+  - ListIdentityProviders: List identity providers with filtering and pagination
+  - GetIdentityProvider: Retrieve a single identity provider by UID
+  - CreateIdentityProvider: Create a new OIDC identity provider for SSO
+  - UpdateIdentityProvider: Update an identity provider's configuration
+  - DeleteIdentityProvider: Delete an identity provider by UID
+
+ExternalGroupRoleMappingsService provides operations for managing external group-to-role mappings:
+  - CreateExternalGroupRoleMapping: Map an external IdP group to a Chainguard role
+  - GetExternalGroupRoleMapping: Retrieve a single mapping by UID
+  - DeleteExternalGroupRoleMapping: Delete a mapping (hard delete for unique constraint)
+  - ListExternalGroupRoleMappings: List mappings with filtering and pagination
+
+TermsService manages legal document acceptance for organizations:
+  - AcceptTerms: Record acceptance of legal documents for an organization
+  - ListTermsAcceptances: List legal documents that an organization has accepted
+
+# Usage
+
+Create a client from an existing gRPC connection:
+
+	conn, err := grpc.Dial(target, opts...)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	clients := v2.NewClientsFromConnection(conn)
+
+Access individual service clients:
+
+	groupsClient := clients.GroupsService()
+	identitiesClient := clients.IdentitiesService()
+	rolesClient := clients.RolesService()
+	roleBindingsClient := clients.RoleBindingsService()
+
+# Pagination
+
+The package provides two pagination patterns for list operations.
+
+Iterator-based pagination processes items one at a time:
+
+	for group, err := range clients.ListGroupsIter(ctx, &v2.ListGroupsRequest{}) {
+		if err != nil {
+			return err
+		}
+		fmt.Println(group.GetName())
+	}
+
+Slice-based pagination collects all results:
+
+	groups, err := clients.ListGroupsAll(ctx, &v2.ListGroupsRequest{})
+	if err != nil {
+		return err
+	}
+	for _, group := range groups {
+		fmt.Println(group.GetName())
+	}
+
+# Thread Safety
+
+All service clients are safe for concurrent use. The Clients interface methods
+can be called from multiple goroutines simultaneously.
+*/
+package v2
+
+//go:generate protoc -I ../../../.. -I ../../../../.. --go_out=../../../.. --go_opt=paths=source_relative --go-grpc_out=../../../.. --go-grpc_opt=paths=source_relative --grpc-gateway_out=../../../.. --grpc-gateway_opt logtostderr=true --grpc-gateway_opt paths=source_relative --grpc-gateway_opt generate_unbound_methods=true --grpc-gateway_opt omit_package_doc=true --openapiv2_out=. --openapiv2_opt use_allof_for_refs=true,preserve_rpc_order=true,openapi_naming_strategy=fqn,enable_rpc_deprecation=true chainguard/platform/iam/v2/group_invites.proto
+//go:generate protoc -I ../../../.. -I ../../../../.. --go_out=../../../.. --go_opt=paths=source_relative --go-grpc_out=../../../.. --go-grpc_opt=paths=source_relative --grpc-gateway_out=../../../.. --grpc-gateway_opt logtostderr=true --grpc-gateway_opt paths=source_relative --grpc-gateway_opt generate_unbound_methods=true --grpc-gateway_opt omit_package_doc=true --openapiv2_out=. --openapiv2_opt use_allof_for_refs=true,preserve_rpc_order=true,openapi_naming_strategy=fqn,enable_rpc_deprecation=true chainguard/platform/iam/v2/groups.proto
+//go:generate protoc -I ../../../.. -I ../../../../.. --go_out=../../../.. --go_opt=paths=source_relative --go-grpc_out=../../../.. --go-grpc_opt=paths=source_relative --grpc-gateway_out=../../../.. --grpc-gateway_opt logtostderr=true --grpc-gateway_opt paths=source_relative --grpc-gateway_opt generate_unbound_methods=true --grpc-gateway_opt omit_package_doc=true --openapiv2_out=. --openapiv2_opt use_allof_for_refs=true,preserve_rpc_order=true,openapi_naming_strategy=fqn,enable_rpc_deprecation=true chainguard/platform/iam/v2/identities.proto
+//go:generate protoc -I ../../../.. -I ../../../../.. --go_out=../../../.. --go_opt=paths=source_relative --go-grpc_out=../../../.. --go-grpc_opt=paths=source_relative --grpc-gateway_out=../../../.. --grpc-gateway_opt logtostderr=true --grpc-gateway_opt paths=source_relative --grpc-gateway_opt generate_unbound_methods=true --grpc-gateway_opt omit_package_doc=true --openapiv2_out=. --openapiv2_opt use_allof_for_refs=true,preserve_rpc_order=true,openapi_naming_strategy=fqn,enable_rpc_deprecation=true chainguard/platform/iam/v2/roles.proto
+//go:generate protoc -I ../../../.. -I ../../../../.. --go_out=../../../.. --go_opt=paths=source_relative --go-grpc_out=../../../.. --go-grpc_opt=paths=source_relative --grpc-gateway_out=../../../.. --grpc-gateway_opt logtostderr=true --grpc-gateway_opt paths=source_relative --grpc-gateway_opt generate_unbound_methods=true --grpc-gateway_opt omit_package_doc=true --openapiv2_out=. --openapiv2_opt use_allof_for_refs=true,preserve_rpc_order=true,openapi_naming_strategy=fqn,enable_rpc_deprecation=true chainguard/platform/iam/v2/role_bindings.proto
+//go:generate protoc -I ../../../.. -I ../../../../.. --go_out=../../../.. --go_opt=paths=source_relative --go-grpc_out=../../../.. --go-grpc_opt=paths=source_relative --grpc-gateway_out=../../../.. --grpc-gateway_opt logtostderr=true --grpc-gateway_opt paths=source_relative --grpc-gateway_opt generate_unbound_methods=true --grpc-gateway_opt omit_package_doc=true --openapiv2_out=. --openapiv2_opt use_allof_for_refs=true,preserve_rpc_order=true,openapi_naming_strategy=fqn,enable_rpc_deprecation=true chainguard/platform/iam/v2/account_associations.proto
+//go:generate protoc -I ../../../.. -I ../../../../.. --go_out=../../../.. --go_opt=paths=source_relative --go-grpc_out=../../../.. --go-grpc_opt=paths=source_relative --grpc-gateway_out=../../../.. --grpc-gateway_opt logtostderr=true --grpc-gateway_opt paths=source_relative --grpc-gateway_opt generate_unbound_methods=true --grpc-gateway_opt omit_package_doc=true --openapiv2_out=. --openapiv2_opt use_allof_for_refs=true,preserve_rpc_order=true,openapi_naming_strategy=fqn,enable_rpc_deprecation=true chainguard/platform/iam/v2/identity_providers.proto
+//go:generate protoc -I ../../../.. -I ../../../../.. --go_out=../../../.. --go_opt=paths=source_relative --go-grpc_out=../../../.. --go-grpc_opt=paths=source_relative --grpc-gateway_out=../../../.. --grpc-gateway_opt logtostderr=true --grpc-gateway_opt paths=source_relative --grpc-gateway_opt generate_unbound_methods=true --grpc-gateway_opt omit_package_doc=true --openapiv2_out=. --openapiv2_opt use_allof_for_refs=true,preserve_rpc_order=true,openapi_naming_strategy=fqn,enable_rpc_deprecation=true chainguard/platform/iam/v2/external_group_role_mappings.proto
+//go:generate protoc -I ../../../.. -I ../../../../.. --go_out=../../../.. --go_opt=paths=source_relative --go-grpc_out=../../../.. --go-grpc_opt=paths=source_relative --grpc-gateway_out=../../../.. --grpc-gateway_opt logtostderr=true --grpc-gateway_opt paths=source_relative --grpc-gateway_opt generate_unbound_methods=true --grpc-gateway_opt omit_package_doc=true --openapiv2_out=. --openapiv2_opt use_allof_for_refs=true,preserve_rpc_order=true,openapi_naming_strategy=fqn,enable_rpc_deprecation=true chainguard/platform/iam/v2/terms.proto
