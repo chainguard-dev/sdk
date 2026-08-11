@@ -186,10 +186,10 @@ var (
 		Capability_CAP_MCP_TOOL_CALL,
 	}, EditorCaps,
 		// Owners can also push and delete OCI, APK Java, JavaScript, Python, and .NET artifacts, subject to the identity allowlist.
-		RegistryPushCaps, APKPushCaps, LibrariesJavaPushCaps, LibrariesJavascriptPushCaps, LibrariesPythonPushCaps, LibrariesDotnetPushCaps,
+		RegistryPushCaps, APKPushCaps, LibrariesJavaPushCaps, LibrariesJavascriptPushCaps, LibrariesPythonPushCaps, LibrariesDotnetPushCaps, LibrariesGoPushCaps,
 		// Owners can pull artifacts from ecosystem libraries and grant this role to others in their org.
 		// NB: The org must also be entitled to the ecosystem to pull artifacts.
-		LibrariesJavaPullCaps, LibrariesPythonPullCaps, LibrariesJavascriptPullCaps, LibrariesDotnetPullCaps,
+		LibrariesJavaPullCaps, LibrariesPythonPullCaps, LibrariesJavascriptPullCaps, LibrariesDotnetPullCaps, LibrariesGoPullCaps,
 		// Owners can publish skill artifacts to skills.cgr.dev, subject to the org
 		// having a skills entitlement. SkillsPublishCaps can also be granted
 		// independently to a service principal or non-owner via role-bindings.
@@ -329,6 +329,16 @@ var (
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
 		Capability_CAP_LIBRARIES_DOTNET_CREATE,
 	}, LibrariesDotnetPullCaps)
+
+	LibrariesGoPullCaps = SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
+		Capability_CAP_LIBRARIES_GO_LIST,
+	})
+
+	LibrariesGoPushCaps = SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
+		Capability_CAP_LIBRARIES_GO_CREATE,
+	}, LibrariesGoPullCaps)
 
 	// The rebuilder capabilities are all (internal_only), so every rebuilder
 	// bundle must also grant CAP_INTERNAL — the internal-only validation enforces

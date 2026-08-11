@@ -112,6 +112,13 @@ enum Ecosystem {
   // datastore Ecosystem enum). Grants access to Chainguard-remediated NuGet
   // artifacts and, like the other Athena tiers, is not self-serve provisionable.
   DOTNET_ATHENA = 8;
+  // Go modules ecosystem, served over the GOPROXY protocol (mirrors GO = 9 in
+  // the datastore Ecosystem enum).
+  GO = 9;
+  // Athena tier for Go, paired with GO (mirrors GO_SECURE = 10 in the
+  // datastore Ecosystem enum). Grants access to Chainguard-remediated Go
+  // modules and, like the other Athena tiers, is not self-serve provisionable.
+  GO_ATHENA = 10;
 }
 
 // Policy controls which package sources are available for an entitlement.

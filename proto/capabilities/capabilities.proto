@@ -178,6 +178,8 @@ enum Capability {
   CAP_LIBRARIES_JAVASCRIPT_CREATE = 1831 [(name) = "libraries.javascript.create", (bit) = 109];
   CAP_LIBRARIES_DOTNET_LIST = 1832 [(name) = "libraries.dotnet.list", (bit) = 196];
   CAP_LIBRARIES_DOTNET_CREATE = 1833 [(name) = "libraries.dotnet.create", (bit) = 197];
+  CAP_LIBRARIES_GO_LIST = 1834 [(name) = "libraries.go.list", (bit) = 205];
+  CAP_LIBRARIES_GO_CREATE = 1835 [(name) = "libraries.go.create", (bit) = 206];
   // Cache invalidation capability for the libraries cache (covers all ecosystems).
   // Granted to org owners and account admins; not to regular developer members.
   CAP_LIBRARIES_CACHE_INVALIDATE = 1860 [(name) = "libraries.cache.invalidate", (bit) = 129];
@@ -415,5 +417,5 @@ enum Capability {
   CAP_ACTIONS_LIST = 2700 [(name) = "actions.list", (bit) = 164];
 
   reserved 1;
-  // next bit: 205
+  // next bit: 207
 }

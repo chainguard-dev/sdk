@@ -46,20 +46,29 @@ const (
 	// datastore Ecosystem enum). Grants access to Chainguard-remediated NuGet
 	// artifacts and, like the other Athena tiers, is not self-serve provisionable.
 	Ecosystem_DOTNET_ATHENA Ecosystem = 8
+	// Go modules ecosystem, served over the GOPROXY protocol (mirrors GO = 9 in
+	// the datastore Ecosystem enum).
+	Ecosystem_GO Ecosystem = 9
+	// Athena tier for Go, paired with GO (mirrors GO_SECURE = 10 in the
+	// datastore Ecosystem enum). Grants access to Chainguard-remediated Go
+	// modules and, like the other Athena tiers, is not self-serve provisionable.
+	Ecosystem_GO_ATHENA Ecosystem = 10
 )
 
 // Enum value maps for Ecosystem.
 var (
 	Ecosystem_name = map[int32]string{
-		0: "UNKNOWN",
-		1: "JAVA",
-		2: "PYTHON",
-		3: "JAVASCRIPT",
-		4: "JAVA_ATHENA",
-		5: "PYTHON_ATHENA",
-		6: "JAVASCRIPT_ATHENA",
-		7: "DOTNET",
-		8: "DOTNET_ATHENA",
+		0:  "UNKNOWN",
+		1:  "JAVA",
+		2:  "PYTHON",
+		3:  "JAVASCRIPT",
+		4:  "JAVA_ATHENA",
+		5:  "PYTHON_ATHENA",
+		6:  "JAVASCRIPT_ATHENA",
+		7:  "DOTNET",
+		8:  "DOTNET_ATHENA",
+		9:  "GO",
+		10: "GO_ATHENA",
 	}
 	Ecosystem_value = map[string]int32{
 		"UNKNOWN":           0,
@@ -71,6 +80,8 @@ var (
 		"JAVASCRIPT_ATHENA": 6,
 		"DOTNET":            7,
 		"DOTNET_ATHENA":     8,
+		"GO":                9,
+		"GO_ATHENA":         10,
 	}
 )
 
@@ -540,7 +551,7 @@ const file_entitlements_libraries_platform_proto_rawDesc = "" +
 	"ecosystems\x18\x02 \x03(\x0e2(.chainguard.platform.libraries.EcosystemR\n" +
 	"ecosystems\"2\n" +
 	"\x18DeleteEntitlementRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id*\x98\x01\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id*\xaf\x01\n" +
 	"\tEcosystem\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\b\n" +
 	"\x04JAVA\x10\x01\x12\n" +
@@ -553,7 +564,10 @@ const file_entitlements_libraries_platform_proto_rawDesc = "" +
 	"\x11JAVASCRIPT_ATHENA\x10\x06\x12\n" +
 	"\n" +
 	"\x06DOTNET\x10\a\x12\x11\n" +
-	"\rDOTNET_ATHENA\x10\b*W\n" +
+	"\rDOTNET_ATHENA\x10\b\x12\x06\n" +
+	"\x02GO\x10\t\x12\r\n" +
+	"\tGO_ATHENA\x10\n" +
+	"*W\n" +
 	"\x06Policy\x12\x12\n" +
 	"\x0ePOLICY_UNKNOWN\x10\x00\x12\x15\n" +
 	"\x11POLICY_CHAINGUARD\x10\x01\x12\"\n" +
