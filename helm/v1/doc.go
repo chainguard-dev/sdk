@@ -31,6 +31,12 @@ is not a chart-lock:
 		// use lock
 	}
 
+When the in-toto statement is already unwrapped — for example, surfaced by a
+verifier that decodes the DSSE envelope — use
+[ParseChartLockAttestationFromPayload] instead:
+
+	lock, err := v1.ParseChartLockAttestationFromPayload(att.Statement)
+
 # Generating Value Overrides
 
 The primary workflow is to walk a chart-lock's image tree and produce Helm
