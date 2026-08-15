@@ -53,6 +53,13 @@ const (
 	// attribution. Keyed by the bare resource noun like GroupKey/ClusterKey.
 	IdentityProviderKey = "identityprovider"
 
+	// EntitlementDomainKey is the CloudEvents extension name to store the
+	// entitlement domain (e.g. "IMAGE") an entitlement change event applies to.
+	EntitlementDomainKey = "entitlementdomain"
+	// EntitlementOperationKey is the CloudEvents extension name to store the
+	// operation (e.g. "WRITE") that produced an entitlement change event.
+	EntitlementOperationKey = "entitlementoperation"
+
 	// AudienceKey labels an event for its intended audience ["internal", "customer"].
 	AudienceKey = "audience"
 	// AudienceInternal are events intended for the internal platform.
