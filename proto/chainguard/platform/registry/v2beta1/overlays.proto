@@ -139,12 +139,6 @@ message Overlay {
 
   // The APK package names this overlay adds. At least one is required on create.
   repeated string packages = 3 [(google.api.field_behavior) = REQUIRED];
-
-  // The UIDs of the bindings referencing this overlay, computed per response.
-  // (-- api-linter: core::0140::prepositions=disabled
-  //     aip.dev/not-precedent: referenced_by is the established name for this
-  //     reverse-lookup rendering (CON-2306 audit-complete responses). --)
-  repeated string referenced_by = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // GetOverlayRequest is the request message for getting a single Overlay by UID.

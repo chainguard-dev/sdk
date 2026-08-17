@@ -109,14 +109,16 @@ func Test_Conformance_PackagesOnlyByShape(t *testing.T) {
 		}
 	}
 
-	// The Overlay payload is exactly: uid, name, packages, referenced_by.
+	// The Overlay payload is exactly: uid, name, packages. There is no
+	// binding reverse lookup on the overlay: attachments are found via
+	// ListOverlayBindings filtered to an overlay.
 	overlay := (&Overlay{}).ProtoReflect().Descriptor()
 	fields := make([]string, 0, overlay.Fields().Len())
 	for i := range overlay.Fields().Len() {
 		fields = append(fields, string(overlay.Fields().Get(i).Name()))
 	}
 	slices.Sort(fields)
-	if want := []string{"name", "packages", "referenced_by", "uid"}; !slices.Equal(fields, want) {
+	if want := []string{"name", "packages", "uid"}; !slices.Equal(fields, want) {
 		t.Errorf("Overlay fields: got = %v, want = %v", fields, want)
 	}
 	if fd := overlay.Fields().ByName("packages"); !fd.IsList() || fd.Kind() != protoreflect.StringKind {

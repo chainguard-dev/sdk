@@ -42,13 +42,7 @@ type Overlay struct {
 	// The name of the Overlay, unique among the group's overlays.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// The APK package names this overlay adds. At least one is required on create.
-	Packages []string `protobuf:"bytes,3,rep,name=packages,proto3" json:"packages,omitempty"`
-	// The UIDs of the bindings referencing this overlay, computed per response.
-	// (-- api-linter: core::0140::prepositions=disabled
-	//
-	//	aip.dev/not-precedent: referenced_by is the established name for this
-	//	reverse-lookup rendering (CON-2306 audit-complete responses). --)
-	ReferencedBy  []string `protobuf:"bytes,4,rep,name=referenced_by,json=referencedBy,proto3" json:"referenced_by,omitempty"`
+	Packages      []string `protobuf:"bytes,3,rep,name=packages,proto3" json:"packages,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -100,13 +94,6 @@ func (x *Overlay) GetName() string {
 func (x *Overlay) GetPackages() []string {
 	if x != nil {
 		return x.Packages
-	}
-	return nil
-}
-
-func (x *Overlay) GetReferencedBy() []string {
-	if x != nil {
-		return x.ReferencedBy
 	}
 	return nil
 }
@@ -436,12 +423,11 @@ var File_chainguard_platform_registry_v2beta1_overlays_proto protoreflect.FileDe
 
 const file_chainguard_platform_registry_v2beta1_overlays_proto_rawDesc = "" +
 	"\n" +
-	"3chainguard/platform/registry/v2beta1/overlays.proto\x12$chainguard.platform.registry.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a&platform/common/v1/uidp.platform.proto\"\xd5\x01\n" +
+	"3chainguard/platform/registry/v2beta1/overlays.proto\x12$chainguard.platform.registry.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a&platform/common/v1/uidp.platform.proto\"\xaa\x01\n" +
 	"\aOverlay\x12\x16\n" +
 	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12\x18\n" +
 	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x04name\x12 \n" +
-	"\bpackages\x18\x03 \x03(\tB\x04\xe2A\x01\x02R\bpackages\x12)\n" +
-	"\rreferenced_by\x18\x04 \x03(\tB\x04\xe2A\x01\x03R\freferencedBy:K\xeaAH\n" +
+	"\bpackages\x18\x03 \x03(\tB\x04\xe2A\x01\x02R\bpackages:K\xeaAH\n" +
 	"\x1fregistry.chainguard.dev/Overlay\x12\x12overlays/{overlay}*\boverlays2\aoverlay\"1\n" +
 	"\x11GetOverlayRequest\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
