@@ -196,6 +196,9 @@ const (
 	// Registry Settings
 	Capability_CAP_REGISTRY_SETTINGS_LIST   Capability = 1683
 	Capability_CAP_REGISTRY_SETTINGS_UPDATE Capability = 1684
+	// Registry Overlays (tag-scoped Custom Assembly)
+	Capability_CAP_REGISTRY_OVERLAYS_LIST Capability = 1688
+	Capability_CAP_REGISTRY_OVERLAYS_EDIT Capability = 1689
 	// Deprecated: Marked as deprecated in capabilities.proto.
 	Capability_CAP_SIGSTORE_CREATE Capability = 1701
 	// Deprecated: Marked as deprecated in capabilities.proto.
@@ -489,6 +492,8 @@ var (
 		1687:  "CAP_REGISTRY_ENTITLEMENTS_IMAGES_SWAP",
 		1683:  "CAP_REGISTRY_SETTINGS_LIST",
 		1684:  "CAP_REGISTRY_SETTINGS_UPDATE",
+		1688:  "CAP_REGISTRY_OVERLAYS_LIST",
+		1689:  "CAP_REGISTRY_OVERLAYS_EDIT",
 		1701:  "CAP_SIGSTORE_CREATE",
 		1702:  "CAP_SIGSTORE_UPDATE",
 		1703:  "CAP_SIGSTORE_LIST",
@@ -693,6 +698,8 @@ var (
 		"CAP_REGISTRY_ENTITLEMENTS_IMAGES_SWAP":              1687,
 		"CAP_REGISTRY_SETTINGS_LIST":                         1683,
 		"CAP_REGISTRY_SETTINGS_UPDATE":                       1684,
+		"CAP_REGISTRY_OVERLAYS_LIST":                         1688,
+		"CAP_REGISTRY_OVERLAYS_EDIT":                         1689,
 		"CAP_SIGSTORE_CREATE":                                1701,
 		"CAP_SIGSTORE_UPDATE":                                1702,
 		"CAP_SIGSTORE_LIST":                                  1703,
@@ -854,7 +861,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xb9l\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xc3m\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -996,7 +1003,9 @@ const file_capabilities_proto_rawDesc = "" +
 	"'CAP_REGISTRY_ENTITLEMENTS_IMAGES_REMOVE\x10\x96\r\x1a/\xa8ˑM\xa9\x01\x9a\xaf\xa8\xd2\x05#registry.entitlements.images.remove\x12Y\n" +
 	"%CAP_REGISTRY_ENTITLEMENTS_IMAGES_SWAP\x10\x97\r\x1a-\xa8ˑM\xca\x01\x9a\xaf\xa8\xd2\x05!registry.entitlements.images.swap\x12B\n" +
 	"\x1aCAP_REGISTRY_SETTINGS_LIST\x10\x93\r\x1a!\xa8ˑMe\x9a\xaf\xa8\xd2\x05\x16registry.settings.list\x12F\n" +
-	"\x1cCAP_REGISTRY_SETTINGS_UPDATE\x10\x94\r\x1a#\xa8ˑMf\x9a\xaf\xa8\xd2\x05\x18registry.settings.update\x126\n" +
+	"\x1cCAP_REGISTRY_SETTINGS_UPDATE\x10\x94\r\x1a#\xa8ˑMf\x9a\xaf\xa8\xd2\x05\x18registry.settings.update\x12C\n" +
+	"\x1aCAP_REGISTRY_OVERLAYS_LIST\x10\x98\r\x1a\"\xa8ˑM\xcf\x01\x9a\xaf\xa8\xd2\x05\x16registry.overlays.list\x12C\n" +
+	"\x1aCAP_REGISTRY_OVERLAYS_EDIT\x10\x99\r\x1a\"\xa8ˑM\xd0\x01\x9a\xaf\xa8\xd2\x05\x16registry.overlays.edit\x126\n" +
 	"\x13CAP_SIGSTORE_CREATE\x10\xa5\r\x1a\x1c\xa8ˑM*\x9a\xaf\xa8\xd2\x05\x0fsigstore.create\b\x01\x126\n" +
 	"\x13CAP_SIGSTORE_UPDATE\x10\xa6\r\x1a\x1c\xa8ˑM+\x9a\xaf\xa8\xd2\x05\x0fsigstore.update\b\x01\x122\n" +
 	"\x11CAP_SIGSTORE_LIST\x10\xa7\r\x1a\x1a\xa8ˑM,\x9a\xaf\xa8\xd2\x05\rsigstore.list\b\x01\x126\n" +

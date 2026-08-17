@@ -53,6 +53,8 @@ var (
 
 		Capability_CAP_REGISTRY_SETTINGS_LIST,
 
+		Capability_CAP_REGISTRY_OVERLAYS_LIST,
+
 		Capability_CAP_POLICIES_POLICY_LIST,
 		Capability_CAP_POLICIES_BINDING_LIST,
 		Capability_CAP_POLICIES_DECISION_LIST,
@@ -206,6 +208,11 @@ var (
 		Capability_CAP_REPO_CREATE,
 		Capability_CAP_REPO_UPDATE,
 		Capability_CAP_REPO_DELETE,
+
+		// Tag-scoped Custom Assembly: whoever can edit overlays can also
+		// list them.
+		Capability_CAP_REGISTRY_OVERLAYS_LIST,
+		Capability_CAP_REGISTRY_OVERLAYS_EDIT,
 	}, RegistryPullCaps)
 
 	RegistryPullCaps = SortCaps([]Capability{

@@ -1,0 +1,253 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.registry.v2beta1;
+
+import "annotations/auth.proto";
+import "annotations/events.proto";
+import "annotations/mcp.proto";
+import "chainguard/platform/registry/v2beta1/overlays.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "platform/common/v1/uidp.platform.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/registry/v2beta1";
+option java_multiple_files = true;
+option java_outer_classname = "OverlayBindingsProto";
+option java_package = "com.chainguard.platform.registry.v2beta1";
+
+// OverlayBindingsService manages the bindings that bind overlays to
+// repos under exact-tag selectors for tag-scoped Custom Assembly.
+//
+// Bindings have no name and no update RPC this milestone: the workflow
+// is delete-and-recreate. A binding carries no inline content — content
+// always comes from the referenced overlay.
+//
+// The collection segment is camelCase /overlayBindings/ per the
+// RoleBinding → /roleBindings/ precedent, distinct from the /overlays/
+// prefix, so these literal routes never collide with the OverlaysService
+// {uid=**}/{parent=**} wildcards. Dispatch is pinned by
+// Test_Conformance_GatewayRouteOrder.
+service OverlayBindingsService {
+  // CreateOverlayBinding attaches an existing overlay to one repo under
+  // an exact-tag selector.
+  // (-- api-linter: core::0133::http-body=disabled
+  //     aip.dev/not-precedent: the request carries a reference + selector,
+  //     not an embedded resource, so the body maps the whole request. --)
+  rpc CreateOverlayBinding(CreateOverlayBindingRequest) returns (OverlayBinding) {
+    option (google.api.http) = {
+      post: "/registry/v2beta1/overlayBindings/{parent=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_OVERLAYS_EDIT]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.platform.registry.overlay_binding.created.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Attach a Custom Assembly overlay to a repo under an exact-tag selector."
+      read_only: false
+      destructive: false
+      idempotent: false
+      open_world: false
+      hidden: true
+    };
+  }
+
+  // GetOverlayBinding retrieves a single overlay binding by UID.
+  rpc GetOverlayBinding(GetOverlayBindingRequest) returns (OverlayBinding) {
+    option (google.api.http) = {get: "/registry/v2beta1/overlayBindings/{uid=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_OVERLAYS_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get a Custom Assembly overlay binding by its UIDP."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // ListOverlayBindings returns overlay bindings based on filter
+  // criteria with pagination support.
+  rpc ListOverlayBindings(ListOverlayBindingsRequest) returns (ListOverlayBindingsResponse) {
+    option (google.api.http) = {get: "/registry/v2beta1/overlayBindings"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_OVERLAYS_LIST]
+        unscoped: true
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List Custom Assembly overlay bindings the caller has access to. Supports scoping to a repo and filtering by overlay."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // DeleteOverlayBinding detaches an overlay from a repo by deleting the
+  // binding by UID.
+  rpc DeleteOverlayBinding(DeleteOverlayBindingRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/registry/v2beta1/overlayBindings/{uid=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_OVERLAYS_EDIT]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.platform.registry.overlay_binding.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Delete a Custom Assembly overlay binding by its UIDP."
+      read_only: false
+      destructive: true
+      idempotent: true
+      open_world: false
+      hidden: true
+    };
+  }
+}
+
+// OverlayBinding binds one overlay to one repo under an exact-tag
+// selector. Its UID is a UIDP under the repo it attaches to. Bindings
+// have no name; audit rendering comes from the repo, tags, and expanded
+// overlay content.
+message OverlayBinding {
+  option (google.api.resource) = {
+    type: "registry.chainguard.dev/OverlayBinding"
+    pattern: "overlayBindings/{overlay_binding}"
+    singular: "overlayBinding"
+    plural: "overlayBindings"
+  };
+
+  // The unique identifier of this OverlayBinding, a UIDP under the repo
+  // it attaches to.
+  string uid = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The UIDP of the repo this binding applies to.
+  string repo = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The referenced Overlay expanded inline (uid, name, packages) so list
+  // responses are audit-complete without a follow-up call.
+  // (-- api-linter: core::0122::embedded-resource=disabled
+  //     aip.dev/not-precedent: audit-complete rendering embeds the overlay
+  //     content in every response by design (CON-2306). --)
+  Overlay overlay = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The exact tag names this binding applies to.
+  repeated string tags = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+// CreateOverlayBindingRequest is the request message for attaching an
+// overlay to a repo.
+//
+// (-- api-linter: core::0133::request-resource-field=disabled
+//     api-linter: core::0133::request-required-fields=disabled
+//     api-linter: core::0133::request-unknown-fields=disabled
+//     aip.dev/not-precedent: The binding's content is a reference to an
+//     existing Overlay plus a tag selector, not an inline resource: inline
+//     content is unrepresentable by design. --)
+message CreateOverlayBindingRequest {
+  // The UIDP of the repo to attach to.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // References the overlay to attach: its UIDP, or its name resolved
+  // within the repo's organization.
+  string overlay = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The exact tag names to attach to. At least one is required: an
+  // all-tags change belongs on the repo's base customization, not an
+  // binding.
+  repeated string tags = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetOverlayBindingRequest is the request message for getting a single
+// OverlayBinding by UID.
+message GetOverlayBindingRequest {
+  // UID of the overlay binding to retrieve.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// DeleteOverlayBindingRequest is the request message for deleting a
+// single OverlayBinding by UID.
+message DeleteOverlayBindingRequest {
+  // UID of the overlay binding to delete.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// ListOverlayBindingsRequest provides filtering options for
+// ListOverlayBindings.
+message ListOverlayBindingsRequest {
+  // Filters records based on their position in the group hierarchy.
+  // Bindings are children of their repo, so children_of a repo UIDP
+  // lists one repo's bindings.
+  chainguard.platform.common.UIDPFilter uidp = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // If set, only returns bindings referencing this overlay UID.
+  string overlay = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // (-- Pagination Fields --)
+
+  // Maximum number of results to return per page.
+  // Default: 50, Maximum: 200.
+  int32 page_size = 10 [(google.api.field_behavior) = OPTIONAL];
+
+  // Page token from a previous List response for pagination.
+  // Opaque token with 3-day expiration.
+  string page_token = 11 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order results by field. Format: "field [asc|desc]"
+  // Default: "uid asc"
+  // Note: Changing order_by between pages invalidates the page token.
+  string order_by = 12 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of results to skip before returning.
+  // Used for random-access pagination (jumping to arbitrary pages).
+  // Can be combined with page_token to skip from cursor position.
+  // Must be non-negative.
+  int32 skip = 13 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListOverlayBindingsResponse is the response to ListOverlayBindings,
+// with pagination.
+message ListOverlayBindingsResponse {
+  // Overlay bindings matching the filter criteria.
+  repeated OverlayBinding overlay_bindings = 1;
+
+  // Token for retrieving the next page of results.
+  // Empty if no more results.
+  string next_page_token = 2;
+
+  // Total number of results matching the filter.
+  // Optional, provided for UI pagination.
+  optional int64 total_count = 3;
+
+  // Number of results that were skipped.
+  // Accumulates across paginated requests.
+  int32 skipped = 4;
+}

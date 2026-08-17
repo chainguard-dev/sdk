@@ -227,6 +227,10 @@ enum Capability {
   CAP_REGISTRY_SETTINGS_LIST = 1683 [(name) = "registry.settings.list", (bit) = 101];
   CAP_REGISTRY_SETTINGS_UPDATE = 1684 [(name) = "registry.settings.update", (bit) = 102];
 
+  // Registry Overlays (tag-scoped Custom Assembly)
+  CAP_REGISTRY_OVERLAYS_LIST = 1688 [(name) = "registry.overlays.list", (bit) = 207];
+  CAP_REGISTRY_OVERLAYS_EDIT = 1689 [(name) = "registry.overlays.edit", (bit) = 208];
+
   // Sigstore-aas
 
   CAP_SIGSTORE_CREATE   = 1701 [(name) = "sigstore.create", (bit) = 42, deprecated = true];
@@ -417,5 +421,5 @@ enum Capability {
   CAP_ACTIONS_LIST = 2700 [(name) = "actions.list", (bit) = 164];
 
   reserved 1;
-  // next bit: 207
+  // next bit: 209
 }

@@ -19,6 +19,9 @@ type MockClients struct {
 	ReposServiceClient  MockReposServiceClient
 	TagsServiceClient   MockTagsServiceClient
 	ImagesServiceClient MockImagesServiceClient
+
+	OverlaysServiceClient        MockOverlaysServiceClient
+	OverlayBindingsServiceClient MockOverlayBindingsServiceClient
 }
 
 // Close implements [v2beta1.Clients].
@@ -39,6 +42,16 @@ func (m *MockClients) TagsService() registry.TagsServiceClient {
 // ImagesService implements [v2beta1.Clients].
 func (m *MockClients) ImagesService() registry.ImagesServiceClient {
 	return &m.ImagesServiceClient
+}
+
+// OverlaysService implements [v2beta1.Clients].
+func (m *MockClients) OverlaysService() registry.OverlaysServiceClient {
+	return &m.OverlaysServiceClient
+}
+
+// OverlayBindingsService implements [v2beta1.Clients].
+func (m *MockClients) OverlayBindingsService() registry.OverlayBindingsServiceClient {
+	return &m.OverlayBindingsServiceClient
 }
 
 // ListReposAll implements [v2beta1.Clients].
@@ -67,6 +80,34 @@ func (m *MockClients) ListTagsAll(ctx context.Context, req *registry.ListTagsReq
 // ListTagsIter implements [v2beta1.Clients].
 func (m *MockClients) ListTagsIter(ctx context.Context, req *registry.ListTagsRequest) iter.Seq2[*registry.Tag, error] {
 	return test.MockIter(m.ListTagsAll(ctx, req))
+}
+
+// ListOverlaysAll implements [v2beta1.Clients].
+func (m *MockClients) ListOverlaysAll(ctx context.Context, req *registry.ListOverlaysRequest) ([]*registry.Overlay, error) {
+	resp, err := m.OverlaysServiceClient.ListOverlays(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.GetOverlays(), nil
+}
+
+// ListOverlaysIter implements [v2beta1.Clients].
+func (m *MockClients) ListOverlaysIter(ctx context.Context, req *registry.ListOverlaysRequest) iter.Seq2[*registry.Overlay, error] {
+	return test.MockIter(m.ListOverlaysAll(ctx, req))
+}
+
+// ListOverlayBindingsAll implements [v2beta1.Clients].
+func (m *MockClients) ListOverlayBindingsAll(ctx context.Context, req *registry.ListOverlayBindingsRequest) ([]*registry.OverlayBinding, error) {
+	resp, err := m.OverlayBindingsServiceClient.ListOverlayBindings(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.GetOverlayBindings(), nil
+}
+
+// ListOverlayBindingsIter implements [v2beta1.Clients].
+func (m *MockClients) ListOverlayBindingsIter(ctx context.Context, req *registry.ListOverlayBindingsRequest) iter.Seq2[*registry.OverlayBinding, error] {
+	return test.MockIter(m.ListOverlayBindingsAll(ctx, req))
 }
 
 var _ registry.Clients = (*MockClients)(nil)

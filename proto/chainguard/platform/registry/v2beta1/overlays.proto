@@ -1,0 +1,226 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.registry.v2beta1;
+
+import "annotations/auth.proto";
+import "annotations/events.proto";
+import "annotations/mcp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "platform/common/v1/uidp.platform.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/registry/v2beta1";
+option java_multiple_files = true;
+option java_outer_classname = "OverlaysProto";
+option java_package = "com.chainguard.platform.registry.v2beta1";
+
+// OverlaysService manages reusable, packages-only overlays for tag-scoped
+// Custom Assembly. Overlays are attached to repos by OverlayBindingsService.
+//
+// There is deliberately no update RPC this milestone: the workflow is
+// delete-and-recreate.
+//
+// OverlayBindingsService routes live under the distinct
+// /registry/v2beta1/overlayBindings/... prefix, so this service's
+// {uid=**}/{parent=**} wildcards never swallow them. Dispatch is pinned
+// by Test_Conformance_GatewayRouteOrder.
+service OverlaysService {
+  // GetOverlay retrieves a single overlay by UID.
+  rpc GetOverlay(GetOverlayRequest) returns (Overlay) {
+    option (google.api.http) = {get: "/registry/v2beta1/overlays/{uid=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_OVERLAYS_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get a Custom Assembly overlay by its UIDP."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // ListOverlays returns overlays based on filter criteria with pagination support.
+  rpc ListOverlays(ListOverlaysRequest) returns (ListOverlaysResponse) {
+    option (google.api.http) = {get: "/registry/v2beta1/overlays"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_OVERLAYS_LIST]
+        unscoped: true
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List Custom Assembly overlays the caller has access to. Supports filtering by name."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // CreateOverlay creates a named, packages-only overlay under a group.
+  rpc CreateOverlay(CreateOverlayRequest) returns (Overlay) {
+    option (google.api.http) = {
+      post: "/registry/v2beta1/overlays/{parent=**}"
+      body: "overlay"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_OVERLAYS_EDIT]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.platform.registry.overlay.created.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Create a Custom Assembly overlay under a group."
+      read_only: false
+      destructive: false
+      idempotent: false
+      open_world: false
+      hidden: true
+    };
+  }
+
+  // DeleteOverlay deletes an overlay by UID. Deleting an overlay that is
+  // still referenced by bindings fails with FailedPrecondition.
+  rpc DeleteOverlay(DeleteOverlayRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/registry/v2beta1/overlays/{uid=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_OVERLAYS_EDIT]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.platform.registry.overlay.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Delete a Custom Assembly overlay by its UIDP."
+      read_only: false
+      destructive: true
+      idempotent: true
+      open_world: false
+      hidden: true
+    };
+  }
+}
+
+// Overlay is a named, reusable, org-scoped content fragment that
+// bindings bind to repos.
+//
+// The payload is a list of package names by design: certificates,
+// accounts, and the rest of the image content model stay out of the
+// reusable object until they have had security review. Reads render only
+// package content even if the stored configuration carries more.
+message Overlay {
+  option (google.api.resource) = {
+    type: "registry.chainguard.dev/Overlay"
+    pattern: "overlays/{overlay}"
+    singular: "overlay"
+    plural: "overlays"
+  };
+
+  // The unique identifier of this Overlay, a UIDP under the owning group.
+  string uid = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The name of the Overlay, unique among the group's overlays.
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The APK package names this overlay adds. At least one is required on create.
+  repeated string packages = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // The UIDs of the bindings referencing this overlay, computed per response.
+  // (-- api-linter: core::0140::prepositions=disabled
+  //     aip.dev/not-precedent: referenced_by is the established name for this
+  //     reverse-lookup rendering (CON-2306 audit-complete responses). --)
+  repeated string referenced_by = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// GetOverlayRequest is the request message for getting a single Overlay by UID.
+message GetOverlayRequest {
+  // UID of the overlay to retrieve.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// CreateOverlayRequest is the request message for creating an Overlay under a group.
+message CreateOverlayRequest {
+  // The group UIDP under which the Overlay is created.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The Overlay to create.
+  Overlay overlay = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// DeleteOverlayRequest is the request message for deleting a single Overlay by UID.
+message DeleteOverlayRequest {
+  // UID of the overlay to delete.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// ListOverlaysRequest provides filtering options for ListOverlays.
+message ListOverlaysRequest {
+  // Filters records based on their position in the group hierarchy.
+  chainguard.platform.common.UIDPFilter uidp = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // The unique name of the Overlay to list.
+  string name = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // (-- Pagination Fields --)
+
+  // Maximum number of results to return per page.
+  // Default: 50, Maximum: 200.
+  int32 page_size = 10 [(google.api.field_behavior) = OPTIONAL];
+
+  // Page token from a previous List response for pagination.
+  // Opaque token with 3-day expiration.
+  string page_token = 11 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order results by field. Format: "field [asc|desc]"
+  // Default: "uid asc"
+  // Note: Changing order_by between pages invalidates the page token.
+  string order_by = 12 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of results to skip before returning.
+  // Used for random-access pagination (jumping to arbitrary pages).
+  // Can be combined with page_token to skip from cursor position.
+  // Must be non-negative.
+  int32 skip = 13 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListOverlaysResponse is the response to ListOverlays, with pagination.
+message ListOverlaysResponse {
+  // Overlays matching the filter criteria.
+  repeated Overlay overlays = 1;
+
+  // Token for retrieving the next page of results.
+  // Empty if no more results.
+  string next_page_token = 2;
+
+  // Total number of results matching the filter.
+  // Optional, provided for UI pagination.
+  optional int64 total_count = 3;
+
+  // Number of results that were skipped.
+  // Accumulates across paginated requests.
+  int32 skipped = 4;
+}
