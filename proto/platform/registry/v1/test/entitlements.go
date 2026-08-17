@@ -26,8 +26,9 @@ type MockEntitlementsClient struct {
 	OnGetEntitlementSummary        []EntitlementSummaryOnGet
 	OnGetFeatures                  []FeaturesOnGet
 	OnGetEffectiveEntitlements     []EffectiveEntitlementsOnGet
-	OnAddEntitlementImages         []AddEntitlementImagesOnAdd
-	OnRemoveEntitlementImages      []RemoveEntitlementImagesOnRemove
+	OnAddEntitlementImages         []EntitlementImagesOnAdd
+	OnRemoveEntitlementImages      []EntitlementImagesOnRemove
+	OnSwapEntitlementImages        []EntitlementImagesOnSwap
 }
 
 type EntitlementsOnList struct {
@@ -66,15 +67,21 @@ type EffectiveEntitlementsOnGet struct {
 	Error error
 }
 
-type AddEntitlementImagesOnAdd struct {
+type EntitlementImagesOnAdd struct {
 	Given    *registry.AddEntitlementImagesRequest
 	Response *registry.AddEntitlementImagesResponse
 	Error    error
 }
 
-type RemoveEntitlementImagesOnRemove struct {
+type EntitlementImagesOnRemove struct {
 	Given    *registry.RemoveEntitlementImagesRequest
 	Response *registry.RemoveEntitlementImagesResponse
+	Error    error
+}
+
+type EntitlementImagesOnSwap struct {
+	Given    *registry.SwapEntitlementImagesRequest
+	Response *registry.SwapEntitlementImagesResponse
 	Error    error
 }
 
@@ -143,6 +150,15 @@ func (m *MockEntitlementsClient) AddEntitlementImages(_ context.Context, given *
 
 func (m *MockEntitlementsClient) RemoveEntitlementImages(_ context.Context, given *registry.RemoveEntitlementImagesRequest, _ ...grpc.CallOption) (*registry.RemoveEntitlementImagesResponse, error) {
 	for _, o := range m.OnRemoveEntitlementImages {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m *MockEntitlementsClient) SwapEntitlementImages(_ context.Context, given *registry.SwapEntitlementImagesRequest, _ ...grpc.CallOption) (*registry.SwapEntitlementImagesResponse, error) {
+	for _, o := range m.OnSwapEntitlementImages {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Response, o.Error
 		}
