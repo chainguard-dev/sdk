@@ -71,6 +71,7 @@ type MockRegistryClient struct {
 	OnDeleteTags                []TagsOnDelete
 	OnUpdateTag                 []TagOnUpdate
 	OnListTags                  []TagsOnList
+	OnGetRepoTagsSummary        []RepoTagsSummaryOnGet
 	OnUpdateRepo                []RepoOnUpdate
 	OnListTagHistory            []TagHistoryOnList
 	OnGetImageConfig            []ImageConfigOnGet
@@ -129,6 +130,12 @@ type TagOnUpdate struct {
 type TagsOnList struct {
 	Given *registry.TagFilter
 	List  *registry.TagList
+	Error error
+}
+
+type RepoTagsSummaryOnGet struct {
+	Given *registry.GetRepoTagsSummaryRequest
+	Get   *registry.RepoTagsSummary
 	Error error
 }
 
@@ -324,6 +331,15 @@ func (m MockRegistryClient) ListTags(_ context.Context, given *registry.TagFilte
 	for _, o := range m.OnListTags {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.List, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockRegistryClient) GetRepoTagsSummary(_ context.Context, given *registry.GetRepoTagsSummaryRequest, _ ...grpc.CallOption) (*registry.RepoTagsSummary, error) { //nolint: revive
+	for _, o := range m.OnGetRepoTagsSummary {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Get, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)

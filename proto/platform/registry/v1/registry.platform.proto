@@ -150,6 +150,17 @@ service Registry {
     };
   }
 
+  rpc GetRepoTagsSummary(GetRepoTagsSummaryRequest) returns (RepoTagsSummary) {
+    option (google.api.http) = {
+      get: "/registry/v1/repotagssummary/{repo_id=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TAG_LIST]
+      }
+    };
+  }
+
     rpc ListEolTags(EolTagFilter) returns (EolTagList) {
     option (google.api.http) = {
       get: "/registry/v1/eoltags"
@@ -713,6 +724,42 @@ message EolTagFilter {
 
 message TagList {
   repeated Tag items = 1;
+}
+
+// RepoTagsSummary summarizes the tags of a single Repo. When no tags match the
+// filter, tag_count is 0 and the remaining fields are unset.
+message RepoTagsSummary {
+  // id, the UIDP of the Repo whose tags this summarizes.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // tag_count, the number of tags under the repo matching the filter.
+  int64 tag_count = 2;
+
+  // last_updated, the most recent update time across the repo's tags.
+  google.protobuf.Timestamp last_updated = 3;
+
+  // latest_tag, the tag named "latest" if present, otherwise the most
+  // recently updated tag.
+  Tag latest_tag = 4;
+
+  // latest_version, the longest tag name pointing at the same digest as
+  // latest_tag, excluding "latest" and "latest-dev". Empty when no other
+  // tag shares the digest.
+  string latest_version = 5;
+}
+
+message GetRepoTagsSummaryRequest {
+  // repo_id, the UIDP of the Repo to summarize.
+  string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // Exclude tags of the form "sha256-*".
+  bool exclude_referrers = 2;
+
+  // Exclude tags of the form "*-20yymmdd".
+  bool exclude_dates = 3;
+
+  // Exclude tags of the form "*-r[0-9]+".
+  bool exclude_epochs = 4;
 }
 
 message EolTagList {

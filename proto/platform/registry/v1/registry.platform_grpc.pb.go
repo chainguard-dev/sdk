@@ -30,6 +30,7 @@ const (
 	Registry_UpdateTag_FullMethodName                 = "/chainguard.platform.registry.Registry/UpdateTag"
 	Registry_DeleteTag_FullMethodName                 = "/chainguard.platform.registry.Registry/DeleteTag"
 	Registry_ListTags_FullMethodName                  = "/chainguard.platform.registry.Registry/ListTags"
+	Registry_GetRepoTagsSummary_FullMethodName        = "/chainguard.platform.registry.Registry/GetRepoTagsSummary"
 	Registry_ListEolTags_FullMethodName               = "/chainguard.platform.registry.Registry/ListEolTags"
 	Registry_ListTagHistory_FullMethodName            = "/chainguard.platform.registry.Registry/ListTagHistory"
 	Registry_GetSbom_FullMethodName                   = "/chainguard.platform.registry.Registry/GetSbom"
@@ -69,6 +70,7 @@ type RegistryClient interface {
 	UpdateTag(ctx context.Context, in *Tag, opts ...grpc.CallOption) (*Tag, error)
 	DeleteTag(ctx context.Context, in *DeleteTagRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ListTags(ctx context.Context, in *TagFilter, opts ...grpc.CallOption) (*TagList, error)
+	GetRepoTagsSummary(ctx context.Context, in *GetRepoTagsSummaryRequest, opts ...grpc.CallOption) (*RepoTagsSummary, error)
 	ListEolTags(ctx context.Context, in *EolTagFilter, opts ...grpc.CallOption) (*EolTagList, error)
 	ListTagHistory(ctx context.Context, in *TagHistoryFilter, opts ...grpc.CallOption) (*TagHistoryList, error)
 	// Deprecated
@@ -192,6 +194,16 @@ func (c *registryClient) ListTags(ctx context.Context, in *TagFilter, opts ...gr
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(TagList)
 	err := c.cc.Invoke(ctx, Registry_ListTags_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *registryClient) GetRepoTagsSummary(ctx context.Context, in *GetRepoTagsSummaryRequest, opts ...grpc.CallOption) (*RepoTagsSummary, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RepoTagsSummary)
+	err := c.cc.Invoke(ctx, Registry_GetRepoTagsSummary_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -451,6 +463,7 @@ type RegistryServer interface {
 	UpdateTag(context.Context, *Tag) (*Tag, error)
 	DeleteTag(context.Context, *DeleteTagRequest) (*emptypb.Empty, error)
 	ListTags(context.Context, *TagFilter) (*TagList, error)
+	GetRepoTagsSummary(context.Context, *GetRepoTagsSummaryRequest) (*RepoTagsSummary, error)
 	ListEolTags(context.Context, *EolTagFilter) (*EolTagList, error)
 	ListTagHistory(context.Context, *TagHistoryFilter) (*TagHistoryList, error)
 	// Deprecated
@@ -516,6 +529,9 @@ func (UnimplementedRegistryServer) DeleteTag(context.Context, *DeleteTagRequest)
 }
 func (UnimplementedRegistryServer) ListTags(context.Context, *TagFilter) (*TagList, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListTags not implemented")
+}
+func (UnimplementedRegistryServer) GetRepoTagsSummary(context.Context, *GetRepoTagsSummaryRequest) (*RepoTagsSummary, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetRepoTagsSummary not implemented")
 }
 func (UnimplementedRegistryServer) ListEolTags(context.Context, *EolTagFilter) (*EolTagList, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListEolTags not implemented")
@@ -768,6 +784,24 @@ func _Registry_ListTags_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RegistryServer).ListTags(ctx, req.(*TagFilter))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Registry_GetRepoTagsSummary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRepoTagsSummaryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).GetRepoTagsSummary(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_GetRepoTagsSummary_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).GetRepoTagsSummary(ctx, req.(*GetRepoTagsSummaryRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1246,6 +1280,10 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListTags",
 			Handler:    _Registry_ListTags_Handler,
+		},
+		{
+			MethodName: "GetRepoTagsSummary",
+			Handler:    _Registry_GetRepoTagsSummary_Handler,
 		},
 		{
 			MethodName: "ListEolTags",
