@@ -449,12 +449,10 @@ var (
 	})
 
 	// LibrariesRebuilderSourceResolverCaps is for the source-coordinate reconciler's
-	// identity (the source-resolver-reconciler service). It resolves not-yet-built
-	// coordinates and persists the result through rebuilder-api's write-back endpoint,
-	// so it needs source_coordinates.write; it also runs a canonical-presence check
-	// against the read path first, so it needs builds.read. Least-privilege: only those
-	// two, plus CAP_INTERNAL for the internal-only pairing — deliberately not the broad
-	// admin bundle.
+	// identity (the source-resolver-reconciler service): it reads build and source data
+	// (builds.read) and writes resolved source coordinates back
+	// (source_coordinates.write). Least-privilege: only those two, plus CAP_INTERNAL for
+	// the internal-only pairing.
 	LibrariesRebuilderSourceResolverCaps = SortCaps([]Capability{
 		Capability_CAP_LIBRARIES_REBUILDER_BUILDS_READ,
 		Capability_CAP_LIBRARIES_REBUILDER_SOURCE_COORDINATES_WRITE,
