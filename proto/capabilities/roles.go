@@ -45,6 +45,13 @@ var (
 		Capability_CAP_LIBRARIES_ARTIFACTS_LIST,
 		Capability_CAP_LIBRARIES_CACHE_LIST,
 
+		// Reading an org's library build requests changes nothing, so every member
+		// can see what has been asked for and where it stands. One capability covers
+		// all of those reads — the groups, their items, and the per-library view —
+		// matching how a Get reuses its List capability elsewhere in this file.
+		// Creating and submitting requests are separate, in the editor and owner sets.
+		Capability_CAP_LIBRARIES_REQUEST_GROUPS_LIST,
+
 		Capability_CAP_SKILLS_ENTITLEMENTS_LIST,
 		Capability_CAP_SKILLS_LIST,
 
@@ -88,6 +95,16 @@ var (
 		Capability_CAP_EVENTS_SUBSCRIPTION_CREATE,
 		Capability_CAP_EVENTS_SUBSCRIPTION_DELETE,
 		Capability_CAP_EVENTS_SUBSCRIPTION_UPDATE,
+
+		// Building up a library request — creating a draft, renaming it, editing
+		// which items it carries, discarding it — is ordinary member work and
+		// commits Chainguard to nothing. Only submitting spends build capacity, and
+		// that capability lives in OwnerCaps alone. delete here reaches drafts only;
+		// removing a submitted group needs the admin deleteSubmitted capability.
+		Capability_CAP_LIBRARIES_REQUEST_GROUPS_CREATE,
+		Capability_CAP_LIBRARIES_REQUEST_GROUPS_UPDATE,
+		Capability_CAP_LIBRARIES_REQUEST_GROUPS_DELETE,
+		Capability_CAP_LIBRARIES_REQUEST_GROUPS_ITEMS_UPDATE,
 	}, RegistryEditorCaps, ViewerCaps)
 
 	// SkillsPublishCaps is the capability set required to publish skill artifacts
@@ -185,6 +202,12 @@ var (
 
 		Capability_CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE,
 		Capability_CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE,
+
+		// Owner-only, per the product requirement. Submitting is the point where a
+		// draft stops being a preview and starts consuming Chainguard build
+		// capacity, and it carries the CVE-remediation opt-in for the whole group.
+		// Members can prepare a request; committing to it is the owner's call.
+		Capability_CAP_LIBRARIES_REQUEST_GROUPS_SUBMIT,
 
 		Capability_CAP_MCP_TOOL_CALL,
 	}, EditorCaps,
@@ -401,6 +424,15 @@ var (
 		Capability_CAP_LIBRARIES_REBUILDER_MALWARE_STATUS_READ,
 		Capability_CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_LIST,
 		Capability_CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_UPDATE,
+		// The two escape hatches on the customer-facing v2beta1 surface, both
+		// internal_only so no customer role can carry them. refreshCoverage forces a
+		// full re-scan of a group, which customers do not get because submitted
+		// groups are kept current by the daily sweep and an on-demand full scan is
+		// expensive; it exists for support and incident escalation.
+		// deleteSubmitted removes a group the customer has already committed to,
+		// which their own delete capability deliberately cannot reach.
+		Capability_CAP_LIBRARIES_REQUEST_GROUPS_REFRESH_COVERAGE,
+		Capability_CAP_LIBRARIES_REQUEST_GROUPS_DELETE_SUBMITTED,
 		// source_coordinates.resolve lets a staff operator enqueue on-demand source
 		// resolution (DESIGN-rebuilder-api-integration.md §5.1: "exercised by cg and
 		// tests until a first driver is chosen"). Admin already holds

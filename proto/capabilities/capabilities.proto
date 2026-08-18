@@ -215,6 +215,30 @@ enum Capability {
 
   reserved 1873; // CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CANCEL
 
+  // Library build requests: an organization asks Chainguard to build specific
+  // library versions and tracks what it already has.
+  //
+  // Separate from the libraries.rebuilder.* capabilities above, which are
+  // internal_only and are never grantable to a customer organization.
+  CAP_LIBRARIES_REQUEST_GROUPS_CREATE = 1874 [(name) = "libraries.request_groups.create", (bit) = 209];
+  // list covers every read on a request group: the groups themselves, their
+  // items, and the per-library view of them.
+  CAP_LIBRARIES_REQUEST_GROUPS_LIST = 1875 [(name) = "libraries.request_groups.list", (bit) = 210];
+  CAP_LIBRARIES_REQUEST_GROUPS_UPDATE = 1876 [(name) = "libraries.request_groups.update", (bit) = 211];
+  // delete covers draft groups only; removing a submitted group needs
+  // delete_submitted.
+  CAP_LIBRARIES_REQUEST_GROUPS_DELETE = 1877 [(name) = "libraries.request_groups.delete", (bit) = 212];
+  // submit promotes a draft and carries the CVE-remediation opt-in for the group.
+  // It is its own capability because submitting is restricted to owners, which a
+  // field mask on update could not express.
+  CAP_LIBRARIES_REQUEST_GROUPS_SUBMIT = 1878 [(name) = "libraries.request_groups.submit", (bit) = 213];
+  // items.update covers draft item editing: remove, restore and per-item update.
+  CAP_LIBRARIES_REQUEST_GROUPS_ITEMS_UPDATE = 1879 [(name) = "libraries.request_groups.items.update", (bit) = 214];
+  // Re-running a group's coverage check is expensive, and submitted groups are
+  // refreshed automatically, so it is reserved for Chainguard support.
+  CAP_LIBRARIES_REQUEST_GROUPS_REFRESH_COVERAGE = 1880 [(name) = "libraries.request_groups.refresh_coverage", (bit) = 215, (internal_only) = true];
+  CAP_LIBRARIES_REQUEST_GROUPS_DELETE_SUBMITTED = 1881 [(name) = "libraries.request_groups.delete_submitted", (bit) = 216, (internal_only) = true];
+
   // Registry Entitlements
   CAP_REGISTRY_ENTITLEMENTS_LIST = 1680 [(name) = "registry.entitlements.list", (bit) = 87];
   CAP_REGISTRY_ENTITLEMENTS_CREATE = 1681 [(name) = "registry.entitlements.create", (bit) = 96];
@@ -421,5 +445,5 @@ enum Capability {
   CAP_ACTIONS_LIST = 2700 [(name) = "actions.list", (bit) = 164];
 
   reserved 1;
-  // next bit: 209
+  // next bit: 217
 }

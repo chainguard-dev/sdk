@@ -186,6 +186,29 @@ const (
 	Capability_CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE Capability = 1870
 	Capability_CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE Capability = 1871
 	Capability_CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST   Capability = 1872
+	// Library build requests: an organization asks Chainguard to build specific
+	// library versions and tracks what it already has.
+	//
+	// Separate from the libraries.rebuilder.* capabilities above, which are
+	// internal_only and are never grantable to a customer organization.
+	Capability_CAP_LIBRARIES_REQUEST_GROUPS_CREATE Capability = 1874
+	// list covers every read on a request group: the groups themselves, their
+	// items, and the per-library view of them.
+	Capability_CAP_LIBRARIES_REQUEST_GROUPS_LIST   Capability = 1875
+	Capability_CAP_LIBRARIES_REQUEST_GROUPS_UPDATE Capability = 1876
+	// delete covers draft groups only; removing a submitted group needs
+	// delete_submitted.
+	Capability_CAP_LIBRARIES_REQUEST_GROUPS_DELETE Capability = 1877
+	// submit promotes a draft and carries the CVE-remediation opt-in for the group.
+	// It is its own capability because submitting is restricted to owners, which a
+	// field mask on update could not express.
+	Capability_CAP_LIBRARIES_REQUEST_GROUPS_SUBMIT Capability = 1878
+	// items.update covers draft item editing: remove, restore and per-item update.
+	Capability_CAP_LIBRARIES_REQUEST_GROUPS_ITEMS_UPDATE Capability = 1879
+	// Re-running a group's coverage check is expensive, and submitted groups are
+	// refreshed automatically, so it is reserved for Chainguard support.
+	Capability_CAP_LIBRARIES_REQUEST_GROUPS_REFRESH_COVERAGE Capability = 1880
+	Capability_CAP_LIBRARIES_REQUEST_GROUPS_DELETE_SUBMITTED Capability = 1881
 	// Registry Entitlements
 	Capability_CAP_REGISTRY_ENTITLEMENTS_LIST          Capability = 1680
 	Capability_CAP_REGISTRY_ENTITLEMENTS_CREATE        Capability = 1681
@@ -484,6 +507,14 @@ var (
 		1870:  "CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE",
 		1871:  "CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE",
 		1872:  "CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST",
+		1874:  "CAP_LIBRARIES_REQUEST_GROUPS_CREATE",
+		1875:  "CAP_LIBRARIES_REQUEST_GROUPS_LIST",
+		1876:  "CAP_LIBRARIES_REQUEST_GROUPS_UPDATE",
+		1877:  "CAP_LIBRARIES_REQUEST_GROUPS_DELETE",
+		1878:  "CAP_LIBRARIES_REQUEST_GROUPS_SUBMIT",
+		1879:  "CAP_LIBRARIES_REQUEST_GROUPS_ITEMS_UPDATE",
+		1880:  "CAP_LIBRARIES_REQUEST_GROUPS_REFRESH_COVERAGE",
+		1881:  "CAP_LIBRARIES_REQUEST_GROUPS_DELETE_SUBMITTED",
 		1680:  "CAP_REGISTRY_ENTITLEMENTS_LIST",
 		1681:  "CAP_REGISTRY_ENTITLEMENTS_CREATE",
 		1682:  "CAP_REGISTRY_ENTITLEMENTS_DELETE",
@@ -690,6 +721,14 @@ var (
 		"CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE": 1870,
 		"CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE": 1871,
 		"CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST":   1872,
+		"CAP_LIBRARIES_REQUEST_GROUPS_CREATE":                1874,
+		"CAP_LIBRARIES_REQUEST_GROUPS_LIST":                  1875,
+		"CAP_LIBRARIES_REQUEST_GROUPS_UPDATE":                1876,
+		"CAP_LIBRARIES_REQUEST_GROUPS_DELETE":                1877,
+		"CAP_LIBRARIES_REQUEST_GROUPS_SUBMIT":                1878,
+		"CAP_LIBRARIES_REQUEST_GROUPS_ITEMS_UPDATE":          1879,
+		"CAP_LIBRARIES_REQUEST_GROUPS_REFRESH_COVERAGE":      1880,
+		"CAP_LIBRARIES_REQUEST_GROUPS_DELETE_SUBMITTED":      1881,
 		"CAP_REGISTRY_ENTITLEMENTS_LIST":                     1680,
 		"CAP_REGISTRY_ENTITLEMENTS_CREATE":                   1681,
 		"CAP_REGISTRY_ENTITLEMENTS_DELETE":                   1682,
@@ -861,7 +900,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xc3m\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xb7s\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -995,7 +1034,15 @@ const file_capabilities_proto_rawDesc = "" +
 	"2CAP_LIBRARIES_REBUILDER_SOURCE_COORDINATES_RESOLVE\x10\xc8\x0e\x1a@\xa8ˑM\xc9\x01\x9a\xaf\xa8\xd2\x05.libraries.rebuilder.source_coordinates.resolve\xa0\xaf\xa8\xd2\x05\x01\x12s\n" +
 	"2CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE\x10\xce\x0e\x1a:\xa8ˑM\xa5\x01\x9a\xaf\xa8\xd2\x05.libraries.aws_marketplace.subscriptions.create\x12s\n" +
 	"2CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE\x10\xcf\x0e\x1a:\xa8ˑM\xa6\x01\x9a\xaf\xa8\xd2\x05.libraries.aws_marketplace.subscriptions.update\x12o\n" +
-	"0CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST\x10\xd0\x0e\x1a8\xa8ˑM\xa7\x01\x9a\xaf\xa8\xd2\x05,libraries.aws_marketplace.subscriptions.list\x12J\n" +
+	"0CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST\x10\xd0\x0e\x1a8\xa8ˑM\xa7\x01\x9a\xaf\xa8\xd2\x05,libraries.aws_marketplace.subscriptions.list\x12U\n" +
+	"#CAP_LIBRARIES_REQUEST_GROUPS_CREATE\x10\xd2\x0e\x1a+\xa8ˑM\xd1\x01\x9a\xaf\xa8\xd2\x05\x1flibraries.request_groups.create\x12Q\n" +
+	"!CAP_LIBRARIES_REQUEST_GROUPS_LIST\x10\xd3\x0e\x1a)\xa8ˑM\xd2\x01\x9a\xaf\xa8\xd2\x05\x1dlibraries.request_groups.list\x12U\n" +
+	"#CAP_LIBRARIES_REQUEST_GROUPS_UPDATE\x10\xd4\x0e\x1a+\xa8ˑM\xd3\x01\x9a\xaf\xa8\xd2\x05\x1flibraries.request_groups.update\x12U\n" +
+	"#CAP_LIBRARIES_REQUEST_GROUPS_DELETE\x10\xd5\x0e\x1a+\xa8ˑM\xd4\x01\x9a\xaf\xa8\xd2\x05\x1flibraries.request_groups.delete\x12U\n" +
+	"#CAP_LIBRARIES_REQUEST_GROUPS_SUBMIT\x10\xd6\x0e\x1a+\xa8ˑM\xd5\x01\x9a\xaf\xa8\xd2\x05\x1flibraries.request_groups.submit\x12a\n" +
+	")CAP_LIBRARIES_REQUEST_GROUPS_ITEMS_UPDATE\x10\xd7\x0e\x1a1\xa8ˑM\xd6\x01\x9a\xaf\xa8\xd2\x05%libraries.request_groups.items.update\x12o\n" +
+	"-CAP_LIBRARIES_REQUEST_GROUPS_REFRESH_COVERAGE\x10\xd8\x0e\x1a;\xa8ˑM\xd7\x01\x9a\xaf\xa8\xd2\x05)libraries.request_groups.refresh_coverage\xa0\xaf\xa8\xd2\x05\x01\x12o\n" +
+	"-CAP_LIBRARIES_REQUEST_GROUPS_DELETE_SUBMITTED\x10\xd9\x0e\x1a;\xa8ˑM\xd8\x01\x9a\xaf\xa8\xd2\x05)libraries.request_groups.delete_submitted\xa0\xaf\xa8\xd2\x05\x01\x12J\n" +
 	"\x1eCAP_REGISTRY_ENTITLEMENTS_LIST\x10\x90\r\x1a%\xa8ˑMW\x9a\xaf\xa8\xd2\x05\x1aregistry.entitlements.list\x12N\n" +
 	" CAP_REGISTRY_ENTITLEMENTS_CREATE\x10\x91\r\x1a'\xa8ˑM`\x9a\xaf\xa8\xd2\x05\x1cregistry.entitlements.create\x12N\n" +
 	" CAP_REGISTRY_ENTITLEMENTS_DELETE\x10\x92\r\x1a'\xa8ˑMa\x9a\xaf\xa8\xd2\x05\x1cregistry.entitlements.delete\x12W\n" +

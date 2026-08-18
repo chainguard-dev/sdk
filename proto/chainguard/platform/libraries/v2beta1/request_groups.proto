@@ -1,0 +1,1278 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.libraries.v2beta1;
+
+import "annotations/auth.proto";
+import "annotations/events.proto";
+import "annotations/mcp.proto";
+// Ecosystem is shared with the artifacts service rather than redeclared, so a
+// Python request group and a Python artifact name the same ecosystem value.
+import "chainguard/platform/libraries/v2beta1/artifacts.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/libraries/v2beta1";
+option java_multiple_files = true;
+option java_outer_classname = "RequestGroupsProto";
+option java_package = "com.chainguard.platform.libraries.v2beta1";
+
+// RequestGroupsService manages an organization's requests for Chainguard-built
+// library versions.
+//
+// A request group starts as a DRAFT: the customer supplies a pinned input — a
+// Python lockfile or a Java GAV list — and the service reports, per version, what
+// Chainguard already has, what can be requested, and what cannot. Nothing is
+// built from a draft. SubmitRequestGroup is the commitment point, and it is
+// separately capability-gated for that reason.
+service RequestGroupsService {
+  // CreateRequestGroup parses a pinned input and returns a DRAFT group whose
+  // coverage check runs asynchronously. Poll GetRequestGroup until its status
+  // leaves creating/processing.
+  //
+  // Idempotent on the content hash of the input within the organization, so a
+  // retried upload rejoins the existing non-terminal group instead of starting a
+  // second coverage run over the same versions.
+  rpc CreateRequestGroup(CreateRequestGroupRequest) returns (RequestGroup) {
+    option (google.api.http) = {
+      post: "/libraries/v2beta1/requestGroups/{parent=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {capabilities: [CAP_LIBRARIES_REQUEST_GROUPS_CREATE]}
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.libraries.request_group.created.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Create a draft request for Chainguard-built library versions from a Python lockfile or a Java GAV list. Nothing is built until the draft is submitted."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // ListRequestGroups lists the organization's request groups. Defaults to
+  // submitted groups; pass state to include or isolate drafts.
+  rpc ListRequestGroups(ListRequestGroupsRequest) returns (ListRequestGroupsResponse) {
+    option (google.api.http) = {get: "/libraries/v2beta1/requestGroups"};
+    option (chainguard.annotations.iam) = {
+      enabled: {capabilities: [CAP_LIBRARIES_REQUEST_GROUPS_LIST]}
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List the organization's library request groups, filterable by state, status, ecosystem, source, name, and CVE-remediation opt-in."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // GetRequestGroup returns one group's metadata and summary counts.
+  //
+  // The response carries items_update_time as a high-water mark, so a client
+  // polling a large group can tell whether anything moved without paging the
+  // items again.
+  rpc GetRequestGroup(GetRequestGroupRequest) returns (RequestGroup) {
+    option (google.api.http) = {get: "/libraries/v2beta1/requestGroups/{uid=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {capabilities: [CAP_LIBRARIES_REQUEST_GROUPS_LIST]}
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get a library request group's metadata, per-availability summary counts, and CVE-remediation summary."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // ListRequestGroupItems pages the per-item results, carrying both the build
+  // availability and the CVE-remediation status for each requested version.
+  //
+  // min_update_time supports delta sync against items_update_time, which is how a
+  // 10,000-item group is followed without repaging the whole set.
+  rpc ListRequestGroupItems(ListRequestGroupItemsRequest) returns (ListRequestGroupItemsResponse) {
+    option (google.api.http) = {get: "/libraries/v2beta1/requestGroups/{uid=**}/items"};
+    option (chainguard.annotations.iam) = {
+      enabled: {capabilities: [CAP_LIBRARIES_REQUEST_GROUPS_LIST]}
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List a request group's items with per-version build availability and CVE-remediation status. Supports delta sync via min_update_time."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // SubmitRequestGroup promotes a DRAFT to SUBMITTED and queues builds for its
+  // requestable items.
+  //
+  // Its own RPC rather than a field mask on UpdateRequestGroup, because it is the
+  // point where a preview becomes committed work and it carries the group-level
+  // CVE-remediation decision. That lets it hold a distinct, Owner-only
+  // capability, which a mask on update could not express.
+  //
+  // Items in the cannot-be-requested set must be removed first.
+  rpc SubmitRequestGroup(SubmitRequestGroupRequest) returns (RequestGroup) {
+    option (google.api.http) = {
+      post: "/libraries/v2beta1/requestGroups/{uid=**}:submit"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {capabilities: [CAP_LIBRARIES_REQUEST_GROUPS_SUBMIT]}
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.libraries.request_group.submitted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Submit a draft request group, committing Chainguard to build its requestable versions. Optionally opts the group in to CVE remediation. Owner-only."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // UpdateRequestGroup edits group metadata under a field mask. Renaming is the
+  // expected use; it cannot submit a group or change its items.
+  rpc UpdateRequestGroup(UpdateRequestGroupRequest) returns (RequestGroup) {
+    option (google.api.http) = {
+      patch: "/libraries/v2beta1/requestGroups/{request_group.uid=**}"
+      body: "request_group"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {capabilities: [CAP_LIBRARIES_REQUEST_GROUPS_UPDATE]}
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.libraries.request_group.updated.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Update a request group's name or other mutable metadata. Cannot submit the group or change which items it carries."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // RemoveItems marks items as removed. Draft-only, and reversible via
+  // RestoreItems — the rows are retained rather than deleted so a customer can
+  // undo a removal while still editing.
+  //
+  // Every uid must belong to both the path group and the caller's organization;
+  // any mismatch fails the whole call rather than partially applying.
+  rpc RemoveItems(RemoveItemsRequest) returns (RemoveItemsResponse) {
+    option (google.api.http) = {
+      post: "/libraries/v2beta1/requestGroups/{uid=**}:removeItems"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {capabilities: [CAP_LIBRARIES_REQUEST_GROUPS_ITEMS_UPDATE]}
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.libraries.request_group.items_removed.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Remove items from a draft request group. Reversible via RestoreItems."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // RestoreItems returns previously removed items to the draft.
+  rpc RestoreItems(RestoreItemsRequest) returns (RestoreItemsResponse) {
+    option (google.api.http) = {
+      post: "/libraries/v2beta1/requestGroups/{uid=**}:restoreItems"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {capabilities: [CAP_LIBRARIES_REQUEST_GROUPS_ITEMS_UPDATE]}
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.libraries.request_group.items_restored.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Restore items previously removed from a draft request group."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // DeleteRequestGroup cancels a group and drops its item rows, keeping the group
+  // row as a tombstone so a stale link returns a sensible message rather than a
+  // bare 404. A sweeper hard-deletes the tombstone later.
+  //
+  // A customer may delete their own drafts. Deleting a submitted group requires
+  // the admin deleteSubmitted capability, since builds may already have run.
+  rpc DeleteRequestGroup(DeleteRequestGroupRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/libraries/v2beta1/requestGroups/{uid=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {capabilities: [CAP_LIBRARIES_REQUEST_GROUPS_DELETE]}
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.libraries.request_group.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Delete a draft request group. Deleting an already-submitted group requires Chainguard admin."
+      read_only: false
+      destructive: true
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // RefreshCoverage re-runs the coverage check over a whole group.
+  //
+  // Chainguard-internal only. The scan is expensive, and submitted groups are
+  // kept current by a daily sweep, so this exists for support and incident
+  // escalation rather than as a customer control.
+  rpc RefreshCoverage(RefreshCoverageRequest) returns (RequestGroup) {
+    option (google.api.http) = {
+      post: "/libraries/v2beta1/requestGroups/{uid=**}:refreshCoverage"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {capabilities: [CAP_LIBRARIES_REQUEST_GROUPS_REFRESH_COVERAGE]}
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.libraries.request_group.coverage_refreshed.v1"
+      extensions: ["group"]
+      audience: INTERNAL
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Force a full coverage re-scan of a request group. Chainguard-internal; expensive."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // ListRequestedLibraries returns one row per library the organization has
+  // requested, aggregated across all its submitted groups.
+  //
+  // This is the per-library view of the same data the group RPCs return, because a
+  // customer asks "where is snakeyaml" rather than "what was in the lockfile I
+  // uploaded in March". It reports only libraries the organization has asked for,
+  // not every library it can reach.
+  //
+  // The tree is paged one level at a time rather than nested: this RPC returns
+  // bounded per-library summaries, and one library's versions are fetched by
+  // ListRequestedLibraryVersions on expand. A nested response could not keep both
+  // the page size and the page token one-dimensional.
+  rpc ListRequestedLibraries(ListRequestedLibrariesRequest) returns (ListRequestedLibrariesResponse) {
+    option (google.api.http) = {get: "/libraries/v2beta1/requestedLibraries"};
+    option (chainguard.annotations.iam) = {
+      enabled: {capabilities: [CAP_LIBRARIES_REQUEST_GROUPS_LIST]}
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List the libraries an organization has requested Chainguard builds for, with per-library build status and CVE-remediation status."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // ListRequestedLibraryVersions returns the requested versions of one library.
+  //
+  // A requested library is a computed aggregate identified by name and ecosystem
+  // rather than a stored resource with a uid, so this reads as a custom method on
+  // the collection instead of a sub-resource of an addressable parent.
+  rpc ListRequestedLibraryVersions(ListRequestedLibraryVersionsRequest) returns (ListRequestedLibraryVersionsResponse) {
+    option (google.api.http) = {get: "/libraries/v2beta1/requestedLibraries:versions"};
+    option (chainguard.annotations.iam) = {
+      enabled: {capabilities: [CAP_LIBRARIES_REQUEST_GROUPS_LIST]}
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List the requested versions of one library, with per-version build availability, CVE-remediation status, and who requested each."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+}
+
+// RequestGroup is one organization's request for a set of library versions.
+//
+// Drafts and submitted groups are the same resource; submit_time distinguishes
+// them. The two status axes — build availability and CVE remediation — are
+// summarised here and reported per item by ListRequestGroupItems.
+message RequestGroup {
+  option (google.api.resource) = {
+    type: "libraries.chainguard.dev/RequestGroup"
+    pattern: "requestGroups/{request_group}"
+    singular: "requestGroup"
+    plural: "requestGroups"
+  };
+
+  // The group's unique identifier.
+  string uid = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The organization the group belongs to.
+  string parent_id = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Customer-supplied name, unique among the organization's live groups.
+  //
+  // OPTIONAL rather than OUTPUT_ONLY because it is the one field on this resource
+  // the customer sets: omitted on create the server generates one, and
+  // UpdateRequestGroup can rename it.
+  string name = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Processing status of the group's coverage check.
+  RequestGroupStatus status = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The ecosystem the group's requirements belong to.
+  Ecosystem ecosystem = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // How the group was created.
+  RequestSource source = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether the group is opted in to CVE remediation. Set at submit.
+  bool for_cve_remediation = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Unset while the group is a draft; set when the customer submitted it.
+  google.protobuf.Timestamp submit_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // When the group was created.
+  google.protobuf.Timestamp create_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // When the group's metadata last changed.
+  google.protobuf.Timestamp update_time = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // High-water mark across the group's items. A client polling a large group
+  // compares this to decide whether to re-read the items at all.
+  google.protobuf.Timestamp items_update_time = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The IAM identity that created the group. Only the uid is stored; resolve it
+  // through IAM to display a name.
+  string created_by = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The IAM identity that submitted the group, if it has been submitted.
+  string submitted_by = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Metadata about the uploaded input. The content itself is not retained.
+  InputMetadata input = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Counts of items by build availability.
+  AvailabilitySummary availability_summary = 15 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Counts of items by CVE-remediation status. Populated only when the group is
+  // opted in.
+  CVERemediationSummary cve_remediation_summary = 16 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether the organization pulls upstream artifacts through the Chainguard
+  // Repository.
+  //
+  // Read-only, and reported on the envelope rather than per item, because it is
+  // not part of any availability decision — see the comment on Availability. It
+  // is here so a programmatic client with no console can phrase "available via
+  // upstream fallback in the meantime" correctly, and omit it for an org that
+  // turned upstream off.
+  bool org_upstream_enabled = 17 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// RequestGroupItem is one requested package version within a group.
+//
+// The two status fields are orthogonal: a version can be BUILT and still have
+// remediation in progress, or be blocked from building while its CVEs are clean.
+// Read them independently.
+message RequestGroupItem {
+  option (google.api.resource) = {
+    type: "libraries.chainguard.dev/RequestGroupItem"
+    pattern: "requestGroups/{request_group}/items/{item}"
+    singular: "requestGroupItem"
+    plural: "requestGroupItems"
+  };
+
+  // The item's unique identifier.
+  string uid = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The raw requirement line as supplied by the customer, retained so an
+  // unparseable line can be shown back to them for correction.
+  string requirement = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Canonical package name: the PEP 503 name for Python, "group:artifact" for
+  // Java. Empty when the requirement could not be parsed.
+  string package_name = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The pinned version requested. Empty when the requirement could not be parsed.
+  string version = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The ecosystem this item belongs to.
+  Ecosystem ecosystem = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Build availability of this version.
+  Availability availability = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Human-readable reason accompanying availability, passed through verbatim from
+  // the exclusion or block that produced it. Empty when there is nothing to say.
+  string availability_reason = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // A newer built version to move to, when one exists and this version is
+  // requestable.
+  Upgrade upgrade = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // CVE-remediation status of this version. Populated only when the group is
+  // opted in.
+  CVERemediation cve_remediation = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether the customer removed this item from the draft.
+  bool removed = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // When this item's status last changed. Compare against a previous
+  // ListRequestGroupItems call's min_update_time cursor.
+  google.protobuf.Timestamp update_time = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Upgrade names newer built versions of the same package.
+//
+// Ordering is ecosystem-aware — PEP 440 for Python, Maven's own ordering for Java
+// — because lexical ordering places 2.10 below 2.9 and would suggest a downgrade.
+// Neither ecosystem guarantees semver, so no claim is made that an upgrade is
+// compatible; only that it is newer and built.
+message Upgrade {
+  // The smallest built version above the requested one: the minimal move.
+  string closest_version = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The highest built version. Equal to closest_version when only one newer
+  // version is built.
+  string latest_version = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// CVERemediation is the remediation state of one requested version, aggregated
+// across the CVEs found against it.
+message CVERemediation {
+  // Aggregate remediation status for this version.
+  CVERemediationStatus status = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // How many CVEs on this version are remediated. Meaningful regardless of the
+  // aggregate status, since a version can be partly remediated.
+  int32 remediated_count = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // How many CVEs were found against this version.
+  int32 cve_count = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // 4 held a repeated string of internal reviewer notes. Not recycled: a field
+  // number is wire format, and a client generated from an earlier copy of this
+  // file would decode a new field 4 as the old one.
+  reserved 4;
+
+  // The reviewer's decision, where a reviewer recorded one. UNSPECIFIED
+  // otherwise, which is the common case: most rows are settled by automation and
+  // carry no human judgement to report.
+  //
+  // Derived server-side from an internal triage vocabulary rather than passed
+  // through, so triage can be renamed without breaking this contract.
+  //
+  // Lossy by construction: decisions are recorded per CVE and this field is per
+  // version, so a version whose CVEs were decided differently collapses to one
+  // value. NOT_AFFECTED is reported only when it holds for every CVE on the
+  // version. Read the per-CVE detail for the answer on any single CVE.
+  CVERemediationDecision decision = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// InputMetadata describes the uploaded input. The content is deliberately not
+// retained; the hash exists to detect a re-upload of the same file.
+message InputMetadata {
+  // Original filename, when the client supplied one.
+  string filename = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The format the input was parsed as.
+  InputFormat format = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Hash of the input content, used for re-upload detection.
+  string content_hash = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // How many requirements the input yielded.
+  int32 item_count = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// AvailabilitySummary counts a group's items by build availability, so a client
+// can render the report header without paging every item.
+message AvailabilitySummary {
+  // Versions Chainguard has already built.
+  int32 built = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Versions that are not built and can be requested.
+  int32 can_be_requested = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Versions on the malware block list. Still requestable, build held.
+  int32 blocked = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Versions that do not exist on the upstream registry.
+  int32 not_found_upstream = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Versions Chainguard will not build for policy reasons.
+  int32 wont_build = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Lines that could not be parsed as a pinned package and version.
+  int32 invalid_requirement = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Versions with a build running.
+  int32 building = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Versions whose build failed and will be retried.
+  int32 build_failed = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Items the customer removed from the draft.
+  int32 removed = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Items the customer must resolve before the group can be submitted: the sum
+  // of not_found_upstream, wont_build and invalid_requirement. Blocked items are
+  // deliberately NOT counted here — they stay requestable with the build held.
+  int32 blocking_submit = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// CVERemediationSummary counts a group's items by CVE-remediation status.
+message CVERemediationSummary {
+  // Versions queued for review, or not yet resolvable to a version we hold.
+  int32 scan_queued = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Versions cross-referenced with no High or Critical CVEs.
+  int32 no_high_critical_cves = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Versions with CVEs identified but remediation not started.
+  int32 reviewing = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Versions with remediation underway.
+  int32 in_progress = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Versions where remediation finished.
+  int32 complete = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Versions whose CVEs were all ruled out of scope.
+  int32 wont_remediate = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Total CVEs remediated across the group.
+  int32 remediated_count = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// CreateRequestGroupRequest creates a draft from a pinned input.
+//
+// Supply exactly one of content or items.
+message CreateRequestGroupRequest {
+  // The organization to create the group under.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Optional customer-supplied name. A name is generated when omitted.
+  string name = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // The raw input: a Python lockfile, or a newline-separated Java GAV list.
+  string content = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Pre-parsed requirement lines, as an alternative to content.
+  repeated string items = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // How to parse content. Required when content is set.
+  InputFormat format = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // Original filename, recorded as metadata.
+  string filename = 6 [(google.api.field_behavior) = OPTIONAL];
+
+  // Resolution context for ecosystems that need it, such as python_version and
+  // platform for Python. Empty for Java, where a GAV is already fully pinned.
+  //
+  // Part of the idempotency hash: the same lockfile resolved for a different
+  // Python version is a different request, not a repeat of the first.
+  map<string, string> ecosystem_context = 7 [(google.api.field_behavior) = OPTIONAL];
+
+  // Request CVE remediation for this group. The decision can also be made at
+  // submit, which is where it takes effect.
+  bool for_cve_remediation = 8 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListRequestGroupsRequest lists an organization's groups.
+message ListRequestGroupsRequest {
+  // The organization whose groups to list.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Draft or submitted. Defaults to submitted, which is what the dashboard shows.
+  RequestGroupState state = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter by processing status.
+  RequestGroupStatus status = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter by ecosystem.
+  Ecosystem ecosystem = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter by how the group was created.
+  RequestSource source = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter by exact name.
+  string name = 6 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter to groups opted in to CVE remediation.
+  optional bool for_cve_remediation = 7 [(google.api.field_behavior) = OPTIONAL];
+
+  // Maximum groups to return. Default 50, maximum 1000.
+  int32 page_size = 10 [(google.api.field_behavior) = OPTIONAL];
+
+  // Opaque page token from a previous response.
+  string page_token = 11 [(google.api.field_behavior) = OPTIONAL];
+  // Order results by field. Format: "field [asc|desc]"
+  // Note: changing order_by between pages invalidates the page_token.
+  string order_by = 12 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of results to skip before returning, for random-access pagination.
+  // Combines with page_token to skip from the cursor position. Must be
+  // non-negative.
+  int32 skip = 13 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListRequestGroupsResponse returns a page of groups.
+message ListRequestGroupsResponse {
+  // The groups on this page.
+  repeated RequestGroup request_groups = 1;
+
+  // Token for the next page; empty when there are no more.
+  string next_page_token = 2;
+  // Total number of results matching the filter, for pagination controls.
+  optional int64 total_count = 3;
+
+  // Number of results skipped, accumulated across paginated requests.
+  int32 skipped = 4;
+}
+
+// GetRequestGroupRequest fetches one group.
+message GetRequestGroupRequest {
+  // The group's unique identifier.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// ListRequestGroupItemsRequest pages a group's items.
+message ListRequestGroupItemsRequest {
+  // The group whose items to list.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Filter by build availability.
+  Availability availability = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter by CVE-remediation status.
+  CVERemediationStatus cve_remediation_status = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Return only items whose status changed at or after this time. Pair with the
+  // group's items_update_time to follow a large group cheaply.
+  google.protobuf.Timestamp min_update_time = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Include items the customer removed. Excluded by default.
+  bool include_removed = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // Maximum items to return. Default 50, maximum 1000.
+  int32 page_size = 10 [(google.api.field_behavior) = OPTIONAL];
+
+  // Opaque page token from a previous response.
+  string page_token = 11 [(google.api.field_behavior) = OPTIONAL];
+  // Order results by field. Format: "field [asc|desc]"
+  // Note: changing order_by between pages invalidates the page_token.
+  string order_by = 12 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of results to skip before returning, for random-access pagination.
+  // Combines with page_token to skip from the cursor position. Must be
+  // non-negative.
+  int32 skip = 13 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListRequestGroupItemsResponse returns a page of items.
+message ListRequestGroupItemsResponse {
+  // The items on this page.
+  repeated RequestGroupItem request_group_items = 1;
+
+  // Token for the next page; empty when there are no more.
+  string next_page_token = 2;
+  // Total number of results matching the filter, for pagination controls.
+  optional int64 total_count = 3;
+
+  // Number of results skipped, accumulated across paginated requests.
+  int32 skipped = 4;
+}
+
+// SubmitRequestGroupRequest promotes a draft.
+message SubmitRequestGroupRequest {
+  // The draft group to submit.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Opt the group in to CVE remediation. This is the decision point; a value set
+  // at create is carried forward when this field is omitted.
+  optional bool for_cve_remediation = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// UpdateRequestGroupRequest edits group metadata.
+message UpdateRequestGroupRequest {
+  // The group to update, carrying the new field values.
+  //
+  // Carries iam_scope because this RPC's IAM rule is scoped: the interceptor
+  // checks the capability against the field marked here, so without it the check
+  // has nothing to bind to and authorization for a mutating call would not be tied
+  // to the target group's organization. Matches UpdateGroupRequest and
+  // UpdateAccountAssociationRequest, where the resource is likewise the body.
+  RequestGroup request_group = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Which fields to apply. Only name is currently mutable.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// RemoveItemsRequest removes items from a draft.
+message RemoveItemsRequest {
+  // The draft group holding the items.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The items to remove. Every uid must belong to this group; a mismatch fails
+  // the whole call.
+  repeated string item_uids = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// RemoveItemsResponse reports the outcome of a removal.
+message RemoveItemsResponse {
+  // The request group the items belong to.
+  //
+  // Present so the response identifies what it acted on, and because this RPC
+  // emits a CloudEvent: the event's subject is the group, since that is the
+  // resource the change is about rather than any individual item.
+  string uid = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The organization the group belongs to. Carries the event's "group" extension.
+  string parent_id = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // How many items changed state.
+  int32 removed_count = 1;
+
+  // The group's refreshed summary counts.
+  AvailabilitySummary availability_summary = 2;
+}
+
+// RestoreItemsRequest returns removed items to a draft.
+message RestoreItemsRequest {
+  // The draft group holding the items.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The items to restore. Every uid must belong to this group; a mismatch fails
+  // the whole call.
+  repeated string item_uids = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// RestoreItemsResponse reports the outcome of a restore.
+message RestoreItemsResponse {
+  // The request group the items belong to.
+  //
+  // Present so the response identifies what it acted on, and because this RPC
+  // emits a CloudEvent: the event's subject is the group, since that is the
+  // resource the change is about rather than any individual item.
+  string uid = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The organization the group belongs to. Carries the event's "group" extension.
+  string parent_id = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // How many items changed state.
+  int32 restored_count = 1;
+
+  // The group's refreshed summary counts.
+  AvailabilitySummary availability_summary = 2;
+}
+
+// DeleteRequestGroupRequest deletes a group.
+message DeleteRequestGroupRequest {
+  // The group to delete.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// RefreshCoverageRequest re-runs a group's coverage check.
+message RefreshCoverageRequest {
+  // The group to re-scan.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// RequestedLibrary aggregates an organization's requests for one library.
+//
+// Both statuses are computed at read time from the underlying item states rather
+// than stored, so they cannot drift from the items they summarise.
+message RequestedLibrary {
+  option (google.api.resource) = {
+    type: "libraries.chainguard.dev/RequestedLibrary"
+    pattern: "requestedLibraries/{requested_library}"
+    singular: "requestedLibrary"
+    plural: "requestedLibraries"
+  };
+
+  // Canonical package name: the PEP 503 name for Python, "group:artifact" for
+  // Java. With ecosystem, this identifies the library.
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The ecosystem the library belongs to. The dashboard renders one table per
+  // ecosystem.
+  Ecosystem ecosystem = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Build status across the library's requested versions.
+  RequestedLibraryBuildStatus build_status = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // CVE-remediation status across the library's requested versions. Populated
+  // only where a contributing group is opted in.
+  RequestedLibraryCVEStatus cve_status = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // How many distinct versions of this library the organization has requested.
+  int32 requested_version_count = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // How many of those versions Chainguard has built.
+  int32 built_version_count = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Total CVEs remediated across the library's versions.
+  int32 remediated_cve_count = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // How the requests for this library arrived, deduplicated.
+  repeated RequestSource sources = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The request groups that asked for this library. Capped, because a library
+  // requested by many groups must not make this row unbounded; see
+  // contributing_group_count for the true total.
+  repeated RequestGroupRef contributing_groups = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // How many groups asked for this library, including any beyond the capped list
+  // above.
+  int32 contributing_group_count = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // When this library was most recently requested.
+  google.protobuf.Timestamp last_request_time = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// RequestGroupRef points at a group that contributed a request.
+message RequestGroupRef {
+  // The group's unique identifier.
+  string uid = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The group's customer-supplied name.
+  string name = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// RequestedLibraryVersion is one requested version of a library, with the detail behind
+// the library-level summary.
+message RequestedLibraryVersion {
+  // The version string as requested.
+  string version = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Build availability of this version.
+  Availability availability = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Reason accompanying availability, passed through verbatim.
+  string availability_reason = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // A newer built version to move to, when one exists.
+  Upgrade upgrade = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // CVE-remediation status of this version.
+  CVERemediation cve_remediation = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // How the requests for this version arrived, deduplicated.
+  repeated RequestSource sources = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The IAM identities that requested this version. Only uids are stored; resolve
+  // them through IAM to display names.
+  repeated string requested_by = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The groups that asked for this version.
+  repeated RequestGroupRef contributing_groups = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // When this version was most recently requested.
+  google.protobuf.Timestamp last_request_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ListRequestedLibrariesRequest lists an organization's requested libraries.
+message ListRequestedLibrariesRequest {
+  // The organization whose libraries to list.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Filter to one ecosystem. The dashboard renders a table per ecosystem, so it
+  // sets this.
+  Ecosystem ecosystem = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Substring match on the library name.
+  string query = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter by computed build status.
+  RequestedLibraryBuildStatus build_status = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter by computed CVE-remediation status.
+  RequestedLibraryCVEStatus cve_status = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // Maximum libraries to return. Default 50, maximum 1000.
+  int32 page_size = 10 [(google.api.field_behavior) = OPTIONAL];
+
+  // Opaque page token from a previous response.
+  string page_token = 11 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order results by field, as "field [asc|desc]". Defaults to
+  // "last_request_time desc". Changing this between pages invalidates the token.
+  string order_by = 12 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of results to skip before returning, for random-access pagination.
+  // Combines with page_token to skip from the cursor position. Must be
+  // non-negative.
+  int32 skip = 13 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListRequestedLibrariesResponse returns a page of libraries.
+message ListRequestedLibrariesResponse {
+  // The libraries on this page.
+  repeated RequestedLibrary requested_libraries = 1;
+
+  // Token for the next page; empty when there are no more.
+  string next_page_token = 2;
+
+  // Total libraries matching the filter, for pagination controls.
+  optional int64 total_count = 3;
+
+  // Number of results skipped, accumulated across paginated requests.
+  int32 skipped = 4;
+}
+
+// ListRequestedLibraryVersionsRequest pages one library's requested versions.
+message ListRequestedLibraryVersionsRequest {
+  // The organization whose requests to read.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The library's canonical name, as returned by ListRequestedLibraries.
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The library's ecosystem. Required alongside name, because the two together
+  // identify the library.
+  Ecosystem ecosystem = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Filter by build availability.
+  Availability availability = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Filter by CVE-remediation status.
+  CVERemediationStatus cve_remediation_status = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // Maximum versions to return. Default 50, maximum 1000.
+  int32 page_size = 10 [(google.api.field_behavior) = OPTIONAL];
+
+  // Opaque page token from a previous response.
+  string page_token = 11 [(google.api.field_behavior) = OPTIONAL];
+  // Order results by field. Format: "field [asc|desc]"
+  // Note: changing order_by between pages invalidates the page_token.
+  string order_by = 12 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of results to skip before returning, for random-access pagination.
+  // Combines with page_token to skip from the cursor position. Must be
+  // non-negative.
+  int32 skip = 13 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListRequestedLibraryVersionsResponse returns a page of versions.
+message ListRequestedLibraryVersionsResponse {
+  // The versions on this page.
+  repeated RequestedLibraryVersion requested_library_versions = 1;
+
+  // Token for the next page; empty when there are no more.
+  string next_page_token = 2;
+
+  // Total versions of this library the organization has requested.
+  optional int64 total_count = 3;
+
+  // Number of results skipped, accumulated across paginated requests.
+  int32 skipped = 4;
+}
+
+// RequestGroupState selects drafts or submitted groups when listing.
+enum RequestGroupState {
+  // Unspecified: the server applies its default, which is submitted.
+  REQUEST_GROUP_STATE_UNSPECIFIED = 0;
+
+  // Not yet submitted. Never triggers a build.
+  REQUEST_GROUP_STATE_DRAFT = 1;
+
+  // Submitted by the customer.
+  REQUEST_GROUP_STATE_SUBMITTED = 2;
+
+  // Both drafts and submitted groups.
+  REQUEST_GROUP_STATE_ALL = 3;
+}
+
+// RequestGroupStatus is the group's coverage-processing status.
+enum RequestGroupStatus {
+  // Unspecified status.
+  REQUEST_GROUP_STATUS_UNSPECIFIED = 0;
+
+  // Input accepted; requirements still being parsed and persisted.
+  REQUEST_GROUP_STATUS_CREATING = 1;
+
+  // Queued for a coverage check.
+  REQUEST_GROUP_STATUS_PENDING = 2;
+
+  // Coverage check running.
+  REQUEST_GROUP_STATUS_PROCESSING = 3;
+
+  // Every item reached a settled availability.
+  REQUEST_GROUP_STATUS_COMPLETED = 4;
+
+  // The coverage check failed and will be retried.
+  REQUEST_GROUP_STATUS_FAILED = 5;
+
+  // Deleted by a customer or an admin.
+  REQUEST_GROUP_STATUS_CANCELED = 6;
+
+  // A draft reclaimed after sitting idle. Distinct from CANCELED, which is a
+  // deliberate act.
+  REQUEST_GROUP_STATUS_EXPIRED = 7;
+}
+
+// Availability is the normalized build status of one requested version.
+//
+// It never depends on whether the organization has upstream fallback enabled.
+// "Can Chainguard build this?" is a different question from "am I pulling
+// upstream in the meantime?", so an org that turned upstream off sees identical
+// values and the identical requestable set. The toggle is reported separately on
+// RequestGroup.org_upstream_enabled, for phrasing only.
+enum Availability {
+  // Unspecified availability.
+  AVAILABILITY_UNSPECIFIED = 0;
+
+  // Chainguard has built this exact version.
+  AVAILABILITY_BUILT = 1;
+
+  // Not built, and requestable. The upgrade field may name a newer built version.
+  AVAILABILITY_CAN_BE_REQUESTED = 2;
+
+  // On the malware block list. Still requestable, but the build is held until the
+  // block is withdrawn — a false positive must not silently discard a legitimate
+  // request, and the daily refresh picks the item up once it clears.
+  AVAILABILITY_BLOCKED = 3;
+
+  // The version does not exist on the upstream registry, so there is nothing to
+  // build. The only true dead end.
+  AVAILABILITY_NOT_FOUND_UPSTREAM = 4;
+
+  // Chainguard will not build this version for policy reasons, such as licence or
+  // end-of-life.
+  AVAILABILITY_WONT_BUILD = 5;
+
+  // The requirement is not a parseable pinned package and version. Terminal and
+  // not retried; the customer must fix or remove the line.
+  AVAILABILITY_INVALID_REQUIREMENT = 6;
+
+  // A build has been triggered and is running.
+  AVAILABILITY_BUILDING = 7;
+
+  // A build ran and failed. Retried automatically.
+  AVAILABILITY_BUILD_FAILED = 8;
+}
+
+// CVERemediationStatus is the aggregate remediation status of one version.
+//
+// Fully orthogonal to Availability, and populated only for an opted-in group.
+enum CVERemediationStatus {
+  // Unspecified remediation status.
+  CVE_REMEDIATION_STATUS_UNSPECIFIED = 0;
+
+  // Queued for review, or not yet resolvable to a version we hold. Distinct from
+  // NO_HIGH_CRITICAL_CVES: this means no answer yet, not a clean answer.
+  CVE_REMEDIATION_STATUS_SCAN_QUEUED = 1;
+
+  // Cross-referenced against advisory data, and no High or Critical CVEs apply.
+  CVE_REMEDIATION_STATUS_NO_HIGH_CRITICAL_CVES = 2;
+
+  // CVEs identified; remediation not started.
+  CVE_REMEDIATION_STATUS_REVIEWING = 3;
+
+  // Remediation underway on at least one CVE.
+  CVE_REMEDIATION_STATUS_IN_PROGRESS = 4;
+
+  // Remediation finished with at least one CVE remediated.
+  CVE_REMEDIATION_STATUS_COMPLETE = 5;
+
+  // Every CVE on this version was ruled out of scope. The decision on
+  // CVERemediation says which kind of out-of-scope.
+  CVE_REMEDIATION_STATUS_WONT_REMEDIATE = 6;
+}
+
+// CVERemediationDecision is what a Chainguard reviewer decided about a CVE,
+// stated in customer terms.
+//
+// It exists because WONT_REMEDIATE covers judgements that mean opposite things
+// to the reader: "this does not affect the build you pull" is reassurance, while
+// "we are not fixing this" is a risk to weigh. Collapsing both into one status
+// reports the reassuring case as the alarming one.
+//
+// A value appears only where a reviewer recorded a judgement. Automation may
+// retire a decision whose premise no longer holds, but never authors one, so a
+// value here always reflects a person's call.
+enum CVERemediationDecision {
+  // No reviewer decision to report. Either nobody has decided yet, or the row
+  // was settled by automation. Not an error, and the common case.
+  CVE_REMEDIATION_DECISION_UNSPECIFIED = 0;
+
+  // The Chainguard build is not affected, so there is nothing to remediate and
+  // nothing for the caller to act on.
+  //
+  // Reported only when it holds for EVERY CVE on the version. A version with one
+  // unaffected CVE and one deliberately unfixed CVE is not NOT_AFFECTED: the
+  // unanimity requirement is deliberate, because wrongly reassuring a caller
+  // hides real exposure, while wrongly alarming them only costs an
+  // investigation.
+  CVE_REMEDIATION_DECISION_NOT_AFFECTED = 1;
+
+  // Chainguard does not plan to fix this, and there is no upgrade to move to.
+  // The caller carries the risk and may want to weigh it.
+  CVE_REMEDIATION_DECISION_NO_FIX_PLANNED = 2;
+
+  // Chainguard does not plan to publish a remediated build of the pinned
+  // version, because moving to a later version resolves it.
+  CVE_REMEDIATION_DECISION_UPGRADE_AVAILABLE = 3;
+}
+
+// InputFormat is how a submitted input is parsed.
+//
+// Every accepted format is already pinned, so parsing happens in-process. Formats
+// needing a build tool to resolve versions — pom.xml, build.gradle, unpinned
+// requirements.txt — are deliberately absent.
+enum InputFormat {
+  // Unspecified format.
+  INPUT_FORMAT_UNSPECIFIED = 0;
+
+  // A pinned requirements.txt.
+  INPUT_FORMAT_REQUIREMENTS_TXT = 1;
+
+  // A poetry.lock file.
+  INPUT_FORMAT_POETRY_LOCK = 2;
+
+  // A uv.lock file.
+  INPUT_FORMAT_UV_LOCK = 3;
+
+  // A newline-separated list of Java coordinates, "group:artifact:version". The
+  // extended "group:artifact[:packaging[:classifier]]:version" form is accepted.
+  // Already fully resolved, so no build tool runs.
+  INPUT_FORMAT_MAVEN_GAV_LIST = 4;
+}
+
+// RequestSource records how a group came to exist.
+enum RequestSource {
+  // Unspecified source.
+  REQUEST_SOURCE_UNSPECIFIED = 0;
+
+  // Uploaded through the console.
+  REQUEST_SOURCE_MANUAL_UPLOAD = 1;
+
+  // Created through the API.
+  REQUEST_SOURCE_API = 2;
+
+  // Created from observed upstream-fallback traffic.
+  REQUEST_SOURCE_UPSTREAM_FALLBACK = 3;
+
+  // Created by the Gardener GitHub app.
+  REQUEST_SOURCE_GARDENER_GITHUB = 4;
+
+  // Predates source tracking.
+  REQUEST_SOURCE_LEGACY = 5;
+}
+
+// RequestedLibraryBuildStatus is the build ladder across a library's requested versions.
+//
+// A version counts as buildable unless it is WONT_BUILD or NOT_FOUND_UPSTREAM,
+// so versions Chainguard will never build do not hold a library short of
+// COMPLETE.
+enum RequestedLibraryBuildStatus {
+  // Unspecified build status.
+  REQUESTED_LIBRARY_BUILD_STATUS_UNSPECIFIED = 0;
+
+  // Submitted, but no build activity on any version yet.
+  REQUESTED_LIBRARY_BUILD_STATUS_REVIEWING = 1;
+
+  // Build activity has started on at least one version and at least one buildable
+  // version is not built yet. A version that is already built, or that failed and
+  // will be retried, counts as activity.
+  REQUESTED_LIBRARY_BUILD_STATUS_IN_PROGRESS = 2;
+
+  // Every buildable requested version is built, with at least one built and
+  // nothing still building or failed.
+  REQUESTED_LIBRARY_BUILD_STATUS_COMPLETE = 3;
+
+  // No requested version is buildable.
+  REQUESTED_LIBRARY_BUILD_STATUS_WONT_BUILD = 4;
+}
+
+// RequestedLibraryCVEStatus is the remediation ladder across a library's versions.
+//
+// Only meaningful where a contributing group opted in.
+enum RequestedLibraryCVEStatus {
+  // Unspecified remediation status.
+  REQUESTED_LIBRARY_CVE_STATUS_UNSPECIFIED = 0;
+
+  // Opted in, but no version is past being queued, or a cross-referenced version
+  // still has untriaged CVEs. A library with even one un-cross-referenced version
+  // is REVIEWING rather than clean: the alternative would report an unfinished
+  // check as a clean bill of health.
+  REQUESTED_LIBRARY_CVE_STATUS_REVIEWING = 1;
+
+  // Remediation underway on at least one version.
+  REQUESTED_LIBRARY_CVE_STATUS_IN_PROGRESS = 2;
+
+  // Every version came back cross-referenced and clean, and none is still queued.
+  REQUESTED_LIBRARY_CVE_STATUS_NO_HIGH_CRITICAL_CVES = 3;
+
+  // Remediation finished with at least one CVE remediated and nothing in progress.
+  REQUESTED_LIBRARY_CVE_STATUS_COMPLETE = 4;
+
+  // Every CVE across the library was ruled out of scope.
+  REQUESTED_LIBRARY_CVE_STATUS_WONT_REMEDIATE = 5;
+}
