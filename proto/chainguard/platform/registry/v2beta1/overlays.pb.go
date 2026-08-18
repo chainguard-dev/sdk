@@ -31,18 +31,24 @@ const (
 // Overlay is a named, reusable, org-scoped content fragment that
 // bindings bind to repos.
 //
-// The payload is a list of package names by design: certificates,
-// accounts, and the rest of the image content model stay out of the
-// reusable object until they have had security review. Reads render only
-// package content even if the stored configuration carries more.
+// The config is the same CustomOverlay shape as Repo.custom_overlay, so
+// relaxing the packages-only restriction later is a validation change,
+// not a wire change. The server accepts only contents.packages:
+// certificates, accounts, and the rest of the image content model stay
+// out of the reusable object until they have had security review, and
+// any other populated field is rejected with InvalidArgument. Reads
+// render only package content even if the stored configuration carries
+// more.
 type Overlay struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The unique identifier of this Overlay, a UIDP under the owning group.
 	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	// The name of the Overlay, unique among the group's overlays.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// The APK package names this overlay adds. At least one is required on create.
-	Packages      []string `protobuf:"bytes,3,rep,name=packages,proto3" json:"packages,omitempty"`
+	// The overlay content, the same shape as Repo.custom_overlay. Only
+	// contents.packages may be set this milestone: at least one package is
+	// required on create, and any other populated field is rejected.
+	Config        *CustomOverlay `protobuf:"bytes,3,opt,name=config,proto3" json:"config,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -91,9 +97,9 @@ func (x *Overlay) GetName() string {
 	return ""
 }
 
-func (x *Overlay) GetPackages() []string {
+func (x *Overlay) GetConfig() *CustomOverlay {
 	if x != nil {
-		return x.Packages
+		return x.Config
 	}
 	return nil
 }
@@ -423,11 +429,11 @@ var File_chainguard_platform_registry_v2beta1_overlays_proto protoreflect.FileDe
 
 const file_chainguard_platform_registry_v2beta1_overlays_proto_rawDesc = "" +
 	"\n" +
-	"3chainguard/platform/registry/v2beta1/overlays.proto\x12$chainguard.platform.registry.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a&platform/common/v1/uidp.platform.proto\"\xaa\x01\n" +
+	"3chainguard/platform/registry/v2beta1/overlays.proto\x12$chainguard.platform.registry.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a0chainguard/platform/registry/v2beta1/repos.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a&platform/common/v1/uidp.platform.proto\"\xdb\x01\n" +
 	"\aOverlay\x12\x16\n" +
 	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12\x18\n" +
-	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x04name\x12 \n" +
-	"\bpackages\x18\x03 \x03(\tB\x04\xe2A\x01\x02R\bpackages:K\xeaAH\n" +
+	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x04name\x12Q\n" +
+	"\x06config\x18\x03 \x01(\v23.chainguard.platform.registry.v2beta1.CustomOverlayB\x04\xe2A\x01\x02R\x06config:K\xeaAH\n" +
 	"\x1fregistry.chainguard.dev/Overlay\x12\x12overlays/{overlay}*\boverlays2\aoverlay\"1\n" +
 	"\x11GetOverlayRequest\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
@@ -493,26 +499,28 @@ var file_chainguard_platform_registry_v2beta1_overlays_proto_goTypes = []any{
 	(*DeleteOverlayRequest)(nil), // 3: chainguard.platform.registry.v2beta1.DeleteOverlayRequest
 	(*ListOverlaysRequest)(nil),  // 4: chainguard.platform.registry.v2beta1.ListOverlaysRequest
 	(*ListOverlaysResponse)(nil), // 5: chainguard.platform.registry.v2beta1.ListOverlaysResponse
-	(*v1.UIDPFilter)(nil),        // 6: chainguard.platform.common.UIDPFilter
-	(*emptypb.Empty)(nil),        // 7: google.protobuf.Empty
+	(*CustomOverlay)(nil),        // 6: chainguard.platform.registry.v2beta1.CustomOverlay
+	(*v1.UIDPFilter)(nil),        // 7: chainguard.platform.common.UIDPFilter
+	(*emptypb.Empty)(nil),        // 8: google.protobuf.Empty
 }
 var file_chainguard_platform_registry_v2beta1_overlays_proto_depIdxs = []int32{
-	0, // 0: chainguard.platform.registry.v2beta1.CreateOverlayRequest.overlay:type_name -> chainguard.platform.registry.v2beta1.Overlay
-	6, // 1: chainguard.platform.registry.v2beta1.ListOverlaysRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	0, // 2: chainguard.platform.registry.v2beta1.ListOverlaysResponse.overlays:type_name -> chainguard.platform.registry.v2beta1.Overlay
-	1, // 3: chainguard.platform.registry.v2beta1.OverlaysService.GetOverlay:input_type -> chainguard.platform.registry.v2beta1.GetOverlayRequest
-	4, // 4: chainguard.platform.registry.v2beta1.OverlaysService.ListOverlays:input_type -> chainguard.platform.registry.v2beta1.ListOverlaysRequest
-	2, // 5: chainguard.platform.registry.v2beta1.OverlaysService.CreateOverlay:input_type -> chainguard.platform.registry.v2beta1.CreateOverlayRequest
-	3, // 6: chainguard.platform.registry.v2beta1.OverlaysService.DeleteOverlay:input_type -> chainguard.platform.registry.v2beta1.DeleteOverlayRequest
-	0, // 7: chainguard.platform.registry.v2beta1.OverlaysService.GetOverlay:output_type -> chainguard.platform.registry.v2beta1.Overlay
-	5, // 8: chainguard.platform.registry.v2beta1.OverlaysService.ListOverlays:output_type -> chainguard.platform.registry.v2beta1.ListOverlaysResponse
-	0, // 9: chainguard.platform.registry.v2beta1.OverlaysService.CreateOverlay:output_type -> chainguard.platform.registry.v2beta1.Overlay
-	7, // 10: chainguard.platform.registry.v2beta1.OverlaysService.DeleteOverlay:output_type -> google.protobuf.Empty
-	7, // [7:11] is the sub-list for method output_type
-	3, // [3:7] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	6, // 0: chainguard.platform.registry.v2beta1.Overlay.config:type_name -> chainguard.platform.registry.v2beta1.CustomOverlay
+	0, // 1: chainguard.platform.registry.v2beta1.CreateOverlayRequest.overlay:type_name -> chainguard.platform.registry.v2beta1.Overlay
+	7, // 2: chainguard.platform.registry.v2beta1.ListOverlaysRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	0, // 3: chainguard.platform.registry.v2beta1.ListOverlaysResponse.overlays:type_name -> chainguard.platform.registry.v2beta1.Overlay
+	1, // 4: chainguard.platform.registry.v2beta1.OverlaysService.GetOverlay:input_type -> chainguard.platform.registry.v2beta1.GetOverlayRequest
+	4, // 5: chainguard.platform.registry.v2beta1.OverlaysService.ListOverlays:input_type -> chainguard.platform.registry.v2beta1.ListOverlaysRequest
+	2, // 6: chainguard.platform.registry.v2beta1.OverlaysService.CreateOverlay:input_type -> chainguard.platform.registry.v2beta1.CreateOverlayRequest
+	3, // 7: chainguard.platform.registry.v2beta1.OverlaysService.DeleteOverlay:input_type -> chainguard.platform.registry.v2beta1.DeleteOverlayRequest
+	0, // 8: chainguard.platform.registry.v2beta1.OverlaysService.GetOverlay:output_type -> chainguard.platform.registry.v2beta1.Overlay
+	5, // 9: chainguard.platform.registry.v2beta1.OverlaysService.ListOverlays:output_type -> chainguard.platform.registry.v2beta1.ListOverlaysResponse
+	0, // 10: chainguard.platform.registry.v2beta1.OverlaysService.CreateOverlay:output_type -> chainguard.platform.registry.v2beta1.Overlay
+	8, // 11: chainguard.platform.registry.v2beta1.OverlaysService.DeleteOverlay:output_type -> google.protobuf.Empty
+	8, // [8:12] is the sub-list for method output_type
+	4, // [4:8] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_registry_v2beta1_overlays_proto_init() }
@@ -520,6 +528,7 @@ func file_chainguard_platform_registry_v2beta1_overlays_proto_init() {
 	if File_chainguard_platform_registry_v2beta1_overlays_proto != nil {
 		return
 	}
+	file_chainguard_platform_registry_v2beta1_repos_proto_init()
 	file_chainguard_platform_registry_v2beta1_overlays_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

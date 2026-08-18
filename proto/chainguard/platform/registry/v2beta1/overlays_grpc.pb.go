@@ -33,8 +33,10 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// OverlaysService manages reusable, packages-only overlays for tag-scoped
-// Custom Assembly. Overlays are attached to repos by OverlayBindingsService.
+// OverlaysService manages reusable overlays for tag-scoped Custom
+// Assembly. An overlay's config is the full custom-overlay shape, but the
+// server accepts only contents.packages this milestone. Overlays are
+// attached to repos by OverlayBindingsService.
 //
 // There is deliberately no update RPC this milestone: the workflow is
 // delete-and-recreate.
@@ -48,7 +50,9 @@ type OverlaysServiceClient interface {
 	GetOverlay(ctx context.Context, in *GetOverlayRequest, opts ...grpc.CallOption) (*Overlay, error)
 	// ListOverlays returns overlays based on filter criteria with pagination support.
 	ListOverlays(ctx context.Context, in *ListOverlaysRequest, opts ...grpc.CallOption) (*ListOverlaysResponse, error)
-	// CreateOverlay creates a named, packages-only overlay under a group.
+	// CreateOverlay creates a named overlay under a group. Only
+	// config.contents.packages may be populated; any other config field
+	// fails with InvalidArgument.
 	CreateOverlay(ctx context.Context, in *CreateOverlayRequest, opts ...grpc.CallOption) (*Overlay, error)
 	// DeleteOverlay deletes an overlay by UID. Deleting an overlay that is
 	// still referenced by bindings fails with FailedPrecondition.
@@ -107,8 +111,10 @@ func (c *overlaysServiceClient) DeleteOverlay(ctx context.Context, in *DeleteOve
 // All implementations must embed UnimplementedOverlaysServiceServer
 // for forward compatibility.
 //
-// OverlaysService manages reusable, packages-only overlays for tag-scoped
-// Custom Assembly. Overlays are attached to repos by OverlayBindingsService.
+// OverlaysService manages reusable overlays for tag-scoped Custom
+// Assembly. An overlay's config is the full custom-overlay shape, but the
+// server accepts only contents.packages this milestone. Overlays are
+// attached to repos by OverlayBindingsService.
 //
 // There is deliberately no update RPC this milestone: the workflow is
 // delete-and-recreate.
@@ -122,7 +128,9 @@ type OverlaysServiceServer interface {
 	GetOverlay(context.Context, *GetOverlayRequest) (*Overlay, error)
 	// ListOverlays returns overlays based on filter criteria with pagination support.
 	ListOverlays(context.Context, *ListOverlaysRequest) (*ListOverlaysResponse, error)
-	// CreateOverlay creates a named, packages-only overlay under a group.
+	// CreateOverlay creates a named overlay under a group. Only
+	// config.contents.packages may be populated; any other config field
+	// fails with InvalidArgument.
 	CreateOverlay(context.Context, *CreateOverlayRequest) (*Overlay, error)
 	// DeleteOverlay deletes an overlay by UID. Deleting an overlay that is
 	// still referenced by bindings fails with FailedPrecondition.

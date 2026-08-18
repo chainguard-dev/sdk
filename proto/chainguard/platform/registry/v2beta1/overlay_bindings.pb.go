@@ -39,8 +39,9 @@ type OverlayBinding struct {
 	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	// The UIDP of the repo this binding applies to.
 	Repo string `protobuf:"bytes,2,opt,name=repo,proto3" json:"repo,omitempty"`
-	// The referenced Overlay expanded inline (uid, name, packages) so list
-	// responses are audit-complete without a follow-up call.
+	// The referenced Overlay expanded inline (uid, name, and its config
+	// rendered packages-only) so list responses are audit-complete without
+	// a follow-up call.
 	// (-- api-linter: core::0122::embedded-resource=disabled
 	//
 	//	aip.dev/not-precedent: audit-complete rendering embeds the overlay

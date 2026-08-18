@@ -3,16 +3,17 @@ Copyright 2026 Chainguard, Inc.
 SPDX-License-Identifier: Apache-2.0
 */
 
-// Spec-conformance harness for containers/openspec/changes/
-// add-overlays-platform-api/specs/custom-assembly/overlay-api/spec.md.
+// Spec-conformance harness for containers/openspec/specs/custom-assembly/
+// overlay-api/spec.md.
 // Test_Conformance_GatewayRouteOrder pins gateway dispatch: the
 // /registry/v2beta1/overlayBindings/... routes are a distinct literal
 // prefix from /registry/v2beta1/overlays/..., so the overlay routes'
 // {uid=**}/{parent=**} wildcards can never swallow them regardless of
 // registration order.
 // Exercises the invariants deliverable at the SDK layer: the RPC surface
-// (no update RPCs), the packages-only payload enforced by proto shape,
-// the no-inline-content binding shape, and gateway dispatch.
+// (no update RPCs), the full custom-overlay payload shape (packages-only
+// is enforced by server validation, not schema), the no-inline-content
+// binding shape, and gateway dispatch.
 package v2beta1
 
 import (
@@ -23,6 +24,8 @@ import (
 	"testing"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"google.golang.org/genproto/googleapis/api/annotations"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -75,54 +78,33 @@ func Test_Conformance_RPCSurface(t *testing.T) {
 	}
 }
 
-// Requirement: Packages-only payload by schema — no message reachable from
-// any Overlays or OverlayBindings RPC references ImageContents,
-// CustomOverlay, or any other content-model message. Certificates,
-// accounts, environment, repositories, and keyring are unrepresentable,
-// not merely rejected.
-func Test_Conformance_PackagesOnlyByShape(t *testing.T) {
-	reachable := map[protoreflect.FullName]bool{}
-	var walk func(md protoreflect.MessageDescriptor)
-	walk = func(md protoreflect.MessageDescriptor) {
-		if reachable[md.FullName()] {
-			return
-		}
-		reachable[md.FullName()] = true
-		for i := range md.Fields().Len() {
-			fd := md.Fields().Get(i)
-			if fd.Kind() == protoreflect.MessageKind || fd.Kind() == protoreflect.GroupKind {
-				walk(fd.Message())
-			}
-		}
-	}
-	for _, sd := range []protoreflect.ServiceDescriptor{overlaysService(t), overlayBindingsService(t)} {
-		for i := range sd.Methods().Len() {
-			walk(sd.Methods().Get(i).Input())
-			walk(sd.Methods().Get(i).Output())
-		}
-	}
-
-	for name := range reachable {
-		s := string(name)
-		if strings.Contains(s, "ImageContents") || strings.Contains(s, "CustomOverlay") || strings.Contains(s, "apko") {
-			t.Errorf("content-model message %q is reachable from the Overlays surface", s)
-		}
-	}
-
-	// The Overlay payload is exactly: uid, name, packages. There is no
-	// binding reverse lookup on the overlay: attachments are found via
-	// ListOverlayBindings filtered to an overlay.
+// Requirement: Full custom-overlay payload, packages-only by validation —
+// the Overlay payload is a config field of exactly the CustomOverlay type
+// Repo.custom_overlay uses (type identity is what makes a later
+// relaxation a validation change, not a wire change). There is no binding
+// reverse lookup on the overlay: attachments are found via
+// ListOverlayBindings filtered to an overlay.
+func Test_Conformance_PayloadShape(t *testing.T) {
 	overlay := (&Overlay{}).ProtoReflect().Descriptor()
 	fields := make([]string, 0, overlay.Fields().Len())
 	for i := range overlay.Fields().Len() {
 		fields = append(fields, string(overlay.Fields().Get(i).Name()))
 	}
 	slices.Sort(fields)
-	if want := []string{"name", "packages", "uid"}; !slices.Equal(fields, want) {
+	if want := []string{"config", "name", "uid"}; !slices.Equal(fields, want) {
 		t.Errorf("Overlay fields: got = %v, want = %v", fields, want)
 	}
-	if fd := overlay.Fields().ByName("packages"); !fd.IsList() || fd.Kind() != protoreflect.StringKind {
-		t.Error("Overlay.packages must be a repeated string")
+
+	config := overlay.Fields().ByName("config")
+	if config == nil || config.Kind() != protoreflect.MessageKind {
+		t.Fatal("Overlay.config must be a message field")
+	}
+	repoOverlay := (&Repo{}).ProtoReflect().Descriptor().Fields().ByName("custom_overlay")
+	if got, want := config.Message().FullName(), repoOverlay.Message().FullName(); got != want {
+		t.Errorf("Overlay.config type: got = %v, want = %v (the same shape as Repo.custom_overlay)", got, want)
+	}
+	if fb := proto.GetExtension(config.Options(), annotations.E_FieldBehavior).([]annotations.FieldBehavior); !slices.Contains(fb, annotations.FieldBehavior_REQUIRED) {
+		t.Errorf("Overlay.config field_behavior: got = %v, want REQUIRED", fb)
 	}
 }
 

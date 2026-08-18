@@ -8,6 +8,7 @@ package chainguard.platform.registry.v2beta1;
 import "annotations/auth.proto";
 import "annotations/events.proto";
 import "annotations/mcp.proto";
+import "chainguard/platform/registry/v2beta1/repos.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
@@ -19,8 +20,10 @@ option java_multiple_files = true;
 option java_outer_classname = "OverlaysProto";
 option java_package = "com.chainguard.platform.registry.v2beta1";
 
-// OverlaysService manages reusable, packages-only overlays for tag-scoped
-// Custom Assembly. Overlays are attached to repos by OverlayBindingsService.
+// OverlaysService manages reusable overlays for tag-scoped Custom
+// Assembly. An overlay's config is the full custom-overlay shape, but the
+// server accepts only contents.packages this milestone. Overlays are
+// attached to repos by OverlayBindingsService.
 //
 // There is deliberately no update RPC this milestone: the workflow is
 // delete-and-recreate.
@@ -65,7 +68,9 @@ service OverlaysService {
     };
   }
 
-  // CreateOverlay creates a named, packages-only overlay under a group.
+  // CreateOverlay creates a named overlay under a group. Only
+  // config.contents.packages may be populated; any other config field
+  // fails with InvalidArgument.
   rpc CreateOverlay(CreateOverlayRequest) returns (Overlay) {
     option (google.api.http) = {
       post: "/registry/v2beta1/overlays/{parent=**}"
@@ -119,10 +124,14 @@ service OverlaysService {
 // Overlay is a named, reusable, org-scoped content fragment that
 // bindings bind to repos.
 //
-// The payload is a list of package names by design: certificates,
-// accounts, and the rest of the image content model stay out of the
-// reusable object until they have had security review. Reads render only
-// package content even if the stored configuration carries more.
+// The config is the same CustomOverlay shape as Repo.custom_overlay, so
+// relaxing the packages-only restriction later is a validation change,
+// not a wire change. The server accepts only contents.packages:
+// certificates, accounts, and the rest of the image content model stay
+// out of the reusable object until they have had security review, and
+// any other populated field is rejected with InvalidArgument. Reads
+// render only package content even if the stored configuration carries
+// more.
 message Overlay {
   option (google.api.resource) = {
     type: "registry.chainguard.dev/Overlay"
@@ -137,8 +146,10 @@ message Overlay {
   // The name of the Overlay, unique among the group's overlays.
   string name = 2 [(google.api.field_behavior) = REQUIRED];
 
-  // The APK package names this overlay adds. At least one is required on create.
-  repeated string packages = 3 [(google.api.field_behavior) = REQUIRED];
+  // The overlay content, the same shape as Repo.custom_overlay. Only
+  // contents.packages may be set this milestone: at least one package is
+  // required on create, and any other populated field is rejected.
+  CustomOverlay config = 3 [(google.api.field_behavior) = REQUIRED];
 }
 
 // GetOverlayRequest is the request message for getting a single Overlay by UID.
