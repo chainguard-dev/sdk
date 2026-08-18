@@ -109,12 +109,20 @@ message Skill {
   string license = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
   // category groups the skill in the catalog, if declared.
   string category = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
-  reserved 6; // was digest — versions/digests come from the registry (ListTags/GetTag)
+  // keywords are free-form tags associated with the skill. Field 6 is reclaimed
+  // from the removed digest field: digest = 6 (string) shipped in SDK
+  // v0.1.159-v0.1.165, but the catalog was never populated or consumed in that
+  // window, so the slot is reused for keywords (repeated string).
+  repeated string keywords = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
   // create_time is when the skill was first recorded.
   google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
   // update_time is when the skill was last updated.
   google.protobuf.Timestamp update_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // next id: 9
+  // hardened is true when the skill's promoted version was modified by the
+  // harden pipeline (harden.modified). Backs the "Hardened" chip on the catalog
+  // directory page (ACID-373).
+  bool hardened = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // next id: 10
 }
 
 message UpdateSkillRequest {
@@ -143,7 +151,11 @@ message UpdateSkillRequest {
   // allow_missing, per AIP-134 create-or-update: when true, create the row if it
   // does not exist; when false (default), a missing row is NotFound.
   bool allow_missing = 9 [(google.api.field_behavior) = OPTIONAL];
-  // next id: 10
+  // hardened marks the promoted version as harden-pipeline-modified
+  // (harden.modified); the writer sets it at promote time and it surfaces as the
+  // catalog "Hardened" chip.
+  bool hardened = 10 [(google.api.field_behavior) = OPTIONAL];
+  // next id: 11
 }
 
 message DeleteSkillRequest {

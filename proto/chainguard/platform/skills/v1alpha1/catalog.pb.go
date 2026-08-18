@@ -46,10 +46,19 @@ type Skill struct {
 	License string `protobuf:"bytes,4,opt,name=license,proto3" json:"license,omitempty"`
 	// category groups the skill in the catalog, if declared.
 	Category string `protobuf:"bytes,5,opt,name=category,proto3" json:"category,omitempty"`
+	// keywords are free-form tags associated with the skill. Field 6 is reclaimed
+	// from the removed digest field: digest = 6 (string) shipped in SDK
+	// v0.1.159-v0.1.165, but the catalog was never populated or consumed in that
+	// window, so the slot is reused for keywords (repeated string).
+	Keywords []string `protobuf:"bytes,6,rep,name=keywords,proto3" json:"keywords,omitempty"`
 	// create_time is when the skill was first recorded.
 	CreateTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
 	// update_time is when the skill was last updated.
-	UpdateTime    *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"` // next id: 9
+	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+	// hardened is true when the skill's promoted version was modified by the
+	// harden pipeline (harden.modified). Backs the "Hardened" chip on the catalog
+	// directory page (ACID-373).
+	Hardened      bool `protobuf:"varint,9,opt,name=hardened,proto3" json:"hardened,omitempty"` // next id: 10
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -119,6 +128,13 @@ func (x *Skill) GetCategory() string {
 	return ""
 }
 
+func (x *Skill) GetKeywords() []string {
+	if x != nil {
+		return x.Keywords
+	}
+	return nil
+}
+
 func (x *Skill) GetCreateTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreateTime
@@ -131,6 +147,13 @@ func (x *Skill) GetUpdateTime() *timestamppb.Timestamp {
 		return x.UpdateTime
 	}
 	return nil
+}
+
+func (x *Skill) GetHardened() bool {
+	if x != nil {
+		return x.Hardened
+	}
+	return false
 }
 
 type UpdateSkillRequest struct {
@@ -155,7 +178,11 @@ type UpdateSkillRequest struct {
 	Keywords []string `protobuf:"bytes,7,rep,name=keywords,proto3" json:"keywords,omitempty"`
 	// allow_missing, per AIP-134 create-or-update: when true, create the row if it
 	// does not exist; when false (default), a missing row is NotFound.
-	AllowMissing  bool `protobuf:"varint,9,opt,name=allow_missing,json=allowMissing,proto3" json:"allow_missing,omitempty"` // next id: 10
+	AllowMissing bool `protobuf:"varint,9,opt,name=allow_missing,json=allowMissing,proto3" json:"allow_missing,omitempty"`
+	// hardened marks the promoted version as harden-pipeline-modified
+	// (harden.modified); the writer sets it at promote time and it surfaces as the
+	// catalog "Hardened" chip.
+	Hardened      bool `protobuf:"varint,10,opt,name=hardened,proto3" json:"hardened,omitempty"` // next id: 11
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -242,6 +269,13 @@ func (x *UpdateSkillRequest) GetKeywords() []string {
 func (x *UpdateSkillRequest) GetAllowMissing() bool {
 	if x != nil {
 		return x.AllowMissing
+	}
+	return false
+}
+
+func (x *UpdateSkillRequest) GetHardened() bool {
+	if x != nil {
+		return x.Hardened
 	}
 	return false
 }
@@ -436,18 +470,20 @@ var File_chainguard_platform_skills_v1alpha1_catalog_proto protoreflect.FileDesc
 
 const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	"\n" +
-	"1chainguard/platform/skills/v1alpha1/catalog.proto\x12#chainguard.platform.skills.v1alpha1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xb3\x02\n" +
+	"1chainguard/platform/skills/v1alpha1/catalog.proto\x12#chainguard.platform.skills.v1alpha1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xf1\x02\n" +
 	"\x05Skill\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x18\n" +
 	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x04name\x12&\n" +
 	"\vdescription\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\vdescription\x12\x1e\n" +
 	"\alicense\x18\x04 \x01(\tB\x04\xe2A\x01\x03R\alicense\x12 \n" +
-	"\bcategory\x18\x05 \x01(\tB\x04\xe2A\x01\x03R\bcategory\x12A\n" +
+	"\bcategory\x18\x05 \x01(\tB\x04\xe2A\x01\x03R\bcategory\x12 \n" +
+	"\bkeywords\x18\x06 \x03(\tB\x04\xe2A\x01\x03R\bkeywords\x12A\n" +
 	"\vcreate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
 	"createTime\x12A\n" +
 	"\vupdate_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
-	"updateTimeJ\x04\b\x06\x10\a\"\xb7\x02\n" +
+	"updateTime\x12 \n" +
+	"\bhardened\x18\t \x01(\bB\x04\xe2A\x01\x03R\bhardened\"\xd9\x02\n" +
 	"\x12UpdateSkillRequest\x12!\n" +
 	"\trepo_uidp\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\brepoUidp\x12'\n" +
 	"\tparent_id\x18\x02 \x01(\tB\n" +
@@ -457,7 +493,9 @@ const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	"\alicense\x18\x05 \x01(\tB\x04\xe2A\x01\x01R\alicense\x12 \n" +
 	"\bcategory\x18\x06 \x01(\tB\x04\xe2A\x01\x01R\bcategory\x12 \n" +
 	"\bkeywords\x18\a \x03(\tB\x04\xe2A\x01\x01R\bkeywords\x12)\n" +
-	"\rallow_missing\x18\t \x01(\bB\x04\xe2A\x01\x01R\fallowMissingJ\x04\b\b\x10\t\"0\n" +
+	"\rallow_missing\x18\t \x01(\bB\x04\xe2A\x01\x01R\fallowMissing\x12 \n" +
+	"\bhardened\x18\n" +
+	" \x01(\bB\x04\xe2A\x01\x01R\bhardenedJ\x04\b\b\x10\t\"0\n" +
 	"\x12DeleteSkillRequest\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x02id\"\xad\x01\n" +
