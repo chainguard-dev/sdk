@@ -7,22 +7,22 @@ package receiver_test
 
 import (
 	"context"
+	"net/http"
 
 	"chainguard.dev/sdk/events/receiver"
 	"github.com/chainguard-dev/clog"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 )
 
-// Example demonstrates creating a secure webhook receiver that verifies
-// Chainguard events are authentic and intended for your organization.
+// Example demonstrates serving a webhook receiver that verifies Chainguard
+// events are authentic and intended for your organization.
 func Example() {
 	ctx := context.Background()
 
-	// Create a receiver that verifies events from Chainguard's issuer
-	// and ensures they are intended for your group.
-	handler, err := receiver.New(ctx, "https://issuer.enforce.dev", "my-group-id",
+	// Verify events came from Chainguard's issuer and are intended for your
+	// group, then hand the verified event to the callback.
+	h, err := receiver.NewHTTPHandler(ctx, "https://issuer.enforce.dev", "my-group-id",
 		func(ctx context.Context, event cloudevents.Event) error {
-			// Process the verified event
 			clog.InfoContextf(ctx, "Received event: %s", event.Type())
 			return nil
 		})
@@ -30,26 +30,21 @@ func Example() {
 		clog.FatalContextf(ctx, "failed to create receiver: %v", err)
 	}
 
-	// Use the handler with CloudEvents HTTP receiver
-	c, err := cloudevents.NewClientHTTP()
-	if err != nil {
-		clog.FatalContextf(ctx, "failed to create client: %v", err)
-	}
-
-	// Start receiving events
-	if err := c.StartReceiver(ctx, handler); err != nil {
-		clog.FatalContextf(ctx, "failed to start receiver: %v", err)
+	// Deliveries that fail verification never reach the callback; they are
+	// answered with 401 or 403 directly.
+	server := &http.Server{Addr: ":8080", Handler: h}
+	if err := server.ListenAndServe(); err != nil {
+		clog.FatalContextf(ctx, "server exited: %v", err)
 	}
 }
 
-// Example_customHandler demonstrates using a custom handler function
-// to process different event types.
+// Example_customHandler demonstrates dispatching on the event type, and
+// mounting the receiver on a path alongside other routes.
 func Example_customHandler() {
 	ctx := context.Background()
 
-	handler, err := receiver.New(ctx, "https://issuer.enforce.dev", "my-group-id",
+	h, err := receiver.NewHTTPHandler(ctx, "https://issuer.enforce.dev", "my-group-id",
 		func(ctx context.Context, event cloudevents.Event) error {
-			// Handle different event types
 			switch event.Type() {
 			case "dev.chainguard.image.created":
 				clog.InfoContextf(ctx, "New image created: %s", event.Subject())
@@ -64,12 +59,14 @@ func Example_customHandler() {
 		clog.FatalContextf(ctx, "failed to create receiver: %v", err)
 	}
 
-	c, err := cloudevents.NewClientHTTP()
-	if err != nil {
-		clog.FatalContextf(ctx, "failed to create client: %v", err)
-	}
+	mux := http.NewServeMux()
+	mux.Handle("POST /webhook", h)
+	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
 
-	if err := c.StartReceiver(ctx, handler); err != nil {
-		clog.FatalContextf(ctx, "failed to start receiver: %v", err)
+	server := &http.Server{Addr: ":8080", Handler: mux}
+	if err := server.ListenAndServe(); err != nil {
+		clog.FatalContextf(ctx, "server exited: %v", err)
 	}
 }

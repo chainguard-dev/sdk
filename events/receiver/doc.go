@@ -17,8 +17,7 @@ SPDX-License-Identifier: Apache-2.0
 //   - OIDC token verification using the Chainguard issuer
 //   - Group-based authorization to ensure events are intended for your organization
 //   - Message digest validation to prevent replay attacks
-//   - Integration with the CloudEvents SDK for standard event handling
-//   - Automatic HTTP status code responses for authentication and authorization failures
+//   - A ready-to-serve http.Handler, with HTTP status codes for every failure mode
 //
 // # Security Model
 //
@@ -32,10 +31,11 @@ SPDX-License-Identifier: Apache-2.0
 //
 // # Usage
 //
-// Create a receiver by calling New with your OIDC issuer URL, group ID, and handler
-// function. The returned handler can be used with the CloudEvents HTTP protocol:
+// Call NewHTTPHandler with your OIDC issuer URL, group ID, and handler function, then
+// serve the result. Verification, event decoding, and failure status codes are handled
+// for you:
 //
-//	handler, err := receiver.New(ctx, "https://issuer.enforce.dev", "my-group-id",
+//	h, err := receiver.NewHTTPHandler(ctx, "https://issuer.enforce.dev", "my-group-id",
 //		func(ctx context.Context, event cloudevents.Event) error {
 //			// Process the verified event
 //			return nil
@@ -44,32 +44,40 @@ SPDX-License-Identifier: Apache-2.0
 //		log.Fatalf("failed to create receiver: %v", err)
 //	}
 //
-//	// Use with CloudEvents HTTP receiver
-//	c, err := cloudevents.NewClientHTTP()
-//	if err != nil {
-//		log.Fatalf("failed to create client: %v", err)
+//	if err := http.ListenAndServe(":8080", h); err != nil {
+//		log.Fatalf("server exited: %v", err)
 //	}
-//	if err := c.StartReceiver(ctx, handler); err != nil {
-//		log.Fatalf("failed to start receiver: %v", err)
-//	}
+//
+// # Serving the Handler from New directly
+//
+// New returns the verifying [Handler] on its own, for callers composing it into an
+// existing pipeline. It reads the delivery's Authorization header from the HTTP request
+// data on its context, so whatever serves it must attach that data with
+// cehttp.WithRequestDataAtContext.
+//
+// The CloudEvents client cannot serve it. Its StartReceiver hands the handler the
+// receive loop's context rather than the request's, so the request data is never
+// present and every delivery fails. Passing cehttp.WithRequestDataAtContextMiddleware
+// to the client does not help: the middleware attaches the data to the request context,
+// which the client drops before invoking the handler. Use NewHTTPHandler instead.
 //
 // # Integration Patterns
 //
-// The receiver integrates with the CloudEvents SDK's HTTP protocol. It expects:
+// The receiver expects:
 //   - An Authorization header with a Bearer token
 //   - A CloudEvent payload in the request body
 //   - The token's digest claim to match the SHA-256 hash of the event data
 //
-// On authentication or authorization failure, the receiver returns an appropriate
-// HTTP status code (401 Unauthorized or 403 Forbidden) without invoking your handler.
-//
 // # Error Handling
 //
-// The receiver returns CloudEvents HTTP results for all authentication and authorization
-// failures. These are automatically converted to HTTP responses by the CloudEvents SDK:
-//   - 401 Unauthorized: Missing Authorization header
-//   - 403 Forbidden: Invalid token, wrong group, wrong subject, or digest mismatch
+// Verification failures are reported as CloudEvents HTTP results, which NewHTTPHandler
+// turns into responses:
+//   - 400 Bad Request: the body is not a well-formed CloudEvent
+//   - 401 Unauthorized: missing Authorization header
+//   - 403 Forbidden: invalid token, wrong group, wrong subject, or digest mismatch
+//   - 500 Internal Server Error: the handler was served without HTTP request data on
+//     the context, so the Authorization header could not be read
 //
-// Your handler function should return an error for processing failures. The CloudEvents
-// SDK will convert these to appropriate HTTP responses.
+// Your handler function should return an error for processing failures, which becomes a
+// 500 response.
 package receiver
