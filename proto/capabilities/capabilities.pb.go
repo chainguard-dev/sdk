@@ -292,6 +292,12 @@ const (
 	// Actions migration (opens a pull request), tracked via a long-running
 	// operation. Mutating, so distinct from the read-only actions catalog cap.
 	Capability_CAP_GUARDENER_ACTIONS_MIGRATE Capability = 2306
+	// guardener.scan.list gates listing summaries of the dependency scans
+	// guardener builds for the group's linked repositories.
+	Capability_CAP_GUARDENER_SCAN_LIST Capability = 2307
+	// guardener.scan.get gates reading one dependency scan by id (its declared
+	// artifacts and their relationships).
+	Capability_CAP_GUARDENER_SCAN_GET Capability = 2308
 	// MCP tool calls
 	Capability_CAP_MCP_TOOL_CALL Capability = 2401
 	// Skills registry — publishing skill artifacts to skills.cgr.dev
@@ -561,6 +567,8 @@ var (
 		2304:  "CAP_GUARDENER_ENTITLEMENT_MANAGE",
 		2305:  "CAP_GUARDENER_ENTITLEMENT_LIST",
 		2306:  "CAP_GUARDENER_ACTIONS_MIGRATE",
+		2307:  "CAP_GUARDENER_SCAN_LIST",
+		2308:  "CAP_GUARDENER_SCAN_GET",
 		2401:  "CAP_MCP_TOOL_CALL",
 		2501:  "CAP_SKILLS_PUBLISH",
 		2502:  "CAP_SKILLS_ENTITLEMENTS_CREATE",
@@ -775,6 +783,8 @@ var (
 		"CAP_GUARDENER_ENTITLEMENT_MANAGE":                   2304,
 		"CAP_GUARDENER_ENTITLEMENT_LIST":                     2305,
 		"CAP_GUARDENER_ACTIONS_MIGRATE":                      2306,
+		"CAP_GUARDENER_SCAN_LIST":                            2307,
+		"CAP_GUARDENER_SCAN_GET":                             2308,
 		"CAP_MCP_TOOL_CALL":                                  2401,
 		"CAP_SKILLS_PUBLISH":                                 2501,
 		"CAP_SKILLS_ENTITLEMENTS_CREATE":                     2502,
@@ -900,7 +910,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xb7s\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xb3t\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1090,7 +1100,9 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x1eCAP_GUARDENER_ASSOCIATION_LIST\x10\xff\x11\x1a&\xa8ˑM\xb5\x01\x9a\xaf\xa8\xd2\x05\x1aguardener.association.list\x12U\n" +
 	" CAP_GUARDENER_ENTITLEMENT_MANAGE\x10\x80\x12\x1a.\xa8ˑM\xb9\x01\x9a\xaf\xa8\xd2\x05\x1cguardener.entitlement.manage\xa0\xaf\xa8\xd2\x05\x01\x12K\n" +
 	"\x1eCAP_GUARDENER_ENTITLEMENT_LIST\x10\x81\x12\x1a&\xa8ˑM\xba\x01\x9a\xaf\xa8\xd2\x05\x1aguardener.entitlement.list\x12I\n" +
-	"\x1dCAP_GUARDENER_ACTIONS_MIGRATE\x10\x82\x12\x1a%\xa8ˑM\xbc\x01\x9a\xaf\xa8\xd2\x05\x19guardener.actions.migrate\x121\n" +
+	"\x1dCAP_GUARDENER_ACTIONS_MIGRATE\x10\x82\x12\x1a%\xa8ˑM\xbc\x01\x9a\xaf\xa8\xd2\x05\x19guardener.actions.migrate\x12=\n" +
+	"\x17CAP_GUARDENER_SCAN_LIST\x10\x83\x12\x1a\x1f\xa8ˑM\xd9\x01\x9a\xaf\xa8\xd2\x05\x13guardener.scan.list\x12;\n" +
+	"\x16CAP_GUARDENER_SCAN_GET\x10\x84\x12\x1a\x1e\xa8ˑM\xda\x01\x9a\xaf\xa8\xd2\x05\x12guardener.scan.get\x121\n" +
 	"\x11CAP_MCP_TOOL_CALL\x10\xe1\x12\x1a\x19\xa8ˑM\x80\x01\x9a\xaf\xa8\xd2\x05\rmcp.tool.call\x123\n" +
 	"\x12CAP_SKILLS_PUBLISH\x10\xc5\x13\x1a\x1a\xa8ˑM\x89\x01\x9a\xaf\xa8\xd2\x05\x0eskills.publish\x12K\n" +
 	"\x1eCAP_SKILLS_ENTITLEMENTS_CREATE\x10\xc6\x13\x1a&\xa8ˑM\x8a\x01\x9a\xaf\xa8\xd2\x05\x1askills.entitlements.create\x12G\n" +

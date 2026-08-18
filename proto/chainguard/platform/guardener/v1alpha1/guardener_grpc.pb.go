@@ -27,6 +27,8 @@ const (
 	Guardener_UpdateEntitlement_FullMethodName     = "/chainguard.platform.guardener.v1alpha1.Guardener/UpdateEntitlement"
 	Guardener_MigrateRepository_FullMethodName     = "/chainguard.platform.guardener.v1alpha1.Guardener/MigrateRepository"
 	Guardener_GetMigrationOperation_FullMethodName = "/chainguard.platform.guardener.v1alpha1.Guardener/GetMigrationOperation"
+	Guardener_ListScans_FullMethodName             = "/chainguard.platform.guardener.v1alpha1.Guardener/ListScans"
+	Guardener_GetScan_FullMethodName               = "/chainguard.platform.guardener.v1alpha1.Guardener/GetScan"
 )
 
 // GuardenerClient is the client API for Guardener service.
@@ -34,9 +36,10 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
 // Guardener is the customer-facing surface for the guardener platform. It covers
-// a group's guardener entitlement (settings only support can change) and the
+// a group's guardener entitlement (settings only support can change), the
 // on-demand GitHub Actions migration API (enqueue a migration for a repository
-// and track it via a long-running operation).
+// and track it via a long-running operation), and read access to the dependency
+// scans guardener continuously builds for the group's linked repositories.
 type GuardenerClient interface {
 	// GetEntitlement returns the guardener entitlement for a group. A group with no
 	// configured entitlement returns the default (repo_visibility_scope
@@ -59,6 +62,18 @@ type GuardenerClient interface {
 	// previously returned by MigrateRepository. The operation name embeds the
 	// owning group's UIDP; group must match and is the IAM scope.
 	GetMigrationOperation(ctx context.Context, in *GetMigrationOperationRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
+	// ListScans lists summaries of a group's dependency scans — one per
+	// repository, its most recent scan — newest first, optionally filtered to
+	// one repository. Scans are built continuously for the repositories of the
+	// group's linked GitHub installations; a group (or filtered repository)
+	// with no scans yields an empty list. Each summary carries the scan's id,
+	// resolvable to the full scan via GetScan.
+	ListScans(ctx context.Context, in *ListScansRequest, opts ...grpc.CallOption) (*ListScansResponse, error)
+	// GetScan returns one dependency scan by the id a ListScans summary
+	// carried: every declared artifact (its purl and the files that declared
+	// it) and the relationships between artifacts. NOT_FOUND means the scan
+	// does not exist for the group (or expired).
+	GetScan(ctx context.Context, in *GetScanRequest, opts ...grpc.CallOption) (*Scan, error)
 }
 
 type guardenerClient struct {
@@ -109,14 +124,35 @@ func (c *guardenerClient) GetMigrationOperation(ctx context.Context, in *GetMigr
 	return out, nil
 }
 
+func (c *guardenerClient) ListScans(ctx context.Context, in *ListScansRequest, opts ...grpc.CallOption) (*ListScansResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListScansResponse)
+	err := c.cc.Invoke(ctx, Guardener_ListScans_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *guardenerClient) GetScan(ctx context.Context, in *GetScanRequest, opts ...grpc.CallOption) (*Scan, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Scan)
+	err := c.cc.Invoke(ctx, Guardener_GetScan_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GuardenerServer is the server API for Guardener service.
 // All implementations must embed UnimplementedGuardenerServer
 // for forward compatibility.
 //
 // Guardener is the customer-facing surface for the guardener platform. It covers
-// a group's guardener entitlement (settings only support can change) and the
+// a group's guardener entitlement (settings only support can change), the
 // on-demand GitHub Actions migration API (enqueue a migration for a repository
-// and track it via a long-running operation).
+// and track it via a long-running operation), and read access to the dependency
+// scans guardener continuously builds for the group's linked repositories.
 type GuardenerServer interface {
 	// GetEntitlement returns the guardener entitlement for a group. A group with no
 	// configured entitlement returns the default (repo_visibility_scope
@@ -139,6 +175,18 @@ type GuardenerServer interface {
 	// previously returned by MigrateRepository. The operation name embeds the
 	// owning group's UIDP; group must match and is the IAM scope.
 	GetMigrationOperation(context.Context, *GetMigrationOperationRequest) (*longrunningpb.Operation, error)
+	// ListScans lists summaries of a group's dependency scans — one per
+	// repository, its most recent scan — newest first, optionally filtered to
+	// one repository. Scans are built continuously for the repositories of the
+	// group's linked GitHub installations; a group (or filtered repository)
+	// with no scans yields an empty list. Each summary carries the scan's id,
+	// resolvable to the full scan via GetScan.
+	ListScans(context.Context, *ListScansRequest) (*ListScansResponse, error)
+	// GetScan returns one dependency scan by the id a ListScans summary
+	// carried: every declared artifact (its purl and the files that declared
+	// it) and the relationships between artifacts. NOT_FOUND means the scan
+	// does not exist for the group (or expired).
+	GetScan(context.Context, *GetScanRequest) (*Scan, error)
 	mustEmbedUnimplementedGuardenerServer()
 }
 
@@ -160,6 +208,12 @@ func (UnimplementedGuardenerServer) MigrateRepository(context.Context, *MigrateR
 }
 func (UnimplementedGuardenerServer) GetMigrationOperation(context.Context, *GetMigrationOperationRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetMigrationOperation not implemented")
+}
+func (UnimplementedGuardenerServer) ListScans(context.Context, *ListScansRequest) (*ListScansResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListScans not implemented")
+}
+func (UnimplementedGuardenerServer) GetScan(context.Context, *GetScanRequest) (*Scan, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetScan not implemented")
 }
 func (UnimplementedGuardenerServer) mustEmbedUnimplementedGuardenerServer() {}
 func (UnimplementedGuardenerServer) testEmbeddedByValue()                   {}
@@ -254,6 +308,42 @@ func _Guardener_GetMigrationOperation_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Guardener_ListScans_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListScansRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GuardenerServer).ListScans(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Guardener_ListScans_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GuardenerServer).ListScans(ctx, req.(*ListScansRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Guardener_GetScan_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetScanRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GuardenerServer).GetScan(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Guardener_GetScan_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GuardenerServer).GetScan(ctx, req.(*GetScanRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Guardener_ServiceDesc is the grpc.ServiceDesc for Guardener service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -276,6 +366,14 @@ var Guardener_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMigrationOperation",
 			Handler:    _Guardener_GetMigrationOperation_Handler,
+		},
+		{
+			MethodName: "ListScans",
+			Handler:    _Guardener_ListScans_Handler,
+		},
+		{
+			MethodName: "GetScan",
+			Handler:    _Guardener_GetScan_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -335,6 +335,12 @@ enum Capability {
   // Actions migration (opens a pull request), tracked via a long-running
   // operation. Mutating, so distinct from the read-only actions catalog cap.
   CAP_GUARDENER_ACTIONS_MIGRATE = 2306 [(name) = "guardener.actions.migrate", (bit) = 188];
+  // guardener.scan.list gates listing summaries of the dependency scans
+  // guardener builds for the group's linked repositories.
+  CAP_GUARDENER_SCAN_LIST = 2307 [(name) = "guardener.scan.list", (bit) = 217];
+  // guardener.scan.get gates reading one dependency scan by id (its declared
+  // artifacts and their relationships).
+  CAP_GUARDENER_SCAN_GET = 2308 [(name) = "guardener.scan.get", (bit) = 218];
 
   // MCP tool calls
   CAP_MCP_TOOL_CALL = 2401 [(name) = "mcp.tool.call", (bit) = 128];
@@ -445,5 +451,5 @@ enum Capability {
   CAP_ACTIONS_LIST = 2700 [(name) = "actions.list", (bit) = 164];
 
   reserved 1;
-  // next bit: 217
+  // next bit: 219
 }

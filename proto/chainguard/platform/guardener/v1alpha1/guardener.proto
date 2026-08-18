@@ -18,9 +18,10 @@ option java_outer_classname = "GuardenerProto";
 option java_package = "com.chainguard.platform.guardener.v1alpha1";
 
 // Guardener is the customer-facing surface for the guardener platform. It covers
-// a group's guardener entitlement (settings only support can change) and the
+// a group's guardener entitlement (settings only support can change), the
 // on-demand GitHub Actions migration API (enqueue a migration for a repository
-// and track it via a long-running operation).
+// and track it via a long-running operation), and read access to the dependency
+// scans guardener continuously builds for the group's linked repositories.
 service Guardener {
   // GetEntitlement returns the guardener entitlement for a group. A group with no
   // configured entitlement returns the default (repo_visibility_scope
@@ -95,6 +96,48 @@ service Guardener {
     };
     option (chainguard.annotations.mcp) = {
       description: "Get the state of a guardener migration long-running operation by its name."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // ListScans lists summaries of a group's dependency scans — one per
+  // repository, its most recent scan — newest first, optionally filtered to
+  // one repository. Scans are built continuously for the repositories of the
+  // group's linked GitHub installations; a group (or filtered repository)
+  // with no scans yields an empty list. Each summary carries the scan's id,
+  // resolvable to the full scan via GetScan.
+  rpc ListScans(ListScansRequest) returns (ListScansResponse) {
+    option (google.api.http) = {get: "/guardener/v1alpha1/{group=**}/scans"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_GUARDENER_SCAN_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List summaries of a group's guardener dependency scans (one per repository, newest first): scan id, repository, commit, and scan time. Resolve a summary's id with GetScan."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // GetScan returns one dependency scan by the id a ListScans summary
+  // carried: every declared artifact (its purl and the files that declared
+  // it) and the relationships between artifacts. NOT_FOUND means the scan
+  // does not exist for the group (or expired).
+  rpc GetScan(GetScanRequest) returns (Scan) {
+    option (google.api.http) = {get: "/guardener/v1alpha1/{group=**}/scans/{id}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_GUARDENER_SCAN_GET]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get one guardener dependency scan by id: declared artifacts (purl and declaring file paths) and the relationships between them."
       read_only: true
       destructive: false
       idempotent: true
@@ -217,4 +260,109 @@ message MigrateOperationResponse {
   // True when the run completed but produced no pull request (opted out, no
   // edits, or no net changes).
   bool no_op = 2;
+}
+
+message ListScansRequest {
+  // UIDP of the caller's group; the IAM scope. Scans are stored per group, so
+  // this scopes the listing to the group's own scans.
+  string group = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Optional: filters the listing to one repository, as its host-prefixed
+  // path, e.g. "github.com/owner/repo". Carried as a query parameter over
+  // HTTP: a group UIDP and a repository path are both hierarchical, and only
+  // one of them can be a multi-segment URL path variable. The field is a
+  // path, not a fixed segment count, so forges with nested namespaces (e.g.
+  // GitLab subgroups) can be supported without a request change; only
+  // github.com repositories are scanned today.
+  string repo = 2;
+}
+
+message ListScansResponse {
+  // The matching scan summaries, newest first (one per repository: its most
+  // recent scan).
+  repeated ScanSummary scans = 1;
+}
+
+// ScanSummary identifies one dependency scan without its artifact payload.
+message ScanSummary {
+  // Opaque id of the scan, unique within the group; resolve it to the full
+  // scan with GetScan. Ids are stable for the lifetime of the scan but carry
+  // no format guarantee — treat them as opaque tokens.
+  string id = 1;
+
+  // The repository that was scanned, as its host-prefixed path, e.g.
+  // "github.com/owner/repo".
+  string repo = 2;
+
+  // The commit that was scanned (the repository's default-branch HEAD at scan
+  // time).
+  string commit_sha = 3;
+
+  // When the scan ran.
+  google.protobuf.Timestamp scan_time = 4;
+}
+
+message GetScanRequest {
+  // UIDP of the caller's group; the IAM scope. Scan ids only resolve within
+  // the group that owns them.
+  string group = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The scan id, from a ListScans summary.
+  string id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// Scan is one dependency scan of a repository at a commit: the declared
+// artifacts and the relationships between them.
+message Scan {
+  // Opaque id of the scan (see ScanSummary.id).
+  string id = 1;
+
+  // The repository that was scanned, as its host-prefixed path, e.g.
+  // "github.com/owner/repo".
+  string repo = 2;
+
+  // The commit that was scanned (the repository's default-branch HEAD at scan
+  // time).
+  string commit_sha = 3;
+
+  // When the scan ran.
+  google.protobuf.Timestamp scan_time = 4;
+
+  // The artifacts the repository declares.
+  repeated ScanArtifact artifacts = 5;
+
+  // The relationships between artifacts.
+  repeated ScanRelationship relationships = 6;
+}
+
+// ScanArtifact is one declared artifact found by a scan.
+message ScanArtifact {
+  // Opaque identifier of the artifact within this scan; the join key for
+  // ScanRelationship endpoints.
+  string id = 1;
+
+  // Package URL (https://github.com/package-url/purl-spec) of the artifact.
+  string purl = 2;
+
+  // Repository-relative paths of the files that declared the artifact (e.g.
+  // "go.mod", "service/Dockerfile").
+  repeated string paths = 3;
+}
+
+// ScanRelationship is one relationship between two artifacts of a scan.
+message ScanRelationship {
+  // ScanArtifact.id of the relationship's source.
+  string from = 1;
+
+  // ScanArtifact.id of the relationship's target.
+  string to = 2;
+
+  // The relationship type (e.g. "dependency-of").
+  string type = 3;
 }
