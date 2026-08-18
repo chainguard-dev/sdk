@@ -19,6 +19,14 @@ const (
 
 	// RepoUpdatedEventType is the cloudevents event type for registry repo updated
 	RepoUpdatedEventType = "dev.chainguard.api.platform.registry.repo.updated.v1"
+
+	// OverlayBindingCreatedEventType is the cloudevents event type for registry
+	// overlay binding created
+	OverlayBindingCreatedEventType = "dev.chainguard.api.platform.registry.overlay_binding.created.v1"
+
+	// OverlayBindingDeletedEventType is the cloudevents event type for registry
+	// overlay binding deleted
+	OverlayBindingDeletedEventType = "dev.chainguard.api.platform.registry.overlay_binding.deleted.v1"
 )
 
 // PullEvent describes an item being pulled from the registry.
