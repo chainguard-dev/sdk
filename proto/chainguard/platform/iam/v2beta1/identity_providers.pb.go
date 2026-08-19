@@ -772,6 +772,7 @@ type GenerateScimTokenResponse struct {
 	// The plaintext SCIM bearer token, returned exactly once. Store it now: it is
 	// never retrievable again, and only its SHA-256 digest is persisted.
 	// Format: "cgscim_" followed by 64 hexadecimal characters.
+	// Sensitive: marked debug_redact so redaction-aware log formatting omits it.
 	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 	// The SCIM endpoint the identity provider must be configured to call.
 	EndpointUrl string `protobuf:"bytes,2,opt,name=endpoint_url,json=endpointUrl,proto3" json:"endpoint_url,omitempty"`
@@ -948,6 +949,7 @@ type RegenerateScimTokenResponse struct {
 	// The plaintext SCIM bearer token, returned exactly once. Store it now: it is
 	// never retrievable again, and only its SHA-256 digest is persisted.
 	// Format: "cgscim_" followed by 64 hexadecimal characters.
+	// Sensitive: marked debug_redact so redaction-aware log formatting omits it.
 	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 	// The SCIM endpoint the identity provider must be configured to call.
 	EndpointUrl string `protobuf:"bytes,2,opt,name=endpoint_url,json=endpointUrl,proto3" json:"endpoint_url,omitempty"`
@@ -1332,6 +1334,7 @@ type IdentityProvider_OIDC struct {
 	// fields present in the request body, so sending an empty client_secret
 	// will clear it; set the update mask explicitly (or use the generated
 	// gRPC clients, which send only the fields you set) to avoid this.
+	// Sensitive: marked debug_redact so redaction-aware log formatting omits it.
 	ClientSecret string `protobuf:"bytes,3,opt,name=client_secret,json=clientSecret,proto3" json:"client_secret,omitempty"`
 	// Additional scopes to request for ID tokens from the upstream IdP.
 	// Scope openid is always requested as part of the authentication flow.
@@ -1541,7 +1544,7 @@ var File_chainguard_platform_iam_v2beta1_identity_providers_proto protoreflect.F
 
 const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = "" +
 	"\n" +
-	"8chainguard/platform/iam/v2beta1/identity_providers.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xc5\r\n" +
+	"8chainguard/platform/iam/v2beta1/identity_providers.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xc8\r\n" +
 	"\x10IdentityProvider\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
@@ -1553,11 +1556,11 @@ const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = ""
 	"updateTime\x12'\n" +
 	"\fdefault_role\x18\x06 \x01(\tB\x04\xe2A\x01\x02R\vdefaultRole\x12R\n" +
 	"\x04oidc\x18\x14 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.OIDCB\x04\xe2A\x01\x01H\x00R\x04oidc\x12P\n" +
-	"\x04scim\x18\x15 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.SCIMB\x04\xe2A\x01\x03R\x04scim\x1a\x81\x04\n" +
+	"\x04scim\x18\x15 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.SCIMB\x04\xe2A\x01\x03R\x04scim\x1a\x84\x04\n" +
 	"\x04OIDC\x12\x1c\n" +
 	"\x06issuer\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x06issuer\x12!\n" +
-	"\tclient_id\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\bclientId\x12)\n" +
-	"\rclient_secret\x18\x03 \x01(\tB\x04\xe2A\x01\x01R\fclientSecret\x121\n" +
+	"\tclient_id\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\bclientId\x12,\n" +
+	"\rclient_secret\x18\x03 \x01(\tB\a\xe2A\x01\x01\x80\x01\x01R\fclientSecret\x121\n" +
 	"\x11additional_scopes\x18\x04 \x03(\tB\x04\xe2A\x01\x01R\x10additionalScopes\x12'\n" +
 	"\fgroups_claim\x18\x05 \x01(\tB\x04\xe2A\x01\x01R\vgroupsClaim\x12x\n" +
 	"\x10correlation_rule\x18\x06 \x01(\x0e2F.chainguard.platform.iam.v2beta1.IdentityProvider.OIDC.CorrelationRuleB\x05\xe2A\x02\x01\x05R\x0fcorrelationRule\x12'\n" +
@@ -1618,9 +1621,9 @@ const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = ""
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x13identityProviderUid\x12A\n" +
 	"\vexpire_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x01R\n" +
 	"expireTime\x12)\n" +
-	"\rnever_expires\x18\x03 \x01(\bB\x04\xe2A\x01\x01R\fneverExpires\"\xd9\x01\n" +
-	"\x19GenerateScimTokenResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\x12!\n" +
+	"\rnever_expires\x18\x03 \x01(\bB\x04\xe2A\x01\x01R\fneverExpires\"\xde\x01\n" +
+	"\x19GenerateScimTokenResponse\x12\x19\n" +
+	"\x05token\x18\x01 \x01(\tB\x03\x80\x01\x01R\x05token\x12!\n" +
 	"\fendpoint_url\x18\x02 \x01(\tR\vendpointUrl\x12;\n" +
 	"\vexpire_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"expireTime\x122\n" +
@@ -1633,9 +1636,9 @@ const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = ""
 	"\vexpire_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x01R\n" +
 	"expireTime\x12\x18\n" +
 	"\x04etag\x18\x04 \x01(\tB\x04\xe2A\x01\x02R\x04etag\x12)\n" +
-	"\rnever_expires\x18\x05 \x01(\bB\x04\xe2A\x01\x01R\fneverExpires\"\xfc\x02\n" +
-	"\x1bRegenerateScimTokenResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\x12!\n" +
+	"\rnever_expires\x18\x05 \x01(\bB\x04\xe2A\x01\x01R\fneverExpires\"\x81\x03\n" +
+	"\x1bRegenerateScimTokenResponse\x12\x19\n" +
+	"\x05token\x18\x01 \x01(\tB\x03\x80\x01\x01R\x05token\x12!\n" +
 	"\fendpoint_url\x18\x02 \x01(\tR\vendpointUrl\x12;\n" +
 	"\vexpire_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"expireTime\x122\n" +

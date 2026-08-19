@@ -343,7 +343,11 @@ message IdentityProvider {
     // fields present in the request body, so sending an empty client_secret
     // will clear it; set the update mask explicitly (or use the generated
     // gRPC clients, which send only the fields you set) to avoid this.
-    string client_secret = 3 [(google.api.field_behavior) = OPTIONAL];
+    // Sensitive: marked debug_redact so redaction-aware log formatting omits it.
+    string client_secret = 3 [
+      (google.api.field_behavior) = OPTIONAL,
+      debug_redact = true
+    ];
 
     // Additional scopes to request for ID tokens from the upstream IdP.
     // Scope openid is always requested as part of the authentication flow.
@@ -574,7 +578,8 @@ message GenerateScimTokenResponse {
   // The plaintext SCIM bearer token, returned exactly once. Store it now: it is
   // never retrievable again, and only its SHA-256 digest is persisted.
   // Format: "cgscim_" followed by 64 hexadecimal characters.
-  string token = 1;
+  // Sensitive: marked debug_redact so redaction-aware log formatting omits it.
+  string token = 1 [debug_redact = true];
 
   // The SCIM endpoint the identity provider must be configured to call.
   string endpoint_url = 2;
@@ -625,7 +630,8 @@ message RegenerateScimTokenResponse {
   // The plaintext SCIM bearer token, returned exactly once. Store it now: it is
   // never retrievable again, and only its SHA-256 digest is persisted.
   // Format: "cgscim_" followed by 64 hexadecimal characters.
-  string token = 1;
+  // Sensitive: marked debug_redact so redaction-aware log formatting omits it.
+  string token = 1 [debug_redact = true];
 
   // The SCIM endpoint the identity provider must be configured to call.
   string endpoint_url = 2;

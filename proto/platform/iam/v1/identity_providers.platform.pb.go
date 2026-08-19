@@ -561,6 +561,7 @@ type GenerateScimTokenResponse struct {
 	// token is the plaintext SCIM bearer token, returned exactly once. Store it
 	// now: it is never retrievable again, and only its SHA-256 digest is
 	// persisted. Format: "cgscim_" followed by 64 hexadecimal characters.
+	// Sensitive: marked debug_redact so redaction-aware log formatting omits it.
 	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 	// endpoint_url is the SCIM endpoint the identity provider must be configured
 	// to call.
@@ -741,6 +742,7 @@ type RegenerateScimTokenResponse struct {
 	// token is the plaintext SCIM bearer token, returned exactly once. Store it
 	// now: it is never retrievable again, and only its SHA-256 digest is
 	// persisted. Format: "cgscim_" followed by 64 hexadecimal characters.
+	// Sensitive: marked debug_redact so redaction-aware log formatting omits it.
 	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 	// endpoint_url is the SCIM endpoint the identity provider must be configured
 	// to call.
@@ -1107,8 +1109,10 @@ func (x *SetScimEnabledResponse) GetEtag() string {
 type IdentityProvider_OIDC struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Issuer URL (e.g https://accounts.google.com)
-	Issuer       string `protobuf:"bytes,1,opt,name=issuer,proto3" json:"issuer,omitempty"`
-	ClientId     string `protobuf:"bytes,2,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	Issuer   string `protobuf:"bytes,1,opt,name=issuer,proto3" json:"issuer,omitempty"`
+	ClientId string `protobuf:"bytes,2,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	// Sensitive: a long-lived confidential-client credential. Marked
+	// debug_redact so redaction-aware log formatting omits it.
 	ClientSecret string `protobuf:"bytes,3,opt,name=client_secret,json=clientSecret,proto3" json:"client_secret,omitempty"`
 	// Additional scopes to request for ID tokens
 	AdditionalScopes []string `protobuf:"bytes,4,rep,name=additional_scopes,json=additionalScopes,proto3" json:"additional_scopes,omitempty"`
@@ -1314,7 +1318,7 @@ var File_identity_providers_platform_proto protoreflect.FileDescriptor
 
 const file_identity_providers_platform_proto_rawDesc = "" +
 	"\n" +
-	"!identity_providers.platform.proto\x12\x17chainguard.platform.iam\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xb6\n" +
+	"!identity_providers.platform.proto\x12\x17chainguard.platform.iam\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xbb\n" +
 	"\n" +
 	"\x10IdentityProvider\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x12\n" +
@@ -1322,11 +1326,11 @@ const file_identity_providers_platform_proto_rawDesc = "" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12!\n" +
 	"\fdefault_role\x18\x04 \x01(\tR\vdefaultRole\x12D\n" +
 	"\x04oidc\x18\x14 \x01(\v2..chainguard.platform.iam.IdentityProvider.OIDCH\x00R\x04oidc\x12B\n" +
-	"\x04scim\x18\x15 \x01(\v2..chainguard.platform.iam.IdentityProvider.SCIMR\x04scim\x1a\xce\x03\n" +
+	"\x04scim\x18\x15 \x01(\v2..chainguard.platform.iam.IdentityProvider.SCIMR\x04scim\x1a\xd3\x03\n" +
 	"\x04OIDC\x12\x16\n" +
 	"\x06issuer\x18\x01 \x01(\tR\x06issuer\x12\x1b\n" +
-	"\tclient_id\x18\x02 \x01(\tR\bclientId\x12#\n" +
-	"\rclient_secret\x18\x03 \x01(\tR\fclientSecret\x12+\n" +
+	"\tclient_id\x18\x02 \x01(\tR\bclientId\x12(\n" +
+	"\rclient_secret\x18\x03 \x01(\tB\x03\x80\x01\x01R\fclientSecret\x12+\n" +
 	"\x11additional_scopes\x18\x04 \x03(\tR\x10additionalScopes\x12!\n" +
 	"\fgroups_claim\x18\x05 \x01(\tR\vgroupsClaim\x12i\n" +
 	"\x10correlation_rule\x18\x06 \x01(\x0e2>.chainguard.platform.iam.IdentityProvider.OIDC.CorrelationRuleR\x0fcorrelationRule\x12!\n" +
@@ -1365,9 +1369,9 @@ const file_identity_providers_platform_proto_rawDesc = "" +
 	"\x14identity_provider_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x12identityProviderId\x12;\n" +
 	"\vexpire_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"expireTime\x12#\n" +
-	"\rnever_expires\x18\x03 \x01(\bR\fneverExpires\"\xd7\x01\n" +
-	"\x19GenerateScimTokenResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\x12!\n" +
+	"\rnever_expires\x18\x03 \x01(\bR\fneverExpires\"\xdc\x01\n" +
+	"\x19GenerateScimTokenResponse\x12\x19\n" +
+	"\x05token\x18\x01 \x01(\tB\x03\x80\x01\x01R\x05token\x12!\n" +
 	"\fendpoint_url\x18\x02 \x01(\tR\vendpointUrl\x12;\n" +
 	"\vexpire_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"expireTime\x120\n" +
@@ -1379,9 +1383,9 @@ const file_identity_providers_platform_proto_rawDesc = "" +
 	"\vexpire_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"expireTime\x12\x12\n" +
 	"\x04etag\x18\x04 \x01(\tR\x04etag\x12#\n" +
-	"\rnever_expires\x18\x05 \x01(\bR\fneverExpires\"\xfa\x02\n" +
-	"\x1bRegenerateScimTokenResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\x12!\n" +
+	"\rnever_expires\x18\x05 \x01(\bR\fneverExpires\"\xff\x02\n" +
+	"\x1bRegenerateScimTokenResponse\x12\x19\n" +
+	"\x05token\x18\x01 \x01(\tB\x03\x80\x01\x01R\x05token\x12!\n" +
 	"\fendpoint_url\x18\x02 \x01(\tR\vendpointUrl\x12;\n" +
 	"\vexpire_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"expireTime\x120\n" +

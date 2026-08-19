@@ -220,7 +220,9 @@ message IdentityProvider {
     string issuer = 1;
 
     string client_id = 2;
-    string client_secret = 3;
+    // Sensitive: a long-lived confidential-client credential. Marked
+    // debug_redact so redaction-aware log formatting omits it.
+    string client_secret = 3 [debug_redact = true];
 
     // Additional scopes to request for ID tokens
     repeated string additional_scopes = 4;
@@ -378,7 +380,8 @@ message GenerateScimTokenResponse {
   // token is the plaintext SCIM bearer token, returned exactly once. Store it
   // now: it is never retrievable again, and only its SHA-256 digest is
   // persisted. Format: "cgscim_" followed by 64 hexadecimal characters.
-  string token = 1;
+  // Sensitive: marked debug_redact so redaction-aware log formatting omits it.
+  string token = 1 [debug_redact = true];
 
   // endpoint_url is the SCIM endpoint the identity provider must be configured
   // to call.
@@ -430,7 +433,8 @@ message RegenerateScimTokenResponse {
   // token is the plaintext SCIM bearer token, returned exactly once. Store it
   // now: it is never retrievable again, and only its SHA-256 digest is
   // persisted. Format: "cgscim_" followed by 64 hexadecimal characters.
-  string token = 1;
+  // Sensitive: marked debug_redact so redaction-aware log formatting omits it.
+  string token = 1 [debug_redact = true];
 
   // endpoint_url is the SCIM endpoint the identity provider must be configured
   // to call.
