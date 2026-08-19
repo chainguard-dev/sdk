@@ -7,10 +7,17 @@ package auth
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"os/exec"
+	"strings"
 
 	"golang.org/x/oauth2"
 )
+
+// maxStderrBytes caps how much of a failed chainctl invocation's stderr we put
+// in the returned error, so a runaway command cannot blow up the message.
+const maxStderrBytes = 2048
 
 type Option func(*options)
 
@@ -60,15 +67,39 @@ func (ts *chainctlTokenSource) Token() (*oauth2.Token, error) {
 	cmd := exec.CommandContext(ts.ctx, "chainctl", args...)
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, err
+		return nil, commandError(cmd, err)
 	}
 	t := string(out)
 	exp, err := ExtractExpiry(t)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("reading the expiry of the token printed by %q: %w", strings.Join(cmd.Args, " "), err)
 	}
 	return &oauth2.Token{
 		AccessToken: t,
 		Expiry:      exp,
 	}, nil
+}
+
+// commandError describes a failed chainctl invocation.
+//
+// exec.Cmd.Output captures the command's stderr in exec.ExitError.Stderr, but
+// the Error method of that type reports only the exit status. A caller that
+// prints the bare error therefore learns that chainctl failed and nothing about
+// why, so this pulls the stderr into the message.
+//
+// The stderr goes through %q because it is output from another program that a
+// caller writes to a terminal or a log: quoting escapes any control or ANSI
+// bytes in it. The command's stdout never appears in the message — on the
+// success path stdout is the bearer token itself.
+func commandError(cmd *exec.Cmd, err error) error {
+	var exitErr *exec.ExitError
+	if errors.As(err, &exitErr) {
+		if stderr := strings.TrimSpace(string(exitErr.Stderr)); stderr != "" {
+			if len(stderr) > maxStderrBytes {
+				stderr = stderr[:maxStderrBytes] + " (truncated)"
+			}
+			return fmt.Errorf("running %q: %w: %q", strings.Join(cmd.Args, " "), err, stderr)
+		}
+	}
+	return fmt.Errorf("running %q: %w", strings.Join(cmd.Args, " "), err)
 }
