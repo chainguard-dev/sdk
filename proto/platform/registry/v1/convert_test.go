@@ -29,10 +29,12 @@ func TestRoundTrip(t *testing.T) {
 		// RuntimeKeyring is deliberately absent from ApkoConfig: customer
 		// signing keys ride CustomOverlay.contents.runtime_keyring, never the
 		// raw apko service surface.
+		// Format (apko v1.2.38+) is not supported either: the build service
+		// only emits tar layers. TestFormatIsDropped pins that.
 		// We ignore them here to avoid the diff.
 		// https://github.com/chainguard-dev/apko/blob/main/pkg/build/types/types.go#L185-L186
 		if d := cmp.Diff(apko, apko2,
-			cmpopts.IgnoreFields(apkotypes.ImageConfiguration{}, "Include"),
+			cmpopts.IgnoreFields(apkotypes.ImageConfiguration{}, "Include", "Format"),
 			cmpopts.IgnoreFields(apkotypes.ImageContents{}, "BaseImage", "RuntimeKeyring")); d != "" {
 			t.Errorf("apko diff(-want,+got): %s", d)
 			return false
@@ -56,6 +58,17 @@ func TestRoundTrip(t *testing.T) {
 		},
 	}); err != nil {
 		t.Error(err)
+	}
+}
+
+// TestFormatIsDropped pins the omission TestRoundTrip ignores: apko's layer
+// format does not cross this boundary, so a config asking for erofs builds a
+// tar layer rather than failing. Delete this test if ApkoConfig grows a format
+// field.
+func TestFormatIsDropped(t *testing.T) {
+	in := apkotypes.ImageConfiguration{Format: apkotypes.LayerFormatErofs}
+	if got := ToApkoNative(ToApkoProto(in)).Format; got != "" {
+		t.Errorf("Format survived the round trip: got %q, want %q", got, "")
 	}
 }
 
