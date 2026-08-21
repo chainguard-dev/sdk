@@ -9,6 +9,8 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"math/rand/v2"
@@ -165,6 +167,68 @@ func refreshRetryable(err error) bool {
 	default:
 		return false
 	}
+}
+
+// gatewayStatusCode reverses the issuer grpc-gateway's gRPC-code -> HTTP-status
+// mapping (grpc-gateway's runtime.HTTPStatusFromCode, which this issuer uses
+// with no custom error handler) so the HTTP/1-downgrade path can hand the retry
+// predicates the same gRPC code the native gRPC path would have seen.
+//
+// The mapping is deliberately narrow — only statuses whose origin code is
+// retry-relevant are recovered:
+//
+//   - 503 Service Unavailable  -> Unavailable      (retried by Exchange + Refresh)
+//   - 504 Gateway Timeout      -> DeadlineExceeded (retried by Refresh only)
+//   - 502 Bad Gateway          -> Unavailable      (an intermediary LB/proxy is
+//     unreachable; grpc-gateway never emits 502, so this is unambiguously an
+//     infra transient)
+//
+// 500 is intentionally NOT recovered: grpc-gateway collapses Internal, Unknown,
+// and DataLoss all onto 500, so the origin code is ambiguous. Recovering it as
+// Unavailable (the prior behavior) made Exchange retry an Internal that
+// retryable() deliberately excludes as a possible non-transient server bug.
+// Leaving it codes.Unknown means neither predicate retries it — matching
+// Exchange's gRPC behavior and erring against amplifying a real server fault.
+// Every other status (4xx, 429, ...) is likewise left codes.Unknown.
+func gatewayStatusCode(httpStatus int) codes.Code {
+	switch httpStatus {
+	case http.StatusServiceUnavailable, http.StatusBadGateway:
+		return codes.Unavailable
+	case http.StatusGatewayTimeout:
+		return codes.DeadlineExceeded
+	default:
+		return codes.Unknown
+	}
+}
+
+// codeFromGatewayStatusBody recovers the gRPC status code the issuer's
+// grpc-gateway serialized into the error body. Its DefaultHTTPErrorHandler
+// writes a google.rpc.Status as JSON ({"code":<int>,"message":...}); that
+// numeric code is exact, where the HTTP status is not — the gateway collapses
+// Internal, Unknown, and DataLoss all onto 500. Keying on the body therefore
+// lets the Exchange/Refresh predicates make the same decision the native gRPC
+// path would (e.g. Refresh retries a body-Internal that a 500 alone would hide).
+//
+// Returns codes.OK (the zero value, "no usable code") when the body is not a
+// grpc-gateway status — e.g. a raw 5xx page from an intermediary LB/proxy — so
+// the caller falls back to the HTTP-status reversal (gatewayStatusCode).
+func codeFromGatewayStatusBody(body []byte) codes.Code {
+	// Pointer distinguishes an absent "code" field from an explicit 0.
+	var s struct {
+		Code *int32 `json:"code"`
+	}
+	if err := json.Unmarshal(body, &s); err != nil || s.Code == nil {
+		return codes.OK
+	}
+	// Range-check on the int32 domain before converting to codes.Code (a
+	// uint32): accept only the canonical gRPC codes Canceled..Unauthenticated
+	// (1..16), which rejects OK-on-an-error, negatives, and out-of-range garbage
+	// from a hostile or non-gateway body.
+	n := *s.Code
+	if n < int32(codes.Canceled) || n > int32(codes.Unauthenticated) {
+		return codes.OK
+	}
+	return codes.Code(n) //nolint:gosec // G115: n range-checked to [1,16] above
 }
 
 // backoffWithJitter returns retryBackoff with uniform jitter in
@@ -338,6 +402,25 @@ func WithIdentityProvider(idp string) ExchangerOption {
 
 type HTTP1DowngradeExchanger struct {
 	opts options
+	// backoffTimer returns a channel that fires after a jittered retry backoff.
+	// A per-instance field (not a package global) so a test can drive
+	// retryHTTP1's ctx.Done() branch deterministically on its own exchanger
+	// without racing other tests under t.Parallel(). Optional: the zero value
+	// (nil) is safe — retryHTTP1 reads it through nextBackoff, which supplies
+	// the real jittered timer when unset. This matters because ExchangePair
+	// builds this struct directly, bypassing the constructor. See backoffWithJitter.
+	backoffTimer func() <-chan time.Time
+}
+
+// nextBackoff returns the retry-backoff channel, defaulting to the real
+// jittered timer when backoffTimer is unset. Every construction path
+// (NewHTTP1DowngradeExchanger and the direct literal in ExchangePair) is
+// therefore safe against a nil field; only tests override it.
+func (i *HTTP1DowngradeExchanger) nextBackoff() <-chan time.Time {
+	if i.backoffTimer != nil {
+		return i.backoffTimer()
+	}
+	return time.After(backoffWithJitter())
 }
 
 func NewHTTP1DowngradeExchanger(issuer, audience string, opts ...ExchangerOption) *HTTP1DowngradeExchanger {
@@ -445,10 +528,25 @@ func (i *HTTP1DowngradeExchanger) doHTTP1(ctx context.Context,
 		// Surface the error body (bounded); STS returns the actual failure
 		// reason there, and the status line alone is not actionable.
 		b, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
+		detail := resp.Status
 		if msg := bytes.TrimSpace(b); len(msg) > 0 {
-			return fmt.Errorf("%s: %s", resp.Status, msg)
+			detail = fmt.Sprintf("%s: %s", resp.Status, msg)
 		}
-		return fmt.Errorf("%s", resp.Status)
+		// Tag the error with the gRPC status code so the retry loops in
+		// Exchange/Refresh — which key on it via retryable/refreshRetryable —
+		// make the *same* decision they would on the native gRPC path. Prefer
+		// the exact code grpc-gateway serialized into the body; fall back to
+		// reversing the HTTP status for a 5xx from an intermediary (LB/proxy)
+		// that isn't a gateway status body. codes.Unknown from either leaves the
+		// error a plain errors.New, which neither predicate retries. See CUS-1189.
+		code := codeFromGatewayStatusBody(b)
+		if code == codes.OK {
+			code = gatewayStatusCode(resp.StatusCode)
+		}
+		if code != codes.Unknown {
+			return status.Error(code, detail)
+		}
+		return errors.New(detail)
 	}
 
 	// Bounded like the error path; token-pair responses are a few KiB.
@@ -485,7 +583,7 @@ func (i *HTTP1DowngradeExchanger) Exchange(ctx context.Context, token string, op
 		form.Set("identity_provider", o.identityProvider)
 	}
 	out := new(oidc.RawToken)
-	if err := i.doHTTP1(ctx, token, "/sts/exchange", form, out, o.userAgent); err != nil {
+	if err := i.retryHTTP1(ctx, token, "/sts/exchange", form, out, o.userAgent, retryable); err != nil {
 		return TokenPair{}, err
 	}
 
@@ -518,9 +616,46 @@ func (i *HTTP1DowngradeExchanger) Refresh(ctx context.Context, token string, opt
 	}
 
 	out := new(oidc.TokenPair)
-	if err := i.doHTTP1(ctx, token, "/sts/exchange_refresh_token", form, out, o.userAgent); err != nil {
+	if err := i.retryHTTP1(ctx, token, "/sts/exchange_refresh_token", form, out, o.userAgent, refreshRetryable); err != nil {
 		return "", "", err
 	}
 
 	return out.GetToken().GetToken(), out.GetRefreshToken().GetToken(), nil
+}
+
+// retryHTTP1 wraps doHTTP1 in the same retry loop the gRPC exchanger (impl)
+// applies: up to maxRetries+1 attempts, jittered backoff between them, and the
+// caller's isRetryable predicate deciding which failures are transient. This
+// gives the HTTP/1-downgrade path parity with the gRPC path — a transient
+// failure (identified by the gRPC code doHTTP1 recovers from the response,
+// exactly as the gRPC path would see it) is retried rather than surfaced on the
+// first attempt. The predicate differs by call site: Exchange passes retryable
+// (codes.Unavailable only), Refresh passes refreshRetryable (also Internal and
+// DeadlineExceeded), matching impl.Exchange and impl.Refresh respectively.
+func (i *HTTP1DowngradeExchanger) retryHTTP1(ctx context.Context, token, path string, form url.Values, out proto.Message, userAgent string, isRetryable func(error) bool) error {
+	var lastErr error
+	for attempt := range maxRetries + 1 {
+		if attempt > 0 {
+			select {
+			case <-ctx.Done():
+				// lastErr is always set here: the loop only reaches attempt>0
+				// after a retryable failure recorded it. Preserve it as string
+				// context so a backoff-timeout error still shows the "why" (e.g.
+				// the last 503). Only ctx.Err() is %w-wrapped, so errors.Is /
+				// status.Code still see the cancellation, not the transient error.
+				return fmt.Errorf("%w (last STS attempt: %s)", ctx.Err(), lastErr.Error())
+			case <-i.nextBackoff():
+			}
+		}
+		err := i.doHTTP1(ctx, token, path, form, out, userAgent)
+		if err == nil {
+			return nil
+		}
+		if !isRetryable(err) {
+			return err
+		}
+		lastErr = err
+		clog.WarnContextf(ctx, "STS HTTP/1 exchange attempt %d failed (%v); retrying", attempt+1, status.Code(err))
+	}
+	return lastErr
 }
