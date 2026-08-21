@@ -209,6 +209,13 @@ const (
 	// refreshed automatically, so it is reserved for Chainguard support.
 	Capability_CAP_LIBRARIES_REQUEST_GROUPS_REFRESH_COVERAGE Capability = 1880
 	Capability_CAP_LIBRARIES_REQUEST_GROUPS_DELETE_SUBMITTED Capability = 1881
+	// Remote registries: an org's configured upstream registries for virtual
+	// repositories. Creating or deleting one changes where the org's builds
+	// pull dependencies from, so both are owner-only alongside the library
+	// policy capabilities; list is ordinary member read.
+	Capability_CAP_LIBRARIES_REMOTE_REGISTRIES_CREATE Capability = 1882
+	Capability_CAP_LIBRARIES_REMOTE_REGISTRIES_LIST   Capability = 1883
+	Capability_CAP_LIBRARIES_REMOTE_REGISTRIES_DELETE Capability = 1884
 	// Registry Entitlements
 	Capability_CAP_REGISTRY_ENTITLEMENTS_LIST          Capability = 1680
 	Capability_CAP_REGISTRY_ENTITLEMENTS_CREATE        Capability = 1681
@@ -521,6 +528,9 @@ var (
 		1879:  "CAP_LIBRARIES_REQUEST_GROUPS_ITEMS_UPDATE",
 		1880:  "CAP_LIBRARIES_REQUEST_GROUPS_REFRESH_COVERAGE",
 		1881:  "CAP_LIBRARIES_REQUEST_GROUPS_DELETE_SUBMITTED",
+		1882:  "CAP_LIBRARIES_REMOTE_REGISTRIES_CREATE",
+		1883:  "CAP_LIBRARIES_REMOTE_REGISTRIES_LIST",
+		1884:  "CAP_LIBRARIES_REMOTE_REGISTRIES_DELETE",
 		1680:  "CAP_REGISTRY_ENTITLEMENTS_LIST",
 		1681:  "CAP_REGISTRY_ENTITLEMENTS_CREATE",
 		1682:  "CAP_REGISTRY_ENTITLEMENTS_DELETE",
@@ -737,6 +747,9 @@ var (
 		"CAP_LIBRARIES_REQUEST_GROUPS_ITEMS_UPDATE":          1879,
 		"CAP_LIBRARIES_REQUEST_GROUPS_REFRESH_COVERAGE":      1880,
 		"CAP_LIBRARIES_REQUEST_GROUPS_DELETE_SUBMITTED":      1881,
+		"CAP_LIBRARIES_REMOTE_REGISTRIES_CREATE":             1882,
+		"CAP_LIBRARIES_REMOTE_REGISTRIES_LIST":               1883,
+		"CAP_LIBRARIES_REMOTE_REGISTRIES_DELETE":             1884,
 		"CAP_REGISTRY_ENTITLEMENTS_LIST":                     1680,
 		"CAP_REGISTRY_ENTITLEMENTS_CREATE":                   1681,
 		"CAP_REGISTRY_ENTITLEMENTS_DELETE":                   1682,
@@ -910,7 +923,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xb3t\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xc6v\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1052,7 +1065,10 @@ const file_capabilities_proto_rawDesc = "" +
 	"#CAP_LIBRARIES_REQUEST_GROUPS_SUBMIT\x10\xd6\x0e\x1a+\xa8ˑM\xd5\x01\x9a\xaf\xa8\xd2\x05\x1flibraries.request_groups.submit\x12a\n" +
 	")CAP_LIBRARIES_REQUEST_GROUPS_ITEMS_UPDATE\x10\xd7\x0e\x1a1\xa8ˑM\xd6\x01\x9a\xaf\xa8\xd2\x05%libraries.request_groups.items.update\x12o\n" +
 	"-CAP_LIBRARIES_REQUEST_GROUPS_REFRESH_COVERAGE\x10\xd8\x0e\x1a;\xa8ˑM\xd7\x01\x9a\xaf\xa8\xd2\x05)libraries.request_groups.refresh_coverage\xa0\xaf\xa8\xd2\x05\x01\x12o\n" +
-	"-CAP_LIBRARIES_REQUEST_GROUPS_DELETE_SUBMITTED\x10\xd9\x0e\x1a;\xa8ˑM\xd8\x01\x9a\xaf\xa8\xd2\x05)libraries.request_groups.delete_submitted\xa0\xaf\xa8\xd2\x05\x01\x12J\n" +
+	"-CAP_LIBRARIES_REQUEST_GROUPS_DELETE_SUBMITTED\x10\xd9\x0e\x1a;\xa8ˑM\xd8\x01\x9a\xaf\xa8\xd2\x05)libraries.request_groups.delete_submitted\xa0\xaf\xa8\xd2\x05\x01\x12[\n" +
+	"&CAP_LIBRARIES_REMOTE_REGISTRIES_CREATE\x10\xda\x0e\x1a.\xa8ˑM\xdb\x01\x9a\xaf\xa8\xd2\x05\"libraries.remote_registries.create\x12W\n" +
+	"$CAP_LIBRARIES_REMOTE_REGISTRIES_LIST\x10\xdb\x0e\x1a,\xa8ˑM\xdc\x01\x9a\xaf\xa8\xd2\x05 libraries.remote_registries.list\x12[\n" +
+	"&CAP_LIBRARIES_REMOTE_REGISTRIES_DELETE\x10\xdc\x0e\x1a.\xa8ˑM\xdd\x01\x9a\xaf\xa8\xd2\x05\"libraries.remote_registries.delete\x12J\n" +
 	"\x1eCAP_REGISTRY_ENTITLEMENTS_LIST\x10\x90\r\x1a%\xa8ˑMW\x9a\xaf\xa8\xd2\x05\x1aregistry.entitlements.list\x12N\n" +
 	" CAP_REGISTRY_ENTITLEMENTS_CREATE\x10\x91\r\x1a'\xa8ˑM`\x9a\xaf\xa8\xd2\x05\x1cregistry.entitlements.create\x12N\n" +
 	" CAP_REGISTRY_ENTITLEMENTS_DELETE\x10\x92\r\x1a'\xa8ˑMa\x9a\xaf\xa8\xd2\x05\x1cregistry.entitlements.delete\x12W\n" +

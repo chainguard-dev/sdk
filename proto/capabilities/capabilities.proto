@@ -239,6 +239,14 @@ enum Capability {
   CAP_LIBRARIES_REQUEST_GROUPS_REFRESH_COVERAGE = 1880 [(name) = "libraries.request_groups.refresh_coverage", (bit) = 215, (internal_only) = true];
   CAP_LIBRARIES_REQUEST_GROUPS_DELETE_SUBMITTED = 1881 [(name) = "libraries.request_groups.delete_submitted", (bit) = 216, (internal_only) = true];
 
+  // Remote registries: an org's configured upstream registries for virtual
+  // repositories. Creating or deleting one changes where the org's builds
+  // pull dependencies from, so both are owner-only alongside the library
+  // policy capabilities; list is ordinary member read.
+  CAP_LIBRARIES_REMOTE_REGISTRIES_CREATE = 1882 [(name) = "libraries.remote_registries.create", (bit) = 219];
+  CAP_LIBRARIES_REMOTE_REGISTRIES_LIST = 1883 [(name) = "libraries.remote_registries.list", (bit) = 220];
+  CAP_LIBRARIES_REMOTE_REGISTRIES_DELETE = 1884 [(name) = "libraries.remote_registries.delete", (bit) = 221];
+
   // Registry Entitlements
   CAP_REGISTRY_ENTITLEMENTS_LIST = 1680 [(name) = "registry.entitlements.list", (bit) = 87];
   CAP_REGISTRY_ENTITLEMENTS_CREATE = 1681 [(name) = "registry.entitlements.create", (bit) = 96];
@@ -451,5 +459,5 @@ enum Capability {
   CAP_ACTIONS_LIST = 2700 [(name) = "actions.list", (bit) = 164];
 
   reserved 1;
-  // next bit: 219
+  // next bit: 222
 }
