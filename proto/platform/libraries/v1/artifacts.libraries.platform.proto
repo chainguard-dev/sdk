@@ -103,6 +103,14 @@ message ArtifactFilter {
   // Flag to also include upstream-registry packages. By default only
   // Chainguard-built packages are returned.
   bool include_upstream = 5;
+  // The source types to include: artifacts with at least one version of a
+  // listed source type are returned, and version-derived fields reflect only
+  // those versions. If empty, the default Chainguard-built view is returned
+  // (internal and remediated versions; upstream-only artifacts hidden).
+  // Versions whose origin is unknown match no listed type: they appear only
+  // in the default view and when every source type is listed.
+  // Cannot be combined with include_upstream, remediated, or cuda_version.
+  repeated SourceType source_types = 6;
 
   // Pagination options
 
@@ -127,6 +135,12 @@ message ArtifactVersionFilter {
   // Flag to also include upstream-registry versions. By default only
   // Chainguard-built versions are returned.
   bool include_upstream = 2;
+  // The source types to include. If empty, the default Chainguard-built view
+  // is returned (internal and remediated versions). Versions whose origin is
+  // unknown match no listed type: they appear only in the default view and
+  // when every source type is listed. Cannot be combined with
+  // include_upstream.
+  repeated SourceType source_types = 3;
 }
 
 message ArtifactVersionList {
