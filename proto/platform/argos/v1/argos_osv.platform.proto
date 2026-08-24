@@ -127,6 +127,37 @@ message DatabaseSpecific {
   // defect_kind is the coarse defect class: "missing-control",
   // "incorrect-control", or "configuration-default".
   string defect_kind = 3 [json_name = "defect_kind"];
+
+  // chainguard carries the Chainguard-artifact claims that are deliberately
+  // kept out of the OSV ranges: the exact published Chainguard rebuilds that
+  // contain a fix for this vulnerability. The `ranges` on the Affected entry
+  // stay authoritative for public upstream releases only; a Chainguard
+  // artifact inherits the vulnerability status of the upstream version it was
+  // built from unless it is named here.
+  ChainguardExtension chainguard = 4 [json_name = "chainguard"];
+}
+
+// ChainguardExtension is the Chainguard-artifact section of an Affected
+// entry's database_specific: artifacts distributed through Chainguard
+// Libraries whose vulnerability status has diverged from the upstream version
+// they were built from.
+message ChainguardExtension {
+  // fixed_artifacts lists the exact published Chainguard rebuilds that
+  // contain a fix for this vulnerability, ordered by purl.
+  repeated FixedArtifact fixed_artifacts = 1 [json_name = "fixed_artifacts"];
+}
+
+// FixedArtifact names one published Chainguard rebuild containing a fix.
+message FixedArtifact {
+  // purl is the exact versioned package URL of the published rebuild, e.g.
+  // "pkg:maven/io.netty/netty-codec-dns@1.4.2-0.cgp.1".
+  string purl = 1;
+
+  // upstream_version is the public upstream version the rebuild was built
+  // from, e.g. "1.4.2" — the version whose vulnerability status the artifact
+  // would inherit had Chainguard not applied the fix. Empty when the
+  // published version does not carry a recognized rebuild suffix.
+  string upstream_version = 2 [json_name = "upstream_version"];
 }
 
 // SinkLocator locates one confirmed sink of a defect within the upstream
