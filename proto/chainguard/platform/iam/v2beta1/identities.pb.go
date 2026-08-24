@@ -906,8 +906,7 @@ type IdentityMetadata struct {
 	Company string `protobuf:"bytes,5,opt,name=company,proto3" json:"company,omitempty"`
 	// Whether the user has opted to receive updates from Chainguard.
 	// (-- api-linter: core::0140::prepositions=disabled
-	//
-	//	aip.dev/not-precedent: "opt_in" is a compound term matching the v1 field name. --)
+	//     aip.dev/not-precedent: "opt_in" is a compound term matching the v1 field name. --)
 	UpdatesOptIn bool `protobuf:"varint,6,opt,name=updates_opt_in,json=updatesOptIn,proto3" json:"updates_opt_in,omitempty"`
 	// The product the user is interested in.
 	Product string `protobuf:"bytes,7,opt,name=product,proto3" json:"product,omitempty"`

@@ -487,8 +487,7 @@ type DocumentEvent struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// When the event occurred.
 	// (-- api-linter: core::0142::time-field-names=disabled
-	//
-	//	aip.dev/not-precedent: Field name matches the v1 API for consistency. --)
+	//     aip.dev/not-precedent: Field name matches the v1 API for consistency. --)
 	Timestamp *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 	// Event-specific data.
 	//
@@ -1109,8 +1108,7 @@ type ResolvedVulnsReport struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The date these vulnerabilities were resolved.
 	// (-- api-linter: core::0142::time-field-names=disabled
-	//
-	//	aip.dev/not-precedent: Field represents a calendar date, not a point-in-time. --)
+	//     aip.dev/not-precedent: Field represents a calendar date, not a point-in-time. --)
 	Date *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=date,proto3" json:"date,omitempty"`
 	// Vulnerabilities resolved on this date.
 	ResolvedVulns []*ResolvedVuln `protobuf:"bytes,2,rep,name=resolved_vulns,json=resolvedVulns,proto3" json:"resolved_vulns,omitempty"`

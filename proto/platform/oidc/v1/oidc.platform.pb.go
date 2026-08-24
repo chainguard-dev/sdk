@@ -43,8 +43,8 @@ type ExchangeRefreshTokenRequest struct {
 	//
 	// For example, given a role binding on group `foo` with id `foo/rb-id-1`
 	// and a role binding on group `foo/bar` with id `foo/bar/rb-id-2`:
-	//   - given scopes = [foo, foo/bar] => {foo: [foo/rb-id-1], foo/bar: [foo/bar/rb-id-2]}
-	//   - given scopes = [foo/bar] => {foo/bar: [foo/rb-id-1, foo/bar/rb-id-2]}
+	//  - given scopes = [foo, foo/bar] => {foo: [foo/rb-id-1], foo/bar: [foo/bar/rb-id-2]}
+	//  - given scopes = [foo/bar] => {foo/bar: [foo/rb-id-1, foo/bar/rb-id-2]}
 	Scopes        []string `protobuf:"bytes,4,rep,name=scopes,proto3" json:"scopes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -132,8 +132,8 @@ type ExchangeRequest struct {
 	//
 	// For example, given a role binding on group `foo` with id `foo/rb-id-1`
 	// and a role binding on group `foo/bar` with id `foo/bar/rb-id-2`:
-	//   - given scopes = [foo, foo/bar] => {foo: [foo/rb-id-1], foo/bar: [foo/bar/rb-id-2]}
-	//   - given scopes = [foo/bar] => {foo/bar: [foo/rb-id-1, foo/bar/rb-id-2]}
+	//  - given scopes = [foo, foo/bar] => {foo: [foo/rb-id-1], foo/bar: [foo/bar/rb-id-2]}
+	//  - given scopes = [foo/bar] => {foo/bar: [foo/rb-id-1, foo/bar/rb-id-2]}
 	Scopes        []string `protobuf:"bytes,8,rep,name=scopes,proto3" json:"scopes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

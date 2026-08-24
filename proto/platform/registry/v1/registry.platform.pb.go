@@ -4049,7 +4049,7 @@ func (x *BuildReportList) GetReports() []*BuildReport {
 // BuildStatus is an overview of build results for a given org.
 type BuildStatus struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The list of all repos with failures.
+	//  The list of all repos with failures.
 	Failures      []*BuildStatus_Failures `protobuf:"bytes,1,rep,name=failures,proto3" json:"failures,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

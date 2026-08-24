@@ -366,9 +366,8 @@ type Advisory struct {
 	Aliases []string `protobuf:"bytes,13,rep,name=aliases,proto3" json:"aliases,omitempty"`
 	// Advisory events associated with this advisory (detected, fixed, etc).
 	// (-- api-linter: core::0122::embedded-resource=disabled
-	//
-	//	aip.dev/not-precedent: Advisory events are tightly coupled to advisories, and permissions are not
-	//	handled separately for advisories vs advisory events. --)
+	//     aip.dev/not-precedent: Advisory events are tightly coupled to advisories, and permissions are not
+	//     handled separately for advisories vs advisory events. --)
 	Events []*AdvisoryEvent `protobuf:"bytes,14,rep,name=events,proto3" json:"events,omitempty"`
 	// The advisory ID from the GitHub advisories repositories, if this advisory was migrated.
 	LegacyAdvisoryId *string `protobuf:"bytes,15,opt,name=legacy_advisory_id,json=legacyAdvisoryId,proto3,oneof" json:"legacy_advisory_id,omitempty"`
@@ -591,9 +590,8 @@ type AdvisoryEvent struct {
 	Reviewer string `protobuf:"bytes,5,opt,name=reviewer,proto3" json:"reviewer,omitempty"`
 	// The state of review for the event.
 	// (-- api-linter: core::0216::state-field-output-only=disabled
-	//
-	//	aip.dev/not-precedent: Advisory event review state is set by the caller in response to their review.
-	//	This field is designed to mimic a code review state. --)
+	//     aip.dev/not-precedent: Advisory event review state is set by the caller in response to their review.
+	//     This field is designed to mimic a code review state. --)
 	ReviewState ReviewState `protobuf:"varint,6,opt,name=review_state,json=reviewState,proto3,enum=chainguard.platform.vulnerabilities.v2beta1.ReviewState" json:"review_state,omitempty"`
 	// The original CVE Dashboard issue
 	Issue *string `protobuf:"bytes,7,opt,name=issue,proto3,oneof" json:"issue,omitempty"`
@@ -910,9 +908,8 @@ type ListAdvisoriesRequest struct {
 	// statuses will be returned. This is useful for review workflows where users need to see
 	// only events requiring action.
 	// (-- api-linter: core::0216::state-field-output-only=disabled
-	//
-	//	aip.dev/not-precedent: Event review states are provided by the caller to filter
-	//	the response to list advisories. --)
+	//     aip.dev/not-precedent: Event review states are provided by the caller to filter
+	//     the response to list advisories. --)
 	EventReviewStates []ReviewState `protobuf:"varint,21,rep,packed,name=event_review_states,json=eventReviewStates,proto3,enum=chainguard.platform.vulnerabilities.v2beta1.ReviewState" json:"event_review_states,omitempty"`
 	// Filters by event author email
 	// When specified, only advisories containing at least one event created by the specified

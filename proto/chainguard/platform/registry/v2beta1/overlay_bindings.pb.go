@@ -43,9 +43,8 @@ type OverlayBinding struct {
 	// rendered packages-only) so list responses are audit-complete without
 	// a follow-up call.
 	// (-- api-linter: core::0122::embedded-resource=disabled
-	//
-	//	aip.dev/not-precedent: audit-complete rendering embeds the overlay
-	//	content in every response by design (CON-2306). --)
+	//     aip.dev/not-precedent: audit-complete rendering embeds the overlay
+	//     content in every response by design (CON-2306). --)
 	Overlay *Overlay `protobuf:"bytes,3,opt,name=overlay,proto3" json:"overlay,omitempty"`
 	// The exact tag names this binding applies to.
 	Tags          []string `protobuf:"bytes,4,rep,name=tags,proto3" json:"tags,omitempty"`

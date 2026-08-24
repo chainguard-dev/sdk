@@ -57,9 +57,9 @@ type GroupsServiceClient interface {
 	// intentionally empty: the lookup is driven entirely by the caller's token.
 	//
 	// Returns NOT_FOUND when:
-	//   - no verified root group matches the caller's email domain;
-	//   - the caller's token is not from a trusted upstream identity provider; or
-	//   - the caller's email domain is on the blocked-domains list (free email,
+	//   * no verified root group matches the caller's email domain;
+	//   * the caller's token is not from a trusted upstream identity provider; or
+	//   * the caller's email domain is on the blocked-domains list (free email,
 	//     known competitor, etc.).
 	//
 	// These cases are intentionally collapsed into a single response so callers
@@ -203,9 +203,9 @@ type GroupsServiceServer interface {
 	// intentionally empty: the lookup is driven entirely by the caller's token.
 	//
 	// Returns NOT_FOUND when:
-	//   - no verified root group matches the caller's email domain;
-	//   - the caller's token is not from a trusted upstream identity provider; or
-	//   - the caller's email domain is on the blocked-domains list (free email,
+	//   * no verified root group matches the caller's email domain;
+	//   * the caller's token is not from a trusted upstream identity provider; or
+	//   * the caller's email domain is on the blocked-domains list (free email,
 	//     known competitor, etc.).
 	//
 	// These cases are intentionally collapsed into a single response so callers

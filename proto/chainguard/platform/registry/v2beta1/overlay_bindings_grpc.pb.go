@@ -49,9 +49,8 @@ type OverlayBindingsServiceClient interface {
 	// CreateOverlayBinding attaches an existing overlay to one repo under
 	// an exact-tag selector.
 	// (-- api-linter: core::0133::http-body=disabled
-	//
-	//	aip.dev/not-precedent: the request carries a reference + selector,
-	//	not an embedded resource, so the body maps the whole request. --)
+	//     aip.dev/not-precedent: the request carries a reference + selector,
+	//     not an embedded resource, so the body maps the whole request. --)
 	CreateOverlayBinding(ctx context.Context, in *CreateOverlayBindingRequest, opts ...grpc.CallOption) (*OverlayBinding, error)
 	// GetOverlayBinding retrieves a single overlay binding by UID.
 	GetOverlayBinding(ctx context.Context, in *GetOverlayBindingRequest, opts ...grpc.CallOption) (*OverlayBinding, error)
@@ -131,9 +130,8 @@ type OverlayBindingsServiceServer interface {
 	// CreateOverlayBinding attaches an existing overlay to one repo under
 	// an exact-tag selector.
 	// (-- api-linter: core::0133::http-body=disabled
-	//
-	//	aip.dev/not-precedent: the request carries a reference + selector,
-	//	not an embedded resource, so the body maps the whole request. --)
+	//     aip.dev/not-precedent: the request carries a reference + selector,
+	//     not an embedded resource, so the body maps the whole request. --)
 	CreateOverlayBinding(context.Context, *CreateOverlayBindingRequest) (*OverlayBinding, error)
 	// GetOverlayBinding retrieves a single overlay binding by UID.
 	GetOverlayBinding(context.Context, *GetOverlayBindingRequest) (*OverlayBinding, error)

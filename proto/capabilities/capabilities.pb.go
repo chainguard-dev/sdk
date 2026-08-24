@@ -332,11 +332,9 @@ const (
 	// submit, and cancel can be granted independently. Customer-facing: an org
 	// member holds these on the target group named by `chainctl skills harden
 	// --group`.
-	//
-	//	read   -> GetHardenOperation
-	//	write  -> HardenSkill (submit)
-	//	cancel -> CancelHardenOperation
-	//
+	//   read   -> GetHardenOperation
+	//   write  -> HardenSkill (submit)
+	//   cancel -> CancelHardenOperation
 	// These let a customer kick off and track a harden; they do NOT let the caller
 	// write the hardened output. Publishing the hardened artifact and recording the
 	// job result into the skills registry/catalog is done by internal identities

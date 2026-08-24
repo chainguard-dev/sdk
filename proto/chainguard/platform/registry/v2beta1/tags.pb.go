@@ -277,9 +277,8 @@ type ListTagsRequest struct {
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// The timestamp after which returned records were updated.
 	// (-- api-linter: core::0142::time-field-names=disabled
-	//
-	//	api-linter: core::0140::prepositions=disabled
-	//	aip.dev/not-precedent: This is a filter field, not a timestamp. --)
+	//     api-linter: core::0140::prepositions=disabled
+	//     aip.dev/not-precedent: This is a filter field, not a timestamp. --)
 	UpdatedSince *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=updated_since,json=updatedSince,proto3" json:"updated_since,omitempty"`
 	// Include tags of the form "sha256-*".
 	IncludeReferrers bool `protobuf:"varint,4,opt,name=include_referrers,json=includeReferrers,proto3" json:"include_referrers,omitempty"`

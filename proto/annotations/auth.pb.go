@@ -111,15 +111,15 @@ type IAM_Rules struct {
 	// A list of capabilities required by a particular API.
 	// This field is either scoped or unscoped, as determined
 	// by the field below.
-	//   - When it is "scoped", this field is combined with the
-	//     field designated by "(iam_scope) = true" (see below)
-	//     on the request message to indicate what capabilities
-	//     the caller needs at what scope in order to authorize
-	//     the action they are performing.
-	//   - When is it "unscoped", this field is used to determine
-	//     the set of scopes the caller has the appropriate access
-	//     to so that the RPC itself can scope down the results
-	//     it returns.
+	//  * When it is "scoped", this field is combined with the
+	//    field designated by "(iam_scope) = true" (see below)
+	//    on the request message to indicate what capabilities
+	//    the caller needs at what scope in order to authorize
+	//    the action they are performing.
+	//  * When is it "unscoped", this field is used to determine
+	//    the set of scopes the caller has the appropriate access
+	//    to so that the RPC itself can scope down the results
+	//    it returns.
 	Capabilities []capabilities.Capability `protobuf:"varint,1,rep,packed,name=capabilities,proto3,enum=chainguard.capabilities.Capability" json:"capabilities,omitempty"`
 	// Unscoped is set on APIs where the request itself doesn't
 	// carry a field with "iam_scope", and instead scopes itself
