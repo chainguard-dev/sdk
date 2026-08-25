@@ -23,13 +23,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ReposService_GetRepo_FullMethodName          = "/chainguard.platform.registry.v2.ReposService/GetRepo"
-	ReposService_CreateRepo_FullMethodName       = "/chainguard.platform.registry.v2.ReposService/CreateRepo"
-	ReposService_UpdateRepo_FullMethodName       = "/chainguard.platform.registry.v2.ReposService/UpdateRepo"
-	ReposService_DeleteRepo_FullMethodName       = "/chainguard.platform.registry.v2.ReposService/DeleteRepo"
-	ReposService_ListRepos_FullMethodName        = "/chainguard.platform.registry.v2.ReposService/ListRepos"
-	ReposService_GetRepoReadme_FullMethodName    = "/chainguard.platform.registry.v2.ReposService/GetRepoReadme"
-	ReposService_UpdateRepoReadme_FullMethodName = "/chainguard.platform.registry.v2.ReposService/UpdateRepoReadme"
+	ReposService_GetRepo_FullMethodName           = "/chainguard.platform.registry.v2.ReposService/GetRepo"
+	ReposService_CreateRepo_FullMethodName        = "/chainguard.platform.registry.v2.ReposService/CreateRepo"
+	ReposService_UpdateRepo_FullMethodName        = "/chainguard.platform.registry.v2.ReposService/UpdateRepo"
+	ReposService_DeleteRepo_FullMethodName        = "/chainguard.platform.registry.v2.ReposService/DeleteRepo"
+	ReposService_ListRepos_FullMethodName         = "/chainguard.platform.registry.v2.ReposService/ListRepos"
+	ReposService_ListCatalogImages_FullMethodName = "/chainguard.platform.registry.v2.ReposService/ListCatalogImages"
+	ReposService_GetRepoReadme_FullMethodName     = "/chainguard.platform.registry.v2.ReposService/GetRepoReadme"
+	ReposService_UpdateRepoReadme_FullMethodName  = "/chainguard.platform.registry.v2.ReposService/UpdateRepoReadme"
 )
 
 // ReposServiceClient is the client API for ReposService service.
@@ -48,6 +49,24 @@ type ReposServiceClient interface {
 	DeleteRepo(ctx context.Context, in *DeleteRepoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// ListRepos returns repositories based on filter criteria with pagination support.
 	ListRepos(ctx context.Context, in *ListReposRequest, opts ...grpc.CallOption) (*ListReposResponse, error)
+	// ListCatalogImages returns the Chainguard Images catalog: the images Chainguard
+	// publishes, each with the upstream images it replaces.
+	//
+	// It differs from ListRepos in what it is scoped to. ListRepos answers "which
+	// repositories can I pull", so it is bounded by the caller's entitlements.
+	// ListCatalogImages answers "what does Chainguard publish", which is the same
+	// for everyone, so it returns the full published catalog regardless of what the
+	// caller is entitled to. The call is authenticated and capability-gated like
+	// any other, but its result does not narrow to the caller's entitlements.
+	//
+	// Only the published Chainguard Images catalog is returned. Internal and
+	// build-artifact repositories are never included.
+	//
+	// Entries are Repo, the same resource ListRepos returns, because a catalog
+	// entry is the same repository read by someone who may not own it. The fields
+	// describing internal handling, sync_config and custom_overlay, are left
+	// unset; the rest describe what Chainguard publishes.
+	ListCatalogImages(ctx context.Context, in *ListCatalogImagesRequest, opts ...grpc.CallOption) (*ListReposResponse, error)
 	// GetRepoReadme retrieves the README for a repository.
 	GetRepoReadme(ctx context.Context, in *GetRepoReadmeRequest, opts ...grpc.CallOption) (*RepoReadme, error)
 	// UpdateRepoReadme updates the README for a repository.
@@ -112,6 +131,16 @@ func (c *reposServiceClient) ListRepos(ctx context.Context, in *ListReposRequest
 	return out, nil
 }
 
+func (c *reposServiceClient) ListCatalogImages(ctx context.Context, in *ListCatalogImagesRequest, opts ...grpc.CallOption) (*ListReposResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListReposResponse)
+	err := c.cc.Invoke(ctx, ReposService_ListCatalogImages_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *reposServiceClient) GetRepoReadme(ctx context.Context, in *GetRepoReadmeRequest, opts ...grpc.CallOption) (*RepoReadme, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RepoReadme)
@@ -148,6 +177,24 @@ type ReposServiceServer interface {
 	DeleteRepo(context.Context, *DeleteRepoRequest) (*emptypb.Empty, error)
 	// ListRepos returns repositories based on filter criteria with pagination support.
 	ListRepos(context.Context, *ListReposRequest) (*ListReposResponse, error)
+	// ListCatalogImages returns the Chainguard Images catalog: the images Chainguard
+	// publishes, each with the upstream images it replaces.
+	//
+	// It differs from ListRepos in what it is scoped to. ListRepos answers "which
+	// repositories can I pull", so it is bounded by the caller's entitlements.
+	// ListCatalogImages answers "what does Chainguard publish", which is the same
+	// for everyone, so it returns the full published catalog regardless of what the
+	// caller is entitled to. The call is authenticated and capability-gated like
+	// any other, but its result does not narrow to the caller's entitlements.
+	//
+	// Only the published Chainguard Images catalog is returned. Internal and
+	// build-artifact repositories are never included.
+	//
+	// Entries are Repo, the same resource ListRepos returns, because a catalog
+	// entry is the same repository read by someone who may not own it. The fields
+	// describing internal handling, sync_config and custom_overlay, are left
+	// unset; the rest describe what Chainguard publishes.
+	ListCatalogImages(context.Context, *ListCatalogImagesRequest) (*ListReposResponse, error)
 	// GetRepoReadme retrieves the README for a repository.
 	GetRepoReadme(context.Context, *GetRepoReadmeRequest) (*RepoReadme, error)
 	// UpdateRepoReadme updates the README for a repository.
@@ -176,6 +223,9 @@ func (UnimplementedReposServiceServer) DeleteRepo(context.Context, *DeleteRepoRe
 }
 func (UnimplementedReposServiceServer) ListRepos(context.Context, *ListReposRequest) (*ListReposResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListRepos not implemented")
+}
+func (UnimplementedReposServiceServer) ListCatalogImages(context.Context, *ListCatalogImagesRequest) (*ListReposResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListCatalogImages not implemented")
 }
 func (UnimplementedReposServiceServer) GetRepoReadme(context.Context, *GetRepoReadmeRequest) (*RepoReadme, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetRepoReadme not implemented")
@@ -294,6 +344,24 @@ func _ReposService_ListRepos_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ReposService_ListCatalogImages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListCatalogImagesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReposServiceServer).ListCatalogImages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReposService_ListCatalogImages_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReposServiceServer).ListCatalogImages(ctx, req.(*ListCatalogImagesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ReposService_GetRepoReadme_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetRepoReadmeRequest)
 	if err := dec(in); err != nil {
@@ -356,6 +424,10 @@ var ReposService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListRepos",
 			Handler:    _ReposService_ListRepos_Handler,
+		},
+		{
+			MethodName: "ListCatalogImages",
+			Handler:    _ReposService_ListCatalogImages_Handler,
 		},
 		{
 			MethodName: "GetRepoReadme",

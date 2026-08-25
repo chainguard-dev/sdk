@@ -24,6 +24,10 @@ type Clients interface {
 	ListReposIter(ctx context.Context, req *ListReposRequest) iter.Seq2[*Repo, error]
 	ListReposAll(ctx context.Context, req *ListReposRequest) ([]*Repo, error)
 
+	// Iterator methods for pagination - Catalog
+	ListCatalogImagesIter(ctx context.Context, req *ListCatalogImagesRequest) iter.Seq2[*Repo, error]
+	ListCatalogImagesAll(ctx context.Context, req *ListCatalogImagesRequest) ([]*Repo, error)
+
 	// Iterator methods for pagination - Tags
 	ListTagsIter(ctx context.Context, req *ListTagsRequest) iter.Seq2[*Tag, error]
 	ListTagsAll(ctx context.Context, req *ListTagsRequest) ([]*Tag, error)
@@ -83,6 +87,24 @@ func (c *clients) ListReposIter(ctx context.Context, req *ListReposRequest) iter
 // For large result sets, consider using ListReposIter directly to process items incrementally.
 func (c *clients) ListReposAll(ctx context.Context, req *ListReposRequest) ([]*Repo, error) {
 	return v2iter.All(c.ListReposIter(ctx, req))
+}
+
+// ListCatalogImagesIter returns an iterator over Chainguard catalog images matching
+// the request.
+func (c *clients) ListCatalogImagesIter(ctx context.Context, req *ListCatalogImagesRequest) iter.Seq2[*Repo, error] {
+	return v2iter.Paginate(ctx, req, "catalog images", func(ctx context.Context, r *ListCatalogImagesRequest) ([]*Repo, string, error) {
+		resp, err := c.ReposService().ListCatalogImages(ctx, r)
+		if err != nil {
+			return nil, "", err
+		}
+		return resp.GetRepos(), resp.GetNextPageToken(), nil
+	})
+}
+
+// ListCatalogImagesAll fetches all catalog images matching the request by automatically handling pagination.
+// For large result sets, consider using ListCatalogImagesIter directly to process items incrementally.
+func (c *clients) ListCatalogImagesAll(ctx context.Context, req *ListCatalogImagesRequest) ([]*Repo, error) {
+	return v2iter.All(c.ListCatalogImagesIter(ctx, req))
 }
 
 // ListTagsIter returns an iterator over tags matching the request.

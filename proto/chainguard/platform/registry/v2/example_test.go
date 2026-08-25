@@ -44,6 +44,20 @@ func ExampleClients_ListReposAll() {
 	// Output: func available
 }
 
+func ExampleClients_ListCatalogImagesIter() {
+	clients := registry.NewClientsFromConnection(nil)
+	_ = clients.ListCatalogImagesIter(context.Background(), &registry.ListCatalogImagesRequest{})
+	fmt.Println("iterator created")
+	// Output: iterator created
+}
+
+func ExampleClients_ListCatalogImagesAll() {
+	clients := registry.NewClientsFromConnection(nil)
+	_ = clients.ListCatalogImagesAll
+	fmt.Println("func available")
+	// Output: func available
+}
+
 func ExampleClients_ListTagsIter() {
 	clients := registry.NewClientsFromConnection(nil)
 	_ = clients.ListTagsIter(context.Background(), &registry.ListTagsRequest{})

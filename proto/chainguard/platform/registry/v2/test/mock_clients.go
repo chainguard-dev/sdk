@@ -55,6 +55,20 @@ func (m *MockClients) ListReposIter(ctx context.Context, req *registry.ListRepos
 	return test.MockIter(m.ListReposAll(ctx, req))
 }
 
+// ListCatalogImagesAll implements [v2.Clients].
+func (m *MockClients) ListCatalogImagesAll(ctx context.Context, req *registry.ListCatalogImagesRequest) ([]*registry.Repo, error) {
+	resp, err := m.ReposServiceClient.ListCatalogImages(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.GetRepos(), nil
+}
+
+// ListCatalogImagesIter implements [v2.Clients].
+func (m *MockClients) ListCatalogImagesIter(ctx context.Context, req *registry.ListCatalogImagesRequest) iter.Seq2[*registry.Repo, error] {
+	return test.MockIter(m.ListCatalogImagesAll(ctx, req))
+}
+
 // ListTagsAll implements [v2.Clients].
 func (m *MockClients) ListTagsAll(ctx context.Context, req *registry.ListTagsRequest) ([]*registry.Tag, error) {
 	resp, err := m.TagsServiceClient.ListTags(ctx, req)

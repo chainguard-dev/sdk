@@ -130,6 +130,40 @@ service ReposService {
     };
   }
 
+  // ListCatalogImages returns the Chainguard Images catalog: the images Chainguard
+  // publishes, each with the upstream images it replaces.
+  //
+  // It differs from ListRepos in what it is scoped to. ListRepos answers "which
+  // repositories can I pull", so it is bounded by the caller's entitlements.
+  // ListCatalogImages answers "what does Chainguard publish", which is the same
+  // for everyone, so it returns the full published catalog regardless of what the
+  // caller is entitled to. The call is authenticated and capability-gated like
+  // any other, but its result does not narrow to the caller's entitlements.
+  //
+  // Only the published Chainguard Images catalog is returned. Internal and
+  // build-artifact repositories are never included.
+  //
+  // Entries are Repo, the same resource ListRepos returns, because a catalog
+  // entry is the same repository read by someone who may not own it. The fields
+  // describing internal handling, sync_config and custom_overlay, are left
+  // unset; the rest describe what Chainguard publishes.
+  rpc ListCatalogImages(ListCatalogImagesRequest) returns (ListReposResponse) {
+    option (google.api.http) = {get: "/registry/v2/catalogImages"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST]
+        unscoped: true
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List the Chainguard Images catalog: published images and the upstream images each one replaces. Returns the full catalog regardless of the caller's entitlements."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
   // GetRepoReadme retrieves the README for a repository.
   rpc GetRepoReadme(GetRepoReadmeRequest) returns (RepoReadme) {
     option (google.api.http) = {get: "/registry/v2/repos/{uid=**}/readme"};
@@ -440,6 +474,34 @@ message UpdateRepoRequest {
   // (have non-default values). * is supported and interpreted as a full
   // replacement with the given field values.
   google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListCatalogImagesRequest is the request message for ListCatalogImages.
+message ListCatalogImagesRequest {
+  // Optional exact image name to filter by, e.g. "go". Matching is exact:
+  // "jdk" does not match "adoptium-jdk", and there is no prefix or substring
+  // form of this filter.
+  //
+  // The "chainctl images catalog --name" flag is a separate client-side
+  // substring filter applied over the whole catalog, and deliberately leaves
+  // this field unset. The two answer different questions despite sharing a
+  // name.
+  optional string name = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // Maximum number of results to return per page.
+  // Default: 50, Maximum: 200. A larger value is clamped, not rejected.
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Page token from a previous ListCatalogImages response.
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order results by field. Format: "field [asc|desc]"
+  // Default: "name asc"
+  // Note: Changing order_by between pages invalidates the page token.
+  string order_by = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of results to skip before returning, for random-access pagination.
+  int32 skip = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // ListReposRequest is the request message for ListRepos.
