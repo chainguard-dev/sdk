@@ -1379,6 +1379,13 @@ message GetRegistrySettingsRequest {
   string registry_id = 1 [(chainguard.annotations.iam_scope) = true];
 }
 
+// PackageLicense carries the effective-license string for one APK in an
+// image, keyed by PURL.
+message PackageLicense {
+  string purl = 1;
+  string license = 2;
+}
+
 // PolicyInput represents the set of attributes available for policy evaluation
 // on an image.
 message PolicyInput {
@@ -1392,4 +1399,11 @@ message PolicyInput {
   // Derived from package build timestamps to ensure reproducibility.
   // Consistent with the org.opencontainers.image.created annotation on the image.
   google.protobuf.Timestamp create_time = 3;
+
+  // Effective license of the image's main package, sourced from
+  // apks.license via image_main_packages.
+  string main_package_license = 4;
+
+  // Effective license of every APK in the image, keyed by PURL.
+  repeated PackageLicense packages = 5;
 }
