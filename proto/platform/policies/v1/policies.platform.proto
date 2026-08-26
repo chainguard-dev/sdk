@@ -566,8 +566,9 @@ message Override {
   // The id of the policy being waived.
   string policy_id = 2;
 
-  // The image manifest digest this override waives (e.g. "sha256:abc123...").
-  string digest = 3;
+  // Deprecated: use artifact_id. Populated with the artifact_id value so
+  // existing clients keep working.
+  string digest = 3 [deprecated = true];
 
   // The required justification for the waiver.
   string reason = 4;
@@ -578,6 +579,13 @@ message Override {
 
   // When the override was created.
   google.protobuf.Timestamp created_at = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The artifact this override waives: a manifest digest for container
+  // policies ("sha256:abc123...") or a PURL for library policies
+  // ("pkg:npm/left-pad@1.3.0"). Which form is expected follows from the
+  // policy's supported_resource_type — there is no separate discriminator.
+  // Exactly one of artifact_id or the deprecated digest may be set on create.
+  string artifact_id = 7;
 }
 
 message OverrideList {

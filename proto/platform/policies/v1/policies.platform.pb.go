@@ -1544,7 +1544,10 @@ type Override struct {
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// The id of the policy being waived.
 	PolicyId string `protobuf:"bytes,2,opt,name=policy_id,json=policyId,proto3" json:"policy_id,omitempty"`
-	// The image manifest digest this override waives (e.g. "sha256:abc123...").
+	// Deprecated: use artifact_id. Populated with the artifact_id value so
+	// existing clients keep working.
+	//
+	// Deprecated: Marked as deprecated in policies.platform.proto.
 	Digest string `protobuf:"bytes,3,opt,name=digest,proto3" json:"digest,omitempty"`
 	// The required justification for the waiver.
 	Reason string `protobuf:"bytes,4,opt,name=reason,proto3" json:"reason,omitempty"`
@@ -1552,7 +1555,13 @@ type Override struct {
 	// authenticated caller.
 	CreatedBy string `protobuf:"bytes,5,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
 	// When the override was created.
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// The artifact this override waives: a manifest digest for container
+	// policies ("sha256:abc123...") or a PURL for library policies
+	// ("pkg:npm/left-pad@1.3.0"). Which form is expected follows from the
+	// policy's supported_resource_type — there is no separate discriminator.
+	// Exactly one of artifact_id or the deprecated digest may be set on create.
+	ArtifactId    string `protobuf:"bytes,7,opt,name=artifact_id,json=artifactId,proto3" json:"artifact_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1601,6 +1610,7 @@ func (x *Override) GetPolicyId() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in policies.platform.proto.
 func (x *Override) GetDigest() string {
 	if x != nil {
 		return x.Digest
@@ -1627,6 +1637,13 @@ func (x *Override) GetCreatedAt() *timestamppb.Timestamp {
 		return x.CreatedAt
 	}
 	return nil
+}
+
+func (x *Override) GetArtifactId() string {
+	if x != nil {
+		return x.ArtifactId
+	}
+	return ""
 }
 
 type OverrideList struct {
@@ -2186,16 +2203,18 @@ const file_policies_platform_proto_rawDesc = "" +
 	"\border_by\x18\t \x01(\tB\x04\xe2A\x01\x01R\aorderBy\x12\x18\n" +
 	"\x04skip\x18\n" +
 	" \x01(\x05B\x04\xe2A\x01\x01R\x04skip\x12\x16\n" +
-	"\x06digest\x18\v \x01(\tR\x06digest\"\xd5\x01\n" +
+	"\x06digest\x18\v \x01(\tR\x06digest\"\xfa\x01\n" +
 	"\bOverride\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x1b\n" +
-	"\tpolicy_id\x18\x02 \x01(\tR\bpolicyId\x12\x16\n" +
-	"\x06digest\x18\x03 \x01(\tR\x06digest\x12\x16\n" +
+	"\tpolicy_id\x18\x02 \x01(\tR\bpolicyId\x12\x1a\n" +
+	"\x06digest\x18\x03 \x01(\tB\x02\x18\x01R\x06digest\x12\x16\n" +
 	"\x06reason\x18\x04 \x01(\tR\x06reason\x12#\n" +
 	"\n" +
 	"created_by\x18\x05 \x01(\tB\x04\xe2A\x01\x03R\tcreatedBy\x12?\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\tcreatedAt\"\xb2\x01\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\tcreatedAt\x12\x1f\n" +
+	"\vartifact_id\x18\a \x01(\tR\n" +
+	"artifactId\"\xb2\x01\n" +
 	"\fOverrideList\x12?\n" +
 	"\x05items\x18\x01 \x03(\v2).chainguard.platform.policies.v1.OverrideR\x05items\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
