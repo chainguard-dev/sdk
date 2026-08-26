@@ -23,9 +23,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Skills_ListSkills_FullMethodName  = "/chainguard.platform.skills.v1alpha1.Skills/ListSkills"
-	Skills_UpdateSkill_FullMethodName = "/chainguard.platform.skills.v1alpha1.Skills/UpdateSkill"
-	Skills_DeleteSkill_FullMethodName = "/chainguard.platform.skills.v1alpha1.Skills/DeleteSkill"
+	Skills_ListSkills_FullMethodName   = "/chainguard.platform.skills.v1alpha1.Skills/ListSkills"
+	Skills_SearchSkills_FullMethodName = "/chainguard.platform.skills.v1alpha1.Skills/SearchSkills"
+	Skills_UpdateSkill_FullMethodName  = "/chainguard.platform.skills.v1alpha1.Skills/UpdateSkill"
+	Skills_DeleteSkill_FullMethodName  = "/chainguard.platform.skills.v1alpha1.Skills/DeleteSkill"
 )
 
 // SkillsClient is the client API for Skills service.
@@ -42,12 +43,17 @@ const (
 // category) the registry does not carry.
 //
 // A skill is a registry Repo, so versions, digests, and content come from the
-// registry API (ListRepos/ListTags/GetTag + OCI). Ranked catalog search is a
-// follow-up (ACID-381).
+// registry API (ListRepos/ListTags/GetTag + OCI). Ranked catalog search is
+// SearchSkills.
 type SkillsClient interface {
 	// ListSkills lists skills in the catalog under a group, paginated. It never
 	// returns the whole catalog in one response (bounded page_size).
 	ListSkills(ctx context.Context, in *ListSkillsRequest, opts ...grpc.CallOption) (*ListSkillsResponse, error)
+	// SearchSkills is the ranked search surface over the catalog: it matches the
+	// free-text query against name, description, category, and keywords, scoped to
+	// a group. Like ListSkills it is org-agnostic and unscoped, self-scoping to the
+	// orgs the caller holds CAP_SKILLS_LIST on.
+	SearchSkills(ctx context.Context, in *SearchSkillsRequest, opts ...grpc.CallOption) (*SearchSkillsResponse, error)
 	// UpdateSkill writes a skill's catalog metadata row at publish time, keyed by
 	// repo_uidp (the skill's id — a skill is a registry repo). It follows AIP-134
 	// create-or-update: with allow_missing=true the row is created when none
@@ -74,6 +80,16 @@ func (c *skillsClient) ListSkills(ctx context.Context, in *ListSkillsRequest, op
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListSkillsResponse)
 	err := c.cc.Invoke(ctx, Skills_ListSkills_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *skillsClient) SearchSkills(ctx context.Context, in *SearchSkillsRequest, opts ...grpc.CallOption) (*SearchSkillsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SearchSkillsResponse)
+	err := c.cc.Invoke(ctx, Skills_SearchSkills_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -114,12 +130,17 @@ func (c *skillsClient) DeleteSkill(ctx context.Context, in *DeleteSkillRequest, 
 // category) the registry does not carry.
 //
 // A skill is a registry Repo, so versions, digests, and content come from the
-// registry API (ListRepos/ListTags/GetTag + OCI). Ranked catalog search is a
-// follow-up (ACID-381).
+// registry API (ListRepos/ListTags/GetTag + OCI). Ranked catalog search is
+// SearchSkills.
 type SkillsServer interface {
 	// ListSkills lists skills in the catalog under a group, paginated. It never
 	// returns the whole catalog in one response (bounded page_size).
 	ListSkills(context.Context, *ListSkillsRequest) (*ListSkillsResponse, error)
+	// SearchSkills is the ranked search surface over the catalog: it matches the
+	// free-text query against name, description, category, and keywords, scoped to
+	// a group. Like ListSkills it is org-agnostic and unscoped, self-scoping to the
+	// orgs the caller holds CAP_SKILLS_LIST on.
+	SearchSkills(context.Context, *SearchSkillsRequest) (*SearchSkillsResponse, error)
 	// UpdateSkill writes a skill's catalog metadata row at publish time, keyed by
 	// repo_uidp (the skill's id — a skill is a registry repo). It follows AIP-134
 	// create-or-update: with allow_missing=true the row is created when none
@@ -144,6 +165,9 @@ type UnimplementedSkillsServer struct{}
 
 func (UnimplementedSkillsServer) ListSkills(context.Context, *ListSkillsRequest) (*ListSkillsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListSkills not implemented")
+}
+func (UnimplementedSkillsServer) SearchSkills(context.Context, *SearchSkillsRequest) (*SearchSkillsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SearchSkills not implemented")
 }
 func (UnimplementedSkillsServer) UpdateSkill(context.Context, *UpdateSkillRequest) (*Skill, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateSkill not implemented")
@@ -186,6 +210,24 @@ func _Skills_ListSkills_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SkillsServer).ListSkills(ctx, req.(*ListSkillsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Skills_SearchSkills_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchSkillsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SkillsServer).SearchSkills(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Skills_SearchSkills_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SkillsServer).SearchSkills(ctx, req.(*SearchSkillsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -236,6 +278,10 @@ var Skills_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListSkills",
 			Handler:    _Skills_ListSkills_Handler,
+		},
+		{
+			MethodName: "SearchSkills",
+			Handler:    _Skills_SearchSkills_Handler,
 		},
 		{
 			MethodName: "UpdateSkill",

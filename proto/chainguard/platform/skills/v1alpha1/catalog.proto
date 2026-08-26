@@ -28,8 +28,8 @@ option java_package = "com.chainguard.platform.skills.v1alpha1";
 // category) the registry does not carry.
 //
 // A skill is a registry Repo, so versions, digests, and content come from the
-// registry API (ListRepos/ListTags/GetTag + OCI). Ranked catalog search is a
-// follow-up (ACID-381).
+// registry API (ListRepos/ListTags/GetTag + OCI). Ranked catalog search is
+// SearchSkills.
 service Skills {
   // ListSkills lists skills in the catalog under a group, paginated. It never
   // returns the whole catalog in one response (bounded page_size).
@@ -47,6 +47,27 @@ service Skills {
     };
     option (chainguard.annotations.mcp) = {
       description: "List hardened Chainguard skills in the catalog under a group (name + description + category), one bounded page at a time. To find a specific skill prefer search; use this to browse."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // SearchSkills is the ranked search surface over the catalog: it matches the
+  // free-text query against name, description, category, and keywords, scoped to
+  // a group. Like ListSkills it is org-agnostic and unscoped, self-scoping to the
+  // orgs the caller holds CAP_SKILLS_LIST on.
+  rpc SearchSkills(SearchSkillsRequest) returns (SearchSkillsResponse) {
+    option (google.api.http) = {get: "/skills/v1alpha1/skills:search"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_SKILLS_LIST]
+        unscoped: true
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Search hardened Chainguard skills in the catalog by a free-text query (matched against name, description, category, and keywords) under a group. Prefer this over list to find a specific skill."
       read_only: true
       destructive: false
       idempotent: true
@@ -122,7 +143,13 @@ message Skill {
   // harden pipeline (harden.modified). Backs the "Hardened" chip on the catalog
   // directory page (ACID-373).
   bool hardened = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // next id: 10
+  // stars is the accumulated count of stars (favorites) for the skill.
+  int64 stars = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // downloads is the accumulated download/pull count for the skill.
+  int64 downloads = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // source is the organization that published the skill (e.g. "anthropics").
+  string source = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // next id: 13
 }
 
 message UpdateSkillRequest {
@@ -155,7 +182,11 @@ message UpdateSkillRequest {
   // (harden.modified); the writer sets it at promote time and it surfaces as the
   // catalog "Hardened" chip.
   bool hardened = 10 [(google.api.field_behavior) = OPTIONAL];
-  // next id: 11
+  // source is the organization that published the skill (e.g. "anthropics"). The
+  // publish-time writer sets it; a re-publish should carry it so it is not
+  // cleared. (stars/downloads are out-of-band metrics and are not set here.)
+  string source = 11 [(google.api.field_behavior) = OPTIONAL];
+  // next id: 12
 }
 
 message DeleteSkillRequest {
@@ -175,14 +206,18 @@ message ListSkillsRequest {
   chainguard.platform.common.UIDPFilter uidp = 1 [(google.api.field_behavior) = REQUIRED];
   // category optionally narrows results to a single category.
   string category = 2;
-  // page_size is the maximum number of results to return per page. Pagination
-  // is optional: omit page_size (and page_token) to return all skills under the
-  // org in one response — there is no forced default page size.
+  // page_size is the maximum number of results to return per page. It is bounded
+  // server-side: omitting it applies a default page size and any value is capped
+  // at a maximum, so a list is always paginated and never returns the whole
+  // catalog in one response.
   int32 page_size = 3;
   // page_token is a token from a previous response's next_page_token. Omit to
-  // start from the first page (or, with no page_size, to return everything).
+  // start from the first page.
   string page_token = 4;
-  // next id: 5
+  // source optionally narrows results to a single publishing organization
+  // (e.g. "anthropics").
+  string source = 5;
+  // next id: 6
 }
 
 message ListSkillsResponse {
@@ -190,5 +225,32 @@ message ListSkillsResponse {
   // next_page_token is the token for the next page (empty if no more pages).
   string next_page_token = 2;
   // total_count is the total number of skills matching the filter.
+  int64 total_count = 3;
+}
+
+message SearchSkillsRequest {
+  // uidp is a UIDP-based filter naming the org (group) to search skills under.
+  // Required, like ListSkills: results self-scope to the orgs the caller is
+  // authorized for.
+  chainguard.platform.common.UIDPFilter uidp = 1 [(google.api.field_behavior) = REQUIRED];
+  // query is the free-text search string, matched against the catalog's name,
+  // description, category, and keywords.
+  string query = 2 [(google.api.field_behavior) = REQUIRED];
+  // page_size is the maximum number of results to return per page. It is bounded
+  // server-side (same as ListSkills): omitting it applies a default page size and
+  // any value is capped at a maximum, so a search is always paginated and never
+  // returns the whole match set in one response.
+  int32 page_size = 3;
+  // page_token is a token from a previous response's next_page_token. Omit to
+  // start from the first page.
+  string page_token = 4;
+  // next id: 5
+}
+
+message SearchSkillsResponse {
+  repeated Skill items = 1;
+  // next_page_token is the token for the next page (empty if no more pages).
+  string next_page_token = 2;
+  // total_count is the total number of skills matching the query.
   int64 total_count = 3;
 }

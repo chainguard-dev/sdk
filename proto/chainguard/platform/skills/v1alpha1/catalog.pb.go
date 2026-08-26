@@ -58,7 +58,13 @@ type Skill struct {
 	// hardened is true when the skill's promoted version was modified by the
 	// harden pipeline (harden.modified). Backs the "Hardened" chip on the catalog
 	// directory page (ACID-373).
-	Hardened      bool `protobuf:"varint,9,opt,name=hardened,proto3" json:"hardened,omitempty"` // next id: 10
+	Hardened bool `protobuf:"varint,9,opt,name=hardened,proto3" json:"hardened,omitempty"`
+	// stars is the accumulated count of stars (favorites) for the skill.
+	Stars int64 `protobuf:"varint,10,opt,name=stars,proto3" json:"stars,omitempty"`
+	// downloads is the accumulated download/pull count for the skill.
+	Downloads int64 `protobuf:"varint,11,opt,name=downloads,proto3" json:"downloads,omitempty"`
+	// source is the organization that published the skill (e.g. "anthropics").
+	Source        string `protobuf:"bytes,12,opt,name=source,proto3" json:"source,omitempty"` // next id: 13
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -156,6 +162,27 @@ func (x *Skill) GetHardened() bool {
 	return false
 }
 
+func (x *Skill) GetStars() int64 {
+	if x != nil {
+		return x.Stars
+	}
+	return 0
+}
+
+func (x *Skill) GetDownloads() int64 {
+	if x != nil {
+		return x.Downloads
+	}
+	return 0
+}
+
+func (x *Skill) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
+}
+
 type UpdateSkillRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// repo_uidp is the UIDP of the registry repo backing this skill — the stable
@@ -182,7 +209,11 @@ type UpdateSkillRequest struct {
 	// hardened marks the promoted version as harden-pipeline-modified
 	// (harden.modified); the writer sets it at promote time and it surfaces as the
 	// catalog "Hardened" chip.
-	Hardened      bool `protobuf:"varint,10,opt,name=hardened,proto3" json:"hardened,omitempty"` // next id: 11
+	Hardened bool `protobuf:"varint,10,opt,name=hardened,proto3" json:"hardened,omitempty"`
+	// source is the organization that published the skill (e.g. "anthropics"). The
+	// publish-time writer sets it; a re-publish should carry it so it is not
+	// cleared. (stars/downloads are out-of-band metrics and are not set here.)
+	Source        string `protobuf:"bytes,11,opt,name=source,proto3" json:"source,omitempty"` // next id: 12
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -280,6 +311,13 @@ func (x *UpdateSkillRequest) GetHardened() bool {
 	return false
 }
 
+func (x *UpdateSkillRequest) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
+}
+
 type DeleteSkillRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id, the UIDP of the Skill to soft-delete.
@@ -335,13 +373,17 @@ type ListSkillsRequest struct {
 	Uidp *v1.UIDPFilter `protobuf:"bytes,1,opt,name=uidp,proto3" json:"uidp,omitempty"`
 	// category optionally narrows results to a single category.
 	Category string `protobuf:"bytes,2,opt,name=category,proto3" json:"category,omitempty"`
-	// page_size is the maximum number of results to return per page. Pagination
-	// is optional: omit page_size (and page_token) to return all skills under the
-	// org in one response — there is no forced default page size.
+	// page_size is the maximum number of results to return per page. It is bounded
+	// server-side: omitting it applies a default page size and any value is capped
+	// at a maximum, so a list is always paginated and never returns the whole
+	// catalog in one response.
 	PageSize int32 `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	// page_token is a token from a previous response's next_page_token. Omit to
-	// start from the first page (or, with no page_size, to return everything).
-	PageToken     string `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"` // next id: 5
+	// start from the first page.
+	PageToken string `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// source optionally narrows results to a single publishing organization
+	// (e.g. "anthropics").
+	Source        string `protobuf:"bytes,5,opt,name=source,proto3" json:"source,omitempty"` // next id: 6
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -400,6 +442,13 @@ func (x *ListSkillsRequest) GetPageSize() int32 {
 func (x *ListSkillsRequest) GetPageToken() string {
 	if x != nil {
 		return x.PageToken
+	}
+	return ""
+}
+
+func (x *ListSkillsRequest) GetSource() string {
+	if x != nil {
+		return x.Source
 	}
 	return ""
 }
@@ -466,11 +515,152 @@ func (x *ListSkillsResponse) GetTotalCount() int64 {
 	return 0
 }
 
+type SearchSkillsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// uidp is a UIDP-based filter naming the org (group) to search skills under.
+	// Required, like ListSkills: results self-scope to the orgs the caller is
+	// authorized for.
+	Uidp *v1.UIDPFilter `protobuf:"bytes,1,opt,name=uidp,proto3" json:"uidp,omitempty"`
+	// query is the free-text search string, matched against the catalog's name,
+	// description, category, and keywords.
+	Query string `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
+	// page_size is the maximum number of results to return per page. It is bounded
+	// server-side (same as ListSkills): omitting it applies a default page size and
+	// any value is capped at a maximum, so a search is always paginated and never
+	// returns the whole match set in one response.
+	PageSize int32 `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// page_token is a token from a previous response's next_page_token. Omit to
+	// start from the first page.
+	PageToken     string `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"` // next id: 5
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SearchSkillsRequest) Reset() {
+	*x = SearchSkillsRequest{}
+	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchSkillsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchSkillsRequest) ProtoMessage() {}
+
+func (x *SearchSkillsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchSkillsRequest.ProtoReflect.Descriptor instead.
+func (*SearchSkillsRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *SearchSkillsRequest) GetUidp() *v1.UIDPFilter {
+	if x != nil {
+		return x.Uidp
+	}
+	return nil
+}
+
+func (x *SearchSkillsRequest) GetQuery() string {
+	if x != nil {
+		return x.Query
+	}
+	return ""
+}
+
+func (x *SearchSkillsRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *SearchSkillsRequest) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+type SearchSkillsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Items []*Skill               `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	// next_page_token is the token for the next page (empty if no more pages).
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	// total_count is the total number of skills matching the query.
+	TotalCount    int64 `protobuf:"varint,3,opt,name=total_count,json=totalCount,proto3" json:"total_count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SearchSkillsResponse) Reset() {
+	*x = SearchSkillsResponse{}
+	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchSkillsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchSkillsResponse) ProtoMessage() {}
+
+func (x *SearchSkillsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchSkillsResponse.ProtoReflect.Descriptor instead.
+func (*SearchSkillsResponse) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *SearchSkillsResponse) GetItems() []*Skill {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+func (x *SearchSkillsResponse) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
+}
+
+func (x *SearchSkillsResponse) GetTotalCount() int64 {
+	if x != nil {
+		return x.TotalCount
+	}
+	return 0
+}
+
 var File_chainguard_platform_skills_v1alpha1_catalog_proto protoreflect.FileDescriptor
 
 const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	"\n" +
-	"1chainguard/platform/skills/v1alpha1/catalog.proto\x12#chainguard.platform.skills.v1alpha1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xf1\x02\n" +
+	"1chainguard/platform/skills/v1alpha1/catalog.proto\x12#chainguard.platform.skills.v1alpha1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xcf\x03\n" +
 	"\x05Skill\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x18\n" +
@@ -483,7 +673,11 @@ const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	"createTime\x12A\n" +
 	"\vupdate_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
 	"updateTime\x12 \n" +
-	"\bhardened\x18\t \x01(\bB\x04\xe2A\x01\x03R\bhardened\"\xd9\x02\n" +
+	"\bhardened\x18\t \x01(\bB\x04\xe2A\x01\x03R\bhardened\x12\x1a\n" +
+	"\x05stars\x18\n" +
+	" \x01(\x03B\x04\xe2A\x01\x03R\x05stars\x12\"\n" +
+	"\tdownloads\x18\v \x01(\x03B\x04\xe2A\x01\x03R\tdownloads\x12\x1c\n" +
+	"\x06source\x18\f \x01(\tB\x04\xe2A\x01\x03R\x06source\"\xf7\x02\n" +
 	"\x12UpdateSkillRequest\x12!\n" +
 	"\trepo_uidp\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\brepoUidp\x12'\n" +
 	"\tparent_id\x18\x02 \x01(\tB\n" +
@@ -495,26 +689,42 @@ const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	"\bkeywords\x18\a \x03(\tB\x04\xe2A\x01\x01R\bkeywords\x12)\n" +
 	"\rallow_missing\x18\t \x01(\bB\x04\xe2A\x01\x01R\fallowMissing\x12 \n" +
 	"\bhardened\x18\n" +
-	" \x01(\bB\x04\xe2A\x01\x01R\bhardenedJ\x04\b\b\x10\t\"0\n" +
+	" \x01(\bB\x04\xe2A\x01\x01R\bhardened\x12\x1c\n" +
+	"\x06source\x18\v \x01(\tB\x04\xe2A\x01\x01R\x06sourceJ\x04\b\b\x10\t\"0\n" +
 	"\x12DeleteSkillRequest\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x02id\"\xad\x01\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x02id\"\xc5\x01\n" +
 	"\x11ListSkillsRequest\x12@\n" +
 	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterB\x04\xe2A\x01\x02R\x04uidp\x12\x1a\n" +
 	"\bcategory\x18\x02 \x01(\tR\bcategory\x12\x1b\n" +
 	"\tpage_size\x18\x03 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
-	"page_token\x18\x04 \x01(\tR\tpageToken\"\x9f\x01\n" +
+	"page_token\x18\x04 \x01(\tR\tpageToken\x12\x16\n" +
+	"\x06source\x18\x05 \x01(\tR\x06source\"\x9f\x01\n" +
 	"\x12ListSkillsResponse\x12@\n" +
 	"\x05items\x18\x01 \x03(\v2*.chainguard.platform.skills.v1alpha1.SkillR\x05items\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
 	"\vtotal_count\x18\x03 \x01(\x03R\n" +
-	"totalCount2\xd8\x05\n" +
+	"totalCount\"\xaf\x01\n" +
+	"\x13SearchSkillsRequest\x12@\n" +
+	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterB\x04\xe2A\x01\x02R\x04uidp\x12\x1a\n" +
+	"\x05query\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x05query\x12\x1b\n" +
+	"\tpage_size\x18\x03 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"\n" +
+	"page_token\x18\x04 \x01(\tR\tpageToken\"\xa1\x01\n" +
+	"\x14SearchSkillsResponse\x12@\n" +
+	"\x05items\x18\x01 \x03(\v2*.chainguard.platform.skills.v1alpha1.SkillR\x05items\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
+	"\vtotal_count\x18\x03 \x01(\x03R\n" +
+	"totalCount2\xe7\b\n" +
 	"\x06Skills\x12\xf4\x02\n" +
 	"\n" +
 	"ListSkills\x126.chainguard.platform.skills.v1alpha1.ListSkillsRequest\x1a7.chainguard.platform.skills.v1alpha1.ListSkillsResponse\"\xf4\x01\x82\xd3\xe4\x93\x02\x19\x12\x17/skills/v1alpha1/skills\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\xcb\x13\x10\x01\x9a\xaf\xa8\xd2\x05\xc0\x01\n" +
-	"\xb5\x01List hardened Chainguard skills in the catalog under a group (name + description + category), one bounded page at a time. To find a specific skill prefer search; use this to browse.\x18\x01 \x00(\x010\x00\x12\xb9\x01\n" +
+	"\xb5\x01List hardened Chainguard skills in the catalog under a group (name + description + category), one bounded page at a time. To find a specific skill prefer search; use this to browse.\x18\x01 \x00(\x010\x00\x12\x8c\x03\n" +
+	"\fSearchSkills\x128.chainguard.platform.skills.v1alpha1.SearchSkillsRequest\x1a9.chainguard.platform.skills.v1alpha1.SearchSkillsResponse\"\x86\x02\x82\xd3\xe4\x93\x02 \x12\x1e/skills/v1alpha1/skills:search\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02\xcb\x13\x10\x01\x9a\xaf\xa8\xd2\x05\xcb\x01\n" +
+	"\xc0\x01Search hardened Chainguard skills in the catalog by a free-text query (matched against name, description, category, and keywords) under a group. Prefer this over list to find a specific skill.\x18\x01 \x00(\x010\x00\x12\xb9\x01\n" +
 	"\vUpdateSkill\x127.chainguard.platform.skills.v1alpha1.UpdateSkillRequest\x1a*.chainguard.platform.skills.v1alpha1.Skill\"E\x82\xd3\xe4\x93\x02+:\x01*2&/skills/v1alpha1/skills/{repo_uidp=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xc9\x13\x9a\xaf\xa8\xd2\x05\x02\x10\x01\x12\x9a\x01\n" +
 	"\vDeleteSkill\x127.chainguard.platform.skills.v1alpha1.DeleteSkillRequest\x1a\x16.google.protobuf.Empty\":\x82\xd3\xe4\x93\x02 *\x1e/skills/v1alpha1/skill/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
@@ -533,33 +743,39 @@ func file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDescGZIP() []byte
 	return file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDescData
 }
 
-var file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_chainguard_platform_skills_v1alpha1_catalog_proto_goTypes = []any{
 	(*Skill)(nil),                 // 0: chainguard.platform.skills.v1alpha1.Skill
 	(*UpdateSkillRequest)(nil),    // 1: chainguard.platform.skills.v1alpha1.UpdateSkillRequest
 	(*DeleteSkillRequest)(nil),    // 2: chainguard.platform.skills.v1alpha1.DeleteSkillRequest
 	(*ListSkillsRequest)(nil),     // 3: chainguard.platform.skills.v1alpha1.ListSkillsRequest
 	(*ListSkillsResponse)(nil),    // 4: chainguard.platform.skills.v1alpha1.ListSkillsResponse
-	(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
-	(*v1.UIDPFilter)(nil),         // 6: chainguard.platform.common.UIDPFilter
-	(*emptypb.Empty)(nil),         // 7: google.protobuf.Empty
+	(*SearchSkillsRequest)(nil),   // 5: chainguard.platform.skills.v1alpha1.SearchSkillsRequest
+	(*SearchSkillsResponse)(nil),  // 6: chainguard.platform.skills.v1alpha1.SearchSkillsResponse
+	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),         // 8: chainguard.platform.common.UIDPFilter
+	(*emptypb.Empty)(nil),         // 9: google.protobuf.Empty
 }
 var file_chainguard_platform_skills_v1alpha1_catalog_proto_depIdxs = []int32{
-	5, // 0: chainguard.platform.skills.v1alpha1.Skill.create_time:type_name -> google.protobuf.Timestamp
-	5, // 1: chainguard.platform.skills.v1alpha1.Skill.update_time:type_name -> google.protobuf.Timestamp
-	6, // 2: chainguard.platform.skills.v1alpha1.ListSkillsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	0, // 3: chainguard.platform.skills.v1alpha1.ListSkillsResponse.items:type_name -> chainguard.platform.skills.v1alpha1.Skill
-	3, // 4: chainguard.platform.skills.v1alpha1.Skills.ListSkills:input_type -> chainguard.platform.skills.v1alpha1.ListSkillsRequest
-	1, // 5: chainguard.platform.skills.v1alpha1.Skills.UpdateSkill:input_type -> chainguard.platform.skills.v1alpha1.UpdateSkillRequest
-	2, // 6: chainguard.platform.skills.v1alpha1.Skills.DeleteSkill:input_type -> chainguard.platform.skills.v1alpha1.DeleteSkillRequest
-	4, // 7: chainguard.platform.skills.v1alpha1.Skills.ListSkills:output_type -> chainguard.platform.skills.v1alpha1.ListSkillsResponse
-	0, // 8: chainguard.platform.skills.v1alpha1.Skills.UpdateSkill:output_type -> chainguard.platform.skills.v1alpha1.Skill
-	7, // 9: chainguard.platform.skills.v1alpha1.Skills.DeleteSkill:output_type -> google.protobuf.Empty
-	7, // [7:10] is the sub-list for method output_type
-	4, // [4:7] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	7,  // 0: chainguard.platform.skills.v1alpha1.Skill.create_time:type_name -> google.protobuf.Timestamp
+	7,  // 1: chainguard.platform.skills.v1alpha1.Skill.update_time:type_name -> google.protobuf.Timestamp
+	8,  // 2: chainguard.platform.skills.v1alpha1.ListSkillsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	0,  // 3: chainguard.platform.skills.v1alpha1.ListSkillsResponse.items:type_name -> chainguard.platform.skills.v1alpha1.Skill
+	8,  // 4: chainguard.platform.skills.v1alpha1.SearchSkillsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	0,  // 5: chainguard.platform.skills.v1alpha1.SearchSkillsResponse.items:type_name -> chainguard.platform.skills.v1alpha1.Skill
+	3,  // 6: chainguard.platform.skills.v1alpha1.Skills.ListSkills:input_type -> chainguard.platform.skills.v1alpha1.ListSkillsRequest
+	5,  // 7: chainguard.platform.skills.v1alpha1.Skills.SearchSkills:input_type -> chainguard.platform.skills.v1alpha1.SearchSkillsRequest
+	1,  // 8: chainguard.platform.skills.v1alpha1.Skills.UpdateSkill:input_type -> chainguard.platform.skills.v1alpha1.UpdateSkillRequest
+	2,  // 9: chainguard.platform.skills.v1alpha1.Skills.DeleteSkill:input_type -> chainguard.platform.skills.v1alpha1.DeleteSkillRequest
+	4,  // 10: chainguard.platform.skills.v1alpha1.Skills.ListSkills:output_type -> chainguard.platform.skills.v1alpha1.ListSkillsResponse
+	6,  // 11: chainguard.platform.skills.v1alpha1.Skills.SearchSkills:output_type -> chainguard.platform.skills.v1alpha1.SearchSkillsResponse
+	0,  // 12: chainguard.platform.skills.v1alpha1.Skills.UpdateSkill:output_type -> chainguard.platform.skills.v1alpha1.Skill
+	9,  // 13: chainguard.platform.skills.v1alpha1.Skills.DeleteSkill:output_type -> google.protobuf.Empty
+	10, // [10:14] is the sub-list for method output_type
+	6,  // [6:10] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_skills_v1alpha1_catalog_proto_init() }
@@ -573,7 +789,7 @@ func file_chainguard_platform_skills_v1alpha1_catalog_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc), len(file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
