@@ -91,6 +91,7 @@ type MockRegistryClient struct {
 	OnGetRegistrySettings       []RegistrySettingsOnGet
 	OnGetSyncStatus             []SyncStatusOnGet
 	OnListSyncStatuses          []SyncStatusOnList
+	OnListChartsByImageRepo     []ChartsByImageRepoOnList
 }
 
 type ReposOnCreate struct {
@@ -256,6 +257,12 @@ type SyncStatusOnGet struct {
 type SyncStatusOnList struct {
 	Given *registry.ListSyncStatusesRequest
 	Get   *registry.SyncStatusList
+	Error error
+}
+
+type ChartsByImageRepoOnList struct {
+	Given *registry.ListChartsByImageRepoRequest
+	List  *registry.ListChartsByImageRepoResponse
 	Error error
 }
 
@@ -531,6 +538,15 @@ func (m *MockPoliciesClient) CheckPolicies(_ context.Context, given *registry.Ch
 	for _, o := range m.OnCheckPolicies {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Response, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m *MockRegistryClient) ListChartsByImageRepo(_ context.Context, given *registry.ListChartsByImageRepoRequest, _ ...grpc.CallOption) (*registry.ListChartsByImageRepoResponse, error) {
+	for _, o := range m.OnListChartsByImageRepo {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.List, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)
