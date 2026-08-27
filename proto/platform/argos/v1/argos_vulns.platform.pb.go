@@ -14,6 +14,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -103,9 +104,12 @@ type ListOrgVulnsRequest struct {
 	// package is an optional exact ecosystem/name filter (v1: exact match).
 	Package string `protobuf:"bytes,2,opt,name=package,proto3" json:"package,omitempty"`
 	// version is an optional version filter.
-	Version       string `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`
-	PageToken     string `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
-	PageSize      int32  `protobuf:"varint,5,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	Version   string `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`
+	PageToken string `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	PageSize  int32  `protobuf:"varint,5,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// updated_since restricts results to CGP IDs bound to documents last updated
+	// at or after the given time.
+	UpdatedSince  *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_since,json=updatedSince,proto3" json:"updated_since,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -173,6 +177,13 @@ func (x *ListOrgVulnsRequest) GetPageSize() int32 {
 		return x.PageSize
 	}
 	return 0
+}
+
+func (x *ListOrgVulnsRequest) GetUpdatedSince() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedSince
+	}
+	return nil
 }
 
 type VulnList struct {
@@ -243,20 +254,21 @@ var File_argos_vulns_platform_proto protoreflect.FileDescriptor
 
 const file_argos_vulns_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x1aargos_vulns.platform.proto\x12\x19chainguard.platform.argos\x1a\x1cgoogle/api/annotations.proto\x1a\x16annotations/auth.proto\x1a\x18argos_osv.platform.proto\"\x8b\x01\n" +
+	"\x1aargos_vulns.platform.proto\x12\x19chainguard.platform.argos\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16annotations/auth.proto\x1a\x18argos_osv.platform.proto\"\x8b\x01\n" +
 	"\x14BatchGetVulnsRequest\x12\x1e\n" +
 	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12\x17\n" +
 	"\acgp_ids\x18\x02 \x03(\tR\x06cgpIds\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\x03 \x01(\tR\tpageToken\x12\x1b\n" +
-	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\"\xa5\x01\n" +
+	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\"\xe6\x01\n" +
 	"\x13ListOrgVulnsRequest\x12\x1e\n" +
 	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12\x18\n" +
 	"\apackage\x18\x02 \x01(\tR\apackage\x12\x18\n" +
 	"\aversion\x18\x03 \x01(\tR\aversion\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\x04 \x01(\tR\tpageToken\x12\x1b\n" +
-	"\tpage_size\x18\x05 \x01(\x05R\bpageSize\"\xa4\x01\n" +
+	"\tpage_size\x18\x05 \x01(\x05R\bpageSize\x12?\n" +
+	"\rupdated_since\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\fupdatedSince\"\xa4\x01\n" +
 	"\bVulnList\x12:\n" +
 	"\x05vulns\x18\x01 \x03(\v2$.chainguard.platform.argos.OSVRecordR\x05vulns\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12$\n" +
@@ -285,22 +297,24 @@ func file_argos_vulns_platform_proto_rawDescGZIP() []byte {
 
 var file_argos_vulns_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_argos_vulns_platform_proto_goTypes = []any{
-	(*BatchGetVulnsRequest)(nil), // 0: chainguard.platform.argos.BatchGetVulnsRequest
-	(*ListOrgVulnsRequest)(nil),  // 1: chainguard.platform.argos.ListOrgVulnsRequest
-	(*VulnList)(nil),             // 2: chainguard.platform.argos.VulnList
-	(*OSVRecord)(nil),            // 3: chainguard.platform.argos.OSVRecord
+	(*BatchGetVulnsRequest)(nil),  // 0: chainguard.platform.argos.BatchGetVulnsRequest
+	(*ListOrgVulnsRequest)(nil),   // 1: chainguard.platform.argos.ListOrgVulnsRequest
+	(*VulnList)(nil),              // 2: chainguard.platform.argos.VulnList
+	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
+	(*OSVRecord)(nil),             // 4: chainguard.platform.argos.OSVRecord
 }
 var file_argos_vulns_platform_proto_depIdxs = []int32{
-	3, // 0: chainguard.platform.argos.VulnList.vulns:type_name -> chainguard.platform.argos.OSVRecord
-	0, // 1: chainguard.platform.argos.ArgosVulns.BatchGet:input_type -> chainguard.platform.argos.BatchGetVulnsRequest
-	1, // 2: chainguard.platform.argos.ArgosVulns.ListForOrg:input_type -> chainguard.platform.argos.ListOrgVulnsRequest
-	2, // 3: chainguard.platform.argos.ArgosVulns.BatchGet:output_type -> chainguard.platform.argos.VulnList
-	2, // 4: chainguard.platform.argos.ArgosVulns.ListForOrg:output_type -> chainguard.platform.argos.VulnList
-	3, // [3:5] is the sub-list for method output_type
-	1, // [1:3] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	3, // 0: chainguard.platform.argos.ListOrgVulnsRequest.updated_since:type_name -> google.protobuf.Timestamp
+	4, // 1: chainguard.platform.argos.VulnList.vulns:type_name -> chainguard.platform.argos.OSVRecord
+	0, // 2: chainguard.platform.argos.ArgosVulns.BatchGet:input_type -> chainguard.platform.argos.BatchGetVulnsRequest
+	1, // 3: chainguard.platform.argos.ArgosVulns.ListForOrg:input_type -> chainguard.platform.argos.ListOrgVulnsRequest
+	2, // 4: chainguard.platform.argos.ArgosVulns.BatchGet:output_type -> chainguard.platform.argos.VulnList
+	2, // 5: chainguard.platform.argos.ArgosVulns.ListForOrg:output_type -> chainguard.platform.argos.VulnList
+	4, // [4:6] is the sub-list for method output_type
+	2, // [2:4] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_argos_vulns_platform_proto_init() }

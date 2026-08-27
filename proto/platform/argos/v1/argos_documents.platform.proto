@@ -234,6 +234,9 @@ message ArgosDocumentFilter {
 
   // Exact match on the document filename.
   string filename = 10;
+
+  // updated_since returns documents last updated at or after the given time.
+  google.protobuf.Timestamp updated_since = 11;
 }
 
 message ArgosDocumentList {

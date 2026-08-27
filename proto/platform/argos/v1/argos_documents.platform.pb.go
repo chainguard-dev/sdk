@@ -581,7 +581,9 @@ type ArgosDocumentFilter struct {
 	// page_token to skip from cursor position. Must be non-negative.
 	Skip int32 `protobuf:"varint,9,opt,name=skip,proto3" json:"skip,omitempty"`
 	// Exact match on the document filename.
-	Filename      string `protobuf:"bytes,10,opt,name=filename,proto3" json:"filename,omitempty"`
+	Filename string `protobuf:"bytes,10,opt,name=filename,proto3" json:"filename,omitempty"`
+	// updated_since returns documents last updated at or after the given time.
+	UpdatedSince  *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=updated_since,json=updatedSince,proto3" json:"updated_since,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -684,6 +686,13 @@ func (x *ArgosDocumentFilter) GetFilename() string {
 		return x.Filename
 	}
 	return ""
+}
+
+func (x *ArgosDocumentFilter) GetUpdatedSince() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedSince
+	}
+	return nil
 }
 
 type ArgosDocumentList struct {
@@ -802,7 +811,7 @@ const file_argos_documents_platform_proto_rawDesc = "" +
 	"\vkey_version\x18\x03 \x01(\tR\n" +
 	"keyVersion\"4\n" +
 	"\x1aDeleteArgosDocumentRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"\xcd\x03\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"\x8e\x04\n" +
 	"\x13ArgosDocumentFilter\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12:\n" +
 	"\x04uidp\x18\x02 \x01(\v2&.chainguard.platform.common.UIDPFilterR\x04uidp\x12G\n" +
@@ -815,7 +824,8 @@ const file_argos_documents_platform_proto_rawDesc = "" +
 	"\border_by\x18\b \x01(\tB\x04\xe2A\x01\x01R\aorderBy\x12\x18\n" +
 	"\x04skip\x18\t \x01(\x05B\x04\xe2A\x01\x01R\x04skip\x12\x1a\n" +
 	"\bfilename\x18\n" +
-	" \x01(\tR\bfilename\"\xcb\x01\n" +
+	" \x01(\tR\bfilename\x12?\n" +
+	"\rupdated_since\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\fupdatedSince\"\xcb\x01\n" +
 	"\x11ArgosDocumentList\x12>\n" +
 	"\x05items\x18\x01 \x03(\v2(.chainguard.platform.argos.ArgosDocumentR\x05items\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12$\n" +
@@ -874,20 +884,21 @@ var file_argos_documents_platform_proto_depIdxs = []int32{
 	0,  // 6: chainguard.platform.argos.ArgosDocumentFilter.status:type_name -> chainguard.platform.argos.ArgosDocument.Status
 	10, // 7: chainguard.platform.argos.ArgosDocumentFilter.created_since:type_name -> google.protobuf.Timestamp
 	10, // 8: chainguard.platform.argos.ArgosDocumentFilter.created_before:type_name -> google.protobuf.Timestamp
-	2,  // 9: chainguard.platform.argos.ArgosDocumentList.items:type_name -> chainguard.platform.argos.ArgosDocument
-	4,  // 10: chainguard.platform.argos.ArgosDocuments.Create:input_type -> chainguard.platform.argos.CreateArgosDocumentRequest
-	8,  // 11: chainguard.platform.argos.ArgosDocuments.List:input_type -> chainguard.platform.argos.ArgosDocumentFilter
-	7,  // 12: chainguard.platform.argos.ArgosDocuments.Delete:input_type -> chainguard.platform.argos.DeleteArgosDocumentRequest
-	5,  // 13: chainguard.platform.argos.ArgosDocuments.GetOrgPublicKey:input_type -> chainguard.platform.argos.GetArgosOrgPublicKeyRequest
-	2,  // 14: chainguard.platform.argos.ArgosDocuments.Create:output_type -> chainguard.platform.argos.ArgosDocument
-	9,  // 15: chainguard.platform.argos.ArgosDocuments.List:output_type -> chainguard.platform.argos.ArgosDocumentList
-	12, // 16: chainguard.platform.argos.ArgosDocuments.Delete:output_type -> google.protobuf.Empty
-	6,  // 17: chainguard.platform.argos.ArgosDocuments.GetOrgPublicKey:output_type -> chainguard.platform.argos.ArgosOrgPublicKey
-	14, // [14:18] is the sub-list for method output_type
-	10, // [10:14] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	10, // 9: chainguard.platform.argos.ArgosDocumentFilter.updated_since:type_name -> google.protobuf.Timestamp
+	2,  // 10: chainguard.platform.argos.ArgosDocumentList.items:type_name -> chainguard.platform.argos.ArgosDocument
+	4,  // 11: chainguard.platform.argos.ArgosDocuments.Create:input_type -> chainguard.platform.argos.CreateArgosDocumentRequest
+	8,  // 12: chainguard.platform.argos.ArgosDocuments.List:input_type -> chainguard.platform.argos.ArgosDocumentFilter
+	7,  // 13: chainguard.platform.argos.ArgosDocuments.Delete:input_type -> chainguard.platform.argos.DeleteArgosDocumentRequest
+	5,  // 14: chainguard.platform.argos.ArgosDocuments.GetOrgPublicKey:input_type -> chainguard.platform.argos.GetArgosOrgPublicKeyRequest
+	2,  // 15: chainguard.platform.argos.ArgosDocuments.Create:output_type -> chainguard.platform.argos.ArgosDocument
+	9,  // 16: chainguard.platform.argos.ArgosDocuments.List:output_type -> chainguard.platform.argos.ArgosDocumentList
+	12, // 17: chainguard.platform.argos.ArgosDocuments.Delete:output_type -> google.protobuf.Empty
+	6,  // 18: chainguard.platform.argos.ArgosDocuments.GetOrgPublicKey:output_type -> chainguard.platform.argos.ArgosOrgPublicKey
+	15, // [15:19] is the sub-list for method output_type
+	11, // [11:15] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_argos_documents_platform_proto_init() }

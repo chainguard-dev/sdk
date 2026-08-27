@@ -8,6 +8,7 @@ option go_package = "chainguard.dev/sdk/proto/platform/argos/v1";
 package chainguard.platform.argos;
 
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 import "annotations/auth.proto";
 import "argos_osv.platform.proto";
 
@@ -62,6 +63,9 @@ message ListOrgVulnsRequest {
   string version = 3;
   string page_token = 4;
   int32 page_size = 5;
+  // updated_since restricts results to CGP IDs bound to documents last updated
+  // at or after the given time.
+  google.protobuf.Timestamp updated_since = 6;
 }
 
 message VulnList {
