@@ -181,6 +181,8 @@ message AdvisoryEvent {
     TruePositiveDetermination true_positive_determination = 16;
     // A patch has been applied to the given versions to address the vulnerability.
     Patched patched = 17;
+    // The vulnerable component moved to a different location in the artifact.
+    ComponentLocationChanged component_location_changed = 18;
   }
 
   // Detection and acknowledgement of a vulnerability via scanner, NVD API, or manually.
@@ -339,6 +341,17 @@ message AdvisoryEvent {
     repeated string patched_versions = 1;
     // Textual comments about the patch applied to fix the vulnerability.
     string note = 2;
+  }
+
+  // The vulnerable component moved to a different location in the artifact.
+  // The advisory stays applicable. Only the location of the component changes.
+  message ComponentLocationChanged {
+    // The location of the component before the move.
+    string previous_location = 1;
+    // The location of the component after the move.
+    string new_location = 2;
+    // Textual comments about why the component moved.
+    string note = 3;
   }
 }
 
@@ -501,4 +514,6 @@ enum EventTypeFilter {
   EVENT_TYPE_FILTER_PENDING_UPSTREAM_FIX = 7;
   // Patched event
   EVENT_TYPE_FILTER_PATCHED = 8;
+  // Component location changed event
+  EVENT_TYPE_FILTER_COMPONENT_LOCATION_CHANGED = 9;
 }
