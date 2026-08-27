@@ -37,6 +37,7 @@ const (
 	Registry_GetHelm_FullMethodName                   = "/chainguard.platform.registry.Registry/GetHelm"
 	Registry_GetChart_FullMethodName                  = "/chainguard.platform.registry.Registry/GetChart"
 	Registry_ListChartsByImageRepo_FullMethodName     = "/chainguard.platform.registry.Registry/ListChartsByImageRepo"
+	Registry_ListChartImageBindings_FullMethodName    = "/chainguard.platform.registry.Registry/ListChartImageBindings"
 	Registry_GetImageConfig_FullMethodName            = "/chainguard.platform.registry.Registry/GetImageConfig"
 	Registry_GetArchs_FullMethodName                  = "/chainguard.platform.registry.Registry/GetArchs"
 	Registry_GetSize_FullMethodName                   = "/chainguard.platform.registry.Registry/GetSize"
@@ -81,6 +82,12 @@ type RegistryClient interface {
 	// given image repo. Backed by the chart_image_dependency reverse index
 	// populated from chart-lock attestations on catalog pushes
 	ListChartsByImageRepo(ctx context.Context, in *ListChartsByImageRepoRequest, opts ...grpc.CallOption) (*ListChartsByImageRepoResponse, error)
+	// ListChartImageBindings returns every chart-image binding for each of
+	// the requested image repo UIDPs. The RPC is unscoped: the caller must
+	// hold CAP_REPO_LIST somewhere in their token, and each image_repo_id
+	// must be a descendant of at least one of the caller's authorized
+	// scopes (enforced in the impl via interceptors.GetUIDPScope).
+	ListChartImageBindings(ctx context.Context, in *ListChartImageBindingsRequest, opts ...grpc.CallOption) (*ListChartImageBindingsResponse, error)
 	GetImageConfig(ctx context.Context, in *ImageConfigRequest, opts ...grpc.CallOption) (*ImageConfig, error)
 	GetArchs(ctx context.Context, in *ArchRequest, opts ...grpc.CallOption) (*Archs, error)
 	GetSize(ctx context.Context, in *SizeRequest, opts ...grpc.CallOption) (*Size, error)
@@ -264,6 +271,16 @@ func (c *registryClient) ListChartsByImageRepo(ctx context.Context, in *ListChar
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListChartsByImageRepoResponse)
 	err := c.cc.Invoke(ctx, Registry_ListChartsByImageRepo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *registryClient) ListChartImageBindings(ctx context.Context, in *ListChartImageBindingsRequest, opts ...grpc.CallOption) (*ListChartImageBindingsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListChartImageBindingsResponse)
+	err := c.cc.Invoke(ctx, Registry_ListChartImageBindings_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -474,6 +491,12 @@ type RegistryServer interface {
 	// given image repo. Backed by the chart_image_dependency reverse index
 	// populated from chart-lock attestations on catalog pushes
 	ListChartsByImageRepo(context.Context, *ListChartsByImageRepoRequest) (*ListChartsByImageRepoResponse, error)
+	// ListChartImageBindings returns every chart-image binding for each of
+	// the requested image repo UIDPs. The RPC is unscoped: the caller must
+	// hold CAP_REPO_LIST somewhere in their token, and each image_repo_id
+	// must be a descendant of at least one of the caller's authorized
+	// scopes (enforced in the impl via interceptors.GetUIDPScope).
+	ListChartImageBindings(context.Context, *ListChartImageBindingsRequest) (*ListChartImageBindingsResponse, error)
 	GetImageConfig(context.Context, *ImageConfigRequest) (*ImageConfig, error)
 	GetArchs(context.Context, *ArchRequest) (*Archs, error)
 	GetSize(context.Context, *SizeRequest) (*Size, error)
@@ -550,6 +573,9 @@ func (UnimplementedRegistryServer) GetChart(context.Context, *GetChartRequest) (
 }
 func (UnimplementedRegistryServer) ListChartsByImageRepo(context.Context, *ListChartsByImageRepoRequest) (*ListChartsByImageRepoResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListChartsByImageRepo not implemented")
+}
+func (UnimplementedRegistryServer) ListChartImageBindings(context.Context, *ListChartImageBindingsRequest) (*ListChartImageBindingsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListChartImageBindings not implemented")
 }
 func (UnimplementedRegistryServer) GetImageConfig(context.Context, *ImageConfigRequest) (*ImageConfig, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetImageConfig not implemented")
@@ -910,6 +936,24 @@ func _Registry_ListChartsByImageRepo_Handler(srv interface{}, ctx context.Contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RegistryServer).ListChartsByImageRepo(ctx, req.(*ListChartsByImageRepoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Registry_ListChartImageBindings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListChartImageBindingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistryServer).ListChartImageBindings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Registry_ListChartImageBindings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistryServer).ListChartImageBindings(ctx, req.(*ListChartImageBindingsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1308,6 +1352,10 @@ var Registry_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListChartsByImageRepo",
 			Handler:    _Registry_ListChartsByImageRepo_Handler,
+		},
+		{
+			MethodName: "ListChartImageBindings",
+			Handler:    _Registry_ListChartImageBindings_Handler,
 		},
 		{
 			MethodName: "GetImageConfig",

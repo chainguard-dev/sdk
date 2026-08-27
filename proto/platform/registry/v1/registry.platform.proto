@@ -232,6 +232,23 @@ service Registry {
     };
   }
 
+  // ListChartImageBindings returns every chart-image binding for each of
+  // the requested image repo UIDPs. The RPC is unscoped: the caller must
+  // hold CAP_REPO_LIST somewhere in their token, and each image_repo_id
+  // must be a descendant of at least one of the caller's authorized
+  // scopes (enforced in the impl via interceptors.GetUIDPScope).
+  rpc ListChartImageBindings(ListChartImageBindingsRequest) returns (ListChartImageBindingsResponse) {
+    option (google.api.http) = {
+      get: "/registry/v1/chart-image-bindings"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST]
+        unscoped: true
+      }
+    };
+  }
+
   rpc GetImageConfig(ImageConfigRequest) returns (ImageConfig) {
     option (google.api.http) = {
       get: "/registry/v1/repos/{repo_id=**}/digests/{digest=*}/imageconfig"
@@ -1310,14 +1327,36 @@ message ListChartsByImageRepoResponse {
   repeated ChartImageBinding chart_image_bindings = 1;
 }
 
+message ListChartImageBindingsRequest {
+  // image_repo_ids are the UIDPs of the image repos to look up
+  // chart-image bindings for. At least one id is required. Every id must
+  // be a descendant of one of the caller's authorized CAP_REPO_LIST
+  // scopes; ids outside the caller's scope return INVALID_ARGUMENT.
+  repeated string image_repo_ids = 1;
+}
+
+message ListChartImageBindingsResponse {
+  // Chart-image bindings for the requested image repos, sorted by
+  // (image_repo, chart_repo). Image repos with no bindings are omitted.
+  repeated ChartImageBinding chart_image_bindings = 1;
+}
+
 // ChartImageBinding describes a chart in the CG catalog
 // that references a specific image, populated by the registry ingester
 // entries derived from chart-lock attestations.
 message ChartImageBinding {
-  // The bare name of the chart repo that references the image (e.g. "akhq").
+  // UIDP of the chart repo that references the image.
+  // Distinct catalogs (community, iamguarded) share bare names
+  // but have distinct UIDPs, so this is the identity callers
+  // should resolve if they need the chart's name or catalog.
   string chart_repo = 1;
   // Whether the image is required or optional for this chart.
   ChartImageRequirement requirement = 2;
+  // Bare name of the image repo this binding is for (e.g. "redis"). Echoes
+  // the request so batch callers can join bindings back to the image they
+  // asked about; also populated in the singular ListChartsByImageRepo
+  // response for symmetry.
+  string image_repo = 3;
 }
 
 // Deployment configuration for a repository
