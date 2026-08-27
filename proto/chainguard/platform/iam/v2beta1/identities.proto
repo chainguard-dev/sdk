@@ -543,4 +543,6 @@ enum ServicePrincipal {
   SERVICE_PRINCIPAL_MICROVM = 12;
   // Skills service principal for the harden pipeline's customer-org access.
   SERVICE_PRINCIPAL_SKILLS = 13;
+  // Sandbox service principal for the ACID sandbox Runs control plane.
+  SERVICE_PRINCIPAL_SANDBOX = 14;
 }

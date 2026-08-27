@@ -123,6 +123,7 @@ enum ServicePrincipal {
   GUARDENER      = 11;
   MICROVM        = 12;
   SKILLS         = 13;
+  SANDBOX        = 14;
 }
 
 message Identity {
