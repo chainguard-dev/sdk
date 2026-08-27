@@ -348,6 +348,9 @@ const (
 	Capability_CAP_ARGOS_DOCUMENTS_CREATE Capability = 2601
 	Capability_CAP_ARGOS_DOCUMENTS_LIST   Capability = 2602
 	Capability_CAP_ARGOS_DOCUMENTS_DELETE Capability = 2603
+	// Argos — documentation visibility. Grants read access to Argos API
+	// documentation.
+	Capability_CAP_ARGOS_DOCUMENTATION_READ Capability = 2615
 	// Argos — Private OSV API (customer-facing OSV query surface).
 	Capability_CAP_ARGOS_OSV_READ Capability = 2604
 	Capability_CAP_ARGOS_OSV_DUMP Capability = 2614
@@ -591,6 +594,7 @@ var (
 		2601:  "CAP_ARGOS_DOCUMENTS_CREATE",
 		2602:  "CAP_ARGOS_DOCUMENTS_LIST",
 		2603:  "CAP_ARGOS_DOCUMENTS_DELETE",
+		2615:  "CAP_ARGOS_DOCUMENTATION_READ",
 		2604:  "CAP_ARGOS_OSV_READ",
 		2614:  "CAP_ARGOS_OSV_DUMP",
 		2605:  "CAP_LIBRARIES_POLICY_CREATE",
@@ -810,6 +814,7 @@ var (
 		"CAP_ARGOS_DOCUMENTS_CREATE":                         2601,
 		"CAP_ARGOS_DOCUMENTS_LIST":                           2602,
 		"CAP_ARGOS_DOCUMENTS_DELETE":                         2603,
+		"CAP_ARGOS_DOCUMENTATION_READ":                       2615,
 		"CAP_ARGOS_OSV_READ":                                 2604,
 		"CAP_ARGOS_OSV_DUMP":                                 2614,
 		"CAP_LIBRARIES_POLICY_CREATE":                        2605,
@@ -921,7 +926,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xc6v\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x8fw\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1130,7 +1135,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x18CAP_SKILLS_HARDEN_CANCEL\x10\xce\x13\x1a \xa8ˑM\xcc\x01\x9a\xaf\xa8\xd2\x05\x14skills.harden.cancel\x12C\n" +
 	"\x1aCAP_ARGOS_DOCUMENTS_CREATE\x10\xa9\x14\x1a\"\xa8ˑM\x90\x01\x9a\xaf\xa8\xd2\x05\x16argos.documents.create\x12?\n" +
 	"\x18CAP_ARGOS_DOCUMENTS_LIST\x10\xaa\x14\x1a \xa8ˑM\x91\x01\x9a\xaf\xa8\xd2\x05\x14argos.documents.list\x12C\n" +
-	"\x1aCAP_ARGOS_DOCUMENTS_DELETE\x10\xab\x14\x1a\"\xa8ˑM\x92\x01\x9a\xaf\xa8\xd2\x05\x16argos.documents.delete\x123\n" +
+	"\x1aCAP_ARGOS_DOCUMENTS_DELETE\x10\xab\x14\x1a\"\xa8ˑM\x92\x01\x9a\xaf\xa8\xd2\x05\x16argos.documents.delete\x12G\n" +
+	"\x1cCAP_ARGOS_DOCUMENTATION_READ\x10\xb7\x14\x1a$\xa8ˑM\xde\x01\x9a\xaf\xa8\xd2\x05\x18argos.documentation.read\x123\n" +
 	"\x12CAP_ARGOS_OSV_READ\x10\xac\x14\x1a\x1a\xa8ˑM\x93\x01\x9a\xaf\xa8\xd2\x05\x0eargos.osv.read\x123\n" +
 	"\x12CAP_ARGOS_OSV_DUMP\x10\xb6\x14\x1a\x1a\xa8ˑM\xc6\x01\x9a\xaf\xa8\xd2\x05\x0eargos.osv.dump\x12E\n" +
 	"\x1bCAP_LIBRARIES_POLICY_CREATE\x10\xad\x14\x1a#\xa8ˑM\x94\x01\x9a\xaf\xa8\xd2\x05\x17libraries.policy.create\x12E\n" +

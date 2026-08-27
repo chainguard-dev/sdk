@@ -522,6 +522,14 @@ var (
 		Capability_CAP_ARGOS_DOCUMENTS_CREATE,
 		Capability_CAP_ARGOS_DOCUMENTS_DELETE,
 		Capability_CAP_ARGOS_DOCUMENTS_LIST,
+		Capability_CAP_ARGOS_DOCUMENTATION_READ,
+	})
+
+	// ArgosDocumentationReaderCaps is the capability set for reading Argos API
+	// documentation. Granted to orgs or identities that need documentation
+	// access without full operator privileges.
+	ArgosDocumentationReaderCaps = SortCaps([]Capability{
+		Capability_CAP_ARGOS_DOCUMENTATION_READ,
 	})
 
 	// ArgosOSVReaderCaps is the capability set for reading the shared,
