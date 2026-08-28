@@ -461,7 +461,15 @@ enum Capability {
   // Actions catalog — the read-only catalog of Chainguard-published GitHub
   // Actions and the upstreams they mirror. Writes are internal (importer only).
   CAP_ACTIONS_LIST = 2700 [(name) = "actions.list", (bit) = 164];
+  // Recording the dependency edges of a composite action's revision, i.e. the
+  // `uses:` steps of its action.yml. Internal only: the edges are derived by
+  // the hardening pipeline that reads the action.yml, and are not something a
+  // customer asserts about the shared graph.
+  CAP_ACTIONS_DEPENDENCIES_UPDATE = 2710 [(name) = "actions.dependencies.update", (bit) = 223, (internal_only) = true];
+  // Reading the dependency graph. Internal only: reads are fenced to groups the
+  // caller holds a capability in, which no customer does for these actions.
+  CAP_ACTIONS_DEPENDENCIES_LIST = 2711 [(name) = "actions.dependencies.list", (bit) = 224, (internal_only) = true];
 
   reserved 1;
-  // next bit: 223
+  // next bit: 225
 }

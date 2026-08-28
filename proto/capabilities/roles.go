@@ -317,6 +317,15 @@ var (
 		Capability_CAP_ACTIONS_LIST,
 	})
 
+	// ActionsDependencyWriterCaps is the capability set for the hardening pipeline,
+	// the entire audience for the dependency graph. Both caps are internal only,
+	// since reads are fenced to the caller's own groups. CAP_INTERNAL is required.
+	ActionsDependencyWriterCaps = SortCaps([]Capability{
+		Capability_CAP_INTERNAL,
+		Capability_CAP_ACTIONS_DEPENDENCIES_LIST,
+		Capability_CAP_ACTIONS_DEPENDENCIES_UPDATE,
+	})
+
 	AdvisoriesCreatorCaps = SortCaps([]Capability{
 		Capability_CAP_ADVISORIES_CREATE,
 		Capability_CAP_ADVISORIES_UPDATE,

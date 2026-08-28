@@ -1,0 +1,276 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.actions.v1alpha2;
+
+import "annotations/auth.proto";
+import "annotations/mcp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
+import "platform/common/v1/uidp.platform.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/actions/v1alpha2";
+option java_multiple_files = true;
+option java_outer_classname = "DependenciesProto";
+option java_package = "com.chainguard.platform.actions.v1alpha2";
+
+// Actions exposes the dependency graph of the v2 actions model: which actions a
+// composite action's revision references in the `uses:` steps of its action.yml.
+//
+// It closes one loop. Ingest records what a composite uses; when a dependency is
+// hardened the publisher records the copy and asks which revisions used the
+// original; each of those rebuilds and asks whether its own dependencies have
+// hardened copies yet.
+//
+// Reads are scoped per group: the caller names a group and the results
+// self-scope to the groups it is authorized for, so naming one it cannot access
+// returns nothing rather than another group's actions. Writes bind the action to
+// the group in parent_id, which is also the scope they are authorized against.
+//
+// Both capabilities stay internal only for now. The filter works and public
+// actions are already bound to a group, but every read is fenced to the groups
+// the caller holds the capability in, and a customer holds none in a
+// Chainguard-owned group. Opening this up needs that fence widened, not more
+// binding.
+service Actions {
+  // SetDependencies replaces a revision's whole dependency set, since an
+  // action.yml is read in full. Referenced actions are recorded when absent.
+  rpc SetDependencies(SetDependenciesRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/actions/v1alpha2/dependencies"
+      body: "*"
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Replace the complete set of dependencies recorded for one revision of a composite GitHub Action."
+      read_only: false
+      destructive: true
+      idempotent: true
+      open_world: false
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ACTIONS_DEPENDENCIES_UPDATE]
+      }
+    };
+  }
+
+  // SetHardenedRevision records a published copy and the upstream commit it
+  // derives from, at publish time rather than a day later via the catalog import.
+  rpc SetHardenedRevision(SetHardenedRevisionRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/actions/v1alpha2/hardenedRevisions"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ACTIONS_DEPENDENCIES_UPDATE]
+      }
+    };
+    // Hidden from the tool surface: it asserts what our own pipeline published.
+    option (chainguard.annotations.mcp) = {
+      description: "Record that a hardened copy of an upstream GitHub Action commit has been published, and where. Internal publish-path use only."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
+      hidden: true
+    };
+  }
+
+  // ListDependents lists the revisions depending on an action: the lookup that
+  // drives rebuilds. Keyed on the action, since a step may pin a tag or a commit.
+  rpc ListDependents(ListDependentsRequest) returns (ListDependentsResponse) {
+    option (google.api.http) = {get: "/actions/v1alpha2/dependents"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ACTIONS_DEPENDENCIES_LIST]
+        unscoped: true
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List the revisions that depend on a GitHub Action, to decide what to rebuild when it is hardened."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // ListRevisions finds the revisions derived from one upstream commit; with
+  // hardened_only it answers whether that commit has a hardened copy yet.
+  rpc ListRevisions(ListRevisionsRequest) returns (ListRevisionsResponse) {
+    option (google.api.http) = {get: "/actions/v1alpha2/revisions"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ACTIONS_DEPENDENCIES_LIST]
+        unscoped: true
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List revisions derived from an upstream commit, to check whether it has a hardened counterpart yet."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+}
+
+// Location identifies a GitHub Action: its repo, and the sub-directory within
+// it for repos publishing more than one. owner and repo are case-insensitive
+// and stored lowercased, as GitHub treats them; path is not.
+message Location {
+  // owner, the GitHub org or user, e.g. "actions". Case-insensitive.
+  string owner = 1 [(google.api.field_behavior) = REQUIRED];
+  // repo, the GitHub repository, e.g. "checkout". Case-insensitive.
+  string repo = 2 [(google.api.field_behavior) = REQUIRED];
+  // path, the sub-directory of the action within the repo; empty at root. It
+  // is significant everywhere but on an edge target, which is keyed on the repo.
+  string path = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// RevisionRef identifies the content of an action at a commit.
+message RevisionRef {
+  // action, the owning action's location.
+  Location action = 1 [(google.api.field_behavior) = REQUIRED];
+  // sha, the commit. Case-insensitive: stored lowercased, as git hex is.
+  string sha = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// Dependency is one `uses:` step: a composite's revision depends on another
+// action at some ref. Written whole by SetDependencies, read back only in reverse.
+message Dependency {
+  // action, the depended-on action. path is ignored: an edge is keyed on the
+  // repo, so a sub-action target records against its repo.
+  Location action = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // ref, exactly as the step wrote it: a tag like "v4" or a 40-char commit.
+  // What it resolved to is not recorded; callers resolve it when they use it.
+  //
+  // Stored verbatim and matched case-sensitively, unlike RevisionRef.sha, since
+  // a tag's case is significant and this field cannot tell the two apart. Pin a
+  // commit-form ref lowercased, or the optional ref filter on ListDependents
+  // will not match it. Nothing else keys on it: the rebuild lookup is by action.
+  string ref = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListDependentsResponse is the reverse answer: the revisions depending on an action.
+message ListDependentsResponse {
+  // revision_refs, the revisions depending on the requested action.
+  repeated RevisionRef revision_refs = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // total_count, how many items match the request in total.
+  int64 total_count = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // next_page_token, empty when there are no further pages.
+  string next_page_token = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ActionRevision is the content of an action at a commit. Hardened status and
+// the derived-from edge live here, not on a version, since a tag is mutable.
+message ActionRevision {
+  // action, the owning action's location.
+  Location action = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // sha, the commit this revision is the content of.
+  string sha = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // hardened, true when this revision's content is hardened.
+  bool hardened = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // upstream, the revision this one's hardening is derived from. Unset when
+  // this is not a hardening.
+  RevisionRef upstream = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ListRevisionsResponse is a page of revisions.
+message ListRevisionsResponse {
+  // action_revisions, the matching revisions.
+  repeated ActionRevision action_revisions = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // total_count, how many items match the request in total.
+  int64 total_count = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // next_page_token, empty when there are no further pages.
+  string next_page_token = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// SetDependenciesRequest replaces a revision's entire dependency set.
+message SetDependenciesRequest {
+  // revision, the dependent. Recorded when absent, because the commit is known
+  // at ingest, before anything else in the graph has caught up to it.
+  RevisionRef revision = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // parent_id, the group the dependent action belongs to, and the scope this
+  // call is authorized against. The action is bound to it, which is what lets a
+  // read scoped to that group see this edge. Binding is additive and edges are
+  // global, so a holder can bind another group's action; internal only for that.
+  string parent_id = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // depends_on, the complete set of dependencies for the revision. An empty
+  // list clears them, which is a composite whose action.yml stopped using
+  // anything: replace-all makes that the same path as any other change.
+  repeated Dependency depends_on = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// SetHardenedRevisionRequest records one hardening: what was published, and
+// which upstream commit it was derived from.
+message SetHardenedRevisionRequest {
+  // revision, the hardened copy: where it was published and at what commit.
+  // Its action is recorded when absent, taking upstream.action as its upstream.
+  RevisionRef revision = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // upstream, the revision this hardening derives from. Required: ListRevisions
+  // is keyed on the upstream commit a dependency pins, not on the one we built.
+  RevisionRef upstream = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // parent_id, the group the published action belongs to, and the scope this
+  // call is authorized against.
+  string parent_id = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// ListDependentsRequest pages the reverse edges of one action.
+message ListDependentsRequest {
+  // depends_on, the depended-on action: pass the upstream identity, not a
+  // hardened one, and note path is ignored as it is on Dependency.action.
+  Location depends_on = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // uidp names the group whose dependents to return, as children_of or
+  // descendants_of; other spellings match nothing and are rejected. Required:
+  // there is no cross-group "list everything" mode. Results self-scope to the
+  // groups the caller is authorized for.
+  chainguard.platform.common.UIDPFilter uidp = 5 [(google.api.field_behavior) = REQUIRED];
+
+  // ref narrows to dependents that named exactly this ref. Leave it empty for
+  // the rebuild lookup, which must not miss a differently-pinned dependent.
+  string ref = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // page_size, the maximum number of items to return.
+  int32 page_size = 3 [(google.api.field_behavior) = OPTIONAL];
+  // page_token, from a previous response's next_page_token.
+  string page_token = 4 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListRevisionsRequest pages the revisions derived from one upstream commit.
+message ListRevisionsRequest {
+  // upstream, the revision whose derived revisions to list: the reverse of
+  // ActionRevision.upstream. The action is not a separate filter by design.
+  // Pass the sub-action a step named, not its repo: unlike on an edge, path
+  // is part of the key here, so the repo alone matches nothing.
+  RevisionRef upstream = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // uidp names the group whose revisions to return, with the same self-scoping
+  // as ListDependentsRequest.uidp.
+  chainguard.platform.common.UIDPFilter uidp = 5 [(google.api.field_behavior) = REQUIRED];
+
+  // hardened_only, when true, restricts to hardened revisions. With upstream
+  // this is the readiness check for one dependency.
+  bool hardened_only = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // page_size, the maximum number of items to return.
+  int32 page_size = 3 [(google.api.field_behavior) = OPTIONAL];
+  // page_token, from a previous response's next_page_token.
+  string page_token = 4 [(google.api.field_behavior) = OPTIONAL];
+}

@@ -400,6 +400,14 @@ const (
 	// Actions catalog — the read-only catalog of Chainguard-published GitHub
 	// Actions and the upstreams they mirror. Writes are internal (importer only).
 	Capability_CAP_ACTIONS_LIST Capability = 2700
+	// Recording the dependency edges of a composite action's revision, i.e. the
+	// `uses:` steps of its action.yml. Internal only: the edges are derived by
+	// the hardening pipeline that reads the action.yml, and are not something a
+	// customer asserts about the shared graph.
+	Capability_CAP_ACTIONS_DEPENDENCIES_UPDATE Capability = 2710
+	// Reading the dependency graph. Internal only: reads are fenced to groups the
+	// caller holds a capability in, which no customer does for these actions.
+	Capability_CAP_ACTIONS_DEPENDENCIES_LIST Capability = 2711
 )
 
 // Enum value maps for Capability.
@@ -623,6 +631,8 @@ var (
 		2708:  "CAP_REX_CLASS_USE",
 		2709:  "CAP_REX_CLASS_SERVE",
 		2700:  "CAP_ACTIONS_LIST",
+		2710:  "CAP_ACTIONS_DEPENDENCIES_UPDATE",
+		2711:  "CAP_ACTIONS_DEPENDENCIES_LIST",
 	}
 	Capability_value = map[string]int32{
 		"UNKNOWN":                                            0,
@@ -843,6 +853,8 @@ var (
 		"CAP_REX_CLASS_USE":                                  2708,
 		"CAP_REX_CLASS_SERVE":                                2709,
 		"CAP_ACTIONS_LIST":                                   2700,
+		"CAP_ACTIONS_DEPENDENCIES_UPDATE":                    2710,
+		"CAP_ACTIONS_DEPENDENCIES_LIST":                      2711,
 	}
 )
 
@@ -926,7 +938,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x8fw\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xb5x\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1164,7 +1176,9 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x17CAP_REX_WORKERS_CONNECT\x10\x93\x15\x1a%\xa8ˑM\xb8\x01\x9a\xaf\xa8\xd2\x05\x13rex.workers.connect\xa0\xaf\xa8\xd2\x05\x01\x127\n" +
 	"\x11CAP_REX_CLASS_USE\x10\x94\x15\x1a\x1f\xa8ˑM\xbd\x01\x9a\xaf\xa8\xd2\x05\rrex.class.use\xa0\xaf\xa8\xd2\x05\x01\x12;\n" +
 	"\x13CAP_REX_CLASS_SERVE\x10\x95\x15\x1a!\xa8ˑM\xbe\x01\x9a\xaf\xa8\xd2\x05\x0frex.class.serve\xa0\xaf\xa8\xd2\x05\x01\x12/\n" +
-	"\x10CAP_ACTIONS_LIST\x10\x8c\x15\x1a\x18\xa8ˑM\xa4\x01\x9a\xaf\xa8\xd2\x05\factions.list\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x06\b\xd1\x0e\x10\xd1\x0e\"\x04\b\x01\x10\x01:8\n" +
+	"\x10CAP_ACTIONS_LIST\x10\x8c\x15\x1a\x18\xa8ˑM\xa4\x01\x9a\xaf\xa8\xd2\x05\factions.list\x12S\n" +
+	"\x1fCAP_ACTIONS_DEPENDENCIES_UPDATE\x10\x96\x15\x1a-\xa8ˑM\xdf\x01\x9a\xaf\xa8\xd2\x05\x1bactions.dependencies.update\xa0\xaf\xa8\xd2\x05\x01\x12O\n" +
+	"\x1dCAP_ACTIONS_DEPENDENCIES_LIST\x10\x97\x15\x1a+\xa8ˑM\xe0\x01\x9a\xaf\xa8\xd2\x05\x19actions.dependencies.list\xa0\xaf\xa8\xd2\x05\x01\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x06\b\xd1\x0e\x10\xd1\x0e\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +
 	"\x03bit\x12!.google.protobuf.EnumValueOptions\x18\xb5\x99\xd2\t \x01(\rR\x03bit:I\n" +
 	"\rinternal_only\x12!.google.protobuf.EnumValueOptions\x18\xf4\x85\xa5Z \x01(\bR\finternalOnlyB'Z%chainguard.dev/sdk/proto/capabilitiesb\x06proto3"
