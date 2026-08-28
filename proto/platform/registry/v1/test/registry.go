@@ -92,6 +92,7 @@ type MockRegistryClient struct {
 	OnGetSyncStatus             []SyncStatusOnGet
 	OnListSyncStatuses          []SyncStatusOnList
 	OnListChartsByImageRepo     []ChartsByImageRepoOnList
+	OnListChartsByImageRepos    []ChartsByImageReposOnList
 }
 
 type ReposOnCreate struct {
@@ -266,18 +267,10 @@ type ChartsByImageRepoOnList struct {
 	Error error
 }
 
-var _ registry.PoliciesClient = (*MockPoliciesClient)(nil)
-
-type MockPoliciesClient struct {
-	registry.PoliciesClient
-
-	OnCheckPolicies []CheckPoliciesOnCheck
-}
-
-type CheckPoliciesOnCheck struct {
-	Given    *registry.CheckPoliciesRequest
-	Response *registry.CheckPoliciesResponse
-	Error    error
+type ChartsByImageReposOnList struct {
+	Given *registry.ListChartImageBindingsRequest
+	List  *registry.ListChartImageBindingsResponse
+	Error error
 }
 
 func (m MockRegistryClient) CreateRepo(_ context.Context, given *registry.CreateRepoRequest, _ ...grpc.CallOption) (*registry.Repo, error) {
@@ -534,15 +527,6 @@ func (m MockRegistryClient) ListSyncStatuses(_ context.Context, given *registry.
 	return nil, fmt.Errorf("mock not found for %v", given)
 }
 
-func (m *MockPoliciesClient) CheckPolicies(_ context.Context, given *registry.CheckPoliciesRequest, _ ...grpc.CallOption) (*registry.CheckPoliciesResponse, error) {
-	for _, o := range m.OnCheckPolicies {
-		if cmp.Equal(o.Given, given, protocmp.Transform()) {
-			return o.Response, o.Error
-		}
-	}
-	return nil, fmt.Errorf("mock not found for %v", given)
-}
-
 func (m *MockRegistryClient) ListChartsByImageRepo(_ context.Context, given *registry.ListChartsByImageRepoRequest, _ ...grpc.CallOption) (*registry.ListChartsByImageRepoResponse, error) {
 	for _, o := range m.OnListChartsByImageRepo {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
@@ -552,40 +536,10 @@ func (m *MockRegistryClient) ListChartsByImageRepo(_ context.Context, given *reg
 	return nil, fmt.Errorf("mock not found for %v", given)
 }
 
-var _ registry.ChartsClient = (*MockChartsClient)(nil)
-
-type MockChartsClient struct {
-	registry.ChartsClient
-
-	OnAddChart  []ChartOnAdd
-	OnFindChart []ChartOnFind
-}
-
-type ChartOnAdd struct {
-	Given    *registry.AddChartRequest
-	Response *registry.AddChartResponse
-	Error    error
-}
-
-type ChartOnFind struct {
-	Given    *registry.FindChartRequest
-	Response *registry.FindChartResponse
-	Error    error
-}
-
-func (m *MockChartsClient) AddChart(_ context.Context, given *registry.AddChartRequest, _ ...grpc.CallOption) (*registry.AddChartResponse, error) {
-	for _, o := range m.OnAddChart {
+func (m *MockRegistryClient) ListChartImageBindings(_ context.Context, given *registry.ListChartImageBindingsRequest, _ ...grpc.CallOption) (*registry.ListChartImageBindingsResponse, error) {
+	for _, o := range m.OnListChartsByImageRepos {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
-			return o.Response, o.Error
-		}
-	}
-	return nil, fmt.Errorf("mock not found for %v", given)
-}
-
-func (m *MockChartsClient) FindChart(_ context.Context, given *registry.FindChartRequest, _ ...grpc.CallOption) (*registry.FindChartResponse, error) {
-	for _, o := range m.OnFindChart {
-		if cmp.Equal(o.Given, given, protocmp.Transform()) {
-			return o.Response, o.Error
+			return o.List, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)
