@@ -5523,9 +5523,8 @@ func (x *GetRegistrySettingsRequest) GetRegistryId() string {
 	return ""
 }
 
-// PackageLicense carries the effective-license string for one APK in an
-// image, keyed by PURL.
-type PackageLicense struct {
+// PackageInfo carries per-APK data keyed by PURL.
+type PackageInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Purl          string                 `protobuf:"bytes,1,opt,name=purl,proto3" json:"purl,omitempty"`
 	License       string                 `protobuf:"bytes,2,opt,name=license,proto3" json:"license,omitempty"`
@@ -5533,20 +5532,20 @@ type PackageLicense struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PackageLicense) Reset() {
-	*x = PackageLicense{}
+func (x *PackageInfo) Reset() {
+	*x = PackageInfo{}
 	mi := &file_registry_platform_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PackageLicense) String() string {
+func (x *PackageInfo) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PackageLicense) ProtoMessage() {}
+func (*PackageInfo) ProtoMessage() {}
 
-func (x *PackageLicense) ProtoReflect() protoreflect.Message {
+func (x *PackageInfo) ProtoReflect() protoreflect.Message {
 	mi := &file_registry_platform_proto_msgTypes[81]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -5558,19 +5557,19 @@ func (x *PackageLicense) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PackageLicense.ProtoReflect.Descriptor instead.
-func (*PackageLicense) Descriptor() ([]byte, []int) {
+// Deprecated: Use PackageInfo.ProtoReflect.Descriptor instead.
+func (*PackageInfo) Descriptor() ([]byte, []int) {
 	return file_registry_platform_proto_rawDescGZIP(), []int{81}
 }
 
-func (x *PackageLicense) GetPurl() string {
+func (x *PackageInfo) GetPurl() string {
 	if x != nil {
 		return x.Purl
 	}
 	return ""
 }
 
-func (x *PackageLicense) GetLicense() string {
+func (x *PackageInfo) GetLicense() string {
 	if x != nil {
 		return x.License
 	}
@@ -5592,8 +5591,8 @@ type PolicyInput struct {
 	// Effective license of the image's main package, sourced from
 	// apks.license via image_main_packages.
 	MainPackageLicense string `protobuf:"bytes,4,opt,name=main_package_license,json=mainPackageLicense,proto3" json:"main_package_license,omitempty"`
-	// Effective license of every APK in the image, keyed by PURL.
-	Packages      []*PackageLicense `protobuf:"bytes,5,rep,name=packages,proto3" json:"packages,omitempty"`
+	// Per-APK info for every APK in the image, keyed by PURL.
+	Packages      []*PackageInfo `protobuf:"bytes,5,rep,name=packages,proto3" json:"packages,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -5656,7 +5655,7 @@ func (x *PolicyInput) GetMainPackageLicense() string {
 	return ""
 }
 
-func (x *PolicyInput) GetPackages() []*PackageLicense {
+func (x *PolicyInput) GetPackages() []*PackageInfo {
 	if x != nil {
 		return x.Packages
 	}
@@ -6494,17 +6493,17 @@ const file_registry_platform_proto_rawDesc = "" +
 	"\x10eol_grace_period\x18\x03 \x01(\bR\x0eeolGracePeriod\"E\n" +
 	"\x1aGetRegistrySettingsRequest\x12'\n" +
 	"\vregistry_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\n" +
-	"registryId\">\n" +
-	"\x0ePackageLicense\x12\x12\n" +
+	"registryId\";\n" +
+	"\vPackageInfo\x12\x12\n" +
 	"\x04purl\x18\x01 \x01(\tR\x04purl\x12\x18\n" +
-	"\alicense\x18\x02 \x01(\tR\alicense\"\xc9\x02\n" +
+	"\alicense\x18\x02 \x01(\tR\alicense\"\xc6\x02\n" +
 	"\vPolicyInput\x12!\n" +
 	"\fmain_package\x18\x01 \x01(\tR\vmainPackage\x12^\n" +
 	"\x14main_package_version\x18\x02 \x01(\v2,.chainguard.platform.registry.PackageVersionR\x12mainPackageVersion\x12;\n" +
 	"\vcreate_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"createTime\x120\n" +
-	"\x14main_package_license\x18\x04 \x01(\tR\x12mainPackageLicense\x12H\n" +
-	"\bpackages\x18\x05 \x03(\v2,.chainguard.platform.registry.PackageLicenseR\bpackages*k\n" +
+	"\x14main_package_license\x18\x04 \x01(\tR\x12mainPackageLicense\x12E\n" +
+	"\bpackages\x18\x05 \x03(\v2).chainguard.platform.registry.PackageInfoR\bpackages*k\n" +
 	"\vCatalogTier\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\x0f\n" +
 	"\vAPPLICATION\x10\x04\x12\b\n" +
@@ -6714,7 +6713,7 @@ var file_registry_platform_proto_goTypes = []any{
 	(*GetDeploymentRequest)(nil),                       // 84: chainguard.platform.registry.GetDeploymentRequest
 	(*RegistrySettings)(nil),                           // 85: chainguard.platform.registry.RegistrySettings
 	(*GetRegistrySettingsRequest)(nil),                 // 86: chainguard.platform.registry.GetRegistrySettingsRequest
-	(*PackageLicense)(nil),                             // 87: chainguard.platform.registry.PackageLicense
+	(*PackageInfo)(nil),                                // 87: chainguard.platform.registry.PackageInfo
 	(*PolicyInput)(nil),                                // 88: chainguard.platform.registry.PolicyInput
 	nil,                                                // 89: chainguard.platform.registry.CustomOverlay.EnvironmentEntry
 	nil,                                                // 90: chainguard.platform.registry.CustomOverlay.AnnotationsEntry
@@ -6816,7 +6815,7 @@ var file_registry_platform_proto_depIdxs = []int32{
 	81,  // 74: chainguard.platform.registry.UpdateDeploymentRequest.charts:type_name -> chainguard.platform.registry.HelmChart
 	57,  // 75: chainguard.platform.registry.PolicyInput.main_package_version:type_name -> chainguard.platform.registry.PackageVersion
 	103, // 76: chainguard.platform.registry.PolicyInput.create_time:type_name -> google.protobuf.Timestamp
-	87,  // 77: chainguard.platform.registry.PolicyInput.packages:type_name -> chainguard.platform.registry.PackageLicense
+	87,  // 77: chainguard.platform.registry.PolicyInput.packages:type_name -> chainguard.platform.registry.PackageInfo
 	92,  // 78: chainguard.platform.registry.CustomOverlay.Certificates.additional:type_name -> chainguard.platform.registry.CustomOverlay.Certificates.AdditionalEntry
 	94,  // 79: chainguard.platform.registry.ImageConfig.ExposedPortsEntry.value:type_name -> chainguard.platform.registry.ImageConfig.ExposedPort
 	96,  // 80: chainguard.platform.registry.ImageConfig.VolumesEntry.value:type_name -> chainguard.platform.registry.ImageConfig.Volume

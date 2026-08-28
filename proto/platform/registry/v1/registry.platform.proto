@@ -1418,9 +1418,8 @@ message GetRegistrySettingsRequest {
   string registry_id = 1 [(chainguard.annotations.iam_scope) = true];
 }
 
-// PackageLicense carries the effective-license string for one APK in an
-// image, keyed by PURL.
-message PackageLicense {
+// PackageInfo carries per-APK data keyed by PURL.
+message PackageInfo {
   string purl = 1;
   string license = 2;
 }
@@ -1443,6 +1442,6 @@ message PolicyInput {
   // apks.license via image_main_packages.
   string main_package_license = 4;
 
-  // Effective license of every APK in the image, keyed by PURL.
-  repeated PackageLicense packages = 5;
+  // Per-APK info for every APK in the image, keyed by PURL.
+  repeated PackageInfo packages = 5;
 }
