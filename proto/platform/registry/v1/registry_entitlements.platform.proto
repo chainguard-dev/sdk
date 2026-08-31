@@ -256,6 +256,16 @@ message EntitlementImage {
 
   // Human-readable image name corresponding to id.
   string name = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether the image is entitled as a member of an image group rather than
+  // individually. Populated by ListEntitlementCatalogImages; always false on
+  // ListEntitlementImages, whose table has no image group columns.
+  bool included_in_image_group = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Human-readable name of the image group.
+  string image_group_name = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Identifier for the image group in whatever external system defined it
+  // (Salesforce/SFDC, GitHub, or another source).
+  string external_image_group_id = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message EntitlementImagesFilter {
@@ -318,6 +328,20 @@ message EntitledImage {
   Entitlement.Type type = 4;
   // When access to this image expires. Unset means no expiration.
   google.protobuf.Timestamp expiration_time = 5;
+
+  // Whether the image is entitled as a member of an image group rather than
+  // individually. Populated on GetEffectiveEntitlementsResponse.active_images,
+  // RemoveEntitlementImagesResponse.images, and
+  // SwapEntitlementImagesResponse.removed, which all report stored catalog
+  // images. Always false on AddEntitlementImagesResponse.images and
+  // SwapEntitlementImagesResponse.added, whose images are being entitled
+  // individually by the request itself.
+  bool included_in_image_group = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Human-readable name of the image group.
+  string image_group_name = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Identifier for the image group in whatever external system defined it
+  // (Salesforce/SFDC, GitHub, or another source).
+  string external_image_group_id = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message GetEffectiveEntitlementsRequest {
@@ -330,7 +354,10 @@ message GetEffectiveEntitlementsResponse {
   // Catalog tiers with unlimited (AYCE) access.
   repeated CatalogTier active_tiers = 2;
   // Images the organization is currently entitled to, deduplicated
-  // across entitlements with the latest expiration retained.
+  // across entitlements with the latest expiration retained. Every field
+  // describes that one retained attachment, image group membership included:
+  // an image attached to several entitlements reports the group fields of the
+  // latest-expiring attachment rather than a union across all of them.
   repeated EntitledImage active_images = 3;
   // Aggregated quota usage per tier. Keys are CatalogTier string names.
   map<string, ImageQuota> quota = 4;

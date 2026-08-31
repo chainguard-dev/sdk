@@ -385,9 +385,18 @@ type EntitlementImage struct {
 	// The image repository catalog tier the image is associated with.
 	Tier CatalogTier `protobuf:"varint,2,opt,name=tier,proto3,enum=chainguard.platform.registry.CatalogTier" json:"tier,omitempty"`
 	// Human-readable image name corresponding to id.
-	Name          string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	// Whether the image is entitled as a member of an image group rather than
+	// individually. Populated by ListEntitlementCatalogImages; always false on
+	// ListEntitlementImages, whose table has no image group columns.
+	IncludedInImageGroup bool `protobuf:"varint,4,opt,name=included_in_image_group,json=includedInImageGroup,proto3" json:"included_in_image_group,omitempty"`
+	// Human-readable name of the image group.
+	ImageGroupName string `protobuf:"bytes,5,opt,name=image_group_name,json=imageGroupName,proto3" json:"image_group_name,omitempty"`
+	// Identifier for the image group in whatever external system defined it
+	// (Salesforce/SFDC, GitHub, or another source).
+	ExternalImageGroupId string `protobuf:"bytes,6,opt,name=external_image_group_id,json=externalImageGroupId,proto3" json:"external_image_group_id,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *EntitlementImage) Reset() {
@@ -437,6 +446,27 @@ func (x *EntitlementImage) GetTier() CatalogTier {
 func (x *EntitlementImage) GetName() string {
 	if x != nil {
 		return x.Name
+	}
+	return ""
+}
+
+func (x *EntitlementImage) GetIncludedInImageGroup() bool {
+	if x != nil {
+		return x.IncludedInImageGroup
+	}
+	return false
+}
+
+func (x *EntitlementImage) GetImageGroupName() string {
+	if x != nil {
+		return x.ImageGroupName
+	}
+	return ""
+}
+
+func (x *EntitlementImage) GetExternalImageGroupId() string {
+	if x != nil {
+		return x.ExternalImageGroupId
 	}
 	return ""
 }
@@ -833,8 +863,21 @@ type EntitledImage struct {
 	Type Entitlement_Type `protobuf:"varint,4,opt,name=type,proto3,enum=chainguard.platform.registry.Entitlement_Type" json:"type,omitempty"`
 	// When access to this image expires. Unset means no expiration.
 	ExpirationTime *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=expiration_time,json=expirationTime,proto3" json:"expiration_time,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Whether the image is entitled as a member of an image group rather than
+	// individually. Populated on GetEffectiveEntitlementsResponse.active_images,
+	// RemoveEntitlementImagesResponse.images, and
+	// SwapEntitlementImagesResponse.removed, which all report stored catalog
+	// images. Always false on AddEntitlementImagesResponse.images and
+	// SwapEntitlementImagesResponse.added, whose images are being entitled
+	// individually by the request itself.
+	IncludedInImageGroup bool `protobuf:"varint,6,opt,name=included_in_image_group,json=includedInImageGroup,proto3" json:"included_in_image_group,omitempty"`
+	// Human-readable name of the image group.
+	ImageGroupName string `protobuf:"bytes,7,opt,name=image_group_name,json=imageGroupName,proto3" json:"image_group_name,omitempty"`
+	// Identifier for the image group in whatever external system defined it
+	// (Salesforce/SFDC, GitHub, or another source).
+	ExternalImageGroupId string `protobuf:"bytes,8,opt,name=external_image_group_id,json=externalImageGroupId,proto3" json:"external_image_group_id,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *EntitledImage) Reset() {
@@ -902,6 +945,27 @@ func (x *EntitledImage) GetExpirationTime() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *EntitledImage) GetIncludedInImageGroup() bool {
+	if x != nil {
+		return x.IncludedInImageGroup
+	}
+	return false
+}
+
+func (x *EntitledImage) GetImageGroupName() string {
+	if x != nil {
+		return x.ImageGroupName
+	}
+	return ""
+}
+
+func (x *EntitledImage) GetExternalImageGroupId() string {
+	if x != nil {
+		return x.ExternalImageGroupId
+	}
+	return ""
+}
+
 type GetEffectiveEntitlementsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Parent        string                 `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
@@ -953,7 +1017,10 @@ type GetEffectiveEntitlementsResponse struct {
 	// Catalog tiers with unlimited (AYCE) access.
 	ActiveTiers []CatalogTier `protobuf:"varint,2,rep,packed,name=active_tiers,json=activeTiers,proto3,enum=chainguard.platform.registry.CatalogTier" json:"active_tiers,omitempty"`
 	// Images the organization is currently entitled to, deduplicated
-	// across entitlements with the latest expiration retained.
+	// across entitlements with the latest expiration retained. Every field
+	// describes that one retained attachment, image group membership included:
+	// an image attached to several entitlements reports the group fields of the
+	// latest-expiring attachment rather than a union across all of them.
 	ActiveImages []*EntitledImage `protobuf:"bytes,3,rep,name=active_images,json=activeImages,proto3" json:"active_images,omitempty"`
 	// Aggregated quota usage per tier. Keys are CatalogTier string names.
 	Quota map[string]*ImageQuota `protobuf:"bytes,4,rep,name=quota,proto3" json:"quota,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
@@ -1591,11 +1658,14 @@ const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\x11EntitlementFilter\x12\x1e\n" +
 	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\"R\n" +
 	"\x0fEntitlementList\x12?\n" +
-	"\x05items\x18\x01 \x03(\v2).chainguard.platform.registry.EntitlementR\x05items\"{\n" +
+	"\x05items\x18\x01 \x03(\v2).chainguard.platform.registry.EntitlementR\x05items\"\xa5\x02\n" +
 	"\x10EntitlementImage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12=\n" +
 	"\x04tier\x18\x02 \x01(\x0e2).chainguard.platform.registry.CatalogTierR\x04tier\x12\x18\n" +
-	"\x04name\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\x04name\"9\n" +
+	"\x04name\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\x04name\x12;\n" +
+	"\x17included_in_image_group\x18\x04 \x01(\bB\x04\xe2A\x01\x03R\x14includedInImageGroup\x12.\n" +
+	"\x10image_group_name\x18\x05 \x01(\tB\x04\xe2A\x01\x03R\x0eimageGroupName\x12;\n" +
+	"\x17external_image_group_id\x18\x06 \x01(\tB\x04\xe2A\x01\x03R\x14externalImageGroupId\"9\n" +
 	"\x17EntitlementImagesFilter\x12\x1e\n" +
 	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\"_\n" +
 	"\x15EntitlementImagesList\x12F\n" +
@@ -1619,13 +1689,16 @@ const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12K\n" +
 	"\ventitlement\x18\x02 \x01(\v2).chainguard.platform.registry.EntitlementR\ventitlement\"8\n" +
 	"\x18DeleteEntitlementRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02idJ\x04\b\x02\x10\x03\"\x90\x02\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02idJ\x04\b\x02\x10\x03\"\xba\x03\n" +
 	"\rEntitledImage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
 	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x04name\x12L\n" +
 	"\fcatalog_tier\x18\x03 \x01(\x0e2).chainguard.platform.registry.CatalogTierR\vcatalogTier\x12B\n" +
 	"\x04type\x18\x04 \x01(\x0e2..chainguard.platform.registry.Entitlement.TypeR\x04type\x12C\n" +
-	"\x0fexpiration_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x0eexpirationTime\"A\n" +
+	"\x0fexpiration_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x0eexpirationTime\x12;\n" +
+	"\x17included_in_image_group\x18\x06 \x01(\bB\x04\xe2A\x01\x03R\x14includedInImageGroup\x12.\n" +
+	"\x10image_group_name\x18\a \x01(\tB\x04\xe2A\x01\x03R\x0eimageGroupName\x12;\n" +
+	"\x17external_image_group_id\x18\b \x01(\tB\x04\xe2A\x01\x03R\x14externalImageGroupId\"A\n" +
 	"\x1fGetEffectiveEntitlementsRequest\x12\x1e\n" +
 	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\xed\x04\n" +
 	" GetEffectiveEntitlementsResponse\x126\n" +
