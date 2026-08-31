@@ -12,6 +12,7 @@ var _ argos.Clients = (*MockArgosClients)(nil)
 type MockArgosClients struct {
 	ArgosDocumentsClient MockArgosDocumentsClient
 	ArgosOSVClient       MockArgosOSVClient
+	ArgosVEXClient       MockArgosVEXClient
 	ArgosVulnsClient     MockArgosVulnsClient
 
 	OnClose error
@@ -23,6 +24,10 @@ func (m MockArgosClients) ArgosDocuments() argos.ArgosDocumentsClient {
 
 func (m MockArgosClients) ArgosOSV() argos.ArgosOSVClient {
 	return &m.ArgosOSVClient
+}
+
+func (m MockArgosClients) ArgosVEX() argos.ArgosVEXClient {
+	return &m.ArgosVEXClient
 }
 
 func (m MockArgosClients) ArgosVulns() argos.ArgosVulnsClient {

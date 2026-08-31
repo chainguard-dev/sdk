@@ -1,0 +1,81 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/argos/v1";
+
+package chainguard.platform.argos;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "annotations/auth.proto";
+
+// ArgosVEX is the customer-facing surface for the OpenVEX feed derived from
+// the Private OSV shared corpus. Documents are customer-blind: all members
+// holding CAP_ARGOS_OSV_READ see the same document set; the feed is a
+// re-encoding of data that capability already grants. All RPCs here are
+// unscoped: the server implementation MUST reject callers with zero
+// authorized scopes as its first action (see api-impl argos core).
+service ArgosVEX {
+  // GetDocument returns the per-package OpenVEX document, verbatim as
+  // published to the feed.
+  rpc GetDocument(GetVEXDocumentRequest) returns (VEXDocument) {
+    option (google.api.http) = {
+      get: "/argos/v1/vex/documents/{ecosystem}/{package=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ARGOS_OSV_READ]
+        unscoped: true
+      }
+    };
+  }
+  // Dump streams the full feed archive (tar.gz). The first frame is
+  // metadata; subsequent frames are chunks. Chunk size is server-chosen,
+  // < 4MB.
+  rpc Dump(DumpVEXRequest) returns (stream DumpVEXResponse) {
+    option (google.api.http) = {
+      get: "/argos/v1/vex/dump"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ARGOS_OSV_DUMP]
+        unscoped: true
+      }
+    };
+  }
+}
+
+message GetVEXDocumentRequest {
+  // ecosystem is the purl type, e.g. "maven", "pypi".
+  string ecosystem = 1;
+  // package is the package name including any namespace, e.g.
+  // "io.netty/netty-codec-dns", "@babel/traverse".
+  string package = 2;
+}
+
+message VEXDocument {
+  // document is the .openvex.json bytes, verbatim.
+  bytes document = 1;
+  // modified is the feed index entry's modified time for this document.
+  google.protobuf.Timestamp modified = 2;
+}
+
+message DumpVEXRequest {}
+
+// DumpVEXMetadata is the first message in a Dump stream, carrying archive
+// provenance. Subsequent messages carry raw tar.gz chunks via DumpVEXResponse.
+message DumpVEXMetadata {
+  google.protobuf.Timestamp generated_at = 1 [json_name = "generated_at"];
+  int64 size_bytes = 2 [json_name = "size_bytes"];
+  string sha256 = 3;
+}
+
+// DumpVEXResponse is either the leading metadata frame or a raw archive chunk.
+message DumpVEXResponse {
+  oneof content {
+    DumpVEXMetadata metadata = 1;
+    bytes chunk = 2;
+  }
+}
