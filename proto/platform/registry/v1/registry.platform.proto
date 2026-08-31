@@ -10,6 +10,7 @@ import "google/protobuf/timestamp.proto";
 import "annotations/auth.proto";
 import "annotations/events.proto";
 import "platform/common/v1/uidp.platform.proto";
+import "platform/packages/v1/package_info.packages.platform.proto";
 import "apko.platform.proto";
 import "vuln.platform.proto";
 import "sbom.platform.proto";
@@ -1418,12 +1419,6 @@ message GetRegistrySettingsRequest {
   string registry_id = 1 [(chainguard.annotations.iam_scope) = true];
 }
 
-// PackageInfo carries per-APK data keyed by PURL.
-message PackageInfo {
-  string purl = 1;
-  string license = 2;
-}
-
 // PolicyInput represents the set of attributes available for policy evaluation
 // on an image.
 message PolicyInput {
@@ -1443,5 +1438,5 @@ message PolicyInput {
   string main_package_license = 4;
 
   // Per-APK info for every APK in the image, keyed by PURL.
-  repeated PackageInfo packages = 5;
+  repeated chainguard.platform.packages.PackageInfo packages = 5;
 }

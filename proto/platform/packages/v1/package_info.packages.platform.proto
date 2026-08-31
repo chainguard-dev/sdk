@@ -1,0 +1,27 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+option go_package = "chainguard.dev/sdk/proto/platform/packages/v1";
+
+package chainguard.platform.packages;
+
+// PackageInfo identifies one package and carries the policy-relevant facts
+// about it.
+//
+// It lives here rather than beside either consumer because both the container
+// and the library policy inputs carry a list of these, and a policy expression
+// is written against the JSON shape rather than against a Go type. Two copies
+// would let the shapes drift apart, and a policy that reads packages[].license
+// would then mean different things depending on which side evaluated it.
+message PackageInfo {
+  // The PURL identifying the package: an APK for a container image
+  // ("pkg:apk/wolfi/curl@8.11.0-r1?arch=x86_64"), or the version under
+  // evaluation for a library ("pkg:npm/left-pad@1.3.0").
+  string purl = 1;
+
+  // The effective license, as an SPDX expression. Empty when unknown, which a
+  // policy must treat as "no license claim" rather than as a permissive one.
+  string license = 2;
+}
