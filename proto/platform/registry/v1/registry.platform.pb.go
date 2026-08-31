@@ -4830,7 +4830,12 @@ type ChartImage struct {
 	// Whether this image is required for the chart to deploy, or optional.
 	// Sourced from the chart-lock attestation's cg.json template; UNSPECIFIED
 	// for charts that do not carry a chart-lock predicate.
-	Requirement   ChartImageRequirement `protobuf:"varint,3,opt,name=requirement,proto3,enum=chainguard.platform.registry.ChartImageRequirement" json:"requirement,omitempty"`
+	Requirement ChartImageRequirement `protobuf:"varint,3,opt,name=requirement,proto3,enum=chainguard.platform.registry.ChartImageRequirement" json:"requirement,omitempty"`
+	// The catalog repo name derived from the image reference (e.g. "nginx").
+	// Unlike name, which is only unique within one (sub)chart level, repo_name
+	// identifies the image repo in the catalog and is the value accepted by
+	// AddChartRequest.images.
+	RepoName      string `protobuf:"bytes,4,opt,name=repo_name,json=repoName,proto3" json:"repo_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4884,6 +4889,13 @@ func (x *ChartImage) GetRequirement() ChartImageRequirement {
 		return x.Requirement
 	}
 	return ChartImageRequirement_REQUIREMENT_UNSPECIFIED
+}
+
+func (x *ChartImage) GetRepoName() string {
+	if x != nil {
+		return x.RepoName
+	}
+	return ""
 }
 
 type ListChartsByImageRepoRequest struct {
@@ -6395,12 +6407,13 @@ const file_registry_platform_proto_rawDesc = "" +
 	"\aversion\x18\x02 \x01(\tR\aversion\x12\x1e\n" +
 	"\n" +
 	"repository\x18\x03 \x01(\tR\n" +
-	"repository\"\x8d\x01\n" +
+	"repository\"\xaa\x01\n" +
 	"\n" +
 	"ChartImage\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05image\x18\x02 \x01(\tR\x05image\x12U\n" +
-	"\vrequirement\x18\x03 \x01(\x0e23.chainguard.platform.registry.ChartImageRequirementR\vrequirement\"?\n" +
+	"\vrequirement\x18\x03 \x01(\x0e23.chainguard.platform.registry.ChartImageRequirementR\vrequirement\x12\x1b\n" +
+	"\trepo_name\x18\x04 \x01(\tR\brepoName\"?\n" +
 	"\x1cListChartsByImageRepoRequest\x12\x1f\n" +
 	"\arepo_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06repoId\"\x82\x01\n" +
 	"\x1dListChartsByImageRepoResponse\x12a\n" +

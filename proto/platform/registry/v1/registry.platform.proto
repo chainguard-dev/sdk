@@ -1307,6 +1307,11 @@ message ChartImage {
   // Sourced from the chart-lock attestation's cg.json template; UNSPECIFIED
   // for charts that do not carry a chart-lock predicate.
   ChartImageRequirement requirement = 3;
+  // The catalog repo name derived from the image reference (e.g. "nginx").
+  // Unlike name, which is only unique within one (sub)chart level, repo_name
+  // identifies the image repo in the catalog and is the value accepted by
+  // AddChartRequest.images.
+  string repo_name = 4;
 }
 
 // ChartImageRequirement indicates whether a chart image is required or

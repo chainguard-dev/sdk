@@ -198,7 +198,13 @@ type AddChartRequest struct {
 	DryRun bool `protobuf:"varint,3,opt,name=dry_run,json=dryRun,proto3" json:"dry_run,omitempty"`
 	// The tag of the source chart to inspect for image dependencies. Defaults to
 	// the newest tag in the source repo when empty.
-	Tag           string `protobuf:"bytes,4,opt,name=tag,proto3" json:"tag,omitempty"`
+	Tag string `protobuf:"bytes,4,opt,name=tag,proto3" json:"tag,omitempty"`
+	// Catalog repo names of the chart's images to provision (e.g. "nginx"; see
+	// ChartImage.repo_name). Must be a subset of the images in the chart's
+	// metadata; unknown names are rejected with INVALID_ARGUMENT. Images the
+	// chart requires are always provisioned regardless of this list — the list
+	// selects which optional images to include. Empty means all images.
+	Images        []string `protobuf:"bytes,5,rep,name=images,proto3" json:"images,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -261,6 +267,13 @@ func (x *AddChartRequest) GetTag() string {
 	return ""
 }
 
+func (x *AddChartRequest) GetImages() []string {
+	if x != nil {
+		return x.Images
+	}
+	return nil
+}
+
 // AddChartResponse contains the result of an AddChart operation.
 type AddChartResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -320,7 +333,15 @@ type AddChartResult struct {
 	// The UIDP of the resulting repo. Empty only when a dry run reports a
 	// would-be-created repo that does not yet exist; an existing repo (created
 	// = false) always carries its UIDP, including on dry runs.
-	Id            string `protobuf:"bytes,3,opt,name=id,proto3" json:"id,omitempty"`
+	Id string `protobuf:"bytes,3,opt,name=id,proto3" json:"id,omitempty"`
+	// Whether the image is required or optional for the chart to deploy.
+	// UNSPECIFIED for the chart repo itself and for charts whose metadata does
+	// not carry per-image requirements.
+	Requirement ChartImageRequirement `protobuf:"varint,4,opt,name=requirement,proto3,enum=chainguard.platform.registry.ChartImageRequirement" json:"requirement,omitempty"`
+	// True if provisioning this repo consumed (or, on a dry run, would consume)
+	// an entitlement slot. Always false for the chart repo itself and for
+	// organizations whose plan does not meter individual images.
+	ConsumesSlot  bool `protobuf:"varint,5,opt,name=consumes_slot,json=consumesSlot,proto3" json:"consumes_slot,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -376,28 +397,45 @@ func (x *AddChartResult) GetId() string {
 	return ""
 }
 
+func (x *AddChartResult) GetRequirement() ChartImageRequirement {
+	if x != nil {
+		return x.Requirement
+	}
+	return ChartImageRequirement_REQUIREMENT_UNSPECIFIED
+}
+
+func (x *AddChartResult) GetConsumesSlot() bool {
+	if x != nil {
+		return x.ConsumesSlot
+	}
+	return false
+}
+
 var File_charts_platform_proto protoreflect.FileDescriptor
 
 const file_charts_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x15charts.platform.proto\x12\x1cchainguard.platform.registry\x1a\x1cgoogle/api/annotations.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\"l\n" +
+	"\x15charts.platform.proto\x12\x1cchainguard.platform.registry\x1a\x1cgoogle/api/annotations.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x17registry.platform.proto\"l\n" +
 	"\x10FindChartRequest\x12D\n" +
 	"\acatalog\x18\x01 \x01(\x0e2*.chainguard.platform.registry.ChartCatalogR\acatalog\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"M\n" +
 	"\x11FindChartResponse\x12$\n" +
 	"\x0esource_repo_id\x18\x01 \x01(\tR\fsourceRepoId\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"\x87\x01\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\x9f\x01\n" +
 	"\x0fAddChartRequest\x12#\n" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12$\n" +
 	"\x0esource_repo_id\x18\x02 \x01(\tR\fsourceRepoId\x12\x17\n" +
 	"\adry_run\x18\x03 \x01(\bR\x06dryRun\x12\x10\n" +
-	"\x03tag\x18\x04 \x01(\tR\x03tag\"V\n" +
+	"\x03tag\x18\x04 \x01(\tR\x03tag\x12\x16\n" +
+	"\x06images\x18\x05 \x03(\tR\x06images\"V\n" +
 	"\x10AddChartResponse\x12B\n" +
-	"\x05repos\x18\x01 \x03(\v2,.chainguard.platform.registry.AddChartResultR\x05repos\"N\n" +
+	"\x05repos\x18\x01 \x03(\v2,.chainguard.platform.registry.AddChartResultR\x05repos\"\xca\x01\n" +
 	"\x0eAddChartResult\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\acreated\x18\x02 \x01(\bR\acreated\x12\x0e\n" +
-	"\x02id\x18\x03 \x01(\tR\x02id*h\n" +
+	"\x02id\x18\x03 \x01(\tR\x02id\x12U\n" +
+	"\vrequirement\x18\x04 \x01(\x0e23.chainguard.platform.registry.ChartImageRequirementR\vrequirement\x12#\n" +
+	"\rconsumes_slot\x18\x05 \x01(\bR\fconsumesSlot*h\n" +
 	"\fChartCatalog\x12\x1d\n" +
 	"\x19CHART_CATALOG_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17CHART_CATALOG_COMMUNITY\x10\x01\x12\x1c\n" +
@@ -424,25 +462,27 @@ func file_charts_platform_proto_rawDescGZIP() []byte {
 var file_charts_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_charts_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_charts_platform_proto_goTypes = []any{
-	(ChartCatalog)(0),         // 0: chainguard.platform.registry.ChartCatalog
-	(*FindChartRequest)(nil),  // 1: chainguard.platform.registry.FindChartRequest
-	(*FindChartResponse)(nil), // 2: chainguard.platform.registry.FindChartResponse
-	(*AddChartRequest)(nil),   // 3: chainguard.platform.registry.AddChartRequest
-	(*AddChartResponse)(nil),  // 4: chainguard.platform.registry.AddChartResponse
-	(*AddChartResult)(nil),    // 5: chainguard.platform.registry.AddChartResult
+	(ChartCatalog)(0),          // 0: chainguard.platform.registry.ChartCatalog
+	(*FindChartRequest)(nil),   // 1: chainguard.platform.registry.FindChartRequest
+	(*FindChartResponse)(nil),  // 2: chainguard.platform.registry.FindChartResponse
+	(*AddChartRequest)(nil),    // 3: chainguard.platform.registry.AddChartRequest
+	(*AddChartResponse)(nil),   // 4: chainguard.platform.registry.AddChartResponse
+	(*AddChartResult)(nil),     // 5: chainguard.platform.registry.AddChartResult
+	(ChartImageRequirement)(0), // 6: chainguard.platform.registry.ChartImageRequirement
 }
 var file_charts_platform_proto_depIdxs = []int32{
 	0, // 0: chainguard.platform.registry.FindChartRequest.catalog:type_name -> chainguard.platform.registry.ChartCatalog
 	5, // 1: chainguard.platform.registry.AddChartResponse.repos:type_name -> chainguard.platform.registry.AddChartResult
-	3, // 2: chainguard.platform.registry.Charts.AddChart:input_type -> chainguard.platform.registry.AddChartRequest
-	1, // 3: chainguard.platform.registry.Charts.FindChart:input_type -> chainguard.platform.registry.FindChartRequest
-	4, // 4: chainguard.platform.registry.Charts.AddChart:output_type -> chainguard.platform.registry.AddChartResponse
-	2, // 5: chainguard.platform.registry.Charts.FindChart:output_type -> chainguard.platform.registry.FindChartResponse
-	4, // [4:6] is the sub-list for method output_type
-	2, // [2:4] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	6, // 2: chainguard.platform.registry.AddChartResult.requirement:type_name -> chainguard.platform.registry.ChartImageRequirement
+	3, // 3: chainguard.platform.registry.Charts.AddChart:input_type -> chainguard.platform.registry.AddChartRequest
+	1, // 4: chainguard.platform.registry.Charts.FindChart:input_type -> chainguard.platform.registry.FindChartRequest
+	4, // 5: chainguard.platform.registry.Charts.AddChart:output_type -> chainguard.platform.registry.AddChartResponse
+	2, // 6: chainguard.platform.registry.Charts.FindChart:output_type -> chainguard.platform.registry.FindChartResponse
+	5, // [5:7] is the sub-list for method output_type
+	3, // [3:5] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_charts_platform_proto_init() }
@@ -450,6 +490,7 @@ func file_charts_platform_proto_init() {
 	if File_charts_platform_proto != nil {
 		return
 	}
+	file_registry_platform_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

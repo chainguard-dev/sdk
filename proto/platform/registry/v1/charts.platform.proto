@@ -7,6 +7,7 @@ package chainguard.platform.registry;
 import "google/api/annotations.proto";
 import "annotations/auth.proto";
 import "annotations/events.proto";
+import "registry.platform.proto";
 
 service Charts {
   // AddChart adds a Helm chart and its image dependencies as synced repos in
@@ -87,6 +88,12 @@ message AddChartRequest {
   // The tag of the source chart to inspect for image dependencies. Defaults to
   // the newest tag in the source repo when empty.
   string tag = 4;
+  // Catalog repo names of the chart's images to provision (e.g. "nginx"; see
+  // ChartImage.repo_name). Must be a subset of the images in the chart's
+  // metadata; unknown names are rejected with INVALID_ARGUMENT. Images the
+  // chart requires are always provisioned regardless of this list — the list
+  // selects which optional images to include. Empty means all images.
+  repeated string images = 5;
 }
 
 // AddChartResponse contains the result of an AddChart operation.
@@ -108,4 +115,12 @@ message AddChartResult {
   // would-be-created repo that does not yet exist; an existing repo (created
   // = false) always carries its UIDP, including on dry runs.
   string id = 3;
+  // Whether the image is required or optional for the chart to deploy.
+  // UNSPECIFIED for the chart repo itself and for charts whose metadata does
+  // not carry per-image requirements.
+  ChartImageRequirement requirement = 4;
+  // True if provisioning this repo consumed (or, on a dry run, would consume)
+  // an entitlement slot. Always false for the chart repo itself and for
+  // organizations whose plan does not meter individual images.
+  bool consumes_slot = 5;
 }
