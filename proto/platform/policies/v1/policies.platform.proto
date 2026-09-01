@@ -234,6 +234,22 @@ enum ParameterType {
   PARAMETER_TYPE_BOOLEAN     = 4;
 }
 
+// ParameterFormat refines what a parameter's strings mean, for the parameter
+// types that carry them (PARAMETER_TYPE_STRING, PARAMETER_TYPE_STRING_LIST). It
+// names the domain rather than an operation, so a consumer decides what to do
+// with it: a value that cannot be parsed is rejected when the binding is
+// written, and the canonical rendering is stored and evaluated against.
+//
+// Without one, strings are opaque and stored verbatim.
+enum ParameterFormat {
+  PARAMETER_FORMAT_UNSPECIFIED = 0;
+  // A package URL. Parsed and canonicalized per the purl spec, which is type
+  // aware: an npm scope percent-encodes, a PyPI name lowercases and folds
+  // separators. A version is optional, so both "pkg:npm/left-pad" and
+  // "pkg:npm/left-pad@1.3.0" are accepted.
+  PARAMETER_FORMAT_PURL = 1;
+}
+
 // ParameterSchema declares a single configurable parameter on a Policy.
 // Bindings supply values for these parameters at activation time.
 message ParameterSchema {
@@ -265,6 +281,10 @@ message ParameterSchema {
   // Whether the parameter is deprecated. Customers should migrate off
   // deprecated parameters; new Bindings should not set them.
   bool deprecated = 9;
+
+  // What the parameter's strings mean, for the string-valued types. Unset
+  // leaves them opaque.
+  ParameterFormat format = 10;
 }
 
 // Policy defines a rule that can be evaluated on an image
