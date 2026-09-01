@@ -137,6 +137,13 @@ message ArgosDocumentFileBinding {
   // file's analysis resolved to, sorted.
   repeated string cgp_ids = 4;
 
+  // processing_started_at is the time processing began for this file, i.e.
+  // when the intake agent registered its analysis task. May be unset when
+  // no per-file analysis task exists (status STATUS_UNSPECIFIED), when the
+  // record predates per-file tracking, or in other cases where start time
+  // was not recorded.
+  google.protobuf.Timestamp processing_started_at = 5;
+
   enum Status {
     // No per-file outcome is attributable: the file was not analyzed as its
     // own unit, or the analysis predates per-file tracking.
