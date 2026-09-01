@@ -16,9 +16,10 @@ import (
 type MockClients struct {
 	OnClose error
 
-	ReposServiceClient  MockReposServiceClient
-	TagsServiceClient   MockTagsServiceClient
-	ImagesServiceClient MockImagesServiceClient
+	ReposServiceClient       MockReposServiceClient
+	TagsServiceClient        MockTagsServiceClient
+	ImagesServiceClient      MockImagesServiceClient
+	StigReportsServiceClient MockStigReportsServiceClient
 }
 
 // Close implements [v2.Clients].
@@ -39,6 +40,11 @@ func (m *MockClients) TagsService() registry.TagsServiceClient {
 // ImagesService implements [v2.Clients].
 func (m *MockClients) ImagesService() registry.ImagesServiceClient {
 	return &m.ImagesServiceClient
+}
+
+// StigReportsService implements [v2.Clients].
+func (m *MockClients) StigReportsService() registry.StigReportsServiceClient {
+	return &m.StigReportsServiceClient
 }
 
 // ListReposAll implements [v2.Clients].

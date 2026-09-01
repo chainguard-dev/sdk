@@ -1,0 +1,198 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.registry.v2;
+
+import "annotations/auth.proto";
+import "annotations/mcp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/registry/v2";
+option java_multiple_files = true;
+option java_outer_classname = "StigReportsProto";
+option java_package = "com.chainguard.platform.registry.v2";
+
+// StigReportsService provides read-only access to per-image STIG scan
+// reports, derived from the STIG attestation carried on the image.
+service StigReportsService {
+  // GetStigReport returns the complete STIG report for an image manifest:
+  // every rule result with its state and group categorization, per-state
+  // counts (overall and per group), the scan metadata, and the digest of
+  // the manifest whose attestation produced the report. A NOT_FOUND error
+  // means the image carries no STIG attestation — which covers both
+  // non-FIPS images and FIPS images that have not been scanned — and is
+  // distinct from a report with zero failures.
+  rpc GetStigReport(GetStigReportRequest) returns (StigReport) {
+    option (google.api.http) = {get: "/registry/v2/repos/{repo_uid=**}/digests/{digest}/stig"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_REPO_LIST,
+          CAP_MANIFEST_METADATA_LIST
+        ]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get the STIG compliance report for a container image manifest."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+}
+
+// GetStigReportRequest is the request message for GetStigReport.
+message GetStigReportRequest {
+  // UIDP of the repository containing the image.
+  string repo_uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Digest of the image manifest whose STIG report to retrieve.
+  string digest = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Architecture to descend into when the digest addresses an OCI index
+  // (e.g., "amd64", "arm64"). When empty, the report is read from the
+  // manifest as addressed by the digest, with no per-architecture descent.
+  string architecture = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// StigRuleResult is one XCCDF rule result from the scan.
+message StigRuleResult {
+  // XCCDF rule idref, a DISA vulnerability ID
+  // (e.g., "xccdf_mil.disa.stig_rule_SV-263659r982563_rule").
+  string rule_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Rule severity as recorded in the scan document
+  // (e.g., "high", "medium", "low"); "unknown" when the document did not
+  // record one.
+  string severity = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The rule's verdict.
+  StigResult result = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Human-readable rule title; empty when unavailable.
+  string title = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Human-readable rule description; empty when unavailable.
+  string description = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // ID of the innermost group enclosing the rule in the scan content
+  // (e.g., "xccdf_._group_No_Users") — the content's own categorization.
+  // Empty when the scan document does not group the rule.
+  string group_id = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Human-readable title of that group; empty when the content defines
+  // none (the GPOS benchmark titles none of its groups).
+  string group_title = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// StigStateCount is the number of rules whose verdict is a given state.
+message StigStateCount {
+  // The rule verdict being counted.
+  StigResult result = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Number of rules with that verdict.
+  int32 count = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// StigGroupCount is the per-group rollup of rule verdicts: one entry per
+// group in the scan content, so consumers render grouped sections without
+// walking every rule result.
+message StigGroupCount {
+  // ID of the group, matching StigRuleResult.group_id.
+  string group_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Human-readable title of the group; empty when the content defines none.
+  string group_title = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Number of the group's rules per verdict state.
+  repeated StigStateCount counts = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// StigReport is the complete result of one STIG scan of an image: every
+// rule result, per-state counts, and the scan metadata. Fields the scan
+// generation could not record are zero, with an explicit marker where
+// "unknown" must stay distinguishable from "empty".
+message StigReport {
+  // XCCDF profile the scan evaluated.
+  string profile_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Scan start time; unset when the scan document did not record it.
+  google.protobuf.Timestamp start_time = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Scan end time; unset when the scan document did not record it.
+  google.protobuf.Timestamp end_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Scanner image reference that produced the report; empty when the
+  // scan generation did not record scanner identity.
+  string scanner_image = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // SCAP datastream version the scan evaluated against. Meaningful only
+  // when datastream_version_known is true.
+  string datastream_version = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether the scan recorded a datastream version. False for reports
+  // from generations that could not carry it, making that absence
+  // explicit rather than empty-but-plausible.
+  bool datastream_version_known = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Every rule result from the scan, all states preserved.
+  repeated StigRuleResult rules = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Number of rules per verdict state.
+  repeated StigStateCount counts = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Digest of the manifest whose STIG attestation produced this report.
+  // Equal to the requested digest when the image itself was scanned; the
+  // assembly-origin (base image) digest when the image is a custom-assembled
+  // rebuild served from its origin's scan — in that case the report
+  // describes the origin's pre-assembly contents.
+  string scanned_digest = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Per-group rollup of rule verdicts, one entry per group in the scan
+  // content, ordered by group ID. Empty when the scan document does not
+  // group its rules.
+  repeated StigGroupCount group_counts = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// StigResult is the XCCDF 1.2 rule-result vocabulary: the only states a
+// rule verdict may carry.
+enum StigResult {
+  // Unknown or unset result state.
+  STIG_RESULT_UNSPECIFIED = 0;
+
+  // The rule's requirements are met.
+  STIG_RESULT_PASS = 1;
+
+  // The rule's requirements are not met. A STIG failure ("finding") is
+  // exactly a rule result in this state.
+  STIG_RESULT_FAIL = 2;
+
+  // The checking engine hit an error evaluating the rule.
+  STIG_RESULT_ERROR = 3;
+
+  // The scanner could not determine the rule's state.
+  STIG_RESULT_UNKNOWN = 4;
+
+  // The rule does not apply to the scanned target.
+  STIG_RESULT_NOT_APPLICABLE = 5;
+
+  // The rule was not checked (no check defined or checks disabled).
+  STIG_RESULT_NOT_CHECKED = 6;
+
+  // The rule was not selected by the evaluated profile.
+  STIG_RESULT_NOT_SELECTED = 7;
+
+  // The rule failed but was then fixed by remediation.
+  STIG_RESULT_FIXED = 8;
+
+  // The rule is informational only and carries no compliance verdict.
+  STIG_RESULT_INFORMATIONAL = 9;
+}

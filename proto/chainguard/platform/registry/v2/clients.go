@@ -19,6 +19,7 @@ type Clients interface {
 	ReposService() ReposServiceClient
 	TagsService() TagsServiceClient
 	ImagesService() ImagesServiceClient
+	StigReportsService() StigReportsServiceClient
 
 	// Iterator methods for pagination - Repos
 	ListReposIter(ctx context.Context, req *ListReposRequest) iter.Seq2[*Repo, error]
@@ -38,17 +39,19 @@ type Clients interface {
 // NewClientsFromConnection creates v2 Registry clients from an existing gRPC connection.
 func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 	return &clients{
-		reposService:  NewReposServiceClient(conn),
-		tagsService:   NewTagsServiceClient(conn),
-		imagesService: NewImagesServiceClient(conn),
+		reposService:       NewReposServiceClient(conn),
+		tagsService:        NewTagsServiceClient(conn),
+		imagesService:      NewImagesServiceClient(conn),
+		stigReportsService: NewStigReportsServiceClient(conn),
 		// conn is not set, this client struct does not own closing it
 	}
 }
 
 type clients struct {
-	reposService  ReposServiceClient
-	tagsService   TagsServiceClient
-	imagesService ImagesServiceClient
+	reposService       ReposServiceClient
+	tagsService        TagsServiceClient
+	imagesService      ImagesServiceClient
+	stigReportsService StigReportsServiceClient
 
 	conn *grpc.ClientConn
 }
@@ -63,6 +66,10 @@ func (c *clients) TagsService() TagsServiceClient {
 
 func (c *clients) ImagesService() ImagesServiceClient {
 	return c.imagesService
+}
+
+func (c *clients) StigReportsService() StigReportsServiceClient {
+	return c.stigReportsService
 }
 
 func (c *clients) Close() error {
