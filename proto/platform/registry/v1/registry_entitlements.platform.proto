@@ -114,10 +114,10 @@ service Entitlements {
   // preferring the newest, unless an explicit entitlement_id is provided.
   //
   // May return RESOURCE_EXHAUSTED when the organization has exceeded its
-  // rolling 30-day catalog-image swap quota: swaps and standalone removals
-  // beyond the quota consume per-tier image capacity until they age out of the
-  // window, reducing what can be added. See GetEffectiveEntitlements
-  // (swap_quota, swaps_used) for the current budget.
+  // rolling 30-day catalog-image swap quota: swaps beyond the quota consume
+  // per-tier image capacity until they age out of the window, reducing what can
+  // be added. See GetEffectiveEntitlements (swap_quota, swaps_used) for the
+  // current budget.
   rpc AddEntitlementImages(AddEntitlementImagesRequest) returns (AddEntitlementImagesResponse) {
     option (google.api.http) = {
       post: "/registry/v1/entitlements/{parent=**}:addImages"
@@ -148,13 +148,6 @@ service Entitlements {
   //
   // Removal is a soft delete: the underlying rows are retained with a deletion
   // timestamp so that history can be reconstructed for audit purposes.
-  //
-  // Standalone removals count against the organization's rolling 30-day
-  // catalog-image swap quota, the same as swaps (see GetEffectiveEntitlements).
-  // Removals beyond the quota reduce the per-tier image capacity available for
-  // future additions until they age out of the window. For atomic image
-  // replacement prefer SwapEntitlementImages, which removes and adds in one
-  // transaction.
   rpc RemoveEntitlementImages(RemoveEntitlementImagesRequest) returns (RemoveEntitlementImagesResponse) {
     option (google.api.http) = {
       post: "/registry/v1/entitlements/{parent=**}:removeImages"
@@ -163,7 +156,10 @@ service Entitlements {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {tags: "RegistryEntitlements"};
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [CAP_REGISTRY_ENTITLEMENTS_IMAGES_REMOVE]
+        capabilities: [
+          CAP_REGISTRY_ENTITLEMENTS_IMAGES_REMOVE,
+          CAP_INTERNAL
+        ]
         unscoped: true
       }
     };
@@ -365,15 +361,14 @@ message GetEffectiveEntitlementsResponse {
   // A value of -1 means this organization has no maximum quota enforced.
   int32 max_total_images = 5;
   // The organization's rolling 30-day catalog-image swap quota, aggregated
-  // across its active entitlements. Both swaps (see SwapEntitlementImages) and
-  // standalone image removals count against this quota. A value of -1 means
-  // unlimited (no swap limit is enforced); 0 means no swaps are permitted.
-  // Usage beyond the quota within the window consumes per-tier image capacity
-  // until it ages out.
+  // across its active entitlements. Swaps (see SwapEntitlementImages) count
+  // against this quota. A value of -1 means unlimited (no swap limit is
+  // enforced); 0 means no swaps are permitted. Usage beyond the quota within the
+  // window consumes per-tier image capacity until it ages out.
   int32 swap_quota = 6;
-  // Catalog-image swaps and standalone removals in the current rolling 30-day
-  // window. When this exceeds swap_quota, the excess reduces the per-tier image
-  // capacity available for new additions.
+  // Catalog-image swaps in the current rolling 30-day window. When this exceeds
+  // swap_quota, the excess reduces the per-tier image capacity available for new
+  // additions.
   int32 swaps_used = 7;
   // Time at which the next swap becomes available. Set only when no swaps are
   // available now (swaps_used >= swap_quota); unset when a swap is already
