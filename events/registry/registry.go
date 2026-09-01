@@ -90,6 +90,11 @@ type PolicyCheckResult struct {
 	Mode string `json:"mode"`
 	// Result is the evaluation outcome ("RESULT_ALLOWED", "RESULT_DENIED", or "RESULT_ERROR").
 	Result string `json:"result"`
+	// Reasons carries the per-denial strings a policy's `reasons` rule
+	// emitted, in the order the policy declared them. Empty on ALLOW,
+	// on RESULT_ERROR, and on policies that don't declare a `reasons`
+	// rule.
+	Reasons []string `json:"reasons,omitempty"`
 }
 
 // PushEvent describes an item being pushed to the registry.
