@@ -29,6 +29,21 @@ func ExampleNewClientsFromConnection() {
 	// Output: true
 }
 
+func ExampleClients_VulnReportsService() {
+	conn, err := grpc.NewClient("api.chainguard.dev:443",
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	c := vuln.NewClientsFromConnection(conn)
+	defer c.Close()
+
+	fmt.Println(c.VulnReportsService() != nil)
+	// Output: true
+}
+
 func ExampleClients_AdvisoriesService() {
 	conn, err := grpc.NewClient("api.chainguard.dev:443",
 		grpc.WithTransportCredentials(insecure.NewCredentials()))

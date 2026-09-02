@@ -22,10 +22,13 @@ const (
 	// TODO(colin): find a more appropriate place for this
 	DefaultPageSize = 50
 
-	// maxPages is the maximum number of pages the iterator will fetch before
-	// stopping, to prevent infinite loops caused by servers that return
-	// non-terminating page tokens.
-	maxPages = 1000
+	// maxPages caps how many pages the iterator fetches, so a server that
+	// returns non-terminating page tokens cannot loop forever. Hitting the
+	// cap with a next token still pending is reported as an error, never as
+	// a complete listing. Sized so the largest legitimate vuln count report
+	// listing (4950 references over a 366 day window at 1500 rows per page,
+	// ~1.82M rows) completes before the cap when pages are full.
+	maxPages = 1500
 )
 
 // PagedRequest is a constraint for protobuf list request types that support
@@ -124,5 +127,6 @@ func List[T any](ctx context.Context, resourceName string, fetch func(pageToken 
 			}
 			pageToken = nextToken
 		}
+		yield(zero, fmt.Errorf("listing %q: stopped after %d pages with more remaining; results are incomplete", resourceName, maxPages))
 	}
 }

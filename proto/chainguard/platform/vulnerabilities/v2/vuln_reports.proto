@@ -1,0 +1,180 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.vulnerabilities.v2;
+
+import "annotations/auth.proto";
+import "annotations/mcp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/vulnerabilities/v2";
+option java_multiple_files = true;
+option java_outer_classname = "VulnReportsProto";
+option java_package = "com.chainguard.platform.vulnerabilities.v2";
+
+// VulnReportsService serves historical vulnerability count reports.
+service VulnReportsService {
+  // ListVulnCountReports returns one report per referenced image:tag per day
+  // inside the date window, with pagination support. Unlike the v1
+  // ListVulnCountReports, responses are bounded: a page closes at page_size
+  // rows or the server's byte budget, whichever comes first, and callers
+  // follow next_page_token until it comes back empty.
+  //
+  // POST is deliberate: references is a repeated message that cannot ride a
+  // GET query string through the REST gateway.
+  rpc ListVulnCountReports(ListVulnCountReportsRequest) returns (ListVulnCountReportsResponse) {
+    option (google.api.http) = {
+      post: "/vulnerabilities/v2/vulnCountReports:list"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_VULN_REPORT_LIST]
+        unscoped: true
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List daily vulnerability count reports for a set of image:tag references over a date window, with pagination."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+}
+
+// RepoTagReference identifies one image:tag whose daily reports are listed.
+message RepoTagReference {
+  // repo is the full image reference without tag (e.g.
+  // "cgr.dev/chainguard/nginx").
+  string repo = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // tag is the image tag (e.g. "latest").
+  string tag = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListVulnCountReportsRequest is the request message for ListVulnCountReports.
+// (-- api-linter: core::0132::request-parent-required=disabled
+//     aip.dev/not-precedent: reports are selected by image:tag references and
+//     a date window, not by a parent resource; the RPC is unscoped. --)
+message ListVulnCountReportsRequest {
+  // references selects the image:tag pairs to report on, at most 4950.
+  // Duplicate pairs collapse into one.
+  repeated RepoTagReference references = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // from is the inclusive start of the date range, compared at day
+  // granularity (the time component is ignored).
+  google.protobuf.Timestamp from = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // to is the inclusive end of the date range, compared at day granularity.
+  google.protobuf.Timestamp to = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // page_size caps the rows in one response. Default: 1500, Maximum: 10000.
+  // A larger value is clamped, not rejected. Fewer rows than page_size can
+  // come back while more remain (the server also closes pages on a byte
+  // budget), so treat next_page_token as the only end-of-listing signal.
+  int32 page_size = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // page_token resumes a listing from a previous response. Opaque, expires
+  // after 3 days, and must be paired with the exact request the listing
+  // started with.
+  string page_token = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // order_by is unsupported: results always come back ordered by
+  // (repo, tag, date) ascending. Non-empty values are rejected. The field
+  // exists so the request has the standard v2 paginated-list shape.
+  string order_by = 6 [(google.api.field_behavior) = OPTIONAL];
+
+  // skip is unsupported and rejected when non-zero. The field exists so the
+  // request has the standard v2 paginated-list shape.
+  int32 skip = 7 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListVulnCountReportsResponse is the response message for ListVulnCountReports.
+message ListVulnCountReportsResponse {
+  // vuln_count_reports are the matching daily reports, ordered by
+  // (repo, tag, date) ascending.
+  repeated VulnCountReport vuln_count_reports = 1;
+
+  // next_page_token is set when more rows remain; empty means the listing is
+  // complete.
+  string next_page_token = 2;
+}
+
+// VulnCountReport is one image:tag's vulnerability counts for one day.
+// (-- api-linter: core::0123::resource-annotation=disabled
+//     aip.dev/not-precedent: a report row is derived time-series data keyed by
+//     (repo, tag, date), not an addressable resource with a UID. --)
+message VulnCountReport {
+  // repo is the full image reference scanned, without tag.
+  string repo = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // tag is the image tag scanned.
+  string tag = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // date is the calendar day the counts describe, at UTC midnight.
+  // (-- api-linter: core::0142::time-field-names=disabled
+  //     aip.dev/not-precedent: the field is a calendar day, not an event
+  //     timestamp; the v1 report uses the same name. --)
+  google.protobuf.Timestamp date = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // vuln_counts enumerate the number of CVEs found per severity.
+  repeated VulnCount vuln_counts = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // size_bytes is the size in bytes of the image at scan time.
+  int64 size_bytes = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // cve_ids is the list of cumulative CVE IDs found in the image.
+  repeated string cve_ids = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // low_cve_ids is the list of cumulative CVE IDs with low severity.
+  repeated string low_cve_ids = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // med_cve_ids is the list of cumulative CVE IDs with medium severity.
+  repeated string med_cve_ids = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // high_cve_ids is the list of cumulative CVE IDs with high severity.
+  repeated string high_cve_ids = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // crit_cve_ids is the list of cumulative CVE IDs with critical severity.
+  repeated string crit_cve_ids = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // negligible_cve_ids is the list of cumulative CVE IDs with negligible severity.
+  repeated string negligible_cve_ids = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // unknown_cve_ids is the list of cumulative CVE IDs with unknown severity.
+  repeated string unknown_cve_ids = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// VulnCount is the number of CVEs found at one severity level.
+message VulnCount {
+  // severity is the CVE severity level being counted.
+  // Named SeverityLevel because this package's Severity message is a
+  // quantitative scoring method (CVSS), a different concept.
+  SeverityLevel severity = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // count is the number of CVEs at this severity level.
+  int32 count = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// SeverityLevel classifies a CVE's severity.
+enum SeverityLevel {
+  // SEVERITY_LEVEL_UNSPECIFIED means the severity level was not set.
+  SEVERITY_LEVEL_UNSPECIFIED = 0;
+  // SEVERITY_LEVEL_LOW is a low-severity CVE.
+  SEVERITY_LEVEL_LOW = 1;
+  // SEVERITY_LEVEL_MEDIUM is a medium-severity CVE.
+  SEVERITY_LEVEL_MEDIUM = 2;
+  // SEVERITY_LEVEL_HIGH is a high-severity CVE.
+  SEVERITY_LEVEL_HIGH = 3;
+  // SEVERITY_LEVEL_CRITICAL is a critical-severity CVE.
+  SEVERITY_LEVEL_CRITICAL = 4;
+  // SEVERITY_LEVEL_NEGLIGIBLE is a negligible-severity CVE.
+  SEVERITY_LEVEL_NEGLIGIBLE = 5;
+  // SEVERITY_LEVEL_UNKNOWN is a CVE whose severity could not be classified.
+  SEVERITY_LEVEL_UNKNOWN = 6;
+}

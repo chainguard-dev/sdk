@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand/v2"
+	"strings"
 	"testing"
 
 	"chainguard.dev/sdk/proto/chainguard/platform/iter"
@@ -188,6 +189,22 @@ func TestList(t *testing.T) {
 			t.Fatalf("fetch count: got = %d, wanted = 1", fetchCount)
 		}
 	})
+}
+
+func TestList_PageCapIsAnError(t *testing.T) {
+	// A server that never returns an empty next token must not look like a
+	// complete listing: the iterator has to surface the cut-off as an error.
+	calls := 0
+	_, err := iter.All(iter.List(slogtest.Context(t), "things", func(string) ([]string, string, error) {
+		calls++
+		return []string{"x"}, "more", nil
+	}))
+	if err == nil || !strings.Contains(err.Error(), "results are incomplete") {
+		t.Fatalf("error: got = %v, want page cap error", err)
+	}
+	if calls != 1500 {
+		t.Errorf("fetch calls: got = %d, want = 1500", calls)
+	}
 }
 
 func TestPaginate(t *testing.T) {
