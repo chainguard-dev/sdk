@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package chainguard.platform.iam;
+
+import "annotations/auth.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "chainguard.dev/sdk/proto/platform/iam/v1";
+
+// ScimUsers reads the SCIM-provisioned users of an identity provider. The
+// records are written by the IdP's SCIM connector, so this surface is
+// read-only. Name and email attributes are deliberately not exposed here (data
+// minimization); use the SCIM protocol endpoint for the full user resource.
+service ScimUsers {
+  // List returns the SCIM-provisioned users of an identity provider. This v1
+  // surface is unpaginated: it returns at most 1000 users in a single response.
+  // `total_count` reports the full number matching the filter, so a caller can
+  // tell the result was clamped (total_count > len(items)) and should narrow the
+  // request with user_name, external_id, or active, or use the paginated v2 API
+  // to retrieve the rest.
+  rpc List(ScimUserFilter) returns (ScimUserList) {
+    option (google.api.http) = {get: "/iam/v1/scimUsers"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_SCIM_USERS_LIST]
+      }
+    };
+  }
+}
+
+// ScimUser is a SCIM-provisioned user of an identity provider. Every field is
+// server-owned.
+message ScimUser {
+  // id is the UIDP of the SCIM user record.
+  string id = 1;
+
+  // identity_provider_uidp is the UIDP of the identity provider that
+  // provisioned this user.
+  string identity_provider_uidp = 2;
+
+  // user_name is the SCIM userName attribute, typically an email address.
+  string user_name = 3;
+
+  // external_id is the IdP-assigned SCIM externalId, an opaque correlation key.
+  // May be empty.
+  string external_id = 4;
+
+  // display_name is the SCIM displayName attribute. May be empty.
+  string display_name = 5;
+
+  // active is the SCIM active flag. When false, the IdP has deprovisioned the
+  // user.
+  bool active = 6;
+
+  // iam_identity_uidp is the UIDP of the Chainguard IAM identity this SCIM
+  // user is linked to. Empty until the user's first login; its presence
+  // therefore indicates the user has authenticated at least once.
+  string iam_identity_uidp = 7;
+
+  // created_at is when the SCIM user record was created.
+  google.protobuf.Timestamp created_at = 8;
+
+  // updated_at is when the SCIM user record was last updated.
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message ScimUserList {
+  repeated ScimUser items = 1;
+
+  // total_count is the number of users matching the filter. It may exceed
+  // len(items) when the result was clamped to the v1 cap (1000); treat
+  // total_count > len(items) as "narrow the filter or use the paginated v2 API".
+  int64 total_count = 2;
+}
+
+// ScimUserFilter scopes a list to a single identity provider. SCIM resources
+// scope to a flat identity_provider_uidp, not the group hierarchy, so
+// identity_provider_uidp is required.
+message ScimUserFilter {
+  // identity_provider_uidp restricts results to a single identity provider. It
+  // is required and carries the authorization scope: the caller must hold
+  // CAP_IAM_SCIM_USERS_LIST at this identity provider (or an ancestor).
+  string identity_provider_uidp = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // user_name matches the SCIM userName exactly (case-insensitive).
+  string user_name = 2;
+
+  // external_id matches the IdP-assigned externalId exactly.
+  string external_id = 3;
+
+  // active, when set, filters by the SCIM active flag.
+  optional bool active = 4;
+}

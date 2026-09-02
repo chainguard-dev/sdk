@@ -24,6 +24,7 @@ type MockClients struct {
 	RolesServiceClient                     MockRolesServiceClient
 	RoleBindingsServiceClient              MockRoleBindingsServiceClient
 	ExternalGroupRoleMappingsServiceClient MockExternalGroupRoleMappingsServiceClient
+	ScimUsersServiceClient                 MockScimUsersServiceClient
 	TermsServiceClient                     MockTermsServiceClient
 }
 
@@ -84,6 +85,25 @@ func (m *MockClients) ListExternalGroupRoleMappingsAll(ctx context.Context, req 
 // ListExternalGroupRoleMappingsIter implements [v2beta1.Clients].
 func (m *MockClients) ListExternalGroupRoleMappingsIter(ctx context.Context, req *iam.ListExternalGroupRoleMappingsRequest) iter.Seq2[*iam.ExternalGroupRoleMapping, error] {
 	return test.MockIter(m.ListExternalGroupRoleMappingsAll(ctx, req))
+}
+
+// ScimUsersService implements [v2beta1.Clients].
+func (m *MockClients) ScimUsersService() iam.ScimUsersServiceClient {
+	return &m.ScimUsersServiceClient
+}
+
+// ListScimUsersAll implements [v2beta1.Clients].
+func (m *MockClients) ListScimUsersAll(ctx context.Context, req *iam.ListScimUsersRequest) ([]*iam.ScimUser, error) {
+	resp, err := m.ScimUsersServiceClient.ListScimUsers(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.GetScimUsers(), nil
+}
+
+// ListScimUsersIter implements [v2beta1.Clients].
+func (m *MockClients) ListScimUsersIter(ctx context.Context, req *iam.ListScimUsersRequest) iter.Seq2[*iam.ScimUser, error] {
+	return test.MockIter(m.ListScimUsersAll(ctx, req))
 }
 
 // TermsService implements [v2beta1.Clients].

@@ -160,6 +160,10 @@ var (
 		Capability_CAP_IAM_IDENTITY_PROVIDERS_DELETE,
 		Capability_CAP_IAM_IDENTITY_PROVIDERS_UPDATE,
 		Capability_CAP_IAM_SCIM_MANAGE,
+		// SCIM is admin-adjacent: listing an IdP's provisioned users is owner-only
+		// for now, alongside scim.manage. It can move to a viewer-oriented role
+		// later if a read-only need emerges.
+		Capability_CAP_IAM_SCIM_USERS_LIST,
 
 		Capability_CAP_IAM_ROLE_BINDINGS_CREATE,
 		Capability_CAP_IAM_ROLE_BINDINGS_DELETE,
