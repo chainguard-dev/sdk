@@ -184,9 +184,17 @@ message UpdateSkillRequest {
   bool hardened = 10 [(google.api.field_behavior) = OPTIONAL];
   // source is the organization that published the skill (e.g. "anthropics"). The
   // publish-time writer sets it; a re-publish should carry it so it is not
-  // cleared. (stars/downloads are out-of-band metrics and are not set here.)
+  // cleared.
   string source = 11 [(google.api.field_behavior) = OPTIONAL];
-  // next id: 12
+  // stars is the accumulated count of stars (favorites). An out-of-band
+  // engagement metric: UpdateSkill preserves the stored value when this is 0
+  // (unset), so a publish-time / backfill writer that has no count does not
+  // clobber it; a metrics writer passes the real count to set it.
+  int64 stars = 12 [(google.api.field_behavior) = OPTIONAL];
+  // downloads is the accumulated download/pull count. Like stars, an out-of-band
+  // metric preserved on 0 (unset) so partial writers never reset it.
+  int64 downloads = 13 [(google.api.field_behavior) = OPTIONAL];
+  // next id: 14
 }
 
 message DeleteSkillRequest {

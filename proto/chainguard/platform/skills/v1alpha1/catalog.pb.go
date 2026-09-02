@@ -212,8 +212,16 @@ type UpdateSkillRequest struct {
 	Hardened bool `protobuf:"varint,10,opt,name=hardened,proto3" json:"hardened,omitempty"`
 	// source is the organization that published the skill (e.g. "anthropics"). The
 	// publish-time writer sets it; a re-publish should carry it so it is not
-	// cleared. (stars/downloads are out-of-band metrics and are not set here.)
-	Source        string `protobuf:"bytes,11,opt,name=source,proto3" json:"source,omitempty"` // next id: 12
+	// cleared.
+	Source string `protobuf:"bytes,11,opt,name=source,proto3" json:"source,omitempty"`
+	// stars is the accumulated count of stars (favorites). An out-of-band
+	// engagement metric: UpdateSkill preserves the stored value when this is 0
+	// (unset), so a publish-time / backfill writer that has no count does not
+	// clobber it; a metrics writer passes the real count to set it.
+	Stars int64 `protobuf:"varint,12,opt,name=stars,proto3" json:"stars,omitempty"`
+	// downloads is the accumulated download/pull count. Like stars, an out-of-band
+	// metric preserved on 0 (unset) so partial writers never reset it.
+	Downloads     int64 `protobuf:"varint,13,opt,name=downloads,proto3" json:"downloads,omitempty"` // next id: 14
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -316,6 +324,20 @@ func (x *UpdateSkillRequest) GetSource() string {
 		return x.Source
 	}
 	return ""
+}
+
+func (x *UpdateSkillRequest) GetStars() int64 {
+	if x != nil {
+		return x.Stars
+	}
+	return 0
+}
+
+func (x *UpdateSkillRequest) GetDownloads() int64 {
+	if x != nil {
+		return x.Downloads
+	}
+	return 0
 }
 
 type DeleteSkillRequest struct {
@@ -677,7 +699,7 @@ const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	"\x05stars\x18\n" +
 	" \x01(\x03B\x04\xe2A\x01\x03R\x05stars\x12\"\n" +
 	"\tdownloads\x18\v \x01(\x03B\x04\xe2A\x01\x03R\tdownloads\x12\x1c\n" +
-	"\x06source\x18\f \x01(\tB\x04\xe2A\x01\x03R\x06source\"\xf7\x02\n" +
+	"\x06source\x18\f \x01(\tB\x04\xe2A\x01\x03R\x06source\"\xb7\x03\n" +
 	"\x12UpdateSkillRequest\x12!\n" +
 	"\trepo_uidp\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\brepoUidp\x12'\n" +
 	"\tparent_id\x18\x02 \x01(\tB\n" +
@@ -690,7 +712,9 @@ const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	"\rallow_missing\x18\t \x01(\bB\x04\xe2A\x01\x01R\fallowMissing\x12 \n" +
 	"\bhardened\x18\n" +
 	" \x01(\bB\x04\xe2A\x01\x01R\bhardened\x12\x1c\n" +
-	"\x06source\x18\v \x01(\tB\x04\xe2A\x01\x01R\x06sourceJ\x04\b\b\x10\t\"0\n" +
+	"\x06source\x18\v \x01(\tB\x04\xe2A\x01\x01R\x06source\x12\x1a\n" +
+	"\x05stars\x18\f \x01(\x03B\x04\xe2A\x01\x01R\x05stars\x12\"\n" +
+	"\tdownloads\x18\r \x01(\x03B\x04\xe2A\x01\x01R\tdownloadsJ\x04\b\b\x10\t\"0\n" +
 	"\x12DeleteSkillRequest\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x02id\"\xc5\x01\n" +
