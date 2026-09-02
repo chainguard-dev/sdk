@@ -71,7 +71,7 @@ func TestReparent(t *testing.T) {
 func TestUIDPValidity(t *testing.T) {
 	var uidp UIDP
 
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		uidp = uidp.NewChild()
 
 		if !Valid(string(uidp)) {

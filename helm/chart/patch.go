@@ -175,8 +175,8 @@ func nestTemplate(m *images.Mapping, path []string) *images.Mapping {
 	nested := &images.Mapping{Images: make(map[string]*images.Image, len(m.Images))}
 	for id, img := range m.Images {
 		v := img.Values
-		for i := len(path) - 1; i >= 0; i-- {
-			v = map[string]any{path[i]: v}
+		for _, p := range slices.Backward(path) {
+			v = map[string]any{p: v}
 		}
 		nested.Images[id] = &images.Image{Values: v}
 	}

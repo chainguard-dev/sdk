@@ -92,8 +92,7 @@ func (ts *chainctlTokenSource) Token() (*oauth2.Token, error) {
 // bytes in it. The command's stdout never appears in the message — on the
 // success path stdout is the bearer token itself.
 func commandError(cmd *exec.Cmd, err error) error {
-	var exitErr *exec.ExitError
-	if errors.As(err, &exitErr) {
+	if exitErr, ok := errors.AsType[*exec.ExitError](err); ok {
 		if stderr := strings.TrimSpace(string(exitErr.Stderr)); stderr != "" {
 			if len(stderr) > maxStderrBytes {
 				stderr = stderr[:maxStderrBytes] + " (truncated)"

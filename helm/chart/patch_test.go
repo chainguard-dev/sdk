@@ -7,6 +7,7 @@ package chart
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"testing"
 
@@ -44,8 +45,8 @@ func imageTemplate(imageID string, values map[string]any) *images.Mapping {
 
 func registryDigestTemplate(imageID string, prefix ...string) *images.Mapping {
 	v := map[string]any{"registry": "${registry}", "digest": "${digest}"}
-	for i := len(prefix) - 1; i >= 0; i-- {
-		v = map[string]any{prefix[i]: v}
+	for _, p := range slices.Backward(prefix) {
+		v = map[string]any{p: v}
 	}
 	return imageTemplate(imageID, v)
 }

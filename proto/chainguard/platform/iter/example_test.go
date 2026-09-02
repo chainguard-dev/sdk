@@ -30,10 +30,7 @@ func Example() {
 		}
 
 		// Return a page of items
-		end := offset + pageSize
-		if end > len(allItems) {
-			end = len(allItems)
-		}
+		end := min(offset+pageSize, len(allItems))
 
 		items := allItems[offset:end]
 
@@ -79,10 +76,7 @@ func ExampleList() {
 			fmt.Sscanf(pageToken, "%d", &offset)
 		}
 
-		end := offset + pageSize
-		if end > len(allUsers) {
-			end = len(allUsers)
-		}
+		end := min(offset+pageSize, len(allUsers))
 
 		users := allUsers[offset:end]
 		nextToken := ""

@@ -58,8 +58,7 @@ func NewHTTPHandler(ctx context.Context, issuer, group string, fn Handler) (http
 			// Verification failures carry the status they want returned;
 			// anything else is a fault in fn rather than a bad delivery.
 			status := http.StatusInternalServerError
-			var result *cehttp.Result
-			if errors.As(err, &result) {
+			if result, ok := errors.AsType[*cehttp.Result](err); ok {
 				status = result.StatusCode
 			}
 			http.Error(w, err.Error(), status)
