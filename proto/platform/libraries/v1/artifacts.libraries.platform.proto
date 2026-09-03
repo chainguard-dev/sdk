@@ -66,6 +66,12 @@ message Artifact {
   google.protobuf.Timestamp created_at = 7;
   // When the most recent version was published to Chainguard Libraries.
   google.protobuf.Timestamp updated_at = 8;
+  // The distinct origins of the versions counted by version_count, in a
+  // stable order. Like the other version-derived fields, this reflects only
+  // the versions in the requested view (see ArtifactFilter.source_types and
+  // include_upstream), not every version of the artifact. Versions whose
+  // origin is unknown are not listed.
+  repeated SourceType source_types = 9;
 }
 
 // A collection of Artifacts as returned by calls to ListArtifacts.

@@ -101,7 +101,13 @@ type Artifact struct {
 	// When the first version was published to Chainguard Libraries.
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	// When the most recent version was published to Chainguard Libraries.
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	// The distinct origins of the versions counted by version_count, in a
+	// stable order. Like the other version-derived fields, this reflects only
+	// the versions in the requested view (see ArtifactFilter.source_types and
+	// include_upstream), not every version of the artifact. Versions whose
+	// origin is unknown are not listed.
+	SourceTypes   []SourceType `protobuf:"varint,9,rep,packed,name=source_types,json=sourceTypes,proto3,enum=chainguard.platform.libraries.SourceType" json:"source_types,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -188,6 +194,13 @@ func (x *Artifact) GetCreatedAt() *timestamppb.Timestamp {
 func (x *Artifact) GetUpdatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *Artifact) GetSourceTypes() []SourceType {
+	if x != nil {
+		return x.SourceTypes
 	}
 	return nil
 }
@@ -805,7 +818,7 @@ var File_artifacts_libraries_platform_proto protoreflect.FileDescriptor
 
 const file_artifacts_libraries_platform_proto_rawDesc = "" +
 	"\n" +
-	"\"artifacts.libraries.platform.proto\x12\x1dchainguard.platform.libraries\x1a\x16annotations/auth.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a%entitlements.libraries.platform.proto\"\xda\x02\n" +
+	"\"artifacts.libraries.platform.proto\x12\x1dchainguard.platform.libraries\x1a\x16annotations/auth.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a%entitlements.libraries.platform.proto\"\xa8\x03\n" +
 	"\bArtifact\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -816,7 +829,8 @@ const file_artifacts_libraries_platform_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xb8\x01\n" +
+	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12L\n" +
+	"\fsource_types\x18\t \x03(\x0e2).chainguard.platform.libraries.SourceTypeR\vsourceTypes\"\xb8\x01\n" +
 	"\fArtifactList\x12=\n" +
 	"\x05items\x18\x01 \x03(\v2'.chainguard.platform.libraries.ArtifactR\x05items\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12'\n" +
@@ -916,29 +930,30 @@ var file_artifacts_libraries_platform_proto_depIdxs = []int32{
 	10, // 0: chainguard.platform.libraries.Artifact.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
 	11, // 1: chainguard.platform.libraries.Artifact.created_at:type_name -> google.protobuf.Timestamp
 	11, // 2: chainguard.platform.libraries.Artifact.updated_at:type_name -> google.protobuf.Timestamp
-	1,  // 3: chainguard.platform.libraries.ArtifactList.items:type_name -> chainguard.platform.libraries.Artifact
-	10, // 4: chainguard.platform.libraries.ArtifactFilter.ecosystems:type_name -> chainguard.platform.libraries.Ecosystem
-	0,  // 5: chainguard.platform.libraries.ArtifactFilter.source_types:type_name -> chainguard.platform.libraries.SourceType
-	0,  // 6: chainguard.platform.libraries.ArtifactVersionFilter.source_types:type_name -> chainguard.platform.libraries.SourceType
-	6,  // 7: chainguard.platform.libraries.ArtifactVersionList.items:type_name -> chainguard.platform.libraries.ArtifactVersion
-	11, // 8: chainguard.platform.libraries.ArtifactVersion.created_at:type_name -> google.protobuf.Timestamp
-	11, // 9: chainguard.platform.libraries.ArtifactVersion.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 10: chainguard.platform.libraries.ArtifactVersion.source_type:type_name -> chainguard.platform.libraries.SourceType
-	11, // 11: chainguard.platform.libraries.ArtifactVersion.upstream_published_date:type_name -> google.protobuf.Timestamp
-	10, // 12: chainguard.platform.libraries.GetArtifactCountRequest.ecosystems:type_name -> chainguard.platform.libraries.Ecosystem
-	9,  // 13: chainguard.platform.libraries.GetArtifactCountResponse.counts:type_name -> chainguard.platform.libraries.GetArtifactCountResponse.Count
-	10, // 14: chainguard.platform.libraries.GetArtifactCountResponse.Count.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
-	3,  // 15: chainguard.platform.libraries.Artifacts.List:input_type -> chainguard.platform.libraries.ArtifactFilter
-	4,  // 16: chainguard.platform.libraries.Artifacts.ListVersions:input_type -> chainguard.platform.libraries.ArtifactVersionFilter
-	7,  // 17: chainguard.platform.libraries.Artifacts.GetArtifactCount:input_type -> chainguard.platform.libraries.GetArtifactCountRequest
-	2,  // 18: chainguard.platform.libraries.Artifacts.List:output_type -> chainguard.platform.libraries.ArtifactList
-	5,  // 19: chainguard.platform.libraries.Artifacts.ListVersions:output_type -> chainguard.platform.libraries.ArtifactVersionList
-	8,  // 20: chainguard.platform.libraries.Artifacts.GetArtifactCount:output_type -> chainguard.platform.libraries.GetArtifactCountResponse
-	18, // [18:21] is the sub-list for method output_type
-	15, // [15:18] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	0,  // 3: chainguard.platform.libraries.Artifact.source_types:type_name -> chainguard.platform.libraries.SourceType
+	1,  // 4: chainguard.platform.libraries.ArtifactList.items:type_name -> chainguard.platform.libraries.Artifact
+	10, // 5: chainguard.platform.libraries.ArtifactFilter.ecosystems:type_name -> chainguard.platform.libraries.Ecosystem
+	0,  // 6: chainguard.platform.libraries.ArtifactFilter.source_types:type_name -> chainguard.platform.libraries.SourceType
+	0,  // 7: chainguard.platform.libraries.ArtifactVersionFilter.source_types:type_name -> chainguard.platform.libraries.SourceType
+	6,  // 8: chainguard.platform.libraries.ArtifactVersionList.items:type_name -> chainguard.platform.libraries.ArtifactVersion
+	11, // 9: chainguard.platform.libraries.ArtifactVersion.created_at:type_name -> google.protobuf.Timestamp
+	11, // 10: chainguard.platform.libraries.ArtifactVersion.updated_at:type_name -> google.protobuf.Timestamp
+	0,  // 11: chainguard.platform.libraries.ArtifactVersion.source_type:type_name -> chainguard.platform.libraries.SourceType
+	11, // 12: chainguard.platform.libraries.ArtifactVersion.upstream_published_date:type_name -> google.protobuf.Timestamp
+	10, // 13: chainguard.platform.libraries.GetArtifactCountRequest.ecosystems:type_name -> chainguard.platform.libraries.Ecosystem
+	9,  // 14: chainguard.platform.libraries.GetArtifactCountResponse.counts:type_name -> chainguard.platform.libraries.GetArtifactCountResponse.Count
+	10, // 15: chainguard.platform.libraries.GetArtifactCountResponse.Count.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
+	3,  // 16: chainguard.platform.libraries.Artifacts.List:input_type -> chainguard.platform.libraries.ArtifactFilter
+	4,  // 17: chainguard.platform.libraries.Artifacts.ListVersions:input_type -> chainguard.platform.libraries.ArtifactVersionFilter
+	7,  // 18: chainguard.platform.libraries.Artifacts.GetArtifactCount:input_type -> chainguard.platform.libraries.GetArtifactCountRequest
+	2,  // 19: chainguard.platform.libraries.Artifacts.List:output_type -> chainguard.platform.libraries.ArtifactList
+	5,  // 20: chainguard.platform.libraries.Artifacts.ListVersions:output_type -> chainguard.platform.libraries.ArtifactVersionList
+	8,  // 21: chainguard.platform.libraries.Artifacts.GetArtifactCount:output_type -> chainguard.platform.libraries.GetArtifactCountResponse
+	19, // [19:22] is the sub-list for method output_type
+	16, // [16:19] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_artifacts_libraries_platform_proto_init() }
