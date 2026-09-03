@@ -161,14 +161,20 @@ func ExampleMockPoliciesClient_DeletePolicy() {
 }
 
 // ExampleMockPoliciesClient_ValidatePolicy demonstrates mocking the
-// dry-run validate endpoint used by `chainctl policies custom validate`.
+// dry-run validate endpoint used by `chainctl policy custom validate`.
+//
+// The resource types are required: an expression is validated against the
+// input document the type it is evaluated for supplies, and naming several
+// validates the expression once per type, the way a manifest declaring
+// several expands into one policy each.
 func ExampleMockPoliciesClient_ValidatePolicy() {
 	ctx := context.Background()
 
 	req := &policies.ValidatePolicyRequest{
 		Expression: `package chainguard.policies
 default allow = true`,
-		Type: policies.ExpressionType_EXPRESSION_TYPE_REGO,
+		Type:                   policies.ExpressionType_EXPRESSION_TYPE_REGO,
+		SupportedResourceTypes: []string{"registry.chainguard.dev/Repo@v1"},
 	}
 
 	mock := &test.MockPoliciesClient{

@@ -313,10 +313,16 @@ message Policy {
 
   // The resource type this policy supports.
   // The value is a Chainguard API resource type with a version suffix
-  // (e.g. "registry.chainguard.dev/Repo@v1"). The version determines
-  // which PolicyInput schema is used when evaluating the policy expression.
+  // (e.g. "registry.chainguard.dev/Repo@v1"). The type determines which
+  // input document the policy expression is evaluated against, and the
+  // version which revision of it.
   // Supported resource types:
   //   - registry.chainguard.dev/Repo@v1
+  //   - libraries.chainguard.dev/JavaPackage@v1
+  //   - libraries.chainguard.dev/NPMPackage@v1
+  //   - libraries.chainguard.dev/PythonPackage@v1
+  //   - libraries.chainguard.dev/GoPackage@v1
+  //   - libraries.chainguard.dev/DotNetPackage@v1
   //
   // Immutable: set at creation and cannot be changed on update. A policy's
   // name and supported_resource_type together identify it, so changing the
@@ -677,6 +683,20 @@ message ValidatePolicyRequest {
   // When set, the response's `errors` array contains diagnostics for both
   // expression and schema problems.
   repeated ParameterSchema parameter_schemas = 3;
+  // The resource types to validate the expression for, in the form
+  // Policy.supported_resource_type takes (e.g.
+  // "registry.chainguard.dev/Repo@v1").
+  //
+  // Repeated because a policy manifest may declare several, each of which
+  // becomes its own policy: validating the manifest means validating the
+  // expression once per type. A type determines which input document the
+  // expression is checked against, so an expression can be valid for one type
+  // and reference an undefined field under another. Diagnostics name the
+  // resource type when the outcome differs across the set.
+  //
+  // Required, distinct, and every value must be a supported resource type.
+  // Naming a type twice is refused rather than ignored.
+  repeated string supported_resource_types = 4 [(google.api.field_behavior) = REQUIRED];
 }
 
 message ValidatePolicyResponse {

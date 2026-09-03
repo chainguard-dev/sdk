@@ -506,10 +506,16 @@ type Policy struct {
 	SupportedResourceTypes []string `protobuf:"bytes,5,rep,name=supported_resource_types,json=supportedResourceTypes,proto3" json:"supported_resource_types,omitempty"`
 	// The resource type this policy supports.
 	// The value is a Chainguard API resource type with a version suffix
-	// (e.g. "registry.chainguard.dev/Repo@v1"). The version determines
-	// which PolicyInput schema is used when evaluating the policy expression.
+	// (e.g. "registry.chainguard.dev/Repo@v1"). The type determines which
+	// input document the policy expression is evaluated against, and the
+	// version which revision of it.
 	// Supported resource types:
 	//   - registry.chainguard.dev/Repo@v1
+	//   - libraries.chainguard.dev/JavaPackage@v1
+	//   - libraries.chainguard.dev/NPMPackage@v1
+	//   - libraries.chainguard.dev/PythonPackage@v1
+	//   - libraries.chainguard.dev/GoPackage@v1
+	//   - libraries.chainguard.dev/DotNetPackage@v1
 	//
 	// Immutable: set at creation and cannot be changed on update. A policy's
 	// name and supported_resource_type together identify it, so changing the
@@ -2041,8 +2047,22 @@ type ValidatePolicyRequest struct {
 	// When set, the response's `errors` array contains diagnostics for both
 	// expression and schema problems.
 	ParameterSchemas []*ParameterSchema `protobuf:"bytes,3,rep,name=parameter_schemas,json=parameterSchemas,proto3" json:"parameter_schemas,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// The resource types to validate the expression for, in the form
+	// Policy.supported_resource_type takes (e.g.
+	// "registry.chainguard.dev/Repo@v1").
+	//
+	// Repeated because a policy manifest may declare several, each of which
+	// becomes its own policy: validating the manifest means validating the
+	// expression once per type. A type determines which input document the
+	// expression is checked against, so an expression can be valid for one type
+	// and reference an undefined field under another. Diagnostics name the
+	// resource type when the outcome differs across the set.
+	//
+	// Required, distinct, and every value must be a supported resource type.
+	// Naming a type twice is refused rather than ignored.
+	SupportedResourceTypes []string `protobuf:"bytes,4,rep,name=supported_resource_types,json=supportedResourceTypes,proto3" json:"supported_resource_types,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *ValidatePolicyRequest) Reset() {
@@ -2092,6 +2112,13 @@ func (x *ValidatePolicyRequest) GetType() ExpressionType {
 func (x *ValidatePolicyRequest) GetParameterSchemas() []*ParameterSchema {
 	if x != nil {
 		return x.ParameterSchemas
+	}
+	return nil
+}
+
+func (x *ValidatePolicyRequest) GetSupportedResourceTypes() []string {
+	if x != nil {
+		return x.SupportedResourceTypes
 	}
 	return nil
 }
@@ -2305,13 +2332,14 @@ const file_policies_platform_proto_rawDesc = "" +
 	"\x10PolicyDiagnostic\x12\x12\n" +
 	"\x04line\x18\x01 \x01(\x05R\x04line\x12\x16\n" +
 	"\x06column\x18\x02 \x01(\x05R\x06column\x12\x18\n" +
-	"\amessage\x18\x03 \x01(\tR\amessage\"\xe7\x01\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\"\xa7\x02\n" +
 	"\x15ValidatePolicyRequest\x12$\n" +
 	"\n" +
 	"expression\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\n" +
 	"expression\x12I\n" +
 	"\x04type\x18\x02 \x01(\x0e2/.chainguard.platform.policies.v1.ExpressionTypeB\x04\xe2A\x01\x02R\x04type\x12]\n" +
-	"\x11parameter_schemas\x18\x03 \x03(\v20.chainguard.platform.policies.v1.ParameterSchemaR\x10parameterSchemas\"y\n" +
+	"\x11parameter_schemas\x18\x03 \x03(\v20.chainguard.platform.policies.v1.ParameterSchemaR\x10parameterSchemas\x12>\n" +
+	"\x18supported_resource_types\x18\x04 \x03(\tB\x04\xe2A\x01\x02R\x16supportedResourceTypes\"y\n" +
 	"\x16ValidatePolicyResponse\x12\x14\n" +
 	"\x05valid\x18\x01 \x01(\bR\x05valid\x12I\n" +
 	"\x06errors\x18\x02 \x03(\v21.chainguard.platform.policies.v1.PolicyDiagnosticR\x06errors*\\\n" +
