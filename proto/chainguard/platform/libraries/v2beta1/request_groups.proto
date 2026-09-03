@@ -669,7 +669,19 @@ message ListRequestGroupsResponse {
 // GetRequestGroupRequest fetches one group.
 message GetRequestGroupRequest {
   // The group's unique identifier.
-  string uid = 1 [
+  //
+  // A flat UUID, not a Chainguard ID: it has no parent and no hierarchy. The IAM
+  // scope therefore travels on parent below, rather than on this field as it does
+  // for resources whose uid is itself a Chainguard ID.
+  string uid = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The organization that owns the group.
+  //
+  // Carries the IAM scope for this request, matching
+  // ListRequestGroupsRequest.parent: authorization is evaluated against this
+  // organization. It must be the organization that owns uid; a uid belonging to
+  // any other organization reads as not found.
+  string parent = 2 [
     (google.api.field_behavior) = REQUIRED,
     (chainguard.annotations.iam_scope) = true
   ];
@@ -678,10 +690,10 @@ message GetRequestGroupRequest {
 // ListRequestGroupItemsRequest pages a group's items.
 message ListRequestGroupItemsRequest {
   // The group whose items to list.
-  string uid = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (chainguard.annotations.iam_scope) = true
-  ];
+  //
+  // A flat UUID, not a Chainguard ID, as on GetRequestGroupRequest.uid. The IAM
+  // scope travels on parent below.
+  string uid = 1 [(google.api.field_behavior) = REQUIRED];
 
   // Filter by build availability.
   Availability availability = 2 [(google.api.field_behavior) = OPTIONAL];
@@ -695,6 +707,19 @@ message ListRequestGroupItemsRequest {
 
   // Include items the customer removed. Excluded by default.
   bool include_removed = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // The organization that owns the group.
+  //
+  // Carries the IAM scope for this request, as on GetRequestGroupRequest.parent.
+  // It must be the organization that owns uid; a uid belonging to any other
+  // organization reads as not found.
+  //
+  // Numbered 6 rather than appended after skip so it sits with the identifying and
+  // filter fields instead of inside the pagination block at 10-13.
+  string parent = 6 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
 
   // Maximum items to return. Default 50, maximum 1000.
   int32 page_size = 10 [(google.api.field_behavior) = OPTIONAL];

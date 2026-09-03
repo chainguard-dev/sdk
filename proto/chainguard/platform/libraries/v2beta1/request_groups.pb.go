@@ -1804,7 +1804,18 @@ func (x *ListRequestGroupsResponse) GetSkipped() int32 {
 type GetRequestGroupRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The group's unique identifier.
-	Uid           string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	//
+	// A flat UUID, not a Chainguard ID: it has no parent and no hierarchy. The IAM
+	// scope therefore travels on parent below, rather than on this field as it does
+	// for resources whose uid is itself a Chainguard ID.
+	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	// The organization that owns the group.
+	//
+	// Carries the IAM scope for this request, matching
+	// ListRequestGroupsRequest.parent: authorization is evaluated against this
+	// organization. It must be the organization that owns uid; a uid belonging to
+	// any other organization reads as not found.
+	Parent        string `protobuf:"bytes,2,opt,name=parent,proto3" json:"parent,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1846,10 +1857,20 @@ func (x *GetRequestGroupRequest) GetUid() string {
 	return ""
 }
 
+func (x *GetRequestGroupRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
 // ListRequestGroupItemsRequest pages a group's items.
 type ListRequestGroupItemsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The group whose items to list.
+	//
+	// A flat UUID, not a Chainguard ID, as on GetRequestGroupRequest.uid. The IAM
+	// scope travels on parent below.
 	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	// Filter by build availability.
 	Availability Availability `protobuf:"varint,2,opt,name=availability,proto3,enum=chainguard.platform.libraries.v2beta1.Availability" json:"availability,omitempty"`
@@ -1860,6 +1881,15 @@ type ListRequestGroupItemsRequest struct {
 	MinUpdateTime *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=min_update_time,json=minUpdateTime,proto3" json:"min_update_time,omitempty"`
 	// Include items the customer removed. Excluded by default.
 	IncludeRemoved bool `protobuf:"varint,5,opt,name=include_removed,json=includeRemoved,proto3" json:"include_removed,omitempty"`
+	// The organization that owns the group.
+	//
+	// Carries the IAM scope for this request, as on GetRequestGroupRequest.parent.
+	// It must be the organization that owns uid; a uid belonging to any other
+	// organization reads as not found.
+	//
+	// Numbered 6 rather than appended after skip so it sits with the identifying and
+	// filter fields instead of inside the pagination block at 10-13.
+	Parent string `protobuf:"bytes,6,opt,name=parent,proto3" json:"parent,omitempty"`
 	// Maximum items to return. Default 50, maximum 1000.
 	PageSize int32 `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	// Opaque page token from a previous response.
@@ -1938,6 +1968,13 @@ func (x *ListRequestGroupItemsRequest) GetIncludeRemoved() bool {
 		return x.IncludeRemoved
 	}
 	return false
+}
+
+func (x *ListRequestGroupItemsRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
 }
 
 func (x *ListRequestGroupItemsRequest) GetPageSize() int32 {
@@ -3342,17 +3379,19 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"\vtotal_count\x18\x03 \x01(\x03H\x00R\n" +
 	"totalCount\x88\x01\x01\x12\x18\n" +
 	"\askipped\x18\x04 \x01(\x05R\askippedB\x0e\n" +
-	"\f_total_count\"6\n" +
-	"\x16GetRequestGroupRequest\x12\x1c\n" +
-	"\x03uid\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\"\x90\x04\n" +
-	"\x1cListRequestGroupItemsRequest\x12\x1c\n" +
-	"\x03uid\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12]\n" +
+	"\f_total_count\"T\n" +
+	"\x16GetRequestGroupRequest\x12\x16\n" +
+	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x03uid\x12\"\n" +
+	"\x06parent\x18\x02 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\xae\x04\n" +
+	"\x1cListRequestGroupItemsRequest\x12\x16\n" +
+	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x03uid\x12]\n" +
 	"\favailability\x18\x02 \x01(\x0e23.chainguard.platform.libraries.v2beta1.AvailabilityB\x04\xe2A\x01\x01R\favailability\x12w\n" +
 	"\x16cve_remediation_status\x18\x03 \x01(\x0e2;.chainguard.platform.libraries.v2beta1.CVERemediationStatusB\x04\xe2A\x01\x01R\x14cveRemediationStatus\x12H\n" +
 	"\x0fmin_update_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x01R\rminUpdateTime\x12-\n" +
-	"\x0finclude_removed\x18\x05 \x01(\bB\x04\xe2A\x01\x01R\x0eincludeRemoved\x12!\n" +
+	"\x0finclude_removed\x18\x05 \x01(\bB\x04\xe2A\x01\x01R\x0eincludeRemoved\x12\"\n" +
+	"\x06parent\x18\x06 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12!\n" +
 	"\tpage_size\x18\n" +
 	" \x01(\x05B\x04\xe2A\x01\x01R\bpageSize\x12#\n" +
 	"\n" +
