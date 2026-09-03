@@ -471,6 +471,15 @@ enum Capability {
   // caller holds a capability in, which no customer does for these actions.
   CAP_ACTIONS_DEPENDENCIES_LIST = 2711 [(name) = "actions.dependencies.list", (bit) = 224, (internal_only) = true];
 
+  // Sandbox: the ACID sandbox Runs control plane (the WorkflowRuns API,
+  // ai-cicd/sandbox). Customer-grantable — an org's members run, watch, and
+  // cancel workflow runs in the org's own instance — via the sandbox.user
+  // role, and held by Owners. The SANDBOX service principal's internal
+  // sandbox.service_agent role carries the same capabilities.
+  CAP_SANDBOX_RUN_CREATE = 3001 [(name) = "sandbox.run.create", (bit) = 226];
+  CAP_SANDBOX_RUN_LIST   = 3002 [(name) = "sandbox.run.list",   (bit) = 227];
+  CAP_SANDBOX_RUN_CANCEL = 3003 [(name) = "sandbox.run.cancel", (bit) = 228];
+
   reserved 1;
-  // next bit: 226
+  // next bit: 229
 }

@@ -235,6 +235,9 @@ var (
 		// Owners get the full guardener admin set, so they can self-service
 		// link/unlink a GitHub org to the group in addition to running DFC sessions.
 		GuardenerAdminCaps,
+		// Owners can run, watch, and cancel workflow runs on the sandbox Runs
+		// control plane, and grant the same to others via sandbox.user.
+		SandboxUserCaps,
 	)
 
 	RegistryRepoAdminCaps = SortCaps(RegistryEditorCaps)
@@ -526,6 +529,17 @@ var (
 
 	MCPToolUserCaps = SortCaps([]Capability{
 		Capability_CAP_MCP_TOOL_CALL,
+	})
+
+	// SandboxUserCaps is the capability set for using the ACID sandbox Runs
+	// control plane (the WorkflowRuns API): submitting workflow runs, reading
+	// them and their operations, and cancelling them, all scoped to the
+	// caller's own instance (group). It backs the sandbox.user role and is
+	// included in OwnerCaps.
+	SandboxUserCaps = SortCaps([]Capability{
+		Capability_CAP_SANDBOX_RUN_CREATE,
+		Capability_CAP_SANDBOX_RUN_LIST,
+		Capability_CAP_SANDBOX_RUN_CANCEL,
 	})
 
 	// ArgosOperatorCaps is the capability set for managing argos
