@@ -1273,14 +1273,16 @@ func (x *DeleteBindingRequest) GetId() string {
 }
 
 // Decision records the outcome of a single pull-time policy evaluation
-// of one artifact digest.
+// of one artifact.
 type Decision struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The id of the Decision, a child of the repository it concerns.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// The id of the repository whose artifact was evaluated.
 	RepoId string `protobuf:"bytes,2,opt,name=repo_id,json=repoId,proto3" json:"repo_id,omitempty"`
-	// The digest the policy was evaluated against.
+	// Deprecated: use artifact_id.
+	//
+	// Deprecated: Marked as deprecated in policies.platform.proto.
 	Digest string `protobuf:"bytes,3,opt,name=digest,proto3" json:"digest,omitempty"`
 	// The id of the policy that was evaluated.
 	PolicyId string `protobuf:"bytes,4,opt,name=policy_id,json=policyId,proto3" json:"policy_id,omitempty"`
@@ -1292,8 +1294,12 @@ type Decision struct {
 	Result Result `protobuf:"varint,7,opt,name=result,proto3,enum=chainguard.platform.policies.v1.Result" json:"result,omitempty"`
 	// The human-readable explanation of the outcome, if available.
 	Reason string `protobuf:"bytes,8,opt,name=reason,proto3" json:"reason,omitempty"`
-	// The day the digest was pulled and evaluated against this policy.
-	PulledOn      *date.Date `protobuf:"bytes,9,opt,name=pulled_on,json=pulledOn,proto3" json:"pulled_on,omitempty"`
+	// The day the artifact was pulled and evaluated against this policy.
+	PulledOn *date.Date `protobuf:"bytes,9,opt,name=pulled_on,json=pulledOn,proto3" json:"pulled_on,omitempty"`
+	// The artifact this decision applies to: a manifest digest
+	// ("sha256:...") for container policies or a PURL
+	// ("pkg:npm/left-pad@1.3.0") for library policies.
+	ArtifactId    string `protobuf:"bytes,10,opt,name=artifact_id,json=artifactId,proto3" json:"artifact_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1342,6 +1348,7 @@ func (x *Decision) GetRepoId() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in policies.platform.proto.
 func (x *Decision) GetDigest() string {
 	if x != nil {
 		return x.Digest
@@ -1389,6 +1396,13 @@ func (x *Decision) GetPulledOn() *date.Date {
 		return x.PulledOn
 	}
 	return nil
+}
+
+func (x *Decision) GetArtifactId() string {
+	if x != nil {
+		return x.ArtifactId
+	}
+	return ""
 }
 
 type DecisionList struct {
@@ -1494,8 +1508,12 @@ type DecisionFilter struct {
 	// Can be combined with page_token to skip from cursor position.
 	// Must be non-negative.
 	Skip int32 `protobuf:"varint,10,opt,name=skip,proto3" json:"skip,omitempty"`
-	// Only return decisions for this manifest digest.
-	Digest        string `protobuf:"bytes,11,opt,name=digest,proto3" json:"digest,omitempty"`
+	// Deprecated: use artifact_id.
+	//
+	// Deprecated: Marked as deprecated in policies.platform.proto.
+	Digest string `protobuf:"bytes,11,opt,name=digest,proto3" json:"digest,omitempty"`
+	// Only return decisions for this artifact.
+	ArtifactId    string `protobuf:"bytes,12,opt,name=artifact_id,json=artifactId,proto3" json:"artifact_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1600,9 +1618,17 @@ func (x *DecisionFilter) GetSkip() int32 {
 	return 0
 }
 
+// Deprecated: Marked as deprecated in policies.platform.proto.
 func (x *DecisionFilter) GetDigest() string {
 	if x != nil {
 		return x.Digest
+	}
+	return ""
+}
+
+func (x *DecisionFilter) GetArtifactId() string {
+	if x != nil {
+		return x.ArtifactId
 	}
 	return ""
 }
@@ -2268,24 +2294,27 @@ const file_policies_platform_proto_rawDesc = "" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12B\n" +
 	"\abinding\x18\x02 \x01(\v2(.chainguard.platform.policies.v1.BindingR\abinding\".\n" +
 	"\x14DeleteBindingRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"\x8b\x03\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"\xb4\x03\n" +
 	"\bDecision\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x1d\n" +
-	"\arepo_id\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x06repoId\x12\x1c\n" +
-	"\x06digest\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\x06digest\x12!\n" +
+	"\arepo_id\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x06repoId\x12\x1e\n" +
+	"\x06digest\x18\x03 \x01(\tB\x06\xe2A\x01\x03\x18\x01R\x06digest\x12!\n" +
 	"\tpolicy_id\x18\x04 \x01(\tB\x04\xe2A\x01\x03R\bpolicyId\x12%\n" +
 	"\vpolicy_name\x18\x05 \x01(\tB\x04\xe2A\x01\x03R\n" +
 	"policyName\x12E\n" +
 	"\x04mode\x18\x06 \x01(\x0e2+.chainguard.platform.policies.v1.PolicyModeB\x04\xe2A\x01\x03R\x04mode\x12E\n" +
 	"\x06result\x18\a \x01(\x0e2'.chainguard.platform.policies.v1.ResultB\x04\xe2A\x01\x03R\x06result\x12\x1c\n" +
 	"\x06reason\x18\b \x01(\tB\x04\xe2A\x01\x03R\x06reason\x124\n" +
-	"\tpulled_on\x18\t \x01(\v2\x11.google.type.DateB\x04\xe2A\x01\x03R\bpulledOn\"\xb2\x01\n" +
+	"\tpulled_on\x18\t \x01(\v2\x11.google.type.DateB\x04\xe2A\x01\x03R\bpulledOn\x12%\n" +
+	"\vartifact_id\x18\n" +
+	" \x01(\tB\x04\xe2A\x01\x03R\n" +
+	"artifactId\"\xb2\x01\n" +
 	"\fDecisionList\x12?\n" +
 	"\x05items\x18\x01 \x03(\v2).chainguard.platform.policies.v1.DecisionR\x05items\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
 	"\vtotal_count\x18\x03 \x01(\x03R\n" +
 	"totalCount\x12\x18\n" +
-	"\askipped\x18\x04 \x01(\x05R\askipped\"\xcc\x03\n" +
+	"\askipped\x18\x04 \x01(\x05R\askipped\"\xf1\x03\n" +
 	"\x0eDecisionFilter\x12:\n" +
 	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterR\x04uidp\x12\x1b\n" +
 	"\tpolicy_id\x18\x02 \x01(\tR\bpolicyId\x12?\n" +
@@ -2298,8 +2327,10 @@ const file_policies_platform_proto_rawDesc = "" +
 	"page_token\x18\b \x01(\tR\tpageToken\x12\x1f\n" +
 	"\border_by\x18\t \x01(\tB\x04\xe2A\x01\x01R\aorderBy\x12\x18\n" +
 	"\x04skip\x18\n" +
-	" \x01(\x05B\x04\xe2A\x01\x01R\x04skip\x12\x16\n" +
-	"\x06digest\x18\v \x01(\tR\x06digest\"\xfa\x01\n" +
+	" \x01(\x05B\x04\xe2A\x01\x01R\x04skip\x12\x1a\n" +
+	"\x06digest\x18\v \x01(\tB\x02\x18\x01R\x06digest\x12\x1f\n" +
+	"\vartifact_id\x18\f \x01(\tR\n" +
+	"artifactId\"\xfa\x01\n" +
 	"\bOverride\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x1b\n" +
 	"\tpolicy_id\x18\x02 \x01(\tR\bpolicyId\x12\x1a\n" +

@@ -493,7 +493,7 @@ enum Result {
 }
 
 // Decision records the outcome of a single pull-time policy evaluation
-// of one artifact digest.
+// of one artifact.
 message Decision {
   // The id of the Decision, a child of the repository it concerns.
   string id = 1 [(chainguard.annotations.iam_scope) = true];
@@ -501,8 +501,11 @@ message Decision {
   // The id of the repository whose artifact was evaluated.
   string repo_id = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The digest the policy was evaluated against.
-  string digest = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Deprecated: use artifact_id.
+  string digest = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    deprecated = true
+  ];
 
   // The id of the policy that was evaluated.
   string policy_id = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -519,8 +522,13 @@ message Decision {
   // The human-readable explanation of the outcome, if available.
   string reason = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The day the digest was pulled and evaluated against this policy.
+  // The day the artifact was pulled and evaluated against this policy.
   google.type.Date pulled_on = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The artifact this decision applies to: a manifest digest
+  // ("sha256:...") for container policies or a PURL
+  // ("pkg:npm/left-pad@1.3.0") for library policies.
+  string artifact_id = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message DecisionList {
@@ -577,8 +585,11 @@ message DecisionFilter {
   // Must be non-negative.
   int32 skip = 10 [(google.api.field_behavior) = OPTIONAL];
 
-  // Only return decisions for this manifest digest.
-  string digest = 11;
+  // Deprecated: use artifact_id.
+  string digest = 11 [deprecated = true];
+
+  // Only return decisions for this artifact.
+  string artifact_id = 12;
 }
 
 // Override is an admin-granted waiver of a policy decision for one specific
