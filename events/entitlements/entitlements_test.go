@@ -351,3 +351,41 @@ func TestChangeEvent_GrainInvariants(t *testing.T) {
 		}
 	})
 }
+
+// TestChangeEvent_CloudEventsRedact pins the customer-audience redaction: the
+// internal attribution (Actor, ChangeReason) is dropped while Source, the
+// entitlement identity, and the state snapshots are preserved — and the original
+// event is left untouched.
+func TestChangeEvent_CloudEventsRedact(t *testing.T) {
+	orig := entitlements.ChangeEvent{
+		Domain:          entitlements.DomainImage,
+		OrgUIDP:         "org",
+		EntitlementUIDP: "org/ent",
+		Operation:       entitlements.OperationWrite,
+		Source:          "SALESFORCE",
+		Actor:           "ae@chainguard.dev",
+		ChangeReason:    "opportunity 006xx",
+		After:           json.RawMessage(`{"grant_type":"PRODUCTION"}`),
+	}
+
+	redacted, ok := orig.CloudEventsRedact().(entitlements.ChangeEvent)
+	if !ok {
+		t.Fatalf("CloudEventsRedact returned %T, want entitlements.ChangeEvent", orig.CloudEventsRedact())
+	}
+	if redacted.Actor != "" {
+		t.Errorf("actor: got = %q, wanted = \"\" (redacted)", redacted.Actor)
+	}
+	if redacted.ChangeReason != "" {
+		t.Errorf("change_reason: got = %q, wanted = \"\" (redacted)", redacted.ChangeReason)
+	}
+	if redacted.Source != "SALESFORCE" {
+		t.Errorf("source: got = %q, wanted = SALESFORCE (kept)", redacted.Source)
+	}
+	if redacted.Domain != entitlements.DomainImage || redacted.EntitlementUIDP != "org/ent" ||
+		redacted.Operation != entitlements.OperationWrite || string(redacted.After) != `{"grant_type":"PRODUCTION"}` {
+		t.Errorf("non-attribution field altered by redaction: %+v", redacted)
+	}
+	if orig.Actor == "" || orig.ChangeReason == "" {
+		t.Error("CloudEventsRedact mutated the original event")
+	}
+}

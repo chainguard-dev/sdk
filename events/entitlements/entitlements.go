@@ -93,8 +93,10 @@ type ChangeEvent struct {
 	// Operation is the kind of change; see the grain rules on the type doc.
 	Operation Operation `json:"operation"`
 
-	// Source is the system of record for the entitlement (e.g. "SALESFORCE"),
-	// when known.
+	// Source is the surface that made this change (e.g. "CONSOLE_ADMIN" for an
+	// admin edit), letting a subscriber spot an unexpected editor. This is the
+	// change-attribution source, NOT the entitlement's system of record (its
+	// managing/owning source) — that is carried on the Before/After snapshot.
 	Source string `json:"source,omitempty"`
 
 	// Actor is the identity the change is attributed to (recorded with the change
@@ -123,6 +125,11 @@ type ChangeEvent struct {
 	Resources []ResourceChange `json:"resources,omitempty"`
 }
 
+var (
+	_ events.Extendable = ChangeEvent{}
+	_ events.Redactable = ChangeEvent{}
+)
+
 // CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension.
 // It exposes the event's organization (events.GroupKey), entitlement domain
 // (events.EntitlementDomainKey), and operation (events.EntitlementOperationKey)
@@ -139,6 +146,25 @@ func (e ChangeEvent) CloudEventsExtension(key string) (string, bool) {
 	default:
 		return "", false
 	}
+}
+
+// CloudEventsRedact implements chainguard.dev/sdk/events/Redactable.CloudEventsRedact.
+// This event is delivered to a customer audience (the entitlement is the
+// customer's own product), so it drops the internal attribution the change was
+// made with: Actor and ChangeReason can carry internal identities and free-text
+// notes for changes made on the customer's behalf. Source is kept — it is not
+// sensitive — as is the entitlement state in Before/After, which is the
+// customer's own data.
+//
+// This redacts only the top-level Actor and ChangeReason. It deliberately does NOT
+// parse the Before/After snapshot JSON — doing so would couple this SDK to the
+// snapshot's wire field names. Callers are responsible for ensuring those snapshots
+// carry no nested attribution before marshaling them onto the event; otherwise
+// internal attribution reaches the customer audience inside Before/After.
+func (e ChangeEvent) CloudEventsRedact() any {
+	e.Actor = ""
+	e.ChangeReason = ""
+	return e
 }
 
 // ResourceChange identifies a single resource bound to or removed from an
