@@ -1,0 +1,7 @@
+/*
+Copyright 2026 Chainguard, Inc.
+SPDX-License-Identifier: Apache-2.0
+*/
+
+// Package test provides mock implementations of the v1alpha1 Skills clients.
+package test
