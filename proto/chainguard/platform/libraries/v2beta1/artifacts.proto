@@ -263,4 +263,7 @@ enum Ecosystem {
 
   // Python ecosystem (PyPI).
   ECOSYSTEM_PYTHON = 2;
+
+  // JavaScript ecosystem (npm).
+  ECOSYSTEM_JAVASCRIPT = 3;
 }

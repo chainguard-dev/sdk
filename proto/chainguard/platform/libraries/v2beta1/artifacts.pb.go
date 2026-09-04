@@ -37,6 +37,8 @@ const (
 	Ecosystem_ECOSYSTEM_JAVA Ecosystem = 1
 	// Python ecosystem (PyPI).
 	Ecosystem_ECOSYSTEM_PYTHON Ecosystem = 2
+	// JavaScript ecosystem (npm).
+	Ecosystem_ECOSYSTEM_JAVASCRIPT Ecosystem = 3
 )
 
 // Enum value maps for Ecosystem.
@@ -45,11 +47,13 @@ var (
 		0: "ECOSYSTEM_UNSPECIFIED",
 		1: "ECOSYSTEM_JAVA",
 		2: "ECOSYSTEM_PYTHON",
+		3: "ECOSYSTEM_JAVASCRIPT",
 	}
 	Ecosystem_value = map[string]int32{
 		"ECOSYSTEM_UNSPECIFIED": 0,
 		"ECOSYSTEM_JAVA":        1,
 		"ECOSYSTEM_PYTHON":      2,
+		"ECOSYSTEM_JAVASCRIPT":  3,
 	}
 )
 
@@ -869,11 +873,12 @@ const file_chainguard_platform_libraries_v2beta1_artifacts_proto_rawDesc = "" +
 	"\x0eEcosystemCount\x12N\n" +
 	"\tecosystem\x18\x01 \x01(\x0e20.chainguard.platform.libraries.v2beta1.EcosystemR\tecosystem\x12\x1f\n" +
 	"\vtotal_count\x18\x02 \x01(\x03R\n" +
-	"totalCount*P\n" +
+	"totalCount*j\n" +
 	"\tEcosystem\x12\x19\n" +
 	"\x15ECOSYSTEM_UNSPECIFIED\x10\x00\x12\x12\n" +
 	"\x0eECOSYSTEM_JAVA\x10\x01\x12\x14\n" +
-	"\x10ECOSYSTEM_PYTHON\x10\x022\xc8\a\n" +
+	"\x10ECOSYSTEM_PYTHON\x10\x02\x12\x18\n" +
+	"\x14ECOSYSTEM_JAVASCRIPT\x10\x032\xc8\a\n" +
 	"\x10ArtifactsService\x12\xbc\x02\n" +
 	"\rListArtifacts\x12;.chainguard.platform.libraries.v2beta1.ListArtifactsRequest\x1a<.chainguard.platform.libraries.v2beta1.ListArtifactsResponse\"\xaf\x01\x82\xd3\xe4\x93\x02\x1e\x12\x1c/libraries/v2beta1/artifacts\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\x8b\x0e\x10\x01\x9a\xaf\xa8\xd2\x05w\n" +
