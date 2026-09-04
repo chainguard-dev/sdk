@@ -28,10 +28,129 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// OverlayBinding binds one overlay to one repo under an exact-tag
-// selector. Its UID is a UIDP under the repo it attaches to. Bindings
-// have no name; audit rendering comes from the repo, tags, and expanded
-// overlay content.
+// Kind is the matching mode. See per-kind field expectations below.
+type TagSelector_Kind int32
+
+const (
+	// Unspecified is invalid; callers must set a kind explicitly.
+	TagSelector_KIND_UNSPECIFIED TagSelector_Kind = 0
+	// KIND_EXACT matches tags whose name appears verbatim in `tags`.
+	// `tags` must be non-empty; `variant_type` must be unset.
+	TagSelector_KIND_EXACT TagSelector_Kind = 1
+	// KIND_ALL matches every tag on the parent repo. `tags` and
+	// `variant_type` must be unset. A repo can hold at most one
+	// KIND_ALL binding — this is the way to customize a whole repo
+	// and the migration target for legacy repo.custom_overlay values.
+	TagSelector_KIND_ALL TagSelector_Kind = 2
+	// KIND_VARIANT matches every tag on the parent repo that belongs
+	// to the variant named by `variant_type`. `tags` must be unset and
+	// `variant_type` must not be VARIANT_TYPE_UNSPECIFIED. A repo can
+	// hold at most one KIND_VARIANT binding per (repo, variant_type).
+	TagSelector_KIND_VARIANT TagSelector_Kind = 3
+)
+
+// Enum value maps for TagSelector_Kind.
+var (
+	TagSelector_Kind_name = map[int32]string{
+		0: "KIND_UNSPECIFIED",
+		1: "KIND_EXACT",
+		2: "KIND_ALL",
+		3: "KIND_VARIANT",
+	}
+	TagSelector_Kind_value = map[string]int32{
+		"KIND_UNSPECIFIED": 0,
+		"KIND_EXACT":       1,
+		"KIND_ALL":         2,
+		"KIND_VARIANT":     3,
+	}
+)
+
+func (x TagSelector_Kind) Enum() *TagSelector_Kind {
+	p := new(TagSelector_Kind)
+	*p = x
+	return p
+}
+
+func (x TagSelector_Kind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (TagSelector_Kind) Descriptor() protoreflect.EnumDescriptor {
+	return file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_enumTypes[0].Descriptor()
+}
+
+func (TagSelector_Kind) Type() protoreflect.EnumType {
+	return &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_enumTypes[0]
+}
+
+func (x TagSelector_Kind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use TagSelector_Kind.Descriptor instead.
+func (TagSelector_Kind) EnumDescriptor() ([]byte, []int) {
+	return file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDescGZIP(), []int{1, 0}
+}
+
+// VariantType names a tag-naming convention Chainguard image repos
+// follow. Populated only when kind=KIND_VARIANT.
+type TagSelector_VariantType int32
+
+const (
+	// Unspecified is invalid; callers must set variant_type explicitly
+	// when kind=KIND_VARIANT.
+	TagSelector_VARIANT_TYPE_UNSPECIFIED TagSelector_VariantType = 0
+	// Dev matches tags whose name ends in "-dev" (e.g. "latest-dev",
+	// "1.4-dev"). Development-oriented image variants ship with a
+	// superset of packages compared to their prod siblings; a
+	// VARIANT_TYPE_DEV binding is the tag-scoped hook for adding
+	// dev-only tooling without touching prod tags.
+	TagSelector_VARIANT_TYPE_DEV TagSelector_VariantType = 1
+)
+
+// Enum value maps for TagSelector_VariantType.
+var (
+	TagSelector_VariantType_name = map[int32]string{
+		0: "VARIANT_TYPE_UNSPECIFIED",
+		1: "VARIANT_TYPE_DEV",
+	}
+	TagSelector_VariantType_value = map[string]int32{
+		"VARIANT_TYPE_UNSPECIFIED": 0,
+		"VARIANT_TYPE_DEV":         1,
+	}
+)
+
+func (x TagSelector_VariantType) Enum() *TagSelector_VariantType {
+	p := new(TagSelector_VariantType)
+	*p = x
+	return p
+}
+
+func (x TagSelector_VariantType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (TagSelector_VariantType) Descriptor() protoreflect.EnumDescriptor {
+	return file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_enumTypes[1].Descriptor()
+}
+
+func (TagSelector_VariantType) Type() protoreflect.EnumType {
+	return &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_enumTypes[1]
+}
+
+func (x TagSelector_VariantType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use TagSelector_VariantType.Descriptor instead.
+func (TagSelector_VariantType) EnumDescriptor() ([]byte, []int) {
+	return file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDescGZIP(), []int{1, 1}
+}
+
+// OverlayBinding binds one overlay to one repo under a tag selector.
+// Its UID is a UIDP under the repo it attaches to. Bindings have no
+// name; audit rendering comes from the repo, the selector, and the
+// expanded overlay content.
 type OverlayBinding struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The unique identifier of this OverlayBinding, a UIDP under the repo
@@ -46,8 +165,9 @@ type OverlayBinding struct {
 	//     aip.dev/not-precedent: audit-complete rendering embeds the overlay
 	//     content in every response by design (CON-2306). --)
 	Overlay *Overlay `protobuf:"bytes,3,opt,name=overlay,proto3" json:"overlay,omitempty"`
-	// The exact tag names this binding applies to.
-	Tags          []string `protobuf:"bytes,4,rep,name=tags,proto3" json:"tags,omitempty"`
+	// The selector picking which tags on the repo this binding applies to.
+	// See TagSelector for the supported kinds and precedence rules.
+	TagSelector   *TagSelector `protobuf:"bytes,5,opt,name=tag_selector,json=tagSelector,proto3" json:"tag_selector,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -103,11 +223,90 @@ func (x *OverlayBinding) GetOverlay() *Overlay {
 	return nil
 }
 
-func (x *OverlayBinding) GetTags() []string {
+func (x *OverlayBinding) GetTagSelector() *TagSelector {
+	if x != nil {
+		return x.TagSelector
+	}
+	return nil
+}
+
+// TagSelector selects a set of image tags on a repo. Kind discriminates
+// the matching mode; the payload field corresponding to Kind carries the
+// match input. Overlay bindings apply in a fixed precedence when multiple
+// bindings match a single tag being rebuilt:
+//
+//  1. KIND_ALL binding on the repo (at most one).
+//  2. KIND_VARIANT binding whose variant_type matches the tag (at most
+//     one per (repo, variant_type); today only VARIANT_TYPE_DEV,
+//     matching the "-dev" tag suffix).
+//  3. KIND_EXACT binding whose `tags` include the tag.
+//
+// Layers merge later-wins for scalar fields; packages accumulate. All
+// three can stack on a single tag (e.g. `latest-dev`).
+type TagSelector struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Kind is the matching mode.
+	Kind TagSelector_Kind `protobuf:"varint,1,opt,name=kind,proto3,enum=chainguard.platform.registry.v2beta1.TagSelector_Kind" json:"kind,omitempty"`
+	// Tags is the list of exact tag names to match. Populated when
+	// kind=KIND_EXACT; must be empty for any other kind.
+	Tags []string `protobuf:"bytes,2,rep,name=tags,proto3" json:"tags,omitempty"`
+	// VariantType picks the variant to match. Populated when
+	// kind=KIND_VARIANT; must be VARIANT_TYPE_UNSPECIFIED for any other
+	// kind.
+	VariantType   TagSelector_VariantType `protobuf:"varint,3,opt,name=variant_type,json=variantType,proto3,enum=chainguard.platform.registry.v2beta1.TagSelector_VariantType" json:"variant_type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TagSelector) Reset() {
+	*x = TagSelector{}
+	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TagSelector) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TagSelector) ProtoMessage() {}
+
+func (x *TagSelector) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TagSelector.ProtoReflect.Descriptor instead.
+func (*TagSelector) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *TagSelector) GetKind() TagSelector_Kind {
+	if x != nil {
+		return x.Kind
+	}
+	return TagSelector_KIND_UNSPECIFIED
+}
+
+func (x *TagSelector) GetTags() []string {
 	if x != nil {
 		return x.Tags
 	}
 	return nil
+}
+
+func (x *TagSelector) GetVariantType() TagSelector_VariantType {
+	if x != nil {
+		return x.VariantType
+	}
+	return TagSelector_VARIANT_TYPE_UNSPECIFIED
 }
 
 // CreateOverlayBindingRequest is the request message for attaching an
@@ -127,17 +326,23 @@ type CreateOverlayBindingRequest struct {
 	// References the overlay to attach: its UIDP, or its name resolved
 	// within the repo's organization.
 	Overlay string `protobuf:"bytes,2,opt,name=overlay,proto3" json:"overlay,omitempty"`
-	// The exact tag names to attach to. At least one is required: an
-	// all-tags change belongs on the repo's base customization, not an
-	// binding.
-	Tags          []string `protobuf:"bytes,3,rep,name=tags,proto3" json:"tags,omitempty"`
+	// The selector picking which tags on the parent repo this binding
+	// applies to. See TagSelector for the supported kinds and their
+	// per-kind validation rules. Uniqueness rules (at most one ALL per
+	// repo; at most one VARIANT per (repo, variant_type); EXACT bindings
+	// must not share any tag with another EXACT binding on the same repo)
+	// are enforced at create time and surface as AlreadyExists. Bindings
+	// are rejected on repos whose legacy custom_overlay is set
+	// (FailedPrecondition) — the two customization paths are mutually
+	// exclusive until the legacy value is migrated to an ALL binding.
+	TagSelector   *TagSelector `protobuf:"bytes,4,opt,name=tag_selector,json=tagSelector,proto3" json:"tag_selector,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateOverlayBindingRequest) Reset() {
 	*x = CreateOverlayBindingRequest{}
-	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[1]
+	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -149,7 +354,7 @@ func (x *CreateOverlayBindingRequest) String() string {
 func (*CreateOverlayBindingRequest) ProtoMessage() {}
 
 func (x *CreateOverlayBindingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[1]
+	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -162,7 +367,7 @@ func (x *CreateOverlayBindingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateOverlayBindingRequest.ProtoReflect.Descriptor instead.
 func (*CreateOverlayBindingRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDescGZIP(), []int{1}
+	return file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *CreateOverlayBindingRequest) GetParent() string {
@@ -179,9 +384,9 @@ func (x *CreateOverlayBindingRequest) GetOverlay() string {
 	return ""
 }
 
-func (x *CreateOverlayBindingRequest) GetTags() []string {
+func (x *CreateOverlayBindingRequest) GetTagSelector() *TagSelector {
 	if x != nil {
-		return x.Tags
+		return x.TagSelector
 	}
 	return nil
 }
@@ -198,7 +403,7 @@ type GetOverlayBindingRequest struct {
 
 func (x *GetOverlayBindingRequest) Reset() {
 	*x = GetOverlayBindingRequest{}
-	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[2]
+	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -210,7 +415,7 @@ func (x *GetOverlayBindingRequest) String() string {
 func (*GetOverlayBindingRequest) ProtoMessage() {}
 
 func (x *GetOverlayBindingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[2]
+	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -223,7 +428,7 @@ func (x *GetOverlayBindingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOverlayBindingRequest.ProtoReflect.Descriptor instead.
 func (*GetOverlayBindingRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDescGZIP(), []int{2}
+	return file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetOverlayBindingRequest) GetUid() string {
@@ -245,7 +450,7 @@ type DeleteOverlayBindingRequest struct {
 
 func (x *DeleteOverlayBindingRequest) Reset() {
 	*x = DeleteOverlayBindingRequest{}
-	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[3]
+	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -257,7 +462,7 @@ func (x *DeleteOverlayBindingRequest) String() string {
 func (*DeleteOverlayBindingRequest) ProtoMessage() {}
 
 func (x *DeleteOverlayBindingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[3]
+	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -270,7 +475,7 @@ func (x *DeleteOverlayBindingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteOverlayBindingRequest.ProtoReflect.Descriptor instead.
 func (*DeleteOverlayBindingRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDescGZIP(), []int{3}
+	return file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *DeleteOverlayBindingRequest) GetUid() string {
@@ -311,7 +516,7 @@ type ListOverlayBindingsRequest struct {
 
 func (x *ListOverlayBindingsRequest) Reset() {
 	*x = ListOverlayBindingsRequest{}
-	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[4]
+	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -323,7 +528,7 @@ func (x *ListOverlayBindingsRequest) String() string {
 func (*ListOverlayBindingsRequest) ProtoMessage() {}
 
 func (x *ListOverlayBindingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[4]
+	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -336,7 +541,7 @@ func (x *ListOverlayBindingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOverlayBindingsRequest.ProtoReflect.Descriptor instead.
 func (*ListOverlayBindingsRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDescGZIP(), []int{4}
+	return file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ListOverlayBindingsRequest) GetUidp() *v1.UIDPFilter {
@@ -402,7 +607,7 @@ type ListOverlayBindingsResponse struct {
 
 func (x *ListOverlayBindingsResponse) Reset() {
 	*x = ListOverlayBindingsResponse{}
-	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[5]
+	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -414,7 +619,7 @@ func (x *ListOverlayBindingsResponse) String() string {
 func (*ListOverlayBindingsResponse) ProtoMessage() {}
 
 func (x *ListOverlayBindingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[5]
+	mi := &file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -427,7 +632,7 @@ func (x *ListOverlayBindingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOverlayBindingsResponse.ProtoReflect.Descriptor instead.
 func (*ListOverlayBindingsResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDescGZIP(), []int{5}
+	return file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ListOverlayBindingsResponse) GetOverlayBindings() []*OverlayBinding {
@@ -462,18 +667,31 @@ var File_chainguard_platform_registry_v2beta1_overlay_bindings_proto protoreflec
 
 const file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDesc = "" +
 	"\n" +
-	";chainguard/platform/registry/v2beta1/overlay_bindings.proto\x12$chainguard.platform.registry.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a3chainguard/platform/registry/v2beta1/overlays.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a&platform/common/v1/uidp.platform.proto\"\x9c\x02\n" +
+	";chainguard/platform/registry/v2beta1/overlay_bindings.proto\x12$chainguard.platform.registry.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a3chainguard/platform/registry/v2beta1/overlays.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a&platform/common/v1/uidp.platform.proto\"\xea\x02\n" +
 	"\x0eOverlayBinding\x12\x16\n" +
 	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12\x18\n" +
 	"\x04repo\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x04repo\x12M\n" +
-	"\aoverlay\x18\x03 \x01(\v2-.chainguard.platform.registry.v2beta1.OverlayB\x04\xe2A\x01\x03R\aoverlay\x12\x18\n" +
-	"\x04tags\x18\x04 \x03(\tB\x04\xe2A\x01\x02R\x04tags:o\xeaAl\n" +
-	"&registry.chainguard.dev/OverlayBinding\x12!overlayBindings/{overlay_binding}*\x0foverlayBindings2\x0eoverlayBinding\"{\n" +
+	"\aoverlay\x18\x03 \x01(\v2-.chainguard.platform.registry.v2beta1.OverlayB\x04\xe2A\x01\x03R\aoverlay\x12Z\n" +
+	"\ftag_selector\x18\x05 \x01(\v21.chainguard.platform.registry.v2beta1.TagSelectorB\x04\xe2A\x01\x02R\vtagSelector:o\xeaAl\n" +
+	"&registry.chainguard.dev/OverlayBinding\x12!overlayBindings/{overlay_binding}*\x0foverlayBindings2\x0eoverlayBindingJ\x04\b\x04\x10\x05R\x04tags\"\xf2\x02\n" +
+	"\vTagSelector\x12P\n" +
+	"\x04kind\x18\x01 \x01(\x0e26.chainguard.platform.registry.v2beta1.TagSelector.KindB\x04\xe2A\x01\x02R\x04kind\x12\x18\n" +
+	"\x04tags\x18\x02 \x03(\tB\x04\xe2A\x01\x01R\x04tags\x12f\n" +
+	"\fvariant_type\x18\x03 \x01(\x0e2=.chainguard.platform.registry.v2beta1.TagSelector.VariantTypeB\x04\xe2A\x01\x01R\vvariantType\"L\n" +
+	"\x04Kind\x12\x14\n" +
+	"\x10KIND_UNSPECIFIED\x10\x00\x12\x0e\n" +
+	"\n" +
+	"KIND_EXACT\x10\x01\x12\f\n" +
+	"\bKIND_ALL\x10\x02\x12\x10\n" +
+	"\fKIND_VARIANT\x10\x03\"A\n" +
+	"\vVariantType\x12\x1c\n" +
+	"\x18VARIANT_TYPE_UNSPECIFIED\x10\x00\x12\x14\n" +
+	"\x10VARIANT_TYPE_DEV\x10\x01\"\xc9\x01\n" +
 	"\x1bCreateOverlayBindingRequest\x12\"\n" +
 	"\x06parent\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12\x1e\n" +
-	"\aoverlay\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\aoverlay\x12\x18\n" +
-	"\x04tags\x18\x03 \x03(\tB\x04\xe2A\x01\x02R\x04tags\"8\n" +
+	"\aoverlay\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\aoverlay\x12Z\n" +
+	"\ftag_selector\x18\x04 \x01(\v21.chainguard.platform.registry.v2beta1.TagSelectorB\x04\xe2A\x01\x02R\vtagSelectorJ\x04\b\x03\x10\x04R\x04tags\"8\n" +
 	"\x18GetOverlayBindingRequest\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\";\n" +
@@ -495,12 +713,12 @@ const file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDesc =
 	"\vtotal_count\x18\x03 \x01(\x03H\x00R\n" +
 	"totalCount\x88\x01\x01\x12\x18\n" +
 	"\askipped\x18\x04 \x01(\x05R\askippedB\x0e\n" +
-	"\f_total_count2\xca\n" +
+	"\f_total_count2\xdc\n" +
 	"\n" +
-	"\x16OverlayBindingsService\x12\xfb\x02\n" +
-	"\x14CreateOverlayBinding\x12A.chainguard.platform.registry.v2beta1.CreateOverlayBindingRequest\x1a4.chainguard.platform.registry.v2beta1.OverlayBinding\"\xe9\x01\x82\xd3\xe4\x93\x022:\x01*\"-/registry/v2beta1/overlayBindings/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\x99\r\x9a\xaf\xa8\xd2\x05O\n" +
-	"GAttach a Custom Assembly overlay to a repo under an exact-tag selector.\x10\x01 \x000\x00\xc2\xf0\x8e\xfc\vJ\n" +
+	"\x16OverlayBindingsService\x12\x8d\x03\n" +
+	"\x14CreateOverlayBinding\x12A.chainguard.platform.registry.v2beta1.CreateOverlayBindingRequest\x1a4.chainguard.platform.registry.v2beta1.OverlayBinding\"\xfb\x01\x82\xd3\xe4\x93\x022:\x01*\"-/registry/v2beta1/overlayBindings/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\x99\r\x9a\xaf\xa8\xd2\x05a\n" +
+	"YAttach a Custom Assembly overlay to a repo under a tag selector (EXACT, ALL, or VARIANT).\x10\x01 \x000\x00\xc2\xf0\x8e\xfc\vJ\n" +
 	"?dev.chainguard.api.platform.registry.overlay_binding.created.v1\x12\x05group\x18\x01\x12\x8c\x02\n" +
 	"\x11GetOverlayBinding\x12>.chainguard.platform.registry.v2beta1.GetOverlayBindingRequest\x1a4.chainguard.platform.registry.v2beta1.OverlayBinding\"\x80\x01\x82\xd3\xe4\x93\x02,\x12*/registry/v2beta1/overlayBindings/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x98\r\x9a\xaf\xa8\xd2\x05<\n" +
@@ -526,35 +744,43 @@ func file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDescGZI
 	return file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDescData
 }
 
-var file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_goTypes = []any{
-	(*OverlayBinding)(nil),              // 0: chainguard.platform.registry.v2beta1.OverlayBinding
-	(*CreateOverlayBindingRequest)(nil), // 1: chainguard.platform.registry.v2beta1.CreateOverlayBindingRequest
-	(*GetOverlayBindingRequest)(nil),    // 2: chainguard.platform.registry.v2beta1.GetOverlayBindingRequest
-	(*DeleteOverlayBindingRequest)(nil), // 3: chainguard.platform.registry.v2beta1.DeleteOverlayBindingRequest
-	(*ListOverlayBindingsRequest)(nil),  // 4: chainguard.platform.registry.v2beta1.ListOverlayBindingsRequest
-	(*ListOverlayBindingsResponse)(nil), // 5: chainguard.platform.registry.v2beta1.ListOverlayBindingsResponse
-	(*Overlay)(nil),                     // 6: chainguard.platform.registry.v2beta1.Overlay
-	(*v1.UIDPFilter)(nil),               // 7: chainguard.platform.common.UIDPFilter
-	(*emptypb.Empty)(nil),               // 8: google.protobuf.Empty
+	(TagSelector_Kind)(0),               // 0: chainguard.platform.registry.v2beta1.TagSelector.Kind
+	(TagSelector_VariantType)(0),        // 1: chainguard.platform.registry.v2beta1.TagSelector.VariantType
+	(*OverlayBinding)(nil),              // 2: chainguard.platform.registry.v2beta1.OverlayBinding
+	(*TagSelector)(nil),                 // 3: chainguard.platform.registry.v2beta1.TagSelector
+	(*CreateOverlayBindingRequest)(nil), // 4: chainguard.platform.registry.v2beta1.CreateOverlayBindingRequest
+	(*GetOverlayBindingRequest)(nil),    // 5: chainguard.platform.registry.v2beta1.GetOverlayBindingRequest
+	(*DeleteOverlayBindingRequest)(nil), // 6: chainguard.platform.registry.v2beta1.DeleteOverlayBindingRequest
+	(*ListOverlayBindingsRequest)(nil),  // 7: chainguard.platform.registry.v2beta1.ListOverlayBindingsRequest
+	(*ListOverlayBindingsResponse)(nil), // 8: chainguard.platform.registry.v2beta1.ListOverlayBindingsResponse
+	(*Overlay)(nil),                     // 9: chainguard.platform.registry.v2beta1.Overlay
+	(*v1.UIDPFilter)(nil),               // 10: chainguard.platform.common.UIDPFilter
+	(*emptypb.Empty)(nil),               // 11: google.protobuf.Empty
 }
 var file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_depIdxs = []int32{
-	6, // 0: chainguard.platform.registry.v2beta1.OverlayBinding.overlay:type_name -> chainguard.platform.registry.v2beta1.Overlay
-	7, // 1: chainguard.platform.registry.v2beta1.ListOverlayBindingsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	0, // 2: chainguard.platform.registry.v2beta1.ListOverlayBindingsResponse.overlay_bindings:type_name -> chainguard.platform.registry.v2beta1.OverlayBinding
-	1, // 3: chainguard.platform.registry.v2beta1.OverlayBindingsService.CreateOverlayBinding:input_type -> chainguard.platform.registry.v2beta1.CreateOverlayBindingRequest
-	2, // 4: chainguard.platform.registry.v2beta1.OverlayBindingsService.GetOverlayBinding:input_type -> chainguard.platform.registry.v2beta1.GetOverlayBindingRequest
-	4, // 5: chainguard.platform.registry.v2beta1.OverlayBindingsService.ListOverlayBindings:input_type -> chainguard.platform.registry.v2beta1.ListOverlayBindingsRequest
-	3, // 6: chainguard.platform.registry.v2beta1.OverlayBindingsService.DeleteOverlayBinding:input_type -> chainguard.platform.registry.v2beta1.DeleteOverlayBindingRequest
-	0, // 7: chainguard.platform.registry.v2beta1.OverlayBindingsService.CreateOverlayBinding:output_type -> chainguard.platform.registry.v2beta1.OverlayBinding
-	0, // 8: chainguard.platform.registry.v2beta1.OverlayBindingsService.GetOverlayBinding:output_type -> chainguard.platform.registry.v2beta1.OverlayBinding
-	5, // 9: chainguard.platform.registry.v2beta1.OverlayBindingsService.ListOverlayBindings:output_type -> chainguard.platform.registry.v2beta1.ListOverlayBindingsResponse
-	8, // 10: chainguard.platform.registry.v2beta1.OverlayBindingsService.DeleteOverlayBinding:output_type -> google.protobuf.Empty
-	7, // [7:11] is the sub-list for method output_type
-	3, // [3:7] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	9,  // 0: chainguard.platform.registry.v2beta1.OverlayBinding.overlay:type_name -> chainguard.platform.registry.v2beta1.Overlay
+	3,  // 1: chainguard.platform.registry.v2beta1.OverlayBinding.tag_selector:type_name -> chainguard.platform.registry.v2beta1.TagSelector
+	0,  // 2: chainguard.platform.registry.v2beta1.TagSelector.kind:type_name -> chainguard.platform.registry.v2beta1.TagSelector.Kind
+	1,  // 3: chainguard.platform.registry.v2beta1.TagSelector.variant_type:type_name -> chainguard.platform.registry.v2beta1.TagSelector.VariantType
+	3,  // 4: chainguard.platform.registry.v2beta1.CreateOverlayBindingRequest.tag_selector:type_name -> chainguard.platform.registry.v2beta1.TagSelector
+	10, // 5: chainguard.platform.registry.v2beta1.ListOverlayBindingsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	2,  // 6: chainguard.platform.registry.v2beta1.ListOverlayBindingsResponse.overlay_bindings:type_name -> chainguard.platform.registry.v2beta1.OverlayBinding
+	4,  // 7: chainguard.platform.registry.v2beta1.OverlayBindingsService.CreateOverlayBinding:input_type -> chainguard.platform.registry.v2beta1.CreateOverlayBindingRequest
+	5,  // 8: chainguard.platform.registry.v2beta1.OverlayBindingsService.GetOverlayBinding:input_type -> chainguard.platform.registry.v2beta1.GetOverlayBindingRequest
+	7,  // 9: chainguard.platform.registry.v2beta1.OverlayBindingsService.ListOverlayBindings:input_type -> chainguard.platform.registry.v2beta1.ListOverlayBindingsRequest
+	6,  // 10: chainguard.platform.registry.v2beta1.OverlayBindingsService.DeleteOverlayBinding:input_type -> chainguard.platform.registry.v2beta1.DeleteOverlayBindingRequest
+	2,  // 11: chainguard.platform.registry.v2beta1.OverlayBindingsService.CreateOverlayBinding:output_type -> chainguard.platform.registry.v2beta1.OverlayBinding
+	2,  // 12: chainguard.platform.registry.v2beta1.OverlayBindingsService.GetOverlayBinding:output_type -> chainguard.platform.registry.v2beta1.OverlayBinding
+	8,  // 13: chainguard.platform.registry.v2beta1.OverlayBindingsService.ListOverlayBindings:output_type -> chainguard.platform.registry.v2beta1.ListOverlayBindingsResponse
+	11, // 14: chainguard.platform.registry.v2beta1.OverlayBindingsService.DeleteOverlayBinding:output_type -> google.protobuf.Empty
+	11, // [11:15] is the sub-list for method output_type
+	7,  // [7:11] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_init() }
@@ -563,19 +789,20 @@ func file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_init() {
 		return
 	}
 	file_chainguard_platform_registry_v2beta1_overlays_proto_init()
-	file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[5].OneofWrappers = []any{}
+	file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDesc), len(file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   6,
+			NumEnums:      2,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_goTypes,
 		DependencyIndexes: file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_depIdxs,
+		EnumInfos:         file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_enumTypes,
 		MessageInfos:      file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_msgTypes,
 	}.Build()
 	File_chainguard_platform_registry_v2beta1_overlay_bindings_proto = out.File

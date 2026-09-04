@@ -21,7 +21,7 @@ option java_outer_classname = "OverlayBindingsProto";
 option java_package = "com.chainguard.platform.registry.v2beta1";
 
 // OverlayBindingsService manages the bindings that bind overlays to
-// repos under exact-tag selectors for tag-scoped Custom Assembly.
+// repos under tag selectors for tag-scoped Custom Assembly.
 //
 // Bindings have no name and no update RPC this milestone: the workflow
 // is delete-and-recreate. A binding carries no inline content — content
@@ -34,7 +34,9 @@ option java_package = "com.chainguard.platform.registry.v2beta1";
 // Test_Conformance_GatewayRouteOrder.
 service OverlayBindingsService {
   // CreateOverlayBinding attaches an existing overlay to one repo under
-  // an exact-tag selector.
+  // a tag selector. See TagSelector for the supported selector kinds
+  // (EXACT, ALL, VARIANT) and the precedence order applied when multiple
+  // bindings match a single tag at rebuild time.
   // (-- api-linter: core::0133::http-body=disabled
   //     aip.dev/not-precedent: the request carries a reference + selector,
   //     not an embedded resource, so the body maps the whole request. --)
@@ -54,7 +56,7 @@ service OverlayBindingsService {
       audience: CUSTOMER
     };
     option (chainguard.annotations.mcp) = {
-      description: "Attach a Custom Assembly overlay to a repo under an exact-tag selector."
+      description: "Attach a Custom Assembly overlay to a repo under a tag selector (EXACT, ALL, or VARIANT)."
       read_only: false
       destructive: false
       idempotent: false
@@ -124,10 +126,10 @@ service OverlayBindingsService {
   }
 }
 
-// OverlayBinding binds one overlay to one repo under an exact-tag
-// selector. Its UID is a UIDP under the repo it attaches to. Bindings
-// have no name; audit rendering comes from the repo, tags, and expanded
-// overlay content.
+// OverlayBinding binds one overlay to one repo under a tag selector.
+// Its UID is a UIDP under the repo it attaches to. Bindings have no
+// name; audit rendering comes from the repo, the selector, and the
+// expanded overlay content.
 message OverlayBinding {
   option (google.api.resource) = {
     type: "registry.chainguard.dev/OverlayBinding"
@@ -151,8 +153,72 @@ message OverlayBinding {
   //     content in every response by design (CON-2306). --)
   Overlay overlay = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The exact tag names this binding applies to.
-  repeated string tags = 4 [(google.api.field_behavior) = REQUIRED];
+  // The selector picking which tags on the repo this binding applies to.
+  // See TagSelector for the supported kinds and precedence rules.
+  TagSelector tag_selector = 5 [(google.api.field_behavior) = REQUIRED];
+
+  reserved 4;
+  reserved "tags";
+}
+
+// TagSelector selects a set of image tags on a repo. Kind discriminates
+// the matching mode; the payload field corresponding to Kind carries the
+// match input. Overlay bindings apply in a fixed precedence when multiple
+// bindings match a single tag being rebuilt:
+//
+//   1. KIND_ALL binding on the repo (at most one).
+//   2. KIND_VARIANT binding whose variant_type matches the tag (at most
+//      one per (repo, variant_type); today only VARIANT_TYPE_DEV,
+//      matching the "-dev" tag suffix).
+//   3. KIND_EXACT binding whose `tags` include the tag.
+//
+// Layers merge later-wins for scalar fields; packages accumulate. All
+// three can stack on a single tag (e.g. `latest-dev`).
+message TagSelector {
+  // Kind is the matching mode. See per-kind field expectations below.
+  enum Kind {
+    // Unspecified is invalid; callers must set a kind explicitly.
+    KIND_UNSPECIFIED = 0;
+    // KIND_EXACT matches tags whose name appears verbatim in `tags`.
+    // `tags` must be non-empty; `variant_type` must be unset.
+    KIND_EXACT = 1;
+    // KIND_ALL matches every tag on the parent repo. `tags` and
+    // `variant_type` must be unset. A repo can hold at most one
+    // KIND_ALL binding — this is the way to customize a whole repo
+    // and the migration target for legacy repo.custom_overlay values.
+    KIND_ALL = 2;
+    // KIND_VARIANT matches every tag on the parent repo that belongs
+    // to the variant named by `variant_type`. `tags` must be unset and
+    // `variant_type` must not be VARIANT_TYPE_UNSPECIFIED. A repo can
+    // hold at most one KIND_VARIANT binding per (repo, variant_type).
+    KIND_VARIANT = 3;
+  }
+
+  // VariantType names a tag-naming convention Chainguard image repos
+  // follow. Populated only when kind=KIND_VARIANT.
+  enum VariantType {
+    // Unspecified is invalid; callers must set variant_type explicitly
+    // when kind=KIND_VARIANT.
+    VARIANT_TYPE_UNSPECIFIED = 0;
+    // Dev matches tags whose name ends in "-dev" (e.g. "latest-dev",
+    // "1.4-dev"). Development-oriented image variants ship with a
+    // superset of packages compared to their prod siblings; a
+    // VARIANT_TYPE_DEV binding is the tag-scoped hook for adding
+    // dev-only tooling without touching prod tags.
+    VARIANT_TYPE_DEV = 1;
+  }
+
+  // Kind is the matching mode.
+  Kind kind = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Tags is the list of exact tag names to match. Populated when
+  // kind=KIND_EXACT; must be empty for any other kind.
+  repeated string tags = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // VariantType picks the variant to match. Populated when
+  // kind=KIND_VARIANT; must be VARIANT_TYPE_UNSPECIFIED for any other
+  // kind.
+  VariantType variant_type = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // CreateOverlayBindingRequest is the request message for attaching an
@@ -175,10 +241,19 @@ message CreateOverlayBindingRequest {
   // within the repo's organization.
   string overlay = 2 [(google.api.field_behavior) = REQUIRED];
 
-  // The exact tag names to attach to. At least one is required: an
-  // all-tags change belongs on the repo's base customization, not an
-  // binding.
-  repeated string tags = 3 [(google.api.field_behavior) = REQUIRED];
+  // The selector picking which tags on the parent repo this binding
+  // applies to. See TagSelector for the supported kinds and their
+  // per-kind validation rules. Uniqueness rules (at most one ALL per
+  // repo; at most one VARIANT per (repo, variant_type); EXACT bindings
+  // must not share any tag with another EXACT binding on the same repo)
+  // are enforced at create time and surface as AlreadyExists. Bindings
+  // are rejected on repos whose legacy custom_overlay is set
+  // (FailedPrecondition) — the two customization paths are mutually
+  // exclusive until the legacy value is migrated to an ALL binding.
+  TagSelector tag_selector = 4 [(google.api.field_behavior) = REQUIRED];
+
+  reserved 3;
+  reserved "tags";
 }
 
 // GetOverlayBindingRequest is the request message for getting a single

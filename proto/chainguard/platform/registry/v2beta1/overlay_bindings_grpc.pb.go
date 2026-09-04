@@ -34,7 +34,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
 // OverlayBindingsService manages the bindings that bind overlays to
-// repos under exact-tag selectors for tag-scoped Custom Assembly.
+// repos under tag selectors for tag-scoped Custom Assembly.
 //
 // Bindings have no name and no update RPC this milestone: the workflow
 // is delete-and-recreate. A binding carries no inline content — content
@@ -47,7 +47,9 @@ const (
 // Test_Conformance_GatewayRouteOrder.
 type OverlayBindingsServiceClient interface {
 	// CreateOverlayBinding attaches an existing overlay to one repo under
-	// an exact-tag selector.
+	// a tag selector. See TagSelector for the supported selector kinds
+	// (EXACT, ALL, VARIANT) and the precedence order applied when multiple
+	// bindings match a single tag at rebuild time.
 	// (-- api-linter: core::0133::http-body=disabled
 	//     aip.dev/not-precedent: the request carries a reference + selector,
 	//     not an embedded resource, so the body maps the whole request. --)
@@ -115,7 +117,7 @@ func (c *overlayBindingsServiceClient) DeleteOverlayBinding(ctx context.Context,
 // for forward compatibility.
 //
 // OverlayBindingsService manages the bindings that bind overlays to
-// repos under exact-tag selectors for tag-scoped Custom Assembly.
+// repos under tag selectors for tag-scoped Custom Assembly.
 //
 // Bindings have no name and no update RPC this milestone: the workflow
 // is delete-and-recreate. A binding carries no inline content — content
@@ -128,7 +130,9 @@ func (c *overlayBindingsServiceClient) DeleteOverlayBinding(ctx context.Context,
 // Test_Conformance_GatewayRouteOrder.
 type OverlayBindingsServiceServer interface {
 	// CreateOverlayBinding attaches an existing overlay to one repo under
-	// an exact-tag selector.
+	// a tag selector. See TagSelector for the supported selector kinds
+	// (EXACT, ALL, VARIANT) and the precedence order applied when multiple
+	// bindings match a single tag at rebuild time.
 	// (-- api-linter: core::0133::http-body=disabled
 	//     aip.dev/not-precedent: the request carries a reference + selector,
 	//     not an embedded resource, so the body maps the whole request. --)

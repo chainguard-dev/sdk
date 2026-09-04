@@ -109,8 +109,8 @@ func Test_Conformance_PayloadShape(t *testing.T) {
 }
 
 // Requirement: Binding lifecycle — one repo per binding, overlay
-// referenced by a plain string (UIDP or name), exact tags only, and no
-// inline-content field of any kind.
+// referenced by a plain string (UIDP or name), a tag_selector carrying
+// the matching mode + payload, and no inline-content field of any kind.
 func Test_Conformance_BindingShape(t *testing.T) {
 	create := (&CreateOverlayBindingRequest{}).ProtoReflect().Descriptor()
 	fields := make([]string, 0, create.Fields().Len())
@@ -118,7 +118,7 @@ func Test_Conformance_BindingShape(t *testing.T) {
 		fields = append(fields, string(create.Fields().Get(i).Name()))
 	}
 	slices.Sort(fields)
-	if want := []string{"overlay", "parent", "tags"}; !slices.Equal(fields, want) {
+	if want := []string{"overlay", "parent", "tag_selector"}; !slices.Equal(fields, want) {
 		t.Errorf("CreateOverlayBindingRequest fields: got = %v, want = %v", fields, want)
 	}
 	if fd := create.Fields().ByName("overlay"); fd.Kind() != protoreflect.StringKind {
@@ -126,16 +126,30 @@ func Test_Conformance_BindingShape(t *testing.T) {
 	}
 
 	// Audit-complete shapes: binding embeds the overlay, its repo, and
-	// tags; the list request narrows by scope and by overlay.
+	// the tag_selector; the list request narrows by scope and by overlay.
 	att := (&OverlayBinding{}).ProtoReflect().Descriptor()
 	attFields := make([]string, 0, att.Fields().Len())
 	for i := range att.Fields().Len() {
 		attFields = append(attFields, string(att.Fields().Get(i).Name()))
 	}
 	slices.Sort(attFields)
-	if want := []string{"overlay", "repo", "tags", "uid"}; !slices.Equal(attFields, want) {
+	if want := []string{"overlay", "repo", "tag_selector", "uid"}; !slices.Equal(attFields, want) {
 		t.Errorf("OverlayBinding fields: got = %v, want = %v", attFields, want)
 	}
+
+	// TagSelector shape: three fields (kind, tags, variant_type) with
+	// the KIND_UNSPECIFIED / VARIANT_TYPE_UNSPECIFIED zero values
+	// required by AIP-126 for extensible enums.
+	sel := (&TagSelector{}).ProtoReflect().Descriptor()
+	selFields := make([]string, 0, sel.Fields().Len())
+	for i := range sel.Fields().Len() {
+		selFields = append(selFields, string(sel.Fields().Get(i).Name()))
+	}
+	slices.Sort(selFields)
+	if want := []string{"kind", "tags", "variant_type"}; !slices.Equal(selFields, want) {
+		t.Errorf("TagSelector fields: got = %v, want = %v", selFields, want)
+	}
+
 	list := (&ListOverlayBindingsRequest{}).ProtoReflect().Descriptor()
 	for _, name := range []string{"uidp", "overlay"} {
 		if list.Fields().ByName(protoreflect.Name(name)) == nil {
