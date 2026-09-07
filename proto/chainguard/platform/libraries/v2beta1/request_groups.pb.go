@@ -2082,12 +2082,21 @@ func (x *ListRequestGroupItemsResponse) GetSkipped() int32 {
 type SubmitRequestGroupRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The draft group to submit.
+	//
+	// A flat UUID, not a Chainguard ID, as on GetRequestGroupRequest.uid. The IAM
+	// scope travels on parent below.
 	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	// Opt the group in to CVE remediation. This is the decision point; a value set
 	// at create is carried forward when this field is omitted.
 	ForCveRemediation *bool `protobuf:"varint,2,opt,name=for_cve_remediation,json=forCveRemediation,proto3,oneof" json:"for_cve_remediation,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// The organization that owns the group.
+	//
+	// Carries the IAM scope for this request, as on GetRequestGroupRequest.parent.
+	// It must be the organization that owns uid; a uid belonging to any other
+	// organization reads as not found.
+	Parent        string `protobuf:"bytes,3,opt,name=parent,proto3" json:"parent,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SubmitRequestGroupRequest) Reset() {
@@ -2134,17 +2143,48 @@ func (x *SubmitRequestGroupRequest) GetForCveRemediation() bool {
 	return false
 }
 
+func (x *SubmitRequestGroupRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
 // UpdateRequestGroupRequest edits group metadata.
 type UpdateRequestGroupRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The group to update, carrying the new field values.
 	//
-	// Carries iam_scope because this RPC's IAM rule is scoped: the interceptor
-	// checks the capability against the field marked here, so without it the check
-	// has nothing to bind to and authorization for a mutating call would not be tied
-	// to the target group's organization. Matches UpdateGroupRequest and
-	// UpdateAccountAssociationRequest, where the resource is likewise the body.
+	// Deliberately not the iam_scope field, unlike UpdateGroupRequest and
+	// UpdateAccountAssociationRequest where the resource is likewise the body.
+	// Marking it here bound the scope check to nothing: the interceptor recurses
+	// into the annotated message looking for a nested iam_scope field, RequestGroup
+	// has none, and an absent scope is reported as Internal rather than as a
+	// rejected request. Both of RequestGroup's identifying fields are also
+	// OUTPUT_ONLY, so annotating one would ask the caller to set a field the
+	// contract says it does not set.
 	RequestGroup *RequestGroup `protobuf:"bytes,1,opt,name=request_group,json=requestGroup,proto3" json:"request_group,omitempty"`
+	// The organization that owns the group.
+	//
+	// Carries the IAM scope for this request, as on GetRequestGroupRequest.parent,
+	// so a mutating call is bound to an organization the caller holds the
+	// capability in.
+	// (-- api-linter: core::0134::request-unknown-fields=disabled
+	//     api-linter: core::0134::request-required-fields=disabled
+	//     aip.dev/not-precedent: AIP-134 and this platform's authorization model
+	//     cannot both be satisfied here, and an unauthorizable Update is the worse
+	//     failure. The interceptor binds the capability check to the field marked
+	//     iam_scope and requires it to be a Chainguard ID (uidp.Valid, 40 hex).
+	//     Keeping the annotation on request_group -- the AIP-shaped choice, and what
+	//     this message did before -- made the check bind to nothing: the interceptor
+	//     recurses into the annotated message for a nested iam_scope field,
+	//     RequestGroup has none, and the miss surfaces as Internal rather than as a
+	//     rejected request. Neither of RequestGroup's identifying fields can carry
+	//     it either: uid is a flat UUID that can never satisfy uidp.Valid, and
+	//     parent_id is OUTPUT_ONLY, so annotating it would ask the caller to set a
+	//     field the contract says it does not set. Hence a scope field on the
+	//     request. --)
+	Parent string `protobuf:"bytes,3,opt,name=parent,proto3" json:"parent,omitempty"`
 	// Which fields to apply. Only name is currently mutable.
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -2188,6 +2228,13 @@ func (x *UpdateRequestGroupRequest) GetRequestGroup() *RequestGroup {
 	return nil
 }
 
+func (x *UpdateRequestGroupRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
 func (x *UpdateRequestGroupRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	if x != nil {
 		return x.UpdateMask
@@ -2199,10 +2246,19 @@ func (x *UpdateRequestGroupRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 type RemoveItemsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The draft group holding the items.
+	//
+	// A flat UUID, not a Chainguard ID, as on GetRequestGroupRequest.uid. The IAM
+	// scope travels on parent below.
 	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	// The items to remove. Every uid must belong to this group; a mismatch fails
 	// the whole call.
-	ItemUids      []string `protobuf:"bytes,2,rep,name=item_uids,json=itemUids,proto3" json:"item_uids,omitempty"`
+	ItemUids []string `protobuf:"bytes,2,rep,name=item_uids,json=itemUids,proto3" json:"item_uids,omitempty"`
+	// The organization that owns the group.
+	//
+	// Carries the IAM scope for this request, as on GetRequestGroupRequest.parent.
+	// It must be the organization that owns uid; a uid belonging to any other
+	// organization reads as not found.
+	Parent        string `protobuf:"bytes,3,opt,name=parent,proto3" json:"parent,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2249,6 +2305,13 @@ func (x *RemoveItemsRequest) GetItemUids() []string {
 		return x.ItemUids
 	}
 	return nil
+}
+
+func (x *RemoveItemsRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
 }
 
 // RemoveItemsResponse reports the outcome of a removal.
@@ -2332,10 +2395,19 @@ func (x *RemoveItemsResponse) GetAvailabilitySummary() *AvailabilitySummary {
 type RestoreItemsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The draft group holding the items.
+	//
+	// A flat UUID, not a Chainguard ID, as on GetRequestGroupRequest.uid. The IAM
+	// scope travels on parent below.
 	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	// The items to restore. Every uid must belong to this group; a mismatch fails
 	// the whole call.
-	ItemUids      []string `protobuf:"bytes,2,rep,name=item_uids,json=itemUids,proto3" json:"item_uids,omitempty"`
+	ItemUids []string `protobuf:"bytes,2,rep,name=item_uids,json=itemUids,proto3" json:"item_uids,omitempty"`
+	// The organization that owns the group.
+	//
+	// Carries the IAM scope for this request, as on GetRequestGroupRequest.parent.
+	// It must be the organization that owns uid; a uid belonging to any other
+	// organization reads as not found.
+	Parent        string `protobuf:"bytes,3,opt,name=parent,proto3" json:"parent,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2382,6 +2454,13 @@ func (x *RestoreItemsRequest) GetItemUids() []string {
 		return x.ItemUids
 	}
 	return nil
+}
+
+func (x *RestoreItemsRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
 }
 
 // RestoreItemsResponse reports the outcome of a restore.
@@ -2465,7 +2544,16 @@ func (x *RestoreItemsResponse) GetAvailabilitySummary() *AvailabilitySummary {
 type DeleteRequestGroupRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The group to delete.
-	Uid           string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	//
+	// A flat UUID, not a Chainguard ID, as on GetRequestGroupRequest.uid. The IAM
+	// scope travels on parent below.
+	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	// The organization that owns the group.
+	//
+	// Carries the IAM scope for this request, as on GetRequestGroupRequest.parent.
+	// It must be the organization that owns uid; a uid belonging to any other
+	// organization reads as not found.
+	Parent        string `protobuf:"bytes,2,opt,name=parent,proto3" json:"parent,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2507,11 +2595,28 @@ func (x *DeleteRequestGroupRequest) GetUid() string {
 	return ""
 }
 
+func (x *DeleteRequestGroupRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
 // RefreshCoverageRequest re-runs a group's coverage check.
 type RefreshCoverageRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The group to re-scan.
-	Uid           string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	//
+	// A flat UUID, not a Chainguard ID, as on GetRequestGroupRequest.uid. The IAM
+	// scope travels on parent below.
+	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	// The organization that owns the group.
+	//
+	// Carries the IAM scope for this request, as on GetRequestGroupRequest.parent.
+	// Required even though this RPC is for support and incident escalation rather
+	// than a customer control: the capability is still checked against an
+	// organization, and a staff-facing call is not an unscoped one.
+	Parent        string `protobuf:"bytes,2,opt,name=parent,proto3" json:"parent,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2549,6 +2654,13 @@ func (*RefreshCoverageRequest) Descriptor() ([]byte, []int) {
 func (x *RefreshCoverageRequest) GetUid() string {
 	if x != nil {
 		return x.Uid
+	}
+	return ""
+}
+
+func (x *RefreshCoverageRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
 	}
 	return ""
 }
@@ -3404,41 +3516,47 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"\vtotal_count\x18\x03 \x01(\x03H\x00R\n" +
 	"totalCount\x88\x01\x01\x12\x18\n" +
 	"\askipped\x18\x04 \x01(\x05R\askippedB\x0e\n" +
-	"\f_total_count\"\x8c\x01\n" +
-	"\x19SubmitRequestGroupRequest\x12\x1c\n" +
-	"\x03uid\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\x129\n" +
-	"\x13for_cve_remediation\x18\x02 \x01(\bB\x04\xe2A\x01\x01H\x00R\x11forCveRemediation\x88\x01\x01B\x16\n" +
-	"\x14_for_cve_remediation\"\xc4\x01\n" +
-	"\x19UpdateRequestGroupRequest\x12d\n" +
-	"\rrequest_group\x18\x01 \x01(\v23.chainguard.platform.libraries.v2beta1.RequestGroupB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\frequestGroup\x12A\n" +
+	"\f_total_count\"\xaa\x01\n" +
+	"\x19SubmitRequestGroupRequest\x12\x16\n" +
+	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x03uid\x129\n" +
+	"\x13for_cve_remediation\x18\x02 \x01(\bB\x04\xe2A\x01\x01H\x00R\x11forCveRemediation\x88\x01\x01\x12\"\n" +
+	"\x06parent\x18\x03 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parentB\x16\n" +
+	"\x14_for_cve_remediation\"\xe2\x01\n" +
+	"\x19UpdateRequestGroupRequest\x12^\n" +
+	"\rrequest_group\x18\x01 \x01(\v23.chainguard.platform.libraries.v2beta1.RequestGroupB\x04\xe2A\x01\x02R\frequestGroup\x12\"\n" +
+	"\x06parent\x18\x03 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12A\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x04\xe2A\x01\x01R\n" +
-	"updateMask\"U\n" +
-	"\x12RemoveItemsRequest\x12\x1c\n" +
-	"\x03uid\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12!\n" +
-	"\titem_uids\x18\x02 \x03(\tB\x04\xe2A\x01\x02R\bitemUids\"\xe4\x01\n" +
+	"updateMask\"s\n" +
+	"\x12RemoveItemsRequest\x12\x16\n" +
+	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x03uid\x12!\n" +
+	"\titem_uids\x18\x02 \x03(\tB\x04\xe2A\x01\x02R\bitemUids\x12\"\n" +
+	"\x06parent\x18\x03 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\xe4\x01\n" +
 	"\x13RemoveItemsResponse\x12\x16\n" +
 	"\x03uid\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12!\n" +
 	"\tparent_id\x18\x04 \x01(\tB\x04\xe2A\x01\x03R\bparentId\x12#\n" +
 	"\rremoved_count\x18\x01 \x01(\x05R\fremovedCount\x12m\n" +
-	"\x14availability_summary\x18\x02 \x01(\v2:.chainguard.platform.libraries.v2beta1.AvailabilitySummaryR\x13availabilitySummary\"V\n" +
-	"\x13RestoreItemsRequest\x12\x1c\n" +
-	"\x03uid\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12!\n" +
-	"\titem_uids\x18\x02 \x03(\tB\x04\xe2A\x01\x02R\bitemUids\"\xe7\x01\n" +
+	"\x14availability_summary\x18\x02 \x01(\v2:.chainguard.platform.libraries.v2beta1.AvailabilitySummaryR\x13availabilitySummary\"t\n" +
+	"\x13RestoreItemsRequest\x12\x16\n" +
+	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x03uid\x12!\n" +
+	"\titem_uids\x18\x02 \x03(\tB\x04\xe2A\x01\x02R\bitemUids\x12\"\n" +
+	"\x06parent\x18\x03 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\xe7\x01\n" +
 	"\x14RestoreItemsResponse\x12\x16\n" +
 	"\x03uid\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12!\n" +
 	"\tparent_id\x18\x04 \x01(\tB\x04\xe2A\x01\x03R\bparentId\x12%\n" +
 	"\x0erestored_count\x18\x01 \x01(\x05R\rrestoredCount\x12m\n" +
-	"\x14availability_summary\x18\x02 \x01(\v2:.chainguard.platform.libraries.v2beta1.AvailabilitySummaryR\x13availabilitySummary\"9\n" +
-	"\x19DeleteRequestGroupRequest\x12\x1c\n" +
-	"\x03uid\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\"6\n" +
-	"\x16RefreshCoverageRequest\x12\x1c\n" +
-	"\x03uid\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\"\xd3\a\n" +
+	"\x14availability_summary\x18\x02 \x01(\v2:.chainguard.platform.libraries.v2beta1.AvailabilitySummaryR\x13availabilitySummary\"W\n" +
+	"\x19DeleteRequestGroupRequest\x12\x16\n" +
+	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x03uid\x12\"\n" +
+	"\x06parent\x18\x02 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\"T\n" +
+	"\x16RefreshCoverageRequest\x12\x16\n" +
+	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x03uid\x12\"\n" +
+	"\x06parent\x18\x02 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\xd3\a\n" +
 	"\x10RequestedLibrary\x12\x18\n" +
 	"\x04name\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x04name\x12T\n" +
 	"\tecosystem\x18\x02 \x01(\x0e20.chainguard.platform.libraries.v2beta1.EcosystemB\x04\xe2A\x01\x03R\tecosystem\x12k\n" +

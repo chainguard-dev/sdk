@@ -753,26 +753,61 @@ message ListRequestGroupItemsResponse {
 // SubmitRequestGroupRequest promotes a draft.
 message SubmitRequestGroupRequest {
   // The draft group to submit.
-  string uid = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (chainguard.annotations.iam_scope) = true
-  ];
+  //
+  // A flat UUID, not a Chainguard ID, as on GetRequestGroupRequest.uid. The IAM
+  // scope travels on parent below.
+  string uid = 1 [(google.api.field_behavior) = REQUIRED];
 
   // Opt the group in to CVE remediation. This is the decision point; a value set
   // at create is carried forward when this field is omitted.
   optional bool for_cve_remediation = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // The organization that owns the group.
+  //
+  // Carries the IAM scope for this request, as on GetRequestGroupRequest.parent.
+  // It must be the organization that owns uid; a uid belonging to any other
+  // organization reads as not found.
+  string parent = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
 }
 
 // UpdateRequestGroupRequest edits group metadata.
 message UpdateRequestGroupRequest {
   // The group to update, carrying the new field values.
   //
-  // Carries iam_scope because this RPC's IAM rule is scoped: the interceptor
-  // checks the capability against the field marked here, so without it the check
-  // has nothing to bind to and authorization for a mutating call would not be tied
-  // to the target group's organization. Matches UpdateGroupRequest and
-  // UpdateAccountAssociationRequest, where the resource is likewise the body.
-  RequestGroup request_group = 1 [
+  // Deliberately not the iam_scope field, unlike UpdateGroupRequest and
+  // UpdateAccountAssociationRequest where the resource is likewise the body.
+  // Marking it here bound the scope check to nothing: the interceptor recurses
+  // into the annotated message looking for a nested iam_scope field, RequestGroup
+  // has none, and an absent scope is reported as Internal rather than as a
+  // rejected request. Both of RequestGroup's identifying fields are also
+  // OUTPUT_ONLY, so annotating one would ask the caller to set a field the
+  // contract says it does not set.
+  RequestGroup request_group = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The organization that owns the group.
+  //
+  // Carries the IAM scope for this request, as on GetRequestGroupRequest.parent,
+  // so a mutating call is bound to an organization the caller holds the
+  // capability in.
+  // (-- api-linter: core::0134::request-unknown-fields=disabled
+  //     api-linter: core::0134::request-required-fields=disabled
+  //     aip.dev/not-precedent: AIP-134 and this platform's authorization model
+  //     cannot both be satisfied here, and an unauthorizable Update is the worse
+  //     failure. The interceptor binds the capability check to the field marked
+  //     iam_scope and requires it to be a Chainguard ID (uidp.Valid, 40 hex).
+  //     Keeping the annotation on request_group -- the AIP-shaped choice, and what
+  //     this message did before -- made the check bind to nothing: the interceptor
+  //     recurses into the annotated message for a nested iam_scope field,
+  //     RequestGroup has none, and the miss surfaces as Internal rather than as a
+  //     rejected request. Neither of RequestGroup's identifying fields can carry
+  //     it either: uid is a flat UUID that can never satisfy uidp.Valid, and
+  //     parent_id is OUTPUT_ONLY, so annotating it would ask the caller to set a
+  //     field the contract says it does not set. Hence a scope field on the
+  //     request. --)
+  string parent = 3 [
     (google.api.field_behavior) = REQUIRED,
     (chainguard.annotations.iam_scope) = true
   ];
@@ -784,14 +819,24 @@ message UpdateRequestGroupRequest {
 // RemoveItemsRequest removes items from a draft.
 message RemoveItemsRequest {
   // The draft group holding the items.
-  string uid = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (chainguard.annotations.iam_scope) = true
-  ];
+  //
+  // A flat UUID, not a Chainguard ID, as on GetRequestGroupRequest.uid. The IAM
+  // scope travels on parent below.
+  string uid = 1 [(google.api.field_behavior) = REQUIRED];
 
   // The items to remove. Every uid must belong to this group; a mismatch fails
   // the whole call.
   repeated string item_uids = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The organization that owns the group.
+  //
+  // Carries the IAM scope for this request, as on GetRequestGroupRequest.parent.
+  // It must be the organization that owns uid; a uid belonging to any other
+  // organization reads as not found.
+  string parent = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
 }
 
 // RemoveItemsResponse reports the outcome of a removal.
@@ -816,14 +861,24 @@ message RemoveItemsResponse {
 // RestoreItemsRequest returns removed items to a draft.
 message RestoreItemsRequest {
   // The draft group holding the items.
-  string uid = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (chainguard.annotations.iam_scope) = true
-  ];
+  //
+  // A flat UUID, not a Chainguard ID, as on GetRequestGroupRequest.uid. The IAM
+  // scope travels on parent below.
+  string uid = 1 [(google.api.field_behavior) = REQUIRED];
 
   // The items to restore. Every uid must belong to this group; a mismatch fails
   // the whole call.
   repeated string item_uids = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The organization that owns the group.
+  //
+  // Carries the IAM scope for this request, as on GetRequestGroupRequest.parent.
+  // It must be the organization that owns uid; a uid belonging to any other
+  // organization reads as not found.
+  string parent = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
 }
 
 // RestoreItemsResponse reports the outcome of a restore.
@@ -848,7 +903,17 @@ message RestoreItemsResponse {
 // DeleteRequestGroupRequest deletes a group.
 message DeleteRequestGroupRequest {
   // The group to delete.
-  string uid = 1 [
+  //
+  // A flat UUID, not a Chainguard ID, as on GetRequestGroupRequest.uid. The IAM
+  // scope travels on parent below.
+  string uid = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The organization that owns the group.
+  //
+  // Carries the IAM scope for this request, as on GetRequestGroupRequest.parent.
+  // It must be the organization that owns uid; a uid belonging to any other
+  // organization reads as not found.
+  string parent = 2 [
     (google.api.field_behavior) = REQUIRED,
     (chainguard.annotations.iam_scope) = true
   ];
@@ -857,7 +922,18 @@ message DeleteRequestGroupRequest {
 // RefreshCoverageRequest re-runs a group's coverage check.
 message RefreshCoverageRequest {
   // The group to re-scan.
-  string uid = 1 [
+  //
+  // A flat UUID, not a Chainguard ID, as on GetRequestGroupRequest.uid. The IAM
+  // scope travels on parent below.
+  string uid = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The organization that owns the group.
+  //
+  // Carries the IAM scope for this request, as on GetRequestGroupRequest.parent.
+  // Required even though this RPC is for support and incident escalation rather
+  // than a customer control: the capability is still checked against an
+  // organization, and a staff-facing call is not an unscoped one.
+  string parent = 2 [
     (google.api.field_behavior) = REQUIRED,
     (chainguard.annotations.iam_scope) = true
   ];
