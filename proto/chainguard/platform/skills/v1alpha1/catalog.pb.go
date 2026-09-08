@@ -197,7 +197,8 @@ type UpdateSkillRequest struct {
 	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	// description is a human-readable one-line summary.
 	Description string `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
-	// license is the skill's SPDX license identifier, if declared.
+	// license is the skill's SPDX license identifier. A skill always carries a
+	// license, so publish must supply one (backfill license-less rows first).
 	License string `protobuf:"bytes,5,opt,name=license,proto3" json:"license,omitempty"`
 	// category groups the skill in the catalog, if declared.
 	Category string `protobuf:"bytes,6,opt,name=category,proto3" json:"category,omitempty"`
@@ -342,8 +343,12 @@ func (x *UpdateSkillRequest) GetDownloads() int64 {
 
 type DeleteSkillRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// id, the UIDP of the Skill to soft-delete.
-	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// repo_uidp is the backing repo's UIDP — the key the row is matched on, the
+	// same key UpdateSkill writes. Carried in the resource path.
+	RepoUidp string `protobuf:"bytes,1,opt,name=repo_uidp,json=repoUidp,proto3" json:"repo_uidp,omitempty"`
+	// parent_id is the owning Group UIDP; it scopes the capability check
+	// (iam_scope), like UpdateSkill. repo_uidp must be within parent_id's subtree.
+	ParentId      string `protobuf:"bytes,2,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -378,9 +383,16 @@ func (*DeleteSkillRequest) Descriptor() ([]byte, []int) {
 	return file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *DeleteSkillRequest) GetId() string {
+func (x *DeleteSkillRequest) GetRepoUidp() string {
 	if x != nil {
-		return x.Id
+		return x.RepoUidp
+	}
+	return ""
+}
+
+func (x *DeleteSkillRequest) GetParentId() string {
+	if x != nil {
+		return x.ParentId
 	}
 	return ""
 }
@@ -405,7 +417,20 @@ type ListSkillsRequest struct {
 	PageToken string `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// source optionally narrows results to a single publishing organization
 	// (e.g. "anthropics").
-	Source        string `protobuf:"bytes,5,opt,name=source,proto3" json:"source,omitempty"` // next id: 6
+	Source string `protobuf:"bytes,5,opt,name=source,proto3" json:"source,omitempty"`
+	// skip is an offset (SQL OFFSET) for random-access page jumps (e.g. page 1 ->
+	// page 5), applied on top of page_size/page_token. Bounded server-side.
+	Skip int32 `protobuf:"varint,6,opt,name=skip,proto3" json:"skip,omitempty"`
+	// order_by sorts results (AIP-132), e.g. "stars desc, name". Sortable keys:
+	// name, create_time, update_time, stars, downloads. A stable tiebreak is
+	// always appended server-side. Default: "name asc".
+	OrderBy string `protobuf:"bytes,7,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
+	// keywords optionally narrows results to skills carrying any of these
+	// keywords (match-any). NB these are catalog keywords, not registry tags.
+	Keywords []string `protobuf:"bytes,8,rep,name=keywords,proto3" json:"keywords,omitempty"`
+	// hardened optionally narrows by the harden marker: unset = all, true =
+	// hardened only, false = non-hardened only.
+	Hardened      *bool `protobuf:"varint,9,opt,name=hardened,proto3,oneof" json:"hardened,omitempty"` // next id: 10
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -473,6 +498,34 @@ func (x *ListSkillsRequest) GetSource() string {
 		return x.Source
 	}
 	return ""
+}
+
+func (x *ListSkillsRequest) GetSkip() int32 {
+	if x != nil {
+		return x.Skip
+	}
+	return 0
+}
+
+func (x *ListSkillsRequest) GetOrderBy() string {
+	if x != nil {
+		return x.OrderBy
+	}
+	return ""
+}
+
+func (x *ListSkillsRequest) GetKeywords() []string {
+	if x != nil {
+		return x.Keywords
+	}
+	return nil
+}
+
+func (x *ListSkillsRequest) GetHardened() bool {
+	if x != nil && x.Hardened != nil {
+		return *x.Hardened
+	}
+	return false
 }
 
 type ListSkillsResponse struct {
@@ -544,7 +597,9 @@ type SearchSkillsRequest struct {
 	// authorized for.
 	Uidp *v1.UIDPFilter `protobuf:"bytes,1,opt,name=uidp,proto3" json:"uidp,omitempty"`
 	// query is the free-text search string, matched against the catalog's name,
-	// description, category, and keywords.
+	// description, category, and keywords. Empty means match-all: the server lists
+	// the scope (no text match) rather than rejecting the request, so an unfiltered
+	// "search" returns the full catalog.
 	Query string `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
 	// page_size is the maximum number of results to return per page. It is bounded
 	// server-side (same as ListSkills): omitting it applies a default page size and
@@ -553,7 +608,24 @@ type SearchSkillsRequest struct {
 	PageSize int32 `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	// page_token is a token from a previous response's next_page_token. Omit to
 	// start from the first page.
-	PageToken     string `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"` // next id: 5
+	PageToken string `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// category optionally narrows results to a single category (parity with List).
+	Category string `protobuf:"bytes,5,opt,name=category,proto3" json:"category,omitempty"`
+	// source optionally narrows results to a single publishing organization
+	// (parity with List).
+	Source string `protobuf:"bytes,6,opt,name=source,proto3" json:"source,omitempty"`
+	// skip is an offset (SQL OFFSET) for random-access page jumps, applied on top
+	// of page_size/page_token. Bounded server-side.
+	Skip int32 `protobuf:"varint,7,opt,name=skip,proto3" json:"skip,omitempty"`
+	// keywords optionally narrows results to skills carrying any of these
+	// keywords (match-any). NB these are catalog keywords, not registry tags.
+	Keywords []string `protobuf:"bytes,8,rep,name=keywords,proto3" json:"keywords,omitempty"`
+	// hardened optionally narrows by the harden marker: unset = all, true =
+	// hardened only, false = non-hardened only.
+	Hardened *bool `protobuf:"varint,9,opt,name=hardened,proto3,oneof" json:"hardened,omitempty"`
+	// order_by is a secondary sort applied after relevance (AIP-132), e.g.
+	// "stars desc". Relevance stays the primary order. Same keys as ListSkills.
+	OrderBy       string `protobuf:"bytes,10,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"` // next id: 11
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -612,6 +684,48 @@ func (x *SearchSkillsRequest) GetPageSize() int32 {
 func (x *SearchSkillsRequest) GetPageToken() string {
 	if x != nil {
 		return x.PageToken
+	}
+	return ""
+}
+
+func (x *SearchSkillsRequest) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+func (x *SearchSkillsRequest) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
+}
+
+func (x *SearchSkillsRequest) GetSkip() int32 {
+	if x != nil {
+		return x.Skip
+	}
+	return 0
+}
+
+func (x *SearchSkillsRequest) GetKeywords() []string {
+	if x != nil {
+		return x.Keywords
+	}
+	return nil
+}
+
+func (x *SearchSkillsRequest) GetHardened() bool {
+	if x != nil && x.Hardened != nil {
+		return *x.Hardened
+	}
+	return false
+}
+
+func (x *SearchSkillsRequest) GetOrderBy() string {
+	if x != nil {
+		return x.OrderBy
 	}
 	return ""
 }
@@ -706,7 +820,7 @@ const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12\x18\n" +
 	"\x04name\x18\x03 \x01(\tB\x04\xe2A\x01\x02R\x04name\x12&\n" +
 	"\vdescription\x18\x04 \x01(\tB\x04\xe2A\x01\x01R\vdescription\x12\x1e\n" +
-	"\alicense\x18\x05 \x01(\tB\x04\xe2A\x01\x01R\alicense\x12 \n" +
+	"\alicense\x18\x05 \x01(\tB\x04\xe2A\x01\x02R\alicense\x12 \n" +
 	"\bcategory\x18\x06 \x01(\tB\x04\xe2A\x01\x01R\bcategory\x12 \n" +
 	"\bkeywords\x18\a \x03(\tB\x04\xe2A\x01\x01R\bkeywords\x12)\n" +
 	"\rallow_missing\x18\t \x01(\bB\x04\xe2A\x01\x01R\fallowMissing\x12 \n" +
@@ -714,33 +828,47 @@ const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	" \x01(\bB\x04\xe2A\x01\x01R\bhardened\x12\x1c\n" +
 	"\x06source\x18\v \x01(\tB\x04\xe2A\x01\x01R\x06source\x12\x1a\n" +
 	"\x05stars\x18\f \x01(\x03B\x04\xe2A\x01\x01R\x05stars\x12\"\n" +
-	"\tdownloads\x18\r \x01(\x03B\x04\xe2A\x01\x01R\tdownloadsJ\x04\b\b\x10\t\"0\n" +
-	"\x12DeleteSkillRequest\x12\x1a\n" +
-	"\x02id\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x02id\"\xc5\x01\n" +
+	"\tdownloads\x18\r \x01(\x03B\x04\xe2A\x01\x01R\tdownloadsJ\x04\b\b\x10\t\"`\n" +
+	"\x12DeleteSkillRequest\x12!\n" +
+	"\trepo_uidp\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\brepoUidp\x12'\n" +
+	"\tparent_id\x18\x02 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\bparentId\"\xbe\x02\n" +
 	"\x11ListSkillsRequest\x12@\n" +
 	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterB\x04\xe2A\x01\x02R\x04uidp\x12\x1a\n" +
 	"\bcategory\x18\x02 \x01(\tR\bcategory\x12\x1b\n" +
 	"\tpage_size\x18\x03 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\x04 \x01(\tR\tpageToken\x12\x16\n" +
-	"\x06source\x18\x05 \x01(\tR\x06source\"\x9f\x01\n" +
+	"\x06source\x18\x05 \x01(\tR\x06source\x12\x12\n" +
+	"\x04skip\x18\x06 \x01(\x05R\x04skip\x12\x19\n" +
+	"\border_by\x18\a \x01(\tR\aorderBy\x12\x1a\n" +
+	"\bkeywords\x18\b \x03(\tR\bkeywords\x12\x1f\n" +
+	"\bhardened\x18\t \x01(\bH\x00R\bhardened\x88\x01\x01B\v\n" +
+	"\t_hardened\"\x9f\x01\n" +
 	"\x12ListSkillsResponse\x12@\n" +
 	"\x05items\x18\x01 \x03(\v2*.chainguard.platform.skills.v1alpha1.SkillR\x05items\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
 	"\vtotal_count\x18\x03 \x01(\x03R\n" +
-	"totalCount\"\xaf\x01\n" +
+	"totalCount\"\xd6\x02\n" +
 	"\x13SearchSkillsRequest\x12@\n" +
-	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterB\x04\xe2A\x01\x02R\x04uidp\x12\x1a\n" +
-	"\x05query\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x05query\x12\x1b\n" +
+	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterB\x04\xe2A\x01\x02R\x04uidp\x12\x14\n" +
+	"\x05query\x18\x02 \x01(\tR\x05query\x12\x1b\n" +
 	"\tpage_size\x18\x03 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
-	"page_token\x18\x04 \x01(\tR\tpageToken\"\xa1\x01\n" +
+	"page_token\x18\x04 \x01(\tR\tpageToken\x12\x1a\n" +
+	"\bcategory\x18\x05 \x01(\tR\bcategory\x12\x16\n" +
+	"\x06source\x18\x06 \x01(\tR\x06source\x12\x12\n" +
+	"\x04skip\x18\a \x01(\x05R\x04skip\x12\x1a\n" +
+	"\bkeywords\x18\b \x03(\tR\bkeywords\x12\x1f\n" +
+	"\bhardened\x18\t \x01(\bH\x00R\bhardened\x88\x01\x01\x12\x19\n" +
+	"\border_by\x18\n" +
+	" \x01(\tR\aorderByB\v\n" +
+	"\t_hardened\"\xa1\x01\n" +
 	"\x14SearchSkillsResponse\x12@\n" +
 	"\x05items\x18\x01 \x03(\v2*.chainguard.platform.skills.v1alpha1.SkillR\x05items\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
 	"\vtotal_count\x18\x03 \x01(\x03R\n" +
-	"totalCount2\xe7\b\n" +
+	"totalCount2\xef\b\n" +
 	"\x06Skills\x12\xf4\x02\n" +
 	"\n" +
 	"ListSkills\x126.chainguard.platform.skills.v1alpha1.ListSkillsRequest\x1a7.chainguard.platform.skills.v1alpha1.ListSkillsResponse\"\xf4\x01\x82\xd3\xe4\x93\x02\x19\x12\x17/skills/v1alpha1/skills\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
@@ -750,8 +878,8 @@ const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	"\x02\xcb\x13\x10\x01\x9a\xaf\xa8\xd2\x05\xcb\x01\n" +
 	"\xc0\x01Search hardened Chainguard skills in the catalog by a free-text query (matched against name, description, category, and keywords) under a group. Prefer this over list to find a specific skill.\x18\x01 \x00(\x010\x00\x12\xb9\x01\n" +
 	"\vUpdateSkill\x127.chainguard.platform.skills.v1alpha1.UpdateSkillRequest\x1a*.chainguard.platform.skills.v1alpha1.Skill\"E\x82\xd3\xe4\x93\x02+:\x01*2&/skills/v1alpha1/skills/{repo_uidp=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xc9\x13\x9a\xaf\xa8\xd2\x05\x02\x10\x01\x12\x9a\x01\n" +
-	"\vDeleteSkill\x127.chainguard.platform.skills.v1alpha1.DeleteSkillRequest\x1a\x16.google.protobuf.Empty\":\x82\xd3\xe4\x93\x02 *\x1e/skills/v1alpha1/skill/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xc9\x13\x9a\xaf\xa8\xd2\x05\x02\x10\x01\x12\xa2\x01\n" +
+	"\vDeleteSkill\x127.chainguard.platform.skills.v1alpha1.DeleteSkillRequest\x1a\x16.google.protobuf.Empty\"B\x82\xd3\xe4\x93\x02(*&/skills/v1alpha1/skills/{repo_uidp=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xca\x13\x9a\xaf\xa8\xd2\x05\x02\x10\x01Bw\n" +
 	"'com.chainguard.platform.skills.v1alpha1B\fCatalogProtoP\x01Z<chainguard.dev/sdk/proto/chainguard/platform/skills/v1alpha1b\x06proto3"
 
@@ -807,6 +935,8 @@ func file_chainguard_platform_skills_v1alpha1_catalog_proto_init() {
 	if File_chainguard_platform_skills_v1alpha1_catalog_proto != nil {
 		return
 	}
+	file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[3].OneofWrappers = []any{}
+	file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

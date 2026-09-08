@@ -100,7 +100,7 @@ service Skills {
   // ListSkills stops surfacing it. Internal publish-path use only (skills.delete
   // is internal_only), hidden from the tool surface.
   rpc DeleteSkill(DeleteSkillRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {delete: "/skills/v1alpha1/skill/{id=**}"};
+    option (google.api.http) = {delete: "/skills/v1alpha1/skills/{repo_uidp=**}"};
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [CAP_SKILLS_DELETE]
@@ -168,8 +168,9 @@ message UpdateSkillRequest {
   string name = 3 [(google.api.field_behavior) = REQUIRED];
   // description is a human-readable one-line summary.
   string description = 4 [(google.api.field_behavior) = OPTIONAL];
-  // license is the skill's SPDX license identifier, if declared.
-  string license = 5 [(google.api.field_behavior) = OPTIONAL];
+  // license is the skill's SPDX license identifier. A skill always carries a
+  // license, so publish must supply one (backfill license-less rows first).
+  string license = 5 [(google.api.field_behavior) = REQUIRED];
   // category groups the skill in the catalog, if declared.
   string category = 6 [(google.api.field_behavior) = OPTIONAL];
   // keywords are free-form tags associated with the skill.
@@ -198,8 +199,12 @@ message UpdateSkillRequest {
 }
 
 message DeleteSkillRequest {
-  // id, the UIDP of the Skill to soft-delete.
-  string id = 1 [
+  // repo_uidp is the backing repo's UIDP — the key the row is matched on, the
+  // same key UpdateSkill writes. Carried in the resource path.
+  string repo_uidp = 1 [(google.api.field_behavior) = REQUIRED];
+  // parent_id is the owning Group UIDP; it scopes the capability check
+  // (iam_scope), like UpdateSkill. repo_uidp must be within parent_id's subtree.
+  string parent_id = 2 [
     (google.api.field_behavior) = REQUIRED,
     (chainguard.annotations.iam_scope) = true
   ];
@@ -225,7 +230,20 @@ message ListSkillsRequest {
   // source optionally narrows results to a single publishing organization
   // (e.g. "anthropics").
   string source = 5;
-  // next id: 6
+  // skip is an offset (SQL OFFSET) for random-access page jumps (e.g. page 1 ->
+  // page 5), applied on top of page_size/page_token. Bounded server-side.
+  int32 skip = 6;
+  // order_by sorts results (AIP-132), e.g. "stars desc, name". Sortable keys:
+  // name, create_time, update_time, stars, downloads. A stable tiebreak is
+  // always appended server-side. Default: "name asc".
+  string order_by = 7;
+  // keywords optionally narrows results to skills carrying any of these
+  // keywords (match-any). NB these are catalog keywords, not registry tags.
+  repeated string keywords = 8;
+  // hardened optionally narrows by the harden marker: unset = all, true =
+  // hardened only, false = non-hardened only.
+  optional bool hardened = 9;
+  // next id: 10
 }
 
 message ListSkillsResponse {
@@ -242,8 +260,10 @@ message SearchSkillsRequest {
   // authorized for.
   chainguard.platform.common.UIDPFilter uidp = 1 [(google.api.field_behavior) = REQUIRED];
   // query is the free-text search string, matched against the catalog's name,
-  // description, category, and keywords.
-  string query = 2 [(google.api.field_behavior) = REQUIRED];
+  // description, category, and keywords. Empty means match-all: the server lists
+  // the scope (no text match) rather than rejecting the request, so an unfiltered
+  // "search" returns the full catalog.
+  string query = 2;
   // page_size is the maximum number of results to return per page. It is bounded
   // server-side (same as ListSkills): omitting it applies a default page size and
   // any value is capped at a maximum, so a search is always paginated and never
@@ -252,7 +272,24 @@ message SearchSkillsRequest {
   // page_token is a token from a previous response's next_page_token. Omit to
   // start from the first page.
   string page_token = 4;
-  // next id: 5
+  // category optionally narrows results to a single category (parity with List).
+  string category = 5;
+  // source optionally narrows results to a single publishing organization
+  // (parity with List).
+  string source = 6;
+  // skip is an offset (SQL OFFSET) for random-access page jumps, applied on top
+  // of page_size/page_token. Bounded server-side.
+  int32 skip = 7;
+  // keywords optionally narrows results to skills carrying any of these
+  // keywords (match-any). NB these are catalog keywords, not registry tags.
+  repeated string keywords = 8;
+  // hardened optionally narrows by the harden marker: unset = all, true =
+  // hardened only, false = non-hardened only.
+  optional bool hardened = 9;
+  // order_by is a secondary sort applied after relevance (AIP-132), e.g.
+  // "stars desc". Relevance stays the primary order. Same keys as ListSkills.
+  string order_by = 10;
+  // next id: 11
 }
 
 message SearchSkillsResponse {
