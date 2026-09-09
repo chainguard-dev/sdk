@@ -232,26 +232,26 @@ message Identity {
     // Required, matches the `iss` claim.
     oneof iss {
       // Exact issuer to match.
-      string issuer = 1;
+      string issuer = 1 [(google.api.field_behavior) = REQUIRED];
       // Regular expression for matching the issuer.
-      string issuer_pattern = 2;
+      string issuer_pattern = 2 [(google.api.field_behavior) = REQUIRED];
     }
 
     // Required, matches the `sub` claim.
     oneof sub {
       // Exact subject to match.
-      string subject = 3;
+      string subject = 3 [(google.api.field_behavior) = REQUIRED];
       // Regular expression for matching the subject.
-      string subject_pattern = 4;
+      string subject_pattern = 4 [(google.api.field_behavior) = REQUIRED];
     }
 
     // Optional, matches the `aud` claim.
     // When unspecified, defaults to the SaaS environment's issuer hostname.
     oneof aud {
       // Exact audience to match.
-      string audience = 5;
+      string audience = 5 [(google.api.field_behavior) = OPTIONAL];
       // Regular expression for matching the audience.
-      string audience_pattern = 6;
+      string audience_pattern = 6 [(google.api.field_behavior) = OPTIONAL];
     }
 
     // Custom claims with exact value matching.
@@ -294,17 +294,17 @@ message Identity {
     // Matches the `Arn` field from AWS GetCallerIdentity.
     oneof aws_arn {
       // Exact ARN to match.
-      string arn = 2;
+      string arn = 2 [(google.api.field_behavior) = OPTIONAL];
       // Regular expression for matching the ARN.
-      string arn_pattern = 3;
+      string arn_pattern = 3 [(google.api.field_behavior) = OPTIONAL];
     }
 
     // Matches the `UserId` field from AWS GetCallerIdentity.
     oneof aws_user_id {
       // Exact user ID to match.
-      string user_id = 4;
+      string user_id = 4 [(google.api.field_behavior) = OPTIONAL];
       // Regular expression for matching the user ID.
-      string user_id_pattern = 5;
+      string user_id_pattern = 5 [(google.api.field_behavior) = OPTIONAL];
     }
   }
 }

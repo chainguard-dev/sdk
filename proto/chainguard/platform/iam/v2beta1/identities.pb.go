@@ -1590,7 +1590,7 @@ var File_chainguard_platform_iam_v2beta1_identities_proto protoreflect.FileDescr
 
 const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\n" +
-	"0chainguard/platform/iam/v2beta1/identities.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\x81\x0f\n" +
+	"0chainguard/platform/iam/v2beta1/identities.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xbd\x0f\n" +
 	"\bIdentity\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
@@ -1610,15 +1610,15 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\vstatic_keys\x18\x15 \x01(\v24.chainguard.platform.iam.v2beta1.Identity.StaticKeysH\x00R\n" +
 	"staticKeys\x12Z\n" +
 	"\faws_identity\x18\x16 \x01(\v25.chainguard.platform.iam.v2beta1.Identity.AWSIdentityH\x00R\vawsIdentity\x12`\n" +
-	"\x11service_principal\x18\x17 \x01(\x0e21.chainguard.platform.iam.v2beta1.ServicePrincipalH\x00R\x10servicePrincipal\x1a\xc9\x04\n" +
+	"\x11service_principal\x18\x17 \x01(\x0e21.chainguard.platform.iam.v2beta1.ServicePrincipalH\x00R\x10servicePrincipal\x1a\xed\x04\n" +
 	"\n" +
-	"ClaimMatch\x12\x18\n" +
-	"\x06issuer\x18\x01 \x01(\tH\x00R\x06issuer\x12'\n" +
-	"\x0eissuer_pattern\x18\x02 \x01(\tH\x00R\rissuerPattern\x12\x1a\n" +
-	"\asubject\x18\x03 \x01(\tH\x01R\asubject\x12)\n" +
-	"\x0fsubject_pattern\x18\x04 \x01(\tH\x01R\x0esubjectPattern\x12\x1c\n" +
-	"\baudience\x18\x05 \x01(\tH\x02R\baudience\x12+\n" +
-	"\x10audience_pattern\x18\x06 \x01(\tH\x02R\x0faudiencePattern\x12^\n" +
+	"ClaimMatch\x12\x1e\n" +
+	"\x06issuer\x18\x01 \x01(\tB\x04\xe2A\x01\x02H\x00R\x06issuer\x12-\n" +
+	"\x0eissuer_pattern\x18\x02 \x01(\tB\x04\xe2A\x01\x02H\x00R\rissuerPattern\x12 \n" +
+	"\asubject\x18\x03 \x01(\tB\x04\xe2A\x01\x02H\x01R\asubject\x12/\n" +
+	"\x0fsubject_pattern\x18\x04 \x01(\tB\x04\xe2A\x01\x02H\x01R\x0esubjectPattern\x12\"\n" +
+	"\baudience\x18\x05 \x01(\tB\x04\xe2A\x01\x01H\x02R\baudience\x121\n" +
+	"\x10audience_pattern\x18\x06 \x01(\tB\x04\xe2A\x01\x01H\x02R\x0faudiencePattern\x12^\n" +
 	"\x06claims\x18\a \x03(\v2@.chainguard.platform.iam.v2beta1.Identity.ClaimMatch.ClaimsEntryB\x04\xe2A\x01\x01R\x06claims\x12t\n" +
 	"\x0eclaim_patterns\x18\b \x03(\v2G.chainguard.platform.iam.v2beta1.Identity.ClaimMatch.ClaimPatternsEntryB\x04\xe2A\x01\x01R\rclaimPatterns\x1a9\n" +
 	"\vClaimsEntry\x12\x10\n" +
@@ -1637,15 +1637,15 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\vissuer_keys\x18\x03 \x01(\tB\x04\xe2A\x01\x02R\n" +
 	"issuerKeys\x12I\n" +
 	"\x0fexpiration_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x01R\x0eexpirationTime\x12\"\n" +
-	"\taudiences\x18\x05 \x03(\tB\x04\xe2A\x01\x01R\taudiences\x1a\xca\x01\n" +
+	"\taudiences\x18\x05 \x03(\tB\x04\xe2A\x01\x01R\taudiences\x1a\xe2\x01\n" +
 	"\vAWSIdentity\x12%\n" +
 	"\vaws_account\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\n" +
-	"awsAccount\x12\x12\n" +
-	"\x03arn\x18\x02 \x01(\tH\x00R\x03arn\x12!\n" +
-	"\varn_pattern\x18\x03 \x01(\tH\x00R\n" +
-	"arnPattern\x12\x19\n" +
-	"\auser_id\x18\x04 \x01(\tH\x01R\x06userId\x12(\n" +
-	"\x0fuser_id_pattern\x18\x05 \x01(\tH\x01R\ruserIdPatternB\t\n" +
+	"awsAccount\x12\x18\n" +
+	"\x03arn\x18\x02 \x01(\tB\x04\xe2A\x01\x01H\x00R\x03arn\x12'\n" +
+	"\varn_pattern\x18\x03 \x01(\tB\x04\xe2A\x01\x01H\x00R\n" +
+	"arnPattern\x12\x1f\n" +
+	"\auser_id\x18\x04 \x01(\tB\x04\xe2A\x01\x01H\x01R\x06userId\x12.\n" +
+	"\x0fuser_id_pattern\x18\x05 \x01(\tB\x04\xe2A\x01\x01H\x01R\ruserIdPatternB\t\n" +
 	"\aaws_arnB\r\n" +
 	"\vaws_user_id:M\xeaAJ\n" +
 	"\x1biam.chainguard.dev/Identity\x12\x15identities/{identity}*\n" +
