@@ -30,6 +30,63 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// ManagedBy identifies the automation that owns a role binding.
+type ManagedBy int32
+
+const (
+	// MANAGED_BY_UNSPECIFIED is the proto3 zero value. The API never returns it —
+	// every binding is either MANUAL or SCIM.
+	ManagedBy_MANAGED_BY_UNSPECIFIED ManagedBy = 0
+	// MANAGED_BY_MANUAL means a human operator created the binding. Automated
+	// reconcilers never revoke it.
+	ManagedBy_MANAGED_BY_MANUAL ManagedBy = 1
+	// MANAGED_BY_SCIM means the SCIM reconciler provisioned the binding for the
+	// IdentityProvider recorded in managed_by_uidp. It cannot be edited through
+	// this API.
+	ManagedBy_MANAGED_BY_SCIM ManagedBy = 2
+)
+
+// Enum value maps for ManagedBy.
+var (
+	ManagedBy_name = map[int32]string{
+		0: "MANAGED_BY_UNSPECIFIED",
+		1: "MANAGED_BY_MANUAL",
+		2: "MANAGED_BY_SCIM",
+	}
+	ManagedBy_value = map[string]int32{
+		"MANAGED_BY_UNSPECIFIED": 0,
+		"MANAGED_BY_MANUAL":      1,
+		"MANAGED_BY_SCIM":        2,
+	}
+)
+
+func (x ManagedBy) Enum() *ManagedBy {
+	p := new(ManagedBy)
+	*p = x
+	return p
+}
+
+func (x ManagedBy) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ManagedBy) Descriptor() protoreflect.EnumDescriptor {
+	return file_chainguard_platform_iam_v2_role_bindings_proto_enumTypes[0].Descriptor()
+}
+
+func (ManagedBy) Type() protoreflect.EnumType {
+	return &file_chainguard_platform_iam_v2_role_bindings_proto_enumTypes[0]
+}
+
+func (x ManagedBy) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ManagedBy.Descriptor instead.
+func (ManagedBy) EnumDescriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2_role_bindings_proto_rawDescGZIP(), []int{0}
+}
+
 // RoleBinding represents an IAM role binding.
 // A role binding associates an identity with a role within a group scope.
 type RoleBinding struct {
@@ -53,7 +110,14 @@ type RoleBinding struct {
 	IdentityUid string `protobuf:"bytes,6,opt,name=identity_uid,json=identityUid,proto3" json:"identity_uid,omitempty"`
 	// The role UID to bind to the identity.
 	// Set this field when creating or updating a role binding.
-	RoleUid       string `protobuf:"bytes,7,opt,name=role_uid,json=roleUid,proto3" json:"role_uid,omitempty"`
+	RoleUid string `protobuf:"bytes,7,opt,name=role_uid,json=roleUid,proto3" json:"role_uid,omitempty"`
+	// Who manages this role binding. MANUAL bindings are human-created and are
+	// never revoked by a reconciler; SCIM bindings are owned by the
+	// IdentityProvider in managed_by_uidp and cannot be edited through this API.
+	ManagedBy ManagedBy `protobuf:"varint,8,opt,name=managed_by,json=managedBy,proto3,enum=chainguard.platform.iam.v2.ManagedBy" json:"managed_by,omitempty"`
+	// UIDP of the IdentityProvider that manages this role binding. Empty for
+	// MANUAL bindings; set for SCIM bindings.
+	ManagedByUidp string `protobuf:"bytes,9,opt,name=managed_by_uidp,json=managedByUidp,proto3" json:"managed_by_uidp,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -133,6 +197,20 @@ func (x *RoleBinding) GetIdentityUid() string {
 func (x *RoleBinding) GetRoleUid() string {
 	if x != nil {
 		return x.RoleUid
+	}
+	return ""
+}
+
+func (x *RoleBinding) GetManagedBy() ManagedBy {
+	if x != nil {
+		return x.ManagedBy
+	}
+	return ManagedBy_MANAGED_BY_UNSPECIFIED
+}
+
+func (x *RoleBinding) GetManagedByUidp() string {
+	if x != nil {
+		return x.ManagedByUidp
 	}
 	return ""
 }
@@ -876,7 +954,7 @@ var File_chainguard_platform_iam_v2_role_bindings_proto protoreflect.FileDescrip
 
 const file_chainguard_platform_iam_v2_role_bindings_proto_rawDesc = "" +
 	"\n" +
-	".chainguard/platform/iam/v2/role_bindings.proto\x12\x1achainguard.platform.iam.v2\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xf9\x03\n" +
+	".chainguard/platform/iam/v2/role_bindings.proto\x12\x1achainguard.platform.iam.v2\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xf3\x04\n" +
 	"\vRoleBinding\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12Q\n" +
@@ -886,7 +964,10 @@ const file_chainguard_platform_iam_v2_role_bindings_proto_rawDesc = "" +
 	"\vcreate_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
 	"createTime\x12'\n" +
 	"\fidentity_uid\x18\x06 \x01(\tB\x04\xe2A\x01\x01R\videntityUid\x12\x1f\n" +
-	"\brole_uid\x18\a \x01(\tB\x04\xe2A\x01\x01R\aroleUid:[\xeaAX\n" +
+	"\brole_uid\x18\a \x01(\tB\x04\xe2A\x01\x01R\aroleUid\x12J\n" +
+	"\n" +
+	"managed_by\x18\b \x01(\x0e2%.chainguard.platform.iam.v2.ManagedByB\x04\xe2A\x01\x03R\tmanagedBy\x12,\n" +
+	"\x0fmanaged_by_uidp\x18\t \x01(\tB\x04\xe2A\x01\x03R\rmanagedByUidp:[\xeaAX\n" +
 	"\x1eiam.chainguard.dev/RoleBinding\x12\x1broleBindings/{role_binding}*\froleBindings2\vroleBinding\"\xc9\x01\n" +
 	"\x13RoleBindingIdentity\x12\x16\n" +
 	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12\x18\n" +
@@ -941,7 +1022,11 @@ const file_chainguard_platform_iam_v2_role_bindings_proto_rawDesc = "" +
 	"\brequests\x18\x02 \x03(\v24.chainguard.platform.iam.v2.CreateRoleBindingRequestB\x04\xe2A\x01\x02R\brequests\x12\x1f\n" +
 	"\brole_uid\x18\x03 \x01(\tB\x04\xe2A\x01\x01R\aroleUid\"o\n" +
 	"\x1fBatchCreateRoleBindingsResponse\x12L\n" +
-	"\rrole_bindings\x18\x01 \x03(\v2'.chainguard.platform.iam.v2.RoleBindingR\froleBindings2\xcc\x0e\n" +
+	"\rrole_bindings\x18\x01 \x03(\v2'.chainguard.platform.iam.v2.RoleBindingR\froleBindings*S\n" +
+	"\tManagedBy\x12\x1a\n" +
+	"\x16MANAGED_BY_UNSPECIFIED\x10\x00\x12\x15\n" +
+	"\x11MANAGED_BY_MANUAL\x10\x01\x12\x13\n" +
+	"\x0fMANAGED_BY_SCIM\x10\x022\xcc\x0e\n" +
 	"\x13RoleBindingsService\x12\xd3\x01\n" +
 	"\x0eGetRoleBinding\x121.chainguard.platform.iam.v2.GetRoleBindingRequest\x1a'.chainguard.platform.iam.v2.RoleBinding\"e\x82\xd3\xe4\x93\x02\x1f\x12\x1d/iam/v2/roleBindings/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x93\x03\x9a\xaf\xa8\xd2\x05.\n" +
@@ -979,54 +1064,57 @@ func file_chainguard_platform_iam_v2_role_bindings_proto_rawDescGZIP() []byte {
 	return file_chainguard_platform_iam_v2_role_bindings_proto_rawDescData
 }
 
+var file_chainguard_platform_iam_v2_role_bindings_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_chainguard_platform_iam_v2_role_bindings_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_chainguard_platform_iam_v2_role_bindings_proto_goTypes = []any{
-	(*RoleBinding)(nil),                     // 0: chainguard.platform.iam.v2.RoleBinding
-	(*RoleBindingIdentity)(nil),             // 1: chainguard.platform.iam.v2.RoleBindingIdentity
-	(*RoleBindingGroup)(nil),                // 2: chainguard.platform.iam.v2.RoleBindingGroup
-	(*RoleBindingRole)(nil),                 // 3: chainguard.platform.iam.v2.RoleBindingRole
-	(*CreateRoleBindingRequest)(nil),        // 4: chainguard.platform.iam.v2.CreateRoleBindingRequest
-	(*DeleteRoleBindingRequest)(nil),        // 5: chainguard.platform.iam.v2.DeleteRoleBindingRequest
-	(*GetRoleBindingRequest)(nil),           // 6: chainguard.platform.iam.v2.GetRoleBindingRequest
-	(*ListRoleBindingsRequest)(nil),         // 7: chainguard.platform.iam.v2.ListRoleBindingsRequest
-	(*ListRoleBindingsResponse)(nil),        // 8: chainguard.platform.iam.v2.ListRoleBindingsResponse
-	(*UpdateRoleBindingRequest)(nil),        // 9: chainguard.platform.iam.v2.UpdateRoleBindingRequest
-	(*BatchCreateRoleBindingsRequest)(nil),  // 10: chainguard.platform.iam.v2.BatchCreateRoleBindingsRequest
-	(*BatchCreateRoleBindingsResponse)(nil), // 11: chainguard.platform.iam.v2.BatchCreateRoleBindingsResponse
-	(*timestamppb.Timestamp)(nil),           // 12: google.protobuf.Timestamp
-	(*v1.UIDPFilter)(nil),                   // 13: chainguard.platform.common.UIDPFilter
-	(*fieldmaskpb.FieldMask)(nil),           // 14: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),                   // 15: google.protobuf.Empty
+	(ManagedBy)(0),                          // 0: chainguard.platform.iam.v2.ManagedBy
+	(*RoleBinding)(nil),                     // 1: chainguard.platform.iam.v2.RoleBinding
+	(*RoleBindingIdentity)(nil),             // 2: chainguard.platform.iam.v2.RoleBindingIdentity
+	(*RoleBindingGroup)(nil),                // 3: chainguard.platform.iam.v2.RoleBindingGroup
+	(*RoleBindingRole)(nil),                 // 4: chainguard.platform.iam.v2.RoleBindingRole
+	(*CreateRoleBindingRequest)(nil),        // 5: chainguard.platform.iam.v2.CreateRoleBindingRequest
+	(*DeleteRoleBindingRequest)(nil),        // 6: chainguard.platform.iam.v2.DeleteRoleBindingRequest
+	(*GetRoleBindingRequest)(nil),           // 7: chainguard.platform.iam.v2.GetRoleBindingRequest
+	(*ListRoleBindingsRequest)(nil),         // 8: chainguard.platform.iam.v2.ListRoleBindingsRequest
+	(*ListRoleBindingsResponse)(nil),        // 9: chainguard.platform.iam.v2.ListRoleBindingsResponse
+	(*UpdateRoleBindingRequest)(nil),        // 10: chainguard.platform.iam.v2.UpdateRoleBindingRequest
+	(*BatchCreateRoleBindingsRequest)(nil),  // 11: chainguard.platform.iam.v2.BatchCreateRoleBindingsRequest
+	(*BatchCreateRoleBindingsResponse)(nil), // 12: chainguard.platform.iam.v2.BatchCreateRoleBindingsResponse
+	(*timestamppb.Timestamp)(nil),           // 13: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),                   // 14: chainguard.platform.common.UIDPFilter
+	(*fieldmaskpb.FieldMask)(nil),           // 15: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),                   // 16: google.protobuf.Empty
 }
 var file_chainguard_platform_iam_v2_role_bindings_proto_depIdxs = []int32{
-	1,  // 0: chainguard.platform.iam.v2.RoleBinding.identity:type_name -> chainguard.platform.iam.v2.RoleBindingIdentity
-	2,  // 1: chainguard.platform.iam.v2.RoleBinding.group:type_name -> chainguard.platform.iam.v2.RoleBindingGroup
-	3,  // 2: chainguard.platform.iam.v2.RoleBinding.role:type_name -> chainguard.platform.iam.v2.RoleBindingRole
-	12, // 3: chainguard.platform.iam.v2.RoleBinding.create_time:type_name -> google.protobuf.Timestamp
-	0,  // 4: chainguard.platform.iam.v2.CreateRoleBindingRequest.role_binding:type_name -> chainguard.platform.iam.v2.RoleBinding
-	13, // 5: chainguard.platform.iam.v2.ListRoleBindingsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	0,  // 6: chainguard.platform.iam.v2.ListRoleBindingsResponse.role_bindings:type_name -> chainguard.platform.iam.v2.RoleBinding
-	0,  // 7: chainguard.platform.iam.v2.UpdateRoleBindingRequest.role_binding:type_name -> chainguard.platform.iam.v2.RoleBinding
-	14, // 8: chainguard.platform.iam.v2.UpdateRoleBindingRequest.update_mask:type_name -> google.protobuf.FieldMask
-	4,  // 9: chainguard.platform.iam.v2.BatchCreateRoleBindingsRequest.requests:type_name -> chainguard.platform.iam.v2.CreateRoleBindingRequest
-	0,  // 10: chainguard.platform.iam.v2.BatchCreateRoleBindingsResponse.role_bindings:type_name -> chainguard.platform.iam.v2.RoleBinding
-	6,  // 11: chainguard.platform.iam.v2.RoleBindingsService.GetRoleBinding:input_type -> chainguard.platform.iam.v2.GetRoleBindingRequest
-	4,  // 12: chainguard.platform.iam.v2.RoleBindingsService.CreateRoleBinding:input_type -> chainguard.platform.iam.v2.CreateRoleBindingRequest
-	5,  // 13: chainguard.platform.iam.v2.RoleBindingsService.DeleteRoleBinding:input_type -> chainguard.platform.iam.v2.DeleteRoleBindingRequest
-	7,  // 14: chainguard.platform.iam.v2.RoleBindingsService.ListRoleBindings:input_type -> chainguard.platform.iam.v2.ListRoleBindingsRequest
-	10, // 15: chainguard.platform.iam.v2.RoleBindingsService.BatchCreateRoleBindings:input_type -> chainguard.platform.iam.v2.BatchCreateRoleBindingsRequest
-	9,  // 16: chainguard.platform.iam.v2.RoleBindingsService.UpdateRoleBinding:input_type -> chainguard.platform.iam.v2.UpdateRoleBindingRequest
-	0,  // 17: chainguard.platform.iam.v2.RoleBindingsService.GetRoleBinding:output_type -> chainguard.platform.iam.v2.RoleBinding
-	0,  // 18: chainguard.platform.iam.v2.RoleBindingsService.CreateRoleBinding:output_type -> chainguard.platform.iam.v2.RoleBinding
-	15, // 19: chainguard.platform.iam.v2.RoleBindingsService.DeleteRoleBinding:output_type -> google.protobuf.Empty
-	8,  // 20: chainguard.platform.iam.v2.RoleBindingsService.ListRoleBindings:output_type -> chainguard.platform.iam.v2.ListRoleBindingsResponse
-	11, // 21: chainguard.platform.iam.v2.RoleBindingsService.BatchCreateRoleBindings:output_type -> chainguard.platform.iam.v2.BatchCreateRoleBindingsResponse
-	0,  // 22: chainguard.platform.iam.v2.RoleBindingsService.UpdateRoleBinding:output_type -> chainguard.platform.iam.v2.RoleBinding
-	17, // [17:23] is the sub-list for method output_type
-	11, // [11:17] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	2,  // 0: chainguard.platform.iam.v2.RoleBinding.identity:type_name -> chainguard.platform.iam.v2.RoleBindingIdentity
+	3,  // 1: chainguard.platform.iam.v2.RoleBinding.group:type_name -> chainguard.platform.iam.v2.RoleBindingGroup
+	4,  // 2: chainguard.platform.iam.v2.RoleBinding.role:type_name -> chainguard.platform.iam.v2.RoleBindingRole
+	13, // 3: chainguard.platform.iam.v2.RoleBinding.create_time:type_name -> google.protobuf.Timestamp
+	0,  // 4: chainguard.platform.iam.v2.RoleBinding.managed_by:type_name -> chainguard.platform.iam.v2.ManagedBy
+	1,  // 5: chainguard.platform.iam.v2.CreateRoleBindingRequest.role_binding:type_name -> chainguard.platform.iam.v2.RoleBinding
+	14, // 6: chainguard.platform.iam.v2.ListRoleBindingsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	1,  // 7: chainguard.platform.iam.v2.ListRoleBindingsResponse.role_bindings:type_name -> chainguard.platform.iam.v2.RoleBinding
+	1,  // 8: chainguard.platform.iam.v2.UpdateRoleBindingRequest.role_binding:type_name -> chainguard.platform.iam.v2.RoleBinding
+	15, // 9: chainguard.platform.iam.v2.UpdateRoleBindingRequest.update_mask:type_name -> google.protobuf.FieldMask
+	5,  // 10: chainguard.platform.iam.v2.BatchCreateRoleBindingsRequest.requests:type_name -> chainguard.platform.iam.v2.CreateRoleBindingRequest
+	1,  // 11: chainguard.platform.iam.v2.BatchCreateRoleBindingsResponse.role_bindings:type_name -> chainguard.platform.iam.v2.RoleBinding
+	7,  // 12: chainguard.platform.iam.v2.RoleBindingsService.GetRoleBinding:input_type -> chainguard.platform.iam.v2.GetRoleBindingRequest
+	5,  // 13: chainguard.platform.iam.v2.RoleBindingsService.CreateRoleBinding:input_type -> chainguard.platform.iam.v2.CreateRoleBindingRequest
+	6,  // 14: chainguard.platform.iam.v2.RoleBindingsService.DeleteRoleBinding:input_type -> chainguard.platform.iam.v2.DeleteRoleBindingRequest
+	8,  // 15: chainguard.platform.iam.v2.RoleBindingsService.ListRoleBindings:input_type -> chainguard.platform.iam.v2.ListRoleBindingsRequest
+	11, // 16: chainguard.platform.iam.v2.RoleBindingsService.BatchCreateRoleBindings:input_type -> chainguard.platform.iam.v2.BatchCreateRoleBindingsRequest
+	10, // 17: chainguard.platform.iam.v2.RoleBindingsService.UpdateRoleBinding:input_type -> chainguard.platform.iam.v2.UpdateRoleBindingRequest
+	1,  // 18: chainguard.platform.iam.v2.RoleBindingsService.GetRoleBinding:output_type -> chainguard.platform.iam.v2.RoleBinding
+	1,  // 19: chainguard.platform.iam.v2.RoleBindingsService.CreateRoleBinding:output_type -> chainguard.platform.iam.v2.RoleBinding
+	16, // 20: chainguard.platform.iam.v2.RoleBindingsService.DeleteRoleBinding:output_type -> google.protobuf.Empty
+	9,  // 21: chainguard.platform.iam.v2.RoleBindingsService.ListRoleBindings:output_type -> chainguard.platform.iam.v2.ListRoleBindingsResponse
+	12, // 22: chainguard.platform.iam.v2.RoleBindingsService.BatchCreateRoleBindings:output_type -> chainguard.platform.iam.v2.BatchCreateRoleBindingsResponse
+	1,  // 23: chainguard.platform.iam.v2.RoleBindingsService.UpdateRoleBinding:output_type -> chainguard.platform.iam.v2.RoleBinding
+	18, // [18:24] is the sub-list for method output_type
+	12, // [12:18] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_iam_v2_role_bindings_proto_init() }
@@ -1040,13 +1128,14 @@ func file_chainguard_platform_iam_v2_role_bindings_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_iam_v2_role_bindings_proto_rawDesc), len(file_chainguard_platform_iam_v2_role_bindings_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_chainguard_platform_iam_v2_role_bindings_proto_goTypes,
 		DependencyIndexes: file_chainguard_platform_iam_v2_role_bindings_proto_depIdxs,
+		EnumInfos:         file_chainguard_platform_iam_v2_role_bindings_proto_enumTypes,
 		MessageInfos:      file_chainguard_platform_iam_v2_role_bindings_proto_msgTypes,
 	}.Build()
 	File_chainguard_platform_iam_v2_role_bindings_proto = out.File

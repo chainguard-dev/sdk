@@ -200,6 +200,15 @@ message RoleBinding {
   // The role UID to bind to the identity.
   // Set this field when creating or updating a role binding.
   string role_uid = 7 [(google.api.field_behavior) = OPTIONAL];
+
+  // Who manages this role binding. MANUAL bindings are human-created and are
+  // never revoked by a reconciler; SCIM bindings are owned by the
+  // IdentityProvider in managed_by_uidp and cannot be edited through this API.
+  ManagedBy managed_by = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // UIDP of the IdentityProvider that manages this role binding. Empty for
+  // MANUAL bindings; set for SCIM bindings.
+  string managed_by_uidp = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // RoleBindingIdentity contains identity details for a role binding.
@@ -372,4 +381,20 @@ message BatchCreateRoleBindingsRequest {
 message BatchCreateRoleBindingsResponse {
   // The created role bindings, in the same order as the requests.
   repeated RoleBinding role_bindings = 1;
+}
+
+// ManagedBy identifies the automation that owns a role binding.
+enum ManagedBy {
+  // MANAGED_BY_UNSPECIFIED is the proto3 zero value. The API never returns it —
+  // every binding is either MANUAL or SCIM.
+  MANAGED_BY_UNSPECIFIED = 0;
+
+  // MANAGED_BY_MANUAL means a human operator created the binding. Automated
+  // reconcilers never revoke it.
+  MANAGED_BY_MANUAL = 1;
+
+  // MANAGED_BY_SCIM means the SCIM reconciler provisioned the binding for the
+  // IdentityProvider recorded in managed_by_uidp. It cannot be edited through
+  // this API.
+  MANAGED_BY_SCIM = 2;
 }

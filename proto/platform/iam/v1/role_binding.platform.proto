@@ -126,6 +126,13 @@ message RoleBindingList {
     google.protobuf.Timestamp created_at = 8;
     // unverified email of the bound identity.
     string email_unverified = 9;
+    // managed_by identifies whether the binding is human-managed (MANUAL) or
+    // SCIM-provisioned (SCIM). Empty/unspecified is never returned; it reads as
+    // MANUAL.
+    ManagedBy managed_by = 10;
+    // managed_by_uidp is the UIDP of the managing IdentityProvider for SCIM
+    // bindings; empty for MANUAL bindings.
+    string managed_by_uidp = 11;
   }
   repeated Binding items = 1;
 }
@@ -158,4 +165,16 @@ message RoleBindingBatch {
 message DeleteRoleBindingRequest {
   // id is the exact UID of the record.
   string id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+// ManagedBy identifies the automation that owns a role binding.
+enum ManagedBy {
+  // MANAGED_BY_UNSPECIFIED is the proto3 zero value; the API never returns it
+  // (every binding reads as MANUAL or SCIM).
+  MANAGED_BY_UNSPECIFIED = 0;
+  // MANAGED_BY_MANUAL means a human operator created the binding.
+  MANAGED_BY_MANUAL = 1;
+  // MANAGED_BY_SCIM means the SCIM reconciler provisioned the binding for the
+  // IdentityProvider recorded in managed_by_uidp.
+  MANAGED_BY_SCIM = 2;
 }
