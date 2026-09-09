@@ -175,7 +175,10 @@ service IdentityProvidersService {
       extensions: ["group"]
       audience: CUSTOMER
     };
-    option (chainguard.annotations.mcp) = {hidden: true};
+    option (chainguard.annotations.mcp) = {
+      hidden: true
+      description: "Generate the initial SCIM bearer token for an identity provider, creating its SCIM provisioning configuration in a disabled state. The plaintext token is returned exactly once."
+    };
   }
 
   // RegenerateScimToken re-keys an identity provider's SCIM bearer token,
@@ -207,7 +210,10 @@ service IdentityProvidersService {
       extensions: ["group"]
       audience: CUSTOMER
     };
-    option (chainguard.annotations.mcp) = {hidden: true};
+    option (chainguard.annotations.mcp) = {
+      hidden: true
+      description: "Re-key an identity provider's SCIM bearer token with make-before-break overlap so the IdP connector can be reconfigured with no downtime. The new plaintext token is returned exactly once."
+    };
   }
 
   // RevokeScimToken immediately invalidates the current and overlap SCIM bearer
@@ -234,7 +240,10 @@ service IdentityProvidersService {
       extensions: ["group"]
       audience: CUSTOMER
     };
-    option (chainguard.annotations.mcp) = {hidden: true};
+    option (chainguard.annotations.mcp) = {
+      hidden: true
+      description: "Immediately invalidate the current and overlap SCIM bearer tokens for an identity provider, stopping inbound provisioning without changing the enabled switch."
+    };
   }
 
   // SetScimEnabled explicitly starts or pauses SCIM provisioning. Enabling
@@ -262,7 +271,10 @@ service IdentityProvidersService {
       extensions: ["group"]
       audience: CUSTOMER
     };
-    option (chainguard.annotations.mcp) = {hidden: true};
+    option (chainguard.annotations.mcp) = {
+      hidden: true
+      description: "Explicitly start or pause SCIM provisioning for an identity provider. Enabling requires at least two manually assigned owner-tier role bindings to prevent SCIM from taking over the only owner."
+    };
   }
 }
 

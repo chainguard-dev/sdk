@@ -1663,7 +1663,7 @@ const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = ""
 	"\x16SetScimEnabledResponse\x122\n" +
 	"\x15identity_provider_uid\x18\x01 \x01(\tR\x13identityProviderUid\x12\x18\n" +
 	"\aenabled\x18\x02 \x01(\bR\aenabled\x12\x12\n" +
-	"\x04etag\x18\x03 \x01(\tR\x04etag2\x95\x18\n" +
+	"\x04etag\x18\x03 \x01(\tR\x04etag2\xee\x1d\n" +
 	"\x18IdentityProvidersService\x12\xc1\x02\n" +
 	"\x15ListIdentityProviders\x12=.chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest\x1a>.chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse\"\xa8\x01\x82\xd3\xe4\x93\x02 \x12\x1e/iam/v2beta1/identityProviders\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\x97\n" +
@@ -1687,26 +1687,30 @@ const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = ""
 	"\x02\x98\n" +
 	"\x9a\xaf\xa8\xd2\x05Z\n" +
 	"RDelete an external identity provider by its UIDP, disabling SSO for that provider. \x01(\x010\x00\xc2\xf0\x8e\xfc\v?\n" +
-	"4dev.chainguard.api.iam.identity_providers.deleted.v1\x12\x05group\x18\x01\x12\xcb\x02\n" +
-	"\x11GenerateScimToken\x129.chainguard.platform.iam.v2beta1.GenerateScimTokenRequest\x1a:.chainguard.platform.iam.v2beta1.GenerateScimTokenResponse\"\xbe\x01\x82\xd3\xe4\x93\x02P:\x01*\"K/iam/v2beta1/identityProviders/{identity_provider_uid=**}:generateScimToken\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"4dev.chainguard.api.iam.identity_providers.deleted.v1\x12\x05group\x18\x01\x12\xff\x03\n" +
+	"\x11GenerateScimToken\x129.chainguard.platform.iam.v2beta1.GenerateScimTokenRequest\x1a:.chainguard.platform.iam.v2beta1.GenerateScimTokenResponse\"\xf2\x02\x82\xd3\xe4\x93\x02P:\x01*\"K/iam/v2beta1/identityProviders/{identity_provider_uid=**}:generateScimToken\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x04\x99\n" +
 	"\x97\n" +
-	"\x9a\xaf\xa8\xd2\x05\x02\x10\x01\xc2\xf0\x8e\xfc\vL\n" +
-	"Adev.chainguard.api.iam.identity_providers.scim_token.generated.v1\x12\x05group\x18\x01\x12\xd5\x02\n" +
-	"\x13RegenerateScimToken\x12;.chainguard.platform.iam.v2beta1.RegenerateScimTokenRequest\x1a<.chainguard.platform.iam.v2beta1.RegenerateScimTokenResponse\"\xc2\x01\x82\xd3\xe4\x93\x02R:\x01*\"M/iam/v2beta1/identityProviders/{identity_provider_uid=**}:regenerateScimToken\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x9a\xaf\xa8\xd2\x05\xb5\x01\n" +
+	"\xb0\x01Generate the initial SCIM bearer token for an identity provider, creating its SCIM provisioning configuration in a disabled state. The plaintext token is returned exactly once.\x10\x01\xc2\xf0\x8e\xfc\vL\n" +
+	"Adev.chainguard.api.iam.identity_providers.scim_token.generated.v1\x12\x05group\x18\x01\x12\x94\x04\n" +
+	"\x13RegenerateScimToken\x12;.chainguard.platform.iam.v2beta1.RegenerateScimTokenRequest\x1a<.chainguard.platform.iam.v2beta1.RegenerateScimTokenResponse\"\x81\x03\x82\xd3\xe4\x93\x02R:\x01*\"M/iam/v2beta1/identityProviders/{identity_provider_uid=**}:regenerateScimToken\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x04\x99\n" +
 	"\x97\n" +
-	"\x9a\xaf\xa8\xd2\x05\x02\x10\x01\xc2\xf0\x8e\xfc\vN\n" +
-	"Cdev.chainguard.api.iam.identity_providers.scim_token.regenerated.v1\x12\x05group\x18\x01\x12\xc1\x02\n" +
-	"\x0fRevokeScimToken\x127.chainguard.platform.iam.v2beta1.RevokeScimTokenRequest\x1a8.chainguard.platform.iam.v2beta1.RevokeScimTokenResponse\"\xba\x01\x82\xd3\xe4\x93\x02N:\x01*\"I/iam/v2beta1/identityProviders/{identity_provider_uid=**}:revokeScimToken\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x9a\xaf\xa8\xd2\x05\xc0\x01\n" +
+	"\xbb\x01Re-key an identity provider's SCIM bearer token with make-before-break overlap so the IdP connector can be reconfigured with no downtime. The new plaintext token is returned exactly once.\x10\x01\xc2\xf0\x8e\xfc\vN\n" +
+	"Cdev.chainguard.api.iam.identity_providers.scim_token.regenerated.v1\x12\x05group\x18\x01\x12\xe3\x03\n" +
+	"\x0fRevokeScimToken\x127.chainguard.platform.iam.v2beta1.RevokeScimTokenRequest\x1a8.chainguard.platform.iam.v2beta1.RevokeScimTokenResponse\"\xdc\x02\x82\xd3\xe4\x93\x02N:\x01*\"I/iam/v2beta1/identityProviders/{identity_provider_uid=**}:revokeScimToken\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x04\x99\n" +
 	"\x97\n" +
-	"\x9a\xaf\xa8\xd2\x05\x02\x10\x01\xc2\xf0\x8e\xfc\vJ\n" +
-	"?dev.chainguard.api.iam.identity_providers.scim_token.revoked.v1\x12\x05group\x18\x01\x12\xbf\x02\n" +
-	"\x0eSetScimEnabled\x126.chainguard.platform.iam.v2beta1.SetScimEnabledRequest\x1a7.chainguard.platform.iam.v2beta1.SetScimEnabledResponse\"\xbb\x01\x82\xd3\xe4\x93\x02M:\x01*\"H/iam/v2beta1/identityProviders/{identity_provider_uid=**}:setScimEnabled\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x9a\xaf\xa8\xd2\x05\xa3\x01\n" +
+	"\x9e\x01Immediately invalidate the current and overlap SCIM bearer tokens for an identity provider, stopping inbound provisioning without changing the enabled switch.\x10\x01\xc2\xf0\x8e\xfc\vJ\n" +
+	"?dev.chainguard.api.iam.identity_providers.scim_token.revoked.v1\x12\x05group\x18\x01\x12\x83\x04\n" +
+	"\x0eSetScimEnabled\x126.chainguard.platform.iam.v2beta1.SetScimEnabledRequest\x1a7.chainguard.platform.iam.v2beta1.SetScimEnabledResponse\"\xff\x02\x82\xd3\xe4\x93\x02M:\x01*\"H/iam/v2beta1/identityProviders/{identity_provider_uid=**}:setScimEnabled\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x04\x99\n" +
 	"\x97\n" +
-	"\x9a\xaf\xa8\xd2\x05\x02\x10\x01\xc2\xf0\x8e\xfc\vL\n" +
+	"\x9a\xaf\xa8\xd2\x05\xc5\x01\n" +
+	"\xc0\x01Explicitly start or pause SCIM provisioning for an identity provider. Enabling requires at least two manually assigned owner-tier role bindings to prevent SCIM from taking over the only owner.\x10\x01\xc2\xf0\x8e\xfc\vL\n" +
 	"Adev.chainguard.api.iam.identity_providers.scim_enabled.updated.v1\x12\x05group\x18\x01By\n" +
 	"#com.chainguard.platform.iam.v2beta1B\x16IdentityProvidersProtoP\x01Z8chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1b\x06proto3"
 
