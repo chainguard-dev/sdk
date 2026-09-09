@@ -876,8 +876,12 @@ type EntitledImage struct {
 	// Identifier for the image group in whatever external system defined it
 	// (Salesforce/SFDC, GitHub, or another source).
 	ExternalImageGroupId string `protobuf:"bytes,8,opt,name=external_image_group_id,json=externalImageGroupId,proto3" json:"external_image_group_id,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// The entitlement this image attachment belongs to. On responses that report
+	// one entry per affected entitlement, this disambiguates which entitlement
+	// each entry came from.
+	EntitlementId string `protobuf:"bytes,9,opt,name=entitlement_id,json=entitlementId,proto3" json:"entitlement_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *EntitledImage) Reset() {
@@ -962,6 +966,13 @@ func (x *EntitledImage) GetImageGroupName() string {
 func (x *EntitledImage) GetExternalImageGroupId() string {
 	if x != nil {
 		return x.ExternalImageGroupId
+	}
+	return ""
+}
+
+func (x *EntitledImage) GetEntitlementId() string {
+	if x != nil {
+		return x.EntitlementId
 	}
 	return ""
 }
@@ -1688,7 +1699,7 @@ const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12K\n" +
 	"\ventitlement\x18\x02 \x01(\v2).chainguard.platform.registry.EntitlementR\ventitlement\"8\n" +
 	"\x18DeleteEntitlementRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02idJ\x04\b\x02\x10\x03\"\xba\x03\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02idJ\x04\b\x02\x10\x03\"\xe7\x03\n" +
 	"\rEntitledImage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
 	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x04name\x12L\n" +
@@ -1697,7 +1708,8 @@ const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\x0fexpiration_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x0eexpirationTime\x12;\n" +
 	"\x17included_in_image_group\x18\x06 \x01(\bB\x04\xe2A\x01\x03R\x14includedInImageGroup\x12.\n" +
 	"\x10image_group_name\x18\a \x01(\tB\x04\xe2A\x01\x03R\x0eimageGroupName\x12;\n" +
-	"\x17external_image_group_id\x18\b \x01(\tB\x04\xe2A\x01\x03R\x14externalImageGroupId\"A\n" +
+	"\x17external_image_group_id\x18\b \x01(\tB\x04\xe2A\x01\x03R\x14externalImageGroupId\x12+\n" +
+	"\x0eentitlement_id\x18\t \x01(\tB\x04\xe2A\x01\x03R\rentitlementId\"A\n" +
 	"\x1fGetEffectiveEntitlementsRequest\x12\x1e\n" +
 	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\xed\x04\n" +
 	" GetEffectiveEntitlementsResponse\x126\n" +

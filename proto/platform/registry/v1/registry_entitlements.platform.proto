@@ -338,6 +338,11 @@ message EntitledImage {
   // Identifier for the image group in whatever external system defined it
   // (Salesforce/SFDC, GitHub, or another source).
   string external_image_group_id = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The entitlement this image attachment belongs to. On responses that report
+  // one entry per affected entitlement, this disambiguates which entitlement
+  // each entry came from.
+  string entitlement_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message GetEffectiveEntitlementsRequest {
