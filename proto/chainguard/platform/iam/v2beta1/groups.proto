@@ -154,6 +154,7 @@ service GroupsService {
     option (chainguard.annotations.mcp) = {
       hidden: true
       description: "Look up the verified root group whose name matches the email domain on the caller's token."
+      read_only: true
     };
   }
 
@@ -201,6 +202,7 @@ service GroupsService {
     option (chainguard.annotations.mcp) = {
       hidden: true
       description: "Check whether the caller's email domain is eligible for email-domain-gated group access flows."
+      read_only: true
     };
   }
 }
