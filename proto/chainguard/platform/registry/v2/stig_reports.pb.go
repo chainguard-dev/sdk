@@ -12,6 +12,7 @@ package v2
 import (
 	_ "chainguard.dev/sdk/proto/annotations"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
+	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -176,6 +177,72 @@ func (x *GetStigReportRequest) GetArchitecture() string {
 	return ""
 }
 
+// DownloadStigReportRequest is the request message for DownloadStigReport.
+type DownloadStigReportRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UIDP of the repository containing the image.
+	RepoUid string `protobuf:"bytes,1,opt,name=repo_uid,json=repoUid,proto3" json:"repo_uid,omitempty"`
+	// Digest of the image manifest whose XCCDF document to download.
+	Digest string `protobuf:"bytes,2,opt,name=digest,proto3" json:"digest,omitempty"`
+	// Architecture to descend into when the digest addresses an OCI index
+	// (e.g., "amd64", "arm64"). When empty, the document is read from the
+	// manifest as addressed by the digest, with no per-architecture descent.
+	Architecture  string `protobuf:"bytes,3,opt,name=architecture,proto3" json:"architecture,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DownloadStigReportRequest) Reset() {
+	*x = DownloadStigReportRequest{}
+	mi := &file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DownloadStigReportRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DownloadStigReportRequest) ProtoMessage() {}
+
+func (x *DownloadStigReportRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DownloadStigReportRequest.ProtoReflect.Descriptor instead.
+func (*DownloadStigReportRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_registry_v2_stig_reports_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *DownloadStigReportRequest) GetRepoUid() string {
+	if x != nil {
+		return x.RepoUid
+	}
+	return ""
+}
+
+func (x *DownloadStigReportRequest) GetDigest() string {
+	if x != nil {
+		return x.Digest
+	}
+	return ""
+}
+
+func (x *DownloadStigReportRequest) GetArchitecture() string {
+	if x != nil {
+		return x.Architecture
+	}
+	return ""
+}
+
 // StigRuleResult is one XCCDF rule result from the scan.
 type StigRuleResult struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -205,7 +272,7 @@ type StigRuleResult struct {
 
 func (x *StigRuleResult) Reset() {
 	*x = StigRuleResult{}
-	mi := &file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes[1]
+	mi := &file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -217,7 +284,7 @@ func (x *StigRuleResult) String() string {
 func (*StigRuleResult) ProtoMessage() {}
 
 func (x *StigRuleResult) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes[1]
+	mi := &file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -230,7 +297,7 @@ func (x *StigRuleResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StigRuleResult.ProtoReflect.Descriptor instead.
 func (*StigRuleResult) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_registry_v2_stig_reports_proto_rawDescGZIP(), []int{1}
+	return file_chainguard_platform_registry_v2_stig_reports_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *StigRuleResult) GetRuleId() string {
@@ -282,8 +349,8 @@ func (x *StigRuleResult) GetGroupTitle() string {
 	return ""
 }
 
-// StigStateCount is the number of rules whose verdict is a given state.
-type StigStateCount struct {
+// StigResultCount is the number of rules with a given result.
+type StigResultCount struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The rule verdict being counted.
 	Result StigResult `protobuf:"varint,1,opt,name=result,proto3,enum=chainguard.platform.registry.v2.StigResult" json:"result,omitempty"`
@@ -293,21 +360,21 @@ type StigStateCount struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *StigStateCount) Reset() {
-	*x = StigStateCount{}
-	mi := &file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes[2]
+func (x *StigResultCount) Reset() {
+	*x = StigResultCount{}
+	mi := &file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *StigStateCount) String() string {
+func (x *StigResultCount) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*StigStateCount) ProtoMessage() {}
+func (*StigResultCount) ProtoMessage() {}
 
-func (x *StigStateCount) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes[2]
+func (x *StigResultCount) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -318,55 +385,55 @@ func (x *StigStateCount) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use StigStateCount.ProtoReflect.Descriptor instead.
-func (*StigStateCount) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_registry_v2_stig_reports_proto_rawDescGZIP(), []int{2}
+// Deprecated: Use StigResultCount.ProtoReflect.Descriptor instead.
+func (*StigResultCount) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_registry_v2_stig_reports_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *StigStateCount) GetResult() StigResult {
+func (x *StigResultCount) GetResult() StigResult {
 	if x != nil {
 		return x.Result
 	}
 	return StigResult_STIG_RESULT_UNSPECIFIED
 }
 
-func (x *StigStateCount) GetCount() int32 {
+func (x *StigResultCount) GetCount() int32 {
 	if x != nil {
 		return x.Count
 	}
 	return 0
 }
 
-// StigGroupCount is the per-group rollup of rule verdicts: one entry per
+// StigGroupSummary is the per-group rollup of rule results: one entry per
 // group in the scan content, so consumers render grouped sections without
 // walking every rule result.
-type StigGroupCount struct {
+type StigGroupSummary struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID of the group, matching StigRuleResult.group_id.
 	GroupId string `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	// Human-readable title of the group; empty when the content defines none.
 	GroupTitle string `protobuf:"bytes,2,opt,name=group_title,json=groupTitle,proto3" json:"group_title,omitempty"`
-	// Number of the group's rules per verdict state.
-	Counts        []*StigStateCount `protobuf:"bytes,3,rep,name=counts,proto3" json:"counts,omitempty"`
+	// Number of the group's rules per result.
+	ResultCounts  []*StigResultCount `protobuf:"bytes,3,rep,name=result_counts,json=resultCounts,proto3" json:"result_counts,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *StigGroupCount) Reset() {
-	*x = StigGroupCount{}
-	mi := &file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes[3]
+func (x *StigGroupSummary) Reset() {
+	*x = StigGroupSummary{}
+	mi := &file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *StigGroupCount) String() string {
+func (x *StigGroupSummary) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*StigGroupCount) ProtoMessage() {}
+func (*StigGroupSummary) ProtoMessage() {}
 
-func (x *StigGroupCount) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes[3]
+func (x *StigGroupSummary) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -377,36 +444,35 @@ func (x *StigGroupCount) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use StigGroupCount.ProtoReflect.Descriptor instead.
-func (*StigGroupCount) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_registry_v2_stig_reports_proto_rawDescGZIP(), []int{3}
+// Deprecated: Use StigGroupSummary.ProtoReflect.Descriptor instead.
+func (*StigGroupSummary) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_registry_v2_stig_reports_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *StigGroupCount) GetGroupId() string {
+func (x *StigGroupSummary) GetGroupId() string {
 	if x != nil {
 		return x.GroupId
 	}
 	return ""
 }
 
-func (x *StigGroupCount) GetGroupTitle() string {
+func (x *StigGroupSummary) GetGroupTitle() string {
 	if x != nil {
 		return x.GroupTitle
 	}
 	return ""
 }
 
-func (x *StigGroupCount) GetCounts() []*StigStateCount {
+func (x *StigGroupSummary) GetResultCounts() []*StigResultCount {
 	if x != nil {
-		return x.Counts
+		return x.ResultCounts
 	}
 	return nil
 }
 
-// StigReport is the complete result of one STIG scan of an image: every
-// rule result, per-state counts, and the scan metadata. Fields the scan
-// generation could not record are zero, with an explicit marker where
-// "unknown" must stay distinguishable from "empty".
+// StigReport is a structured projection of one canonical XCCDF results
+// document. Fields the report producer could not record are zero, with an
+// explicit marker where "unknown" must stay distinguishable from "empty".
 type StigReport struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// XCCDF profile the scan evaluated.
@@ -415,37 +481,37 @@ type StigReport struct {
 	StartTime *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
 	// Scan end time; unset when the scan document did not record it.
 	EndTime *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	// Scanner image reference that produced the report; empty when the
-	// scan generation did not record scanner identity.
-	ScannerImage string `protobuf:"bytes,4,opt,name=scanner_image,json=scannerImage,proto3" json:"scanner_image,omitempty"`
-	// SCAP datastream version the scan evaluated against. Meaningful only
-	// when datastream_version_known is true.
-	DatastreamVersion string `protobuf:"bytes,5,opt,name=datastream_version,json=datastreamVersion,proto3" json:"datastream_version,omitempty"`
-	// Whether the scan recorded a datastream version. False for reports
-	// from generations that could not carry it, making that absence
-	// explicit rather than empty-but-plausible.
-	DatastreamVersionKnown bool `protobuf:"varint,6,opt,name=datastream_version_known,json=datastreamVersionKnown,proto3" json:"datastream_version_known,omitempty"`
+	// Scanner image reference that produced the report; absent when the scan
+	// generation did not record scanner identity.
+	ScannerImage *string `protobuf:"bytes,4,opt,name=scanner_image,json=scannerImage,proto3,oneof" json:"scanner_image,omitempty"`
+	// SCAP datastream version the scan evaluated against; absent when the scan
+	// generation did not record it.
+	DatastreamVersion *string `protobuf:"bytes,5,opt,name=datastream_version,json=datastreamVersion,proto3,oneof" json:"datastream_version,omitempty"`
 	// Every rule result from the scan, all states preserved.
 	Rules []*StigRuleResult `protobuf:"bytes,7,rep,name=rules,proto3" json:"rules,omitempty"`
-	// Number of rules per verdict state.
-	Counts []*StigStateCount `protobuf:"bytes,8,rep,name=counts,proto3" json:"counts,omitempty"`
-	// Digest of the manifest whose STIG attestation produced this report.
-	// Equal to the requested digest when the image itself was scanned; the
-	// assembly-origin (base image) digest when the image is a custom-assembled
-	// rebuild served from its origin's scan — in that case the report
-	// describes the origin's pre-assembly contents.
+	// Number of rules per result.
+	ResultCounts []*StigResultCount `protobuf:"bytes,8,rep,name=result_counts,json=resultCounts,proto3" json:"result_counts,omitempty"`
+	// Digest of the manifest whose filesystem contents were evaluated. Equal
+	// to the requested digest when the image itself was scanned; the assembly
+	// origin digest when serving the report for a custom-assembled rebuild.
 	ScannedDigest string `protobuf:"bytes,9,opt,name=scanned_digest,json=scannedDigest,proto3" json:"scanned_digest,omitempty"`
 	// Per-group rollup of rule verdicts, one entry per group in the scan
 	// content, ordered by group ID. Empty when the scan document does not
 	// group its rules.
-	GroupCounts   []*StigGroupCount `protobuf:"bytes,10,rep,name=group_counts,json=groupCounts,proto3" json:"group_counts,omitempty"`
+	Groups []*StigGroupSummary `protobuf:"bytes,10,rep,name=groups,proto3" json:"groups,omitempty"`
+	// Architecture of the manifest whose filesystem contents were evaluated;
+	// absent when it cannot be determined for a historical report.
+	Architecture *string `protobuf:"bytes,11,opt,name=architecture,proto3,oneof" json:"architecture,omitempty"`
+	// Lowercase hexadecimal SHA-256 digest of the canonical XCCDF XML returned
+	// by DownloadStigReport.
+	XccdfSha256   string `protobuf:"bytes,12,opt,name=xccdf_sha256,json=xccdfSha256,proto3" json:"xccdf_sha256,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *StigReport) Reset() {
 	*x = StigReport{}
-	mi := &file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes[4]
+	mi := &file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -457,7 +523,7 @@ func (x *StigReport) String() string {
 func (*StigReport) ProtoMessage() {}
 
 func (x *StigReport) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes[4]
+	mi := &file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -470,7 +536,7 @@ func (x *StigReport) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StigReport.ProtoReflect.Descriptor instead.
 func (*StigReport) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_registry_v2_stig_reports_proto_rawDescGZIP(), []int{4}
+	return file_chainguard_platform_registry_v2_stig_reports_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *StigReport) GetProfileId() string {
@@ -495,24 +561,17 @@ func (x *StigReport) GetEndTime() *timestamppb.Timestamp {
 }
 
 func (x *StigReport) GetScannerImage() string {
-	if x != nil {
-		return x.ScannerImage
+	if x != nil && x.ScannerImage != nil {
+		return *x.ScannerImage
 	}
 	return ""
 }
 
 func (x *StigReport) GetDatastreamVersion() string {
-	if x != nil {
-		return x.DatastreamVersion
+	if x != nil && x.DatastreamVersion != nil {
+		return *x.DatastreamVersion
 	}
 	return ""
-}
-
-func (x *StigReport) GetDatastreamVersionKnown() bool {
-	if x != nil {
-		return x.DatastreamVersionKnown
-	}
-	return false
 }
 
 func (x *StigReport) GetRules() []*StigRuleResult {
@@ -522,9 +581,9 @@ func (x *StigReport) GetRules() []*StigRuleResult {
 	return nil
 }
 
-func (x *StigReport) GetCounts() []*StigStateCount {
+func (x *StigReport) GetResultCounts() []*StigResultCount {
 	if x != nil {
-		return x.Counts
+		return x.ResultCounts
 	}
 	return nil
 }
@@ -536,19 +595,38 @@ func (x *StigReport) GetScannedDigest() string {
 	return ""
 }
 
-func (x *StigReport) GetGroupCounts() []*StigGroupCount {
+func (x *StigReport) GetGroups() []*StigGroupSummary {
 	if x != nil {
-		return x.GroupCounts
+		return x.Groups
 	}
 	return nil
+}
+
+func (x *StigReport) GetArchitecture() string {
+	if x != nil && x.Architecture != nil {
+		return *x.Architecture
+	}
+	return ""
+}
+
+func (x *StigReport) GetXccdfSha256() string {
+	if x != nil {
+		return x.XccdfSha256
+	}
+	return ""
 }
 
 var File_chainguard_platform_registry_v2_stig_reports_proto protoreflect.FileDescriptor
 
 const file_chainguard_platform_registry_v2_stig_reports_proto_rawDesc = "" +
 	"\n" +
-	"2chainguard/platform/registry/v2/stig_reports.proto\x12\x1fchainguard.platform.registry.v2\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x85\x01\n" +
+	"2chainguard/platform/registry/v2/stig_reports.proto\x12\x1fchainguard.platform.registry.v2\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/httpbody.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x85\x01\n" +
 	"\x14GetStigReportRequest\x12%\n" +
+	"\brepo_uid\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\arepoUid\x12\x1c\n" +
+	"\x06digest\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x06digest\x12(\n" +
+	"\farchitecture\x18\x03 \x01(\tB\x04\xe2A\x01\x01R\farchitecture\"\x8a\x01\n" +
+	"\x19DownloadStigReportRequest\x12%\n" +
 	"\brepo_uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\arepoUid\x12\x1c\n" +
 	"\x06digest\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x06digest\x12(\n" +
@@ -561,30 +639,34 @@ const file_chainguard_platform_registry_v2_stig_reports_proto_rawDesc = "" +
 	"\vdescription\x18\x05 \x01(\tB\x04\xe2A\x01\x03R\vdescription\x12\x1f\n" +
 	"\bgroup_id\x18\x06 \x01(\tB\x04\xe2A\x01\x03R\agroupId\x12%\n" +
 	"\vgroup_title\x18\a \x01(\tB\x04\xe2A\x01\x03R\n" +
-	"groupTitle\"w\n" +
-	"\x0eStigStateCount\x12I\n" +
+	"groupTitle\"x\n" +
+	"\x0fStigResultCount\x12I\n" +
 	"\x06result\x18\x01 \x01(\x0e2+.chainguard.platform.registry.v2.StigResultB\x04\xe2A\x01\x03R\x06result\x12\x1a\n" +
-	"\x05count\x18\x02 \x01(\x05B\x04\xe2A\x01\x03R\x05count\"\xa7\x01\n" +
-	"\x0eStigGroupCount\x12\x1f\n" +
+	"\x05count\x18\x02 \x01(\x05B\x04\xe2A\x01\x03R\x05count\"\xb7\x01\n" +
+	"\x10StigGroupSummary\x12\x1f\n" +
 	"\bgroup_id\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\agroupId\x12%\n" +
 	"\vgroup_title\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\n" +
-	"groupTitle\x12M\n" +
-	"\x06counts\x18\x03 \x03(\v2/.chainguard.platform.registry.v2.StigStateCountB\x04\xe2A\x01\x03R\x06counts\"\xf2\x04\n" +
+	"groupTitle\x12[\n" +
+	"\rresult_counts\x18\x03 \x03(\v20.chainguard.platform.registry.v2.StigResultCountB\x04\xe2A\x01\x03R\fresultCounts\"\xf3\x05\n" +
 	"\n" +
 	"StigReport\x12#\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\tprofileId\x12?\n" +
 	"\n" +
 	"start_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\tstartTime\x12;\n" +
-	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\aendTime\x12)\n" +
-	"\rscanner_image\x18\x04 \x01(\tB\x04\xe2A\x01\x03R\fscannerImage\x123\n" +
-	"\x12datastream_version\x18\x05 \x01(\tB\x04\xe2A\x01\x03R\x11datastreamVersion\x12>\n" +
-	"\x18datastream_version_known\x18\x06 \x01(\bB\x04\xe2A\x01\x03R\x16datastreamVersionKnown\x12K\n" +
-	"\x05rules\x18\a \x03(\v2/.chainguard.platform.registry.v2.StigRuleResultB\x04\xe2A\x01\x03R\x05rules\x12M\n" +
-	"\x06counts\x18\b \x03(\v2/.chainguard.platform.registry.v2.StigStateCountB\x04\xe2A\x01\x03R\x06counts\x12+\n" +
-	"\x0escanned_digest\x18\t \x01(\tB\x04\xe2A\x01\x03R\rscannedDigest\x12X\n" +
-	"\fgroup_counts\x18\n" +
-	" \x03(\v2/.chainguard.platform.registry.v2.StigGroupCountB\x04\xe2A\x01\x03R\vgroupCounts*\x96\x02\n" +
+	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\aendTime\x12.\n" +
+	"\rscanner_image\x18\x04 \x01(\tB\x04\xe2A\x01\x03H\x00R\fscannerImage\x88\x01\x01\x128\n" +
+	"\x12datastream_version\x18\x05 \x01(\tB\x04\xe2A\x01\x03H\x01R\x11datastreamVersion\x88\x01\x01\x12K\n" +
+	"\x05rules\x18\a \x03(\v2/.chainguard.platform.registry.v2.StigRuleResultB\x04\xe2A\x01\x03R\x05rules\x12[\n" +
+	"\rresult_counts\x18\b \x03(\v20.chainguard.platform.registry.v2.StigResultCountB\x04\xe2A\x01\x03R\fresultCounts\x12+\n" +
+	"\x0escanned_digest\x18\t \x01(\tB\x04\xe2A\x01\x03R\rscannedDigest\x12O\n" +
+	"\x06groups\x18\n" +
+	" \x03(\v21.chainguard.platform.registry.v2.StigGroupSummaryB\x04\xe2A\x01\x03R\x06groups\x12-\n" +
+	"\farchitecture\x18\v \x01(\tB\x04\xe2A\x01\x03H\x02R\farchitecture\x88\x01\x01\x12'\n" +
+	"\fxccdf_sha256\x18\f \x01(\tB\x04\xe2A\x01\x03R\vxccdfSha256B\x10\n" +
+	"\x0e_scanner_imageB\x15\n" +
+	"\x13_datastream_versionB\x0f\n" +
+	"\r_architectureJ\x04\b\x06\x10\aR\x18datastream_version_known*\x96\x02\n" +
 	"\n" +
 	"StigResult\x12\x1b\n" +
 	"\x17STIG_RESULT_UNSPECIFIED\x10\x00\x12\x14\n" +
@@ -596,11 +678,13 @@ const file_chainguard_platform_registry_v2_stig_reports_proto_rawDesc = "" +
 	"\x17STIG_RESULT_NOT_CHECKED\x10\x06\x12\x1c\n" +
 	"\x18STIG_RESULT_NOT_SELECTED\x10\a\x12\x15\n" +
 	"\x11STIG_RESULT_FIXED\x10\b\x12\x1d\n" +
-	"\x19STIG_RESULT_INFORMATIONAL\x10\t2\xa7\x02\n" +
+	"\x19STIG_RESULT_INFORMATIONAL\x10\t2\xef\x03\n" +
 	"\x12StigReportsService\x12\x90\x02\n" +
 	"\rGetStigReport\x125.chainguard.platform.registry.v2.GetStigReportRequest\x1a+.chainguard.platform.registry.v2.StigReport\"\x9a\x01\x82\xd3\xe4\x93\x028\x126/registry/v2/repos/{repo_uid=**}/digests/{digest}/stig\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x04\xc5\f\xcf\f\x9a\xaf\xa8\xd2\x05H\n" +
-	">Get the STIG compliance report for a container image manifest.\x18\x01 \x00(\x010\x00Bs\n" +
+	">Get the STIG compliance report for a container image manifest.\x18\x01 \x00(\x010\x00\x12\xc5\x01\n" +
+	"\x12DownloadStigReport\x12:.chainguard.platform.registry.v2.DownloadStigReportRequest\x1a\x14.google.api.HttpBody\"]\x82\xd3\xe4\x93\x02A\x12?/registry/v2/repos/{repo_uid=**}/digests/{digest}/stig:download\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x04\xc5\f\xcf\f\x9a\xaf\xa8\xd2\x05\x02\x10\x01Bs\n" +
 	"#com.chainguard.platform.registry.v2B\x10StigReportsProtoP\x01Z8chainguard.dev/sdk/proto/chainguard/platform/registry/v2b\x06proto3"
 
 var (
@@ -616,32 +700,36 @@ func file_chainguard_platform_registry_v2_stig_reports_proto_rawDescGZIP() []byt
 }
 
 var file_chainguard_platform_registry_v2_stig_reports_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_chainguard_platform_registry_v2_stig_reports_proto_goTypes = []any{
-	(StigResult)(0),               // 0: chainguard.platform.registry.v2.StigResult
-	(*GetStigReportRequest)(nil),  // 1: chainguard.platform.registry.v2.GetStigReportRequest
-	(*StigRuleResult)(nil),        // 2: chainguard.platform.registry.v2.StigRuleResult
-	(*StigStateCount)(nil),        // 3: chainguard.platform.registry.v2.StigStateCount
-	(*StigGroupCount)(nil),        // 4: chainguard.platform.registry.v2.StigGroupCount
-	(*StigReport)(nil),            // 5: chainguard.platform.registry.v2.StigReport
-	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
+	(StigResult)(0),                   // 0: chainguard.platform.registry.v2.StigResult
+	(*GetStigReportRequest)(nil),      // 1: chainguard.platform.registry.v2.GetStigReportRequest
+	(*DownloadStigReportRequest)(nil), // 2: chainguard.platform.registry.v2.DownloadStigReportRequest
+	(*StigRuleResult)(nil),            // 3: chainguard.platform.registry.v2.StigRuleResult
+	(*StigResultCount)(nil),           // 4: chainguard.platform.registry.v2.StigResultCount
+	(*StigGroupSummary)(nil),          // 5: chainguard.platform.registry.v2.StigGroupSummary
+	(*StigReport)(nil),                // 6: chainguard.platform.registry.v2.StigReport
+	(*timestamppb.Timestamp)(nil),     // 7: google.protobuf.Timestamp
+	(*httpbody.HttpBody)(nil),         // 8: google.api.HttpBody
 }
 var file_chainguard_platform_registry_v2_stig_reports_proto_depIdxs = []int32{
-	0, // 0: chainguard.platform.registry.v2.StigRuleResult.result:type_name -> chainguard.platform.registry.v2.StigResult
-	0, // 1: chainguard.platform.registry.v2.StigStateCount.result:type_name -> chainguard.platform.registry.v2.StigResult
-	3, // 2: chainguard.platform.registry.v2.StigGroupCount.counts:type_name -> chainguard.platform.registry.v2.StigStateCount
-	6, // 3: chainguard.platform.registry.v2.StigReport.start_time:type_name -> google.protobuf.Timestamp
-	6, // 4: chainguard.platform.registry.v2.StigReport.end_time:type_name -> google.protobuf.Timestamp
-	2, // 5: chainguard.platform.registry.v2.StigReport.rules:type_name -> chainguard.platform.registry.v2.StigRuleResult
-	3, // 6: chainguard.platform.registry.v2.StigReport.counts:type_name -> chainguard.platform.registry.v2.StigStateCount
-	4, // 7: chainguard.platform.registry.v2.StigReport.group_counts:type_name -> chainguard.platform.registry.v2.StigGroupCount
-	1, // 8: chainguard.platform.registry.v2.StigReportsService.GetStigReport:input_type -> chainguard.platform.registry.v2.GetStigReportRequest
-	5, // 9: chainguard.platform.registry.v2.StigReportsService.GetStigReport:output_type -> chainguard.platform.registry.v2.StigReport
-	9, // [9:10] is the sub-list for method output_type
-	8, // [8:9] is the sub-list for method input_type
-	8, // [8:8] is the sub-list for extension type_name
-	8, // [8:8] is the sub-list for extension extendee
-	0, // [0:8] is the sub-list for field type_name
+	0,  // 0: chainguard.platform.registry.v2.StigRuleResult.result:type_name -> chainguard.platform.registry.v2.StigResult
+	0,  // 1: chainguard.platform.registry.v2.StigResultCount.result:type_name -> chainguard.platform.registry.v2.StigResult
+	4,  // 2: chainguard.platform.registry.v2.StigGroupSummary.result_counts:type_name -> chainguard.platform.registry.v2.StigResultCount
+	7,  // 3: chainguard.platform.registry.v2.StigReport.start_time:type_name -> google.protobuf.Timestamp
+	7,  // 4: chainguard.platform.registry.v2.StigReport.end_time:type_name -> google.protobuf.Timestamp
+	3,  // 5: chainguard.platform.registry.v2.StigReport.rules:type_name -> chainguard.platform.registry.v2.StigRuleResult
+	4,  // 6: chainguard.platform.registry.v2.StigReport.result_counts:type_name -> chainguard.platform.registry.v2.StigResultCount
+	5,  // 7: chainguard.platform.registry.v2.StigReport.groups:type_name -> chainguard.platform.registry.v2.StigGroupSummary
+	1,  // 8: chainguard.platform.registry.v2.StigReportsService.GetStigReport:input_type -> chainguard.platform.registry.v2.GetStigReportRequest
+	2,  // 9: chainguard.platform.registry.v2.StigReportsService.DownloadStigReport:input_type -> chainguard.platform.registry.v2.DownloadStigReportRequest
+	6,  // 10: chainguard.platform.registry.v2.StigReportsService.GetStigReport:output_type -> chainguard.platform.registry.v2.StigReport
+	8,  // 11: chainguard.platform.registry.v2.StigReportsService.DownloadStigReport:output_type -> google.api.HttpBody
+	10, // [10:12] is the sub-list for method output_type
+	8,  // [8:10] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_registry_v2_stig_reports_proto_init() }
@@ -649,13 +737,14 @@ func file_chainguard_platform_registry_v2_stig_reports_proto_init() {
 	if File_chainguard_platform_registry_v2_stig_reports_proto != nil {
 		return
 	}
+	file_chainguard_platform_registry_v2_stig_reports_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_registry_v2_stig_reports_proto_rawDesc), len(file_chainguard_platform_registry_v2_stig_reports_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

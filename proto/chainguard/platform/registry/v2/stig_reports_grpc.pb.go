@@ -11,6 +11,7 @@ package v2
 
 import (
 	context "context"
+	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -22,24 +23,28 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	StigReportsService_GetStigReport_FullMethodName = "/chainguard.platform.registry.v2.StigReportsService/GetStigReport"
+	StigReportsService_GetStigReport_FullMethodName      = "/chainguard.platform.registry.v2.StigReportsService/GetStigReport"
+	StigReportsService_DownloadStigReport_FullMethodName = "/chainguard.platform.registry.v2.StigReportsService/DownloadStigReport"
 )
 
 // StigReportsServiceClient is the client API for StigReportsService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// StigReportsService provides read-only access to per-image STIG scan
-// reports, derived from the STIG attestation carried on the image.
+// StigReportsService provides read-only access to per-image STIG reports.
 type StigReportsServiceClient interface {
-	// GetStigReport returns the complete STIG report for an image manifest:
-	// every rule result with its state and group categorization, per-state
-	// counts (overall and per group), the scan metadata, and the digest of
-	// the manifest whose attestation produced the report. A NOT_FOUND error
-	// means the image carries no STIG attestation — which covers both
-	// non-FIPS images and FIPS images that have not been scanned — and is
-	// distinct from a report with zero failures.
+	// GetStigReport returns a structured projection of the STIG report for an
+	// image manifest. A NOT_FOUND error means no report exists for the image,
+	// which is distinct from a report with zero failures.
 	GetStigReport(ctx context.Context, in *GetStigReportRequest, opts ...grpc.CallOption) (*StigReport, error)
+	// DownloadStigReport returns the report's canonical XCCDF XML document.
+	// Its data is the exact document represented by GetStigReport, identified
+	// by StigReport.xccdf_sha256.
+	// (-- api-linter: core::0136::response-message-name=disabled
+	//     api-linter: core::0136::http-uri-suffix=disabled
+	//     aip.dev/not-precedent: HttpBody preserves the raw XML response, and the
+	//     resource-local download action intentionally uses the stable :download suffix. --)
+	DownloadStigReport(ctx context.Context, in *DownloadStigReportRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error)
 }
 
 type stigReportsServiceClient struct {
@@ -60,21 +65,34 @@ func (c *stigReportsServiceClient) GetStigReport(ctx context.Context, in *GetSti
 	return out, nil
 }
 
+func (c *stigReportsServiceClient) DownloadStigReport(ctx context.Context, in *DownloadStigReportRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(httpbody.HttpBody)
+	err := c.cc.Invoke(ctx, StigReportsService_DownloadStigReport_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // StigReportsServiceServer is the server API for StigReportsService service.
 // All implementations must embed UnimplementedStigReportsServiceServer
 // for forward compatibility.
 //
-// StigReportsService provides read-only access to per-image STIG scan
-// reports, derived from the STIG attestation carried on the image.
+// StigReportsService provides read-only access to per-image STIG reports.
 type StigReportsServiceServer interface {
-	// GetStigReport returns the complete STIG report for an image manifest:
-	// every rule result with its state and group categorization, per-state
-	// counts (overall and per group), the scan metadata, and the digest of
-	// the manifest whose attestation produced the report. A NOT_FOUND error
-	// means the image carries no STIG attestation — which covers both
-	// non-FIPS images and FIPS images that have not been scanned — and is
-	// distinct from a report with zero failures.
+	// GetStigReport returns a structured projection of the STIG report for an
+	// image manifest. A NOT_FOUND error means no report exists for the image,
+	// which is distinct from a report with zero failures.
 	GetStigReport(context.Context, *GetStigReportRequest) (*StigReport, error)
+	// DownloadStigReport returns the report's canonical XCCDF XML document.
+	// Its data is the exact document represented by GetStigReport, identified
+	// by StigReport.xccdf_sha256.
+	// (-- api-linter: core::0136::response-message-name=disabled
+	//     api-linter: core::0136::http-uri-suffix=disabled
+	//     aip.dev/not-precedent: HttpBody preserves the raw XML response, and the
+	//     resource-local download action intentionally uses the stable :download suffix. --)
+	DownloadStigReport(context.Context, *DownloadStigReportRequest) (*httpbody.HttpBody, error)
 	mustEmbedUnimplementedStigReportsServiceServer()
 }
 
@@ -87,6 +105,9 @@ type UnimplementedStigReportsServiceServer struct{}
 
 func (UnimplementedStigReportsServiceServer) GetStigReport(context.Context, *GetStigReportRequest) (*StigReport, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetStigReport not implemented")
+}
+func (UnimplementedStigReportsServiceServer) DownloadStigReport(context.Context, *DownloadStigReportRequest) (*httpbody.HttpBody, error) {
+	return nil, status.Error(codes.Unimplemented, "method DownloadStigReport not implemented")
 }
 func (UnimplementedStigReportsServiceServer) mustEmbedUnimplementedStigReportsServiceServer() {}
 func (UnimplementedStigReportsServiceServer) testEmbeddedByValue()                            {}
@@ -127,6 +148,24 @@ func _StigReportsService_GetStigReport_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StigReportsService_DownloadStigReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DownloadStigReportRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StigReportsServiceServer).DownloadStigReport(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StigReportsService_DownloadStigReport_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StigReportsServiceServer).DownloadStigReport(ctx, req.(*DownloadStigReportRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // StigReportsService_ServiceDesc is the grpc.ServiceDesc for StigReportsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -137,6 +176,10 @@ var StigReportsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetStigReport",
 			Handler:    _StigReportsService_GetStigReport_Handler,
+		},
+		{
+			MethodName: "DownloadStigReport",
+			Handler:    _StigReportsService_DownloadStigReport_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

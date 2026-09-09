@@ -9,6 +9,7 @@ import "annotations/auth.proto";
 import "annotations/mcp.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
+import "google/api/httpbody.proto";
 import "google/protobuf/timestamp.proto";
 
 option go_package = "chainguard.dev/sdk/proto/chainguard/platform/registry/v2";
@@ -16,16 +17,11 @@ option java_multiple_files = true;
 option java_outer_classname = "StigReportsProto";
 option java_package = "com.chainguard.platform.registry.v2";
 
-// StigReportsService provides read-only access to per-image STIG scan
-// reports, derived from the STIG attestation carried on the image.
+// StigReportsService provides read-only access to per-image STIG reports.
 service StigReportsService {
-  // GetStigReport returns the complete STIG report for an image manifest:
-  // every rule result with its state and group categorization, per-state
-  // counts (overall and per group), the scan metadata, and the digest of
-  // the manifest whose attestation produced the report. A NOT_FOUND error
-  // means the image carries no STIG attestation — which covers both
-  // non-FIPS images and FIPS images that have not been scanned — and is
-  // distinct from a report with zero failures.
+  // GetStigReport returns a structured projection of the STIG report for an
+  // image manifest. A NOT_FOUND error means no report exists for the image,
+  // which is distinct from a report with zero failures.
   rpc GetStigReport(GetStigReportRequest) returns (StigReport) {
     option (google.api.http) = {get: "/registry/v2/repos/{repo_uid=**}/digests/{digest}/stig"};
     option (chainguard.annotations.iam) = {
@@ -44,6 +40,26 @@ service StigReportsService {
       open_world: false
     };
   }
+
+  // DownloadStigReport returns the report's canonical XCCDF XML document.
+  // Its data is the exact document represented by GetStigReport, identified
+  // by StigReport.xccdf_sha256.
+  // (-- api-linter: core::0136::response-message-name=disabled
+  //     api-linter: core::0136::http-uri-suffix=disabled
+  //     aip.dev/not-precedent: HttpBody preserves the raw XML response, and the
+  //     resource-local download action intentionally uses the stable :download suffix. --)
+  rpc DownloadStigReport(DownloadStigReportRequest) returns (google.api.HttpBody) {
+    option (google.api.http) = {get: "/registry/v2/repos/{repo_uid=**}/digests/{digest}/stig:download"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_REPO_LIST,
+          CAP_MANIFEST_METADATA_LIST
+        ]
+      }
+    };
+    option (chainguard.annotations.mcp) = {hidden: true};
+  }
 }
 
 // GetStigReportRequest is the request message for GetStigReport.
@@ -59,6 +75,23 @@ message GetStigReportRequest {
 
   // Architecture to descend into when the digest addresses an OCI index
   // (e.g., "amd64", "arm64"). When empty, the report is read from the
+  // manifest as addressed by the digest, with no per-architecture descent.
+  string architecture = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// DownloadStigReportRequest is the request message for DownloadStigReport.
+message DownloadStigReportRequest {
+  // UIDP of the repository containing the image.
+  string repo_uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Digest of the image manifest whose XCCDF document to download.
+  string digest = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Architecture to descend into when the digest addresses an OCI index
+  // (e.g., "amd64", "arm64"). When empty, the document is read from the
   // manifest as addressed by the digest, with no per-architecture descent.
   string architecture = 3 [(google.api.field_behavior) = OPTIONAL];
 }
@@ -93,8 +126,8 @@ message StigRuleResult {
   string group_title = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
-// StigStateCount is the number of rules whose verdict is a given state.
-message StigStateCount {
+// StigResultCount is the number of rules with a given result.
+message StigResultCount {
   // The rule verdict being counted.
   StigResult result = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
@@ -102,24 +135,23 @@ message StigStateCount {
   int32 count = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
-// StigGroupCount is the per-group rollup of rule verdicts: one entry per
+// StigGroupSummary is the per-group rollup of rule results: one entry per
 // group in the scan content, so consumers render grouped sections without
 // walking every rule result.
-message StigGroupCount {
+message StigGroupSummary {
   // ID of the group, matching StigRuleResult.group_id.
   string group_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Human-readable title of the group; empty when the content defines none.
   string group_title = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Number of the group's rules per verdict state.
-  repeated StigStateCount counts = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Number of the group's rules per result.
+  repeated StigResultCount result_counts = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
-// StigReport is the complete result of one STIG scan of an image: every
-// rule result, per-state counts, and the scan metadata. Fields the scan
-// generation could not record are zero, with an explicit marker where
-// "unknown" must stay distinguishable from "empty".
+// StigReport is a structured projection of one canonical XCCDF results
+// document. Fields the report producer could not record are zero, with an
+// explicit marker where "unknown" must stay distinguishable from "empty".
 message StigReport {
   // XCCDF profile the scan evaluated.
   string profile_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -130,36 +162,40 @@ message StigReport {
   // Scan end time; unset when the scan document did not record it.
   google.protobuf.Timestamp end_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Scanner image reference that produced the report; empty when the
-  // scan generation did not record scanner identity.
-  string scanner_image = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Scanner image reference that produced the report; absent when the scan
+  // generation did not record scanner identity.
+  optional string scanner_image = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // SCAP datastream version the scan evaluated against. Meaningful only
-  // when datastream_version_known is true.
-  string datastream_version = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // SCAP datastream version the scan evaluated against; absent when the scan
+  // generation did not record it.
+  optional string datastream_version = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Whether the scan recorded a datastream version. False for reports
-  // from generations that could not carry it, making that absence
-  // explicit rather than empty-but-plausible.
-  bool datastream_version_known = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  reserved 6;
+  reserved "datastream_version_known";
 
   // Every rule result from the scan, all states preserved.
   repeated StigRuleResult rules = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Number of rules per verdict state.
-  repeated StigStateCount counts = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Number of rules per result.
+  repeated StigResultCount result_counts = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Digest of the manifest whose STIG attestation produced this report.
-  // Equal to the requested digest when the image itself was scanned; the
-  // assembly-origin (base image) digest when the image is a custom-assembled
-  // rebuild served from its origin's scan — in that case the report
-  // describes the origin's pre-assembly contents.
+  // Digest of the manifest whose filesystem contents were evaluated. Equal
+  // to the requested digest when the image itself was scanned; the assembly
+  // origin digest when serving the report for a custom-assembled rebuild.
   string scanned_digest = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Per-group rollup of rule verdicts, one entry per group in the scan
   // content, ordered by group ID. Empty when the scan document does not
   // group its rules.
-  repeated StigGroupCount group_counts = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+  repeated StigGroupSummary groups = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Architecture of the manifest whose filesystem contents were evaluated;
+  // absent when it cannot be determined for a historical report.
+  optional string architecture = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Lowercase hexadecimal SHA-256 digest of the canonical XCCDF XML returned
+  // by DownloadStigReport.
+  string xccdf_sha256 = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // StigResult is the XCCDF 1.2 rule-result vocabulary: the only states a
