@@ -2052,12 +2052,12 @@ const file_chainguard_platform_vulnerabilities_v2beta1_advisories_proto_rawDesc 
 	"\x10TYPE_UNSPECIFIED\x10\x00\x12\x10\n" +
 	"\fTYPE_CVSS_V2\x10\x01\x12\x10\n" +
 	"\fTYPE_CVSS_V3\x10\x02\x12\x10\n" +
-	"\fTYPE_CVSS_V4\x10\x03\"\xc6\x1b\n" +
+	"\fTYPE_CVSS_V4\x10\x03\"\xcc\x1b\n" +
 	"\rAdvisoryEvent\x12\x16\n" +
 	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12A\n" +
 	"\vcreate_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
-	"createTime\x12\x1a\n" +
-	"\bfindings\x18\x03 \x01(\fR\bfindings\x12\x1c\n" +
+	"createTime\x12 \n" +
+	"\bfindings\x18\x03 \x01(\fB\x04\xe2A\x01\x01R\bfindings\x12\x1c\n" +
 	"\x06author\x18\x04 \x01(\tB\x04\xe2A\x01\x02R\x06author\x12 \n" +
 	"\breviewer\x18\x05 \x01(\tB\x04\xe2A\x01\x01R\breviewer\x12a\n" +
 	"\freview_state\x18\x06 \x01(\x0e28.chainguard.platform.vulnerabilities.v2beta1.ReviewStateB\x04\xe2A\x01\x02R\vreviewState\x12\x1f\n" +

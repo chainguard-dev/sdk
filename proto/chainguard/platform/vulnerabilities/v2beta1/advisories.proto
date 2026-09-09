@@ -149,7 +149,7 @@ message AdvisoryEvent {
   google.protobuf.Timestamp create_time = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The JSON-encoded struct containing vulnerability findings from a scanner.
-  bytes findings = 3;
+  bytes findings = 3 [(google.api.field_behavior) = OPTIONAL];
   // The person or service account who created this event.
   string author = 4 [(google.api.field_behavior) = REQUIRED];
   // The person who reviewed this event.
