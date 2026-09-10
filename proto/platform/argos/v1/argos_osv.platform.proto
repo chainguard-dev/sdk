@@ -202,6 +202,64 @@ enum PatchStatus {
   PATCH_STATUS_PATCHED = 4;
 }
 
+// EmbargoStatus is the state of the embargo period on a record.
+//
+// Values may be added over time. Treat an unrecognised value as
+// EMBARGO_STATUS_UNSPECIFIED rather than assuming this set is closed.
+enum EmbargoStatus {
+  EMBARGO_STATUS_UNSPECIFIED = 0;
+  EMBARGO_STATUS_DEFAULT = 1;
+  EMBARGO_STATUS_EXTENSION_APPROVED = 2;
+  EMBARGO_STATUS_EXTENSION_DENIED = 3;
+  EMBARGO_STATUS_EXPIRED = 4;
+  EMBARGO_STATUS_VOIDED = 5;
+}
+
+// ExtensionReason is the rationale recorded with an embargo extension
+// decision, drawn from a fixed set of values rather than free text. Values may
+// be added over time; treat an unrecognised value as
+// EXTENSION_REASON_UNSPECIFIED.
+enum ExtensionReason {
+  EXTENSION_REASON_UNSPECIFIED = 0;
+  EXTENSION_REASON_UPSTREAM_ENGAGED = 1;
+  EXTENSION_REASON_PATCH_IN_REVIEW = 2;
+  EXTENSION_REASON_CONTRACTUAL_CAP_REACHED = 3;
+}
+
+// Embargo is the embargo period on a record: when the validation window
+// opened, when it closes, and what state it is in.
+//
+// The window is identical for every recipient of the record: no field here
+// varies by caller.
+message Embargo {
+  // status is the state of the period.
+  EmbargoStatus status = 1 [json_name = "status"];
+
+  // started_at is when the validation window opened.
+  google.protobuf.Timestamp started_at = 2 [json_name = "started_at"];
+
+  // ends_at is when the window currently closes. This is the date to act on;
+  // it moves only by a reviewed extension decision.
+  google.protobuf.Timestamp ends_at = 3 [json_name = "ends_at"];
+
+  // extension is the current extension decision, absent while the period is
+  // in its default state. It is identical for every recipient of the record.
+  Extension extension = 4 [json_name = "extension"];
+
+  // Extension is a reviewed decision on an extension request.
+  message Extension {
+    // requested_at is when the extension was requested.
+    google.protobuf.Timestamp requested_at = 1 [json_name = "requested_at"];
+
+    // decided_at is when it was approved or denied. A denial is recorded
+    // without moving ends_at.
+    google.protobuf.Timestamp decided_at = 2 [json_name = "decided_at"];
+
+    // reason is the rationale, from the closed ExtensionReason set.
+    ExtensionReason reason = 3 [json_name = "reason"];
+  }
+}
+
 // TopLevelDatabaseSpecific is the Chainguard-defined content for the OSV-spec
 // top-level database_specific field: a JSON object holding additional
 // information about the vulnerability as defined by the database from which
@@ -210,6 +268,10 @@ enum PatchStatus {
 message TopLevelDatabaseSpecific {
   // patch_status is the patch-generation state of this record.
   PatchStatus patch_status = 1 [json_name = "patch_status"];
+
+  // embargo is the embargo period on this record, absent when no period has
+  // been established.
+  Embargo embargo = 2 [json_name = "embargo"];
 }
 
 // Reference is one OSV-spec references[] entry: a typed, record-level URL
