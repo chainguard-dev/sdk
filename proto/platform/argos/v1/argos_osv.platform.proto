@@ -212,6 +212,38 @@ message TopLevelDatabaseSpecific {
   PatchStatus patch_status = 1 [json_name = "patch_status"];
 }
 
+// Reference is one OSV-spec references[] entry: a typed, record-level URL
+// (https://ossf.github.io/osv-schema/#references-field). Chainguard emits
+// FIX-typed references naming the verified upstream fix commit — the exact
+// commit, validated by tag ancestry in the named repository, behind the
+// record's highest fixed boundary. A reference is record-level and carries
+// no binding to any affected range or version, per the OSV spec.
+message Reference {
+  // ReferenceType mirrors the OSV spec's reference type vocabulary. Value
+  // names are deliberately unprefixed so the JSON wire form matches OSV
+  // verbatim (the spec uses bare "FIX" / "WEB" / ...); nested-enum scoping
+  // means Go consumers see Reference_FIX, Reference_WEB, etc.
+  enum ReferenceType {
+    UNSPECIFIED = 0;
+    ADVISORY = 1;
+    ARTICLE = 2;
+    DETECTION = 3;
+    DISCUSSION = 4;
+    REPORT = 5;
+    FIX = 6;
+    INTRODUCED = 7;
+    PACKAGE = 8;
+    EVIDENCE = 9;
+    WEB = 10;
+  }
+
+  // type is the reference type.
+  ReferenceType type = 1;
+
+  // url is the fully-qualified URL, scheme included.
+  string url = 2;
+}
+
 message OSVRecord {
   string id = 1;
   string schema_version = 2 [json_name = "schema_version"];
@@ -229,6 +261,10 @@ message OSVRecord {
   // database_specific is the OSV-spec top-level extension object carrying
   // Chainguard-defined record-level metadata (OSV spec §database_specific-field).
   TopLevelDatabaseSpecific database_specific = 12 [json_name = "database_specific"];
+  // references lists the record's OSV-spec typed reference URLs. Chainguard
+  // populates FIX-typed entries with the verified upstream fix commit; see
+  // Reference.
+  repeated Reference references = 13;
 }
 
 message OSVQueryRequest {

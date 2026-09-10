@@ -45,6 +45,10 @@ func TestOSVRecordJSONConformsToOSVSpec(t *testing.T) {
 				DefectKind: "incorrect-control",
 			},
 		}},
+		References: []*argosv1.Reference{{
+			Type: argosv1.Reference_FIX,
+			Url:  "https://github.com/django/django/commit/cf694e6852b0da7799f8b53f1fb2f7d20cf17534",
+		}},
 	}
 	b, err := protojson.Marshal(rec)
 	if err != nil {
@@ -70,7 +74,7 @@ func TestOSVRecordJSONConformsToOSVSpec(t *testing.T) {
 		"schemaVersion", "lastAffected", "databaseSpecific",
 		"cweIds", "sinkLocator", "fileLine", "defectKind",
 		"observedVersions",
-		"RANGE_TYPE_",
+		"RANGE_TYPE_", "REFERENCE_TYPE_",
 	} {
 		if strings.Contains(got, reject) {
 			t.Errorf("non-OSV-spec token %q leaked into customer OSV JSON: %s", reject, got)
@@ -94,6 +98,32 @@ func TestOSVRecordJSONConformsToOSVSpec(t *testing.T) {
 	}
 	if n := len(top.Affected[0].DatabaseSpecific.SinkLocator); n != 1 {
 		t.Errorf("sink_locator entries: got = %d, want = 1: %s", n, got)
+	}
+
+	// references must render the OSV spec's exact shape: an array of
+	// {"type": "<bare spec name>", "url": "..."} objects, with the type as
+	// the spec's literal string (osv-schema §references-field). An exact
+	// equality on "FIX" (not a substring check) pins the served vocabulary
+	// to the spec, so renaming the enum value in BOTH protos still fails
+	// here. Structural, like sink_locator above, because protojson spacing
+	// is non-deterministic.
+	var refs struct {
+		References []struct {
+			Type string `json:"type"`
+			URL  string `json:"url"`
+		} `json:"references"`
+	}
+	if err := json.Unmarshal(b, &refs); err != nil {
+		t.Fatalf("references is not an array of objects: %v in %s", err, got)
+	}
+	if n := len(refs.References); n != 1 {
+		t.Fatalf("references entries: got = %d, want = 1: %s", n, got)
+	}
+	if refs.References[0].Type != "FIX" {
+		t.Errorf("reference type: got = %q, want the bare OSV spec form %q: %s", refs.References[0].Type, "FIX", got)
+	}
+	if want := "https://github.com/django/django/commit/cf694e6852b0da7799f8b53f1fb2f7d20cf17534"; refs.References[0].URL != want {
+		t.Errorf("reference url: got = %q, want = %q", refs.References[0].URL, want)
 	}
 }
 
