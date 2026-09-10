@@ -70,6 +70,10 @@ func (x *IdentityProvider) CloudEventsRedact() any {
 				// client_secret redacted, it is the only signal in the event of
 				// a confidential <-> public (PKCE-only) client transition.
 				PkceEnabled: cfg.Oidc.PkceEnabled,
+				// TokenEndpointAuthMethod is configuration, not a credential: the
+				// audit event must record how the client authenticates at the
+				// token endpoint.
+				TokenEndpointAuthMethod: cfg.Oidc.TokenEndpointAuthMethod,
 			},
 		}
 	default:

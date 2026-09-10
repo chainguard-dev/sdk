@@ -70,6 +70,10 @@ func (x *IdentityProvider) CloudEventsRedact() any {
 				// event must record how logins bind to SCIM-provisioned users —
 				// the rule is write-once, so the create event is its only record.
 				CorrelationRule: cfg.Oidc.CorrelationRule,
+				// token_endpoint_auth_method is configuration, not a credential:
+				// the audit event must record how the client authenticates at the
+				// token endpoint.
+				TokenEndpointAuthMethod: cfg.Oidc.TokenEndpointAuthMethod,
 				// ClientSecret is redacted.
 			},
 		}

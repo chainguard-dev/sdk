@@ -263,12 +263,13 @@ func TestIdentityProvidersEventInterfaces(t *testing.T) {
 		Name: "test-idp",
 		Configuration: &IdentityProvider_Oidc{
 			Oidc: &IdentityProvider_OIDC{
-				Issuer:          "https://accounts.google.com",
-				ClientId:        "client-id",
-				ClientSecret:    "super-secret",
-				GroupsClaim:     "okta_groups",
-				PkceEnabled:     true,
-				CorrelationRule: IdentityProvider_OIDC_CORRELATION_RULE_OID_EQUALS_EXTERNAL_ID,
+				Issuer:                  "https://accounts.google.com",
+				ClientId:                "client-id",
+				ClientSecret:            "super-secret",
+				GroupsClaim:             "okta_groups",
+				PkceEnabled:             true,
+				CorrelationRule:         IdentityProvider_OIDC_CORRELATION_RULE_OID_EQUALS_EXTERNAL_ID,
+				TokenEndpointAuthMethod: IdentityProvider_OIDC_TOKEN_ENDPOINT_AUTH_METHOD_CLIENT_SECRET_BASIC,
 			},
 		},
 	}
@@ -308,6 +309,11 @@ func TestIdentityProvidersEventInterfaces(t *testing.T) {
 	// the only audit record of how logins bind to SCIM-provisioned users.
 	if oidc.GetCorrelationRule() != IdentityProvider_OIDC_CORRELATION_RULE_OID_EQUALS_EXTERNAL_ID {
 		t.Errorf("redacted correlation_rule = %v, want preserved", oidc.GetCorrelationRule())
+	}
+	// token_endpoint_auth_method is likewise config — the audit record must show
+	// how the client authenticates at the token endpoint.
+	if oidc.GetTokenEndpointAuthMethod() != IdentityProvider_OIDC_TOKEN_ENDPOINT_AUTH_METHOD_CLIENT_SECRET_BASIC {
+		t.Errorf("redacted token_endpoint_auth_method = %v, want preserved", oidc.GetTokenEndpointAuthMethod())
 	}
 	// An IdP with no SCIM config must stay nil after redaction — guards against a
 	// refactor that unconditionally allocates an (empty) Scim sub-message.
