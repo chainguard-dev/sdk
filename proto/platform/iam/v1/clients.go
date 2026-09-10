@@ -31,6 +31,7 @@ type Clients interface {
 	AccountAssociations() GroupAccountAssociationsClient
 
 	ExternalGroupRoleMappings() ExternalGroupRoleMappingsClient
+	ScimUsers() ScimUsersClient
 
 	Terms() TermsClient
 
@@ -71,6 +72,7 @@ func NewClients(ctx context.Context, iamURL string, token string) (Clients, erro
 		accountAssociations: NewGroupAccountAssociationsClient(conn),
 
 		externalGroupRoleMappings: NewExternalGroupRoleMappingsClient(conn),
+		scimUsers:                 NewScimUsersClient(conn),
 
 		terms: NewTermsClient(conn),
 
@@ -93,6 +95,7 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 		accountAssociations: NewGroupAccountAssociationsClient(conn),
 
 		externalGroupRoleMappings: NewExternalGroupRoleMappingsClient(conn),
+		scimUsers:                 NewScimUsersClient(conn),
 
 		terms: NewTermsClient(conn),
 
@@ -114,6 +117,7 @@ type clients struct {
 	accountAssociations GroupAccountAssociationsClient
 
 	externalGroupRoleMappings ExternalGroupRoleMappingsClient
+	scimUsers                 ScimUsersClient
 
 	terms TermsClient
 
@@ -156,6 +160,10 @@ func (c *clients) AccountAssociations() GroupAccountAssociationsClient {
 
 func (c *clients) ExternalGroupRoleMappings() ExternalGroupRoleMappingsClient {
 	return c.externalGroupRoleMappings
+}
+
+func (c *clients) ScimUsers() ScimUsersClient {
+	return c.scimUsers
 }
 
 func (c *clients) Terms() TermsClient {
