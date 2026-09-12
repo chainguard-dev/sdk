@@ -57,7 +57,7 @@ type Skill struct {
 	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
 	// hardened is true when the skill's promoted version was modified by the
 	// harden pipeline (harden.modified). Backs the "Hardened" chip on the catalog
-	// directory page (ACID-373).
+	// directory page.
 	Hardened bool `protobuf:"varint,9,opt,name=hardened,proto3" json:"hardened,omitempty"`
 	// stars is the accumulated count of stars (favorites) for the skill.
 	Stars int64 `protobuf:"varint,10,opt,name=stars,proto3" json:"stars,omitempty"`

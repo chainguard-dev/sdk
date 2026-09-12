@@ -141,7 +141,7 @@ message Skill {
   google.protobuf.Timestamp update_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
   // hardened is true when the skill's promoted version was modified by the
   // harden pipeline (harden.modified). Backs the "Hardened" chip on the catalog
-  // directory page (ACID-373).
+  // directory page.
   bool hardened = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   // stars is the accumulated count of stars (favorites) for the skill.
   int64 stars = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
