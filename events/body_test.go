@@ -187,6 +187,17 @@ func TestDecode_PreservesActor(t *testing.T) {
 	wantActor := &events.Actor{
 		Subject: "actor-subject",
 		Actor:   map[string]string{"iss": "https://issuer.test", "sub": "user-123"},
+		Chain: []events.ActorHop{{
+			Sub:        "user-123",
+			Kind:       "bindings",
+			Provenance: "issuer",
+			Iss:        "https://issuer.test",
+		}, {
+			Sub:         "user-123/agent-456",
+			Kind:        "transferred",
+			Provenance:  "asserted",
+			UpstreamSub: "webhook-pusher",
+		}},
 	}
 	wantBody := &iamv2.Group{Uid: "abc123", Name: "v2-group"}
 	event := buildEvent(t, wantBody, wantActor, true)
