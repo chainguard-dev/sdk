@@ -105,6 +105,16 @@ service RoleBindingsService {
       destructive: false
       idempotent: true
       open_world: false
+      // Withheld from the MCP tool surface. The binding itself is not the
+      // concern: every row embeds a hydrated RoleBindingIdentity (name,
+      // verified email, OIDC subject and issuer — see
+      // api-impl/internal/iam/rolebindings/v2beta1.go), the request has no
+      // required fields, and the response is paginated. That makes it an
+      // org-directory read by another route, which is what the other withheld
+      // iam list tools are meant to keep off an AI-agent surface. Unaffected:
+      // the gRPC and REST APIs, chainctl, and the console; only MCP tool
+      // generation skips it.
+      hidden: true
     };
   }
 

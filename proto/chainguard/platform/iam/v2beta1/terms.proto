@@ -55,6 +55,15 @@ service TermsService {
       description: "List legal documents that an organization has accepted."
       read_only: true
       idempotent: true
+      // Withheld from the MCP tool surface. Every TermsAcceptance carries
+      // accepted_by, the accepting identity's OIDC subject (see AcceptTerms
+      // in api-impl/internal/iam/core/terms.go, which stores tok.Subject) —
+      // a persistent per-person identifier returned on every row of a
+      // request whose only required field scopes the org, not the identity.
+      // Same shape as the other withheld list tools. Unaffected: the gRPC
+      // and REST APIs, chainctl, and the console; only MCP tool generation
+      // skips it.
+      hidden: true
     };
   }
 }

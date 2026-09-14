@@ -35,6 +35,13 @@ service ScimUsersService {
       destructive: false
       idempotent: true
       open_world: false
+      // Withheld from the MCP tool surface. ScimUser carries the SCIM userName
+      // (in practice an email address), displayName, the IdP's externalId, and
+      // — via iam_identity_uid — whether the user has ever logged in. That is a
+      // customer's employee directory, and it is not something to place on an
+      // AI-agent surface by default. Unaffected: the gRPC and REST APIs,
+      // chainctl, and the console; only MCP tool generation skips it.
+      hidden: true
     };
   }
 }

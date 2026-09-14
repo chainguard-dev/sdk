@@ -2188,14 +2188,14 @@ const file_chainguard_platform_vulnerabilities_v2beta1_advisories_proto_rawDesc 
 	"!EVENT_TYPE_FILTER_FIX_NOT_PLANNED\x10\x06\x12*\n" +
 	"&EVENT_TYPE_FILTER_PENDING_UPSTREAM_FIX\x10\a\x12\x1d\n" +
 	"\x19EVENT_TYPE_FILTER_PATCHED\x10\b\x120\n" +
-	",EVENT_TYPE_FILTER_COMPONENT_LOCATION_CHANGED\x10\t2\xf6\x04\n" +
+	",EVENT_TYPE_FILTER_COMPONENT_LOCATION_CHANGED\x10\t2\xf8\x04\n" +
 	"\x11AdvisoriesService\x12\xfb\x01\n" +
 	"\vGetAdvisory\x12?.chainguard.platform.vulnerabilities.v2beta1.GetAdvisoryRequest\x1a5.chainguard.platform.vulnerabilities.v2beta1.Advisory\"t\x82\xd3\xe4\x93\x02.\x12,/vulnerabilities/v2beta1/advisories/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xee\x0e\x9a\xaf\xa8\xd2\x05.\n" +
-	"$Get a security advisory by its UIDP.\x18\x01 \x00(\x010\x00\x12\xe2\x02\n" +
-	"\x0eListAdvisories\x12B.chainguard.platform.vulnerabilities.v2beta1.ListAdvisoriesRequest\x1aC.chainguard.platform.vulnerabilities.v2beta1.ListAdvisoriesResponse\"\xc6\x01\x82\xd3\xe4\x93\x02%\x12#/vulnerabilities/v2beta1/advisories\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x02\xee\x0e\x10\x01\x9a\xaf\xa8\xd2\x05\x86\x01\n" +
-	"|List security advisories the caller has access to. Supports filtering by artifact, component, vulnerability, and pagination.\x18\x01 \x00(\x010\x00B\x8a\x01\n" +
+	"$Get a security advisory by its UIDP.\x18\x01 \x00(\x010\x00\x12\xe4\x02\n" +
+	"\x0eListAdvisories\x12B.chainguard.platform.vulnerabilities.v2beta1.ListAdvisoriesRequest\x1aC.chainguard.platform.vulnerabilities.v2beta1.ListAdvisoriesResponse\"\xc8\x01\x82\xd3\xe4\x93\x02%\x12#/vulnerabilities/v2beta1/advisories\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02\xee\x0e\x10\x01\x9a\xaf\xa8\xd2\x05\x88\x01\n" +
+	"|List security advisories the caller has access to. Supports filtering by artifact, component, vulnerability, and pagination.\x10\x01\x18\x01 \x00(\x010\x00B\x8a\x01\n" +
 	"/com.chainguard.platform.vulnerabilities.v2beta1B\x0fAdvisoriesProtoP\x01ZDchainguard.dev/sdk/proto/chainguard/platform/vulnerabilities/v2beta1b\x06proto3"
 
 var (

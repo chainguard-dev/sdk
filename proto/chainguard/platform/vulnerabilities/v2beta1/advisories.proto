@@ -52,6 +52,17 @@ service AdvisoriesService {
       destructive: false
       idempotent: true
       open_world: false
+      // Withheld from the MCP tool surface. Every Advisory carries author
+      // (populated server-side from the caller's OIDC email claim, falling
+      // back to subject — see extractAuthorFromToken in
+      // api-impl/internal/vulnerabilities/advisory.go), and every
+      // AdvisoryEvent carries author and reviewer the same way. The request
+      // has no required fields, is paginated, and even filters by the same
+      // employee email (event_authors, exclude_event_authors,
+      // event_reviewers). Same shape as the other withheld list tools: an
+      // org-directory read by another route. Unaffected: the gRPC and REST
+      // APIs, chainctl, and the console; only MCP tool generation skips it.
+      hidden: true
     };
   }
 }

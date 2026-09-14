@@ -606,7 +606,7 @@ const file_chainguard_platform_iam_v2beta1_group_invites_proto_rawDesc = "" +
 	"\vtotal_count\x18\x03 \x01(\x03H\x00R\n" +
 	"totalCount\x88\x01\x01\x12\x18\n" +
 	"\askipped\x18\x04 \x01(\x05R\askippedB\x0e\n" +
-	"\f_total_count2\xad\t\n" +
+	"\f_total_count2\xaf\t\n" +
 	"\x13GroupInvitesService\x12\xef\x02\n" +
 	"\x11CreateGroupInvite\x129.chainguard.platform.iam.v2beta1.CreateGroupInviteRequest\x1a,.chainguard.platform.iam.v2beta1.GroupInvite\"\xf0\x01\x82\xd3\xe4\x93\x025:\fgroup_invite\"%/iam/v2beta1/groupInvites/{parent=**}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x04\xc9\x01\x91\x03\x9a\xaf\xa8\xd2\x05b\n" +
@@ -618,10 +618,10 @@ const file_chainguard_platform_iam_v2beta1_group_invites_proto_rawDesc = "" +
 	"\x11DeleteGroupInvite\x129.chainguard.platform.iam.v2beta1.DeleteGroupInviteRequest\x1a\x16.google.protobuf.Empty\"\xbf\x01\x82\xd3\xe4\x93\x02$*\"/iam/v2beta1/groupInvites/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xcc\x01\x9a\xaf\xa8\xd2\x05D\n" +
 	"<Delete a group invite by its UIDP, revoking the invite code. \x01(\x010\x00\xc2\xf0\x8e\xfc\v9\n" +
-	".dev.chainguard.api.iam.group_invite.deleted.v1\x12\x05group\x18\x01\x12\x98\x02\n" +
-	"\x10ListGroupInvites\x128.chainguard.platform.iam.v2beta1.ListGroupInvitesRequest\x1a9.chainguard.platform.iam.v2beta1.ListGroupInvitesResponse\"\x8e\x01\x82\xd3\xe4\x93\x02\x1b\x12\x19/iam/v2beta1/groupInvites\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x02\xcb\x01\x10\x01\x9a\xaf\xa8\xd2\x05Y\n" +
-	"OList group invites the caller has access to. Supports filtering and pagination.\x18\x01 \x00(\x010\x00Bt\n" +
+	".dev.chainguard.api.iam.group_invite.deleted.v1\x12\x05group\x18\x01\x12\x9a\x02\n" +
+	"\x10ListGroupInvites\x128.chainguard.platform.iam.v2beta1.ListGroupInvitesRequest\x1a9.chainguard.platform.iam.v2beta1.ListGroupInvitesResponse\"\x90\x01\x82\xd3\xe4\x93\x02\x1b\x12\x19/iam/v2beta1/groupInvites\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02\xcb\x01\x10\x01\x9a\xaf\xa8\xd2\x05[\n" +
+	"OList group invites the caller has access to. Supports filtering and pagination.\x10\x01\x18\x01 \x00(\x010\x00Bt\n" +
 	"#com.chainguard.platform.iam.v2beta1B\x11GroupInvitesProtoP\x01Z8chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1b\x06proto3"
 
 var (

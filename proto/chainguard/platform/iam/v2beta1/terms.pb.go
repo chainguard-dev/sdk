@@ -517,15 +517,15 @@ const file_chainguard_platform_iam_v2beta1_terms_proto_rawDesc = "" +
 	"\x05label\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x05label\x12\x16\n" +
 	"\x03url\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\x03url\"j\n" +
 	"\x16TermsNotAcceptedDetail\x12P\n" +
-	"\amissing\x18\x01 \x03(\v20.chainguard.platform.iam.v2beta1.MissingDocumentB\x04\xe2A\x01\x03R\amissing2\xc8\x04\n" +
+	"\amissing\x18\x01 \x03(\v20.chainguard.platform.iam.v2beta1.MissingDocumentB\x04\xe2A\x01\x03R\amissing2\xca\x04\n" +
 	"\fTermsService\x12\xab\x02\n" +
 	"\vAcceptTerms\x123.chainguard.platform.iam.v2beta1.AcceptTermsRequest\x1a4.chainguard.platform.iam.v2beta1.AcceptTermsResponse\"\xb0\x01\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/iam/v2beta1/terms/{group=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x99\x11\x9a\xaf\xa8\xd2\x05=\n" +
 	"9Record acceptance of legal documents for an organization.(\x01\xc2\xf0\x8e\xfc\v3\n" +
-	"(dev.chainguard.api.iam.terms.accepted.v1\x12\x05group\x18\x01\x12\x89\x02\n" +
-	"\x14ListTermsAcceptances\x12<.chainguard.platform.iam.v2beta1.ListTermsAcceptancesRequest\x1a=.chainguard.platform.iam.v2beta1.ListTermsAcceptancesResponse\"t\x82\xd3\xe4\x93\x02\x1f\x12\x1d/iam/v2beta1/terms/{group=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\x9a\x11\x9a\xaf\xa8\xd2\x05=\n" +
-	"7List legal documents that an organization has accepted.\x18\x01(\x01Bm\n" +
+	"(dev.chainguard.api.iam.terms.accepted.v1\x12\x05group\x18\x01\x12\x8b\x02\n" +
+	"\x14ListTermsAcceptances\x12<.chainguard.platform.iam.v2beta1.ListTermsAcceptancesRequest\x1a=.chainguard.platform.iam.v2beta1.ListTermsAcceptancesResponse\"v\x82\xd3\xe4\x93\x02\x1f\x12\x1d/iam/v2beta1/terms/{group=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\x9a\x11\x9a\xaf\xa8\xd2\x05?\n" +
+	"7List legal documents that an organization has accepted.\x10\x01\x18\x01(\x01Bm\n" +
 	"#com.chainguard.platform.iam.v2beta1B\n" +
 	"TermsProtoP\x01Z8chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1b\x06proto3"
 

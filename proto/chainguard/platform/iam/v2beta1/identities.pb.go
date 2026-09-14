@@ -1741,7 +1741,7 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\x1bSERVICE_PRINCIPAL_GUARDENER\x10\v\x12\x1d\n" +
 	"\x19SERVICE_PRINCIPAL_MICROVM\x10\f\x12\x1c\n" +
 	"\x18SERVICE_PRINCIPAL_SKILLS\x10\r\x12\x1d\n" +
-	"\x19SERVICE_PRINCIPAL_SANDBOX\x10\x0e2\xb7\x0f\n" +
+	"\x19SERVICE_PRINCIPAL_SANDBOX\x10\x0e2\xb9\x0f\n" +
 	"\x11IdentitiesService\x12\xe5\x02\n" +
 	"\x0eCreateIdentity\x126.chainguard.platform.iam.v2beta1.CreateIdentityRequest\x1a).chainguard.platform.iam.v2beta1.Identity\"\xef\x01\x82\xd3\xe4\x93\x02/:\bidentity\"#/iam/v2beta1/identities/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x85\a\x9a\xaf\xa8\xd2\x05m\n" +
@@ -1757,10 +1757,10 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\x0eUpdateIdentity\x126.chainguard.platform.iam.v2beta1.UpdateIdentityRequest\x1a).chainguard.platform.iam.v2beta1.Identity\"\xda\x01\x82\xd3\xe4\x93\x025:\bidentity2)/iam/v2beta1/identities/{identity.uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x86\a\x9a\xaf\xa8\xd2\x05R\n" +
 	"JUpdate an IAM identity's name, description, or relationship configuration. \x00(\x010\x00\xc2\xf0\x8e\xfc\v5\n" +
-	"*dev.chainguard.api.iam.identity.updated.v1\x12\x05group\x18\x01\x12\xad\x02\n" +
-	"\x0eListIdentities\x126.chainguard.platform.iam.v2beta1.ListIdentitiesRequest\x1a7.chainguard.platform.iam.v2beta1.ListIdentitiesResponse\"\xa9\x01\x82\xd3\xe4\x93\x02\x19\x12\x17/iam/v2beta1/identities\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x02\x87\a\x10\x01\x9a\xaf\xa8\xd2\x05v\n" +
-	"lList IAM identities the caller has access to. Supports filtering by name, relationship type, and pagination.\x18\x01 \x00(\x010\x00\x12\xc3\x01\n" +
+	"*dev.chainguard.api.iam.identity.updated.v1\x12\x05group\x18\x01\x12\xaf\x02\n" +
+	"\x0eListIdentities\x126.chainguard.platform.iam.v2beta1.ListIdentitiesRequest\x1a7.chainguard.platform.iam.v2beta1.ListIdentitiesResponse\"\xab\x01\x82\xd3\xe4\x93\x02\x19\x12\x17/iam/v2beta1/identities\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02\x87\a\x10\x01\x9a\xaf\xa8\xd2\x05x\n" +
+	"lList IAM identities the caller has access to. Supports filtering by name, relationship type, and pagination.\x10\x01\x18\x01 \x00(\x010\x00\x12\xc3\x01\n" +
 	"\x0eLookupIdentity\x126.chainguard.platform.iam.v2beta1.LookupIdentityRequest\x1a7.chainguard.platform.iam.v2beta1.LookupIdentityResponse\"@\x82\xd3\xe4\x93\x02(\x12&/iam/v2beta1/identities:lookupIdentity\x8a\xaf\xa8\xd2\x05\x04\x12\x02\x10\x01\x9a\xaf\xa8\xd2\x05\x02\x10\x01\x12\x94\x02\n" +
 	"\x16UpdateIdentityMetadata\x12>.chainguard.platform.iam.v2beta1.UpdateIdentityMetadataRequest\x1a1.chainguard.platform.iam.v2beta1.IdentityMetadata\"\x86\x01\x82\xd3\xe4\x93\x023:\x01*2./iam/v2beta1/identities:updateIdentityMetadata\x8a\xaf\xa8\xd2\x05\x04\x12\x02\x10\x01\x9a\xaf\xa8\xd2\x05\x02\x10\x01\xc2\xf0\x8e\xfc\v5\n" +
 	"3dev.chainguard.api.iam.identity.metadata.updated.v1Br\n" +

@@ -107,6 +107,10 @@ service GroupInvitesService {
       destructive: false
       idempotent: true
       open_world: false
+      // Withheld from the MCP tool surface. GroupInvite carries the invitee's
+      // email address. Unaffected: the gRPC and REST APIs, chainctl, and the
+      // console; only MCP tool generation skips it.
+      hidden: true
     };
   }
 }

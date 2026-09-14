@@ -386,12 +386,12 @@ const file_chainguard_platform_iam_v2beta1_scim_users_proto_rawDesc = "" +
 	"\vtotal_count\x18\x03 \x01(\x03H\x00R\n" +
 	"totalCount\x88\x01\x01\x12\x18\n" +
 	"\askipped\x18\x04 \x01(\x05R\askippedB\x0e\n" +
-	"\f_total_count2\xa4\x03\n" +
-	"\x10ScimUsersService\x12\x8f\x03\n" +
-	"\rListScimUsers\x125.chainguard.platform.iam.v2beta1.ListScimUsersRequest\x1a6.chainguard.platform.iam.v2beta1.ListScimUsersResponse\"\x8e\x02\x82\xd3\xe4\x93\x026\x124/iam/v2beta1/identityProviders/{parent=**}/scimUsers\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\f_total_count2\xa6\x03\n" +
+	"\x10ScimUsersService\x12\x91\x03\n" +
+	"\rListScimUsers\x125.chainguard.platform.iam.v2beta1.ListScimUsersRequest\x1a6.chainguard.platform.iam.v2beta1.ListScimUsersResponse\"\x90\x02\x82\xd3\xe4\x93\x026\x124/iam/v2beta1/identityProviders/{parent=**}/scimUsers\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x9a\n" +
-	"\x9a\xaf\xa8\xd2\x05\xbf\x01\n" +
-	"\xb4\x01List the SCIM-provisioned users of an identity provider, including users provisioned but not yet logged in. Supports filtering by userName, externalId, and active, plus pagination.\x18\x01 \x00(\x010\x00Bq\n" +
+	"\x9a\xaf\xa8\xd2\x05\xc1\x01\n" +
+	"\xb4\x01List the SCIM-provisioned users of an identity provider, including users provisioned but not yet logged in. Supports filtering by userName, externalId, and active, plus pagination.\x10\x01\x18\x01 \x00(\x010\x00Bq\n" +
 	"#com.chainguard.platform.iam.v2beta1B\x0eScimUsersProtoP\x01Z8chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1b\x06proto3"
 
 var (
