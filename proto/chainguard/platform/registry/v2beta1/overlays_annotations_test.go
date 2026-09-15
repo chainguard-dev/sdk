@@ -52,6 +52,7 @@ func runCapabilityTests(t *testing.T, sd protoreflect.ServiceDescriptor, cases [
 func Test_Overlays_Annotations(t *testing.T) {
 	runCapabilityTests(t, overlaysService(t), []capabilityCase{
 		{"CreateOverlay", capabilities.Capability_CAP_REGISTRY_OVERLAYS_EDIT},
+		{"UpdateOverlay", capabilities.Capability_CAP_REGISTRY_OVERLAYS_EDIT},
 		{"DeleteOverlay", capabilities.Capability_CAP_REGISTRY_OVERLAYS_EDIT},
 		{"GetOverlay", capabilities.Capability_CAP_REGISTRY_OVERLAYS_LIST},
 		{"ListOverlays", capabilities.Capability_CAP_REGISTRY_OVERLAYS_LIST},
@@ -61,6 +62,7 @@ func Test_Overlays_Annotations(t *testing.T) {
 func Test_OverlayBindings_Annotations(t *testing.T) {
 	runCapabilityTests(t, overlayBindingsService(t), []capabilityCase{
 		{"CreateOverlayBinding", capabilities.Capability_CAP_REGISTRY_OVERLAYS_EDIT},
+		{"UpdateOverlayBinding", capabilities.Capability_CAP_REGISTRY_OVERLAYS_EDIT},
 		{"DeleteOverlayBinding", capabilities.Capability_CAP_REGISTRY_OVERLAYS_EDIT},
 		{"GetOverlayBinding", capabilities.Capability_CAP_REGISTRY_OVERLAYS_LIST},
 		{"ListOverlayBindings", capabilities.Capability_CAP_REGISTRY_OVERLAYS_LIST},

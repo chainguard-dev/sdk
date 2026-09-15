@@ -13,6 +13,7 @@ import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
 import "platform/common/v1/uidp.platform.proto";
 
 option go_package = "chainguard.dev/sdk/proto/chainguard/platform/registry/v2beta1";
@@ -24,9 +25,6 @@ option java_package = "com.chainguard.platform.registry.v2beta1";
 // Assembly. An overlay's config is the full custom-overlay shape, but the
 // server accepts only contents.packages this milestone. Overlays are
 // attached to repos by OverlayBindingsService.
-//
-// There is deliberately no update RPC this milestone: the workflow is
-// delete-and-recreate.
 //
 // OverlayBindingsService routes live under the distinct
 // /registry/v2beta1/overlayBindings/... prefix, so this service's
@@ -91,6 +89,34 @@ service OverlaysService {
       read_only: false
       destructive: false
       idempotent: false
+      open_world: false
+      hidden: true
+    };
+  }
+
+  // UpdateOverlay updates an overlay's mutable fields: its name and its
+  // config. Only config.contents.packages may be populated; any other
+  // config field fails with InvalidArgument.
+  rpc UpdateOverlay(UpdateOverlayRequest) returns (Overlay) {
+    option (google.api.http) = {
+      patch: "/registry/v2beta1/overlays/{overlay.uid=**}"
+      body: "overlay"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_OVERLAYS_EDIT]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.platform.registry.overlay.updated.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Update a Custom Assembly overlay's mutable fields (name and config)."
+      read_only: false
+      destructive: false
+      idempotent: true
       open_world: false
       hidden: true
     };
@@ -171,6 +197,23 @@ message CreateOverlayRequest {
 
   // The Overlay to create.
   Overlay overlay = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// UpdateOverlayRequest is the request message for UpdateOverlay.
+message UpdateOverlayRequest {
+  // The overlay to update. The uid identifies the overlay.
+  Overlay overlay = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The list of fields to update. If not provided, an implied
+  // field mask is used equivalent to all fields that are populated
+  // (have non-default values). Only the top-level paths "name" and
+  // "config" are accepted; any other path — including sub-paths such
+  // as "config.contents.packages" — fails with InvalidArgument. A
+  // masked "config" replaces the stored config wholesale.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // DeleteOverlayRequest is the request message for deleting a single Overlay by UID.

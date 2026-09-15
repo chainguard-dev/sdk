@@ -13,6 +13,7 @@ import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
 import "platform/common/v1/uidp.platform.proto";
 
 option go_package = "chainguard.dev/sdk/proto/chainguard/platform/registry/v2beta1";
@@ -23,8 +24,7 @@ option java_package = "com.chainguard.platform.registry.v2beta1";
 // OverlayBindingsService manages the bindings that bind overlays to
 // repos under tag selectors for tag-scoped Custom Assembly.
 //
-// Bindings have no name and no update RPC this milestone: the workflow
-// is delete-and-recreate. A binding carries no inline content — content
+// Bindings have no name. A binding carries no inline content — content
 // always comes from the referenced overlay.
 //
 // The collection segment is camelCase /overlayBindings/ per the
@@ -60,6 +60,35 @@ service OverlayBindingsService {
       read_only: false
       destructive: false
       idempotent: false
+      open_world: false
+      hidden: true
+    };
+  }
+
+  // UpdateOverlayBinding updates a binding's tag selector — its only
+  // mutable field. The binding's repo and overlay reference are
+  // immutable: moving a binding to another repo or re-pointing it at
+  // another overlay is delete-and-recreate.
+  rpc UpdateOverlayBinding(UpdateOverlayBindingRequest) returns (OverlayBinding) {
+    option (google.api.http) = {
+      patch: "/registry/v2beta1/overlayBindings/{overlay_binding.uid=**}"
+      body: "overlay_binding"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_OVERLAYS_EDIT]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.platform.registry.overlay_binding.updated.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Update a Custom Assembly overlay binding's tag selector."
+      read_only: false
+      destructive: false
+      idempotent: true
       open_world: false
       hidden: true
     };
@@ -254,6 +283,25 @@ message CreateOverlayBindingRequest {
 
   reserved 3;
   reserved "tags";
+}
+
+// UpdateOverlayBindingRequest is the request message for
+// UpdateOverlayBinding.
+message UpdateOverlayBindingRequest {
+  // The binding to update. The uid identifies the binding; tag_selector
+  // is its only mutable field. The repo and overlay reference are
+  // immutable (OUTPUT_ONLY): moving a binding is delete on the old repo
+  // plus create on the new one.
+  OverlayBinding overlay_binding = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The list of fields to update. If not provided, an implied
+  // field mask is used equivalent to all fields that are populated
+  // (have non-default values). "tag_selector" is the only accepted
+  // path; any other path fails with InvalidArgument.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // GetOverlayBindingRequest is the request message for getting a single

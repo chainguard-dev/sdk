@@ -26,6 +26,7 @@ const (
 	OverlaysService_GetOverlay_FullMethodName    = "/chainguard.platform.registry.v2beta1.OverlaysService/GetOverlay"
 	OverlaysService_ListOverlays_FullMethodName  = "/chainguard.platform.registry.v2beta1.OverlaysService/ListOverlays"
 	OverlaysService_CreateOverlay_FullMethodName = "/chainguard.platform.registry.v2beta1.OverlaysService/CreateOverlay"
+	OverlaysService_UpdateOverlay_FullMethodName = "/chainguard.platform.registry.v2beta1.OverlaysService/UpdateOverlay"
 	OverlaysService_DeleteOverlay_FullMethodName = "/chainguard.platform.registry.v2beta1.OverlaysService/DeleteOverlay"
 )
 
@@ -37,9 +38,6 @@ const (
 // Assembly. An overlay's config is the full custom-overlay shape, but the
 // server accepts only contents.packages this milestone. Overlays are
 // attached to repos by OverlayBindingsService.
-//
-// There is deliberately no update RPC this milestone: the workflow is
-// delete-and-recreate.
 //
 // OverlayBindingsService routes live under the distinct
 // /registry/v2beta1/overlayBindings/... prefix, so this service's
@@ -54,6 +52,10 @@ type OverlaysServiceClient interface {
 	// config.contents.packages may be populated; any other config field
 	// fails with InvalidArgument.
 	CreateOverlay(ctx context.Context, in *CreateOverlayRequest, opts ...grpc.CallOption) (*Overlay, error)
+	// UpdateOverlay updates an overlay's mutable fields: its name and its
+	// config. Only config.contents.packages may be populated; any other
+	// config field fails with InvalidArgument.
+	UpdateOverlay(ctx context.Context, in *UpdateOverlayRequest, opts ...grpc.CallOption) (*Overlay, error)
 	// DeleteOverlay deletes an overlay by UID. Deleting an overlay that is
 	// still referenced by bindings fails with FailedPrecondition.
 	DeleteOverlay(ctx context.Context, in *DeleteOverlayRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -97,6 +99,16 @@ func (c *overlaysServiceClient) CreateOverlay(ctx context.Context, in *CreateOve
 	return out, nil
 }
 
+func (c *overlaysServiceClient) UpdateOverlay(ctx context.Context, in *UpdateOverlayRequest, opts ...grpc.CallOption) (*Overlay, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Overlay)
+	err := c.cc.Invoke(ctx, OverlaysService_UpdateOverlay_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *overlaysServiceClient) DeleteOverlay(ctx context.Context, in *DeleteOverlayRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
@@ -116,9 +128,6 @@ func (c *overlaysServiceClient) DeleteOverlay(ctx context.Context, in *DeleteOve
 // server accepts only contents.packages this milestone. Overlays are
 // attached to repos by OverlayBindingsService.
 //
-// There is deliberately no update RPC this milestone: the workflow is
-// delete-and-recreate.
-//
 // OverlayBindingsService routes live under the distinct
 // /registry/v2beta1/overlayBindings/... prefix, so this service's
 // {uid=**}/{parent=**} wildcards never swallow them. Dispatch is pinned
@@ -132,6 +141,10 @@ type OverlaysServiceServer interface {
 	// config.contents.packages may be populated; any other config field
 	// fails with InvalidArgument.
 	CreateOverlay(context.Context, *CreateOverlayRequest) (*Overlay, error)
+	// UpdateOverlay updates an overlay's mutable fields: its name and its
+	// config. Only config.contents.packages may be populated; any other
+	// config field fails with InvalidArgument.
+	UpdateOverlay(context.Context, *UpdateOverlayRequest) (*Overlay, error)
 	// DeleteOverlay deletes an overlay by UID. Deleting an overlay that is
 	// still referenced by bindings fails with FailedPrecondition.
 	DeleteOverlay(context.Context, *DeleteOverlayRequest) (*emptypb.Empty, error)
@@ -153,6 +166,9 @@ func (UnimplementedOverlaysServiceServer) ListOverlays(context.Context, *ListOve
 }
 func (UnimplementedOverlaysServiceServer) CreateOverlay(context.Context, *CreateOverlayRequest) (*Overlay, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateOverlay not implemented")
+}
+func (UnimplementedOverlaysServiceServer) UpdateOverlay(context.Context, *UpdateOverlayRequest) (*Overlay, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateOverlay not implemented")
 }
 func (UnimplementedOverlaysServiceServer) DeleteOverlay(context.Context, *DeleteOverlayRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteOverlay not implemented")
@@ -232,6 +248,24 @@ func _OverlaysService_CreateOverlay_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OverlaysService_UpdateOverlay_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateOverlayRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OverlaysServiceServer).UpdateOverlay(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OverlaysService_UpdateOverlay_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OverlaysServiceServer).UpdateOverlay(ctx, req.(*UpdateOverlayRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _OverlaysService_DeleteOverlay_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteOverlayRequest)
 	if err := dec(in); err != nil {
@@ -268,6 +302,10 @@ var OverlaysService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateOverlay",
 			Handler:    _OverlaysService_CreateOverlay_Handler,
+		},
+		{
+			MethodName: "UpdateOverlay",
+			Handler:    _OverlaysService_UpdateOverlay_Handler,
 		},
 		{
 			MethodName: "DeleteOverlay",

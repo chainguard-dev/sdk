@@ -63,6 +63,7 @@ func runAnnotationTests(t *testing.T, sd protoreflect.ServiceDescriptor, tests [
 func Test_Overlays_EventAnnotations(t *testing.T) {
 	runAnnotationTests(t, overlaysService(t), []annotationTest{
 		{"CreateOverlay", "dev.chainguard.api.platform.registry.overlay.created.v1", []string{"group"}},
+		{"UpdateOverlay", "dev.chainguard.api.platform.registry.overlay.updated.v1", []string{"group"}},
 		{"DeleteOverlay", "dev.chainguard.api.platform.registry.overlay.deleted.v1", []string{"group"}},
 	})
 }
@@ -70,6 +71,7 @@ func Test_Overlays_EventAnnotations(t *testing.T) {
 func Test_OverlayBindings_EventAnnotations(t *testing.T) {
 	runAnnotationTests(t, overlayBindingsService(t), []annotationTest{
 		{"CreateOverlayBinding", "dev.chainguard.api.platform.registry.overlay_binding.created.v1", []string{"group"}},
+		{"UpdateOverlayBinding", "dev.chainguard.api.platform.registry.overlay_binding.updated.v1", []string{"group"}},
 		{"DeleteOverlayBinding", "dev.chainguard.api.platform.registry.overlay_binding.deleted.v1", []string{"group"}},
 	})
 }

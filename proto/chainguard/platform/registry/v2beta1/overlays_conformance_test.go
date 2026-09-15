@@ -11,9 +11,9 @@ SPDX-License-Identifier: Apache-2.0
 // {uid=**}/{parent=**} wildcards can never swallow them regardless of
 // registration order.
 // Exercises the invariants deliverable at the SDK layer: the RPC surface
-// (no update RPCs), the full custom-overlay payload shape (packages-only
-// is enforced by server validation, not schema), the no-inline-content
-// binding shape, and gateway dispatch.
+// (CRUD plus the mask-carrying update RPCs), the full custom-overlay
+// payload shape (packages-only is enforced by server validation, not
+// schema), the no-inline-content binding shape, and gateway dispatch.
 package v2beta1
 
 import (
@@ -48,31 +48,53 @@ func overlayBindingsService(t *testing.T) protoreflect.ServiceDescriptor {
 	return sd
 }
 
-// Requirement: Overlay lifecycle / Binding lifecycle — each service's
-// RPC set is exactly the four CRUD-without-update methods; no update RPC
-// exists on either surface.
+// Requirement: Overlay lifecycle / Binding lifecycle / updates — each
+// service's RPC set is exactly CRUD plus its update RPC, and each update
+// request carries the resource plus an optional update_mask (AIP-134).
 func Test_Conformance_RPCSurface(t *testing.T) {
 	for _, tc := range []struct {
 		sd   protoreflect.ServiceDescriptor
 		want []string
 	}{
-		{overlaysService(t), []string{"CreateOverlay", "GetOverlay", "ListOverlays", "DeleteOverlay"}},
-		{overlayBindingsService(t), []string{"CreateOverlayBinding", "GetOverlayBinding", "ListOverlayBindings", "DeleteOverlayBinding"}},
+		{overlaysService(t), []string{"CreateOverlay", "GetOverlay", "ListOverlays", "UpdateOverlay", "DeleteOverlay"}},
+		{overlayBindingsService(t), []string{"CreateOverlayBinding", "GetOverlayBinding", "ListOverlayBindings", "UpdateOverlayBinding", "DeleteOverlayBinding"}},
 	} {
 		t.Run(string(tc.sd.Name()), func(t *testing.T) {
 			got := make([]string, 0, tc.sd.Methods().Len())
 			for i := range tc.sd.Methods().Len() {
-				name := string(tc.sd.Methods().Get(i).Name())
-				if strings.Contains(name, "Update") {
-					t.Errorf("update RPC %q exists; the milestone workflow is delete-and-recreate", name)
-				}
-				got = append(got, name)
+				got = append(got, string(tc.sd.Methods().Get(i).Name()))
 			}
 			want := slices.Clone(tc.want)
 			slices.Sort(want)
 			slices.Sort(got)
 			if !slices.Equal(want, got) {
 				t.Errorf("RPC surface: got = %v, want = %v", got, want)
+			}
+		})
+	}
+
+	for _, tc := range []struct {
+		desc     string
+		req      proto.Message
+		resource protoreflect.Name
+	}{
+		{"UpdateOverlayRequest", &UpdateOverlayRequest{}, "overlay"},
+		{"UpdateOverlayBindingRequest", &UpdateOverlayBindingRequest{}, "overlay_binding"},
+	} {
+		t.Run(tc.desc, func(t *testing.T) {
+			fields := tc.req.ProtoReflect().Descriptor().Fields()
+			if fields.ByName(tc.resource) == nil {
+				t.Errorf("%s missing resource field %q", tc.desc, tc.resource)
+			}
+			mask := fields.ByName("update_mask")
+			if mask == nil {
+				t.Fatalf("%s missing update_mask", tc.desc)
+			}
+			if got, want := mask.Message().FullName(), protoreflect.FullName("google.protobuf.FieldMask"); got != want {
+				t.Errorf("update_mask type: got = %v, want = %v", got, want)
+			}
+			if fb := proto.GetExtension(mask.Options(), annotations.E_FieldBehavior).([]annotations.FieldBehavior); !slices.Contains(fb, annotations.FieldBehavior_OPTIONAL) {
+				t.Errorf("update_mask field_behavior: got = %v, want OPTIONAL", fb)
 			}
 		})
 	}
@@ -181,6 +203,11 @@ func (r *routeRecorder) ListOverlays(context.Context, *ListOverlaysRequest) (*Li
 	return &ListOverlaysResponse{}, nil
 }
 
+func (r *routeRecorder) UpdateOverlay(_ context.Context, req *UpdateOverlayRequest) (*Overlay, error) {
+	r.method, r.uid = "UpdateOverlay", req.GetOverlay().GetUid()
+	return &Overlay{}, nil
+}
+
 func (r *routeRecorder) DeleteOverlay(_ context.Context, req *DeleteOverlayRequest) (*emptypb.Empty, error) {
 	r.method, r.uid = "DeleteOverlay", req.GetUid()
 	return &emptypb.Empty{}, nil
@@ -199,6 +226,11 @@ func (r *routeRecorder) GetOverlayBinding(_ context.Context, req *GetOverlayBind
 func (r *routeRecorder) ListOverlayBindings(context.Context, *ListOverlayBindingsRequest) (*ListOverlayBindingsResponse, error) {
 	r.method, r.uid = "ListOverlayBindings", ""
 	return &ListOverlayBindingsResponse{}, nil
+}
+
+func (r *routeRecorder) UpdateOverlayBinding(_ context.Context, req *UpdateOverlayBindingRequest) (*OverlayBinding, error) {
+	r.method, r.uid = "UpdateOverlayBinding", req.GetOverlayBinding().GetUid()
+	return &OverlayBinding{}, nil
 }
 
 func (r *routeRecorder) DeleteOverlayBinding(_ context.Context, req *DeleteOverlayBindingRequest) (*emptypb.Empty, error) {
@@ -229,10 +261,12 @@ func Test_Conformance_GatewayRouteOrder(t *testing.T) {
 		{"GET", "/registry/v2beta1/overlayBindings/org/repo/att", "", "GetOverlayBinding", "org/repo/att"},
 		{"DELETE", "/registry/v2beta1/overlayBindings/org/repo/att", "", "DeleteOverlayBinding", "org/repo/att"},
 		{"POST", "/registry/v2beta1/overlayBindings/org/repo", `{"overlay":"debug-tools","tags":["latest"]}`, "CreateOverlayBinding", "org/repo"},
+		{"PATCH", "/registry/v2beta1/overlayBindings/org/repo/att", `{"tag_selector":{"kind":"KIND_ALL"}}`, "UpdateOverlayBinding", "org/repo/att"},
 		{"GET", "/registry/v2beta1/overlays", "", "ListOverlays", ""},
 		{"GET", "/registry/v2beta1/overlays/org/ovl", "", "GetOverlay", "org/ovl"},
 		{"DELETE", "/registry/v2beta1/overlays/org/ovl", "", "DeleteOverlay", "org/ovl"},
 		{"POST", "/registry/v2beta1/overlays/org", `{"name":"n"}`, "CreateOverlay", "org"},
+		{"PATCH", "/registry/v2beta1/overlays/org/ovl", `{"name":"n"}`, "UpdateOverlay", "org/ovl"},
 	} {
 		t.Run(tc.verb+" "+tc.path, func(t *testing.T) {
 			*rec = routeRecorder{}

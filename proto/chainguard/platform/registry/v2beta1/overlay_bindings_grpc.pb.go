@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	OverlayBindingsService_CreateOverlayBinding_FullMethodName = "/chainguard.platform.registry.v2beta1.OverlayBindingsService/CreateOverlayBinding"
+	OverlayBindingsService_UpdateOverlayBinding_FullMethodName = "/chainguard.platform.registry.v2beta1.OverlayBindingsService/UpdateOverlayBinding"
 	OverlayBindingsService_GetOverlayBinding_FullMethodName    = "/chainguard.platform.registry.v2beta1.OverlayBindingsService/GetOverlayBinding"
 	OverlayBindingsService_ListOverlayBindings_FullMethodName  = "/chainguard.platform.registry.v2beta1.OverlayBindingsService/ListOverlayBindings"
 	OverlayBindingsService_DeleteOverlayBinding_FullMethodName = "/chainguard.platform.registry.v2beta1.OverlayBindingsService/DeleteOverlayBinding"
@@ -36,8 +37,7 @@ const (
 // OverlayBindingsService manages the bindings that bind overlays to
 // repos under tag selectors for tag-scoped Custom Assembly.
 //
-// Bindings have no name and no update RPC this milestone: the workflow
-// is delete-and-recreate. A binding carries no inline content — content
+// Bindings have no name. A binding carries no inline content — content
 // always comes from the referenced overlay.
 //
 // The collection segment is camelCase /overlayBindings/ per the
@@ -54,6 +54,11 @@ type OverlayBindingsServiceClient interface {
 	//     aip.dev/not-precedent: the request carries a reference + selector,
 	//     not an embedded resource, so the body maps the whole request. --)
 	CreateOverlayBinding(ctx context.Context, in *CreateOverlayBindingRequest, opts ...grpc.CallOption) (*OverlayBinding, error)
+	// UpdateOverlayBinding updates a binding's tag selector — its only
+	// mutable field. The binding's repo and overlay reference are
+	// immutable: moving a binding to another repo or re-pointing it at
+	// another overlay is delete-and-recreate.
+	UpdateOverlayBinding(ctx context.Context, in *UpdateOverlayBindingRequest, opts ...grpc.CallOption) (*OverlayBinding, error)
 	// GetOverlayBinding retrieves a single overlay binding by UID.
 	GetOverlayBinding(ctx context.Context, in *GetOverlayBindingRequest, opts ...grpc.CallOption) (*OverlayBinding, error)
 	// ListOverlayBindings returns overlay bindings based on filter
@@ -76,6 +81,16 @@ func (c *overlayBindingsServiceClient) CreateOverlayBinding(ctx context.Context,
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(OverlayBinding)
 	err := c.cc.Invoke(ctx, OverlayBindingsService_CreateOverlayBinding_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *overlayBindingsServiceClient) UpdateOverlayBinding(ctx context.Context, in *UpdateOverlayBindingRequest, opts ...grpc.CallOption) (*OverlayBinding, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OverlayBinding)
+	err := c.cc.Invoke(ctx, OverlayBindingsService_UpdateOverlayBinding_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -119,8 +134,7 @@ func (c *overlayBindingsServiceClient) DeleteOverlayBinding(ctx context.Context,
 // OverlayBindingsService manages the bindings that bind overlays to
 // repos under tag selectors for tag-scoped Custom Assembly.
 //
-// Bindings have no name and no update RPC this milestone: the workflow
-// is delete-and-recreate. A binding carries no inline content — content
+// Bindings have no name. A binding carries no inline content — content
 // always comes from the referenced overlay.
 //
 // The collection segment is camelCase /overlayBindings/ per the
@@ -137,6 +151,11 @@ type OverlayBindingsServiceServer interface {
 	//     aip.dev/not-precedent: the request carries a reference + selector,
 	//     not an embedded resource, so the body maps the whole request. --)
 	CreateOverlayBinding(context.Context, *CreateOverlayBindingRequest) (*OverlayBinding, error)
+	// UpdateOverlayBinding updates a binding's tag selector — its only
+	// mutable field. The binding's repo and overlay reference are
+	// immutable: moving a binding to another repo or re-pointing it at
+	// another overlay is delete-and-recreate.
+	UpdateOverlayBinding(context.Context, *UpdateOverlayBindingRequest) (*OverlayBinding, error)
 	// GetOverlayBinding retrieves a single overlay binding by UID.
 	GetOverlayBinding(context.Context, *GetOverlayBindingRequest) (*OverlayBinding, error)
 	// ListOverlayBindings returns overlay bindings based on filter
@@ -157,6 +176,9 @@ type UnimplementedOverlayBindingsServiceServer struct{}
 
 func (UnimplementedOverlayBindingsServiceServer) CreateOverlayBinding(context.Context, *CreateOverlayBindingRequest) (*OverlayBinding, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateOverlayBinding not implemented")
+}
+func (UnimplementedOverlayBindingsServiceServer) UpdateOverlayBinding(context.Context, *UpdateOverlayBindingRequest) (*OverlayBinding, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateOverlayBinding not implemented")
 }
 func (UnimplementedOverlayBindingsServiceServer) GetOverlayBinding(context.Context, *GetOverlayBindingRequest) (*OverlayBinding, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetOverlayBinding not implemented")
@@ -203,6 +225,24 @@ func _OverlayBindingsService_CreateOverlayBinding_Handler(srv interface{}, ctx c
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OverlayBindingsServiceServer).CreateOverlayBinding(ctx, req.(*CreateOverlayBindingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OverlayBindingsService_UpdateOverlayBinding_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateOverlayBindingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OverlayBindingsServiceServer).UpdateOverlayBinding(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OverlayBindingsService_UpdateOverlayBinding_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OverlayBindingsServiceServer).UpdateOverlayBinding(ctx, req.(*UpdateOverlayBindingRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -271,6 +311,10 @@ var OverlayBindingsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateOverlayBinding",
 			Handler:    _OverlayBindingsService_CreateOverlayBinding_Handler,
+		},
+		{
+			MethodName: "UpdateOverlayBinding",
+			Handler:    _OverlayBindingsService_UpdateOverlayBinding_Handler,
 		},
 		{
 			MethodName: "GetOverlayBinding",
