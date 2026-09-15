@@ -27,23 +27,27 @@ func (RefField) token() {}
 
 // RefField constants for the supported image reference components.
 const (
-	Registry     RefField = "registry"      // Registry host, e.g., "cgr.dev"
-	Repo         RefField = "repo"          // Repository without registry, e.g., "chainguard/nginx"
-	RegistryRepo RefField = "registry_repo" // Registry and repo combined, e.g., "cgr.dev/chainguard/nginx"
-	Tag          RefField = "tag"           // OCI tag, e.g., "latest"
-	Digest       RefField = "digest"        // OCI digest, e.g., "sha256:abc..."
-	PseudoTag    RefField = "pseudo_tag"    // Tag and digest as "tag@digest"
-	Ref          RefField = "ref"           // Full reference with tag and/or digest
+	Registry           RefField = "registry"             // Registry host, e.g., "cgr.dev"
+	Repo               RefField = "repo"                 // Repository without registry, e.g., "chainguard/nginx"
+	ImageName          RefField = "image_name"           // Last path segment of repo, e.g., "nginx"
+	RegistryRepo       RefField = "registry_repo"        // Registry and repo combined, e.g., "cgr.dev/chainguard/nginx"
+	RegistryRepoPrefix RefField = "registry_repo_prefix" // Registry and repo without the image name, e.g., "cgr.dev/chainguard"
+	Tag                RefField = "tag"                  // OCI tag, e.g., "latest"
+	Digest             RefField = "digest"               // OCI digest, e.g., "sha256:abc..."
+	PseudoTag          RefField = "pseudo_tag"           // Tag and digest as "tag@digest"
+	Ref                RefField = "ref"                  // Full reference with tag and/or digest
 )
 
 var knownFields = map[string]RefField{
-	"registry":      Registry,
-	"repo":          Repo,
-	"registry_repo": RegistryRepo,
-	"tag":           Tag,
-	"digest":        Digest,
-	"pseudo_tag":    PseudoTag,
-	"ref":           Ref,
+	"registry":             Registry,
+	"repo":                 Repo,
+	"image_name":           ImageName,
+	"registry_repo":        RegistryRepo,
+	"registry_repo_prefix": RegistryRepoPrefix,
+	"tag":                  Tag,
+	"digest":               Digest,
+	"pseudo_tag":           PseudoTag,
+	"ref":                  Ref,
 }
 
 // TokenList is a sequence of tokens from lexing a value string.

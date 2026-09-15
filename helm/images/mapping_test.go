@@ -321,12 +321,14 @@ func TestWalkNilCallback(t *testing.T) {
 func TestWalk(t *testing.T) {
 	const validDigest = "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 	ref := OCIRef{
-		Registry:     "cgr.dev",
-		Repo:         "chainguard/nginx",
-		RegistryRepo: "cgr.dev/chainguard/nginx",
-		Tag:          "latest",
-		Digest:       validDigest,
-		FullRef:      fmt.Sprintf("cgr.dev/chainguard/nginx:latest@%s", validDigest),
+		Registry:           "cgr.dev",
+		Repo:               "chainguard/nginx",
+		ImageName:          "nginx",
+		RegistryRepo:       "cgr.dev/chainguard/nginx",
+		RegistryRepoPrefix: "cgr.dev/chainguard",
+		Tag:                "latest",
+		Digest:             validDigest,
+		FullRef:            fmt.Sprintf("cgr.dev/chainguard/nginx:latest@%s", validDigest),
 	}
 
 	tests := []struct {
@@ -1167,6 +1169,53 @@ image:
   image:
     digest: sha256:abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234
     registry: cgr.dev
+`,
+		},
+		{
+			name: "istio-style split hub image tag with image_name and registry_repo_prefix",
+			mapping: &Mapping{
+				Images: map[string]*Image{
+					"pilot": {Values: map[string]any{
+						"image": "${image_name}",
+						"tag":   "${pseudo_tag}",
+					}},
+					"proxy": {Values: map[string]any{
+						"global": map[string]any{
+							"hub": "${registry_repo_prefix}",
+							"tag": "${pseudo_tag}",
+							"proxy": map[string]any{
+								"image": "${image_name}",
+							},
+							"proxy_init": map[string]any{
+								"image": "${image_name}",
+							},
+						},
+					}},
+				},
+			},
+			refs: map[string]string{
+				"pilot": "cgr.dev/chainguard-private/istio-pilot:1.29@sha256:1111111111111111111111111111111111111111111111111111111111111111",
+				"proxy": "cgr.dev/chainguard-private/istio-proxy:1.29@sha256:2222222222222222222222222222222222222222222222222222222222222222",
+			},
+			valuesYAML: `image: ""
+tag: ""
+global:
+  hub: ""
+  tag: ""
+  proxy:
+    image: ""
+  proxy_init:
+    image: ""
+`,
+			want: `image: istio-pilot
+tag: 1.29@sha256:1111111111111111111111111111111111111111111111111111111111111111
+global:
+  hub: cgr.dev/chainguard-private
+  tag: 1.29@sha256:2222222222222222222222222222222222222222222222222222222222222222
+  proxy:
+    image: istio-proxy
+  proxy_init:
+    image: istio-proxy
 `,
 		},
 		{

@@ -15,12 +15,14 @@ import (
 // OCIRef holds the components of an OCI reference.
 // Use NewRef to construct - it parses and validates the reference string.
 type OCIRef struct {
-	Registry     string // Registry host, e.g., "cgr.dev"
-	Repo         string // Repository path without registry, e.g., "chainguard/nginx"
-	Tag          string // OCI tag, e.g., "latest" (may be empty)
-	Digest       string // OCI digest, e.g., "sha256:abc123..." (may be empty)
-	RegistryRepo string // Combined registry/repo, e.g., "cgr.dev/chainguard/nginx"
-	FullRef      string // Full reference with tag and/or digest as available
+	Registry           string // Registry host, e.g., "cgr.dev"
+	Repo               string // Repository path without registry, e.g., "chainguard/nginx"
+	ImageName          string // Last path segment of Repo, e.g., "nginx"
+	Tag                string // OCI tag, e.g., "latest" (may be empty)
+	Digest             string // OCI digest, e.g., "sha256:abc123..." (may be empty)
+	RegistryRepo       string // Combined registry/repo, e.g., "cgr.dev/chainguard/nginx"
+	RegistryRepoPrefix string // RegistryRepo minus the ImageName, e.g., "cgr.dev/chainguard"
+	FullRef            string // Full reference with tag and/or digest as available
 }
 
 // NewRef parses an OCI reference string into its components. Unlike
@@ -35,6 +37,12 @@ func NewRef(reference string) (OCIRef, error) {
 	registry := ref.Context().RegistryStr()
 	repo := ref.Context().RepositoryStr()
 	registryRepo := ref.Context().Name()
+	imageName := repo
+	registryRepoPrefix := registry
+	if idx := strings.LastIndex(repo, "/"); idx != -1 {
+		imageName = repo[idx+1:]
+		registryRepoPrefix = registry + "/" + repo[:idx]
+	}
 	var tag, digest string
 
 	if t, ok := ref.(name.Tag); ok {
@@ -64,12 +72,14 @@ func NewRef(reference string) (OCIRef, error) {
 	}
 
 	return OCIRef{
-		Registry:     registry,
-		Repo:         repo,
-		Tag:          tag,
-		Digest:       digest,
-		RegistryRepo: registryRepo,
-		FullRef:      fullRef,
+		Registry:           registry,
+		Repo:               repo,
+		ImageName:          imageName,
+		Tag:                tag,
+		Digest:             digest,
+		RegistryRepo:       registryRepo,
+		RegistryRepoPrefix: registryRepoPrefix,
+		FullRef:            fullRef,
 	}, nil
 }
 
@@ -97,8 +107,12 @@ func Resolve(refs map[string]OCIRef, opts ...ResolveOption) WalkFunc {
 					val = ref.Registry
 				case Repo:
 					val = ref.Repo
+				case ImageName:
+					val = ref.ImageName
 				case RegistryRepo:
 					val = ref.RegistryRepo
+				case RegistryRepoPrefix:
+					val = ref.RegistryRepoPrefix
 				case Tag:
 					val = ref.Tag
 				case Digest:
