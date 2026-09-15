@@ -243,9 +243,12 @@ type IdentityProvider struct {
 	CreateTime *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
 	// When the identity provider was last updated.
 	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
-	// The UIDP of the default role to grant users of this identity provider
-	// on initial authentication. Users who already have an identity on this platform
-	// are unaffected.
+	// The UIDP of the default role to grant users of this identity provider on
+	// initial authentication. Users who already have an identity on this platform
+	// are unaffected. Required when SCIM provisioning is not enabled for the
+	// provider (enforced server-side, gated on the live SCIM state); cleared when
+	// SCIM is enabled, since a SCIM provider grants access only to provisioned
+	// users. May be set again while SCIM is enabled, as an explicit opt-in.
 	DefaultRole string `protobuf:"bytes,6,opt,name=default_role,json=defaultRole,proto3" json:"default_role,omitempty"`
 	// The upstream IdP configuration details for this identity provider.
 	// Exactly one must be set.
@@ -1627,7 +1630,7 @@ const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = ""
 	"createTime\x12A\n" +
 	"\vupdate_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
 	"updateTime\x12'\n" +
-	"\fdefault_role\x18\x06 \x01(\tB\x04\xe2A\x01\x02R\vdefaultRole\x12R\n" +
+	"\fdefault_role\x18\x06 \x01(\tB\x04\xe2A\x01\x01R\vdefaultRole\x12R\n" +
 	"\x04oidc\x18\x14 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.OIDCB\x04\xe2A\x01\x01H\x00R\x04oidc\x12P\n" +
 	"\x04scim\x18\x15 \x01(\v26.chainguard.platform.iam.v2beta1.IdentityProvider.SCIMB\x04\xe2A\x01\x03R\x04scim\x1a\xc7\x06\n" +
 	"\x04OIDC\x12\x1c\n" +

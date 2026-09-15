@@ -296,10 +296,13 @@ message IdentityProvider {
   // When the identity provider was last updated.
   google.protobuf.Timestamp update_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The UIDP of the default role to grant users of this identity provider
-  // on initial authentication. Users who already have an identity on this platform
-  // are unaffected.
-  string default_role = 6 [(google.api.field_behavior) = REQUIRED];
+  // The UIDP of the default role to grant users of this identity provider on
+  // initial authentication. Users who already have an identity on this platform
+  // are unaffected. Required when SCIM provisioning is not enabled for the
+  // provider (enforced server-side, gated on the live SCIM state); cleared when
+  // SCIM is enabled, since a SCIM provider grants access only to provisioned
+  // users. May be set again while SCIM is enabled, as an explicit opt-in.
+  string default_role = 6 [(google.api.field_behavior) = OPTIONAL];
 
   // The upstream IdP configuration details for this identity provider.
   // Exactly one must be set.

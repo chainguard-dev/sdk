@@ -227,8 +227,11 @@ type IdentityProvider struct {
 	Id          string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name        string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	// default_role is the UIDP of an optional default role
-	// to grant users of this identity provider.
+	// default_role is the UIDP of the default role to grant users of this
+	// identity provider on first login. It is required unless SCIM provisioning is
+	// enabled for the provider, in which case it may be omitted. SCIM configuration
+	// requires the v2 API; a provider managed solely through v1 always requires a
+	// default role.
 	DefaultRole string `protobuf:"bytes,4,opt,name=default_role,json=defaultRole,proto3" json:"default_role,omitempty"`
 	// Types that are valid to be assigned to Configuration:
 	//

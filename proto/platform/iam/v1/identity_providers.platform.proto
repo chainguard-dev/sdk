@@ -196,8 +196,11 @@ message IdentityProvider {
   string name = 2;
   string description = 3;
 
-  // default_role is the UIDP of an optional default role
-  // to grant users of this identity provider.
+  // default_role is the UIDP of the default role to grant users of this
+  // identity provider on first login. It is required unless SCIM provisioning is
+  // enabled for the provider, in which case it may be omitted. SCIM configuration
+  // requires the v2 API; a provider managed solely through v1 always requires a
+  // default role.
   string default_role = 4;
 
   oneof configuration {
