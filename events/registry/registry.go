@@ -20,9 +20,17 @@ const (
 	// RepoUpdatedEventType is the cloudevents event type for registry repo updated
 	RepoUpdatedEventType = "dev.chainguard.api.platform.registry.repo.updated.v1"
 
+	// OverlayUpdatedEventType is the cloudevents event type for registry
+	// overlay updated
+	OverlayUpdatedEventType = "dev.chainguard.api.platform.registry.overlay.updated.v1"
+
 	// OverlayBindingCreatedEventType is the cloudevents event type for registry
 	// overlay binding created
 	OverlayBindingCreatedEventType = "dev.chainguard.api.platform.registry.overlay_binding.created.v1"
+
+	// OverlayBindingUpdatedEventType is the cloudevents event type for registry
+	// overlay binding updated
+	OverlayBindingUpdatedEventType = "dev.chainguard.api.platform.registry.overlay_binding.updated.v1"
 
 	// OverlayBindingDeletedEventType is the cloudevents event type for registry
 	// overlay binding deleted
