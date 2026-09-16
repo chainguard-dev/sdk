@@ -517,7 +517,10 @@ type AdvisoryEvent struct {
 	// status is the status of the review
 	Status ReviewStatus `protobuf:"varint,13,opt,name=status,proto3,enum=chainguard.platform.vulnerabilities.v1.ReviewStatus" json:"status,omitempty"`
 	// issue is the original CVE Dashboard issue
-	Issue         *string `protobuf:"bytes,14,opt,name=issue,proto3,oneof" json:"issue,omitempty"`
+	Issue *string `protobuf:"bytes,14,opt,name=issue,proto3,oneof" json:"issue,omitempty"`
+	// review_note is the reviewer's explanation, set when transitioning an
+	// event to REQUEST_CHANGES or REJECTED.
+	ReviewNote    string `protobuf:"bytes,17,opt,name=review_note,json=reviewNote,proto3" json:"review_note,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -685,6 +688,13 @@ func (x *AdvisoryEvent) GetStatus() ReviewStatus {
 func (x *AdvisoryEvent) GetIssue() string {
 	if x != nil && x.Issue != nil {
 		return *x.Issue
+	}
+	return ""
+}
+
+func (x *AdvisoryEvent) GetReviewNote() string {
+	if x != nil {
+		return x.ReviewNote
 	}
 	return ""
 }
@@ -2088,7 +2098,7 @@ const file_advisory_vulnerabilities_proto_rawDesc = "" +
 	"\x13_component_locationB\x11\n" +
 	"\x0f_component_typeB\r\n" +
 	"\v_deleted_atB\x13\n" +
-	"\x11_legacyAdvisoryIDJ\x04\b\x04\x10\x05J\x04\b\x11\x10\x12J\x04\b\x12\x10\x13R\breviewerR\x06status\"\xc5\x19\n" +
+	"\x11_legacyAdvisoryIDJ\x04\b\x04\x10\x05J\x04\b\x11\x10\x12J\x04\b\x12\x10\x13R\breviewerR\x06status\"\xe6\x19\n" +
 	"\rAdvisoryEvent\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x128\n" +
 	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12_\n" +
@@ -2106,7 +2116,9 @@ const file_advisory_vulnerabilities_proto_rawDesc = "" +
 	"\x06author\x18\v \x01(\tR\x06author\x12\x1a\n" +
 	"\breviewer\x18\f \x01(\tR\breviewer\x12L\n" +
 	"\x06status\x18\r \x01(\x0e24.chainguard.platform.vulnerabilities.v1.ReviewStatusR\x06status\x12\x19\n" +
-	"\x05issue\x18\x0e \x01(\tH\x01R\x05issue\x88\x01\x01\x1a\xce\x06\n" +
+	"\x05issue\x18\x0e \x01(\tH\x01R\x05issue\x88\x01\x01\x12\x1f\n" +
+	"\vreview_note\x18\x11 \x01(\tR\n" +
+	"reviewNote\x1a\xce\x06\n" +
 	"\tDetection\x12`\n" +
 	"\x06nvdapi\x18\x01 \x01(\v2F.chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.NVDAPIH\x00R\x06nvdapi\x12`\n" +
 	"\x06manual\x18\x02 \x01(\v2F.chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.ManualH\x00R\x06manual\x12`\n" +

@@ -599,6 +599,10 @@ type AdvisoryEvent struct {
 	ReviewState ReviewState `protobuf:"varint,6,opt,name=review_state,json=reviewState,proto3,enum=chainguard.platform.vulnerabilities.v2beta1.ReviewState" json:"review_state,omitempty"`
 	// The original CVE Dashboard issue
 	Issue *string `protobuf:"bytes,7,opt,name=issue,proto3,oneof" json:"issue,omitempty"`
+	// The reviewer's explanation, set when transitioning an event to
+	// REQUEST_CHANGES or REJECTED. Read-only via this API version (v2beta1 has
+	// no event-update RPC); set through v1's UpdateAdvisoryEvent.
+	ReviewNote string `protobuf:"bytes,8,opt,name=review_note,json=reviewNote,proto3" json:"review_note,omitempty"`
 	// Event specific data depending on the type of advisory event this is.
 	//
 	// Types that are valid to be assigned to Type:
@@ -692,6 +696,13 @@ func (x *AdvisoryEvent) GetReviewState() ReviewState {
 func (x *AdvisoryEvent) GetIssue() string {
 	if x != nil && x.Issue != nil {
 		return *x.Issue
+	}
+	return ""
+}
+
+func (x *AdvisoryEvent) GetReviewNote() string {
+	if x != nil {
+		return x.ReviewNote
 	}
 	return ""
 }
@@ -2052,7 +2063,7 @@ const file_chainguard_platform_vulnerabilities_v2beta1_advisories_proto_rawDesc 
 	"\x10TYPE_UNSPECIFIED\x10\x00\x12\x10\n" +
 	"\fTYPE_CVSS_V2\x10\x01\x12\x10\n" +
 	"\fTYPE_CVSS_V3\x10\x02\x12\x10\n" +
-	"\fTYPE_CVSS_V4\x10\x03\"\xcc\x1b\n" +
+	"\fTYPE_CVSS_V4\x10\x03\"\xf3\x1b\n" +
 	"\rAdvisoryEvent\x12\x16\n" +
 	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12A\n" +
 	"\vcreate_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
@@ -2061,7 +2072,9 @@ const file_chainguard_platform_vulnerabilities_v2beta1_advisories_proto_rawDesc 
 	"\x06author\x18\x04 \x01(\tB\x04\xe2A\x01\x02R\x06author\x12 \n" +
 	"\breviewer\x18\x05 \x01(\tB\x04\xe2A\x01\x01R\breviewer\x12a\n" +
 	"\freview_state\x18\x06 \x01(\x0e28.chainguard.platform.vulnerabilities.v2beta1.ReviewStateB\x04\xe2A\x01\x02R\vreviewState\x12\x1f\n" +
-	"\x05issue\x18\a \x01(\tB\x04\xe2A\x01\x01H\x01R\x05issue\x88\x01\x01\x12d\n" +
+	"\x05issue\x18\a \x01(\tB\x04\xe2A\x01\x01H\x01R\x05issue\x88\x01\x01\x12%\n" +
+	"\vreview_note\x18\b \x01(\tB\x04\xe2A\x01\x03R\n" +
+	"reviewNote\x12d\n" +
 	"\tdetection\x18\n" +
 	" \x01(\v2D.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.DetectionH\x00R\tdetection\x12X\n" +
 	"\x05fixed\x18\v \x01(\v2@.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.FixedH\x00R\x05fixed\x12\x99\x01\n" +

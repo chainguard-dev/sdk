@@ -336,7 +336,11 @@ message AdvisoryEvent {
   // issue is the original CVE Dashboard issue
   optional string issue = 14;
 
-  // next id: 17
+  // review_note is the reviewer's explanation, set when transitioning an
+  // event to REQUEST_CHANGES or REJECTED.
+  string review_note = 17;
+
+  // next id: 18
 }
 
 

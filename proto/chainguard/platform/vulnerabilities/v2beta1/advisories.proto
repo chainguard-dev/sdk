@@ -173,6 +173,10 @@ message AdvisoryEvent {
   ReviewState review_state = 6 [(google.api.field_behavior) = REQUIRED];
   // The original CVE Dashboard issue
   optional string issue = 7 [(google.api.field_behavior) = OPTIONAL];
+  // The reviewer's explanation, set when transitioning an event to
+  // REQUEST_CHANGES or REJECTED. Read-only via this API version (v2beta1 has
+  // no event-update RPC); set through v1's UpdateAdvisoryEvent.
+  string review_note = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Event specific data depending on the type of advisory event this is.
   oneof type {
