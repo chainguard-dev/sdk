@@ -43,6 +43,8 @@ const (
 type Overlay struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The unique identifier of this Overlay, a UIDP under the owning group.
+	// Carries iam_scope so requests that embed the resource (UpdateOverlay)
+	// resolve their authorization scope from it.
 	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	// The name of the Overlay, unique among the group's overlays.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
@@ -490,9 +492,10 @@ var File_chainguard_platform_registry_v2beta1_overlays_proto protoreflect.FileDe
 
 const file_chainguard_platform_registry_v2beta1_overlays_proto_rawDesc = "" +
 	"\n" +
-	"3chainguard/platform/registry/v2beta1/overlays.proto\x12$chainguard.platform.registry.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a0chainguard/platform/registry/v2beta1/repos.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a&platform/common/v1/uidp.platform.proto\"\xdb\x01\n" +
-	"\aOverlay\x12\x16\n" +
-	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12\x18\n" +
+	"3chainguard/platform/registry/v2beta1/overlays.proto\x12$chainguard.platform.registry.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a0chainguard/platform/registry/v2beta1/repos.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a&platform/common/v1/uidp.platform.proto\"\xe1\x01\n" +
+	"\aOverlay\x12\x1c\n" +
+	"\x03uid\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
 	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x04name\x12Q\n" +
 	"\x06config\x18\x03 \x01(\v23.chainguard.platform.registry.v2beta1.CustomOverlayB\x04\xe2A\x01\x02R\x06config:K\xeaAH\n" +
 	"\x1fregistry.chainguard.dev/Overlay\x12\x12overlays/{overlay}*\boverlays2\aoverlay\"1\n" +

@@ -167,7 +167,12 @@ message Overlay {
   };
 
   // The unique identifier of this Overlay, a UIDP under the owning group.
-  string uid = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Carries iam_scope so requests that embed the resource (UpdateOverlay)
+  // resolve their authorization scope from it.
+  string uid = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (chainguard.annotations.iam_scope) = true
+  ];
 
   // The name of the Overlay, unique among the group's overlays.
   string name = 2 [(google.api.field_behavior) = REQUIRED];

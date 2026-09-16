@@ -168,8 +168,12 @@ message OverlayBinding {
   };
 
   // The unique identifier of this OverlayBinding, a UIDP under the repo
-  // it attaches to.
-  string uid = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // it attaches to. Carries iam_scope so requests that embed the resource
+  // (UpdateOverlayBinding) resolve their authorization scope from it.
+  string uid = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (chainguard.annotations.iam_scope) = true
+  ];
 
   // The UIDP of the repo this binding applies to.
   string repo = 2 [(google.api.field_behavior) = OUTPUT_ONLY];

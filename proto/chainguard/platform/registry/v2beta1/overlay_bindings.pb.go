@@ -155,7 +155,8 @@ func (TagSelector_VariantType) EnumDescriptor() ([]byte, []int) {
 type OverlayBinding struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The unique identifier of this OverlayBinding, a UIDP under the repo
-	// it attaches to.
+	// it attaches to. Carries iam_scope so requests that embed the resource
+	// (UpdateOverlayBinding) resolve their authorization scope from it.
 	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	// The UIDP of the repo this binding applies to.
 	Repo string `protobuf:"bytes,2,opt,name=repo,proto3" json:"repo,omitempty"`
@@ -730,9 +731,10 @@ var File_chainguard_platform_registry_v2beta1_overlay_bindings_proto protoreflec
 
 const file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDesc = "" +
 	"\n" +
-	";chainguard/platform/registry/v2beta1/overlay_bindings.proto\x12$chainguard.platform.registry.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a3chainguard/platform/registry/v2beta1/overlays.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a&platform/common/v1/uidp.platform.proto\"\xea\x02\n" +
-	"\x0eOverlayBinding\x12\x16\n" +
-	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12\x18\n" +
+	";chainguard/platform/registry/v2beta1/overlay_bindings.proto\x12$chainguard.platform.registry.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a3chainguard/platform/registry/v2beta1/overlays.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a&platform/common/v1/uidp.platform.proto\"\xf0\x02\n" +
+	"\x0eOverlayBinding\x12\x1c\n" +
+	"\x03uid\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
 	"\x04repo\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x04repo\x12M\n" +
 	"\aoverlay\x18\x03 \x01(\v2-.chainguard.platform.registry.v2beta1.OverlayB\x04\xe2A\x01\x03R\aoverlay\x12Z\n" +
 	"\ftag_selector\x18\x05 \x01(\v21.chainguard.platform.registry.v2beta1.TagSelectorB\x04\xe2A\x01\x02R\vtagSelector:o\xeaAl\n" +
