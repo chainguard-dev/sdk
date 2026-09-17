@@ -48,6 +48,10 @@ const (
 	// protoregistry.GlobalTypes, without having to sniff the JSON shape.
 	BodyTypeKey = "bodytype"
 
+	// PolicyResultsKey is the CloudEvents extension name set on registry pull
+	// events that contain policy results.
+	PolicyResultsKey = "policyresults"
+
 	// IdentityProviderKey is the CloudEvents extension name to store the
 	// IdentityProvider (its UIDP) an event is scoped to, for per-IdP audit
 	// attribution. Keyed by the bare resource noun like GroupKey/ClusterKey.
