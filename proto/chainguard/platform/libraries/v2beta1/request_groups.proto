@@ -305,7 +305,7 @@ service RequestGroupsService {
   // rather than a stored resource with a uid, so this reads as a custom method on
   // the collection instead of a sub-resource of an addressable parent.
   rpc ListRequestedLibraryVersions(ListRequestedLibraryVersionsRequest) returns (ListRequestedLibraryVersionsResponse) {
-    option (google.api.http) = {get: "/libraries/v2beta1/requestedLibraries:versions"};
+    option (google.api.http) = {get: "/libraries/v2beta1/requestedLibraries:listRequestedLibraryVersions"};
     option (chainguard.annotations.iam) = {
       enabled: {capabilities: [CAP_LIBRARIES_REQUEST_GROUPS_LIST]}
     };

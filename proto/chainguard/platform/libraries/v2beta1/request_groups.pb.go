@@ -3688,7 +3688,7 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"(REQUESTED_LIBRARY_CVE_STATUS_IN_PROGRESS\x10\x02\x126\n" +
 	"2REQUESTED_LIBRARY_CVE_STATUS_NO_HIGH_CRITICAL_CVES\x10\x03\x12)\n" +
 	"%REQUESTED_LIBRARY_CVE_STATUS_COMPLETE\x10\x04\x12/\n" +
-	"+REQUESTED_LIBRARY_CVE_STATUS_WONT_REMEDIATE\x10\x052\xc4$\n" +
+	"+REQUESTED_LIBRARY_CVE_STATUS_WONT_REMEDIATE\x10\x052\xd8$\n" +
 	"\x14RequestGroupsService\x12\xbd\x03\n" +
 	"\x12CreateRequestGroup\x12@.chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest\x1a3.chainguard.platform.libraries.v2beta1.RequestGroup\"\xaf\x02\x82\xd3\xe4\x93\x021:\x01*\",/libraries/v2beta1/requestGroups/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd2\x0e\x9a\xaf\xa8\xd2\x05\x9f\x01\n" +
@@ -3729,8 +3729,8 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"@dev.chainguard.api.libraries.request_group.coverage_refreshed.v1\x12\x05group\x12\xf4\x02\n" +
 	"\x16ListRequestedLibraries\x12D.chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest\x1aE.chainguard.platform.libraries.v2beta1.ListRequestedLibrariesResponse\"\xcc\x01\x82\xd3\xe4\x93\x02'\x12%/libraries/v2beta1/requestedLibraries\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd3\x0e\x9a\xaf\xa8\xd2\x05\x8c\x01\n" +
-	"\x81\x01List the libraries an organization has requested Chainguard builds for, with per-library build status and CVE-remediation status.\x18\x01 \x00(\x010\x00\x12\x8e\x03\n" +
-	"\x1cListRequestedLibraryVersions\x12J.chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest\x1aK.chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsResponse\"\xd4\x01\x82\xd3\xe4\x93\x020\x12./libraries/v2beta1/requestedLibraries:versions\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x81\x01List the libraries an organization has requested Chainguard builds for, with per-library build status and CVE-remediation status.\x18\x01 \x00(\x010\x00\x12\xa2\x03\n" +
+	"\x1cListRequestedLibraryVersions\x12J.chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest\x1aK.chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsResponse\"\xe8\x01\x82\xd3\xe4\x93\x02D\x12B/libraries/v2beta1/requestedLibraries:listRequestedLibraryVersions\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd3\x0e\x9a\xaf\xa8\xd2\x05\x8b\x01\n" +
 	"\x80\x01List the requested versions of one library, with per-version build availability, CVE-remediation status, and who requested each.\x18\x01 \x00(\x010\x00B\x81\x01\n" +
 	")com.chainguard.platform.libraries.v2beta1B\x12RequestGroupsProtoP\x01Z>chainguard.dev/sdk/proto/chainguard/platform/libraries/v2beta1b\x06proto3"

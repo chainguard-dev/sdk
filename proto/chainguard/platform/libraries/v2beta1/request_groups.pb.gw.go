@@ -1034,7 +1034,7 @@ func RegisterRequestGroupsServiceHandlerServer(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestedLibraryVersions", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestedLibraries:versions"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestedLibraryVersions", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestedLibraries:listRequestedLibraryVersions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1340,7 +1340,7 @@ func RegisterRequestGroupsServiceHandlerClient(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestedLibraryVersions", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestedLibraries:versions"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestedLibraryVersions", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestedLibraries:listRequestedLibraryVersions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1382,7 +1382,7 @@ var (
 
 	pattern_RequestGroupsService_ListRequestedLibraries_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"libraries", "v2beta1", "requestedLibraries"}, ""))
 
-	pattern_RequestGroupsService_ListRequestedLibraryVersions_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"libraries", "v2beta1", "requestedLibraries"}, "versions"))
+	pattern_RequestGroupsService_ListRequestedLibraryVersions_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"libraries", "v2beta1", "requestedLibraries"}, "listRequestedLibraryVersions"))
 )
 
 var (
