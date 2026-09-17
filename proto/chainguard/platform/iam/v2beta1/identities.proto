@@ -147,7 +147,10 @@ service IdentitiesService {
     option (chainguard.annotations.iam) = {
       enabled: {unscoped: true}
     };
-    option (chainguard.annotations.mcp) = {hidden: true};
+    option (chainguard.annotations.mcp) = {
+      description: "Resolve an OIDC issuer and subject to a Chainguard identity UID."
+      hidden: true
+    };
   }
 
   // UpdateIdentityMetadata updates metadata fields on the caller's own
@@ -168,7 +171,10 @@ service IdentitiesService {
       type: "dev.chainguard.api.iam.identity.metadata.updated.v1"
       audience: INTERNAL
     };
-    option (chainguard.annotations.mcp) = {hidden: true};
+    option (chainguard.annotations.mcp) = {
+      description: "Update profile and onboarding metadata fields on the caller's own identity."
+      hidden: true
+    };
   }
 }
 
@@ -220,16 +226,16 @@ message Identity {
   // Exactly one must be set.
   oneof relationship {
     // OIDC claim matching configuration.
-    ClaimMatch claim_match = 20;
+    ClaimMatch claim_match = 20 [(google.api.field_behavior) = OPTIONAL];
 
     // Static OIDC keys configuration.
-    StaticKeys static_keys = 21;
+    StaticKeys static_keys = 21 [(google.api.field_behavior) = OPTIONAL];
 
     // AWS IAM identity configuration.
-    AWSIdentity aws_identity = 22;
+    AWSIdentity aws_identity = 22 [(google.api.field_behavior) = OPTIONAL];
 
     // Chainguard service principal.
-    ServicePrincipal service_principal = 23;
+    ServicePrincipal service_principal = 23 [(google.api.field_behavior) = OPTIONAL];
   }
 
   // ClaimMatch checks the third party IdP token's claims against configured patterns.

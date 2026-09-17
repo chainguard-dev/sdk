@@ -1590,7 +1590,7 @@ var File_chainguard_platform_iam_v2beta1_identities_proto protoreflect.FileDescr
 
 const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\n" +
-	"0chainguard/platform/iam/v2beta1/identities.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xbd\x0f\n" +
+	"0chainguard/platform/iam/v2beta1/identities.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xd5\x0f\n" +
 	"\bIdentity\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
@@ -1604,13 +1604,13 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"createTime\x12A\n" +
 	"\vupdate_time\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
-	"updateTime\x12W\n" +
-	"\vclaim_match\x18\x14 \x01(\v24.chainguard.platform.iam.v2beta1.Identity.ClaimMatchH\x00R\n" +
-	"claimMatch\x12W\n" +
-	"\vstatic_keys\x18\x15 \x01(\v24.chainguard.platform.iam.v2beta1.Identity.StaticKeysH\x00R\n" +
-	"staticKeys\x12Z\n" +
-	"\faws_identity\x18\x16 \x01(\v25.chainguard.platform.iam.v2beta1.Identity.AWSIdentityH\x00R\vawsIdentity\x12`\n" +
-	"\x11service_principal\x18\x17 \x01(\x0e21.chainguard.platform.iam.v2beta1.ServicePrincipalH\x00R\x10servicePrincipal\x1a\xed\x04\n" +
+	"updateTime\x12]\n" +
+	"\vclaim_match\x18\x14 \x01(\v24.chainguard.platform.iam.v2beta1.Identity.ClaimMatchB\x04\xe2A\x01\x01H\x00R\n" +
+	"claimMatch\x12]\n" +
+	"\vstatic_keys\x18\x15 \x01(\v24.chainguard.platform.iam.v2beta1.Identity.StaticKeysB\x04\xe2A\x01\x01H\x00R\n" +
+	"staticKeys\x12`\n" +
+	"\faws_identity\x18\x16 \x01(\v25.chainguard.platform.iam.v2beta1.Identity.AWSIdentityB\x04\xe2A\x01\x01H\x00R\vawsIdentity\x12f\n" +
+	"\x11service_principal\x18\x17 \x01(\x0e21.chainguard.platform.iam.v2beta1.ServicePrincipalB\x04\xe2A\x01\x01H\x00R\x10servicePrincipal\x1a\xed\x04\n" +
 	"\n" +
 	"ClaimMatch\x12\x1e\n" +
 	"\x06issuer\x18\x01 \x01(\tB\x04\xe2A\x01\x02H\x00R\x06issuer\x12-\n" +
@@ -1741,7 +1741,7 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\x1bSERVICE_PRINCIPAL_GUARDENER\x10\v\x12\x1d\n" +
 	"\x19SERVICE_PRINCIPAL_MICROVM\x10\f\x12\x1c\n" +
 	"\x18SERVICE_PRINCIPAL_SKILLS\x10\r\x12\x1d\n" +
-	"\x19SERVICE_PRINCIPAL_SANDBOX\x10\x0e2\xb9\x0f\n" +
+	"\x19SERVICE_PRINCIPAL_SANDBOX\x10\x0e2\xc9\x10\n" +
 	"\x11IdentitiesService\x12\xe5\x02\n" +
 	"\x0eCreateIdentity\x126.chainguard.platform.iam.v2beta1.CreateIdentityRequest\x1a).chainguard.platform.iam.v2beta1.Identity\"\xef\x01\x82\xd3\xe4\x93\x02/:\bidentity\"#/iam/v2beta1/identities/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x85\a\x9a\xaf\xa8\xd2\x05m\n" +
@@ -1760,9 +1760,11 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"*dev.chainguard.api.iam.identity.updated.v1\x12\x05group\x18\x01\x12\xaf\x02\n" +
 	"\x0eListIdentities\x126.chainguard.platform.iam.v2beta1.ListIdentitiesRequest\x1a7.chainguard.platform.iam.v2beta1.ListIdentitiesResponse\"\xab\x01\x82\xd3\xe4\x93\x02\x19\x12\x17/iam/v2beta1/identities\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\x87\a\x10\x01\x9a\xaf\xa8\xd2\x05x\n" +
-	"lList IAM identities the caller has access to. Supports filtering by name, relationship type, and pagination.\x10\x01\x18\x01 \x00(\x010\x00\x12\xc3\x01\n" +
-	"\x0eLookupIdentity\x126.chainguard.platform.iam.v2beta1.LookupIdentityRequest\x1a7.chainguard.platform.iam.v2beta1.LookupIdentityResponse\"@\x82\xd3\xe4\x93\x02(\x12&/iam/v2beta1/identities:lookupIdentity\x8a\xaf\xa8\xd2\x05\x04\x12\x02\x10\x01\x9a\xaf\xa8\xd2\x05\x02\x10\x01\x12\x94\x02\n" +
-	"\x16UpdateIdentityMetadata\x12>.chainguard.platform.iam.v2beta1.UpdateIdentityMetadataRequest\x1a1.chainguard.platform.iam.v2beta1.IdentityMetadata\"\x86\x01\x82\xd3\xe4\x93\x023:\x01*2./iam/v2beta1/identities:updateIdentityMetadata\x8a\xaf\xa8\xd2\x05\x04\x12\x02\x10\x01\x9a\xaf\xa8\xd2\x05\x02\x10\x01\xc2\xf0\x8e\xfc\v5\n" +
+	"lList IAM identities the caller has access to. Supports filtering by name, relationship type, and pagination.\x10\x01\x18\x01 \x00(\x010\x00\x12\x86\x02\n" +
+	"\x0eLookupIdentity\x126.chainguard.platform.iam.v2beta1.LookupIdentityRequest\x1a7.chainguard.platform.iam.v2beta1.LookupIdentityResponse\"\x82\x01\x82\xd3\xe4\x93\x02(\x12&/iam/v2beta1/identities:lookupIdentity\x8a\xaf\xa8\xd2\x05\x04\x12\x02\x10\x01\x9a\xaf\xa8\xd2\x05D\n" +
+	"@Resolve an OIDC issuer and subject to a Chainguard identity UID.\x10\x01\x12\xe1\x02\n" +
+	"\x16UpdateIdentityMetadata\x12>.chainguard.platform.iam.v2beta1.UpdateIdentityMetadataRequest\x1a1.chainguard.platform.iam.v2beta1.IdentityMetadata\"\xd3\x01\x82\xd3\xe4\x93\x023:\x01*2./iam/v2beta1/identities:updateIdentityMetadata\x8a\xaf\xa8\xd2\x05\x04\x12\x02\x10\x01\x9a\xaf\xa8\xd2\x05O\n" +
+	"KUpdate profile and onboarding metadata fields on the caller's own identity.\x10\x01\xc2\xf0\x8e\xfc\v5\n" +
 	"3dev.chainguard.api.iam.identity.metadata.updated.v1Br\n" +
 	"#com.chainguard.platform.iam.v2beta1B\x0fIdentitiesProtoP\x01Z8chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1b\x06proto3"
 
