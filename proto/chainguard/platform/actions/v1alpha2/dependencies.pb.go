@@ -653,7 +653,10 @@ type ListRevisionsRequest struct {
 	// as ListDependentsRequest.uidp.
 	Uidp *v1.UIDPFilter `protobuf:"bytes,5,opt,name=uidp,proto3" json:"uidp,omitempty"`
 	// hardened_only, when true, restricts to hardened revisions. With upstream
-	// this is the readiness check for one dependency.
+	// this is the readiness check for one dependency. Results are ordered by
+	// most recent observed publication first, so the first result is the current
+	// hardened counterpart. Historical imported rows that predate publication
+	// tracking follow observed publications.
 	HardenedOnly bool `protobuf:"varint,2,opt,name=hardened_only,json=hardenedOnly,proto3" json:"hardened_only,omitempty"`
 	// page_size, the maximum number of items to return.
 	PageSize int32 `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
