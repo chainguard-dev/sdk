@@ -1352,9 +1352,12 @@ type TagFilter struct {
 	ExcludeEpochs bool   `protobuf:"varint,8,opt,name=exclude_epochs,json=excludeEpochs,proto3" json:"exclude_epochs,omitempty"`
 	Id            string `protobuf:"bytes,9,opt,name=id,proto3" json:"id,omitempty"`
 	// only return tags with this digest.
-	Digest        string `protobuf:"bytes,10,opt,name=digest,proto3" json:"digest,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Digest string `protobuf:"bytes,10,opt,name=digest,proto3" json:"digest,omitempty"`
+	// Exclude tags carrying an apk VCS snapshot suffix (_cvs, _svn, _git, _hg),
+	// e.g. "3.14.7_git20260914".
+	ExcludeVcsSnapshots bool `protobuf:"varint,11,opt,name=exclude_vcs_snapshots,json=excludeVcsSnapshots,proto3" json:"exclude_vcs_snapshots,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *TagFilter) Reset() {
@@ -1443,6 +1446,13 @@ func (x *TagFilter) GetDigest() string {
 	return ""
 }
 
+func (x *TagFilter) GetExcludeVcsSnapshots() bool {
+	if x != nil {
+		return x.ExcludeVcsSnapshots
+	}
+	return false
+}
+
 type EolTagFilter struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// uidp filters records based on their position in the group hierarchy.
@@ -1455,8 +1465,11 @@ type EolTagFilter struct {
 	ExcludeDates bool `protobuf:"varint,5,opt,name=exclude_dates,json=excludeDates,proto3" json:"exclude_dates,omitempty"`
 	// Exclude tags of the form "*-r[0-9]+".
 	ExcludeEpochs bool `protobuf:"varint,6,opt,name=exclude_epochs,json=excludeEpochs,proto3" json:"exclude_epochs,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Exclude tags carrying an apk VCS snapshot suffix (_cvs, _svn, _git, _hg),
+	// e.g. "3.14.7_git20260914".
+	ExcludeVcsSnapshots bool `protobuf:"varint,7,opt,name=exclude_vcs_snapshots,json=excludeVcsSnapshots,proto3" json:"exclude_vcs_snapshots,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *EolTagFilter) Reset() {
@@ -1527,6 +1540,13 @@ func (x *EolTagFilter) GetExcludeDates() bool {
 func (x *EolTagFilter) GetExcludeEpochs() bool {
 	if x != nil {
 		return x.ExcludeEpochs
+	}
+	return false
+}
+
+func (x *EolTagFilter) GetExcludeVcsSnapshots() bool {
+	if x != nil {
+		return x.ExcludeVcsSnapshots
 	}
 	return false
 }
@@ -1671,8 +1691,11 @@ type GetRepoTagsSummaryRequest struct {
 	ExcludeDates bool `protobuf:"varint,3,opt,name=exclude_dates,json=excludeDates,proto3" json:"exclude_dates,omitempty"`
 	// Exclude tags of the form "*-r[0-9]+".
 	ExcludeEpochs bool `protobuf:"varint,4,opt,name=exclude_epochs,json=excludeEpochs,proto3" json:"exclude_epochs,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Exclude tags carrying an apk VCS snapshot suffix (_cvs, _svn, _git, _hg),
+	// e.g. "3.14.7_git20260914".
+	ExcludeVcsSnapshots bool `protobuf:"varint,5,opt,name=exclude_vcs_snapshots,json=excludeVcsSnapshots,proto3" json:"exclude_vcs_snapshots,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *GetRepoTagsSummaryRequest) Reset() {
@@ -1729,6 +1752,13 @@ func (x *GetRepoTagsSummaryRequest) GetExcludeDates() bool {
 func (x *GetRepoTagsSummaryRequest) GetExcludeEpochs() bool {
 	if x != nil {
 		return x.ExcludeEpochs
+	}
+	return false
+}
+
+func (x *GetRepoTagsSummaryRequest) GetExcludeVcsSnapshots() bool {
+	if x != nil {
+		return x.ExcludeVcsSnapshots
 	}
 	return false
 }
@@ -6126,7 +6156,7 @@ const file_registry_platform_proto_rawDesc = "" +
 	"\x14main_package_version\x18\r \x01(\v2,.chainguard.platform.registry.PackageVersionR\x12mainPackageVersion\x12U\n" +
 	"\fgrace_status\x18\t \x01(\x0e22.chainguard.platform.registry.EolGracePeriodStatusR\vgraceStatus\x12S\n" +
 	"\x18grace_period_expiry_date\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\x15gracePeriodExpiryDateJ\x04\b\x03\x10\aJ\x04\b\b\x10\tJ\x04\b\n" +
-	"\x10\f\"\xbd\x02\n" +
+	"\x10\f\"\xf1\x02\n" +
 	"\tTagFilter\x12:\n" +
 	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterR\x04uidp\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12?\n" +
@@ -6136,7 +6166,8 @@ const file_registry_platform_proto_rawDesc = "" +
 	"\x0eexclude_epochs\x18\b \x01(\bR\rexcludeEpochs\x12\x0e\n" +
 	"\x02id\x18\t \x01(\tR\x02id\x12\x16\n" +
 	"\x06digest\x18\n" +
-	" \x01(\tR\x06digest\"\xe6\x01\n" +
+	" \x01(\tR\x06digest\x122\n" +
+	"\x15exclude_vcs_snapshots\x18\v \x01(\bR\x13excludeVcsSnapshots\"\x9a\x02\n" +
 	"\fEolTagFilter\x12:\n" +
 	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterR\x04uidp\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
@@ -6144,7 +6175,8 @@ const file_registry_platform_proto_rawDesc = "" +
 	"page_token\x18\x03 \x01(\tR\tpageToken\x12\x1b\n" +
 	"\tpage_size\x18\x04 \x01(\x03R\bpageSize\x12#\n" +
 	"\rexclude_dates\x18\x05 \x01(\bR\fexcludeDates\x12%\n" +
-	"\x0eexclude_epochs\x18\x06 \x01(\bR\rexcludeEpochs\"B\n" +
+	"\x0eexclude_epochs\x18\x06 \x01(\bR\rexcludeEpochs\x122\n" +
+	"\x15exclude_vcs_snapshots\x18\a \x01(\bR\x13excludeVcsSnapshots\"B\n" +
 	"\aTagList\x127\n" +
 	"\x05items\x18\x01 \x03(\v2!.chainguard.platform.registry.TagR\x05items\"\xee\x01\n" +
 	"\x0fRepoTagsSummary\x12\x16\n" +
@@ -6153,12 +6185,13 @@ const file_registry_platform_proto_rawDesc = "" +
 	"\flast_updated\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\vlastUpdated\x12@\n" +
 	"\n" +
 	"latest_tag\x18\x04 \x01(\v2!.chainguard.platform.registry.TagR\tlatestTag\x12%\n" +
-	"\x0elatest_version\x18\x05 \x01(\tR\rlatestVersion\"\xb5\x01\n" +
+	"\x0elatest_version\x18\x05 \x01(\tR\rlatestVersion\"\xe9\x01\n" +
 	"\x19GetRepoTagsSummaryRequest\x12\x1f\n" +
 	"\arepo_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06repoId\x12+\n" +
 	"\x11exclude_referrers\x18\x02 \x01(\bR\x10excludeReferrers\x12#\n" +
 	"\rexclude_dates\x18\x03 \x01(\bR\fexcludeDates\x12%\n" +
-	"\x0eexclude_epochs\x18\x04 \x01(\bR\rexcludeEpochs\"p\n" +
+	"\x0eexclude_epochs\x18\x04 \x01(\bR\rexcludeEpochs\x122\n" +
+	"\x15exclude_vcs_snapshots\x18\x05 \x01(\bR\x13excludeVcsSnapshots\"p\n" +
 	"\n" +
 	"EolTagList\x12:\n" +
 	"\x05items\x18\x01 \x03(\v2$.chainguard.platform.registry.EolTagR\x05items\x12&\n" +

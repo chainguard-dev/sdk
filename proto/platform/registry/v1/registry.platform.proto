@@ -721,6 +721,10 @@ message TagFilter {
 
   // only return tags with this digest.
   string digest = 10;
+
+  // Exclude tags carrying an apk VCS snapshot suffix (_cvs, _svn, _git, _hg),
+  // e.g. "3.14.7_git20260914".
+  bool exclude_vcs_snapshots = 11;
 }
 
 message EolTagFilter {
@@ -738,6 +742,10 @@ message EolTagFilter {
 
   // Exclude tags of the form "*-r[0-9]+".
   bool exclude_epochs = 6;
+
+  // Exclude tags carrying an apk VCS snapshot suffix (_cvs, _svn, _git, _hg),
+  // e.g. "3.14.7_git20260914".
+  bool exclude_vcs_snapshots = 7;
 }
 
 message TagList {
@@ -778,6 +786,10 @@ message GetRepoTagsSummaryRequest {
 
   // Exclude tags of the form "*-r[0-9]+".
   bool exclude_epochs = 4;
+
+  // Exclude tags carrying an apk VCS snapshot suffix (_cvs, _svn, _git, _hg),
+  // e.g. "3.14.7_git20260914".
+  bool exclude_vcs_snapshots = 5;
 }
 
 message EolTagList {

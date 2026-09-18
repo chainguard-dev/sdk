@@ -288,6 +288,9 @@ type ListTagsRequest struct {
 	IncludeEpochs bool `protobuf:"varint,6,opt,name=include_epochs,json=includeEpochs,proto3" json:"include_epochs,omitempty"`
 	// Return tags with this digest.
 	Digest string `protobuf:"bytes,7,opt,name=digest,proto3" json:"digest,omitempty"`
+	// Include tags carrying an apk VCS snapshot suffix (_cvs, _svn, _git, _hg),
+	// e.g. "3.14.7_git20260914".
+	IncludeVcsSnapshots bool `protobuf:"varint,8,opt,name=include_vcs_snapshots,json=includeVcsSnapshots,proto3" json:"include_vcs_snapshots,omitempty"`
 	// Maximum number of results to return per page.
 	// Default: 50, Maximum: 200.
 	PageSize int32 `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
@@ -384,6 +387,13 @@ func (x *ListTagsRequest) GetDigest() string {
 		return x.Digest
 	}
 	return ""
+}
+
+func (x *ListTagsRequest) GetIncludeVcsSnapshots() bool {
+	if x != nil {
+		return x.IncludeVcsSnapshots
+	}
+	return false
 }
 
 func (x *ListTagsRequest) GetPageSize() int32 {
@@ -516,7 +526,7 @@ const file_chainguard_platform_registry_v2_tags_proto_rawDesc = "" +
 	"\x03tag\x18\x02 \x01(\v2$.chainguard.platform.registry.v2.TagB\x04\xe2A\x01\x02R\x03tag\"0\n" +
 	"\x10DeleteTagRequest\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\"\xe0\x03\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\"\x9a\x04\n" +
 	"\x0fListTagsRequest\x12@\n" +
 	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterB\x04\xe2A\x01\x01R\x04uidp\x12\x18\n" +
 	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x01R\x04name\x12E\n" +
@@ -524,7 +534,8 @@ const file_chainguard_platform_registry_v2_tags_proto_rawDesc = "" +
 	"\x11include_referrers\x18\x04 \x01(\bB\x04\xe2A\x01\x01R\x10includeReferrers\x12)\n" +
 	"\rinclude_dates\x18\x05 \x01(\bB\x04\xe2A\x01\x01R\fincludeDates\x12+\n" +
 	"\x0einclude_epochs\x18\x06 \x01(\bB\x04\xe2A\x01\x01R\rincludeEpochs\x12\x1c\n" +
-	"\x06digest\x18\a \x01(\tB\x04\xe2A\x01\x01R\x06digest\x12!\n" +
+	"\x06digest\x18\a \x01(\tB\x04\xe2A\x01\x01R\x06digest\x128\n" +
+	"\x15include_vcs_snapshots\x18\b \x01(\bB\x04\xe2A\x01\x01R\x13includeVcsSnapshots\x12!\n" +
 	"\tpage_size\x18\n" +
 	" \x01(\x05B\x04\xe2A\x01\x01R\bpageSize\x12#\n" +
 	"\n" +

@@ -192,6 +192,10 @@ message ListTagsRequest {
   // Return tags with this digest.
   string digest = 7 [(google.api.field_behavior) = OPTIONAL];
 
+  // Include tags carrying an apk VCS snapshot suffix (_cvs, _svn, _git, _hg),
+  // e.g. "3.14.7_git20260914".
+  bool include_vcs_snapshots = 8 [(google.api.field_behavior) = OPTIONAL];
+
   // (-- Pagination Fields --)
 
   // Maximum number of results to return per page.
