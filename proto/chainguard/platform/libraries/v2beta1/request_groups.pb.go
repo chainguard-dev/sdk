@@ -546,8 +546,14 @@ const (
 	// version is not built yet. A version that is already built, or that failed and
 	// will be retried, counts as activity.
 	RequestedLibraryBuildStatus_REQUESTED_LIBRARY_BUILD_STATUS_IN_PROGRESS RequestedLibraryBuildStatus = 2
-	// Every buildable requested version is built, with at least one built and
-	// nothing still building or failed.
+	// Every buildable requested version is built, with at least one built.
+	//
+	// The rung is over versions, not over requests. A version counts as built
+	// once any request for it resolved to an artifact, so a second request for
+	// the same version -- whose own status may still say building, because a
+	// request's status is a snapshot from its own check -- does not reopen the
+	// library. Reporting IN_PROGRESS there would tell the customer to wait for
+	// something they can already pull.
 	RequestedLibraryBuildStatus_REQUESTED_LIBRARY_BUILD_STATUS_COMPLETE RequestedLibraryBuildStatus = 3
 	// No requested version is buildable.
 	RequestedLibraryBuildStatus_REQUESTED_LIBRARY_BUILD_STATUS_WONT_BUILD RequestedLibraryBuildStatus = 4
