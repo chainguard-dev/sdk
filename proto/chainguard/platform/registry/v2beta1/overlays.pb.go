@@ -32,14 +32,14 @@ const (
 // Overlay is a named, reusable, org-scoped content fragment that
 // bindings bind to repos.
 //
-// The config is the same CustomOverlay shape as Repo.custom_overlay, so
-// relaxing the packages-only restriction later is a validation change,
-// not a wire change. The server accepts only contents.packages:
-// certificates, accounts, and the rest of the image content model stay
-// out of the reusable object until they have had security review, and
-// any other populated field is rejected with InvalidArgument. Reads
-// render only package content even if the stored configuration carries
-// more.
+// The config is the same CustomOverlay shape as Repo.custom_overlay and
+// is validated with the same field rules: reserved annotation
+// (dev.chainguard., org.opencontainers.) and environment (CHAINGUARD_)
+// prefixes are rejected, contents.runtime_repositories and
+// contents.runtime_keyring are gated on the custom-repos feature, and
+// certificate and keyring content must be valid PEM. Fields of the
+// internal image content model with no CustomOverlay counterpart stay
+// unsettable. Reads render the stored config in full.
 type Overlay struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The unique identifier of this Overlay, a UIDP under the owning group.
@@ -48,9 +48,9 @@ type Overlay struct {
 	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	// The name of the Overlay, unique among the group's overlays.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// The overlay content, the same shape as Repo.custom_overlay. Only
-	// contents.packages may be set this milestone: at least one package is
-	// required on create, and any other populated field is rejected.
+	// The overlay content, the same shape as Repo.custom_overlay,
+	// validated with the same field rules. At least one customization
+	// field must be set.
 	Config        *CustomOverlay `protobuf:"bytes,3,opt,name=config,proto3" json:"config,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

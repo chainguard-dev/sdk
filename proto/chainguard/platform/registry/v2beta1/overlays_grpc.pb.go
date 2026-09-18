@@ -35,9 +35,9 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
 // OverlaysService manages reusable overlays for tag-scoped Custom
-// Assembly. An overlay's config is the full custom-overlay shape, but the
-// server accepts only contents.packages this milestone. Overlays are
-// attached to repos by OverlayBindingsService.
+// Assembly. An overlay's config is the full custom-overlay shape,
+// validated with the same field rules as Repo.custom_overlay. Overlays
+// are attached to repos by OverlayBindingsService.
 //
 // OverlayBindingsService routes live under the distinct
 // /registry/v2beta1/overlayBindings/... prefix, so this service's
@@ -48,13 +48,14 @@ type OverlaysServiceClient interface {
 	GetOverlay(ctx context.Context, in *GetOverlayRequest, opts ...grpc.CallOption) (*Overlay, error)
 	// ListOverlays returns overlays based on filter criteria with pagination support.
 	ListOverlays(ctx context.Context, in *ListOverlaysRequest, opts ...grpc.CallOption) (*ListOverlaysResponse, error)
-	// CreateOverlay creates a named overlay under a group. Only
-	// config.contents.packages may be populated; any other config field
-	// fails with InvalidArgument.
+	// CreateOverlay creates a named overlay under a group. The config may
+	// populate any customer-settable CustomOverlay field and must populate
+	// at least one; it is validated with the same field rules as
+	// Repo.custom_overlay.
 	CreateOverlay(ctx context.Context, in *CreateOverlayRequest, opts ...grpc.CallOption) (*Overlay, error)
 	// UpdateOverlay updates an overlay's mutable fields: its name and its
-	// config. Only config.contents.packages may be populated; any other
-	// config field fails with InvalidArgument.
+	// config. A submitted config is validated like create and replaces the
+	// stored config wholesale.
 	UpdateOverlay(ctx context.Context, in *UpdateOverlayRequest, opts ...grpc.CallOption) (*Overlay, error)
 	// DeleteOverlay deletes an overlay by UID. Deleting an overlay that is
 	// still referenced by bindings fails with FailedPrecondition.
@@ -124,9 +125,9 @@ func (c *overlaysServiceClient) DeleteOverlay(ctx context.Context, in *DeleteOve
 // for forward compatibility.
 //
 // OverlaysService manages reusable overlays for tag-scoped Custom
-// Assembly. An overlay's config is the full custom-overlay shape, but the
-// server accepts only contents.packages this milestone. Overlays are
-// attached to repos by OverlayBindingsService.
+// Assembly. An overlay's config is the full custom-overlay shape,
+// validated with the same field rules as Repo.custom_overlay. Overlays
+// are attached to repos by OverlayBindingsService.
 //
 // OverlayBindingsService routes live under the distinct
 // /registry/v2beta1/overlayBindings/... prefix, so this service's
@@ -137,13 +138,14 @@ type OverlaysServiceServer interface {
 	GetOverlay(context.Context, *GetOverlayRequest) (*Overlay, error)
 	// ListOverlays returns overlays based on filter criteria with pagination support.
 	ListOverlays(context.Context, *ListOverlaysRequest) (*ListOverlaysResponse, error)
-	// CreateOverlay creates a named overlay under a group. Only
-	// config.contents.packages may be populated; any other config field
-	// fails with InvalidArgument.
+	// CreateOverlay creates a named overlay under a group. The config may
+	// populate any customer-settable CustomOverlay field and must populate
+	// at least one; it is validated with the same field rules as
+	// Repo.custom_overlay.
 	CreateOverlay(context.Context, *CreateOverlayRequest) (*Overlay, error)
 	// UpdateOverlay updates an overlay's mutable fields: its name and its
-	// config. Only config.contents.packages may be populated; any other
-	// config field fails with InvalidArgument.
+	// config. A submitted config is validated like create and replaces the
+	// stored config wholesale.
 	UpdateOverlay(context.Context, *UpdateOverlayRequest) (*Overlay, error)
 	// DeleteOverlay deletes an overlay by UID. Deleting an overlay that is
 	// still referenced by bindings fails with FailedPrecondition.
