@@ -8,9 +8,9 @@ package v2beta1_test
 import (
 	"context"
 	"fmt"
-	"log"
 
 	v2beta1 "chainguard.dev/sdk/proto/chainguard/platform/libraries/v2beta1"
+	"github.com/chainguard-dev/clog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -21,7 +21,7 @@ func ExampleClients_ListArtifactsIter() {
 	conn, err := grpc.NewClient("api.chainguard.dev:443",
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 	defer conn.Close()
 
@@ -35,7 +35,7 @@ func ExampleClients_ListArtifactsIter() {
 
 	for artifact, err := range clients.ListArtifactsIter(ctx, req) {
 		if err != nil {
-			log.Printf("Error: %v", err)
+			clog.ErrorContextf(ctx, "Error: %v", err)
 			return
 		}
 		fmt.Printf("Artifact: %s (v%s)\n", artifact.Name, artifact.LatestVersion)
@@ -48,7 +48,7 @@ func ExampleClients_ListArtifactVersionsIter() {
 	conn, err := grpc.NewClient("api.chainguard.dev:443",
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 	defer conn.Close()
 
@@ -62,7 +62,7 @@ func ExampleClients_ListArtifactVersionsIter() {
 
 	for version, err := range clients.ListArtifactVersionsIter(ctx, req) {
 		if err != nil {
-			log.Printf("Error: %v", err)
+			clog.ErrorContextf(ctx, "Error: %v", err)
 			return
 		}
 		fmt.Printf("Version: %s\n", version.Version)

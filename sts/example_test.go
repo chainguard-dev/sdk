@@ -8,9 +8,9 @@ package sts_test
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"chainguard.dev/sdk/sts"
+	"github.com/chainguard-dev/clog"
 	"golang.org/x/oauth2"
 )
 
@@ -23,7 +23,7 @@ func Example() {
 
 	tokenPair, err := sts.ExchangePair(ctx, issuer, audience, idToken)
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	fmt.Printf("Access token: %s\n", tokenPair.AccessToken)
@@ -42,7 +42,7 @@ func ExampleNew() {
 
 	tokenPair, err := exchanger.Exchange(ctx, idToken)
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	fmt.Printf("Access token: %s\n", tokenPair.AccessToken)
@@ -65,7 +65,7 @@ func ExampleNew_withOptions() {
 
 	tokenPair, err := exchanger.Exchange(ctx, idToken)
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	fmt.Printf("Access token: %s\n", tokenPair.AccessToken)
@@ -82,7 +82,7 @@ func ExampleExchanger_Exchange() {
 
 	tokenPair, err := exchanger.Exchange(ctx, idToken)
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	fmt.Printf("Access token: %s\n", tokenPair.AccessToken)
@@ -101,7 +101,7 @@ func ExampleExchanger_Refresh() {
 
 	accessToken, newRefreshToken, err := exchanger.Refresh(ctx, refreshToken)
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	fmt.Printf("New access token: %s\n", accessToken)
@@ -117,7 +117,7 @@ func ExampleExchangePair() {
 
 	tokenPair, err := sts.ExchangePair(ctx, issuer, audience, idToken)
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	fmt.Printf("Access token: %s\n", tokenPair.AccessToken)
@@ -135,7 +135,7 @@ func ExampleExchangePair_withOptions() {
 		sts.WithCapabilities("groups.list"),
 	)
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	fmt.Printf("Access token: %s\n", tokenPair.AccessToken)
@@ -153,7 +153,7 @@ func ExampleNewHTTP1DowngradeExchanger() {
 
 	tokenPair, err := exchanger.Exchange(ctx, idToken)
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	fmt.Printf("Access token: %s\n", tokenPair.AccessToken)
@@ -241,7 +241,7 @@ func ExampleWithScope() {
 
 	tokenPair, err := exchanger.Exchange(ctx, idToken)
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	fmt.Printf("Access token: %s\n", tokenPair.AccessToken)
@@ -261,7 +261,7 @@ func ExampleWithCapabilities() {
 
 	tokenPair, err := exchanger.Exchange(ctx, idToken)
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	fmt.Printf("Access token: %s\n", tokenPair.AccessToken)
@@ -281,7 +281,7 @@ func ExampleWithIdentity() {
 
 	tokenPair, err := exchanger.Exchange(ctx, idToken)
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	fmt.Printf("Access token: %s\n", tokenPair.AccessToken)
@@ -301,7 +301,7 @@ func ExampleWithIdentityProvider() {
 
 	tokenPair, err := exchanger.Exchange(ctx, idToken)
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	fmt.Printf("Access token: %s\n", tokenPair.AccessToken)
@@ -321,7 +321,7 @@ func ExampleWithUserAgent() {
 
 	tokenPair, err := exchanger.Exchange(ctx, idToken)
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	fmt.Printf("Access token: %s\n", tokenPair.AccessToken)
@@ -338,7 +338,7 @@ func ExampleWithHTTP1Downgrade() {
 		sts.WithHTTP1Downgrade(),
 	)
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	fmt.Printf("Access token: %s\n", tokenPair.AccessToken)

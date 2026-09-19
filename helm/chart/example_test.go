@@ -6,30 +6,33 @@ SPDX-License-Identifier: Apache-2.0
 package chart_test
 
 import (
+	"context"
 	"fmt"
-	"log"
 
 	"chainguard.dev/sdk/helm/chart"
 	"chainguard.dev/sdk/helm/images"
+	"github.com/chainguard-dev/clog"
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 )
 
 // ExampleReadValues demonstrates reading the values.yaml file from a Helm chart OCI image.
 func ExampleReadValues() {
+	ctx := context.Background()
+
 	ref, err := name.ParseReference("cgr.dev/chainguard/helm-charts/nginx:latest")
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	chartImage, err := remote.Image(ref)
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	values, err := chart.ReadValues(chartImage)
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	if values == nil {
@@ -42,14 +45,16 @@ func ExampleReadValues() {
 
 // ExampleReplaceValues demonstrates replacing values.yaml with image reference resolution.
 func ExampleReplaceValues() {
+	ctx := context.Background()
+
 	ref, err := name.ParseReference("cgr.dev/chainguard/helm-charts/nginx:latest")
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	chartImage, err := remote.Image(ref)
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	// Define the mapping template for image references
@@ -75,17 +80,17 @@ func ExampleReplaceValues() {
 	// Replace values.yaml with resolved image references
 	patched, err := chart.ReplaceValues(chartImage, mapping, refs)
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	// Write the patched chart to a new location
 	dstRef, err := name.ParseReference("cgr.dev/my-org/nginx-chart:patched")
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	if err := remote.Write(dstRef, patched); err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	fmt.Println("Chart values.yaml updated and pushed successfully")

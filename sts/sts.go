@@ -319,7 +319,7 @@ func (i *impl) Refresh(ctx context.Context, token string, opts ...ExchangerOptio
 		if err != nil {
 			if refreshRetryable(err) {
 				lastErr = err
-				clog.FromContext(ctx).Warnf("refresh token exchange attempt %d failed connecting (%v); retrying", attempt+1, status.Code(err))
+				clog.WarnContextf(ctx, "refresh token exchange attempt %d failed connecting (%v); retrying", attempt+1, status.Code(err))
 				continue
 			}
 			return "", "", err
@@ -335,7 +335,7 @@ func (i *impl) Refresh(ctx context.Context, token string, opts ...ExchangerOptio
 		if err != nil {
 			if refreshRetryable(err) {
 				lastErr = err
-				clog.FromContext(ctx).Warnf("refresh token exchange attempt %d failed (%v); retrying", attempt+1, status.Code(err))
+				clog.WarnContextf(ctx, "refresh token exchange attempt %d failed (%v); retrying", attempt+1, status.Code(err))
 				continue
 			}
 			return "", "", err

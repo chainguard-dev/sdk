@@ -8,9 +8,9 @@ package ggcr_test
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"chainguard.dev/sdk/auth/ggcr"
+	"github.com/chainguard-dev/clog"
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"golang.org/x/oauth2"
@@ -25,7 +25,7 @@ func ExampleKeychain() {
 	// Create a token source using ambient GCP credentials
 	ts, err := idtoken.NewTokenSource(ctx, "https://cgr.dev")
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	// Create the keychain for a specific Chainguard identity
@@ -34,17 +34,17 @@ func ExampleKeychain() {
 	// Use the keychain to pull an image from cgr.dev
 	ref, err := name.ParseReference("cgr.dev/my/image:latest")
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 	img, err := remote.Image(ref, remote.WithAuthFromKeychain(kc))
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	// Get the image digest
 	digest, err := img.Digest()
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	fmt.Printf("Pulled image with digest: %s\n", digest)
@@ -58,7 +58,7 @@ func ExampleKeychain_withContext() {
 	// Create a token source
 	ts, err := idtoken.NewTokenSource(ctx, "https://cgr.dev")
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	// Create the keychain
@@ -67,11 +67,11 @@ func ExampleKeychain_withContext() {
 	// Use with context for operations
 	ref, err := name.ParseReference("cgr.dev/my/image:latest")
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 	img, err := remote.Image(ref, remote.WithAuthFromKeychain(kc), remote.WithContext(ctx))
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	// Work with the image
@@ -81,6 +81,8 @@ func ExampleKeychain_withContext() {
 // ExampleTokenSourceKeychain demonstrates how to create a keychain from
 // a pre-configured OAuth2 token source.
 func ExampleTokenSourceKeychain() {
+	ctx := context.Background()
+
 	// Create a custom token source (this example uses a static token,
 	// but in practice you would use a properly configured OAuth2 source)
 	ts := oauth2.StaticTokenSource(&oauth2.Token{
@@ -93,11 +95,11 @@ func ExampleTokenSourceKeychain() {
 	// Use the keychain with go-containerregistry operations
 	ref, err := name.ParseReference("cgr.dev/my/image:latest")
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 	img, err := remote.Image(ref, remote.WithAuthFromKeychain(kc))
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	// Work with the image
@@ -112,7 +114,7 @@ func ExampleKeychain_pushImage() {
 	// Create a token source
 	ts, err := idtoken.NewTokenSource(ctx, "https://cgr.dev")
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	// Create the keychain
@@ -121,20 +123,20 @@ func ExampleKeychain_pushImage() {
 	// Pull an image from one location
 	srcRef, err := name.ParseReference("cgr.dev/source/image:latest")
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 	img, err := remote.Image(srcRef, remote.WithAuthFromKeychain(kc))
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	// Push it to another location
 	dstRef, err := name.ParseReference("cgr.dev/destination/image:latest")
 	if err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 	if err := remote.Write(dstRef, img, remote.WithAuthFromKeychain(kc)); err != nil {
-		log.Fatal(err)
+		clog.FatalContextf(ctx, "%v", err)
 	}
 
 	fmt.Println("Image pushed successfully")
