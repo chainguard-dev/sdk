@@ -193,6 +193,15 @@ const (
 	Availability_AVAILABILITY_BUILDING Availability = 7
 	// A build ran and failed. Retried automatically.
 	Availability_AVAILABILITY_BUILD_FAILED Availability = 8
+	// The build was declined and is being held, and no retry will change that on
+	// its own — a later publish of the version is what releases it.
+	//
+	// Deliberately not folded into AVAILABILITY_BLOCKED. That value is specific to
+	// the malware block list and is documented as still requestable; reusing it
+	// here would give a customer the same answer for "this may be malware" and
+	// "the build is held", which are different situations with different
+	// resolutions. Unlike a blocked item, a held one is not requestable.
+	Availability_AVAILABILITY_HELD Availability = 9
 )
 
 // Enum value maps for Availability.
@@ -207,6 +216,7 @@ var (
 		6: "AVAILABILITY_INVALID_REQUIREMENT",
 		7: "AVAILABILITY_BUILDING",
 		8: "AVAILABILITY_BUILD_FAILED",
+		9: "AVAILABILITY_HELD",
 	}
 	Availability_value = map[string]int32{
 		"AVAILABILITY_UNSPECIFIED":         0,
@@ -218,6 +228,7 @@ var (
 		"AVAILABILITY_INVALID_REQUIREMENT": 6,
 		"AVAILABILITY_BUILDING":            7,
 		"AVAILABILITY_BUILD_FAILED":        8,
+		"AVAILABILITY_HELD":                9,
 	}
 )
 
@@ -1271,11 +1282,16 @@ type AvailabilitySummary struct {
 	// Items the customer removed from the draft.
 	Removed int32 `protobuf:"varint,9,opt,name=removed,proto3" json:"removed,omitempty"`
 	// Items the customer must resolve before the group can be submitted: the sum
-	// of not_found_upstream, wont_build and invalid_requirement. Blocked items are
-	// deliberately NOT counted here — they stay requestable with the build held.
+	// of not_found_upstream, wont_build, invalid_requirement and held. Blocked
+	// items are deliberately NOT counted here — they stay requestable with the
+	// build held.
 	BlockingSubmit int32 `protobuf:"varint,10,opt,name=blocking_submit,json=blockingSubmit,proto3" json:"blocking_submit,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Versions whose build was declined and is being held. Counted in
+	// blocking_submit: unlike a blocked item, a held one is not requestable, so
+	// the customer has to take it out of the group to submit.
+	Held          int32 `protobuf:"varint,11,opt,name=held,proto3" json:"held,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AvailabilitySummary) Reset() {
@@ -1374,6 +1390,13 @@ func (x *AvailabilitySummary) GetRemoved() int32 {
 func (x *AvailabilitySummary) GetBlockingSubmit() int32 {
 	if x != nil {
 		return x.BlockingSubmit
+	}
+	return 0
+}
+
+func (x *AvailabilitySummary) GetHeld() int32 {
+	if x != nil {
+		return x.Held
 	}
 	return 0
 }
@@ -3438,7 +3461,7 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"\x06format\x18\x02 \x01(\x0e22.chainguard.platform.libraries.v2beta1.InputFormatB\x04\xe2A\x01\x03R\x06format\x12'\n" +
 	"\fcontent_hash\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\vcontentHash\x12#\n" +
 	"\n" +
-	"item_count\x18\x04 \x01(\x05B\x04\xe2A\x01\x03R\titemCount\"\xab\x03\n" +
+	"item_count\x18\x04 \x01(\x05B\x04\xe2A\x01\x03R\titemCount\"\xc5\x03\n" +
 	"\x13AvailabilitySummary\x12\x1a\n" +
 	"\x05built\x18\x01 \x01(\x05B\x04\xe2A\x01\x03R\x05built\x12.\n" +
 	"\x10can_be_requested\x18\x02 \x01(\x05B\x04\xe2A\x01\x03R\x0ecanBeRequested\x12\x1e\n" +
@@ -3451,7 +3474,8 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"\fbuild_failed\x18\b \x01(\x05B\x04\xe2A\x01\x03R\vbuildFailed\x12\x1e\n" +
 	"\aremoved\x18\t \x01(\x05B\x04\xe2A\x01\x03R\aremoved\x12-\n" +
 	"\x0fblocking_submit\x18\n" +
-	" \x01(\x05B\x04\xe2A\x01\x03R\x0eblockingSubmit\"\xc2\x02\n" +
+	" \x01(\x05B\x04\xe2A\x01\x03R\x0eblockingSubmit\x12\x18\n" +
+	"\x04held\x18\v \x01(\x05B\x04\xe2A\x01\x03R\x04held\"\xc2\x02\n" +
 	"\x15CVERemediationSummary\x12%\n" +
 	"\vscan_queued\x18\x01 \x01(\x05B\x04\xe2A\x01\x03R\n" +
 	"scanQueued\x127\n" +
@@ -3645,7 +3669,7 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"\x1eREQUEST_GROUP_STATUS_COMPLETED\x10\x04\x12\x1f\n" +
 	"\x1bREQUEST_GROUP_STATUS_FAILED\x10\x05\x12!\n" +
 	"\x1dREQUEST_GROUP_STATUS_CANCELED\x10\x06\x12 \n" +
-	"\x1cREQUEST_GROUP_STATUS_EXPIRED\x10\a*\xa3\x02\n" +
+	"\x1cREQUEST_GROUP_STATUS_EXPIRED\x10\a*\xba\x02\n" +
 	"\fAvailability\x12\x1c\n" +
 	"\x18AVAILABILITY_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12AVAILABILITY_BUILT\x10\x01\x12!\n" +
@@ -3655,7 +3679,8 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"\x17AVAILABILITY_WONT_BUILD\x10\x05\x12$\n" +
 	" AVAILABILITY_INVALID_REQUIREMENT\x10\x06\x12\x19\n" +
 	"\x15AVAILABILITY_BUILDING\x10\a\x12\x1d\n" +
-	"\x19AVAILABILITY_BUILD_FAILED\x10\b*\xb6\x02\n" +
+	"\x19AVAILABILITY_BUILD_FAILED\x10\b\x12\x15\n" +
+	"\x11AVAILABILITY_HELD\x10\t*\xb6\x02\n" +
 	"\x14CVERemediationStatus\x12&\n" +
 	"\"CVE_REMEDIATION_STATUS_UNSPECIFIED\x10\x00\x12&\n" +
 	"\"CVE_REMEDIATION_STATUS_SCAN_QUEUED\x10\x01\x120\n" +

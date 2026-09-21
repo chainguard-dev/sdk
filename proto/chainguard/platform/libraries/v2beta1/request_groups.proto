@@ -545,9 +545,15 @@ message AvailabilitySummary {
   int32 removed = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Items the customer must resolve before the group can be submitted: the sum
-  // of not_found_upstream, wont_build and invalid_requirement. Blocked items are
-  // deliberately NOT counted here — they stay requestable with the build held.
+  // of not_found_upstream, wont_build, invalid_requirement and held. Blocked
+  // items are deliberately NOT counted here — they stay requestable with the
+  // build held.
   int32 blocking_submit = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Versions whose build was declined and is being held. Counted in
+  // blocking_submit: unlike a blocked item, a held one is not requestable, so
+  // the customer has to take it out of the group to submit.
+  int32 held = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // CVERemediationSummary counts a group's items by CVE-remediation status.
@@ -1217,6 +1223,16 @@ enum Availability {
 
   // A build ran and failed. Retried automatically.
   AVAILABILITY_BUILD_FAILED = 8;
+
+  // The build was declined and is being held, and no retry will change that on
+  // its own — a later publish of the version is what releases it.
+  //
+  // Deliberately not folded into AVAILABILITY_BLOCKED. That value is specific to
+  // the malware block list and is documented as still requestable; reusing it
+  // here would give a customer the same answer for "this may be malware" and
+  // "the build is held", which are different situations with different
+  // resolutions. Unlike a blocked item, a held one is not requestable.
+  AVAILABILITY_HELD = 9;
 }
 
 // CVERemediationStatus is the aggregate remediation status of one version.
