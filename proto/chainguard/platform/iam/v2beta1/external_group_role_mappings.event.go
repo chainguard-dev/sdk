@@ -15,6 +15,8 @@ var (
 	_ events.Extendable = (*ExternalGroupRoleMapping)(nil)
 	_ events.Eventable  = (*DeleteExternalGroupRoleMappingRequest)(nil)
 	_ events.Extendable = (*DeleteExternalGroupRoleMappingRequest)(nil)
+	_ events.Eventable  = (*BatchDeleteExternalGroupRoleMappingsRequest)(nil)
+	_ events.Extendable = (*BatchDeleteExternalGroupRoleMappingsRequest)(nil)
 	_ events.Eventable  = (*BatchDeleteExternalGroupRoleMappingsResponse)(nil)
 	_ events.Extendable = (*BatchDeleteExternalGroupRoleMappingsResponse)(nil)
 )
@@ -51,6 +53,26 @@ func (x *DeleteExternalGroupRoleMappingRequest) CloudEventsExtension(key string)
 // CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
 func (x *DeleteExternalGroupRoleMappingRequest) CloudEventsSubject() string {
 	return x.GetUid()
+}
+
+// CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension
+func (x *BatchDeleteExternalGroupRoleMappingsRequest) CloudEventsExtension(key string) (string, bool) {
+	switch key {
+	case "group":
+		return uidp.Root(x.GetParent()), true
+	case "identityprovider":
+		return x.GetParent(), true
+	default:
+		return "", false
+	}
+}
+
+// CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
+// The identity provider (the mappings' common parent) is the subject — a single
+// resource per the CloudEvents spec intent — while the deleted mapping UIDs ride
+// in the Occurrence body.
+func (x *BatchDeleteExternalGroupRoleMappingsRequest) CloudEventsSubject() string {
+	return x.GetParent()
 }
 
 // CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension
