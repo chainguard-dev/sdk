@@ -111,10 +111,19 @@ func (s *server) Token() (string, error) {
 			return "", s.err
 		}
 
-		// We've received a token, but need to block until the success page has been written to
-		// the browser
-		<-s.token
-		return t, nil
+		// A valid token is already in hand; only the success-page render (which
+		// closes s.token) is still pending, and that page is cosmetic. Wait for
+		// it, but don't hang if it never comes — and don't discard a completed
+		// auth: a Ctrl+C (or a browser that never loads the success page) here
+		// returns the token the OAuth round-trip already produced rather than
+		// forcing a full re-login. (The outer select still returns the
+		// cancellation, since no token exists there yet.)
+		select {
+		case <-s.ctx.Done():
+			return t, nil
+		case <-s.token:
+			return t, nil
+		}
 	}
 }
 
