@@ -5,17 +5,14 @@ SPDX-License-Identifier: Apache-2.0
 
 package v2beta1
 
-import (
-	"chainguard.dev/sdk/events"
-	"chainguard.dev/sdk/uidp"
-)
+import "chainguard.dev/sdk/events"
 
 // Every mutating RPC in RequestGroupsService carries a
 // (chainguard.annotations.events) annotation, so each type those RPCs emit has to
 // be able to describe itself as a CloudEvent. Create, Submit, Update and
 // RefreshCoverage all return RequestGroup; RemoveItems and RestoreItems return
-// their own response messages; Delete returns Empty, so its request type carries
-// the event instead.
+// their own response messages; both deletes return Empty, so their request types
+// carry the event instead.
 var (
 	_ events.Eventable  = (*RequestGroup)(nil)
 	_ events.Extendable = (*RequestGroup)(nil)
@@ -25,6 +22,8 @@ var (
 	_ events.Extendable = (*RestoreItemsResponse)(nil)
 	_ events.Eventable  = (*DeleteRequestGroupRequest)(nil)
 	_ events.Extendable = (*DeleteRequestGroupRequest)(nil)
+	_ events.Eventable  = (*DeleteSubmittedRequestGroupRequest)(nil)
+	_ events.Extendable = (*DeleteSubmittedRequestGroupRequest)(nil)
 )
 
 // CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension.
@@ -85,13 +84,15 @@ func (x *RestoreItemsResponse) CloudEventsSubject() string {
 
 // CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension.
 //
-// DeleteRequestGroup returns Empty, so the event is built from the request, which
-// carries only the group's uid. The organization is therefore taken from the uid's
-// parent, matching DeleteGroupRequest and DeleteRoleBindingRequest.
+// DeleteRequestGroup returns Empty, so the event is built from the request. The
+// organization is read from parent, the field that carries the IAM scope, rather
+// than derived from the uid: uid is a flat UUID here, not a Chainguard ID, so it
+// has no parent to take. DeleteGroupRequest and DeleteRoleBindingRequest derive
+// theirs because their uid is a UIDP.
 func (x *DeleteRequestGroupRequest) CloudEventsExtension(key string) (string, bool) {
 	switch key {
 	case "group":
-		return uidp.Parent(x.GetUid()), true
+		return x.GetParent(), true
 	default:
 		return "", false
 	}
@@ -99,5 +100,23 @@ func (x *DeleteRequestGroupRequest) CloudEventsExtension(key string) (string, bo
 
 // CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
 func (x *DeleteRequestGroupRequest) CloudEventsSubject() string {
+	return x.GetUid()
+}
+
+// CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension.
+//
+// Identical to the customer delete's, because both name the same group in the
+// same two fields, and both emit the same event type.
+func (x *DeleteSubmittedRequestGroupRequest) CloudEventsExtension(key string) (string, bool) {
+	switch key {
+	case "group":
+		return x.GetParent(), true
+	default:
+		return "", false
+	}
+}
+
+// CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
+func (x *DeleteSubmittedRequestGroupRequest) CloudEventsSubject() string {
 	return x.GetUid()
 }

@@ -221,12 +221,14 @@ service RequestGroupsService {
     };
   }
 
-  // DeleteRequestGroup cancels a group and drops its item rows, keeping the group
-  // row as a tombstone so a stale link returns a sensible message rather than a
-  // bare 404. A sweeper hard-deletes the tombstone later.
+  // DeleteRequestGroup cancels a DRAFT group and drops its item rows, keeping the
+  // group row as a tombstone so a stale link returns a sensible message rather
+  // than a bare 404. A sweeper hard-deletes the tombstone later.
   //
-  // A customer may delete their own drafts. Deleting a submitted group requires
-  // the admin deleteSubmitted capability, since builds may already have run.
+  // Draft-only. A submitted group is refused, because the organization has
+  // committed to the builds it names and a member's ordinary delete capability
+  // must not reach them. Deleting one is DeleteSubmittedRequestGroup below, whose
+  // capability no customer role can hold.
   rpc DeleteRequestGroup(DeleteRequestGroupRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/libraries/v2beta1/requestGroups/{uid=**}"};
     option (chainguard.annotations.iam) = {
@@ -238,7 +240,54 @@ service RequestGroupsService {
       audience: CUSTOMER
     };
     option (chainguard.annotations.mcp) = {
-      description: "Delete a draft request group. Deleting an already-submitted group requires Chainguard admin."
+      description: "Delete a draft request group. Drafts only; a submitted group cannot be deleted through this method."
+      read_only: false
+      destructive: true
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // DeleteSubmittedRequestGroup deletes a group the organization already
+  // submitted, cancelling work it committed to.
+  //
+  // Chainguard-internal only, and a distinct method rather than a branch inside
+  // DeleteRequestGroup: which capability a caller needs would otherwise depend on
+  // the group's lifecycle state, so no annotation could describe it and the rule
+  // would have to be re-derived from a state read behind this surface. Two
+  // methods let the interceptor decide from the annotation alone, which is how
+  // every other RPC here is authorized.
+  //
+  // The deletion itself is the same two-phase operation either way -- cancel,
+  // drop the item rows, keep the tombstone -- so the two methods differ in who
+  // may ask, not in what happens.
+  rpc DeleteSubmittedRequestGroup(DeleteSubmittedRequestGroupRequest) returns (google.protobuf.Empty) {
+    // DELETE with a verb suffix, not POST as RefreshCoverage uses: this is a
+    // delete, and the suffix is only there because the plain delete route
+    // already belongs to the draft method. parent therefore arrives as a query
+    // parameter, as it does on the List routes.
+    //
+    // The suffix spells the method out rather than shortening to
+    // ":deleteSubmitted". ":submit" above is the shorter form and is the
+    // exception here, kept for a route that predates the convention; the two
+    // custom methods added since, ":refreshCoverage" and
+    // ":listRequestedLibraryVersions", both name their method in full.
+    option (google.api.http) = {delete: "/libraries/v2beta1/requestGroups/{uid=**}:deleteSubmittedRequestGroup"};
+    option (chainguard.annotations.iam) = {
+      enabled: {capabilities: [CAP_LIBRARIES_REQUEST_GROUPS_DELETE_SUBMITTED]}
+    };
+    // The same event as the customer delete, deliberately: the group is gone
+    // either way, and that is the fact a subscriber acts on. Who deleted it
+    // travels with the event, not in its type. CUSTOMER audience for the same
+    // reason -- this is the deletion the organization did not ask for, so
+    // withholding it is the last thing to do with it.
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.libraries.request_group.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Delete a submitted request group, cancelling builds the organization committed to. Chainguard-internal."
       read_only: false
       destructive: true
       idempotent: true
@@ -906,7 +955,7 @@ message RestoreItemsResponse {
   AvailabilitySummary availability_summary = 2;
 }
 
-// DeleteRequestGroupRequest deletes a group.
+// DeleteRequestGroupRequest deletes a draft group.
 message DeleteRequestGroupRequest {
   // The group to delete.
   //
@@ -919,6 +968,32 @@ message DeleteRequestGroupRequest {
   // Carries the IAM scope for this request, as on GetRequestGroupRequest.parent.
   // It must be the organization that owns uid; a uid belonging to any other
   // organization reads as not found.
+  string parent = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// DeleteSubmittedRequestGroupRequest deletes a submitted group.
+//
+// The same two fields as DeleteRequestGroupRequest rather than a shared message,
+// because the two requests are free to diverge -- an admin delete is the natural
+// place for a reason string or a confirmation token, and neither belongs on the
+// customer's. Sharing one message would couple the two surfaces at exactly the
+// point this split separated them.
+message DeleteSubmittedRequestGroupRequest {
+  // The group to delete.
+  //
+  // A flat UUID, not a Chainguard ID, as on GetRequestGroupRequest.uid. The IAM
+  // scope travels on parent below.
+  string uid = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The organization that owns the group.
+  //
+  // Carries the IAM scope for this request, as on RefreshCoverageRequest.parent.
+  // Required even though only Chainguard staff can call this: the capability is
+  // still checked against an organization, and a staff-facing call is not an
+  // unscoped one.
   string parent = 2 [
     (google.api.field_behavior) = REQUIRED,
     (chainguard.annotations.iam_scope) = true

@@ -32,6 +32,7 @@ const (
 	RequestGroupsService_RemoveItems_FullMethodName                  = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RemoveItems"
 	RequestGroupsService_RestoreItems_FullMethodName                 = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RestoreItems"
 	RequestGroupsService_DeleteRequestGroup_FullMethodName           = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/DeleteRequestGroup"
+	RequestGroupsService_DeleteSubmittedRequestGroup_FullMethodName  = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/DeleteSubmittedRequestGroup"
 	RequestGroupsService_RefreshCoverage_FullMethodName              = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RefreshCoverage"
 	RequestGroupsService_ListRequestedLibraries_FullMethodName       = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestedLibraries"
 	RequestGroupsService_ListRequestedLibraryVersions_FullMethodName = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestedLibraryVersions"
@@ -95,13 +96,29 @@ type RequestGroupsServiceClient interface {
 	RemoveItems(ctx context.Context, in *RemoveItemsRequest, opts ...grpc.CallOption) (*RemoveItemsResponse, error)
 	// RestoreItems returns previously removed items to the draft.
 	RestoreItems(ctx context.Context, in *RestoreItemsRequest, opts ...grpc.CallOption) (*RestoreItemsResponse, error)
-	// DeleteRequestGroup cancels a group and drops its item rows, keeping the group
-	// row as a tombstone so a stale link returns a sensible message rather than a
-	// bare 404. A sweeper hard-deletes the tombstone later.
+	// DeleteRequestGroup cancels a DRAFT group and drops its item rows, keeping the
+	// group row as a tombstone so a stale link returns a sensible message rather
+	// than a bare 404. A sweeper hard-deletes the tombstone later.
 	//
-	// A customer may delete their own drafts. Deleting a submitted group requires
-	// the admin deleteSubmitted capability, since builds may already have run.
+	// Draft-only. A submitted group is refused, because the organization has
+	// committed to the builds it names and a member's ordinary delete capability
+	// must not reach them. Deleting one is DeleteSubmittedRequestGroup below, whose
+	// capability no customer role can hold.
 	DeleteRequestGroup(ctx context.Context, in *DeleteRequestGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// DeleteSubmittedRequestGroup deletes a group the organization already
+	// submitted, cancelling work it committed to.
+	//
+	// Chainguard-internal only, and a distinct method rather than a branch inside
+	// DeleteRequestGroup: which capability a caller needs would otherwise depend on
+	// the group's lifecycle state, so no annotation could describe it and the rule
+	// would have to be re-derived from a state read behind this surface. Two
+	// methods let the interceptor decide from the annotation alone, which is how
+	// every other RPC here is authorized.
+	//
+	// The deletion itself is the same two-phase operation either way -- cancel,
+	// drop the item rows, keep the tombstone -- so the two methods differ in who
+	// may ask, not in what happens.
+	DeleteSubmittedRequestGroup(ctx context.Context, in *DeleteSubmittedRequestGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// RefreshCoverage re-runs the coverage check over a whole group.
 	//
 	// Chainguard-internal only. The scan is expensive, and submitted groups are
@@ -227,6 +244,16 @@ func (c *requestGroupsServiceClient) DeleteRequestGroup(ctx context.Context, in 
 	return out, nil
 }
 
+func (c *requestGroupsServiceClient) DeleteSubmittedRequestGroup(ctx context.Context, in *DeleteSubmittedRequestGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, RequestGroupsService_DeleteSubmittedRequestGroup_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *requestGroupsServiceClient) RefreshCoverage(ctx context.Context, in *RefreshCoverageRequest, opts ...grpc.CallOption) (*RequestGroup, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RequestGroup)
@@ -315,13 +342,29 @@ type RequestGroupsServiceServer interface {
 	RemoveItems(context.Context, *RemoveItemsRequest) (*RemoveItemsResponse, error)
 	// RestoreItems returns previously removed items to the draft.
 	RestoreItems(context.Context, *RestoreItemsRequest) (*RestoreItemsResponse, error)
-	// DeleteRequestGroup cancels a group and drops its item rows, keeping the group
-	// row as a tombstone so a stale link returns a sensible message rather than a
-	// bare 404. A sweeper hard-deletes the tombstone later.
+	// DeleteRequestGroup cancels a DRAFT group and drops its item rows, keeping the
+	// group row as a tombstone so a stale link returns a sensible message rather
+	// than a bare 404. A sweeper hard-deletes the tombstone later.
 	//
-	// A customer may delete their own drafts. Deleting a submitted group requires
-	// the admin deleteSubmitted capability, since builds may already have run.
+	// Draft-only. A submitted group is refused, because the organization has
+	// committed to the builds it names and a member's ordinary delete capability
+	// must not reach them. Deleting one is DeleteSubmittedRequestGroup below, whose
+	// capability no customer role can hold.
 	DeleteRequestGroup(context.Context, *DeleteRequestGroupRequest) (*emptypb.Empty, error)
+	// DeleteSubmittedRequestGroup deletes a group the organization already
+	// submitted, cancelling work it committed to.
+	//
+	// Chainguard-internal only, and a distinct method rather than a branch inside
+	// DeleteRequestGroup: which capability a caller needs would otherwise depend on
+	// the group's lifecycle state, so no annotation could describe it and the rule
+	// would have to be re-derived from a state read behind this surface. Two
+	// methods let the interceptor decide from the annotation alone, which is how
+	// every other RPC here is authorized.
+	//
+	// The deletion itself is the same two-phase operation either way -- cancel,
+	// drop the item rows, keep the tombstone -- so the two methods differ in who
+	// may ask, not in what happens.
+	DeleteSubmittedRequestGroup(context.Context, *DeleteSubmittedRequestGroupRequest) (*emptypb.Empty, error)
 	// RefreshCoverage re-runs the coverage check over a whole group.
 	//
 	// Chainguard-internal only. The scan is expensive, and submitted groups are
@@ -383,6 +426,9 @@ func (UnimplementedRequestGroupsServiceServer) RestoreItems(context.Context, *Re
 }
 func (UnimplementedRequestGroupsServiceServer) DeleteRequestGroup(context.Context, *DeleteRequestGroupRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteRequestGroup not implemented")
+}
+func (UnimplementedRequestGroupsServiceServer) DeleteSubmittedRequestGroup(context.Context, *DeleteSubmittedRequestGroupRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteSubmittedRequestGroup not implemented")
 }
 func (UnimplementedRequestGroupsServiceServer) RefreshCoverage(context.Context, *RefreshCoverageRequest) (*RequestGroup, error) {
 	return nil, status.Error(codes.Unimplemented, "method RefreshCoverage not implemented")
@@ -576,6 +622,24 @@ func _RequestGroupsService_DeleteRequestGroup_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RequestGroupsService_DeleteSubmittedRequestGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteSubmittedRequestGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RequestGroupsServiceServer).DeleteSubmittedRequestGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RequestGroupsService_DeleteSubmittedRequestGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RequestGroupsServiceServer).DeleteSubmittedRequestGroup(ctx, req.(*DeleteSubmittedRequestGroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _RequestGroupsService_RefreshCoverage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RefreshCoverageRequest)
 	if err := dec(in); err != nil {
@@ -672,6 +736,10 @@ var RequestGroupsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteRequestGroup",
 			Handler:    _RequestGroupsService_DeleteRequestGroup_Handler,
+		},
+		{
+			MethodName: "DeleteSubmittedRequestGroup",
+			Handler:    _RequestGroupsService_DeleteSubmittedRequestGroup_Handler,
 		},
 		{
 			MethodName: "RefreshCoverage",
