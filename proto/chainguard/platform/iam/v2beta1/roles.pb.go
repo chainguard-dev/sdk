@@ -548,28 +548,28 @@ const file_chainguard_platform_iam_v2beta1_roles_proto_rawDesc = "" +
 	"updateMask\"1\n" +
 	"\x11DeleteRoleRequest\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid2\xa1\v\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid2\xa7\v\n" +
 	"\fRolesService\x12\xf0\x01\n" +
 	"\aGetRole\x12/.chainguard.platform.iam.v2beta1.GetRoleRequest\x1a%.chainguard.platform.iam.v2beta1.Role\"\x8c\x01\x82\xd3\xe4\x93\x02\x1d\x12\x1b/iam/v2beta1/roles/{uid=**}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\xaf\x02\x10\x01\x9a\xaf\xa8\xd2\x05U\n" +
 	"KGet an IAM role by its UIDP, including managed (built-in) and custom roles.\x18\x01 \x00(\x010\x00\x12\x8d\x02\n" +
 	"\tListRoles\x121.chainguard.platform.iam.v2beta1.ListRolesRequest\x1a2.chainguard.platform.iam.v2beta1.ListRolesResponse\"\x98\x01\x82\xd3\xe4\x93\x02\x14\x12\x12/iam/v2beta1/roles\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\xaf\x02\x10\x01\x9a\xaf\xa8\xd2\x05j\n" +
-	"`List IAM roles (managed and custom) the caller has access to. Supports filtering and pagination.\x18\x01 \x00(\x010\x00\x12\xb6\x02\n" +
+	"`List IAM roles (managed and custom) the caller has access to. Supports filtering and pagination.\x18\x01 \x00(\x010\x00\x12\xb8\x02\n" +
 	"\n" +
-	"CreateRole\x122.chainguard.platform.iam.v2beta1.CreateRoleRequest\x1a%.chainguard.platform.iam.v2beta1.Role\"\xcc\x01\x82\xd3\xe4\x93\x02&:\x04role\"\x1e/iam/v2beta1/roles/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xad\x02\x9a\xaf\xa8\xd2\x05V\n" +
-	"PCreate a new custom IAM role with a specified set of capabilities under a group. \x000\x00\xc2\xf0\x8e\xfc\v2\n" +
-	"'dev.chainguard.api.iam.roles.created.v1\x12\x05group\x18\x01\x12\xa8\x02\n" +
+	"CreateRole\x122.chainguard.platform.iam.v2beta1.CreateRoleRequest\x1a%.chainguard.platform.iam.v2beta1.Role\"\xce\x01\x82\xd3\xe4\x93\x02&:\x04role\"\x1e/iam/v2beta1/roles/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xad\x02\x9a\xaf\xa8\xd2\x05X\n" +
+	"PCreate a new custom IAM role with a specified set of capabilities under a group.\x10\x01 \x000\x00\xc2\xf0\x8e\xfc\v2\n" +
+	"'dev.chainguard.api.iam.roles.created.v1\x12\x05group\x18\x01\x12\xaa\x02\n" +
 	"\n" +
-	"UpdateRole\x122.chainguard.platform.iam.v2beta1.UpdateRoleRequest\x1a%.chainguard.platform.iam.v2beta1.Role\"\xbe\x01\x82\xd3\xe4\x93\x02(:\x04role2 /iam/v2beta1/roles/{role.uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xae\x02\x9a\xaf\xa8\xd2\x05F\n" +
-	">Update a custom IAM role's name, description, or capabilities. \x00(\x010\x00\xc2\xf0\x8e\xfc\v2\n" +
-	"'dev.chainguard.api.iam.roles.updated.v1\x12\x05group\x18\x01\x12\xa9\x02\n" +
+	"UpdateRole\x122.chainguard.platform.iam.v2beta1.UpdateRoleRequest\x1a%.chainguard.platform.iam.v2beta1.Role\"\xc0\x01\x82\xd3\xe4\x93\x02(:\x04role2 /iam/v2beta1/roles/{role.uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xae\x02\x9a\xaf\xa8\xd2\x05H\n" +
+	">Update a custom IAM role's name, description, or capabilities.\x10\x01 \x00(\x010\x00\xc2\xf0\x8e\xfc\v2\n" +
+	"'dev.chainguard.api.iam.roles.updated.v1\x12\x05group\x18\x01\x12\xab\x02\n" +
 	"\n" +
-	"DeleteRole\x122.chainguard.platform.iam.v2beta1.DeleteRoleRequest\x1a\x16.google.protobuf.Empty\"\xce\x01\x82\xd3\xe4\x93\x02\x1d*\x1b/iam/v2beta1/roles/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xb0\x02\x9a\xaf\xa8\xd2\x05a\n" +
-	"YDelete a custom IAM role by its UIDP. Fails if the role is still bound to any identities. \x01(\x010\x00\xc2\xf0\x8e\xfc\v2\n" +
+	"DeleteRole\x122.chainguard.platform.iam.v2beta1.DeleteRoleRequest\x1a\x16.google.protobuf.Empty\"\xd0\x01\x82\xd3\xe4\x93\x02\x1d*\x1b/iam/v2beta1/roles/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xb0\x02\x9a\xaf\xa8\xd2\x05c\n" +
+	"YDelete a custom IAM role by its UIDP. Fails if the role is still bound to any identities.\x10\x01 \x01(\x010\x00\xc2\xf0\x8e\xfc\v2\n" +
 	"'dev.chainguard.api.iam.roles.deleted.v1\x12\x05group\x18\x01Bm\n" +
 	"#com.chainguard.platform.iam.v2beta1B\n" +
 	"RolesProtoP\x01Z8chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1b\x06proto3"

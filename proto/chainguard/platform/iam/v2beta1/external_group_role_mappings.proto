@@ -71,6 +71,9 @@ service ExternalGroupRoleMappingsService {
       destructive: false
       idempotent: false
       open_world: false
+      // Withheld from the MCP tool surface: an IAM write with no
+      // server-enforced confirmation before it runs.
+      hidden: true
     };
   }
 
@@ -97,6 +100,9 @@ service ExternalGroupRoleMappingsService {
       destructive: true
       idempotent: true
       open_world: false
+      // Withheld from the MCP tool surface: an IAM write with no
+      // server-enforced confirmation before it runs.
+      hidden: true
     };
   }
 
@@ -126,6 +132,9 @@ service ExternalGroupRoleMappingsService {
       destructive: true
       idempotent: true
       open_world: false
+      // Withheld from the MCP tool surface: an IAM write with no
+      // server-enforced confirmation before it runs.
+      hidden: true
     };
   }
 

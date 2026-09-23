@@ -1581,25 +1581,25 @@ const file_chainguard_platform_registry_v2beta1_repos_proto_rawDesc = "" +
 	"\x11CATALOG_TIER_FIPS\x10\x03\x12\x13\n" +
 	"\x0fCATALOG_TIER_AI\x10\x04\x12\x19\n" +
 	"\x15CATALOG_TIER_DEVTOOLS\x10\x05\x12\x1b\n" +
-	"\x17CATALOG_TIER_COMMERCIAL\x10\x062\xa3\x10\n" +
+	"\x17CATALOG_TIER_COMMERCIAL\x10\x062\xa9\x10\n" +
 	"\fReposService\x12\xde\x01\n" +
 	"\aGetRepo\x124.chainguard.platform.registry.v2beta1.GetRepoRequest\x1a*.chainguard.platform.registry.v2beta1.Repo\"q\x82\xd3\xe4\x93\x02\"\x12 /registry/v2beta1/repos/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xc5\f\x9a\xaf\xa8\xd2\x057\n" +
-	"-Get a container image repository by its UIDP.\x18\x01 \x00(\x010\x00\x12\xbb\x02\n" +
+	"-Get a container image repository by its UIDP.\x18\x01 \x00(\x010\x00\x12\xbd\x02\n" +
 	"\n" +
-	"CreateRepo\x127.chainguard.platform.registry.v2beta1.CreateRepoRequest\x1a*.chainguard.platform.registry.v2beta1.Repo\"\xc7\x01\x82\xd3\xe4\x93\x02+:\x04repo\"#/registry/v2beta1/repos/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xc3\f\x9a\xaf\xa8\xd2\x05?\n" +
-	"9Create a container image repository under a parent group. \x000\x00\xc2\xf0\x8e\xfc\v?\n" +
-	"4dev.chainguard.api.platform.registry.repo.created.v1\x12\x05group\x18\x01\x12\xbb\x02\n" +
+	"CreateRepo\x127.chainguard.platform.registry.v2beta1.CreateRepoRequest\x1a*.chainguard.platform.registry.v2beta1.Repo\"\xc9\x01\x82\xd3\xe4\x93\x02+:\x04repo\"#/registry/v2beta1/repos/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xc3\f\x9a\xaf\xa8\xd2\x05A\n" +
+	"9Create a container image repository under a parent group.\x10\x01 \x000\x00\xc2\xf0\x8e\xfc\v?\n" +
+	"4dev.chainguard.api.platform.registry.repo.created.v1\x12\x05group\x18\x01\x12\xbd\x02\n" +
 	"\n" +
-	"UpdateRepo\x127.chainguard.platform.registry.v2beta1.UpdateRepoRequest\x1a*.chainguard.platform.registry.v2beta1.Repo\"\xc7\x01\x82\xd3\xe4\x93\x02-:\x04repo2%/registry/v2beta1/repos/{repo.uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xc4\f\x9a\xaf\xa8\xd2\x05=\n" +
-	"5Update a container image repository's mutable fields. \x00(\x010\x00\xc2\xf0\x8e\xfc\v?\n" +
-	"4dev.chainguard.api.platform.registry.repo.updated.v1\x12\x05group\x18\x01\x12\x97\x02\n" +
+	"UpdateRepo\x127.chainguard.platform.registry.v2beta1.UpdateRepoRequest\x1a*.chainguard.platform.registry.v2beta1.Repo\"\xc9\x01\x82\xd3\xe4\x93\x02-:\x04repo2%/registry/v2beta1/repos/{repo.uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xc4\f\x9a\xaf\xa8\xd2\x05?\n" +
+	"5Update a container image repository's mutable fields.\x10\x01 \x00(\x010\x00\xc2\xf0\x8e\xfc\v?\n" +
+	"4dev.chainguard.api.platform.registry.repo.updated.v1\x12\x05group\x18\x01\x12\x99\x02\n" +
 	"\n" +
-	"DeleteRepo\x127.chainguard.platform.registry.v2beta1.DeleteRepoRequest\x1a\x16.google.protobuf.Empty\"\xb7\x01\x82\xd3\xe4\x93\x02\"* /registry/v2beta1/repos/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xc6\f\x9a\xaf\xa8\xd2\x058\n" +
-	"0Delete a container image repository by its UIDP. \x01(\x010\x00\xc2\xf0\x8e\xfc\v?\n" +
+	"DeleteRepo\x127.chainguard.platform.registry.v2beta1.DeleteRepoRequest\x1a\x16.google.protobuf.Empty\"\xb9\x01\x82\xd3\xe4\x93\x02\"* /registry/v2beta1/repos/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xc6\f\x9a\xaf\xa8\xd2\x05:\n" +
+	"0Delete a container image repository by its UIDP.\x10\x01 \x01(\x010\x00\xc2\xf0\x8e\xfc\v?\n" +
 	"4dev.chainguard.api.platform.registry.repo.deleted.v1\x12\x05group\x18\x01\x12\xa2\x02\n" +
 	"\tListRepos\x126.chainguard.platform.registry.v2beta1.ListReposRequest\x1a7.chainguard.platform.registry.v2beta1.ListReposResponse\"\xa3\x01\x82\xd3\xe4\x93\x02\x19\x12\x17/registry/v2beta1/repos\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\xc5\f\x10\x01\x9a\xaf\xa8\xd2\x05p\n" +

@@ -596,26 +596,26 @@ const file_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto_ra
 	"\vtotal_count\x18\x03 \x01(\x03H\x00R\n" +
 	"totalCount\x88\x01\x01\x12\x18\n" +
 	"\askipped\x18\x04 \x01(\x05R\askippedB\x0e\n" +
-	"\f_total_count2\xf9\x0f\n" +
+	"\f_total_count2\xff\x0f\n" +
 	" ExternalGroupRoleMappingsService\x12\xa2\x02\n" +
 	"\x1bGetExternalGroupRoleMapping\x12C.chainguard.platform.iam.v2beta1.GetExternalGroupRoleMappingRequest\x1a9.chainguard.platform.iam.v2beta1.ExternalGroupRoleMapping\"\x82\x01\x82\xd3\xe4\x93\x021\x12//iam/v2beta1/externalGroupRoleMappings/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x97\n" +
 	"\x9a\xaf\xa8\xd2\x059\n" +
-	"/Get an external group role mapping by its UIDP.\x18\x01 \x00(\x010\x00\x12\xee\x03\n" +
-	"\x1eCreateExternalGroupRoleMapping\x12F.chainguard.platform.iam.v2beta1.CreateExternalGroupRoleMappingRequest\x1a9.chainguard.platform.iam.v2beta1.ExternalGroupRoleMapping\"\xc8\x02\x82\xd3\xe4\x93\x02Q:\x1bexternal_group_role_mapping\"2/iam/v2beta1/externalGroupRoleMappings/{parent=**}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"/Get an external group role mapping by its UIDP.\x18\x01 \x00(\x010\x00\x12\xf0\x03\n" +
+	"\x1eCreateExternalGroupRoleMapping\x12F.chainguard.platform.iam.v2beta1.CreateExternalGroupRoleMappingRequest\x1a9.chainguard.platform.iam.v2beta1.ExternalGroupRoleMapping\"\xca\x02\x82\xd3\xe4\x93\x02Q:\x1bexternal_group_role_mapping\"2/iam/v2beta1/externalGroupRoleMappings/{parent=**}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x04\x95\n" +
-	"\x91\x03\x9a\xaf\xa8\xd2\x05|\n" +
-	"vCreate an external group role mapping under an identity provider, granting a role to members of an external IdP group. \x000\x00\xc2\xf0\x8e\xfc\v[\n" +
-	">dev.chainguard.api.iam.external_group_role_mappings.created.v1\x12\x05group\x12\x10identityprovider\x18\x01\x12\xfd\x02\n" +
-	"\x1eDeleteExternalGroupRoleMapping\x12F.chainguard.platform.iam.v2beta1.DeleteExternalGroupRoleMappingRequest\x1a\x16.google.protobuf.Empty\"\xfa\x01\x82\xd3\xe4\x93\x021*//iam/v2beta1/externalGroupRoleMappings/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x91\x03\x9a\xaf\xa8\xd2\x05~\n" +
+	"vCreate an external group role mapping under an identity provider, granting a role to members of an external IdP group.\x10\x01 \x000\x00\xc2\xf0\x8e\xfc\v[\n" +
+	">dev.chainguard.api.iam.external_group_role_mappings.created.v1\x12\x05group\x12\x10identityprovider\x18\x01\x12\xff\x02\n" +
+	"\x1eDeleteExternalGroupRoleMapping\x12F.chainguard.platform.iam.v2beta1.DeleteExternalGroupRoleMappingRequest\x1a\x16.google.protobuf.Empty\"\xfc\x01\x82\xd3\xe4\x93\x021*//iam/v2beta1/externalGroupRoleMappings/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x98\n" +
-	"\x9a\xaf\xa8\xd2\x05P\n" +
-	"HDelete an external group role mapping, revoking the group-to-role grant. \x01(\x010\x00\xc2\xf0\x8e\xfc\v[\n" +
-	">dev.chainguard.api.iam.external_group_role_mappings.deleted.v1\x12\x05group\x12\x10identityprovider\x18\x01\x12\xf2\x03\n" +
-	"$BatchDeleteExternalGroupRoleMappings\x12L.chainguard.platform.iam.v2beta1.BatchDeleteExternalGroupRoleMappingsRequest\x1aM.chainguard.platform.iam.v2beta1.BatchDeleteExternalGroupRoleMappingsResponse\"\xac\x02\x82\xd3\xe4\x93\x027:\x01*\"2/iam/v2beta1/externalGroupRoleMappings:batchDelete\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x9a\xaf\xa8\xd2\x05R\n" +
+	"HDelete an external group role mapping, revoking the group-to-role grant.\x10\x01 \x01(\x010\x00\xc2\xf0\x8e\xfc\v[\n" +
+	">dev.chainguard.api.iam.external_group_role_mappings.deleted.v1\x12\x05group\x12\x10identityprovider\x18\x01\x12\xf4\x03\n" +
+	"$BatchDeleteExternalGroupRoleMappings\x12L.chainguard.platform.iam.v2beta1.BatchDeleteExternalGroupRoleMappingsRequest\x1aM.chainguard.platform.iam.v2beta1.BatchDeleteExternalGroupRoleMappingsResponse\"\xae\x02\x82\xd3\xe4\x93\x027:\x01*\"2/iam/v2beta1/externalGroupRoleMappings:batchDelete\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x98\n" +
-	"\x9a\xaf\xa8\xd2\x05v\n" +
-	"nDelete all external group role mappings under an identity provider, revoking every group-to-role grant for it. \x01(\x010\x00\xc2\xf0\x8e\xfc\va\n" +
+	"\x9a\xaf\xa8\xd2\x05x\n" +
+	"nDelete all external group role mappings under an identity provider, revoking every group-to-role grant for it.\x10\x01 \x01(\x010\x00\xc2\xf0\x8e\xfc\va\n" +
 	"Ddev.chainguard.api.iam.external_group_role_mappings.deleted.batch.v1\x12\x05group\x12\x10identityprovider\x18\x01\x12\xc9\x02\n" +
 	"\x1dListExternalGroupRoleMappings\x12E.chainguard.platform.iam.v2beta1.ListExternalGroupRoleMappingsRequest\x1aF.chainguard.platform.iam.v2beta1.ListExternalGroupRoleMappingsResponse\"\x98\x01\x82\xd3\xe4\x93\x02(\x12&/iam/v2beta1/externalGroupRoleMappings\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\x97\n" +

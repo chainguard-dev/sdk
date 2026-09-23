@@ -40,6 +40,9 @@ service TermsService {
       description: "Record acceptance of legal documents for an organization."
       read_only: false
       idempotent: true
+      // Withheld from the MCP tool surface: a write with no server-enforced
+      // confirmation before it runs.
+      hidden: true
     };
   }
 

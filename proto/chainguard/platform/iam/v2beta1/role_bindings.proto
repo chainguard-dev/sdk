@@ -64,6 +64,9 @@ service RoleBindingsService {
       destructive: false
       idempotent: false
       open_world: false
+      // Withheld from the MCP tool surface: an IAM write with no
+      // server-enforced confirmation before it runs.
+      hidden: true
     };
   }
 
@@ -87,6 +90,9 @@ service RoleBindingsService {
       destructive: true
       idempotent: true
       open_world: false
+      // Withheld from the MCP tool surface: an IAM write with no
+      // server-enforced confirmation before it runs.
+      hidden: true
     };
   }
 
@@ -141,6 +147,9 @@ service RoleBindingsService {
       destructive: false
       idempotent: false
       open_world: false
+      // Withheld from the MCP tool surface: an IAM write with no
+      // server-enforced confirmation before it runs.
+      hidden: true
     };
   }
 
@@ -167,6 +176,9 @@ service RoleBindingsService {
       destructive: false
       idempotent: true
       open_world: false
+      // Withheld from the MCP tool surface: an IAM write with no
+      // server-enforced confirmation before it runs.
+      hidden: true
     };
   }
 }

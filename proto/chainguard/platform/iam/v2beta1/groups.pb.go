@@ -987,26 +987,26 @@ const file_chainguard_platform_iam_v2beta1_groups_proto_rawDesc = "" +
 	"\x16ORG_STATUS_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17ORG_STATUS_INITIALIZING\x10\x01\x12\x14\n" +
 	"\x10ORG_STATUS_READY\x10\x02\x12\x18\n" +
-	"\x14ORG_STATUS_SUSPENDED\x10\x032\xad\x12\n" +
+	"\x14ORG_STATUS_SUSPENDED\x10\x032\xb3\x12\n" +
 	"\rGroupsService\x12\xd6\x01\n" +
 	"\bGetGroup\x120.chainguard.platform.iam.v2beta1.GetGroupRequest\x1a&.chainguard.platform.iam.v2beta1.Group\"p\x82\xd3\xe4\x93\x02\x1e\x12\x1c/iam/v2beta1/groups/{uid=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
 	"\x01g\x9a\xaf\xa8\xd2\x05;\n" +
-	"1Get a group (organization or folder) by its UIDP.\x18\x01 \x00(\x010\x00\x12\xae\x02\n" +
-	"\vDeleteGroup\x123.chainguard.platform.iam.v2beta1.DeleteGroupRequest\x1a\x16.google.protobuf.Empty\"\xd1\x01\x82\xd3\xe4\x93\x02\x1e*\x1c/iam/v2beta1/groups/{uid=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
-	"\x01h\x9a\xaf\xa8\xd2\x05d\n" +
-	"\\Delete a group (organization or folder) by its UIDP. Fails if the group has child resources. \x01(\x010\x00\xc2\xf0\x8e\xfc\v2\n" +
+	"1Get a group (organization or folder) by its UIDP.\x18\x01 \x00(\x010\x00\x12\xb0\x02\n" +
+	"\vDeleteGroup\x123.chainguard.platform.iam.v2beta1.DeleteGroupRequest\x1a\x16.google.protobuf.Empty\"\xd3\x01\x82\xd3\xe4\x93\x02\x1e*\x1c/iam/v2beta1/groups/{uid=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
+	"\x01h\x9a\xaf\xa8\xd2\x05f\n" +
+	"\\Delete a group (organization or folder) by its UIDP. Fails if the group has child resources.\x10\x01 \x01(\x010\x00\xc2\xf0\x8e\xfc\v2\n" +
 	"'dev.chainguard.api.iam.group.deleted.v1\x12\x05group\x18\x01\x12\x94\x02\n" +
 	"\n" +
 	"ListGroups\x122.chainguard.platform.iam.v2beta1.ListGroupsRequest\x1a3.chainguard.platform.iam.v2beta1.ListGroupsResponse\"\x9c\x01\x82\xd3\xe4\x93\x02\x15\x12\x13/iam/v2beta1/groups\x8a\xaf\xa8\xd2\x05\a\x12\x05\n" +
 	"\x01g\x10\x01\x9a\xaf\xa8\xd2\x05n\n" +
-	"dList groups (organizations and folders) the caller has access to. Supports filtering and pagination.\x18\x01 \x00(\x010\x00\x12\xb7\x02\n" +
-	"\vCreateGroup\x123.chainguard.platform.iam.v2beta1.CreateGroupRequest\x1a&.chainguard.platform.iam.v2beta1.Group\"\xca\x01\x82\xd3\xe4\x93\x02(:\x05group\"\x1f/iam/v2beta1/groups/{parent=**}\x8a\xaf\xa8\xd2\x05\a\x12\x05\n" +
-	"\x01e\x10\x01\x9a\xaf\xa8\xd2\x05Q\n" +
-	"KCreate a new group (organization or folder) under an optional parent group. \x000\x00\xc2\xf0\x8e\xfc\v2\n" +
-	"'dev.chainguard.api.iam.group.created.v1\x12\x05group\x18\x01\x12\xab\x02\n" +
-	"\vUpdateGroup\x123.chainguard.platform.iam.v2beta1.UpdateGroupRequest\x1a&.chainguard.platform.iam.v2beta1.Group\"\xbe\x01\x82\xd3\xe4\x93\x02+:\x05group2\"/iam/v2beta1/groups/{group.uid=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
-	"\x01f\x9a\xaf\xa8\xd2\x05D\n" +
-	"<Update a group's name, description, or other mutable fields. \x00(\x010\x00\xc2\xf0\x8e\xfc\v2\n" +
+	"dList groups (organizations and folders) the caller has access to. Supports filtering and pagination.\x18\x01 \x00(\x010\x00\x12\xb9\x02\n" +
+	"\vCreateGroup\x123.chainguard.platform.iam.v2beta1.CreateGroupRequest\x1a&.chainguard.platform.iam.v2beta1.Group\"\xcc\x01\x82\xd3\xe4\x93\x02(:\x05group\"\x1f/iam/v2beta1/groups/{parent=**}\x8a\xaf\xa8\xd2\x05\a\x12\x05\n" +
+	"\x01e\x10\x01\x9a\xaf\xa8\xd2\x05S\n" +
+	"KCreate a new group (organization or folder) under an optional parent group.\x10\x01 \x000\x00\xc2\xf0\x8e\xfc\v2\n" +
+	"'dev.chainguard.api.iam.group.created.v1\x12\x05group\x18\x01\x12\xad\x02\n" +
+	"\vUpdateGroup\x123.chainguard.platform.iam.v2beta1.UpdateGroupRequest\x1a&.chainguard.platform.iam.v2beta1.Group\"\xc0\x01\x82\xd3\xe4\x93\x02+:\x05group2\"/iam/v2beta1/groups/{group.uid=**}\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
+	"\x01f\x9a\xaf\xa8\xd2\x05F\n" +
+	"<Update a group's name, description, or other mutable fields.\x10\x01 \x00(\x010\x00\xc2\xf0\x8e\xfc\v2\n" +
 	"'dev.chainguard.api.iam.group.updated.v1\x12\x05group\x18\x01\x12\x92\x02\n" +
 	"\vLookupGroup\x123.chainguard.platform.iam.v2beta1.LookupGroupRequest\x1a4.chainguard.platform.iam.v2beta1.LookupGroupResponse\"\x97\x01\x82\xd3\xe4\x93\x02!\x12\x1f/iam/v2beta1/groups:lookupGroup\x8a\xaf\xa8\xd2\x05\x04\x12\x02\x10\x01\x9a\xaf\xa8\xd2\x05`\n" +
 	"ZLook up the verified root group whose name matches the email domain on the caller's token.\x10\x01\x18\x01\x12\xd0\x02\n" +

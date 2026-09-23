@@ -1744,7 +1744,7 @@ const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = ""
 	"\x16SetScimEnabledResponse\x122\n" +
 	"\x15identity_provider_uid\x18\x01 \x01(\tR\x13identityProviderUid\x12\x18\n" +
 	"\aenabled\x18\x02 \x01(\bR\aenabled\x12\x12\n" +
-	"\x04etag\x18\x03 \x01(\tR\x04etag2\xee\x1d\n" +
+	"\x04etag\x18\x03 \x01(\tR\x04etag2\xf4\x1d\n" +
 	"\x18IdentityProvidersService\x12\xc1\x02\n" +
 	"\x15ListIdentityProviders\x12=.chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest\x1a>.chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse\"\xa8\x01\x82\xd3\xe4\x93\x02 \x12\x1e/iam/v2beta1/identityProviders\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\x97\n" +
@@ -1753,21 +1753,21 @@ const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = ""
 	"\x13GetIdentityProvider\x12;.chainguard.platform.iam.v2beta1.GetIdentityProviderRequest\x1a1.chainguard.platform.iam.v2beta1.IdentityProvider\"y\x82\xd3\xe4\x93\x02)\x12'/iam/v2beta1/identityProviders/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x97\n" +
 	"\x9a\xaf\xa8\xd2\x058\n" +
-	".Get an external identity provider by its UIDP.\x18\x01 \x00(\x010\x00\x12\x8a\x03\n" +
-	"\x16CreateIdentityProvider\x12>.chainguard.platform.iam.v2beta1.CreateIdentityProviderRequest\x1a1.chainguard.platform.iam.v2beta1.IdentityProvider\"\xfc\x01\x82\xd3\xe4\x93\x02?:\x11identity_provider\"*/iam/v2beta1/identityProviders/{parent=**}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	".Get an external identity provider by its UIDP.\x18\x01 \x00(\x010\x00\x12\x8c\x03\n" +
+	"\x16CreateIdentityProvider\x12>.chainguard.platform.iam.v2beta1.CreateIdentityProviderRequest\x1a1.chainguard.platform.iam.v2beta1.IdentityProvider\"\xfe\x01\x82\xd3\xe4\x93\x02?:\x11identity_provider\"*/iam/v2beta1/identityProviders/{parent=**}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x04\x95\n" +
-	"\x91\x03\x9a\xaf\xa8\xd2\x05^\n" +
-	"XCreate a new external identity provider (OIDC) for a group, enabling SSO authentication. \x000\x00\xc2\xf0\x8e\xfc\v?\n" +
-	"4dev.chainguard.api.iam.identity_providers.created.v1\x12\x05group\x18\x01\x12\xa2\x03\n" +
-	"\x16UpdateIdentityProvider\x12>.chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest\x1a1.chainguard.platform.iam.v2beta1.IdentityProvider\"\x94\x02\x82\xd3\xe4\x93\x02N:\x11identity_provider29/iam/v2beta1/identityProviders/{identity_provider.uid=**}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x91\x03\x9a\xaf\xa8\xd2\x05`\n" +
+	"XCreate a new external identity provider (OIDC) for a group, enabling SSO authentication.\x10\x01 \x000\x00\xc2\xf0\x8e\xfc\v?\n" +
+	"4dev.chainguard.api.iam.identity_providers.created.v1\x12\x05group\x18\x01\x12\xa4\x03\n" +
+	"\x16UpdateIdentityProvider\x12>.chainguard.platform.iam.v2beta1.UpdateIdentityProviderRequest\x1a1.chainguard.platform.iam.v2beta1.IdentityProvider\"\x96\x02\x82\xd3\xe4\x93\x02N:\x11identity_provider29/iam/v2beta1/identityProviders/{identity_provider.uid=**}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x04\x96\n" +
-	"\x91\x03\x9a\xaf\xa8\xd2\x05g\n" +
-	"_Update an external identity provider's configuration, including OIDC settings and default role. \x00(\x010\x00\xc2\xf0\x8e\xfc\v?\n" +
-	"4dev.chainguard.api.iam.identity_providers.updated.v1\x12\x05group\x18\x01\x12\xd3\x02\n" +
-	"\x16DeleteIdentityProvider\x12>.chainguard.platform.iam.v2beta1.DeleteIdentityProviderRequest\x1a\x16.google.protobuf.Empty\"\xe0\x01\x82\xd3\xe4\x93\x02)*'/iam/v2beta1/identityProviders/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x91\x03\x9a\xaf\xa8\xd2\x05i\n" +
+	"_Update an external identity provider's configuration, including OIDC settings and default role.\x10\x01 \x00(\x010\x00\xc2\xf0\x8e\xfc\v?\n" +
+	"4dev.chainguard.api.iam.identity_providers.updated.v1\x12\x05group\x18\x01\x12\xd5\x02\n" +
+	"\x16DeleteIdentityProvider\x12>.chainguard.platform.iam.v2beta1.DeleteIdentityProviderRequest\x1a\x16.google.protobuf.Empty\"\xe2\x01\x82\xd3\xe4\x93\x02)*'/iam/v2beta1/identityProviders/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x98\n" +
-	"\x9a\xaf\xa8\xd2\x05Z\n" +
-	"RDelete an external identity provider by its UIDP, disabling SSO for that provider. \x01(\x010\x00\xc2\xf0\x8e\xfc\v?\n" +
+	"\x9a\xaf\xa8\xd2\x05\\\n" +
+	"RDelete an external identity provider by its UIDP, disabling SSO for that provider.\x10\x01 \x01(\x010\x00\xc2\xf0\x8e\xfc\v?\n" +
 	"4dev.chainguard.api.iam.identity_providers.deleted.v1\x12\x05group\x18\x01\x12\xff\x03\n" +
 	"\x11GenerateScimToken\x129.chainguard.platform.iam.v2beta1.GenerateScimTokenRequest\x1a:.chainguard.platform.iam.v2beta1.GenerateScimTokenResponse\"\xf2\x02\x82\xd3\xe4\x93\x02P:\x01*\"K/iam/v2beta1/identityProviders/{identity_provider_uid=**}:generateScimToken\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x04\x99\n" +

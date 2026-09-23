@@ -1214,25 +1214,25 @@ const file_chainguard_platform_iam_v2beta1_account_associations_proto_rawDesc = 
 	"\vCheckStatus\x12\x1c\n" +
 	"\x18CHECK_STATUS_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12CHECK_STATUS_READY\x10\x01\x12\x1a\n" +
-	"\x16CHECK_STATUS_NOT_READY\x10\x022\xe5\x10\n" +
+	"\x16CHECK_STATUS_NOT_READY\x10\x022\xeb\x10\n" +
 	"\x1aAccountAssociationsService\x12\x90\x02\n" +
 	"\x15GetAccountAssociation\x12=.chainguard.platform.iam.v2beta1.GetAccountAssociationRequest\x1a3.chainguard.platform.iam.v2beta1.AccountAssociation\"\x82\x01\x82\xd3\xe4\x93\x02+\x12)/iam/v2beta1/accountAssociations/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xbf\x05\x9a\xaf\xa8\xd2\x05?\n" +
-	"5Get a cloud provider account association by its UIDP.\x18\x01 \x00(\x010\x00\x12\x8c\x03\n" +
-	"\x18CreateAccountAssociation\x12@.chainguard.platform.iam.v2beta1.CreateAccountAssociationRequest\x1a3.chainguard.platform.iam.v2beta1.AccountAssociation\"\xf8\x01\x82\xd3\xe4\x93\x02C:\x13account_association\",/iam/v2beta1/accountAssociations/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xbd\x05\x9a\xaf\xa8\xd2\x05V\n" +
-	"PCreate a new cloud provider account association (AWS, GCP, Azure) under a group. \x000\x00\xc2\xf0\x8e\xfc\vA\n" +
-	"6dev.chainguard.api.iam.account_associations.created.v1\x12\x05group\x18\x01\x12\xc1\x02\n" +
-	"\x18DeleteAccountAssociation\x12@.chainguard.platform.iam.v2beta1.DeleteAccountAssociationRequest\x1a\x16.google.protobuf.Empty\"\xca\x01\x82\xd3\xe4\x93\x02+*)/iam/v2beta1/accountAssociations/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xc0\x05\x9a\xaf\xa8\xd2\x05@\n" +
-	"8Delete a cloud provider account association by its UIDP. \x01(\x010\x00\xc2\xf0\x8e\xfc\vA\n" +
+	"5Get a cloud provider account association by its UIDP.\x18\x01 \x00(\x010\x00\x12\x8e\x03\n" +
+	"\x18CreateAccountAssociation\x12@.chainguard.platform.iam.v2beta1.CreateAccountAssociationRequest\x1a3.chainguard.platform.iam.v2beta1.AccountAssociation\"\xfa\x01\x82\xd3\xe4\x93\x02C:\x13account_association\",/iam/v2beta1/accountAssociations/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xbd\x05\x9a\xaf\xa8\xd2\x05X\n" +
+	"PCreate a new cloud provider account association (AWS, GCP, Azure) under a group.\x10\x01 \x000\x00\xc2\xf0\x8e\xfc\vA\n" +
+	"6dev.chainguard.api.iam.account_associations.created.v1\x12\x05group\x18\x01\x12\xc3\x02\n" +
+	"\x18DeleteAccountAssociation\x12@.chainguard.platform.iam.v2beta1.DeleteAccountAssociationRequest\x1a\x16.google.protobuf.Empty\"\xcc\x01\x82\xd3\xe4\x93\x02+*)/iam/v2beta1/accountAssociations/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xc0\x05\x9a\xaf\xa8\xd2\x05B\n" +
+	"8Delete a cloud provider account association by its UIDP.\x10\x01 \x01(\x010\x00\xc2\xf0\x8e\xfc\vA\n" +
 	"6dev.chainguard.api.iam.account_associations.deleted.v1\x12\x05group\x18\x01\x12\xdd\x02\n" +
 	"\x17ListAccountAssociations\x12?.chainguard.platform.iam.v2beta1.ListAccountAssociationsRequest\x1a@.chainguard.platform.iam.v2beta1.ListAccountAssociationsResponse\"\xbe\x01\x82\xd3\xe4\x93\x02\"\x12 /iam/v2beta1/accountAssociations\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\xbf\x05\x10\x01\x9a\xaf\xa8\xd2\x05\x81\x01\n" +
-	"wList cloud provider account associations (AWS, GCP, Azure) the caller has access to. Supports filtering and pagination.\x18\x01 \x00(\x010\x00\x12\x84\x03\n" +
-	"\x18UpdateAccountAssociation\x12@.chainguard.platform.iam.v2beta1.UpdateAccountAssociationRequest\x1a3.chainguard.platform.iam.v2beta1.AccountAssociation\"\xf0\x01\x82\xd3\xe4\x93\x02T:\x13account_association2=/iam/v2beta1/accountAssociations/{account_association.uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xbe\x05\x9a\xaf\xa8\xd2\x05=\n" +
-	"5Update a cloud provider account association's fields. \x00(\x010\x00\xc2\xf0\x8e\xfc\vA\n" +
+	"wList cloud provider account associations (AWS, GCP, Azure) the caller has access to. Supports filtering and pagination.\x18\x01 \x00(\x010\x00\x12\x86\x03\n" +
+	"\x18UpdateAccountAssociation\x12@.chainguard.platform.iam.v2beta1.UpdateAccountAssociationRequest\x1a3.chainguard.platform.iam.v2beta1.AccountAssociation\"\xf2\x01\x82\xd3\xe4\x93\x02T:\x13account_association2=/iam/v2beta1/accountAssociations/{account_association.uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xbe\x05\x9a\xaf\xa8\xd2\x05?\n" +
+	"5Update a cloud provider account association's fields.\x10\x01 \x00(\x010\x00\xc2\xf0\x8e\xfc\vA\n" +
 	"6dev.chainguard.api.iam.account_associations.updated.v1\x12\x05group\x18\x01\x12\xf9\x02\n" +
 	"\x17CheckAccountAssociation\x12?.chainguard.platform.iam.v2beta1.CheckAccountAssociationRequest\x1a@.chainguard.platform.iam.v2beta1.CheckAccountAssociationResponse\"\xda\x01\x82\xd3\xe4\x93\x02F:\x01*\"A/iam/v2beta1/accountAssociations/{uid=**}:checkAccountAssociation\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xbf\x05\x9a\xaf\xa8\xd2\x05|\n" +
