@@ -75,6 +75,12 @@ type EntitlementsClient interface {
 	//
 	// Removal is a soft delete: the underlying rows are retained with a deletion
 	// timestamp so that history can be reconstructed for audit purposes.
+	//
+	// A removal the organization asked for is charged against the rolling 30-day
+	// swap quota, the same unit a swap costs, so removing an image and adding it
+	// back cannot dodge the quota. A removal performed by Chainguard staff on
+	// the organization's behalf is not charged. See GetEffectiveEntitlements
+	// (swap_quota, swaps_used) for the current budget.
 	RemoveEntitlementImages(ctx context.Context, in *RemoveEntitlementImagesRequest, opts ...grpc.CallOption) (*RemoveEntitlementImagesResponse, error)
 	// SwapEntitlementImages atomically removes and adds catalog images on an
 	// organization's entitlements in one transaction — the whole swap applies or
@@ -87,7 +93,13 @@ type EntitlementsClient interface {
 	//
 	// A swap is the unit charged against the rolling 30-day swap quota: an N-for-N
 	// swap costs N. May return RESOURCE_EXHAUSTED when it would exceed the quota;
-	// see GetEffectiveEntitlements (swap_quota, swaps_used).
+	// see GetEffectiveEntitlements (swap_quota, swaps_used). A swap performed by
+	// Chainguard staff on the organization's behalf is not charged, is not
+	// blocked by a budget the organization has already spent, and may always put
+	// back an image that was swapped out inside the window. A customer swap may
+	// get FAILED_PRECONDITION for that same re-add, on the entitlement the image
+	// was swapped out of and while the organization's swap quota is finite.
+	// Per-tier and total image quotas apply to every caller.
 	SwapEntitlementImages(ctx context.Context, in *SwapEntitlementImagesRequest, opts ...grpc.CallOption) (*SwapEntitlementImagesResponse, error)
 }
 
@@ -251,6 +263,12 @@ type EntitlementsServer interface {
 	//
 	// Removal is a soft delete: the underlying rows are retained with a deletion
 	// timestamp so that history can be reconstructed for audit purposes.
+	//
+	// A removal the organization asked for is charged against the rolling 30-day
+	// swap quota, the same unit a swap costs, so removing an image and adding it
+	// back cannot dodge the quota. A removal performed by Chainguard staff on
+	// the organization's behalf is not charged. See GetEffectiveEntitlements
+	// (swap_quota, swaps_used) for the current budget.
 	RemoveEntitlementImages(context.Context, *RemoveEntitlementImagesRequest) (*RemoveEntitlementImagesResponse, error)
 	// SwapEntitlementImages atomically removes and adds catalog images on an
 	// organization's entitlements in one transaction — the whole swap applies or
@@ -263,7 +281,13 @@ type EntitlementsServer interface {
 	//
 	// A swap is the unit charged against the rolling 30-day swap quota: an N-for-N
 	// swap costs N. May return RESOURCE_EXHAUSTED when it would exceed the quota;
-	// see GetEffectiveEntitlements (swap_quota, swaps_used).
+	// see GetEffectiveEntitlements (swap_quota, swaps_used). A swap performed by
+	// Chainguard staff on the organization's behalf is not charged, is not
+	// blocked by a budget the organization has already spent, and may always put
+	// back an image that was swapped out inside the window. A customer swap may
+	// get FAILED_PRECONDITION for that same re-add, on the entitlement the image
+	// was swapped out of and while the organization's swap quota is finite.
+	// Per-tier and total image quotas apply to every caller.
 	SwapEntitlementImages(context.Context, *SwapEntitlementImagesRequest) (*SwapEntitlementImagesResponse, error)
 	mustEmbedUnimplementedEntitlementsServer()
 }

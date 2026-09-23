@@ -148,6 +148,12 @@ service Entitlements {
   //
   // Removal is a soft delete: the underlying rows are retained with a deletion
   // timestamp so that history can be reconstructed for audit purposes.
+  //
+  // A removal the organization asked for is charged against the rolling 30-day
+  // swap quota, the same unit a swap costs, so removing an image and adding it
+  // back cannot dodge the quota. A removal performed by Chainguard staff on
+  // the organization's behalf is not charged. See GetEffectiveEntitlements
+  // (swap_quota, swaps_used) for the current budget.
   rpc RemoveEntitlementImages(RemoveEntitlementImagesRequest) returns (RemoveEntitlementImagesResponse) {
     option (google.api.http) = {
       post: "/registry/v1/entitlements/{parent=**}:removeImages"
@@ -156,10 +162,7 @@ service Entitlements {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {tags: "RegistryEntitlements"};
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [
-          CAP_REGISTRY_ENTITLEMENTS_IMAGES_REMOVE,
-          CAP_INTERNAL
-        ]
+        capabilities: [CAP_REGISTRY_ENTITLEMENTS_IMAGES_REMOVE]
         unscoped: true
       }
     };
@@ -181,7 +184,13 @@ service Entitlements {
   //
   // A swap is the unit charged against the rolling 30-day swap quota: an N-for-N
   // swap costs N. May return RESOURCE_EXHAUSTED when it would exceed the quota;
-  // see GetEffectiveEntitlements (swap_quota, swaps_used).
+  // see GetEffectiveEntitlements (swap_quota, swaps_used). A swap performed by
+  // Chainguard staff on the organization's behalf is not charged, is not
+  // blocked by a budget the organization has already spent, and may always put
+  // back an image that was swapped out inside the window. A customer swap may
+  // get FAILED_PRECONDITION for that same re-add, on the entitlement the image
+  // was swapped out of and while the organization's swap quota is finite.
+  // Per-tier and total image quotas apply to every caller.
   rpc SwapEntitlementImages(SwapEntitlementImagesRequest) returns (SwapEntitlementImagesResponse) {
     option (google.api.http) = {
       post: "/registry/v1/entitlements/{parent=**}:swapImages"

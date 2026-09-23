@@ -1759,7 +1759,7 @@ const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\x10PLAN_UNSPECIFIED\x10\x00\x12\r\n" +
 	"\tPER_IMAGE\x10\x01\x12\v\n" +
 	"\aCATALOG\x10\x02\x12\v\n" +
-	"\aSTARTER\x10\x032\xd8\x15\n" +
+	"\aSTARTER\x10\x032\xd7\x15\n" +
 	"\fEntitlements\x12\xc6\x01\n" +
 	"\x10ListEntitlements\x12/.chainguard.platform.registry.EntitlementFilter\x1a-.chainguard.platform.registry.EntitlementList\"R\x92A\x16\n" +
 	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x02'\x12%/registry/v1/entitlements/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
@@ -1788,10 +1788,10 @@ const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\x14AddEntitlementImages\x129.chainguard.platform.registry.AddEntitlementImagesRequest\x1a:.chainguard.platform.registry.AddEntitlementImagesResponse\"\xa7\x01\x92A\x16\n" +
 	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x024:\x01*\"//registry/v1/entitlements/{parent=**}:addImages\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\x95\r\x10\x01\xc2\xf0\x8e\xfc\v@\n" +
-	"7dev.chainguard.api.registry.entitlement.images.added.v1\x12\x05group\x12\xc6\x02\n" +
-	"\x17RemoveEntitlementImages\x12<.chainguard.platform.registry.RemoveEntitlementImagesRequest\x1a=.chainguard.platform.registry.RemoveEntitlementImagesResponse\"\xad\x01\x92A\x16\n" +
-	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x027:\x01*\"2/registry/v1/entitlements/{parent=**}:removeImages\x8a\xaf\xa8\xd2\x05\t\x12\a\n" +
-	"\x03\x96\r\x02\x10\x01\xc2\xf0\x8e\xfc\vB\n" +
+	"7dev.chainguard.api.registry.entitlement.images.added.v1\x12\x05group\x12\xc5\x02\n" +
+	"\x17RemoveEntitlementImages\x12<.chainguard.platform.registry.RemoveEntitlementImagesRequest\x1a=.chainguard.platform.registry.RemoveEntitlementImagesResponse\"\xac\x01\x92A\x16\n" +
+	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x027:\x01*\"2/registry/v1/entitlements/{parent=**}:removeImages\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02\x96\r\x10\x01\xc2\xf0\x8e\xfc\vB\n" +
 	"9dev.chainguard.api.registry.entitlement.images.removed.v1\x12\x05group\x12\xbd\x02\n" +
 	"\x15SwapEntitlementImages\x12:.chainguard.platform.registry.SwapEntitlementImagesRequest\x1a;.chainguard.platform.registry.SwapEntitlementImagesResponse\"\xaa\x01\x92A\x16\n" +
 	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x025:\x01*\"0/registry/v1/entitlements/{parent=**}:swapImages\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
