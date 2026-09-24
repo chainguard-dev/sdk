@@ -16,6 +16,8 @@ import (
 	"chainguard.dev/sdk/proto/chainguard/platform/iter"
 	pb "chainguard.dev/sdk/proto/chainguard/platform/test"
 	"github.com/chainguard-dev/clog/slogtest"
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 func TestAll(t *testing.T) {
@@ -55,13 +57,8 @@ func TestAll(t *testing.T) {
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
-			if len(got) != len(tt.want) {
-				t.Fatalf("length: got = %d, wanted = %d", len(got), len(tt.want))
-			}
-			for i := range got {
-				if got[i] != tt.want[i] {
-					t.Errorf("item[%d]: got = %q, wanted = %q", i, got[i], tt.want[i])
-				}
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("items mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
@@ -81,13 +78,8 @@ func TestList(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		if len(got) != len(items) {
-			t.Fatalf("length: got = %d, wanted = %d", len(got), len(items))
-		}
-		for i := range got {
-			if got[i] != items[i] {
-				t.Errorf("item[%d]: got = %q, wanted = %q", i, got[i], items[i])
-			}
+		if diff := cmp.Diff(items, got); diff != "" {
+			t.Errorf("items mismatch (-want +got):\n%s", diff)
 		}
 	})
 
@@ -111,13 +103,8 @@ func TestList(t *testing.T) {
 			t.Fatalf("unexpected error: %v", err)
 		}
 		want := []string{"a", "b", "c", "d", "e"}
-		if len(got) != len(want) {
-			t.Fatalf("length: got = %d, wanted = %d", len(got), len(want))
-		}
-		for i := range got {
-			if got[i] != want[i] {
-				t.Errorf("item[%d]: got = %q, wanted = %q", i, got[i], want[i])
-			}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("items mismatch (-want +got):\n%s", diff)
 		}
 	})
 
@@ -235,13 +222,8 @@ func TestPaginate(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		if len(got) != len(all) {
-			t.Fatalf("length: got = %d, wanted = %d", len(got), len(all))
-		}
-		for i := range got {
-			if got[i].GetUid() != all[i].GetUid() {
-				t.Errorf("item[%d].uid: got = %q, wanted = %q", i, got[i].GetUid(), all[i].GetUid())
-			}
+		if diff := cmp.Diff(all, got, cmpopts.IgnoreUnexported(pb.Exemplar{})); diff != "" {
+			t.Errorf("items mismatch (-want +got):\n%s", diff)
 		}
 	})
 

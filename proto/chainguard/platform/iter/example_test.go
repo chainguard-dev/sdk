@@ -173,10 +173,7 @@ func ExamplePaginate() {
 			if r.GetPageToken() != "" {
 				fmt.Sscanf(r.GetPageToken(), "%d", &offset)
 			}
-			end := offset + int(r.GetPageSize())
-			if end > len(all) {
-				end = len(all)
-			}
+			end := min(offset+int(r.GetPageSize()), len(all))
 			nextToken := ""
 			if end < len(all) {
 				nextToken = fmt.Sprintf("%d", end)
