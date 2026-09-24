@@ -879,7 +879,7 @@ func RegisterRequestGroupsServiceHandlerServer(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/GetRequestGroup", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid=**}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/GetRequestGroup", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -904,7 +904,7 @@ func RegisterRequestGroupsServiceHandlerServer(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestGroupItems", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid=**}/items"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestGroupItems", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid}/items"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -929,7 +929,7 @@ func RegisterRequestGroupsServiceHandlerServer(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/SubmitRequestGroup", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid=**}:submit"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/SubmitRequestGroup", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid}:submit"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -954,7 +954,7 @@ func RegisterRequestGroupsServiceHandlerServer(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/UpdateRequestGroup", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{request_group.uid=**}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/UpdateRequestGroup", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{request_group.uid}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -979,7 +979,7 @@ func RegisterRequestGroupsServiceHandlerServer(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RemoveItems", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid=**}:removeItems"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RemoveItems", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid}:removeItems"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1004,7 +1004,7 @@ func RegisterRequestGroupsServiceHandlerServer(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RestoreItems", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid=**}:restoreItems"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RestoreItems", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid}:restoreItems"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1029,7 +1029,7 @@ func RegisterRequestGroupsServiceHandlerServer(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/DeleteRequestGroup", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid=**}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/DeleteRequestGroup", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1054,7 +1054,7 @@ func RegisterRequestGroupsServiceHandlerServer(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/DeleteSubmittedRequestGroup", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid=**}:deleteSubmittedRequestGroup"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/DeleteSubmittedRequestGroup", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid}:deleteSubmittedRequestGroup"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1079,7 +1079,7 @@ func RegisterRequestGroupsServiceHandlerServer(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RefreshCoverage", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid=**}:refreshCoverage"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RefreshCoverage", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid}:refreshCoverage"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1237,7 +1237,7 @@ func RegisterRequestGroupsServiceHandlerClient(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/GetRequestGroup", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid=**}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/GetRequestGroup", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1259,7 +1259,7 @@ func RegisterRequestGroupsServiceHandlerClient(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestGroupItems", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid=**}/items"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestGroupItems", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid}/items"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1281,7 +1281,7 @@ func RegisterRequestGroupsServiceHandlerClient(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/SubmitRequestGroup", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid=**}:submit"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/SubmitRequestGroup", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid}:submit"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1303,7 +1303,7 @@ func RegisterRequestGroupsServiceHandlerClient(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/UpdateRequestGroup", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{request_group.uid=**}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/UpdateRequestGroup", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{request_group.uid}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1325,7 +1325,7 @@ func RegisterRequestGroupsServiceHandlerClient(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RemoveItems", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid=**}:removeItems"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RemoveItems", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid}:removeItems"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1347,7 +1347,7 @@ func RegisterRequestGroupsServiceHandlerClient(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RestoreItems", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid=**}:restoreItems"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RestoreItems", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid}:restoreItems"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1369,7 +1369,7 @@ func RegisterRequestGroupsServiceHandlerClient(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/DeleteRequestGroup", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid=**}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/DeleteRequestGroup", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1391,7 +1391,7 @@ func RegisterRequestGroupsServiceHandlerClient(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/DeleteSubmittedRequestGroup", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid=**}:deleteSubmittedRequestGroup"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/DeleteSubmittedRequestGroup", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid}:deleteSubmittedRequestGroup"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1413,7 +1413,7 @@ func RegisterRequestGroupsServiceHandlerClient(ctx context.Context, mux *runtime
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RefreshCoverage", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid=**}:refreshCoverage"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RefreshCoverage", runtime.WithHTTPPathPattern("/libraries/v2beta1/requestGroups/{uid}:refreshCoverage"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1481,23 +1481,23 @@ var (
 
 	pattern_RequestGroupsService_ListRequestGroups_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"libraries", "v2beta1", "requestGroups"}, ""))
 
-	pattern_RequestGroupsService_GetRequestGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"libraries", "v2beta1", "requestGroups", "uid"}, ""))
+	pattern_RequestGroupsService_GetRequestGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"libraries", "v2beta1", "requestGroups", "uid"}, ""))
 
-	pattern_RequestGroupsService_ListRequestGroupItems_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3, 2, 4}, []string{"libraries", "v2beta1", "requestGroups", "uid", "items"}, ""))
+	pattern_RequestGroupsService_ListRequestGroupItems_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"libraries", "v2beta1", "requestGroups", "uid", "items"}, ""))
 
-	pattern_RequestGroupsService_SubmitRequestGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"libraries", "v2beta1", "requestGroups", "uid"}, "submit"))
+	pattern_RequestGroupsService_SubmitRequestGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"libraries", "v2beta1", "requestGroups", "uid"}, "submit"))
 
-	pattern_RequestGroupsService_UpdateRequestGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"libraries", "v2beta1", "requestGroups", "request_group.uid"}, ""))
+	pattern_RequestGroupsService_UpdateRequestGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"libraries", "v2beta1", "requestGroups", "request_group.uid"}, ""))
 
-	pattern_RequestGroupsService_RemoveItems_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"libraries", "v2beta1", "requestGroups", "uid"}, "removeItems"))
+	pattern_RequestGroupsService_RemoveItems_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"libraries", "v2beta1", "requestGroups", "uid"}, "removeItems"))
 
-	pattern_RequestGroupsService_RestoreItems_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"libraries", "v2beta1", "requestGroups", "uid"}, "restoreItems"))
+	pattern_RequestGroupsService_RestoreItems_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"libraries", "v2beta1", "requestGroups", "uid"}, "restoreItems"))
 
-	pattern_RequestGroupsService_DeleteRequestGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"libraries", "v2beta1", "requestGroups", "uid"}, ""))
+	pattern_RequestGroupsService_DeleteRequestGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"libraries", "v2beta1", "requestGroups", "uid"}, ""))
 
-	pattern_RequestGroupsService_DeleteSubmittedRequestGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"libraries", "v2beta1", "requestGroups", "uid"}, "deleteSubmittedRequestGroup"))
+	pattern_RequestGroupsService_DeleteSubmittedRequestGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"libraries", "v2beta1", "requestGroups", "uid"}, "deleteSubmittedRequestGroup"))
 
-	pattern_RequestGroupsService_RefreshCoverage_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"libraries", "v2beta1", "requestGroups", "uid"}, "refreshCoverage"))
+	pattern_RequestGroupsService_RefreshCoverage_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"libraries", "v2beta1", "requestGroups", "uid"}, "refreshCoverage"))
 
 	pattern_RequestGroupsService_ListRequestedLibraries_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"libraries", "v2beta1", "requestedLibraries"}, ""))
 

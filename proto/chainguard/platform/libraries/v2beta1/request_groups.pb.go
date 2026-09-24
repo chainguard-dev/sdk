@@ -3792,7 +3792,7 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"(REQUESTED_LIBRARY_CVE_STATUS_IN_PROGRESS\x10\x02\x126\n" +
 	"2REQUESTED_LIBRARY_CVE_STATUS_NO_HIGH_CRITICAL_CVES\x10\x03\x12)\n" +
 	"%REQUESTED_LIBRARY_CVE_STATUS_COMPLETE\x10\x04\x12/\n" +
-	"+REQUESTED_LIBRARY_CVE_STATUS_WONT_REMEDIATE\x10\x052\xf9'\n" +
+	"+REQUESTED_LIBRARY_CVE_STATUS_WONT_REMEDIATE\x10\x052\xde'\n" +
 	"\x14RequestGroupsService\x12\xbd\x03\n" +
 	"\x12CreateRequestGroup\x12@.chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest\x1a3.chainguard.platform.libraries.v2beta1.RequestGroup\"\xaf\x02\x82\xd3\xe4\x93\x021:\x01*\",/libraries/v2beta1/requestGroups/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd2\x0e\x9a\xaf\xa8\xd2\x05\x9f\x01\n" +
@@ -3800,38 +3800,38 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"5dev.chainguard.api.libraries.request_group.created.v1\x12\x05group\x18\x01\x12\xe0\x02\n" +
 	"\x11ListRequestGroups\x12?.chainguard.platform.libraries.v2beta1.ListRequestGroupsRequest\x1a@.chainguard.platform.libraries.v2beta1.ListRequestGroupsResponse\"\xc7\x01\x82\xd3\xe4\x93\x02\"\x12 /libraries/v2beta1/requestGroups\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd3\x0e\x9a\xaf\xa8\xd2\x05\x8c\x01\n" +
-	"\x81\x01List the organization's library request groups, filterable by state, status, ecosystem, source, name, and CVE-remediation opt-in.\x18\x01 \x00(\x010\x00\x12\xba\x02\n" +
-	"\x0fGetRequestGroup\x12=.chainguard.platform.libraries.v2beta1.GetRequestGroupRequest\x1a3.chainguard.platform.libraries.v2beta1.RequestGroup\"\xb2\x01\x82\xd3\xe4\x93\x02+\x12)/libraries/v2beta1/requestGroups/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x81\x01List the organization's library request groups, filterable by state, status, ecosystem, source, name, and CVE-remediation opt-in.\x18\x01 \x00(\x010\x00\x12\xb7\x02\n" +
+	"\x0fGetRequestGroup\x12=.chainguard.platform.libraries.v2beta1.GetRequestGroupRequest\x1a3.chainguard.platform.libraries.v2beta1.RequestGroup\"\xaf\x01\x82\xd3\xe4\x93\x02(\x12&/libraries/v2beta1/requestGroups/{uid}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd3\x0e\x9a\xaf\xa8\xd2\x05o\n" +
-	"eGet a library request group's metadata, per-availability summary counts, and CVE-remediation summary.\x18\x01 \x00(\x010\x00\x12\xff\x02\n" +
-	"\x15ListRequestGroupItems\x12C.chainguard.platform.libraries.v2beta1.ListRequestGroupItemsRequest\x1aD.chainguard.platform.libraries.v2beta1.ListRequestGroupItemsResponse\"\xda\x01\x82\xd3\xe4\x93\x021\x12//libraries/v2beta1/requestGroups/{uid=**}/items\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"eGet a library request group's metadata, per-availability summary counts, and CVE-remediation summary.\x18\x01 \x00(\x010\x00\x12\xfc\x02\n" +
+	"\x15ListRequestGroupItems\x12C.chainguard.platform.libraries.v2beta1.ListRequestGroupItemsRequest\x1aD.chainguard.platform.libraries.v2beta1.ListRequestGroupItemsResponse\"\xd7\x01\x82\xd3\xe4\x93\x02.\x12,/libraries/v2beta1/requestGroups/{uid}/items\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd3\x0e\x9a\xaf\xa8\xd2\x05\x90\x01\n" +
-	"\x85\x01List a request group's items with per-version build availability and CVE-remediation status. Supports delta sync via min_update_time.\x18\x01 \x00(\x010\x00\x12\xc0\x03\n" +
-	"\x12SubmitRequestGroup\x12@.chainguard.platform.libraries.v2beta1.SubmitRequestGroupRequest\x1a3.chainguard.platform.libraries.v2beta1.RequestGroup\"\xb2\x02\x82\xd3\xe4\x93\x025:\x01*\"0/libraries/v2beta1/requestGroups/{uid=**}:submit\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x85\x01List a request group's items with per-version build availability and CVE-remediation status. Supports delta sync via min_update_time.\x18\x01 \x00(\x010\x00\x12\xbd\x03\n" +
+	"\x12SubmitRequestGroup\x12@.chainguard.platform.libraries.v2beta1.SubmitRequestGroupRequest\x1a3.chainguard.platform.libraries.v2beta1.RequestGroup\"\xaf\x02\x82\xd3\xe4\x93\x022:\x01*\"-/libraries/v2beta1/requestGroups/{uid}:submit\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd6\x0e\x9a\xaf\xa8\xd2\x05\x9c\x01\n" +
 	"\x93\x01Submit a draft request group, committing Chainguard to build its requestable versions. Optionally opts the group in to CVE remediation. Owner-only. \x00(\x010\x00\xc2\xf0\x8e\xfc\vB\n" +
-	"7dev.chainguard.api.libraries.request_group.submitted.v1\x12\x05group\x18\x01\x12\xae\x03\n" +
-	"\x12UpdateRequestGroup\x12@.chainguard.platform.libraries.v2beta1.UpdateRequestGroupRequest\x1a3.chainguard.platform.libraries.v2beta1.RequestGroup\"\xa0\x02\x82\xd3\xe4\x93\x02H:\rrequest_group27/libraries/v2beta1/requestGroups/{request_group.uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"7dev.chainguard.api.libraries.request_group.submitted.v1\x12\x05group\x18\x01\x12\xab\x03\n" +
+	"\x12UpdateRequestGroup\x12@.chainguard.platform.libraries.v2beta1.UpdateRequestGroupRequest\x1a3.chainguard.platform.libraries.v2beta1.RequestGroup\"\x9d\x02\x82\xd3\xe4\x93\x02E:\rrequest_group24/libraries/v2beta1/requestGroups/{request_group.uid}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd4\x0e\x9a\xaf\xa8\xd2\x05z\n" +
 	"rUpdate a request group's name or other mutable metadata. Cannot submit the group or change which items it carries. \x00(\x010\x00\xc2\xf0\x8e\xfc\v@\n" +
-	"5dev.chainguard.api.libraries.request_group.updated.v1\x12\x05group\x18\x01\x12\xf2\x02\n" +
-	"\vRemoveItems\x129.chainguard.platform.libraries.v2beta1.RemoveItemsRequest\x1a:.chainguard.platform.libraries.v2beta1.RemoveItemsResponse\"\xeb\x01\x82\xd3\xe4\x93\x02::\x01*\"5/libraries/v2beta1/requestGroups/{uid=**}:removeItems\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"5dev.chainguard.api.libraries.request_group.updated.v1\x12\x05group\x18\x01\x12\xef\x02\n" +
+	"\vRemoveItems\x129.chainguard.platform.libraries.v2beta1.RemoveItemsRequest\x1a:.chainguard.platform.libraries.v2beta1.RemoveItemsResponse\"\xe8\x01\x82\xd3\xe4\x93\x027:\x01*\"2/libraries/v2beta1/requestGroups/{uid}:removeItems\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd7\x0e\x9a\xaf\xa8\xd2\x05M\n" +
 	"ERemove items from a draft request group. Reversible via RestoreItems. \x00(\x010\x00\xc2\xf0\x8e\xfc\vF\n" +
-	";dev.chainguard.api.libraries.request_group.items_removed.v1\x12\x05group\x18\x01\x12\xee\x02\n" +
-	"\fRestoreItems\x12:.chainguard.platform.libraries.v2beta1.RestoreItemsRequest\x1a;.chainguard.platform.libraries.v2beta1.RestoreItemsResponse\"\xe4\x01\x82\xd3\xe4\x93\x02;:\x01*\"6/libraries/v2beta1/requestGroups/{uid=**}:restoreItems\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	";dev.chainguard.api.libraries.request_group.items_removed.v1\x12\x05group\x18\x01\x12\xeb\x02\n" +
+	"\fRestoreItems\x12:.chainguard.platform.libraries.v2beta1.RestoreItemsRequest\x1a;.chainguard.platform.libraries.v2beta1.RestoreItemsResponse\"\xe1\x01\x82\xd3\xe4\x93\x028:\x01*\"3/libraries/v2beta1/requestGroups/{uid}:restoreItems\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd7\x0e\x9a\xaf\xa8\xd2\x05D\n" +
 	"<Restore items previously removed from a draft request group. \x00(\x010\x00\xc2\xf0\x8e\xfc\vG\n" +
-	"<dev.chainguard.api.libraries.request_group.items_restored.v1\x12\x05group\x18\x01\x12\xe5\x02\n" +
-	"\x12DeleteRequestGroup\x12@.chainguard.platform.libraries.v2beta1.DeleteRequestGroupRequest\x1a\x16.google.protobuf.Empty\"\xf4\x01\x82\xd3\xe4\x93\x02+*)/libraries/v2beta1/requestGroups/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"<dev.chainguard.api.libraries.request_group.items_restored.v1\x12\x05group\x18\x01\x12\xe2\x02\n" +
+	"\x12DeleteRequestGroup\x12@.chainguard.platform.libraries.v2beta1.DeleteRequestGroupRequest\x1a\x16.google.protobuf.Empty\"\xf1\x01\x82\xd3\xe4\x93\x02(*&/libraries/v2beta1/requestGroups/{uid}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd5\x0e\x9a\xaf\xa8\xd2\x05k\n" +
 	"cDelete a draft request group. Drafts only; a submitted group cannot be deleted through this method. \x01(\x010\x00\xc2\xf0\x8e\xfc\v@\n" +
-	"5dev.chainguard.api.libraries.request_group.deleted.v1\x12\x05group\x18\x01\x12\x97\x03\n" +
-	"\x1bDeleteSubmittedRequestGroup\x12I.chainguard.platform.libraries.v2beta1.DeleteSubmittedRequestGroupRequest\x1a\x16.google.protobuf.Empty\"\x94\x02\x82\xd3\xe4\x93\x02G*E/libraries/v2beta1/requestGroups/{uid=**}:deleteSubmittedRequestGroup\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"5dev.chainguard.api.libraries.request_group.deleted.v1\x12\x05group\x18\x01\x12\x94\x03\n" +
+	"\x1bDeleteSubmittedRequestGroup\x12I.chainguard.platform.libraries.v2beta1.DeleteSubmittedRequestGroupRequest\x1a\x16.google.protobuf.Empty\"\x91\x02\x82\xd3\xe4\x93\x02D*B/libraries/v2beta1/requestGroups/{uid}:deleteSubmittedRequestGroup\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd9\x0e\x9a\xaf\xa8\xd2\x05o\n" +
 	"gDelete a submitted request group, cancelling builds the organization committed to. Chainguard-internal. \x01(\x010\x00\xc2\xf0\x8e\xfc\v@\n" +
-	"5dev.chainguard.api.libraries.request_group.deleted.v1\x12\x05group\x18\x01\x12\x86\x03\n" +
-	"\x0fRefreshCoverage\x12=.chainguard.platform.libraries.v2beta1.RefreshCoverageRequest\x1a3.chainguard.platform.libraries.v2beta1.RequestGroup\"\xfe\x01\x82\xd3\xe4\x93\x02>:\x01*\"9/libraries/v2beta1/requestGroups/{uid=**}:refreshCoverage\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"5dev.chainguard.api.libraries.request_group.deleted.v1\x12\x05group\x18\x01\x12\x83\x03\n" +
+	"\x0fRefreshCoverage\x12=.chainguard.platform.libraries.v2beta1.RefreshCoverageRequest\x1a3.chainguard.platform.libraries.v2beta1.RequestGroup\"\xfb\x01\x82\xd3\xe4\x93\x02;:\x01*\"6/libraries/v2beta1/requestGroups/{uid}:refreshCoverage\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd8\x0e\x9a\xaf\xa8\xd2\x05Y\n" +
 	"QForce a full coverage re-scan of a request group. Chainguard-internal; expensive. \x00(\x010\x00\xc2\xf0\x8e\xfc\vI\n" +
 	"@dev.chainguard.api.libraries.request_group.coverage_refreshed.v1\x12\x05group\x12\xf4\x02\n" +

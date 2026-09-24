@@ -83,7 +83,7 @@ service RequestGroupsService {
   // polling a large group can tell whether anything moved without paging the
   // items again.
   rpc GetRequestGroup(GetRequestGroupRequest) returns (RequestGroup) {
-    option (google.api.http) = {get: "/libraries/v2beta1/requestGroups/{uid=**}"};
+    option (google.api.http) = {get: "/libraries/v2beta1/requestGroups/{uid}"};
     option (chainguard.annotations.iam) = {
       enabled: {capabilities: [CAP_LIBRARIES_REQUEST_GROUPS_LIST]}
     };
@@ -102,7 +102,7 @@ service RequestGroupsService {
   // min_update_time supports delta sync against items_update_time, which is how a
   // 10,000-item group is followed without repaging the whole set.
   rpc ListRequestGroupItems(ListRequestGroupItemsRequest) returns (ListRequestGroupItemsResponse) {
-    option (google.api.http) = {get: "/libraries/v2beta1/requestGroups/{uid=**}/items"};
+    option (google.api.http) = {get: "/libraries/v2beta1/requestGroups/{uid}/items"};
     option (chainguard.annotations.iam) = {
       enabled: {capabilities: [CAP_LIBRARIES_REQUEST_GROUPS_LIST]}
     };
@@ -126,7 +126,7 @@ service RequestGroupsService {
   // Items in the cannot-be-requested set must be removed first.
   rpc SubmitRequestGroup(SubmitRequestGroupRequest) returns (RequestGroup) {
     option (google.api.http) = {
-      post: "/libraries/v2beta1/requestGroups/{uid=**}:submit"
+      post: "/libraries/v2beta1/requestGroups/{uid}:submit"
       body: "*"
     };
     option (chainguard.annotations.iam) = {
@@ -150,7 +150,7 @@ service RequestGroupsService {
   // expected use; it cannot submit a group or change its items.
   rpc UpdateRequestGroup(UpdateRequestGroupRequest) returns (RequestGroup) {
     option (google.api.http) = {
-      patch: "/libraries/v2beta1/requestGroups/{request_group.uid=**}"
+      patch: "/libraries/v2beta1/requestGroups/{request_group.uid}"
       body: "request_group"
     };
     option (chainguard.annotations.iam) = {
@@ -178,7 +178,7 @@ service RequestGroupsService {
   // any mismatch fails the whole call rather than partially applying.
   rpc RemoveItems(RemoveItemsRequest) returns (RemoveItemsResponse) {
     option (google.api.http) = {
-      post: "/libraries/v2beta1/requestGroups/{uid=**}:removeItems"
+      post: "/libraries/v2beta1/requestGroups/{uid}:removeItems"
       body: "*"
     };
     option (chainguard.annotations.iam) = {
@@ -201,7 +201,7 @@ service RequestGroupsService {
   // RestoreItems returns previously removed items to the draft.
   rpc RestoreItems(RestoreItemsRequest) returns (RestoreItemsResponse) {
     option (google.api.http) = {
-      post: "/libraries/v2beta1/requestGroups/{uid=**}:restoreItems"
+      post: "/libraries/v2beta1/requestGroups/{uid}:restoreItems"
       body: "*"
     };
     option (chainguard.annotations.iam) = {
@@ -230,7 +230,7 @@ service RequestGroupsService {
   // must not reach them. Deleting one is DeleteSubmittedRequestGroup below, whose
   // capability no customer role can hold.
   rpc DeleteRequestGroup(DeleteRequestGroupRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {delete: "/libraries/v2beta1/requestGroups/{uid=**}"};
+    option (google.api.http) = {delete: "/libraries/v2beta1/requestGroups/{uid}"};
     option (chainguard.annotations.iam) = {
       enabled: {capabilities: [CAP_LIBRARIES_REQUEST_GROUPS_DELETE]}
     };
@@ -272,7 +272,7 @@ service RequestGroupsService {
     // exception here, kept for a route that predates the convention; the two
     // custom methods added since, ":refreshCoverage" and
     // ":listRequestedLibraryVersions", both name their method in full.
-    option (google.api.http) = {delete: "/libraries/v2beta1/requestGroups/{uid=**}:deleteSubmittedRequestGroup"};
+    option (google.api.http) = {delete: "/libraries/v2beta1/requestGroups/{uid}:deleteSubmittedRequestGroup"};
     option (chainguard.annotations.iam) = {
       enabled: {capabilities: [CAP_LIBRARIES_REQUEST_GROUPS_DELETE_SUBMITTED]}
     };
@@ -302,7 +302,7 @@ service RequestGroupsService {
   // escalation rather than as a customer control.
   rpc RefreshCoverage(RefreshCoverageRequest) returns (RequestGroup) {
     option (google.api.http) = {
-      post: "/libraries/v2beta1/requestGroups/{uid=**}:refreshCoverage"
+      post: "/libraries/v2beta1/requestGroups/{uid}:refreshCoverage"
       body: "*"
     };
     option (chainguard.annotations.iam) = {
