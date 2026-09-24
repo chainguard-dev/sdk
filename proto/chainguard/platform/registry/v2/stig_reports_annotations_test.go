@@ -25,8 +25,12 @@ func Test_StigReports_Annotations(t *testing.T) {
 		t.Fatal("StigReportsService not found")
 	}
 	wantCapabilities := []capabilities.Capability{
+		capabilities.Capability_CAP_IAM_GROUPS_LIST,
 		capabilities.Capability_CAP_REPO_LIST,
-		capabilities.Capability_CAP_MANIFEST_METADATA_LIST,
+		capabilities.Capability_CAP_MANIFEST_LIST,
+		capabilities.Capability_CAP_TAG_LIST,
+		capabilities.Capability_CAP_REFERRERS_LIST,
+		capabilities.Capability_CAP_REPO_BLOBS_GET,
 	}
 	methods := []struct {
 		name       protoreflect.Name

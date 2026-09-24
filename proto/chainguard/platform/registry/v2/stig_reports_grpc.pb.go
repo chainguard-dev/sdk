@@ -41,9 +41,9 @@ type StigReportsServiceClient interface {
 	// Its data is the exact document represented by GetStigReport, identified
 	// by StigReport.xccdf_sha256.
 	// (-- api-linter: core::0136::response-message-name=disabled
-	//     api-linter: core::0136::http-uri-suffix=disabled
-	//     aip.dev/not-precedent: HttpBody preserves the raw XML response, and the
-	//     resource-local download action intentionally uses the stable :download suffix. --)
+	// api-linter: core::0136::http-uri-suffix=disabled
+	// aip.dev/not-precedent: HttpBody preserves the raw XML response, and the
+	// resource-local download action intentionally uses the stable :download suffix. --)
 	DownloadStigReport(ctx context.Context, in *DownloadStigReportRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error)
 }
 
@@ -89,9 +89,9 @@ type StigReportsServiceServer interface {
 	// Its data is the exact document represented by GetStigReport, identified
 	// by StigReport.xccdf_sha256.
 	// (-- api-linter: core::0136::response-message-name=disabled
-	//     api-linter: core::0136::http-uri-suffix=disabled
-	//     aip.dev/not-precedent: HttpBody preserves the raw XML response, and the
-	//     resource-local download action intentionally uses the stable :download suffix. --)
+	// api-linter: core::0136::http-uri-suffix=disabled
+	// aip.dev/not-precedent: HttpBody preserves the raw XML response, and the
+	// resource-local download action intentionally uses the stable :download suffix. --)
 	DownloadStigReport(context.Context, *DownloadStigReportRequest) (*httpbody.HttpBody, error)
 	mustEmbedUnimplementedStigReportsServiceServer()
 }

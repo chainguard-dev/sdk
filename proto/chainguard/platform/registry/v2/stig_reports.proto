@@ -24,11 +24,24 @@ service StigReportsService {
   // which is distinct from a report with zero failures.
   rpc GetStigReport(GetStigReportRequest) returns (StigReport) {
     option (google.api.http) = {get: "/registry/v2/repos/{repo_uid=**}/digests/{digest}/stig"};
+    // Both RPCs fetch and verify registry artifacts using the caller's token.
+    // Manifest reads resolve the image and bundle manifests; referrer reads
+    // discover bundles; blob reads fetch the config and report payloads.
+    // Registry read routes also require IAM_GROUPS_LIST, and blob reads require
+    // REPO_LIST. These are registry permissions, not manifest-metadata reads.
+    // Require the union of bundle and legacy permissions up front: TAG_LIST
+    // authorizes resolving the known .att tag for legacy fallback, even though
+    // a bundle-backed report does not need that lookup. This keeps the RPC's
+    // permission contract independent of the report's storage format.
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [
+          CAP_IAM_GROUPS_LIST,
           CAP_REPO_LIST,
-          CAP_MANIFEST_METADATA_LIST
+          CAP_MANIFEST_LIST,
+          CAP_TAG_LIST,
+          CAP_REFERRERS_LIST,
+          CAP_REPO_BLOBS_GET
         ]
       }
     };
@@ -45,16 +58,23 @@ service StigReportsService {
   // Its data is the exact document represented by GetStigReport, identified
   // by StigReport.xccdf_sha256.
   // (-- api-linter: core::0136::response-message-name=disabled
-  //     api-linter: core::0136::http-uri-suffix=disabled
-  //     aip.dev/not-precedent: HttpBody preserves the raw XML response, and the
-  //     resource-local download action intentionally uses the stable :download suffix. --)
+  // api-linter: core::0136::http-uri-suffix=disabled
+  // aip.dev/not-precedent: HttpBody preserves the raw XML response, and the
+  // resource-local download action intentionally uses the stable :download suffix. --)
   rpc DownloadStigReport(DownloadStigReportRequest) returns (google.api.HttpBody) {
     option (google.api.http) = {get: "/registry/v2/repos/{repo_uid=**}/digests/{digest}/stig:download"};
+    // Download performs the same verified registry read as GetStigReport;
+    // only the response representation differs. Keep its capability union,
+    // including TAG_LIST for legacy .att fallback, identical (see above).
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [
+          CAP_IAM_GROUPS_LIST,
           CAP_REPO_LIST,
-          CAP_MANIFEST_METADATA_LIST
+          CAP_MANIFEST_LIST,
+          CAP_TAG_LIST,
+          CAP_REFERRERS_LIST,
+          CAP_REPO_BLOBS_GET
         ]
       }
     };

@@ -678,13 +678,13 @@ const file_chainguard_platform_registry_v2_stig_reports_proto_rawDesc = "" +
 	"\x17STIG_RESULT_NOT_CHECKED\x10\x06\x12\x1c\n" +
 	"\x18STIG_RESULT_NOT_SELECTED\x10\a\x12\x15\n" +
 	"\x11STIG_RESULT_FIXED\x10\b\x12\x1d\n" +
-	"\x19STIG_RESULT_INFORMATIONAL\x10\t2\xef\x03\n" +
-	"\x12StigReportsService\x12\x90\x02\n" +
-	"\rGetStigReport\x125.chainguard.platform.registry.v2.GetStigReportRequest\x1a+.chainguard.platform.registry.v2.StigReport\"\x9a\x01\x82\xd3\xe4\x93\x028\x126/registry/v2/repos/{repo_uid=**}/digests/{digest}/stig\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x04\xc5\f\xcf\f\x9a\xaf\xa8\xd2\x05H\n" +
-	">Get the STIG compliance report for a container image manifest.\x18\x01 \x00(\x010\x00\x12\xc5\x01\n" +
-	"\x12DownloadStigReport\x12:.chainguard.platform.registry.v2.DownloadStigReportRequest\x1a\x14.google.api.HttpBody\"]\x82\xd3\xe4\x93\x02A\x12?/registry/v2/repos/{repo_uid=**}/digests/{digest}/stig:download\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x04\xc5\f\xcf\f\x9a\xaf\xa8\xd2\x05\x02\x10\x01Bs\n" +
+	"\x19STIG_RESULT_INFORMATIONAL\x10\t2\xfd\x03\n" +
+	"\x12StigReportsService\x12\x97\x02\n" +
+	"\rGetStigReport\x125.chainguard.platform.registry.v2.GetStigReportRequest\x1a+.chainguard.platform.registry.v2.StigReport\"\xa1\x01\x82\xd3\xe4\x93\x028\x126/registry/v2/repos/{repo_uid=**}/digests/{digest}/stig\x8a\xaf\xa8\xd2\x05\x0f\x12\r\n" +
+	"\vg\xc5\f\xc9\f\xcd\f\xd0\f\xc0\f\x9a\xaf\xa8\xd2\x05H\n" +
+	">Get the STIG compliance report for a container image manifest.\x18\x01 \x00(\x010\x00\x12\xcc\x01\n" +
+	"\x12DownloadStigReport\x12:.chainguard.platform.registry.v2.DownloadStigReportRequest\x1a\x14.google.api.HttpBody\"d\x82\xd3\xe4\x93\x02A\x12?/registry/v2/repos/{repo_uid=**}/digests/{digest}/stig:download\x8a\xaf\xa8\xd2\x05\x0f\x12\r\n" +
+	"\vg\xc5\f\xc9\f\xcd\f\xd0\f\xc0\f\x9a\xaf\xa8\xd2\x05\x02\x10\x01Bs\n" +
 	"#com.chainguard.platform.registry.v2B\x10StigReportsProtoP\x01Z8chainguard.dev/sdk/proto/chainguard/platform/registry/v2b\x06proto3"
 
 var (
