@@ -158,6 +158,7 @@ service IdentitiesService {
     };
     option (chainguard.annotations.mcp) = {
       description: "Resolve an OIDC issuer and subject to a Chainguard identity UID."
+      read_only: true
       hidden: true
     };
   }
