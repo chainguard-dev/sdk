@@ -603,6 +603,26 @@ message AvailabilitySummary {
   // blocking_submit: unlike a blocked item, a held one is not requestable, so
   // the customer has to take it out of the group to submit.
   int32 held = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Items with no answer yet, because their coverage check has not run or has
+  // not finished. Every other field counts an answer; this one counts their
+  // absence, so a group whose check has not started reports pending equal to
+  // total and zero everywhere else.
+  //
+  // Without it a group still being checked and a group whose check found
+  // nothing to report are the same message.
+  int32 pending = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Every item in the group, including removed and pending ones.
+  //
+  // It is not the sum of the fields above, and it exists because that sum is
+  // wrong: blocking_submit deliberately re-counts not_found_upstream,
+  // wont_build, invalid_requirement and held, so adding the fields together
+  // counts every blocking item twice. A field added here later would change
+  // what a summing client computed, as well.
+  //
+  // Progress is total - pending, which stays right however the buckets change.
+  int32 total = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // CVERemediationSummary counts a group's items by CVE-remediation status.

@@ -1289,7 +1289,25 @@ type AvailabilitySummary struct {
 	// Versions whose build was declined and is being held. Counted in
 	// blocking_submit: unlike a blocked item, a held one is not requestable, so
 	// the customer has to take it out of the group to submit.
-	Held          int32 `protobuf:"varint,11,opt,name=held,proto3" json:"held,omitempty"`
+	Held int32 `protobuf:"varint,11,opt,name=held,proto3" json:"held,omitempty"`
+	// Items with no answer yet, because their coverage check has not run or has
+	// not finished. Every other field counts an answer; this one counts their
+	// absence, so a group whose check has not started reports pending equal to
+	// total and zero everywhere else.
+	//
+	// Without it a group still being checked and a group whose check found
+	// nothing to report are the same message.
+	Pending int32 `protobuf:"varint,12,opt,name=pending,proto3" json:"pending,omitempty"`
+	// Every item in the group, including removed and pending ones.
+	//
+	// It is not the sum of the fields above, and it exists because that sum is
+	// wrong: blocking_submit deliberately re-counts not_found_upstream,
+	// wont_build, invalid_requirement and held, so adding the fields together
+	// counts every blocking item twice. A field added here later would change
+	// what a summing client computed, as well.
+	//
+	// Progress is total - pending, which stays right however the buckets change.
+	Total         int32 `protobuf:"varint,13,opt,name=total,proto3" json:"total,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1397,6 +1415,20 @@ func (x *AvailabilitySummary) GetBlockingSubmit() int32 {
 func (x *AvailabilitySummary) GetHeld() int32 {
 	if x != nil {
 		return x.Held
+	}
+	return 0
+}
+
+func (x *AvailabilitySummary) GetPending() int32 {
+	if x != nil {
+		return x.Pending
+	}
+	return 0
+}
+
+func (x *AvailabilitySummary) GetTotal() int32 {
+	if x != nil {
+		return x.Total
 	}
 	return 0
 }
@@ -3530,7 +3562,7 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"\x06format\x18\x02 \x01(\x0e22.chainguard.platform.libraries.v2beta1.InputFormatB\x04\xe2A\x01\x03R\x06format\x12'\n" +
 	"\fcontent_hash\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\vcontentHash\x12#\n" +
 	"\n" +
-	"item_count\x18\x04 \x01(\x05B\x04\xe2A\x01\x03R\titemCount\"\xc5\x03\n" +
+	"item_count\x18\x04 \x01(\x05B\x04\xe2A\x01\x03R\titemCount\"\x81\x04\n" +
 	"\x13AvailabilitySummary\x12\x1a\n" +
 	"\x05built\x18\x01 \x01(\x05B\x04\xe2A\x01\x03R\x05built\x12.\n" +
 	"\x10can_be_requested\x18\x02 \x01(\x05B\x04\xe2A\x01\x03R\x0ecanBeRequested\x12\x1e\n" +
@@ -3544,7 +3576,9 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"\aremoved\x18\t \x01(\x05B\x04\xe2A\x01\x03R\aremoved\x12-\n" +
 	"\x0fblocking_submit\x18\n" +
 	" \x01(\x05B\x04\xe2A\x01\x03R\x0eblockingSubmit\x12\x18\n" +
-	"\x04held\x18\v \x01(\x05B\x04\xe2A\x01\x03R\x04held\"\xc2\x02\n" +
+	"\x04held\x18\v \x01(\x05B\x04\xe2A\x01\x03R\x04held\x12\x1e\n" +
+	"\apending\x18\f \x01(\x05B\x04\xe2A\x01\x03R\apending\x12\x1a\n" +
+	"\x05total\x18\r \x01(\x05B\x04\xe2A\x01\x03R\x05total\"\xc2\x02\n" +
 	"\x15CVERemediationSummary\x12%\n" +
 	"\vscan_queued\x18\x01 \x01(\x05B\x04\xe2A\x01\x03R\n" +
 	"scanQueued\x127\n" +
