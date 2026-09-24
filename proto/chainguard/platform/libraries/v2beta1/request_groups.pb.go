@@ -3792,7 +3792,7 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"(REQUESTED_LIBRARY_CVE_STATUS_IN_PROGRESS\x10\x02\x126\n" +
 	"2REQUESTED_LIBRARY_CVE_STATUS_NO_HIGH_CRITICAL_CVES\x10\x03\x12)\n" +
 	"%REQUESTED_LIBRARY_CVE_STATUS_COMPLETE\x10\x04\x12/\n" +
-	"+REQUESTED_LIBRARY_CVE_STATUS_WONT_REMEDIATE\x10\x052\xde'\n" +
+	"+REQUESTED_LIBRARY_CVE_STATUS_WONT_REMEDIATE\x10\x052\xea'\n" +
 	"\x14RequestGroupsService\x12\xbd\x03\n" +
 	"\x12CreateRequestGroup\x12@.chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest\x1a3.chainguard.platform.libraries.v2beta1.RequestGroup\"\xaf\x02\x82\xd3\xe4\x93\x021:\x01*\",/libraries/v2beta1/requestGroups/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd2\x0e\x9a\xaf\xa8\xd2\x05\x9f\x01\n" +
@@ -3806,8 +3806,8 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"eGet a library request group's metadata, per-availability summary counts, and CVE-remediation summary.\x18\x01 \x00(\x010\x00\x12\xfc\x02\n" +
 	"\x15ListRequestGroupItems\x12C.chainguard.platform.libraries.v2beta1.ListRequestGroupItemsRequest\x1aD.chainguard.platform.libraries.v2beta1.ListRequestGroupItemsResponse\"\xd7\x01\x82\xd3\xe4\x93\x02.\x12,/libraries/v2beta1/requestGroups/{uid}/items\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd3\x0e\x9a\xaf\xa8\xd2\x05\x90\x01\n" +
-	"\x85\x01List a request group's items with per-version build availability and CVE-remediation status. Supports delta sync via min_update_time.\x18\x01 \x00(\x010\x00\x12\xbd\x03\n" +
-	"\x12SubmitRequestGroup\x12@.chainguard.platform.libraries.v2beta1.SubmitRequestGroupRequest\x1a3.chainguard.platform.libraries.v2beta1.RequestGroup\"\xaf\x02\x82\xd3\xe4\x93\x022:\x01*\"-/libraries/v2beta1/requestGroups/{uid}:submit\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x85\x01List a request group's items with per-version build availability and CVE-remediation status. Supports delta sync via min_update_time.\x18\x01 \x00(\x010\x00\x12\xc9\x03\n" +
+	"\x12SubmitRequestGroup\x12@.chainguard.platform.libraries.v2beta1.SubmitRequestGroupRequest\x1a3.chainguard.platform.libraries.v2beta1.RequestGroup\"\xbb\x02\x82\xd3\xe4\x93\x02>:\x01*\"9/libraries/v2beta1/requestGroups/{uid}:submitRequestGroup\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd6\x0e\x9a\xaf\xa8\xd2\x05\x9c\x01\n" +
 	"\x93\x01Submit a draft request group, committing Chainguard to build its requestable versions. Optionally opts the group in to CVE remediation. Owner-only. \x00(\x010\x00\xc2\xf0\x8e\xfc\vB\n" +
 	"7dev.chainguard.api.libraries.request_group.submitted.v1\x12\x05group\x18\x01\x12\xab\x03\n" +

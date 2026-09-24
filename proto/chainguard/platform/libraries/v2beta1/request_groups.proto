@@ -126,7 +126,7 @@ service RequestGroupsService {
   // Items in the cannot-be-requested set must be removed first.
   rpc SubmitRequestGroup(SubmitRequestGroupRequest) returns (RequestGroup) {
     option (google.api.http) = {
-      post: "/libraries/v2beta1/requestGroups/{uid}:submit"
+      post: "/libraries/v2beta1/requestGroups/{uid}:submitRequestGroup"
       body: "*"
     };
     option (chainguard.annotations.iam) = {

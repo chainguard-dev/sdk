@@ -149,7 +149,7 @@ func Test_RequestGroups_HTTPRoutesReachTheirRPC(t *testing.T) {
 		method: http.MethodPost, path: base + "/" + org, want: "CreateRequestGroup",
 	}, {
 		name:   "submit",
-		method: http.MethodPost, path: base + "/" + uid + ":submit", want: "SubmitRequestGroup",
+		method: http.MethodPost, path: base + "/" + uid + ":submitRequestGroup", want: "SubmitRequestGroup",
 	}, {
 		name:   "update",
 		method: http.MethodPatch, path: base + "/" + uid, want: "UpdateRequestGroup",
