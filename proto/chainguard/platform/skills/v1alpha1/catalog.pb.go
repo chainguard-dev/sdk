@@ -792,6 +792,192 @@ func (x *SearchSkillsResponse) GetTotalCount() int64 {
 	return 0
 }
 
+type ListSkillSourcesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// uidp is a UIDP-based filter naming the org (group) to list sources under.
+	// Required, and self-scoping to the orgs the caller is authorized for, exactly
+	// like ListSkills — the facet never reveals a source outside that scope.
+	Uidp *v1.UIDPFilter `protobuf:"bytes,1,opt,name=uidp,proto3" json:"uidp,omitempty"`
+	// Maximum results per page. Defaults to 50; values above 1000 are capped.
+	// Negative values are rejected.
+	PageSize int32 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// Token from a previous response's next_page_token. Other filters and the
+	// caller's authorized scope must remain unchanged.
+	PageToken string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// Sort by source, optionally followed by asc or desc. Default: source asc.
+	OrderBy string `protobuf:"bytes,4,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
+	// Number of distinct values to skip after the page token, from 0 to 10000.
+	Skip          int32 `protobuf:"varint,5,opt,name=skip,proto3" json:"skip,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListSkillSourcesRequest) Reset() {
+	*x = ListSkillSourcesRequest{}
+	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListSkillSourcesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListSkillSourcesRequest) ProtoMessage() {}
+
+func (x *ListSkillSourcesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListSkillSourcesRequest.ProtoReflect.Descriptor instead.
+func (*ListSkillSourcesRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ListSkillSourcesRequest) GetUidp() *v1.UIDPFilter {
+	if x != nil {
+		return x.Uidp
+	}
+	return nil
+}
+
+func (x *ListSkillSourcesRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *ListSkillSourcesRequest) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+func (x *ListSkillSourcesRequest) GetOrderBy() string {
+	if x != nil {
+		return x.OrderBy
+	}
+	return ""
+}
+
+func (x *ListSkillSourcesRequest) GetSkip() int32 {
+	if x != nil {
+		return x.Skip
+	}
+	return 0
+}
+
+// Source is one publishing organization occurring in the catalog.
+type Source struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// source is the slug to pass back as the ListSkills / SearchSkills `source`
+	// filter, e.g. "anthropics".
+	Source        string `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Source) Reset() {
+	*x = Source{}
+	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Source) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Source) ProtoMessage() {}
+
+func (x *Source) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Source.ProtoReflect.Descriptor instead.
+func (*Source) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *Source) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
+}
+
+type ListSkillSourcesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// items are one page of distinct sources in scope, ordered by slug.
+	Items []*Source `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	// Token for the next page, empty when there are no more results.
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListSkillSourcesResponse) Reset() {
+	*x = ListSkillSourcesResponse{}
+	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListSkillSourcesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListSkillSourcesResponse) ProtoMessage() {}
+
+func (x *ListSkillSourcesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListSkillSourcesResponse.ProtoReflect.Descriptor instead.
+func (*ListSkillSourcesResponse) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ListSkillSourcesResponse) GetItems() []*Source {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+func (x *ListSkillSourcesResponse) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
+}
+
 var File_chainguard_platform_skills_v1alpha1_catalog_proto protoreflect.FileDescriptor
 
 const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
@@ -868,7 +1054,20 @@ const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	"\x05items\x18\x01 \x03(\v2*.chainguard.platform.skills.v1alpha1.SkillR\x05items\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
 	"\vtotal_count\x18\x03 \x01(\x03R\n" +
-	"totalCount2\xef\b\n" +
+	"totalCount\"\xc6\x01\n" +
+	"\x17ListSkillSourcesRequest\x12@\n" +
+	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterB\x04\xe2A\x01\x02R\x04uidp\x12\x1b\n" +
+	"\tpage_size\x18\x02 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"\n" +
+	"page_token\x18\x03 \x01(\tR\tpageToken\x12\x19\n" +
+	"\border_by\x18\x04 \x01(\tR\aorderBy\x12\x12\n" +
+	"\x04skip\x18\x05 \x01(\x05R\x04skip\"&\n" +
+	"\x06Source\x12\x1c\n" +
+	"\x06source\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x06source\"\x85\x01\n" +
+	"\x18ListSkillSourcesResponse\x12A\n" +
+	"\x05items\x18\x01 \x03(\v2+.chainguard.platform.skills.v1alpha1.SourceR\x05items\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\xb9\n" +
+	"\n" +
 	"\x06Skills\x12\xf4\x02\n" +
 	"\n" +
 	"ListSkills\x126.chainguard.platform.skills.v1alpha1.ListSkillsRequest\x1a7.chainguard.platform.skills.v1alpha1.ListSkillsResponse\"\xf4\x01\x82\xd3\xe4\x93\x02\x19\x12\x17/skills/v1alpha1/skills\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
@@ -876,7 +1075,9 @@ const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	"\xb5\x01List hardened Chainguard skills in the catalog under a group (name + description + category), one bounded page at a time. To find a specific skill prefer search; use this to browse.\x18\x01 \x00(\x010\x00\x12\x8c\x03\n" +
 	"\fSearchSkills\x128.chainguard.platform.skills.v1alpha1.SearchSkillsRequest\x1a9.chainguard.platform.skills.v1alpha1.SearchSkillsResponse\"\x86\x02\x82\xd3\xe4\x93\x02 \x12\x1e/skills/v1alpha1/skills:search\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\xcb\x13\x10\x01\x9a\xaf\xa8\xd2\x05\xcb\x01\n" +
-	"\xc0\x01Search hardened Chainguard skills in the catalog by a free-text query (matched against name, description, category, and keywords) under a group. Prefer this over list to find a specific skill.\x18\x01 \x00(\x010\x00\x12\xb9\x01\n" +
+	"\xc0\x01Search hardened Chainguard skills in the catalog by a free-text query (matched against name, description, category, and keywords) under a group. Prefer this over list to find a specific skill.\x18\x01 \x00(\x010\x00\x12\xc7\x01\n" +
+	"\x10ListSkillSources\x12<.chainguard.platform.skills.v1alpha1.ListSkillSourcesRequest\x1a=.chainguard.platform.skills.v1alpha1.ListSkillSourcesResponse\"6\x82\xd3\xe4\x93\x02\x1a\x12\x18/skills/v1alpha1/sources\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02\xcb\x13\x10\x01\x9a\xaf\xa8\xd2\x05\x02\x10\x01\x12\xb9\x01\n" +
 	"\vUpdateSkill\x127.chainguard.platform.skills.v1alpha1.UpdateSkillRequest\x1a*.chainguard.platform.skills.v1alpha1.Skill\"E\x82\xd3\xe4\x93\x02+:\x01*2&/skills/v1alpha1/skills/{repo_uidp=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xc9\x13\x9a\xaf\xa8\xd2\x05\x02\x10\x01\x12\xa2\x01\n" +
 	"\vDeleteSkill\x127.chainguard.platform.skills.v1alpha1.DeleteSkillRequest\x1a\x16.google.protobuf.Empty\"B\x82\xd3\xe4\x93\x02(*&/skills/v1alpha1/skills/{repo_uidp=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
@@ -895,39 +1096,46 @@ func file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDescGZIP() []byte
 	return file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDescData
 }
 
-var file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_chainguard_platform_skills_v1alpha1_catalog_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_chainguard_platform_skills_v1alpha1_catalog_proto_goTypes = []any{
-	(*Skill)(nil),                 // 0: chainguard.platform.skills.v1alpha1.Skill
-	(*UpdateSkillRequest)(nil),    // 1: chainguard.platform.skills.v1alpha1.UpdateSkillRequest
-	(*DeleteSkillRequest)(nil),    // 2: chainguard.platform.skills.v1alpha1.DeleteSkillRequest
-	(*ListSkillsRequest)(nil),     // 3: chainguard.platform.skills.v1alpha1.ListSkillsRequest
-	(*ListSkillsResponse)(nil),    // 4: chainguard.platform.skills.v1alpha1.ListSkillsResponse
-	(*SearchSkillsRequest)(nil),   // 5: chainguard.platform.skills.v1alpha1.SearchSkillsRequest
-	(*SearchSkillsResponse)(nil),  // 6: chainguard.platform.skills.v1alpha1.SearchSkillsResponse
-	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
-	(*v1.UIDPFilter)(nil),         // 8: chainguard.platform.common.UIDPFilter
-	(*emptypb.Empty)(nil),         // 9: google.protobuf.Empty
+	(*Skill)(nil),                    // 0: chainguard.platform.skills.v1alpha1.Skill
+	(*UpdateSkillRequest)(nil),       // 1: chainguard.platform.skills.v1alpha1.UpdateSkillRequest
+	(*DeleteSkillRequest)(nil),       // 2: chainguard.platform.skills.v1alpha1.DeleteSkillRequest
+	(*ListSkillsRequest)(nil),        // 3: chainguard.platform.skills.v1alpha1.ListSkillsRequest
+	(*ListSkillsResponse)(nil),       // 4: chainguard.platform.skills.v1alpha1.ListSkillsResponse
+	(*SearchSkillsRequest)(nil),      // 5: chainguard.platform.skills.v1alpha1.SearchSkillsRequest
+	(*SearchSkillsResponse)(nil),     // 6: chainguard.platform.skills.v1alpha1.SearchSkillsResponse
+	(*ListSkillSourcesRequest)(nil),  // 7: chainguard.platform.skills.v1alpha1.ListSkillSourcesRequest
+	(*Source)(nil),                   // 8: chainguard.platform.skills.v1alpha1.Source
+	(*ListSkillSourcesResponse)(nil), // 9: chainguard.platform.skills.v1alpha1.ListSkillSourcesResponse
+	(*timestamppb.Timestamp)(nil),    // 10: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),            // 11: chainguard.platform.common.UIDPFilter
+	(*emptypb.Empty)(nil),            // 12: google.protobuf.Empty
 }
 var file_chainguard_platform_skills_v1alpha1_catalog_proto_depIdxs = []int32{
-	7,  // 0: chainguard.platform.skills.v1alpha1.Skill.create_time:type_name -> google.protobuf.Timestamp
-	7,  // 1: chainguard.platform.skills.v1alpha1.Skill.update_time:type_name -> google.protobuf.Timestamp
-	8,  // 2: chainguard.platform.skills.v1alpha1.ListSkillsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	10, // 0: chainguard.platform.skills.v1alpha1.Skill.create_time:type_name -> google.protobuf.Timestamp
+	10, // 1: chainguard.platform.skills.v1alpha1.Skill.update_time:type_name -> google.protobuf.Timestamp
+	11, // 2: chainguard.platform.skills.v1alpha1.ListSkillsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
 	0,  // 3: chainguard.platform.skills.v1alpha1.ListSkillsResponse.items:type_name -> chainguard.platform.skills.v1alpha1.Skill
-	8,  // 4: chainguard.platform.skills.v1alpha1.SearchSkillsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	11, // 4: chainguard.platform.skills.v1alpha1.SearchSkillsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
 	0,  // 5: chainguard.platform.skills.v1alpha1.SearchSkillsResponse.items:type_name -> chainguard.platform.skills.v1alpha1.Skill
-	3,  // 6: chainguard.platform.skills.v1alpha1.Skills.ListSkills:input_type -> chainguard.platform.skills.v1alpha1.ListSkillsRequest
-	5,  // 7: chainguard.platform.skills.v1alpha1.Skills.SearchSkills:input_type -> chainguard.platform.skills.v1alpha1.SearchSkillsRequest
-	1,  // 8: chainguard.platform.skills.v1alpha1.Skills.UpdateSkill:input_type -> chainguard.platform.skills.v1alpha1.UpdateSkillRequest
-	2,  // 9: chainguard.platform.skills.v1alpha1.Skills.DeleteSkill:input_type -> chainguard.platform.skills.v1alpha1.DeleteSkillRequest
-	4,  // 10: chainguard.platform.skills.v1alpha1.Skills.ListSkills:output_type -> chainguard.platform.skills.v1alpha1.ListSkillsResponse
-	6,  // 11: chainguard.platform.skills.v1alpha1.Skills.SearchSkills:output_type -> chainguard.platform.skills.v1alpha1.SearchSkillsResponse
-	0,  // 12: chainguard.platform.skills.v1alpha1.Skills.UpdateSkill:output_type -> chainguard.platform.skills.v1alpha1.Skill
-	9,  // 13: chainguard.platform.skills.v1alpha1.Skills.DeleteSkill:output_type -> google.protobuf.Empty
-	10, // [10:14] is the sub-list for method output_type
-	6,  // [6:10] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	11, // 6: chainguard.platform.skills.v1alpha1.ListSkillSourcesRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	8,  // 7: chainguard.platform.skills.v1alpha1.ListSkillSourcesResponse.items:type_name -> chainguard.platform.skills.v1alpha1.Source
+	3,  // 8: chainguard.platform.skills.v1alpha1.Skills.ListSkills:input_type -> chainguard.platform.skills.v1alpha1.ListSkillsRequest
+	5,  // 9: chainguard.platform.skills.v1alpha1.Skills.SearchSkills:input_type -> chainguard.platform.skills.v1alpha1.SearchSkillsRequest
+	7,  // 10: chainguard.platform.skills.v1alpha1.Skills.ListSkillSources:input_type -> chainguard.platform.skills.v1alpha1.ListSkillSourcesRequest
+	1,  // 11: chainguard.platform.skills.v1alpha1.Skills.UpdateSkill:input_type -> chainguard.platform.skills.v1alpha1.UpdateSkillRequest
+	2,  // 12: chainguard.platform.skills.v1alpha1.Skills.DeleteSkill:input_type -> chainguard.platform.skills.v1alpha1.DeleteSkillRequest
+	4,  // 13: chainguard.platform.skills.v1alpha1.Skills.ListSkills:output_type -> chainguard.platform.skills.v1alpha1.ListSkillsResponse
+	6,  // 14: chainguard.platform.skills.v1alpha1.Skills.SearchSkills:output_type -> chainguard.platform.skills.v1alpha1.SearchSkillsResponse
+	9,  // 15: chainguard.platform.skills.v1alpha1.Skills.ListSkillSources:output_type -> chainguard.platform.skills.v1alpha1.ListSkillSourcesResponse
+	0,  // 16: chainguard.platform.skills.v1alpha1.Skills.UpdateSkill:output_type -> chainguard.platform.skills.v1alpha1.Skill
+	12, // 17: chainguard.platform.skills.v1alpha1.Skills.DeleteSkill:output_type -> google.protobuf.Empty
+	13, // [13:18] is the sub-list for method output_type
+	8,  // [8:13] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_skills_v1alpha1_catalog_proto_init() }
@@ -943,7 +1151,7 @@ func file_chainguard_platform_skills_v1alpha1_catalog_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc), len(file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

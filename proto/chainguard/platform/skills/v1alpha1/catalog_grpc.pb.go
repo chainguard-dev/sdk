@@ -23,10 +23,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Skills_ListSkills_FullMethodName   = "/chainguard.platform.skills.v1alpha1.Skills/ListSkills"
-	Skills_SearchSkills_FullMethodName = "/chainguard.platform.skills.v1alpha1.Skills/SearchSkills"
-	Skills_UpdateSkill_FullMethodName  = "/chainguard.platform.skills.v1alpha1.Skills/UpdateSkill"
-	Skills_DeleteSkill_FullMethodName  = "/chainguard.platform.skills.v1alpha1.Skills/DeleteSkill"
+	Skills_ListSkills_FullMethodName       = "/chainguard.platform.skills.v1alpha1.Skills/ListSkills"
+	Skills_SearchSkills_FullMethodName     = "/chainguard.platform.skills.v1alpha1.Skills/SearchSkills"
+	Skills_ListSkillSources_FullMethodName = "/chainguard.platform.skills.v1alpha1.Skills/ListSkillSources"
+	Skills_UpdateSkill_FullMethodName      = "/chainguard.platform.skills.v1alpha1.Skills/UpdateSkill"
+	Skills_DeleteSkill_FullMethodName      = "/chainguard.platform.skills.v1alpha1.Skills/DeleteSkill"
 )
 
 // SkillsClient is the client API for Skills service.
@@ -54,6 +55,12 @@ type SkillsClient interface {
 	// a group. Like ListSkills it is org-agnostic and unscoped, self-scoping to the
 	// orgs the caller holds CAP_SKILLS_LIST on.
 	SearchSkills(ctx context.Context, in *SearchSkillsRequest, opts ...grpc.CallOption) (*SearchSkillsResponse, error)
+	// ListSkillSources lists the publishing organizations that actually occur on the
+	// skills in scope. It backs the catalog's
+	// source-filter dropdown: every value it returns is a value ListSkills /
+	// SearchSkills `source` will match, so the dropdown cannot offer an empty
+	// filter. Scoped exactly like ListSkills.
+	ListSkillSources(ctx context.Context, in *ListSkillSourcesRequest, opts ...grpc.CallOption) (*ListSkillSourcesResponse, error)
 	// UpdateSkill writes a skill's catalog metadata row at publish time, keyed by
 	// repo_uidp (the skill's id — a skill is a registry repo). It follows AIP-134
 	// create-or-update: with allow_missing=true the row is created when none
@@ -90,6 +97,16 @@ func (c *skillsClient) SearchSkills(ctx context.Context, in *SearchSkillsRequest
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SearchSkillsResponse)
 	err := c.cc.Invoke(ctx, Skills_SearchSkills_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *skillsClient) ListSkillSources(ctx context.Context, in *ListSkillSourcesRequest, opts ...grpc.CallOption) (*ListSkillSourcesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListSkillSourcesResponse)
+	err := c.cc.Invoke(ctx, Skills_ListSkillSources_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -141,6 +158,12 @@ type SkillsServer interface {
 	// a group. Like ListSkills it is org-agnostic and unscoped, self-scoping to the
 	// orgs the caller holds CAP_SKILLS_LIST on.
 	SearchSkills(context.Context, *SearchSkillsRequest) (*SearchSkillsResponse, error)
+	// ListSkillSources lists the publishing organizations that actually occur on the
+	// skills in scope. It backs the catalog's
+	// source-filter dropdown: every value it returns is a value ListSkills /
+	// SearchSkills `source` will match, so the dropdown cannot offer an empty
+	// filter. Scoped exactly like ListSkills.
+	ListSkillSources(context.Context, *ListSkillSourcesRequest) (*ListSkillSourcesResponse, error)
 	// UpdateSkill writes a skill's catalog metadata row at publish time, keyed by
 	// repo_uidp (the skill's id — a skill is a registry repo). It follows AIP-134
 	// create-or-update: with allow_missing=true the row is created when none
@@ -168,6 +191,9 @@ func (UnimplementedSkillsServer) ListSkills(context.Context, *ListSkillsRequest)
 }
 func (UnimplementedSkillsServer) SearchSkills(context.Context, *SearchSkillsRequest) (*SearchSkillsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SearchSkills not implemented")
+}
+func (UnimplementedSkillsServer) ListSkillSources(context.Context, *ListSkillSourcesRequest) (*ListSkillSourcesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListSkillSources not implemented")
 }
 func (UnimplementedSkillsServer) UpdateSkill(context.Context, *UpdateSkillRequest) (*Skill, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateSkill not implemented")
@@ -232,6 +258,24 @@ func _Skills_SearchSkills_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Skills_ListSkillSources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListSkillSourcesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SkillsServer).ListSkillSources(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Skills_ListSkillSources_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SkillsServer).ListSkillSources(ctx, req.(*ListSkillSourcesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Skills_UpdateSkill_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateSkillRequest)
 	if err := dec(in); err != nil {
@@ -282,6 +326,10 @@ var Skills_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SearchSkills",
 			Handler:    _Skills_SearchSkills_Handler,
+		},
+		{
+			MethodName: "ListSkillSources",
+			Handler:    _Skills_ListSkillSources_Handler,
 		},
 		{
 			MethodName: "UpdateSkill",

@@ -20,10 +20,11 @@ import (
 var _ skills.SkillsClient = (*MockCatalogClient)(nil)
 
 type MockCatalogClient struct {
-	OnListSkills   []SkillsOnList
-	OnSearchSkills []SkillsOnSearch
-	OnUpdateSkill  []SkillsOnUpdate
-	OnDeleteSkill  []SkillsOnDelete
+	OnListSkills       []SkillsOnList
+	OnSearchSkills     []SkillsOnSearch
+	OnListSkillSources []SkillsOnListSkillSources
+	OnUpdateSkill      []SkillsOnUpdate
+	OnDeleteSkill      []SkillsOnDelete
 }
 
 type SkillsOnList struct {
@@ -36,6 +37,12 @@ type SkillsOnSearch struct {
 	Given  *skills.SearchSkillsRequest
 	Result *skills.SearchSkillsResponse
 	Error  error
+}
+
+type SkillsOnListSkillSources struct {
+	Given *skills.ListSkillSourcesRequest
+	List  *skills.ListSkillSourcesResponse
+	Error error
 }
 
 type SkillsOnUpdate struct {
@@ -62,6 +69,15 @@ func (m MockCatalogClient) SearchSkills(_ context.Context, given *skills.SearchS
 	for _, o := range m.OnSearchSkills {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Result, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockCatalogClient) ListSkillSources(_ context.Context, given *skills.ListSkillSourcesRequest, _ ...grpc.CallOption) (*skills.ListSkillSourcesResponse, error) {
+	for _, o := range m.OnListSkillSources {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.List, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)

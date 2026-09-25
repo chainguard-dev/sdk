@@ -75,6 +75,25 @@ service Skills {
     };
   }
 
+  // ListSkillSources lists the publishing organizations that actually occur on the
+  // skills in scope. It backs the catalog's
+  // source-filter dropdown: every value it returns is a value ListSkills /
+  // SearchSkills `source` will match, so the dropdown cannot offer an empty
+  // filter. Scoped exactly like ListSkills.
+  rpc ListSkillSources(ListSkillSourcesRequest) returns (ListSkillSourcesResponse) {
+    option (google.api.http) = {get: "/skills/v1alpha1/sources"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_SKILLS_LIST]
+        unscoped: true
+      }
+    };
+    // A facet lookup for the catalog UI's filter dropdown. An agent narrows the
+    // catalog with SearchSkills' free-text query instead, so keep it off the
+    // tool surface.
+    option (chainguard.annotations.mcp) = {hidden: true};
+  }
+
   // UpdateSkill writes a skill's catalog metadata row at publish time, keyed by
   // repo_uidp (the skill's id — a skill is a registry repo). It follows AIP-134
   // create-or-update: with allow_missing=true the row is created when none
@@ -298,4 +317,35 @@ message SearchSkillsResponse {
   string next_page_token = 2;
   // total_count is the total number of skills matching the query.
   int64 total_count = 3;
+}
+
+message ListSkillSourcesRequest {
+  // uidp is a UIDP-based filter naming the org (group) to list sources under.
+  // Required, and self-scoping to the orgs the caller is authorized for, exactly
+  // like ListSkills — the facet never reveals a source outside that scope.
+  chainguard.platform.common.UIDPFilter uidp = 1 [(google.api.field_behavior) = REQUIRED];
+  // Maximum results per page. Defaults to 50; values above 1000 are capped.
+  // Negative values are rejected.
+  int32 page_size = 2;
+  // Token from a previous response's next_page_token. Other filters and the
+  // caller's authorized scope must remain unchanged.
+  string page_token = 3;
+  // Sort by source, optionally followed by asc or desc. Default: source asc.
+  string order_by = 4;
+  // Number of distinct values to skip after the page token, from 0 to 10000.
+  int32 skip = 5;
+}
+
+// Source is one publishing organization occurring in the catalog.
+message Source {
+  // source is the slug to pass back as the ListSkills / SearchSkills `source`
+  // filter, e.g. "anthropics".
+  string source = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message ListSkillSourcesResponse {
+  // items are one page of distinct sources in scope, ordered by slug.
+  repeated Source items = 1;
+  // Token for the next page, empty when there are no more results.
+  string next_page_token = 2;
 }
