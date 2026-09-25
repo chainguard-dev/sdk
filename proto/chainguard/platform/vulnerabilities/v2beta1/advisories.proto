@@ -140,9 +140,9 @@ message Severity {
   }
 
   // The type of severity scoring method used.
-  Type type = 1;
+  Type type = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
   // The score string (CVSS vector string or numeric value depending on type).
-  string score = 2;
+  string score = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // AdvisoryEvent represents a change in state during the lifecycle of an advisory.

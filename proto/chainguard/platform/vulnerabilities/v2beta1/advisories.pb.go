@@ -2055,10 +2055,10 @@ const file_chainguard_platform_vulnerabilities_v2beta1_advisories_proto_rawDesc 
 	"'vulnerabilities.chainguard.dev/Advisory\x12\x15advisories/{advisory}*\n" +
 	"advisories2\badvisoryB\x0e\n" +
 	"\f_delete_timeB\x15\n" +
-	"\x13_legacy_advisory_id\"\xc4\x01\n" +
-	"\bSeverity\x12N\n" +
-	"\x04type\x18\x01 \x01(\x0e2:.chainguard.platform.vulnerabilities.v2beta1.Severity.TypeR\x04type\x12\x14\n" +
-	"\x05score\x18\x02 \x01(\tR\x05score\"R\n" +
+	"\x13_legacy_advisory_id\"\xd0\x01\n" +
+	"\bSeverity\x12T\n" +
+	"\x04type\x18\x01 \x01(\x0e2:.chainguard.platform.vulnerabilities.v2beta1.Severity.TypeB\x04\xe2A\x01\x03R\x04type\x12\x1a\n" +
+	"\x05score\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x05score\"R\n" +
 	"\x04Type\x12\x14\n" +
 	"\x10TYPE_UNSPECIFIED\x10\x00\x12\x10\n" +
 	"\fTYPE_CVSS_V2\x10\x01\x12\x10\n" +
