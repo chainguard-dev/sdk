@@ -41,3 +41,24 @@ func ExampleGroupFromHardenName() {
 	// <nil>
 	// org1/child
 }
+
+func ExampleHardenRetryOperationName() {
+	failed := skills.HardenOperationName("org/child", "user", "pdf", "sha256:abc")
+	retry, err := skills.HardenRetryOperationName(failed)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	repeated, err := skills.HardenRetryOperationName(failed)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	group, err := skills.GroupFromHardenName(retry)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(group, retry != failed, retry == repeated)
+	// Output: org/child true true
+}

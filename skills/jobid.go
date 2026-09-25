@@ -69,6 +69,19 @@ func HardenOperationName(orgID, userID, skillName, contentDigest string) string 
 	return HardenNamePrefix + orgID + "/" + HardenJobID(orgID, userID, skillName, contentDigest)
 }
 
+// HardenRetryOperationName derives the next attempt from a failed operation's
+// full name. Transport retries therefore return the same attempt; a further
+// retry must name the newly failed operation. The caller verifies ownership and
+// failure before creating it.
+func HardenRetryOperationName(failedOperation string) (string, error) {
+	group, err := GroupFromHardenName(failedOperation)
+	if err != nil {
+		return "", err
+	}
+	sum := sha256.Sum256([]byte("harden-retry-v1\n" + failedOperation))
+	return HardenNamePrefix + group + "/" + hex.EncodeToString(sum[:]), nil
+}
+
 // GroupFromHardenName extracts the group UIDP embedded in a harden operation
 // name. The name is "harden/{group}/{jobhash}"; the group UIDP may itself
 // contain "/" (hierarchical UIDPs), so the job hash is the final path segment

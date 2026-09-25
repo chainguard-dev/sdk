@@ -44,10 +44,11 @@ type SkillsHardenClient interface {
 	// (group, skill_name, content) submission returns the existing operation
 	// rather than starting duplicate work.
 	//
-	// The operation name is the deterministic job id derived from the group, the
-	// submitting user, the skill name, and the content digest, so a client can
+	// By default, the operation name is the deterministic job id derived from the
+	// group, submitting user, skill name, and content digest, so a client can
 	// recompute it locally and poll GetHardenOperation without the submit
-	// round-trip.
+	// round-trip. An explicit retry_of instead derives its id from that failed
+	// operation, preserving one successor per failed attempt.
 	HardenSkill(ctx context.Context, in *HardenSkillRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
 	// GetHardenOperation returns the current state of a harden operation
 	// previously returned by HardenSkill. The operation name embeds the owning
@@ -113,10 +114,11 @@ type SkillsHardenServer interface {
 	// (group, skill_name, content) submission returns the existing operation
 	// rather than starting duplicate work.
 	//
-	// The operation name is the deterministic job id derived from the group, the
-	// submitting user, the skill name, and the content digest, so a client can
+	// By default, the operation name is the deterministic job id derived from the
+	// group, submitting user, skill name, and content digest, so a client can
 	// recompute it locally and poll GetHardenOperation without the submit
-	// round-trip.
+	// round-trip. An explicit retry_of instead derives its id from that failed
+	// operation, preserving one successor per failed attempt.
 	HardenSkill(context.Context, *HardenSkillRequest) (*longrunningpb.Operation, error)
 	// GetHardenOperation returns the current state of a harden operation
 	// previously returned by HardenSkill. The operation name embeds the owning

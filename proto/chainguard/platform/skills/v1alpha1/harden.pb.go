@@ -181,6 +181,14 @@ type HardenSkillRequest struct {
 	// resolve to this digest. The server validates the format and rejects anything
 	// that is not a well-formed sha256 digest.
 	ContentDigest string `protobuf:"bytes,3,opt,name=content_digest,json=contentDigest,proto3" json:"content_digest,omitempty"`
+	// retry_of is the full name of a failed operation to retry. The operation
+	// must belong to this caller and match group, skill_name and content_digest.
+	// It is preserved, and a new operation tracks the retry. Repeating the same
+	// retry_of returns the same retry operation, including its terminal result.
+	// To retry again, name that failed retry operation. Empty retains ordinary
+	// content-addressed submission. Successful, pending or cancelled jobs cannot
+	// be retried.
+	RetryOf       string `protobuf:"bytes,4,opt,name=retry_of,json=retryOf,proto3" json:"retry_of,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -232,6 +240,13 @@ func (x *HardenSkillRequest) GetSkillName() string {
 func (x *HardenSkillRequest) GetContentDigest() string {
 	if x != nil {
 		return x.ContentDigest
+	}
+	return ""
+}
+
+func (x *HardenSkillRequest) GetRetryOf() string {
+	if x != nil {
+		return x.RetryOf
 	}
 	return ""
 }
@@ -353,10 +368,11 @@ func (x *CancelHardenOperationRequest) GetJobId() string {
 // (HardenOperationResponse) and failure is Operation.error.
 type HardenOperationMetadata struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// job_id is the deterministic, content-addressed harden job id. It is derived
-	// from the group, actor, skill_name, and content digest, and forms the final
-	// segment of the operation name (harden/{group}/{job_id}). Surfaced here so a
-	// client reads it directly instead of parsing Operation.name.
+	// job_id is the deterministic harden job id: derived from group, actor,
+	// skill_name and content digest for ordinary submissions, or from the failed
+	// operation name for an explicit retry. It is the final segment of the
+	// operation name (harden/{group}/{job_id}), surfaced here so a client can read
+	// it directly instead of parsing Operation.name.
 	JobId string `protobuf:"bytes,1,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"`
 	// group is the target group the skill is hardened into.
 	Group string `protobuf:"bytes,2,opt,name=group,proto3" json:"group,omitempty"`
@@ -593,13 +609,14 @@ var File_chainguard_platform_skills_v1alpha1_harden_proto protoreflect.FileDescr
 
 const file_chainguard_platform_skills_v1alpha1_harden_proto_rawDesc = "" +
 	"\n" +
-	"0chainguard/platform/skills/v1alpha1/harden.proto\x12#chainguard.platform.skills.v1alpha1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a#google/longrunning/operations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x88\x01\n" +
+	"0chainguard/platform/skills/v1alpha1/harden.proto\x12#chainguard.platform.skills.v1alpha1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a#google/longrunning/operations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa9\x01\n" +
 	"\x12HardenSkillRequest\x12 \n" +
 	"\x05group\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x05group\x12#\n" +
 	"\n" +
 	"skill_name\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\tskillName\x12+\n" +
-	"\x0econtent_digest\x18\x03 \x01(\tB\x04\xe2A\x01\x02R\rcontentDigest\"W\n" +
+	"\x0econtent_digest\x18\x03 \x01(\tB\x04\xe2A\x01\x02R\rcontentDigest\x12\x1f\n" +
+	"\bretry_of\x18\x04 \x01(\tB\x04\xe2A\x01\x01R\aretryOf\"W\n" +
 	"\x19GetHardenOperationRequest\x12 \n" +
 	"\x05group\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x05group\x12\x18\n" +
