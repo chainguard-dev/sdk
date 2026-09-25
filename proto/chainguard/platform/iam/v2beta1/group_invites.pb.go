@@ -398,7 +398,7 @@ type ListGroupInvitesRequest struct {
 	// Opaque token with 3-day expiration.
 	PageToken string `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// Order results by field. Format: "field [asc|desc]"
-	// Default: "created_at desc"
+	// Default: "create_time desc"
 	// Note: Changing order_by between pages invalidates the page token.
 	OrderBy string `protobuf:"bytes,5,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
 	// Number of results to skip before returning.

@@ -232,7 +232,7 @@ message ListGroupInvitesRequest {
   string page_token = 4 [(google.api.field_behavior) = OPTIONAL];
 
   // Order results by field. Format: "field [asc|desc]"
-  // Default: "created_at desc"
+  // Default: "create_time desc"
   // Note: Changing order_by between pages invalidates the page token.
   string order_by = 5 [(google.api.field_behavior) = OPTIONAL];
 
