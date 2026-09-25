@@ -17,6 +17,7 @@ import (
 // Clients provides access to v2beta1 Libraries service clients.
 type Clients interface {
 	ArtifactsService() ArtifactsServiceClient
+	RequestGroupsService() RequestGroupsServiceClient
 
 	ListArtifactsIter(ctx context.Context, req *ListArtifactsRequest) iter.Seq2[*Artifact, error]
 	ListArtifactsAll(ctx context.Context, req *ListArtifactsRequest) ([]*Artifact, error)
@@ -30,18 +31,24 @@ type Clients interface {
 // NewClientsFromConnection creates v2beta1 Libraries clients from an existing gRPC connection.
 func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 	return &clients{
-		artifactsService: NewArtifactsServiceClient(conn),
+		artifactsService:     NewArtifactsServiceClient(conn),
+		requestGroupsService: NewRequestGroupsServiceClient(conn),
 	}
 }
 
 type clients struct {
-	artifactsService ArtifactsServiceClient
+	artifactsService     ArtifactsServiceClient
+	requestGroupsService RequestGroupsServiceClient
 
 	conn *grpc.ClientConn
 }
 
 func (c *clients) ArtifactsService() ArtifactsServiceClient {
 	return c.artifactsService
+}
+
+func (c *clients) RequestGroupsService() RequestGroupsServiceClient {
+	return c.requestGroupsService
 }
 
 func (c *clients) Close() error {
