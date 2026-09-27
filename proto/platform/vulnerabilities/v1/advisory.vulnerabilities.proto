@@ -98,6 +98,17 @@ service Advisories {
       }
     };
   }
+
+  rpc DeleteAdvisoryEvent(DeleteAdvisoryEventRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/vulnerabilities/v1/advisory_events/{id=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ADVISORIES_DELETE]
+      }
+    };
+  }
 }
 
 // ReviewStatus represents the possible states of review for an advisory event
@@ -434,7 +445,21 @@ message AdvisoryFilter {
   // When specified, artifact_name filter is ignored as subpackage names are resolved server-side.
   optional string origin = 22;
 
-  // next id: 23
+  // event_created_since_time filters to advisories that have at least one event
+  // created after the given time. Only the matching events are returned.
+  google.protobuf.Timestamp event_created_since_time = 25;
+
+  // event_created_before_time filters to advisories that have at least one event
+  // created before the given time. Only the matching events are returned.
+  google.protobuf.Timestamp event_created_before_time = 26;
+
+  // created_since_time filters to advisories created after the given time.
+  google.protobuf.Timestamp created_since_time = 27;
+
+  // created_before_time filters to advisories created before the given time.
+  google.protobuf.Timestamp created_before_time = 28;
+
+  // next id: 29
 }
 
 message AdvisoriesList {
@@ -449,6 +474,11 @@ message AdvisoriesList {
 
 message DeleteAdvisoryRequest {
   // id is the exact UIDP of the advisory to delete.
+  string id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message DeleteAdvisoryEventRequest {
+  // id is the exact UIDP of the advisory event to delete.
   string id = 1 [(chainguard.annotations.iam_scope) = true];
 }
 
