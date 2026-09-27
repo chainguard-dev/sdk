@@ -119,6 +119,11 @@ enum Ecosystem {
   // datastore Ecosystem enum). Grants access to Chainguard-remediated Go
   // modules and, like the other Athena tiers, is not self-serve provisionable.
   GO_ATHENA = 10;
+  // Ruby gems ecosystem (mirrors RUBY = 11 in the datastore Ecosystem enum).
+  RUBY = 11;
+  // Athena tier for Ruby, paired with RUBY (mirrors RUBY_SECURE = 12 in the
+  // datastore Ecosystem enum). Not eligible for self-serve provisioning.
+  RUBY_ATHENA = 12;
 }
 
 // Policy controls which package sources are available for an entitlement.

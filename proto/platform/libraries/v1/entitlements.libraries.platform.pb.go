@@ -53,6 +53,11 @@ const (
 	// datastore Ecosystem enum). Grants access to Chainguard-remediated Go
 	// modules and, like the other Athena tiers, is not self-serve provisionable.
 	Ecosystem_GO_ATHENA Ecosystem = 10
+	// Ruby gems ecosystem (mirrors RUBY = 11 in the datastore Ecosystem enum).
+	Ecosystem_RUBY Ecosystem = 11
+	// Athena tier for Ruby, paired with RUBY (mirrors RUBY_SECURE = 12 in the
+	// datastore Ecosystem enum). Not eligible for self-serve provisioning.
+	Ecosystem_RUBY_ATHENA Ecosystem = 12
 )
 
 // Enum value maps for Ecosystem.
@@ -69,6 +74,8 @@ var (
 		8:  "DOTNET_ATHENA",
 		9:  "GO",
 		10: "GO_ATHENA",
+		11: "RUBY",
+		12: "RUBY_ATHENA",
 	}
 	Ecosystem_value = map[string]int32{
 		"UNKNOWN":           0,
@@ -82,6 +89,8 @@ var (
 		"DOTNET_ATHENA":     8,
 		"GO":                9,
 		"GO_ATHENA":         10,
+		"RUBY":              11,
+		"RUBY_ATHENA":       12,
 	}
 )
 
@@ -551,7 +560,7 @@ const file_entitlements_libraries_platform_proto_rawDesc = "" +
 	"ecosystems\x18\x02 \x03(\x0e2(.chainguard.platform.libraries.EcosystemR\n" +
 	"ecosystems\"2\n" +
 	"\x18DeleteEntitlementRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id*\xaf\x01\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id*\xca\x01\n" +
 	"\tEcosystem\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\b\n" +
 	"\x04JAVA\x10\x01\x12\n" +
@@ -567,7 +576,9 @@ const file_entitlements_libraries_platform_proto_rawDesc = "" +
 	"\rDOTNET_ATHENA\x10\b\x12\x06\n" +
 	"\x02GO\x10\t\x12\r\n" +
 	"\tGO_ATHENA\x10\n" +
-	"*W\n" +
+	"\x12\b\n" +
+	"\x04RUBY\x10\v\x12\x0f\n" +
+	"\vRUBY_ATHENA\x10\f*W\n" +
 	"\x06Policy\x12\x12\n" +
 	"\x0ePOLICY_UNKNOWN\x10\x00\x12\x15\n" +
 	"\x11POLICY_CHAINGUARD\x10\x01\x12\"\n" +

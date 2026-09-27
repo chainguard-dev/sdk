@@ -6,10 +6,28 @@ SPDX-License-Identifier: Apache-2.0
 package capabilities
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 )
+
+// Pulling gems must not grant write access or unrelated ecosystem capabilities.
+func TestLibrariesRubyPullCaps(t *testing.T) {
+	want := SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
+		Capability_CAP_LIBRARIES_RUBY_LIST,
+	})
+	if diff := cmp.Diff(want, LibrariesRubyPullCaps); diff != "" {
+		t.Errorf("LibrariesRubyPullCaps (-want, +got): %s", diff)
+	}
+	if !slices.Contains(OwnerCaps, Capability_CAP_LIBRARIES_RUBY_LIST) {
+		t.Error("OwnerCaps must include Ruby pull access")
+	}
+	if slices.Contains(ViewerCaps, Capability_CAP_LIBRARIES_RUBY_LIST) {
+		t.Error("ViewerCaps must not implicitly grant Ruby pull access")
+	}
+}
 
 // TestSkillsPublishCaps pins the bundle's membership so a regression that
 // drops CAP_TERMS_LIST (which chainctl pre-flight needs to read acceptance

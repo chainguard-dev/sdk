@@ -158,6 +158,7 @@ const (
 	Capability_CAP_LIBRARIES_DOTNET_CREATE     Capability = 1833
 	Capability_CAP_LIBRARIES_GO_LIST           Capability = 1834
 	Capability_CAP_LIBRARIES_GO_CREATE         Capability = 1835
+	Capability_CAP_LIBRARIES_RUBY_LIST         Capability = 1836
 	// Cache invalidation capability for the libraries cache (covers all ecosystems).
 	// Granted to org owners and account admins; not to regular developer members.
 	Capability_CAP_LIBRARIES_CACHE_INVALIDATE Capability = 1860
@@ -517,6 +518,7 @@ var (
 		1833:  "CAP_LIBRARIES_DOTNET_CREATE",
 		1834:  "CAP_LIBRARIES_GO_LIST",
 		1835:  "CAP_LIBRARIES_GO_CREATE",
+		1836:  "CAP_LIBRARIES_RUBY_LIST",
 		1860:  "CAP_LIBRARIES_CACHE_INVALIDATE",
 		1862:  "CAP_LIBRARIES_CACHE_LIST",
 		1840:  "CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE",
@@ -743,6 +745,7 @@ var (
 		"CAP_LIBRARIES_DOTNET_CREATE":                        1833,
 		"CAP_LIBRARIES_GO_LIST":                              1834,
 		"CAP_LIBRARIES_GO_CREATE":                            1835,
+		"CAP_LIBRARIES_RUBY_LIST":                            1836,
 		"CAP_LIBRARIES_CACHE_INVALIDATE":                     1860,
 		"CAP_LIBRARIES_CACHE_LIST":                           1862,
 		"CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE":            1840,
@@ -955,7 +958,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xb6z\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xf5z\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1069,7 +1072,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x19CAP_LIBRARIES_DOTNET_LIST\x10\xa8\x0e\x1a!\xa8ˑM\xc4\x01\x9a\xaf\xa8\xd2\x05\x15libraries.dotnet.list\x12E\n" +
 	"\x1bCAP_LIBRARIES_DOTNET_CREATE\x10\xa9\x0e\x1a#\xa8ˑM\xc5\x01\x9a\xaf\xa8\xd2\x05\x17libraries.dotnet.create\x129\n" +
 	"\x15CAP_LIBRARIES_GO_LIST\x10\xaa\x0e\x1a\x1d\xa8ˑM\xcd\x01\x9a\xaf\xa8\xd2\x05\x11libraries.go.list\x12=\n" +
-	"\x17CAP_LIBRARIES_GO_CREATE\x10\xab\x0e\x1a\x1f\xa8ˑM\xce\x01\x9a\xaf\xa8\xd2\x05\x13libraries.go.create\x12K\n" +
+	"\x17CAP_LIBRARIES_GO_CREATE\x10\xab\x0e\x1a\x1f\xa8ˑM\xce\x01\x9a\xaf\xa8\xd2\x05\x13libraries.go.create\x12=\n" +
+	"\x17CAP_LIBRARIES_RUBY_LIST\x10\xac\x0e\x1a\x1f\xa8ˑM\xe5\x01\x9a\xaf\xa8\xd2\x05\x13libraries.ruby.list\x12K\n" +
 	"\x1eCAP_LIBRARIES_CACHE_INVALIDATE\x10\xc4\x0e\x1a&\xa8ˑM\x81\x01\x9a\xaf\xa8\xd2\x05\x1alibraries.cache.invalidate\x12?\n" +
 	"\x18CAP_LIBRARIES_CACHE_LIST\x10\xc6\x0e\x1a \xa8ˑM\xc0\x01\x9a\xaf\xa8\xd2\x05\x14libraries.cache.list\x12b\n" +
 	"'CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE\x10\xb0\x0e\x1a4\xa8ˑMg\x9a\xaf\xa8\xd2\x05#libraries.rebuilder.requests.create\xa0\xaf\xa8\xd2\x05\x01\x12^\n" +

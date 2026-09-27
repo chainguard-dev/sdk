@@ -181,6 +181,7 @@ enum Capability {
   CAP_LIBRARIES_DOTNET_CREATE = 1833 [(name) = "libraries.dotnet.create", (bit) = 197];
   CAP_LIBRARIES_GO_LIST = 1834 [(name) = "libraries.go.list", (bit) = 205];
   CAP_LIBRARIES_GO_CREATE = 1835 [(name) = "libraries.go.create", (bit) = 206];
+  CAP_LIBRARIES_RUBY_LIST = 1836 [(name) = "libraries.ruby.list", (bit) = 229];
   // Cache invalidation capability for the libraries cache (covers all ecosystems).
   // Granted to org owners and account admins; not to regular developer members.
   CAP_LIBRARIES_CACHE_INVALIDATE = 1860 [(name) = "libraries.cache.invalidate", (bit) = 129];
@@ -481,5 +482,5 @@ enum Capability {
   CAP_SANDBOX_RUN_CANCEL = 3003 [(name) = "sandbox.run.cancel", (bit) = 228];
 
   reserved 1;
-  // next bit: 229
+  // next bit: 230
 }
