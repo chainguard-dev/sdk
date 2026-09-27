@@ -5,6 +5,7 @@ package v1
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -19,151 +20,164 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = errors.New
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_ActionsAuthorization_AuthorizeWithOIDC_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsAuthorizationClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AuthorizeWithOIDCRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq AuthorizeWithOIDCRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.AuthorizeWithOIDC(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ActionsAuthorization_AuthorizeWithOIDC_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsAuthorizationServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AuthorizeWithOIDCRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq AuthorizeWithOIDCRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.AuthorizeWithOIDC(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ActionsAuthorization_IssueChallenge_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsAuthorizationClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq IssueChallengeRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq IssueChallengeRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.IssueChallenge(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ActionsAuthorization_IssueChallenge_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsAuthorizationServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq IssueChallengeRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq IssueChallengeRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.IssueChallenge(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ActionsAuthorization_VerifyChallenge_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsAuthorizationClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq VerifyChallengeRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq VerifyChallengeRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.VerifyChallenge(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ActionsAuthorization_VerifyChallenge_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsAuthorizationServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq VerifyChallengeRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq VerifyChallengeRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.VerifyChallenge(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ActionsAuthorization_GetCACert_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsAuthorizationClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetCACertRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq GetCACertRequest
+		metadata runtime.ServerMetadata
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.GetCACert(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ActionsAuthorization_GetCACert_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsAuthorizationServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetCACertRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq GetCACertRequest
+		metadata runtime.ServerMetadata
+	)
 	msg, err := server.GetCACert(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ActionsAuthorization_GetTrustedKeys_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsAuthorizationClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetTrustedKeysRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq GetTrustedKeysRequest
+		metadata runtime.ServerMetadata
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.GetTrustedKeys(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ActionsAuthorization_GetTrustedKeys_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsAuthorizationServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetTrustedKeysRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq GetTrustedKeysRequest
+		metadata runtime.ServerMetadata
+	)
 	msg, err := server.GetTrustedKeys(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Actions_Record_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RecordRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq RecordRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.Record(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Actions_Record_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RecordRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq RecordRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.Record(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterActionsAuthorizationHandlerServer registers the http handlers for service ActionsAuthorization to "mux".
@@ -172,16 +186,13 @@ func local_request_Actions_Record_0(ctx context.Context, marshaler runtime.Marsh
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterActionsAuthorizationHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterActionsAuthorizationHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ActionsAuthorizationServer) error {
-
-	mux.Handle("POST", pattern_ActionsAuthorization_AuthorizeWithOIDC_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ActionsAuthorization_AuthorizeWithOIDC_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.actions.ActionsAuthorization/AuthorizeWithOIDC", runtime.WithHTTPPathPattern("/actions/v1/authorize/oidc"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.actions.ActionsAuthorization/AuthorizeWithOIDC", runtime.WithHTTPPathPattern("/actions/v1/authorize/oidc"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -193,20 +204,15 @@ func RegisterActionsAuthorizationHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ActionsAuthorization_AuthorizeWithOIDC_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_ActionsAuthorization_IssueChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ActionsAuthorization_IssueChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.actions.ActionsAuthorization/IssueChallenge", runtime.WithHTTPPathPattern("/actions/v1/challenge/issue"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.actions.ActionsAuthorization/IssueChallenge", runtime.WithHTTPPathPattern("/actions/v1/challenge/issue"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -218,20 +224,15 @@ func RegisterActionsAuthorizationHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ActionsAuthorization_IssueChallenge_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_ActionsAuthorization_VerifyChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ActionsAuthorization_VerifyChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.actions.ActionsAuthorization/VerifyChallenge", runtime.WithHTTPPathPattern("/actions/v1/challenge/verify"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.actions.ActionsAuthorization/VerifyChallenge", runtime.WithHTTPPathPattern("/actions/v1/challenge/verify"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -243,20 +244,15 @@ func RegisterActionsAuthorizationHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ActionsAuthorization_VerifyChallenge_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_ActionsAuthorization_GetCACert_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ActionsAuthorization_GetCACert_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.actions.ActionsAuthorization/GetCACert", runtime.WithHTTPPathPattern("/actions/v1/ca"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.actions.ActionsAuthorization/GetCACert", runtime.WithHTTPPathPattern("/actions/v1/ca"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -268,20 +264,15 @@ func RegisterActionsAuthorizationHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ActionsAuthorization_GetCACert_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_ActionsAuthorization_GetTrustedKeys_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ActionsAuthorization_GetTrustedKeys_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.actions.ActionsAuthorization/GetTrustedKeys", runtime.WithHTTPPathPattern("/actions/v1/trusted-keys"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.actions.ActionsAuthorization/GetTrustedKeys", runtime.WithHTTPPathPattern("/actions/v1/trusted-keys"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -293,9 +284,7 @@ func RegisterActionsAuthorizationHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ActionsAuthorization_GetTrustedKeys_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -307,16 +296,13 @@ func RegisterActionsAuthorizationHandlerServer(ctx context.Context, mux *runtime
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterActionsHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ActionsServer) error {
-
-	mux.Handle("POST", pattern_Actions_Record_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_Actions_Record_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.actions.Actions/Record", runtime.WithHTTPPathPattern("/actions/v1/record"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.actions.Actions/Record", runtime.WithHTTPPathPattern("/actions/v1/record"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -328,9 +314,7 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Actions_Record_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -357,7 +341,6 @@ func RegisterActionsAuthorizationHandlerFromEndpoint(ctx context.Context, mux *r
 			}
 		}()
 	}()
-
 	return RegisterActionsAuthorizationHandler(ctx, mux, conn)
 }
 
@@ -373,14 +356,11 @@ func RegisterActionsAuthorizationHandler(ctx context.Context, mux *runtime.Serve
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "ActionsAuthorizationClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterActionsAuthorizationHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ActionsAuthorizationClient) error {
-
-	mux.Handle("POST", pattern_ActionsAuthorization_AuthorizeWithOIDC_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ActionsAuthorization_AuthorizeWithOIDC_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.actions.ActionsAuthorization/AuthorizeWithOIDC", runtime.WithHTTPPathPattern("/actions/v1/authorize/oidc"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.actions.ActionsAuthorization/AuthorizeWithOIDC", runtime.WithHTTPPathPattern("/actions/v1/authorize/oidc"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -391,18 +371,13 @@ func RegisterActionsAuthorizationHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ActionsAuthorization_AuthorizeWithOIDC_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_ActionsAuthorization_IssueChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ActionsAuthorization_IssueChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.actions.ActionsAuthorization/IssueChallenge", runtime.WithHTTPPathPattern("/actions/v1/challenge/issue"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.actions.ActionsAuthorization/IssueChallenge", runtime.WithHTTPPathPattern("/actions/v1/challenge/issue"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -413,18 +388,13 @@ func RegisterActionsAuthorizationHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ActionsAuthorization_IssueChallenge_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_ActionsAuthorization_VerifyChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ActionsAuthorization_VerifyChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.actions.ActionsAuthorization/VerifyChallenge", runtime.WithHTTPPathPattern("/actions/v1/challenge/verify"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.actions.ActionsAuthorization/VerifyChallenge", runtime.WithHTTPPathPattern("/actions/v1/challenge/verify"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -435,18 +405,13 @@ func RegisterActionsAuthorizationHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ActionsAuthorization_VerifyChallenge_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_ActionsAuthorization_GetCACert_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ActionsAuthorization_GetCACert_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.actions.ActionsAuthorization/GetCACert", runtime.WithHTTPPathPattern("/actions/v1/ca"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.actions.ActionsAuthorization/GetCACert", runtime.WithHTTPPathPattern("/actions/v1/ca"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -457,18 +422,13 @@ func RegisterActionsAuthorizationHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ActionsAuthorization_GetCACert_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_ActionsAuthorization_GetTrustedKeys_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ActionsAuthorization_GetTrustedKeys_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.actions.ActionsAuthorization/GetTrustedKeys", runtime.WithHTTPPathPattern("/actions/v1/trusted-keys"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.actions.ActionsAuthorization/GetTrustedKeys", runtime.WithHTTPPathPattern("/actions/v1/trusted-keys"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -479,36 +439,25 @@ func RegisterActionsAuthorizationHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ActionsAuthorization_GetTrustedKeys_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
 	pattern_ActionsAuthorization_AuthorizeWithOIDC_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"actions", "v1", "authorize", "oidc"}, ""))
-
-	pattern_ActionsAuthorization_IssueChallenge_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"actions", "v1", "challenge", "issue"}, ""))
-
-	pattern_ActionsAuthorization_VerifyChallenge_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"actions", "v1", "challenge", "verify"}, ""))
-
-	pattern_ActionsAuthorization_GetCACert_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"actions", "v1", "ca"}, ""))
-
-	pattern_ActionsAuthorization_GetTrustedKeys_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"actions", "v1", "trusted-keys"}, ""))
+	pattern_ActionsAuthorization_IssueChallenge_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"actions", "v1", "challenge", "issue"}, ""))
+	pattern_ActionsAuthorization_VerifyChallenge_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"actions", "v1", "challenge", "verify"}, ""))
+	pattern_ActionsAuthorization_GetCACert_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"actions", "v1", "ca"}, ""))
+	pattern_ActionsAuthorization_GetTrustedKeys_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"actions", "v1", "trusted-keys"}, ""))
 )
 
 var (
 	forward_ActionsAuthorization_AuthorizeWithOIDC_0 = runtime.ForwardResponseMessage
-
-	forward_ActionsAuthorization_IssueChallenge_0 = runtime.ForwardResponseMessage
-
-	forward_ActionsAuthorization_VerifyChallenge_0 = runtime.ForwardResponseMessage
-
-	forward_ActionsAuthorization_GetCACert_0 = runtime.ForwardResponseMessage
-
-	forward_ActionsAuthorization_GetTrustedKeys_0 = runtime.ForwardResponseMessage
+	forward_ActionsAuthorization_IssueChallenge_0    = runtime.ForwardResponseMessage
+	forward_ActionsAuthorization_VerifyChallenge_0   = runtime.ForwardResponseMessage
+	forward_ActionsAuthorization_GetCACert_0         = runtime.ForwardResponseMessage
+	forward_ActionsAuthorization_GetTrustedKeys_0    = runtime.ForwardResponseMessage
 )
 
 // RegisterActionsHandlerFromEndpoint is same as RegisterActionsHandler but
@@ -532,7 +481,6 @@ func RegisterActionsHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeM
 			}
 		}()
 	}()
-
 	return RegisterActionsHandler(ctx, mux, conn)
 }
 
@@ -548,14 +496,11 @@ func RegisterActionsHandler(ctx context.Context, mux *runtime.ServeMux, conn *gr
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "ActionsClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ActionsClient) error {
-
-	mux.Handle("POST", pattern_Actions_Record_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_Actions_Record_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.actions.Actions/Record", runtime.WithHTTPPathPattern("/actions/v1/record"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.actions.Actions/Record", runtime.WithHTTPPathPattern("/actions/v1/record"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -566,11 +511,8 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Actions_Record_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 

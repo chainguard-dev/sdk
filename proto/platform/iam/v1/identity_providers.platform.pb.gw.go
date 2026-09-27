@@ -5,6 +5,7 @@ package v1
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -19,459 +20,358 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = errors.New
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_IdentityProviders_Create_0(ctx context.Context, marshaler runtime.Marshaler, client IdentityProvidersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateIdentityProviderRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.IdentityProvider); err != nil && err != io.EOF {
+	var (
+		protoReq CreateIdentityProviderRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.IdentityProvider); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["parent_id"]
+	val, ok := pathParams["parent_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent_id")
 	}
-
 	protoReq.ParentId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent_id", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.Create(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_IdentityProviders_Create_0(ctx context.Context, marshaler runtime.Marshaler, server IdentityProvidersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateIdentityProviderRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.IdentityProvider); err != nil && err != io.EOF {
+	var (
+		protoReq CreateIdentityProviderRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.IdentityProvider); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["parent_id"]
+	val, ok := pathParams["parent_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent_id")
 	}
-
 	protoReq.ParentId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent_id", err)
 	}
-
 	msg, err := server.Create(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_IdentityProviders_Update_0(ctx context.Context, marshaler runtime.Marshaler, client IdentityProvidersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq IdentityProvider
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq IdentityProvider
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["id"]
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.Update(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_IdentityProviders_Update_0(ctx context.Context, marshaler runtime.Marshaler, server IdentityProvidersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq IdentityProvider
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq IdentityProvider
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["id"]
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
 	msg, err := server.Update(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_IdentityProviders_List_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
+var filter_IdentityProviders_List_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_IdentityProviders_List_0(ctx context.Context, marshaler runtime.Marshaler, client IdentityProvidersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq IdentityProviderFilter
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq IdentityProviderFilter
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_IdentityProviders_List_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.List(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_IdentityProviders_List_0(ctx context.Context, marshaler runtime.Marshaler, server IdentityProvidersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq IdentityProviderFilter
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq IdentityProviderFilter
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_IdentityProviders_List_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.List(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_IdentityProviders_Delete_0(ctx context.Context, marshaler runtime.Marshaler, client IdentityProvidersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteIdentityProviderRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq DeleteIdentityProviderRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["id"]
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.Delete(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_IdentityProviders_Delete_0(ctx context.Context, marshaler runtime.Marshaler, server IdentityProvidersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteIdentityProviderRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq DeleteIdentityProviderRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["id"]
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
 	msg, err := server.Delete(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_IdentityProviders_GenerateScimToken_0(ctx context.Context, marshaler runtime.Marshaler, client IdentityProvidersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GenerateScimTokenRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq GenerateScimTokenRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["identity_provider_id"]
+	val, ok := pathParams["identity_provider_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "identity_provider_id")
 	}
-
 	protoReq.IdentityProviderId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "identity_provider_id", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.GenerateScimToken(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_IdentityProviders_GenerateScimToken_0(ctx context.Context, marshaler runtime.Marshaler, server IdentityProvidersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GenerateScimTokenRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq GenerateScimTokenRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["identity_provider_id"]
+	val, ok := pathParams["identity_provider_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "identity_provider_id")
 	}
-
 	protoReq.IdentityProviderId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "identity_provider_id", err)
 	}
-
 	msg, err := server.GenerateScimToken(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_IdentityProviders_RegenerateScimToken_0(ctx context.Context, marshaler runtime.Marshaler, client IdentityProvidersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RegenerateScimTokenRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq RegenerateScimTokenRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["identity_provider_id"]
+	val, ok := pathParams["identity_provider_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "identity_provider_id")
 	}
-
 	protoReq.IdentityProviderId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "identity_provider_id", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.RegenerateScimToken(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_IdentityProviders_RegenerateScimToken_0(ctx context.Context, marshaler runtime.Marshaler, server IdentityProvidersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RegenerateScimTokenRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq RegenerateScimTokenRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["identity_provider_id"]
+	val, ok := pathParams["identity_provider_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "identity_provider_id")
 	}
-
 	protoReq.IdentityProviderId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "identity_provider_id", err)
 	}
-
 	msg, err := server.RegenerateScimToken(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_IdentityProviders_RevokeScimToken_0(ctx context.Context, marshaler runtime.Marshaler, client IdentityProvidersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RevokeScimTokenRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq RevokeScimTokenRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["identity_provider_id"]
+	val, ok := pathParams["identity_provider_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "identity_provider_id")
 	}
-
 	protoReq.IdentityProviderId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "identity_provider_id", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.RevokeScimToken(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_IdentityProviders_RevokeScimToken_0(ctx context.Context, marshaler runtime.Marshaler, server IdentityProvidersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RevokeScimTokenRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq RevokeScimTokenRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["identity_provider_id"]
+	val, ok := pathParams["identity_provider_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "identity_provider_id")
 	}
-
 	protoReq.IdentityProviderId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "identity_provider_id", err)
 	}
-
 	msg, err := server.RevokeScimToken(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_IdentityProviders_SetScimEnabled_0(ctx context.Context, marshaler runtime.Marshaler, client IdentityProvidersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq SetScimEnabledRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq SetScimEnabledRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["identity_provider_id"]
+	val, ok := pathParams["identity_provider_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "identity_provider_id")
 	}
-
 	protoReq.IdentityProviderId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "identity_provider_id", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.SetScimEnabled(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_IdentityProviders_SetScimEnabled_0(ctx context.Context, marshaler runtime.Marshaler, server IdentityProvidersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq SetScimEnabledRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq SetScimEnabledRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["identity_provider_id"]
+	val, ok := pathParams["identity_provider_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "identity_provider_id")
 	}
-
 	protoReq.IdentityProviderId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "identity_provider_id", err)
 	}
-
 	msg, err := server.SetScimEnabled(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterIdentityProvidersHandlerServer registers the http handlers for service IdentityProviders to "mux".
@@ -480,16 +380,13 @@ func local_request_IdentityProviders_SetScimEnabled_0(ctx context.Context, marsh
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterIdentityProvidersHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterIdentityProvidersHandlerServer(ctx context.Context, mux *runtime.ServeMux, server IdentityProvidersServer) error {
-
-	mux.Handle("POST", pattern_IdentityProviders_Create_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_IdentityProviders_Create_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/Create", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{parent_id=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/Create", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{parent_id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -501,20 +398,15 @@ func RegisterIdentityProvidersHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentityProviders_Create_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PUT", pattern_IdentityProviders_Update_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_IdentityProviders_Update_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/Update", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{id=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/Update", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -526,20 +418,15 @@ func RegisterIdentityProvidersHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentityProviders_Update_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_IdentityProviders_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_IdentityProviders_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/List", runtime.WithHTTPPathPattern("/iam/v1/identityProviders"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/List", runtime.WithHTTPPathPattern("/iam/v1/identityProviders"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -551,20 +438,15 @@ func RegisterIdentityProvidersHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentityProviders_List_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("DELETE", pattern_IdentityProviders_Delete_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_IdentityProviders_Delete_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/Delete", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{id=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/Delete", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -576,20 +458,15 @@ func RegisterIdentityProvidersHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentityProviders_Delete_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_IdentityProviders_GenerateScimToken_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_IdentityProviders_GenerateScimToken_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/GenerateScimToken", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{identity_provider_id=**}:generateScimToken"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/GenerateScimToken", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{identity_provider_id=**}:generateScimToken"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -601,20 +478,15 @@ func RegisterIdentityProvidersHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentityProviders_GenerateScimToken_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_IdentityProviders_RegenerateScimToken_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_IdentityProviders_RegenerateScimToken_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/RegenerateScimToken", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{identity_provider_id=**}:regenerateScimToken"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/RegenerateScimToken", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{identity_provider_id=**}:regenerateScimToken"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -626,20 +498,15 @@ func RegisterIdentityProvidersHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentityProviders_RegenerateScimToken_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_IdentityProviders_RevokeScimToken_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_IdentityProviders_RevokeScimToken_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/RevokeScimToken", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{identity_provider_id=**}:revokeScimToken"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/RevokeScimToken", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{identity_provider_id=**}:revokeScimToken"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -651,20 +518,15 @@ func RegisterIdentityProvidersHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentityProviders_RevokeScimToken_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_IdentityProviders_SetScimEnabled_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_IdentityProviders_SetScimEnabled_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/SetScimEnabled", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{identity_provider_id=**}:setScimEnabled"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/SetScimEnabled", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{identity_provider_id=**}:setScimEnabled"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -676,9 +538,7 @@ func RegisterIdentityProvidersHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentityProviders_SetScimEnabled_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -705,7 +565,6 @@ func RegisterIdentityProvidersHandlerFromEndpoint(ctx context.Context, mux *runt
 			}
 		}()
 	}()
-
 	return RegisterIdentityProvidersHandler(ctx, mux, conn)
 }
 
@@ -721,14 +580,11 @@ func RegisterIdentityProvidersHandler(ctx context.Context, mux *runtime.ServeMux
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "IdentityProvidersClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterIdentityProvidersHandlerClient(ctx context.Context, mux *runtime.ServeMux, client IdentityProvidersClient) error {
-
-	mux.Handle("POST", pattern_IdentityProviders_Create_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_IdentityProviders_Create_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/Create", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{parent_id=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/Create", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{parent_id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -739,18 +595,13 @@ func RegisterIdentityProvidersHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentityProviders_Create_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PUT", pattern_IdentityProviders_Update_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_IdentityProviders_Update_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/Update", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{id=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/Update", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -761,18 +612,13 @@ func RegisterIdentityProvidersHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentityProviders_Update_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_IdentityProviders_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_IdentityProviders_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/List", runtime.WithHTTPPathPattern("/iam/v1/identityProviders"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/List", runtime.WithHTTPPathPattern("/iam/v1/identityProviders"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -783,18 +629,13 @@ func RegisterIdentityProvidersHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentityProviders_List_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("DELETE", pattern_IdentityProviders_Delete_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_IdentityProviders_Delete_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/Delete", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{id=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/Delete", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{id=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -805,18 +646,13 @@ func RegisterIdentityProvidersHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentityProviders_Delete_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_IdentityProviders_GenerateScimToken_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_IdentityProviders_GenerateScimToken_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/GenerateScimToken", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{identity_provider_id=**}:generateScimToken"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/GenerateScimToken", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{identity_provider_id=**}:generateScimToken"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -827,18 +663,13 @@ func RegisterIdentityProvidersHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentityProviders_GenerateScimToken_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_IdentityProviders_RegenerateScimToken_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_IdentityProviders_RegenerateScimToken_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/RegenerateScimToken", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{identity_provider_id=**}:regenerateScimToken"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/RegenerateScimToken", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{identity_provider_id=**}:regenerateScimToken"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -849,18 +680,13 @@ func RegisterIdentityProvidersHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentityProviders_RegenerateScimToken_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_IdentityProviders_RevokeScimToken_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_IdentityProviders_RevokeScimToken_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/RevokeScimToken", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{identity_provider_id=**}:revokeScimToken"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/RevokeScimToken", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{identity_provider_id=**}:revokeScimToken"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -871,18 +697,13 @@ func RegisterIdentityProvidersHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentityProviders_RevokeScimToken_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_IdentityProviders_SetScimEnabled_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_IdentityProviders_SetScimEnabled_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/SetScimEnabled", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{identity_provider_id=**}:setScimEnabled"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.IdentityProviders/SetScimEnabled", runtime.WithHTTPPathPattern("/iam/v1/identityProviders/{identity_provider_id=**}:setScimEnabled"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -893,46 +714,29 @@ func RegisterIdentityProvidersHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentityProviders_SetScimEnabled_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
-	pattern_IdentityProviders_Create_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v1", "identityProviders", "parent_id"}, ""))
-
-	pattern_IdentityProviders_Update_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v1", "identityProviders", "id"}, ""))
-
-	pattern_IdentityProviders_List_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"iam", "v1", "identityProviders"}, ""))
-
-	pattern_IdentityProviders_Delete_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v1", "identityProviders", "id"}, ""))
-
-	pattern_IdentityProviders_GenerateScimToken_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v1", "identityProviders", "identity_provider_id"}, "generateScimToken"))
-
+	pattern_IdentityProviders_Create_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v1", "identityProviders", "parent_id"}, ""))
+	pattern_IdentityProviders_Update_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v1", "identityProviders", "id"}, ""))
+	pattern_IdentityProviders_List_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"iam", "v1", "identityProviders"}, ""))
+	pattern_IdentityProviders_Delete_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v1", "identityProviders", "id"}, ""))
+	pattern_IdentityProviders_GenerateScimToken_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v1", "identityProviders", "identity_provider_id"}, "generateScimToken"))
 	pattern_IdentityProviders_RegenerateScimToken_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v1", "identityProviders", "identity_provider_id"}, "regenerateScimToken"))
-
-	pattern_IdentityProviders_RevokeScimToken_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v1", "identityProviders", "identity_provider_id"}, "revokeScimToken"))
-
-	pattern_IdentityProviders_SetScimEnabled_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v1", "identityProviders", "identity_provider_id"}, "setScimEnabled"))
+	pattern_IdentityProviders_RevokeScimToken_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v1", "identityProviders", "identity_provider_id"}, "revokeScimToken"))
+	pattern_IdentityProviders_SetScimEnabled_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v1", "identityProviders", "identity_provider_id"}, "setScimEnabled"))
 )
 
 var (
-	forward_IdentityProviders_Create_0 = runtime.ForwardResponseMessage
-
-	forward_IdentityProviders_Update_0 = runtime.ForwardResponseMessage
-
-	forward_IdentityProviders_List_0 = runtime.ForwardResponseMessage
-
-	forward_IdentityProviders_Delete_0 = runtime.ForwardResponseMessage
-
-	forward_IdentityProviders_GenerateScimToken_0 = runtime.ForwardResponseMessage
-
+	forward_IdentityProviders_Create_0              = runtime.ForwardResponseMessage
+	forward_IdentityProviders_Update_0              = runtime.ForwardResponseMessage
+	forward_IdentityProviders_List_0                = runtime.ForwardResponseMessage
+	forward_IdentityProviders_Delete_0              = runtime.ForwardResponseMessage
+	forward_IdentityProviders_GenerateScimToken_0   = runtime.ForwardResponseMessage
 	forward_IdentityProviders_RegenerateScimToken_0 = runtime.ForwardResponseMessage
-
-	forward_IdentityProviders_RevokeScimToken_0 = runtime.ForwardResponseMessage
-
-	forward_IdentityProviders_SetScimEnabled_0 = runtime.ForwardResponseMessage
+	forward_IdentityProviders_RevokeScimToken_0     = runtime.ForwardResponseMessage
+	forward_IdentityProviders_SetScimEnabled_0      = runtime.ForwardResponseMessage
 )

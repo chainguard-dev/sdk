@@ -5,6 +5,7 @@ package v2
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -19,99 +20,88 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = errors.New
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_AdvisoriesService_GetAdvisory_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisoriesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetAdvisoryRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetAdvisoryRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.GetAdvisory(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AdvisoriesService_GetAdvisory_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisoriesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetAdvisoryRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetAdvisoryRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
 	msg, err := server.GetAdvisory(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_AdvisoriesService_ListAdvisories_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
+var filter_AdvisoriesService_ListAdvisories_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_AdvisoriesService_ListAdvisories_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisoriesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListAdvisoriesRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListAdvisoriesRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AdvisoriesService_ListAdvisories_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.ListAdvisories(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AdvisoriesService_ListAdvisories_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisoriesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListAdvisoriesRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListAdvisoriesRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AdvisoriesService_ListAdvisories_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.ListAdvisories(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterAdvisoriesServiceHandlerServer registers the http handlers for service AdvisoriesService to "mux".
@@ -120,16 +110,13 @@ func local_request_AdvisoriesService_ListAdvisories_0(ctx context.Context, marsh
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAdvisoriesServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterAdvisoriesServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AdvisoriesServiceServer) error {
-
-	mux.Handle("GET", pattern_AdvisoriesService_GetAdvisory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_AdvisoriesService_GetAdvisory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v2.AdvisoriesService/GetAdvisory", runtime.WithHTTPPathPattern("/vulnerabilities/v2/advisories/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v2.AdvisoriesService/GetAdvisory", runtime.WithHTTPPathPattern("/vulnerabilities/v2/advisories/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -141,20 +128,15 @@ func RegisterAdvisoriesServiceHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AdvisoriesService_GetAdvisory_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_AdvisoriesService_ListAdvisories_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_AdvisoriesService_ListAdvisories_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v2.AdvisoriesService/ListAdvisories", runtime.WithHTTPPathPattern("/vulnerabilities/v2/advisories"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v2.AdvisoriesService/ListAdvisories", runtime.WithHTTPPathPattern("/vulnerabilities/v2/advisories"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -166,9 +148,7 @@ func RegisterAdvisoriesServiceHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AdvisoriesService_ListAdvisories_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -195,7 +175,6 @@ func RegisterAdvisoriesServiceHandlerFromEndpoint(ctx context.Context, mux *runt
 			}
 		}()
 	}()
-
 	return RegisterAdvisoriesServiceHandler(ctx, mux, conn)
 }
 
@@ -211,14 +190,11 @@ func RegisterAdvisoriesServiceHandler(ctx context.Context, mux *runtime.ServeMux
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "AdvisoriesServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterAdvisoriesServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AdvisoriesServiceClient) error {
-
-	mux.Handle("GET", pattern_AdvisoriesService_GetAdvisory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_AdvisoriesService_GetAdvisory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v2.AdvisoriesService/GetAdvisory", runtime.WithHTTPPathPattern("/vulnerabilities/v2/advisories/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v2.AdvisoriesService/GetAdvisory", runtime.WithHTTPPathPattern("/vulnerabilities/v2/advisories/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -229,18 +205,13 @@ func RegisterAdvisoriesServiceHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AdvisoriesService_GetAdvisory_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_AdvisoriesService_ListAdvisories_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_AdvisoriesService_ListAdvisories_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v2.AdvisoriesService/ListAdvisories", runtime.WithHTTPPathPattern("/vulnerabilities/v2/advisories"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.vulnerabilities.v2.AdvisoriesService/ListAdvisories", runtime.WithHTTPPathPattern("/vulnerabilities/v2/advisories"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -251,22 +222,17 @@ func RegisterAdvisoriesServiceHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AdvisoriesService_ListAdvisories_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
-	pattern_AdvisoriesService_GetAdvisory_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"vulnerabilities", "v2", "advisories", "uid"}, ""))
-
+	pattern_AdvisoriesService_GetAdvisory_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"vulnerabilities", "v2", "advisories", "uid"}, ""))
 	pattern_AdvisoriesService_ListAdvisories_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"vulnerabilities", "v2", "advisories"}, ""))
 )
 
 var (
-	forward_AdvisoriesService_GetAdvisory_0 = runtime.ForwardResponseMessage
-
+	forward_AdvisoriesService_GetAdvisory_0    = runtime.ForwardResponseMessage
 	forward_AdvisoriesService_ListAdvisories_0 = runtime.ForwardResponseMessage
 )

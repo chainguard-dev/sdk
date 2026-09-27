@@ -5,6 +5,7 @@ package v2beta1
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -19,86 +20,74 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = errors.New
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_OverlayBindingsService_CreateOverlayBinding_0(ctx context.Context, marshaler runtime.Marshaler, client OverlayBindingsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateOverlayBindingRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateOverlayBindingRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["parent"]
+	val, ok := pathParams["parent"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
 	}
-
 	protoReq.Parent, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.CreateOverlayBinding(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_OverlayBindingsService_CreateOverlayBinding_0(ctx context.Context, marshaler runtime.Marshaler, server OverlayBindingsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateOverlayBindingRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateOverlayBindingRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["parent"]
+	val, ok := pathParams["parent"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
 	}
-
 	protoReq.Parent, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
 	}
-
 	msg, err := server.CreateOverlayBinding(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_OverlayBindingsService_UpdateOverlayBinding_0 = &utilities.DoubleArray{Encoding: map[string]int{"overlay_binding": 0, "uid": 1}, Base: []int{1, 2, 1, 0, 0}, Check: []int{0, 1, 2, 3, 2}}
-)
+var filter_OverlayBindingsService_UpdateOverlayBinding_0 = &utilities.DoubleArray{Encoding: map[string]int{"overlay_binding": 0, "uid": 1}, Base: []int{1, 2, 1, 0, 0}, Check: []int{0, 1, 2, 3, 2}}
 
 func request_OverlayBindingsService_UpdateOverlayBinding_0(ctx context.Context, marshaler runtime.Marshaler, client OverlayBindingsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateOverlayBindingRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq UpdateOverlayBindingRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
 	newReader, berr := utilities.IOReaderFactory(req.Body)
 	if berr != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
 	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.OverlayBinding); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.OverlayBinding); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if protoReq.UpdateMask == nil || len(protoReq.UpdateMask.GetPaths()) == 0 {
@@ -108,45 +97,38 @@ func request_OverlayBindingsService_UpdateOverlayBinding_0(ctx context.Context, 
 			protoReq.UpdateMask = fieldMask
 		}
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["overlay_binding.uid"]
+	val, ok := pathParams["overlay_binding.uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "overlay_binding.uid")
 	}
-
 	err = runtime.PopulateFieldFromPath(&protoReq, "overlay_binding.uid", val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "overlay_binding.uid", err)
 	}
-
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_OverlayBindingsService_UpdateOverlayBinding_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.UpdateOverlayBinding(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_OverlayBindingsService_UpdateOverlayBinding_0(ctx context.Context, marshaler runtime.Marshaler, server OverlayBindingsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateOverlayBindingRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq UpdateOverlayBindingRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
 	newReader, berr := utilities.IOReaderFactory(req.Body)
 	if berr != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
 	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.OverlayBinding); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.OverlayBinding); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if protoReq.UpdateMask == nil || len(protoReq.UpdateMask.GetPaths()) == 0 {
@@ -156,174 +138,135 @@ func local_request_OverlayBindingsService_UpdateOverlayBinding_0(ctx context.Con
 			protoReq.UpdateMask = fieldMask
 		}
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["overlay_binding.uid"]
+	val, ok := pathParams["overlay_binding.uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "overlay_binding.uid")
 	}
-
 	err = runtime.PopulateFieldFromPath(&protoReq, "overlay_binding.uid", val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "overlay_binding.uid", err)
 	}
-
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_OverlayBindingsService_UpdateOverlayBinding_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.UpdateOverlayBinding(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_OverlayBindingsService_GetOverlayBinding_0(ctx context.Context, marshaler runtime.Marshaler, client OverlayBindingsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetOverlayBindingRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetOverlayBindingRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.GetOverlayBinding(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_OverlayBindingsService_GetOverlayBinding_0(ctx context.Context, marshaler runtime.Marshaler, server OverlayBindingsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetOverlayBindingRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetOverlayBindingRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
 	msg, err := server.GetOverlayBinding(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_OverlayBindingsService_ListOverlayBindings_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
+var filter_OverlayBindingsService_ListOverlayBindings_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_OverlayBindingsService_ListOverlayBindings_0(ctx context.Context, marshaler runtime.Marshaler, client OverlayBindingsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListOverlayBindingsRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListOverlayBindingsRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_OverlayBindingsService_ListOverlayBindings_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.ListOverlayBindings(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_OverlayBindingsService_ListOverlayBindings_0(ctx context.Context, marshaler runtime.Marshaler, server OverlayBindingsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListOverlayBindingsRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListOverlayBindingsRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_OverlayBindingsService_ListOverlayBindings_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.ListOverlayBindings(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_OverlayBindingsService_DeleteOverlayBinding_0(ctx context.Context, marshaler runtime.Marshaler, client OverlayBindingsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteOverlayBindingRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq DeleteOverlayBindingRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.DeleteOverlayBinding(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_OverlayBindingsService_DeleteOverlayBinding_0(ctx context.Context, marshaler runtime.Marshaler, server OverlayBindingsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteOverlayBindingRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq DeleteOverlayBindingRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
 	msg, err := server.DeleteOverlayBinding(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterOverlayBindingsServiceHandlerServer registers the http handlers for service OverlayBindingsService to "mux".
@@ -332,16 +275,13 @@ func local_request_OverlayBindingsService_DeleteOverlayBinding_0(ctx context.Con
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterOverlayBindingsServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterOverlayBindingsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server OverlayBindingsServiceServer) error {
-
-	mux.Handle("POST", pattern_OverlayBindingsService_CreateOverlayBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_OverlayBindingsService_CreateOverlayBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.v2beta1.OverlayBindingsService/CreateOverlayBinding", runtime.WithHTTPPathPattern("/registry/v2beta1/overlayBindings/{parent=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.v2beta1.OverlayBindingsService/CreateOverlayBinding", runtime.WithHTTPPathPattern("/registry/v2beta1/overlayBindings/{parent=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -353,20 +293,15 @@ func RegisterOverlayBindingsServiceHandlerServer(ctx context.Context, mux *runti
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_OverlayBindingsService_CreateOverlayBinding_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PATCH", pattern_OverlayBindingsService_UpdateOverlayBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPatch, pattern_OverlayBindingsService_UpdateOverlayBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.v2beta1.OverlayBindingsService/UpdateOverlayBinding", runtime.WithHTTPPathPattern("/registry/v2beta1/overlayBindings/{overlay_binding.uid=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.v2beta1.OverlayBindingsService/UpdateOverlayBinding", runtime.WithHTTPPathPattern("/registry/v2beta1/overlayBindings/{overlay_binding.uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -378,20 +313,15 @@ func RegisterOverlayBindingsServiceHandlerServer(ctx context.Context, mux *runti
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_OverlayBindingsService_UpdateOverlayBinding_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_OverlayBindingsService_GetOverlayBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_OverlayBindingsService_GetOverlayBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.v2beta1.OverlayBindingsService/GetOverlayBinding", runtime.WithHTTPPathPattern("/registry/v2beta1/overlayBindings/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.v2beta1.OverlayBindingsService/GetOverlayBinding", runtime.WithHTTPPathPattern("/registry/v2beta1/overlayBindings/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -403,20 +333,15 @@ func RegisterOverlayBindingsServiceHandlerServer(ctx context.Context, mux *runti
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_OverlayBindingsService_GetOverlayBinding_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_OverlayBindingsService_ListOverlayBindings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_OverlayBindingsService_ListOverlayBindings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.v2beta1.OverlayBindingsService/ListOverlayBindings", runtime.WithHTTPPathPattern("/registry/v2beta1/overlayBindings"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.v2beta1.OverlayBindingsService/ListOverlayBindings", runtime.WithHTTPPathPattern("/registry/v2beta1/overlayBindings"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -428,20 +353,15 @@ func RegisterOverlayBindingsServiceHandlerServer(ctx context.Context, mux *runti
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_OverlayBindingsService_ListOverlayBindings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("DELETE", pattern_OverlayBindingsService_DeleteOverlayBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_OverlayBindingsService_DeleteOverlayBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.v2beta1.OverlayBindingsService/DeleteOverlayBinding", runtime.WithHTTPPathPattern("/registry/v2beta1/overlayBindings/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.registry.v2beta1.OverlayBindingsService/DeleteOverlayBinding", runtime.WithHTTPPathPattern("/registry/v2beta1/overlayBindings/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -453,9 +373,7 @@ func RegisterOverlayBindingsServiceHandlerServer(ctx context.Context, mux *runti
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_OverlayBindingsService_DeleteOverlayBinding_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -482,7 +400,6 @@ func RegisterOverlayBindingsServiceHandlerFromEndpoint(ctx context.Context, mux 
 			}
 		}()
 	}()
-
 	return RegisterOverlayBindingsServiceHandler(ctx, mux, conn)
 }
 
@@ -498,14 +415,11 @@ func RegisterOverlayBindingsServiceHandler(ctx context.Context, mux *runtime.Ser
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "OverlayBindingsServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterOverlayBindingsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client OverlayBindingsServiceClient) error {
-
-	mux.Handle("POST", pattern_OverlayBindingsService_CreateOverlayBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_OverlayBindingsService_CreateOverlayBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.v2beta1.OverlayBindingsService/CreateOverlayBinding", runtime.WithHTTPPathPattern("/registry/v2beta1/overlayBindings/{parent=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.v2beta1.OverlayBindingsService/CreateOverlayBinding", runtime.WithHTTPPathPattern("/registry/v2beta1/overlayBindings/{parent=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -516,18 +430,13 @@ func RegisterOverlayBindingsServiceHandlerClient(ctx context.Context, mux *runti
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_OverlayBindingsService_CreateOverlayBinding_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PATCH", pattern_OverlayBindingsService_UpdateOverlayBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPatch, pattern_OverlayBindingsService_UpdateOverlayBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.v2beta1.OverlayBindingsService/UpdateOverlayBinding", runtime.WithHTTPPathPattern("/registry/v2beta1/overlayBindings/{overlay_binding.uid=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.v2beta1.OverlayBindingsService/UpdateOverlayBinding", runtime.WithHTTPPathPattern("/registry/v2beta1/overlayBindings/{overlay_binding.uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -538,18 +447,13 @@ func RegisterOverlayBindingsServiceHandlerClient(ctx context.Context, mux *runti
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_OverlayBindingsService_UpdateOverlayBinding_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_OverlayBindingsService_GetOverlayBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_OverlayBindingsService_GetOverlayBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.v2beta1.OverlayBindingsService/GetOverlayBinding", runtime.WithHTTPPathPattern("/registry/v2beta1/overlayBindings/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.v2beta1.OverlayBindingsService/GetOverlayBinding", runtime.WithHTTPPathPattern("/registry/v2beta1/overlayBindings/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -560,18 +464,13 @@ func RegisterOverlayBindingsServiceHandlerClient(ctx context.Context, mux *runti
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_OverlayBindingsService_GetOverlayBinding_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_OverlayBindingsService_ListOverlayBindings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_OverlayBindingsService_ListOverlayBindings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.v2beta1.OverlayBindingsService/ListOverlayBindings", runtime.WithHTTPPathPattern("/registry/v2beta1/overlayBindings"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.v2beta1.OverlayBindingsService/ListOverlayBindings", runtime.WithHTTPPathPattern("/registry/v2beta1/overlayBindings"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -582,18 +481,13 @@ func RegisterOverlayBindingsServiceHandlerClient(ctx context.Context, mux *runti
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_OverlayBindingsService_ListOverlayBindings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("DELETE", pattern_OverlayBindingsService_DeleteOverlayBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_OverlayBindingsService_DeleteOverlayBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.v2beta1.OverlayBindingsService/DeleteOverlayBinding", runtime.WithHTTPPathPattern("/registry/v2beta1/overlayBindings/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.registry.v2beta1.OverlayBindingsService/DeleteOverlayBinding", runtime.WithHTTPPathPattern("/registry/v2beta1/overlayBindings/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -604,34 +498,23 @@ func RegisterOverlayBindingsServiceHandlerClient(ctx context.Context, mux *runti
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_OverlayBindingsService_DeleteOverlayBinding_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
 	pattern_OverlayBindingsService_CreateOverlayBinding_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v2beta1", "overlayBindings", "parent"}, ""))
-
 	pattern_OverlayBindingsService_UpdateOverlayBinding_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v2beta1", "overlayBindings", "overlay_binding.uid"}, ""))
-
-	pattern_OverlayBindingsService_GetOverlayBinding_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v2beta1", "overlayBindings", "uid"}, ""))
-
-	pattern_OverlayBindingsService_ListOverlayBindings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"registry", "v2beta1", "overlayBindings"}, ""))
-
+	pattern_OverlayBindingsService_GetOverlayBinding_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v2beta1", "overlayBindings", "uid"}, ""))
+	pattern_OverlayBindingsService_ListOverlayBindings_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"registry", "v2beta1", "overlayBindings"}, ""))
 	pattern_OverlayBindingsService_DeleteOverlayBinding_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"registry", "v2beta1", "overlayBindings", "uid"}, ""))
 )
 
 var (
 	forward_OverlayBindingsService_CreateOverlayBinding_0 = runtime.ForwardResponseMessage
-
 	forward_OverlayBindingsService_UpdateOverlayBinding_0 = runtime.ForwardResponseMessage
-
-	forward_OverlayBindingsService_GetOverlayBinding_0 = runtime.ForwardResponseMessage
-
-	forward_OverlayBindingsService_ListOverlayBindings_0 = runtime.ForwardResponseMessage
-
+	forward_OverlayBindingsService_GetOverlayBinding_0    = runtime.ForwardResponseMessage
+	forward_OverlayBindingsService_ListOverlayBindings_0  = runtime.ForwardResponseMessage
 	forward_OverlayBindingsService_DeleteOverlayBinding_0 = runtime.ForwardResponseMessage
 )

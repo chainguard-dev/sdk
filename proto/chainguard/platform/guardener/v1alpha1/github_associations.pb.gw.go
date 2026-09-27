@@ -5,6 +5,7 @@ package v1alpha1
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -19,189 +20,161 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = errors.New
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_GitHubAssociations_BeginGitHubOAuth_0(ctx context.Context, marshaler runtime.Marshaler, client GitHubAssociationsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq BeginGitHubOAuthRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq BeginGitHubOAuthRequest
+		metadata runtime.ServerMetadata
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.BeginGitHubOAuth(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_GitHubAssociations_BeginGitHubOAuth_0(ctx context.Context, marshaler runtime.Marshaler, server GitHubAssociationsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq BeginGitHubOAuthRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq BeginGitHubOAuthRequest
+		metadata runtime.ServerMetadata
+	)
 	msg, err := server.BeginGitHubOAuth(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_GitHubAssociations_LinkGitHubOrganization_0(ctx context.Context, marshaler runtime.Marshaler, client GitHubAssociationsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq LinkGitHubOrganizationRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq LinkGitHubOrganizationRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["group"]
+	val, ok := pathParams["group"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "group")
 	}
-
 	protoReq.Group, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "group", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.LinkGitHubOrganization(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_GitHubAssociations_LinkGitHubOrganization_0(ctx context.Context, marshaler runtime.Marshaler, server GitHubAssociationsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq LinkGitHubOrganizationRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq LinkGitHubOrganizationRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["group"]
+	val, ok := pathParams["group"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "group")
 	}
-
 	protoReq.Group, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "group", err)
 	}
-
 	msg, err := server.LinkGitHubOrganization(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_GitHubAssociations_ListGitHubOrganizations_0(ctx context.Context, marshaler runtime.Marshaler, client GitHubAssociationsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListGitHubOrganizationsRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq ListGitHubOrganizationsRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["group"]
+	val, ok := pathParams["group"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "group")
 	}
-
 	protoReq.Group, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "group", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.ListGitHubOrganizations(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_GitHubAssociations_ListGitHubOrganizations_0(ctx context.Context, marshaler runtime.Marshaler, server GitHubAssociationsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListGitHubOrganizationsRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq ListGitHubOrganizationsRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["group"]
+	val, ok := pathParams["group"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "group")
 	}
-
 	protoReq.Group, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "group", err)
 	}
-
 	msg, err := server.ListGitHubOrganizations(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_GitHubAssociations_UnlinkGitHubOrganization_0(ctx context.Context, marshaler runtime.Marshaler, client GitHubAssociationsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UnlinkGitHubOrganizationRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq UnlinkGitHubOrganizationRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.UnlinkGitHubOrganization(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_GitHubAssociations_UnlinkGitHubOrganization_0(ctx context.Context, marshaler runtime.Marshaler, server GitHubAssociationsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UnlinkGitHubOrganizationRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq UnlinkGitHubOrganizationRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.UnlinkGitHubOrganization(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_GitHubAssociations_UnlinkGitHubOrganization_1(ctx context.Context, marshaler runtime.Marshaler, client GitHubAssociationsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UnlinkGitHubOrganizationRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq UnlinkGitHubOrganizationRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["group"]
+	val, ok := pathParams["group"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "group")
 	}
-
 	if protoReq.Credentials == nil {
 		protoReq.Credentials = &UnlinkGitHubOrganizationRequest_Group{}
 	} else if _, ok := protoReq.Credentials.(*UnlinkGitHubOrganizationRequest_Group); !ok {
@@ -211,32 +184,26 @@ func request_GitHubAssociations_UnlinkGitHubOrganization_1(ctx context.Context, 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "group", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.UnlinkGitHubOrganization(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_GitHubAssociations_UnlinkGitHubOrganization_1(ctx context.Context, marshaler runtime.Marshaler, server GitHubAssociationsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UnlinkGitHubOrganizationRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq UnlinkGitHubOrganizationRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["group"]
+	val, ok := pathParams["group"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "group")
 	}
-
 	if protoReq.Credentials == nil {
 		protoReq.Credentials = &UnlinkGitHubOrganizationRequest_Group{}
 	} else if _, ok := protoReq.Credentials.(*UnlinkGitHubOrganizationRequest_Group); !ok {
@@ -246,10 +213,8 @@ func local_request_GitHubAssociations_UnlinkGitHubOrganization_1(ctx context.Con
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "group", err)
 	}
-
 	msg, err := server.UnlinkGitHubOrganization(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterGitHubAssociationsHandlerServer registers the http handlers for service GitHubAssociations to "mux".
@@ -258,16 +223,13 @@ func local_request_GitHubAssociations_UnlinkGitHubOrganization_1(ctx context.Con
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterGitHubAssociationsHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterGitHubAssociationsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server GitHubAssociationsServer) error {
-
-	mux.Handle("GET", pattern_GitHubAssociations_BeginGitHubOAuth_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_GitHubAssociations_BeginGitHubOAuth_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/BeginGitHubOAuth", runtime.WithHTTPPathPattern("/guardener/v1alpha1/githubAssociations:begin"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/BeginGitHubOAuth", runtime.WithHTTPPathPattern("/guardener/v1alpha1/githubAssociations:begin"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -279,20 +241,15 @@ func RegisterGitHubAssociationsHandlerServer(ctx context.Context, mux *runtime.S
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_GitHubAssociations_BeginGitHubOAuth_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_GitHubAssociations_LinkGitHubOrganization_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_GitHubAssociations_LinkGitHubOrganization_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/LinkGitHubOrganization", runtime.WithHTTPPathPattern("/guardener/v1alpha1/githubAssociations/{group=**}:link"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/LinkGitHubOrganization", runtime.WithHTTPPathPattern("/guardener/v1alpha1/githubAssociations/{group=**}:link"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -304,20 +261,15 @@ func RegisterGitHubAssociationsHandlerServer(ctx context.Context, mux *runtime.S
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_GitHubAssociations_LinkGitHubOrganization_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_GitHubAssociations_ListGitHubOrganizations_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_GitHubAssociations_ListGitHubOrganizations_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/ListGitHubOrganizations", runtime.WithHTTPPathPattern("/guardener/v1alpha1/githubAssociations/{group=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/ListGitHubOrganizations", runtime.WithHTTPPathPattern("/guardener/v1alpha1/githubAssociations/{group=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -329,20 +281,15 @@ func RegisterGitHubAssociationsHandlerServer(ctx context.Context, mux *runtime.S
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_GitHubAssociations_ListGitHubOrganizations_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_GitHubAssociations_UnlinkGitHubOrganization_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_GitHubAssociations_UnlinkGitHubOrganization_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/UnlinkGitHubOrganization", runtime.WithHTTPPathPattern("/guardener/v1alpha1/githubAssociations:unlink"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/UnlinkGitHubOrganization", runtime.WithHTTPPathPattern("/guardener/v1alpha1/githubAssociations:unlink"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -354,20 +301,15 @@ func RegisterGitHubAssociationsHandlerServer(ctx context.Context, mux *runtime.S
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_GitHubAssociations_UnlinkGitHubOrganization_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_GitHubAssociations_UnlinkGitHubOrganization_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_GitHubAssociations_UnlinkGitHubOrganization_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/UnlinkGitHubOrganization", runtime.WithHTTPPathPattern("/guardener/v1alpha1/githubAssociations/{group=**}:unlink"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/UnlinkGitHubOrganization", runtime.WithHTTPPathPattern("/guardener/v1alpha1/githubAssociations/{group=**}:unlink"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -379,9 +321,7 @@ func RegisterGitHubAssociationsHandlerServer(ctx context.Context, mux *runtime.S
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_GitHubAssociations_UnlinkGitHubOrganization_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -408,7 +348,6 @@ func RegisterGitHubAssociationsHandlerFromEndpoint(ctx context.Context, mux *run
 			}
 		}()
 	}()
-
 	return RegisterGitHubAssociationsHandler(ctx, mux, conn)
 }
 
@@ -424,14 +363,11 @@ func RegisterGitHubAssociationsHandler(ctx context.Context, mux *runtime.ServeMu
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "GitHubAssociationsClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterGitHubAssociationsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client GitHubAssociationsClient) error {
-
-	mux.Handle("GET", pattern_GitHubAssociations_BeginGitHubOAuth_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_GitHubAssociations_BeginGitHubOAuth_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/BeginGitHubOAuth", runtime.WithHTTPPathPattern("/guardener/v1alpha1/githubAssociations:begin"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/BeginGitHubOAuth", runtime.WithHTTPPathPattern("/guardener/v1alpha1/githubAssociations:begin"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -442,18 +378,13 @@ func RegisterGitHubAssociationsHandlerClient(ctx context.Context, mux *runtime.S
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_GitHubAssociations_BeginGitHubOAuth_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_GitHubAssociations_LinkGitHubOrganization_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_GitHubAssociations_LinkGitHubOrganization_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/LinkGitHubOrganization", runtime.WithHTTPPathPattern("/guardener/v1alpha1/githubAssociations/{group=**}:link"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/LinkGitHubOrganization", runtime.WithHTTPPathPattern("/guardener/v1alpha1/githubAssociations/{group=**}:link"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -464,18 +395,13 @@ func RegisterGitHubAssociationsHandlerClient(ctx context.Context, mux *runtime.S
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_GitHubAssociations_LinkGitHubOrganization_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_GitHubAssociations_ListGitHubOrganizations_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_GitHubAssociations_ListGitHubOrganizations_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/ListGitHubOrganizations", runtime.WithHTTPPathPattern("/guardener/v1alpha1/githubAssociations/{group=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/ListGitHubOrganizations", runtime.WithHTTPPathPattern("/guardener/v1alpha1/githubAssociations/{group=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -486,18 +412,13 @@ func RegisterGitHubAssociationsHandlerClient(ctx context.Context, mux *runtime.S
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_GitHubAssociations_ListGitHubOrganizations_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_GitHubAssociations_UnlinkGitHubOrganization_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_GitHubAssociations_UnlinkGitHubOrganization_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/UnlinkGitHubOrganization", runtime.WithHTTPPathPattern("/guardener/v1alpha1/githubAssociations:unlink"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/UnlinkGitHubOrganization", runtime.WithHTTPPathPattern("/guardener/v1alpha1/githubAssociations:unlink"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -508,18 +429,13 @@ func RegisterGitHubAssociationsHandlerClient(ctx context.Context, mux *runtime.S
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_GitHubAssociations_UnlinkGitHubOrganization_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_GitHubAssociations_UnlinkGitHubOrganization_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_GitHubAssociations_UnlinkGitHubOrganization_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/UnlinkGitHubOrganization", runtime.WithHTTPPathPattern("/guardener/v1alpha1/githubAssociations/{group=**}:unlink"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.GitHubAssociations/UnlinkGitHubOrganization", runtime.WithHTTPPathPattern("/guardener/v1alpha1/githubAssociations/{group=**}:unlink"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -530,34 +446,23 @@ func RegisterGitHubAssociationsHandlerClient(ctx context.Context, mux *runtime.S
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_GitHubAssociations_UnlinkGitHubOrganization_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
-	pattern_GitHubAssociations_BeginGitHubOAuth_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"guardener", "v1alpha1", "githubAssociations"}, "begin"))
-
-	pattern_GitHubAssociations_LinkGitHubOrganization_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"guardener", "v1alpha1", "githubAssociations", "group"}, "link"))
-
-	pattern_GitHubAssociations_ListGitHubOrganizations_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"guardener", "v1alpha1", "githubAssociations", "group"}, ""))
-
+	pattern_GitHubAssociations_BeginGitHubOAuth_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"guardener", "v1alpha1", "githubAssociations"}, "begin"))
+	pattern_GitHubAssociations_LinkGitHubOrganization_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"guardener", "v1alpha1", "githubAssociations", "group"}, "link"))
+	pattern_GitHubAssociations_ListGitHubOrganizations_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"guardener", "v1alpha1", "githubAssociations", "group"}, ""))
 	pattern_GitHubAssociations_UnlinkGitHubOrganization_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"guardener", "v1alpha1", "githubAssociations"}, "unlink"))
-
 	pattern_GitHubAssociations_UnlinkGitHubOrganization_1 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"guardener", "v1alpha1", "githubAssociations", "group"}, "unlink"))
 )
 
 var (
-	forward_GitHubAssociations_BeginGitHubOAuth_0 = runtime.ForwardResponseMessage
-
-	forward_GitHubAssociations_LinkGitHubOrganization_0 = runtime.ForwardResponseMessage
-
-	forward_GitHubAssociations_ListGitHubOrganizations_0 = runtime.ForwardResponseMessage
-
+	forward_GitHubAssociations_BeginGitHubOAuth_0         = runtime.ForwardResponseMessage
+	forward_GitHubAssociations_LinkGitHubOrganization_0   = runtime.ForwardResponseMessage
+	forward_GitHubAssociations_ListGitHubOrganizations_0  = runtime.ForwardResponseMessage
 	forward_GitHubAssociations_UnlinkGitHubOrganization_0 = runtime.ForwardResponseMessage
-
 	forward_GitHubAssociations_UnlinkGitHubOrganization_1 = runtime.ForwardResponseMessage
 )

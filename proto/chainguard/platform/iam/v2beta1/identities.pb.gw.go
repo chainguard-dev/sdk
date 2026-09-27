@@ -5,6 +5,7 @@ package v2beta1
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -19,190 +20,152 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = errors.New
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_IdentitiesService_CreateIdentity_0(ctx context.Context, marshaler runtime.Marshaler, client IdentitiesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateIdentityRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.Identity); err != nil && err != io.EOF {
+	var (
+		protoReq CreateIdentityRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.Identity); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["parent"]
+	val, ok := pathParams["parent"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
 	}
-
 	protoReq.Parent, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.CreateIdentity(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_IdentitiesService_CreateIdentity_0(ctx context.Context, marshaler runtime.Marshaler, server IdentitiesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateIdentityRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.Identity); err != nil && err != io.EOF {
+	var (
+		protoReq CreateIdentityRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.Identity); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["parent"]
+	val, ok := pathParams["parent"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
 	}
-
 	protoReq.Parent, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
 	}
-
 	msg, err := server.CreateIdentity(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_IdentitiesService_GetIdentity_0(ctx context.Context, marshaler runtime.Marshaler, client IdentitiesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetIdentityRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetIdentityRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.GetIdentity(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_IdentitiesService_GetIdentity_0(ctx context.Context, marshaler runtime.Marshaler, server IdentitiesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetIdentityRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetIdentityRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
 	msg, err := server.GetIdentity(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_IdentitiesService_DeleteIdentity_0(ctx context.Context, marshaler runtime.Marshaler, client IdentitiesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteIdentityRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq DeleteIdentityRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.DeleteIdentity(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_IdentitiesService_DeleteIdentity_0(ctx context.Context, marshaler runtime.Marshaler, server IdentitiesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteIdentityRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq DeleteIdentityRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
 	msg, err := server.DeleteIdentity(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_IdentitiesService_UpdateIdentity_0 = &utilities.DoubleArray{Encoding: map[string]int{"identity": 0, "uid": 1}, Base: []int{1, 2, 1, 0, 0}, Check: []int{0, 1, 2, 3, 2}}
-)
+var filter_IdentitiesService_UpdateIdentity_0 = &utilities.DoubleArray{Encoding: map[string]int{"identity": 0, "uid": 1}, Base: []int{1, 2, 1, 0, 0}, Check: []int{0, 1, 2, 3, 2}}
 
 func request_IdentitiesService_UpdateIdentity_0(ctx context.Context, marshaler runtime.Marshaler, client IdentitiesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateIdentityRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq UpdateIdentityRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
 	newReader, berr := utilities.IOReaderFactory(req.Body)
 	if berr != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
 	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.Identity); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.Identity); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if protoReq.UpdateMask == nil || len(protoReq.UpdateMask.GetPaths()) == 0 {
@@ -212,45 +175,38 @@ func request_IdentitiesService_UpdateIdentity_0(ctx context.Context, marshaler r
 			protoReq.UpdateMask = fieldMask
 		}
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["identity.uid"]
+	val, ok := pathParams["identity.uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "identity.uid")
 	}
-
 	err = runtime.PopulateFieldFromPath(&protoReq, "identity.uid", val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "identity.uid", err)
 	}
-
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_IdentitiesService_UpdateIdentity_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.UpdateIdentity(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_IdentitiesService_UpdateIdentity_0(ctx context.Context, marshaler runtime.Marshaler, server IdentitiesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateIdentityRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq UpdateIdentityRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
 	newReader, berr := utilities.IOReaderFactory(req.Body)
 	if berr != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
 	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.Identity); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.Identity); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if protoReq.UpdateMask == nil || len(protoReq.UpdateMask.GetPaths()) == 0 {
@@ -260,132 +216,119 @@ func local_request_IdentitiesService_UpdateIdentity_0(ctx context.Context, marsh
 			protoReq.UpdateMask = fieldMask
 		}
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["identity.uid"]
+	val, ok := pathParams["identity.uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "identity.uid")
 	}
-
 	err = runtime.PopulateFieldFromPath(&protoReq, "identity.uid", val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "identity.uid", err)
 	}
-
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_IdentitiesService_UpdateIdentity_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.UpdateIdentity(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_IdentitiesService_ListIdentities_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
+var filter_IdentitiesService_ListIdentities_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_IdentitiesService_ListIdentities_0(ctx context.Context, marshaler runtime.Marshaler, client IdentitiesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListIdentitiesRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListIdentitiesRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_IdentitiesService_ListIdentities_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.ListIdentities(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_IdentitiesService_ListIdentities_0(ctx context.Context, marshaler runtime.Marshaler, server IdentitiesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListIdentitiesRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListIdentitiesRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_IdentitiesService_ListIdentities_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.ListIdentities(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_IdentitiesService_LookupIdentity_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
+var filter_IdentitiesService_LookupIdentity_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_IdentitiesService_LookupIdentity_0(ctx context.Context, marshaler runtime.Marshaler, client IdentitiesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq LookupIdentityRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq LookupIdentityRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_IdentitiesService_LookupIdentity_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.LookupIdentity(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_IdentitiesService_LookupIdentity_0(ctx context.Context, marshaler runtime.Marshaler, server IdentitiesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq LookupIdentityRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq LookupIdentityRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_IdentitiesService_LookupIdentity_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.LookupIdentity(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_IdentitiesService_UpdateIdentityMetadata_0(ctx context.Context, marshaler runtime.Marshaler, client IdentitiesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateIdentityMetadataRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq UpdateIdentityMetadataRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.UpdateIdentityMetadata(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_IdentitiesService_UpdateIdentityMetadata_0(ctx context.Context, marshaler runtime.Marshaler, server IdentitiesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateIdentityMetadataRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq UpdateIdentityMetadataRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.UpdateIdentityMetadata(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterIdentitiesServiceHandlerServer registers the http handlers for service IdentitiesService to "mux".
@@ -394,16 +337,13 @@ func local_request_IdentitiesService_UpdateIdentityMetadata_0(ctx context.Contex
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterIdentitiesServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterIdentitiesServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server IdentitiesServiceServer) error {
-
-	mux.Handle("POST", pattern_IdentitiesService_CreateIdentity_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_IdentitiesService_CreateIdentity_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/CreateIdentity", runtime.WithHTTPPathPattern("/iam/v2beta1/identities/{parent=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/CreateIdentity", runtime.WithHTTPPathPattern("/iam/v2beta1/identities/{parent=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -415,20 +355,15 @@ func RegisterIdentitiesServiceHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentitiesService_CreateIdentity_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_IdentitiesService_GetIdentity_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_IdentitiesService_GetIdentity_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/GetIdentity", runtime.WithHTTPPathPattern("/iam/v2beta1/identities/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/GetIdentity", runtime.WithHTTPPathPattern("/iam/v2beta1/identities/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -440,20 +375,15 @@ func RegisterIdentitiesServiceHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentitiesService_GetIdentity_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("DELETE", pattern_IdentitiesService_DeleteIdentity_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_IdentitiesService_DeleteIdentity_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/DeleteIdentity", runtime.WithHTTPPathPattern("/iam/v2beta1/identities/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/DeleteIdentity", runtime.WithHTTPPathPattern("/iam/v2beta1/identities/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -465,20 +395,15 @@ func RegisterIdentitiesServiceHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentitiesService_DeleteIdentity_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PATCH", pattern_IdentitiesService_UpdateIdentity_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPatch, pattern_IdentitiesService_UpdateIdentity_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/UpdateIdentity", runtime.WithHTTPPathPattern("/iam/v2beta1/identities/{identity.uid=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/UpdateIdentity", runtime.WithHTTPPathPattern("/iam/v2beta1/identities/{identity.uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -490,20 +415,15 @@ func RegisterIdentitiesServiceHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentitiesService_UpdateIdentity_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_IdentitiesService_ListIdentities_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_IdentitiesService_ListIdentities_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/ListIdentities", runtime.WithHTTPPathPattern("/iam/v2beta1/identities"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/ListIdentities", runtime.WithHTTPPathPattern("/iam/v2beta1/identities"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -515,20 +435,15 @@ func RegisterIdentitiesServiceHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentitiesService_ListIdentities_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_IdentitiesService_LookupIdentity_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_IdentitiesService_LookupIdentity_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/LookupIdentity", runtime.WithHTTPPathPattern("/iam/v2beta1/identities:lookupIdentity"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/LookupIdentity", runtime.WithHTTPPathPattern("/iam/v2beta1/identities:lookupIdentity"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -540,20 +455,15 @@ func RegisterIdentitiesServiceHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentitiesService_LookupIdentity_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PATCH", pattern_IdentitiesService_UpdateIdentityMetadata_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPatch, pattern_IdentitiesService_UpdateIdentityMetadata_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/UpdateIdentityMetadata", runtime.WithHTTPPathPattern("/iam/v2beta1/identities:updateIdentityMetadata"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/UpdateIdentityMetadata", runtime.WithHTTPPathPattern("/iam/v2beta1/identities:updateIdentityMetadata"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -565,9 +475,7 @@ func RegisterIdentitiesServiceHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentitiesService_UpdateIdentityMetadata_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -594,7 +502,6 @@ func RegisterIdentitiesServiceHandlerFromEndpoint(ctx context.Context, mux *runt
 			}
 		}()
 	}()
-
 	return RegisterIdentitiesServiceHandler(ctx, mux, conn)
 }
 
@@ -610,14 +517,11 @@ func RegisterIdentitiesServiceHandler(ctx context.Context, mux *runtime.ServeMux
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "IdentitiesServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterIdentitiesServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client IdentitiesServiceClient) error {
-
-	mux.Handle("POST", pattern_IdentitiesService_CreateIdentity_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_IdentitiesService_CreateIdentity_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/CreateIdentity", runtime.WithHTTPPathPattern("/iam/v2beta1/identities/{parent=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/CreateIdentity", runtime.WithHTTPPathPattern("/iam/v2beta1/identities/{parent=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -628,18 +532,13 @@ func RegisterIdentitiesServiceHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentitiesService_CreateIdentity_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_IdentitiesService_GetIdentity_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_IdentitiesService_GetIdentity_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/GetIdentity", runtime.WithHTTPPathPattern("/iam/v2beta1/identities/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/GetIdentity", runtime.WithHTTPPathPattern("/iam/v2beta1/identities/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -650,18 +549,13 @@ func RegisterIdentitiesServiceHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentitiesService_GetIdentity_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("DELETE", pattern_IdentitiesService_DeleteIdentity_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_IdentitiesService_DeleteIdentity_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/DeleteIdentity", runtime.WithHTTPPathPattern("/iam/v2beta1/identities/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/DeleteIdentity", runtime.WithHTTPPathPattern("/iam/v2beta1/identities/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -672,18 +566,13 @@ func RegisterIdentitiesServiceHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentitiesService_DeleteIdentity_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PATCH", pattern_IdentitiesService_UpdateIdentity_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPatch, pattern_IdentitiesService_UpdateIdentity_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/UpdateIdentity", runtime.WithHTTPPathPattern("/iam/v2beta1/identities/{identity.uid=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/UpdateIdentity", runtime.WithHTTPPathPattern("/iam/v2beta1/identities/{identity.uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -694,18 +583,13 @@ func RegisterIdentitiesServiceHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentitiesService_UpdateIdentity_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_IdentitiesService_ListIdentities_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_IdentitiesService_ListIdentities_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/ListIdentities", runtime.WithHTTPPathPattern("/iam/v2beta1/identities"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/ListIdentities", runtime.WithHTTPPathPattern("/iam/v2beta1/identities"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -716,18 +600,13 @@ func RegisterIdentitiesServiceHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentitiesService_ListIdentities_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_IdentitiesService_LookupIdentity_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_IdentitiesService_LookupIdentity_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/LookupIdentity", runtime.WithHTTPPathPattern("/iam/v2beta1/identities:lookupIdentity"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/LookupIdentity", runtime.WithHTTPPathPattern("/iam/v2beta1/identities:lookupIdentity"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -738,18 +617,13 @@ func RegisterIdentitiesServiceHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentitiesService_LookupIdentity_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PATCH", pattern_IdentitiesService_UpdateIdentityMetadata_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPatch, pattern_IdentitiesService_UpdateIdentityMetadata_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/UpdateIdentityMetadata", runtime.WithHTTPPathPattern("/iam/v2beta1/identities:updateIdentityMetadata"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.IdentitiesService/UpdateIdentityMetadata", runtime.WithHTTPPathPattern("/iam/v2beta1/identities:updateIdentityMetadata"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -760,42 +634,27 @@ func RegisterIdentitiesServiceHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_IdentitiesService_UpdateIdentityMetadata_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
-	pattern_IdentitiesService_CreateIdentity_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2beta1", "identities", "parent"}, ""))
-
-	pattern_IdentitiesService_GetIdentity_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2beta1", "identities", "uid"}, ""))
-
-	pattern_IdentitiesService_DeleteIdentity_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2beta1", "identities", "uid"}, ""))
-
-	pattern_IdentitiesService_UpdateIdentity_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2beta1", "identities", "identity.uid"}, ""))
-
-	pattern_IdentitiesService_ListIdentities_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"iam", "v2beta1", "identities"}, ""))
-
-	pattern_IdentitiesService_LookupIdentity_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"iam", "v2beta1", "identities"}, "lookupIdentity"))
-
+	pattern_IdentitiesService_CreateIdentity_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2beta1", "identities", "parent"}, ""))
+	pattern_IdentitiesService_GetIdentity_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2beta1", "identities", "uid"}, ""))
+	pattern_IdentitiesService_DeleteIdentity_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2beta1", "identities", "uid"}, ""))
+	pattern_IdentitiesService_UpdateIdentity_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2beta1", "identities", "identity.uid"}, ""))
+	pattern_IdentitiesService_ListIdentities_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"iam", "v2beta1", "identities"}, ""))
+	pattern_IdentitiesService_LookupIdentity_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"iam", "v2beta1", "identities"}, "lookupIdentity"))
 	pattern_IdentitiesService_UpdateIdentityMetadata_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"iam", "v2beta1", "identities"}, "updateIdentityMetadata"))
 )
 
 var (
-	forward_IdentitiesService_CreateIdentity_0 = runtime.ForwardResponseMessage
-
-	forward_IdentitiesService_GetIdentity_0 = runtime.ForwardResponseMessage
-
-	forward_IdentitiesService_DeleteIdentity_0 = runtime.ForwardResponseMessage
-
-	forward_IdentitiesService_UpdateIdentity_0 = runtime.ForwardResponseMessage
-
-	forward_IdentitiesService_ListIdentities_0 = runtime.ForwardResponseMessage
-
-	forward_IdentitiesService_LookupIdentity_0 = runtime.ForwardResponseMessage
-
+	forward_IdentitiesService_CreateIdentity_0         = runtime.ForwardResponseMessage
+	forward_IdentitiesService_GetIdentity_0            = runtime.ForwardResponseMessage
+	forward_IdentitiesService_DeleteIdentity_0         = runtime.ForwardResponseMessage
+	forward_IdentitiesService_UpdateIdentity_0         = runtime.ForwardResponseMessage
+	forward_IdentitiesService_ListIdentities_0         = runtime.ForwardResponseMessage
+	forward_IdentitiesService_LookupIdentity_0         = runtime.ForwardResponseMessage
 	forward_IdentitiesService_UpdateIdentityMetadata_0 = runtime.ForwardResponseMessage
 )

@@ -5,6 +5,7 @@ package v2
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -19,226 +20,187 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = errors.New
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_AccountAssociationsService_GetAccountAssociation_0(ctx context.Context, marshaler runtime.Marshaler, client AccountAssociationsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetAccountAssociationRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetAccountAssociationRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.GetAccountAssociation(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AccountAssociationsService_GetAccountAssociation_0(ctx context.Context, marshaler runtime.Marshaler, server AccountAssociationsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetAccountAssociationRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetAccountAssociationRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
 	msg, err := server.GetAccountAssociation(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_AccountAssociationsService_CreateAccountAssociation_0(ctx context.Context, marshaler runtime.Marshaler, client AccountAssociationsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateAccountAssociationRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.AccountAssociation); err != nil && err != io.EOF {
+	var (
+		protoReq CreateAccountAssociationRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.AccountAssociation); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["parent"]
+	val, ok := pathParams["parent"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
 	}
-
 	protoReq.Parent, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.CreateAccountAssociation(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AccountAssociationsService_CreateAccountAssociation_0(ctx context.Context, marshaler runtime.Marshaler, server AccountAssociationsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateAccountAssociationRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.AccountAssociation); err != nil && err != io.EOF {
+	var (
+		protoReq CreateAccountAssociationRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.AccountAssociation); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["parent"]
+	val, ok := pathParams["parent"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
 	}
-
 	protoReq.Parent, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
 	}
-
 	msg, err := server.CreateAccountAssociation(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_AccountAssociationsService_DeleteAccountAssociation_0(ctx context.Context, marshaler runtime.Marshaler, client AccountAssociationsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteAccountAssociationRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq DeleteAccountAssociationRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.DeleteAccountAssociation(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AccountAssociationsService_DeleteAccountAssociation_0(ctx context.Context, marshaler runtime.Marshaler, server AccountAssociationsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteAccountAssociationRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq DeleteAccountAssociationRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
 	msg, err := server.DeleteAccountAssociation(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_AccountAssociationsService_ListAccountAssociations_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
+var filter_AccountAssociationsService_ListAccountAssociations_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_AccountAssociationsService_ListAccountAssociations_0(ctx context.Context, marshaler runtime.Marshaler, client AccountAssociationsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListAccountAssociationsRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListAccountAssociationsRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AccountAssociationsService_ListAccountAssociations_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.ListAccountAssociations(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AccountAssociationsService_ListAccountAssociations_0(ctx context.Context, marshaler runtime.Marshaler, server AccountAssociationsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListAccountAssociationsRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListAccountAssociationsRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AccountAssociationsService_ListAccountAssociations_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.ListAccountAssociations(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_AccountAssociationsService_UpdateAccountAssociation_0 = &utilities.DoubleArray{Encoding: map[string]int{"account_association": 0, "uid": 1}, Base: []int{1, 2, 1, 0, 0}, Check: []int{0, 1, 2, 3, 2}}
-)
+var filter_AccountAssociationsService_UpdateAccountAssociation_0 = &utilities.DoubleArray{Encoding: map[string]int{"account_association": 0, "uid": 1}, Base: []int{1, 2, 1, 0, 0}, Check: []int{0, 1, 2, 3, 2}}
 
 func request_AccountAssociationsService_UpdateAccountAssociation_0(ctx context.Context, marshaler runtime.Marshaler, client AccountAssociationsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateAccountAssociationRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq UpdateAccountAssociationRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
 	newReader, berr := utilities.IOReaderFactory(req.Body)
 	if berr != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
 	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.AccountAssociation); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.AccountAssociation); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if protoReq.UpdateMask == nil || len(protoReq.UpdateMask.GetPaths()) == 0 {
@@ -248,45 +210,38 @@ func request_AccountAssociationsService_UpdateAccountAssociation_0(ctx context.C
 			protoReq.UpdateMask = fieldMask
 		}
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["account_association.uid"]
+	val, ok := pathParams["account_association.uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "account_association.uid")
 	}
-
 	err = runtime.PopulateFieldFromPath(&protoReq, "account_association.uid", val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "account_association.uid", err)
 	}
-
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AccountAssociationsService_UpdateAccountAssociation_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.UpdateAccountAssociation(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AccountAssociationsService_UpdateAccountAssociation_0(ctx context.Context, marshaler runtime.Marshaler, server AccountAssociationsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateAccountAssociationRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq UpdateAccountAssociationRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
 	newReader, berr := utilities.IOReaderFactory(req.Body)
 	if berr != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
 	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.AccountAssociation); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.AccountAssociation); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if protoReq.UpdateMask == nil || len(protoReq.UpdateMask.GetPaths()) == 0 {
@@ -296,94 +251,67 @@ func local_request_AccountAssociationsService_UpdateAccountAssociation_0(ctx con
 			protoReq.UpdateMask = fieldMask
 		}
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["account_association.uid"]
+	val, ok := pathParams["account_association.uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "account_association.uid")
 	}
-
 	err = runtime.PopulateFieldFromPath(&protoReq, "account_association.uid", val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "account_association.uid", err)
 	}
-
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AccountAssociationsService_UpdateAccountAssociation_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.UpdateAccountAssociation(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_AccountAssociationsService_CheckAccountAssociation_0(ctx context.Context, marshaler runtime.Marshaler, client AccountAssociationsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CheckAccountAssociationRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CheckAccountAssociationRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.CheckAccountAssociation(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AccountAssociationsService_CheckAccountAssociation_0(ctx context.Context, marshaler runtime.Marshaler, server AccountAssociationsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CheckAccountAssociationRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CheckAccountAssociationRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
 	msg, err := server.CheckAccountAssociation(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterAccountAssociationsServiceHandlerServer registers the http handlers for service AccountAssociationsService to "mux".
@@ -392,16 +320,13 @@ func local_request_AccountAssociationsService_CheckAccountAssociation_0(ctx cont
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAccountAssociationsServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterAccountAssociationsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AccountAssociationsServiceServer) error {
-
-	mux.Handle("GET", pattern_AccountAssociationsService_GetAccountAssociation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_AccountAssociationsService_GetAccountAssociation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/GetAccountAssociation", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/GetAccountAssociation", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -413,20 +338,15 @@ func RegisterAccountAssociationsServiceHandlerServer(ctx context.Context, mux *r
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccountAssociationsService_GetAccountAssociation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_AccountAssociationsService_CreateAccountAssociation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AccountAssociationsService_CreateAccountAssociation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/CreateAccountAssociation", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations/{parent=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/CreateAccountAssociation", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations/{parent=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -438,20 +358,15 @@ func RegisterAccountAssociationsServiceHandlerServer(ctx context.Context, mux *r
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccountAssociationsService_CreateAccountAssociation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("DELETE", pattern_AccountAssociationsService_DeleteAccountAssociation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_AccountAssociationsService_DeleteAccountAssociation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/DeleteAccountAssociation", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/DeleteAccountAssociation", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -463,20 +378,15 @@ func RegisterAccountAssociationsServiceHandlerServer(ctx context.Context, mux *r
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccountAssociationsService_DeleteAccountAssociation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_AccountAssociationsService_ListAccountAssociations_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_AccountAssociationsService_ListAccountAssociations_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/ListAccountAssociations", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/ListAccountAssociations", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -488,20 +398,15 @@ func RegisterAccountAssociationsServiceHandlerServer(ctx context.Context, mux *r
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccountAssociationsService_ListAccountAssociations_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PATCH", pattern_AccountAssociationsService_UpdateAccountAssociation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPatch, pattern_AccountAssociationsService_UpdateAccountAssociation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/UpdateAccountAssociation", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations/{account_association.uid=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/UpdateAccountAssociation", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations/{account_association.uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -513,20 +418,15 @@ func RegisterAccountAssociationsServiceHandlerServer(ctx context.Context, mux *r
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccountAssociationsService_UpdateAccountAssociation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_AccountAssociationsService_CheckAccountAssociation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AccountAssociationsService_CheckAccountAssociation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/CheckAccountAssociation", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations/{uid=**}:checkAccountAssociation"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/CheckAccountAssociation", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations/{uid=**}:checkAccountAssociation"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -538,9 +438,7 @@ func RegisterAccountAssociationsServiceHandlerServer(ctx context.Context, mux *r
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccountAssociationsService_CheckAccountAssociation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -567,7 +465,6 @@ func RegisterAccountAssociationsServiceHandlerFromEndpoint(ctx context.Context, 
 			}
 		}()
 	}()
-
 	return RegisterAccountAssociationsServiceHandler(ctx, mux, conn)
 }
 
@@ -583,14 +480,11 @@ func RegisterAccountAssociationsServiceHandler(ctx context.Context, mux *runtime
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "AccountAssociationsServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterAccountAssociationsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AccountAssociationsServiceClient) error {
-
-	mux.Handle("GET", pattern_AccountAssociationsService_GetAccountAssociation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_AccountAssociationsService_GetAccountAssociation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/GetAccountAssociation", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/GetAccountAssociation", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -601,18 +495,13 @@ func RegisterAccountAssociationsServiceHandlerClient(ctx context.Context, mux *r
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccountAssociationsService_GetAccountAssociation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_AccountAssociationsService_CreateAccountAssociation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AccountAssociationsService_CreateAccountAssociation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/CreateAccountAssociation", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations/{parent=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/CreateAccountAssociation", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations/{parent=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -623,18 +512,13 @@ func RegisterAccountAssociationsServiceHandlerClient(ctx context.Context, mux *r
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccountAssociationsService_CreateAccountAssociation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("DELETE", pattern_AccountAssociationsService_DeleteAccountAssociation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_AccountAssociationsService_DeleteAccountAssociation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/DeleteAccountAssociation", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/DeleteAccountAssociation", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -645,18 +529,13 @@ func RegisterAccountAssociationsServiceHandlerClient(ctx context.Context, mux *r
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccountAssociationsService_DeleteAccountAssociation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_AccountAssociationsService_ListAccountAssociations_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_AccountAssociationsService_ListAccountAssociations_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/ListAccountAssociations", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/ListAccountAssociations", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -667,18 +546,13 @@ func RegisterAccountAssociationsServiceHandlerClient(ctx context.Context, mux *r
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccountAssociationsService_ListAccountAssociations_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PATCH", pattern_AccountAssociationsService_UpdateAccountAssociation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPatch, pattern_AccountAssociationsService_UpdateAccountAssociation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/UpdateAccountAssociation", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations/{account_association.uid=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/UpdateAccountAssociation", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations/{account_association.uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -689,18 +563,13 @@ func RegisterAccountAssociationsServiceHandlerClient(ctx context.Context, mux *r
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccountAssociationsService_UpdateAccountAssociation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_AccountAssociationsService_CheckAccountAssociation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AccountAssociationsService_CheckAccountAssociation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/CheckAccountAssociation", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations/{uid=**}:checkAccountAssociation"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.AccountAssociationsService/CheckAccountAssociation", runtime.WithHTTPPathPattern("/iam/v2/accountAssociations/{uid=**}:checkAccountAssociation"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -711,38 +580,25 @@ func RegisterAccountAssociationsServiceHandlerClient(ctx context.Context, mux *r
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccountAssociationsService_CheckAccountAssociation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
-	pattern_AccountAssociationsService_GetAccountAssociation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2", "accountAssociations", "uid"}, ""))
-
+	pattern_AccountAssociationsService_GetAccountAssociation_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2", "accountAssociations", "uid"}, ""))
 	pattern_AccountAssociationsService_CreateAccountAssociation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2", "accountAssociations", "parent"}, ""))
-
 	pattern_AccountAssociationsService_DeleteAccountAssociation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2", "accountAssociations", "uid"}, ""))
-
-	pattern_AccountAssociationsService_ListAccountAssociations_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"iam", "v2", "accountAssociations"}, ""))
-
+	pattern_AccountAssociationsService_ListAccountAssociations_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"iam", "v2", "accountAssociations"}, ""))
 	pattern_AccountAssociationsService_UpdateAccountAssociation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2", "accountAssociations", "account_association.uid"}, ""))
-
-	pattern_AccountAssociationsService_CheckAccountAssociation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2", "accountAssociations", "uid"}, "checkAccountAssociation"))
+	pattern_AccountAssociationsService_CheckAccountAssociation_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2", "accountAssociations", "uid"}, "checkAccountAssociation"))
 )
 
 var (
-	forward_AccountAssociationsService_GetAccountAssociation_0 = runtime.ForwardResponseMessage
-
+	forward_AccountAssociationsService_GetAccountAssociation_0    = runtime.ForwardResponseMessage
 	forward_AccountAssociationsService_CreateAccountAssociation_0 = runtime.ForwardResponseMessage
-
 	forward_AccountAssociationsService_DeleteAccountAssociation_0 = runtime.ForwardResponseMessage
-
-	forward_AccountAssociationsService_ListAccountAssociations_0 = runtime.ForwardResponseMessage
-
+	forward_AccountAssociationsService_ListAccountAssociations_0  = runtime.ForwardResponseMessage
 	forward_AccountAssociationsService_UpdateAccountAssociation_0 = runtime.ForwardResponseMessage
-
-	forward_AccountAssociationsService_CheckAccountAssociation_0 = runtime.ForwardResponseMessage
+	forward_AccountAssociationsService_CheckAccountAssociation_0  = runtime.ForwardResponseMessage
 )

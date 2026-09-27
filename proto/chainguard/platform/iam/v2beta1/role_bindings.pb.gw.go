@@ -5,6 +5,7 @@ package v2beta1
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -19,252 +20,214 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = errors.New
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_RoleBindingsService_GetRoleBinding_0(ctx context.Context, marshaler runtime.Marshaler, client RoleBindingsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetRoleBindingRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetRoleBindingRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.GetRoleBinding(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_RoleBindingsService_GetRoleBinding_0(ctx context.Context, marshaler runtime.Marshaler, server RoleBindingsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetRoleBindingRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetRoleBindingRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
 	msg, err := server.GetRoleBinding(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_RoleBindingsService_CreateRoleBinding_0(ctx context.Context, marshaler runtime.Marshaler, client RoleBindingsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateRoleBindingRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.RoleBinding); err != nil && err != io.EOF {
+	var (
+		protoReq CreateRoleBindingRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.RoleBinding); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["parent"]
+	val, ok := pathParams["parent"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
 	}
-
 	protoReq.Parent, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.CreateRoleBinding(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_RoleBindingsService_CreateRoleBinding_0(ctx context.Context, marshaler runtime.Marshaler, server RoleBindingsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateRoleBindingRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.RoleBinding); err != nil && err != io.EOF {
+	var (
+		protoReq CreateRoleBindingRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.RoleBinding); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["parent"]
+	val, ok := pathParams["parent"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
 	}
-
 	protoReq.Parent, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
 	}
-
 	msg, err := server.CreateRoleBinding(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_RoleBindingsService_DeleteRoleBinding_0(ctx context.Context, marshaler runtime.Marshaler, client RoleBindingsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteRoleBindingRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq DeleteRoleBindingRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.DeleteRoleBinding(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_RoleBindingsService_DeleteRoleBinding_0(ctx context.Context, marshaler runtime.Marshaler, server RoleBindingsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteRoleBindingRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq DeleteRoleBindingRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
 	msg, err := server.DeleteRoleBinding(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_RoleBindingsService_ListRoleBindings_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
+var filter_RoleBindingsService_ListRoleBindings_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_RoleBindingsService_ListRoleBindings_0(ctx context.Context, marshaler runtime.Marshaler, client RoleBindingsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListRoleBindingsRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListRoleBindingsRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_RoleBindingsService_ListRoleBindings_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.ListRoleBindings(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_RoleBindingsService_ListRoleBindings_0(ctx context.Context, marshaler runtime.Marshaler, server RoleBindingsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListRoleBindingsRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListRoleBindingsRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_RoleBindingsService_ListRoleBindings_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.ListRoleBindings(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_RoleBindingsService_BatchCreateRoleBindings_0(ctx context.Context, marshaler runtime.Marshaler, client RoleBindingsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq BatchCreateRoleBindingsRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq BatchCreateRoleBindingsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.BatchCreateRoleBindings(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_RoleBindingsService_BatchCreateRoleBindings_0(ctx context.Context, marshaler runtime.Marshaler, server RoleBindingsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq BatchCreateRoleBindingsRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq BatchCreateRoleBindingsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.BatchCreateRoleBindings(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_RoleBindingsService_UpdateRoleBinding_0 = &utilities.DoubleArray{Encoding: map[string]int{"role_binding": 0, "uid": 1}, Base: []int{1, 2, 1, 0, 0}, Check: []int{0, 1, 2, 3, 2}}
-)
+var filter_RoleBindingsService_UpdateRoleBinding_0 = &utilities.DoubleArray{Encoding: map[string]int{"role_binding": 0, "uid": 1}, Base: []int{1, 2, 1, 0, 0}, Check: []int{0, 1, 2, 3, 2}}
 
 func request_RoleBindingsService_UpdateRoleBinding_0(ctx context.Context, marshaler runtime.Marshaler, client RoleBindingsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateRoleBindingRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq UpdateRoleBindingRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
 	newReader, berr := utilities.IOReaderFactory(req.Body)
 	if berr != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
 	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.RoleBinding); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.RoleBinding); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if protoReq.UpdateMask == nil || len(protoReq.UpdateMask.GetPaths()) == 0 {
@@ -274,45 +237,38 @@ func request_RoleBindingsService_UpdateRoleBinding_0(ctx context.Context, marsha
 			protoReq.UpdateMask = fieldMask
 		}
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["role_binding.uid"]
+	val, ok := pathParams["role_binding.uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "role_binding.uid")
 	}
-
 	err = runtime.PopulateFieldFromPath(&protoReq, "role_binding.uid", val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "role_binding.uid", err)
 	}
-
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_RoleBindingsService_UpdateRoleBinding_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.UpdateRoleBinding(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_RoleBindingsService_UpdateRoleBinding_0(ctx context.Context, marshaler runtime.Marshaler, server RoleBindingsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateRoleBindingRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq UpdateRoleBindingRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
 	newReader, berr := utilities.IOReaderFactory(req.Body)
 	if berr != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
 	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.RoleBinding); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.RoleBinding); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if protoReq.UpdateMask == nil || len(protoReq.UpdateMask.GetPaths()) == 0 {
@@ -322,34 +278,22 @@ func local_request_RoleBindingsService_UpdateRoleBinding_0(ctx context.Context, 
 			protoReq.UpdateMask = fieldMask
 		}
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["role_binding.uid"]
+	val, ok := pathParams["role_binding.uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "role_binding.uid")
 	}
-
 	err = runtime.PopulateFieldFromPath(&protoReq, "role_binding.uid", val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "role_binding.uid", err)
 	}
-
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_RoleBindingsService_UpdateRoleBinding_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.UpdateRoleBinding(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterRoleBindingsServiceHandlerServer registers the http handlers for service RoleBindingsService to "mux".
@@ -358,16 +302,13 @@ func local_request_RoleBindingsService_UpdateRoleBinding_0(ctx context.Context, 
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterRoleBindingsServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterRoleBindingsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server RoleBindingsServiceServer) error {
-
-	mux.Handle("GET", pattern_RoleBindingsService_GetRoleBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_RoleBindingsService_GetRoleBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/GetRoleBinding", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/GetRoleBinding", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -379,20 +320,15 @@ func RegisterRoleBindingsServiceHandlerServer(ctx context.Context, mux *runtime.
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_RoleBindingsService_GetRoleBinding_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_RoleBindingsService_CreateRoleBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_RoleBindingsService_CreateRoleBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/CreateRoleBinding", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings/{parent=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/CreateRoleBinding", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings/{parent=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -404,20 +340,15 @@ func RegisterRoleBindingsServiceHandlerServer(ctx context.Context, mux *runtime.
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_RoleBindingsService_CreateRoleBinding_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("DELETE", pattern_RoleBindingsService_DeleteRoleBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_RoleBindingsService_DeleteRoleBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/DeleteRoleBinding", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/DeleteRoleBinding", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -429,20 +360,15 @@ func RegisterRoleBindingsServiceHandlerServer(ctx context.Context, mux *runtime.
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_RoleBindingsService_DeleteRoleBinding_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_RoleBindingsService_ListRoleBindings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_RoleBindingsService_ListRoleBindings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/ListRoleBindings", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/ListRoleBindings", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -454,20 +380,15 @@ func RegisterRoleBindingsServiceHandlerServer(ctx context.Context, mux *runtime.
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_RoleBindingsService_ListRoleBindings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_RoleBindingsService_BatchCreateRoleBindings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_RoleBindingsService_BatchCreateRoleBindings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/BatchCreateRoleBindings", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings:batchCreate"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/BatchCreateRoleBindings", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings:batchCreate"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -479,20 +400,15 @@ func RegisterRoleBindingsServiceHandlerServer(ctx context.Context, mux *runtime.
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_RoleBindingsService_BatchCreateRoleBindings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PATCH", pattern_RoleBindingsService_UpdateRoleBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPatch, pattern_RoleBindingsService_UpdateRoleBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/UpdateRoleBinding", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings/{role_binding.uid=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/UpdateRoleBinding", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings/{role_binding.uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -504,9 +420,7 @@ func RegisterRoleBindingsServiceHandlerServer(ctx context.Context, mux *runtime.
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_RoleBindingsService_UpdateRoleBinding_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -533,7 +447,6 @@ func RegisterRoleBindingsServiceHandlerFromEndpoint(ctx context.Context, mux *ru
 			}
 		}()
 	}()
-
 	return RegisterRoleBindingsServiceHandler(ctx, mux, conn)
 }
 
@@ -549,14 +462,11 @@ func RegisterRoleBindingsServiceHandler(ctx context.Context, mux *runtime.ServeM
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "RoleBindingsServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterRoleBindingsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client RoleBindingsServiceClient) error {
-
-	mux.Handle("GET", pattern_RoleBindingsService_GetRoleBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_RoleBindingsService_GetRoleBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/GetRoleBinding", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/GetRoleBinding", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -567,18 +477,13 @@ func RegisterRoleBindingsServiceHandlerClient(ctx context.Context, mux *runtime.
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_RoleBindingsService_GetRoleBinding_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_RoleBindingsService_CreateRoleBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_RoleBindingsService_CreateRoleBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/CreateRoleBinding", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings/{parent=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/CreateRoleBinding", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings/{parent=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -589,18 +494,13 @@ func RegisterRoleBindingsServiceHandlerClient(ctx context.Context, mux *runtime.
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_RoleBindingsService_CreateRoleBinding_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("DELETE", pattern_RoleBindingsService_DeleteRoleBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_RoleBindingsService_DeleteRoleBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/DeleteRoleBinding", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/DeleteRoleBinding", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -611,18 +511,13 @@ func RegisterRoleBindingsServiceHandlerClient(ctx context.Context, mux *runtime.
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_RoleBindingsService_DeleteRoleBinding_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_RoleBindingsService_ListRoleBindings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_RoleBindingsService_ListRoleBindings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/ListRoleBindings", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/ListRoleBindings", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -633,18 +528,13 @@ func RegisterRoleBindingsServiceHandlerClient(ctx context.Context, mux *runtime.
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_RoleBindingsService_ListRoleBindings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_RoleBindingsService_BatchCreateRoleBindings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_RoleBindingsService_BatchCreateRoleBindings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/BatchCreateRoleBindings", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings:batchCreate"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/BatchCreateRoleBindings", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings:batchCreate"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -655,18 +545,13 @@ func RegisterRoleBindingsServiceHandlerClient(ctx context.Context, mux *runtime.
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_RoleBindingsService_BatchCreateRoleBindings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PATCH", pattern_RoleBindingsService_UpdateRoleBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPatch, pattern_RoleBindingsService_UpdateRoleBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/UpdateRoleBinding", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings/{role_binding.uid=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2beta1.RoleBindingsService/UpdateRoleBinding", runtime.WithHTTPPathPattern("/iam/v2beta1/roleBindings/{role_binding.uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -677,38 +562,25 @@ func RegisterRoleBindingsServiceHandlerClient(ctx context.Context, mux *runtime.
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_RoleBindingsService_UpdateRoleBinding_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
-	pattern_RoleBindingsService_GetRoleBinding_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2beta1", "roleBindings", "uid"}, ""))
-
-	pattern_RoleBindingsService_CreateRoleBinding_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2beta1", "roleBindings", "parent"}, ""))
-
-	pattern_RoleBindingsService_DeleteRoleBinding_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2beta1", "roleBindings", "uid"}, ""))
-
-	pattern_RoleBindingsService_ListRoleBindings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"iam", "v2beta1", "roleBindings"}, ""))
-
+	pattern_RoleBindingsService_GetRoleBinding_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2beta1", "roleBindings", "uid"}, ""))
+	pattern_RoleBindingsService_CreateRoleBinding_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2beta1", "roleBindings", "parent"}, ""))
+	pattern_RoleBindingsService_DeleteRoleBinding_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2beta1", "roleBindings", "uid"}, ""))
+	pattern_RoleBindingsService_ListRoleBindings_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"iam", "v2beta1", "roleBindings"}, ""))
 	pattern_RoleBindingsService_BatchCreateRoleBindings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"iam", "v2beta1", "roleBindings"}, "batchCreate"))
-
-	pattern_RoleBindingsService_UpdateRoleBinding_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2beta1", "roleBindings", "role_binding.uid"}, ""))
+	pattern_RoleBindingsService_UpdateRoleBinding_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2beta1", "roleBindings", "role_binding.uid"}, ""))
 )
 
 var (
-	forward_RoleBindingsService_GetRoleBinding_0 = runtime.ForwardResponseMessage
-
-	forward_RoleBindingsService_CreateRoleBinding_0 = runtime.ForwardResponseMessage
-
-	forward_RoleBindingsService_DeleteRoleBinding_0 = runtime.ForwardResponseMessage
-
-	forward_RoleBindingsService_ListRoleBindings_0 = runtime.ForwardResponseMessage
-
+	forward_RoleBindingsService_GetRoleBinding_0          = runtime.ForwardResponseMessage
+	forward_RoleBindingsService_CreateRoleBinding_0       = runtime.ForwardResponseMessage
+	forward_RoleBindingsService_DeleteRoleBinding_0       = runtime.ForwardResponseMessage
+	forward_RoleBindingsService_ListRoleBindings_0        = runtime.ForwardResponseMessage
 	forward_RoleBindingsService_BatchCreateRoleBindings_0 = runtime.ForwardResponseMessage
-
-	forward_RoleBindingsService_UpdateRoleBinding_0 = runtime.ForwardResponseMessage
+	forward_RoleBindingsService_UpdateRoleBinding_0       = runtime.ForwardResponseMessage
 )

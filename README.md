@@ -33,10 +33,10 @@ We currently require `protoc` v34.1.
 Install `protoc` codegen dependencies:
 
 ```shell
-go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11
-go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.1
-go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.22.0
-go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.22.0
+go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.12
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.2
+go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.30.0
+go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.30.0
 ```
 
 ## Argos Platform Services

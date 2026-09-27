@@ -5,6 +5,7 @@ package v1
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -19,89 +20,79 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = errors.New
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_ArgosVEX_GetDocument_0(ctx context.Context, marshaler runtime.Marshaler, client ArgosVEXClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetVEXDocumentRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetVEXDocumentRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["ecosystem"]
+	val, ok := pathParams["ecosystem"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "ecosystem")
 	}
-
 	protoReq.Ecosystem, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "ecosystem", err)
 	}
-
 	val, ok = pathParams["package"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "package")
 	}
-
 	protoReq.Package, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "package", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.GetDocument(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ArgosVEX_GetDocument_0(ctx context.Context, marshaler runtime.Marshaler, server ArgosVEXServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetVEXDocumentRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetVEXDocumentRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["ecosystem"]
+	val, ok := pathParams["ecosystem"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "ecosystem")
 	}
-
 	protoReq.Ecosystem, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "ecosystem", err)
 	}
-
 	val, ok = pathParams["package"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "package")
 	}
-
 	protoReq.Package, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "package", err)
 	}
-
 	msg, err := server.GetDocument(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ArgosVEX_Dump_0(ctx context.Context, marshaler runtime.Marshaler, client ArgosVEXClient, req *http.Request, pathParams map[string]string) (ArgosVEX_DumpClient, runtime.ServerMetadata, error) {
-	var protoReq DumpVEXRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq DumpVEXRequest
+		metadata runtime.ServerMetadata
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	stream, err := client.Dump(ctx, &protoReq)
 	if err != nil {
 		return nil, metadata, err
@@ -112,7 +103,6 @@ func request_ArgosVEX_Dump_0(ctx context.Context, marshaler runtime.Marshaler, c
 	}
 	metadata.HeaderMD = header
 	return stream, metadata, nil
-
 }
 
 // RegisterArgosVEXHandlerServer registers the http handlers for service ArgosVEX to "mux".
@@ -121,16 +111,13 @@ func request_ArgosVEX_Dump_0(ctx context.Context, marshaler runtime.Marshaler, c
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterArgosVEXHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterArgosVEXHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ArgosVEXServer) error {
-
-	mux.Handle("GET", pattern_ArgosVEX_GetDocument_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ArgosVEX_GetDocument_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.argos.ArgosVEX/GetDocument", runtime.WithHTTPPathPattern("/argos/v1/vex/documents/{ecosystem}/{package=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.argos.ArgosVEX/GetDocument", runtime.WithHTTPPathPattern("/argos/v1/vex/documents/{ecosystem}/{package=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -142,12 +129,10 @@ func RegisterArgosVEXHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ArgosVEX_GetDocument_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
-	mux.Handle("GET", pattern_ArgosVEX_Dump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ArgosVEX_Dump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
 		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -178,7 +163,6 @@ func RegisterArgosVEXHandlerFromEndpoint(ctx context.Context, mux *runtime.Serve
 			}
 		}()
 	}()
-
 	return RegisterArgosVEXHandler(ctx, mux, conn)
 }
 
@@ -194,14 +178,11 @@ func RegisterArgosVEXHandler(ctx context.Context, mux *runtime.ServeMux, conn *g
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "ArgosVEXClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterArgosVEXHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ArgosVEXClient) error {
-
-	mux.Handle("GET", pattern_ArgosVEX_GetDocument_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ArgosVEX_GetDocument_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.argos.ArgosVEX/GetDocument", runtime.WithHTTPPathPattern("/argos/v1/vex/documents/{ecosystem}/{package=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.argos.ArgosVEX/GetDocument", runtime.WithHTTPPathPattern("/argos/v1/vex/documents/{ecosystem}/{package=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -212,18 +193,13 @@ func RegisterArgosVEXHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ArgosVEX_GetDocument_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_ArgosVEX_Dump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ArgosVEX_Dump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.argos.ArgosVEX/Dump", runtime.WithHTTPPathPattern("/argos/v1/vex/dump"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.argos.ArgosVEX/Dump", runtime.WithHTTPPathPattern("/argos/v1/vex/dump"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -234,22 +210,17 @@ func RegisterArgosVEXHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ArgosVEX_Dump_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
 	pattern_ArgosVEX_GetDocument_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 3, 0, 4, 1, 5, 5}, []string{"argos", "v1", "vex", "documents", "ecosystem", "package"}, ""))
-
-	pattern_ArgosVEX_Dump_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"argos", "v1", "vex", "dump"}, ""))
+	pattern_ArgosVEX_Dump_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"argos", "v1", "vex", "dump"}, ""))
 )
 
 var (
 	forward_ArgosVEX_GetDocument_0 = runtime.ForwardResponseMessage
-
-	forward_ArgosVEX_Dump_0 = runtime.ForwardResponseStream
+	forward_ArgosVEX_Dump_0        = runtime.ForwardResponseStream
 )

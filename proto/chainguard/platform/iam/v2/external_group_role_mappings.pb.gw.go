@@ -5,6 +5,7 @@ package v2
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -19,237 +20,199 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = errors.New
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_ExternalGroupRoleMappingsService_GetExternalGroupRoleMapping_0(ctx context.Context, marshaler runtime.Marshaler, client ExternalGroupRoleMappingsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetExternalGroupRoleMappingRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetExternalGroupRoleMappingRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.GetExternalGroupRoleMapping(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ExternalGroupRoleMappingsService_GetExternalGroupRoleMapping_0(ctx context.Context, marshaler runtime.Marshaler, server ExternalGroupRoleMappingsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetExternalGroupRoleMappingRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetExternalGroupRoleMappingRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
 	msg, err := server.GetExternalGroupRoleMapping(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ExternalGroupRoleMappingsService_CreateExternalGroupRoleMapping_0(ctx context.Context, marshaler runtime.Marshaler, client ExternalGroupRoleMappingsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateExternalGroupRoleMappingRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.ExternalGroupRoleMapping); err != nil && err != io.EOF {
+	var (
+		protoReq CreateExternalGroupRoleMappingRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.ExternalGroupRoleMapping); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["parent"]
+	val, ok := pathParams["parent"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
 	}
-
 	protoReq.Parent, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.CreateExternalGroupRoleMapping(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ExternalGroupRoleMappingsService_CreateExternalGroupRoleMapping_0(ctx context.Context, marshaler runtime.Marshaler, server ExternalGroupRoleMappingsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateExternalGroupRoleMappingRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.ExternalGroupRoleMapping); err != nil && err != io.EOF {
+	var (
+		protoReq CreateExternalGroupRoleMappingRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.ExternalGroupRoleMapping); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["parent"]
+	val, ok := pathParams["parent"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
 	}
-
 	protoReq.Parent, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
 	}
-
 	msg, err := server.CreateExternalGroupRoleMapping(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ExternalGroupRoleMappingsService_DeleteExternalGroupRoleMapping_0(ctx context.Context, marshaler runtime.Marshaler, client ExternalGroupRoleMappingsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteExternalGroupRoleMappingRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq DeleteExternalGroupRoleMappingRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.DeleteExternalGroupRoleMapping(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ExternalGroupRoleMappingsService_DeleteExternalGroupRoleMapping_0(ctx context.Context, marshaler runtime.Marshaler, server ExternalGroupRoleMappingsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteExternalGroupRoleMappingRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq DeleteExternalGroupRoleMappingRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["uid"]
+	val, ok := pathParams["uid"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uid")
 	}
-
 	protoReq.Uid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uid", err)
 	}
-
 	msg, err := server.DeleteExternalGroupRoleMapping(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ExternalGroupRoleMappingsService_BatchDeleteExternalGroupRoleMappings_0(ctx context.Context, marshaler runtime.Marshaler, client ExternalGroupRoleMappingsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq BatchDeleteExternalGroupRoleMappingsRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq BatchDeleteExternalGroupRoleMappingsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.BatchDeleteExternalGroupRoleMappings(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ExternalGroupRoleMappingsService_BatchDeleteExternalGroupRoleMappings_0(ctx context.Context, marshaler runtime.Marshaler, server ExternalGroupRoleMappingsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq BatchDeleteExternalGroupRoleMappingsRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq BatchDeleteExternalGroupRoleMappingsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.BatchDeleteExternalGroupRoleMappings(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_ExternalGroupRoleMappingsService_ListExternalGroupRoleMappings_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
+var filter_ExternalGroupRoleMappingsService_ListExternalGroupRoleMappings_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_ExternalGroupRoleMappingsService_ListExternalGroupRoleMappings_0(ctx context.Context, marshaler runtime.Marshaler, client ExternalGroupRoleMappingsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListExternalGroupRoleMappingsRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListExternalGroupRoleMappingsRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ExternalGroupRoleMappingsService_ListExternalGroupRoleMappings_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.ListExternalGroupRoleMappings(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ExternalGroupRoleMappingsService_ListExternalGroupRoleMappings_0(ctx context.Context, marshaler runtime.Marshaler, server ExternalGroupRoleMappingsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListExternalGroupRoleMappingsRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListExternalGroupRoleMappingsRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ExternalGroupRoleMappingsService_ListExternalGroupRoleMappings_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.ListExternalGroupRoleMappings(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterExternalGroupRoleMappingsServiceHandlerServer registers the http handlers for service ExternalGroupRoleMappingsService to "mux".
@@ -258,16 +221,13 @@ func local_request_ExternalGroupRoleMappingsService_ListExternalGroupRoleMapping
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterExternalGroupRoleMappingsServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterExternalGroupRoleMappingsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ExternalGroupRoleMappingsServiceServer) error {
-
-	mux.Handle("GET", pattern_ExternalGroupRoleMappingsService_GetExternalGroupRoleMapping_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ExternalGroupRoleMappingsService_GetExternalGroupRoleMapping_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.ExternalGroupRoleMappingsService/GetExternalGroupRoleMapping", runtime.WithHTTPPathPattern("/iam/v2/externalGroupRoleMappings/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.ExternalGroupRoleMappingsService/GetExternalGroupRoleMapping", runtime.WithHTTPPathPattern("/iam/v2/externalGroupRoleMappings/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -279,20 +239,15 @@ func RegisterExternalGroupRoleMappingsServiceHandlerServer(ctx context.Context, 
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ExternalGroupRoleMappingsService_GetExternalGroupRoleMapping_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_ExternalGroupRoleMappingsService_CreateExternalGroupRoleMapping_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ExternalGroupRoleMappingsService_CreateExternalGroupRoleMapping_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.ExternalGroupRoleMappingsService/CreateExternalGroupRoleMapping", runtime.WithHTTPPathPattern("/iam/v2/externalGroupRoleMappings/{parent=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.ExternalGroupRoleMappingsService/CreateExternalGroupRoleMapping", runtime.WithHTTPPathPattern("/iam/v2/externalGroupRoleMappings/{parent=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -304,20 +259,15 @@ func RegisterExternalGroupRoleMappingsServiceHandlerServer(ctx context.Context, 
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ExternalGroupRoleMappingsService_CreateExternalGroupRoleMapping_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("DELETE", pattern_ExternalGroupRoleMappingsService_DeleteExternalGroupRoleMapping_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_ExternalGroupRoleMappingsService_DeleteExternalGroupRoleMapping_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.ExternalGroupRoleMappingsService/DeleteExternalGroupRoleMapping", runtime.WithHTTPPathPattern("/iam/v2/externalGroupRoleMappings/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.ExternalGroupRoleMappingsService/DeleteExternalGroupRoleMapping", runtime.WithHTTPPathPattern("/iam/v2/externalGroupRoleMappings/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -329,20 +279,15 @@ func RegisterExternalGroupRoleMappingsServiceHandlerServer(ctx context.Context, 
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ExternalGroupRoleMappingsService_DeleteExternalGroupRoleMapping_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_ExternalGroupRoleMappingsService_BatchDeleteExternalGroupRoleMappings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ExternalGroupRoleMappingsService_BatchDeleteExternalGroupRoleMappings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.ExternalGroupRoleMappingsService/BatchDeleteExternalGroupRoleMappings", runtime.WithHTTPPathPattern("/iam/v2/externalGroupRoleMappings:batchDelete"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.ExternalGroupRoleMappingsService/BatchDeleteExternalGroupRoleMappings", runtime.WithHTTPPathPattern("/iam/v2/externalGroupRoleMappings:batchDelete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -354,20 +299,15 @@ func RegisterExternalGroupRoleMappingsServiceHandlerServer(ctx context.Context, 
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ExternalGroupRoleMappingsService_BatchDeleteExternalGroupRoleMappings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_ExternalGroupRoleMappingsService_ListExternalGroupRoleMappings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ExternalGroupRoleMappingsService_ListExternalGroupRoleMappings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.ExternalGroupRoleMappingsService/ListExternalGroupRoleMappings", runtime.WithHTTPPathPattern("/iam/v2/externalGroupRoleMappings"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.iam.v2.ExternalGroupRoleMappingsService/ListExternalGroupRoleMappings", runtime.WithHTTPPathPattern("/iam/v2/externalGroupRoleMappings"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -379,9 +319,7 @@ func RegisterExternalGroupRoleMappingsServiceHandlerServer(ctx context.Context, 
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ExternalGroupRoleMappingsService_ListExternalGroupRoleMappings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -408,7 +346,6 @@ func RegisterExternalGroupRoleMappingsServiceHandlerFromEndpoint(ctx context.Con
 			}
 		}()
 	}()
-
 	return RegisterExternalGroupRoleMappingsServiceHandler(ctx, mux, conn)
 }
 
@@ -424,14 +361,11 @@ func RegisterExternalGroupRoleMappingsServiceHandler(ctx context.Context, mux *r
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "ExternalGroupRoleMappingsServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterExternalGroupRoleMappingsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ExternalGroupRoleMappingsServiceClient) error {
-
-	mux.Handle("GET", pattern_ExternalGroupRoleMappingsService_GetExternalGroupRoleMapping_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ExternalGroupRoleMappingsService_GetExternalGroupRoleMapping_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.ExternalGroupRoleMappingsService/GetExternalGroupRoleMapping", runtime.WithHTTPPathPattern("/iam/v2/externalGroupRoleMappings/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.ExternalGroupRoleMappingsService/GetExternalGroupRoleMapping", runtime.WithHTTPPathPattern("/iam/v2/externalGroupRoleMappings/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -442,18 +376,13 @@ func RegisterExternalGroupRoleMappingsServiceHandlerClient(ctx context.Context, 
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ExternalGroupRoleMappingsService_GetExternalGroupRoleMapping_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_ExternalGroupRoleMappingsService_CreateExternalGroupRoleMapping_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ExternalGroupRoleMappingsService_CreateExternalGroupRoleMapping_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.ExternalGroupRoleMappingsService/CreateExternalGroupRoleMapping", runtime.WithHTTPPathPattern("/iam/v2/externalGroupRoleMappings/{parent=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.ExternalGroupRoleMappingsService/CreateExternalGroupRoleMapping", runtime.WithHTTPPathPattern("/iam/v2/externalGroupRoleMappings/{parent=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -464,18 +393,13 @@ func RegisterExternalGroupRoleMappingsServiceHandlerClient(ctx context.Context, 
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ExternalGroupRoleMappingsService_CreateExternalGroupRoleMapping_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("DELETE", pattern_ExternalGroupRoleMappingsService_DeleteExternalGroupRoleMapping_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_ExternalGroupRoleMappingsService_DeleteExternalGroupRoleMapping_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.ExternalGroupRoleMappingsService/DeleteExternalGroupRoleMapping", runtime.WithHTTPPathPattern("/iam/v2/externalGroupRoleMappings/{uid=**}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.ExternalGroupRoleMappingsService/DeleteExternalGroupRoleMapping", runtime.WithHTTPPathPattern("/iam/v2/externalGroupRoleMappings/{uid=**}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -486,18 +410,13 @@ func RegisterExternalGroupRoleMappingsServiceHandlerClient(ctx context.Context, 
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ExternalGroupRoleMappingsService_DeleteExternalGroupRoleMapping_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_ExternalGroupRoleMappingsService_BatchDeleteExternalGroupRoleMappings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ExternalGroupRoleMappingsService_BatchDeleteExternalGroupRoleMappings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.ExternalGroupRoleMappingsService/BatchDeleteExternalGroupRoleMappings", runtime.WithHTTPPathPattern("/iam/v2/externalGroupRoleMappings:batchDelete"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.ExternalGroupRoleMappingsService/BatchDeleteExternalGroupRoleMappings", runtime.WithHTTPPathPattern("/iam/v2/externalGroupRoleMappings:batchDelete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -508,18 +427,13 @@ func RegisterExternalGroupRoleMappingsServiceHandlerClient(ctx context.Context, 
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ExternalGroupRoleMappingsService_BatchDeleteExternalGroupRoleMappings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_ExternalGroupRoleMappingsService_ListExternalGroupRoleMappings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ExternalGroupRoleMappingsService_ListExternalGroupRoleMappings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.ExternalGroupRoleMappingsService/ListExternalGroupRoleMappings", runtime.WithHTTPPathPattern("/iam/v2/externalGroupRoleMappings"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.iam.v2.ExternalGroupRoleMappingsService/ListExternalGroupRoleMappings", runtime.WithHTTPPathPattern("/iam/v2/externalGroupRoleMappings"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -530,34 +444,23 @@ func RegisterExternalGroupRoleMappingsServiceHandlerClient(ctx context.Context, 
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ExternalGroupRoleMappingsService_ListExternalGroupRoleMappings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
-	pattern_ExternalGroupRoleMappingsService_GetExternalGroupRoleMapping_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2", "externalGroupRoleMappings", "uid"}, ""))
-
-	pattern_ExternalGroupRoleMappingsService_CreateExternalGroupRoleMapping_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2", "externalGroupRoleMappings", "parent"}, ""))
-
-	pattern_ExternalGroupRoleMappingsService_DeleteExternalGroupRoleMapping_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2", "externalGroupRoleMappings", "uid"}, ""))
-
+	pattern_ExternalGroupRoleMappingsService_GetExternalGroupRoleMapping_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2", "externalGroupRoleMappings", "uid"}, ""))
+	pattern_ExternalGroupRoleMappingsService_CreateExternalGroupRoleMapping_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2", "externalGroupRoleMappings", "parent"}, ""))
+	pattern_ExternalGroupRoleMappingsService_DeleteExternalGroupRoleMapping_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"iam", "v2", "externalGroupRoleMappings", "uid"}, ""))
 	pattern_ExternalGroupRoleMappingsService_BatchDeleteExternalGroupRoleMappings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"iam", "v2", "externalGroupRoleMappings"}, "batchDelete"))
-
-	pattern_ExternalGroupRoleMappingsService_ListExternalGroupRoleMappings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"iam", "v2", "externalGroupRoleMappings"}, ""))
+	pattern_ExternalGroupRoleMappingsService_ListExternalGroupRoleMappings_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"iam", "v2", "externalGroupRoleMappings"}, ""))
 )
 
 var (
-	forward_ExternalGroupRoleMappingsService_GetExternalGroupRoleMapping_0 = runtime.ForwardResponseMessage
-
-	forward_ExternalGroupRoleMappingsService_CreateExternalGroupRoleMapping_0 = runtime.ForwardResponseMessage
-
-	forward_ExternalGroupRoleMappingsService_DeleteExternalGroupRoleMapping_0 = runtime.ForwardResponseMessage
-
+	forward_ExternalGroupRoleMappingsService_GetExternalGroupRoleMapping_0          = runtime.ForwardResponseMessage
+	forward_ExternalGroupRoleMappingsService_CreateExternalGroupRoleMapping_0       = runtime.ForwardResponseMessage
+	forward_ExternalGroupRoleMappingsService_DeleteExternalGroupRoleMapping_0       = runtime.ForwardResponseMessage
 	forward_ExternalGroupRoleMappingsService_BatchDeleteExternalGroupRoleMappings_0 = runtime.ForwardResponseMessage
-
-	forward_ExternalGroupRoleMappingsService_ListExternalGroupRoleMappings_0 = runtime.ForwardResponseMessage
+	forward_ExternalGroupRoleMappingsService_ListExternalGroupRoleMappings_0        = runtime.ForwardResponseMessage
 )

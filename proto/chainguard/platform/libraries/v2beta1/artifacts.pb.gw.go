@@ -5,6 +5,7 @@ package v2beta1
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -19,153 +20,137 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
-
 var (
-	filter_ArtifactsService_ListArtifacts_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = errors.New
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
 )
 
-func request_ArtifactsService_ListArtifacts_0(ctx context.Context, marshaler runtime.Marshaler, client ArtifactsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListArtifactsRequest
-	var metadata runtime.ServerMetadata
+var filter_ArtifactsService_ListArtifacts_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
+func request_ArtifactsService_ListArtifacts_0(ctx context.Context, marshaler runtime.Marshaler, client ArtifactsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListArtifactsRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ArtifactsService_ListArtifacts_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.ListArtifacts(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ArtifactsService_ListArtifacts_0(ctx context.Context, marshaler runtime.Marshaler, server ArtifactsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListArtifactsRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListArtifactsRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ArtifactsService_ListArtifacts_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.ListArtifacts(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_ArtifactsService_ListArtifactVersions_0 = &utilities.DoubleArray{Encoding: map[string]int{"artifact_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
-)
+var filter_ArtifactsService_ListArtifactVersions_0 = &utilities.DoubleArray{Encoding: map[string]int{"artifact_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_ArtifactsService_ListArtifactVersions_0(ctx context.Context, marshaler runtime.Marshaler, client ArtifactsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListArtifactVersionsRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq ListArtifactVersionsRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["artifact_id"]
+	val, ok := pathParams["artifact_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "artifact_id")
 	}
-
 	protoReq.ArtifactId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "artifact_id", err)
 	}
-
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ArtifactsService_ListArtifactVersions_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.ListArtifactVersions(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ArtifactsService_ListArtifactVersions_0(ctx context.Context, marshaler runtime.Marshaler, server ArtifactsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListArtifactVersionsRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq ListArtifactVersionsRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["artifact_id"]
+	val, ok := pathParams["artifact_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "artifact_id")
 	}
-
 	protoReq.ArtifactId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "artifact_id", err)
 	}
-
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ArtifactsService_ListArtifactVersions_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.ListArtifactVersions(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_ArtifactsService_GetArtifactCount_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
+var filter_ArtifactsService_GetArtifactCount_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_ArtifactsService_GetArtifactCount_0(ctx context.Context, marshaler runtime.Marshaler, client ArtifactsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetArtifactCountRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq GetArtifactCountRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ArtifactsService_GetArtifactCount_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.GetArtifactCount(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ArtifactsService_GetArtifactCount_0(ctx context.Context, marshaler runtime.Marshaler, server ArtifactsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetArtifactCountRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq GetArtifactCountRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ArtifactsService_GetArtifactCount_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.GetArtifactCount(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterArtifactsServiceHandlerServer registers the http handlers for service ArtifactsService to "mux".
@@ -174,16 +159,13 @@ func local_request_ArtifactsService_GetArtifactCount_0(ctx context.Context, mars
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterArtifactsServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterArtifactsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ArtifactsServiceServer) error {
-
-	mux.Handle("GET", pattern_ArtifactsService_ListArtifacts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ArtifactsService_ListArtifacts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.ArtifactsService/ListArtifacts", runtime.WithHTTPPathPattern("/libraries/v2beta1/artifacts"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.ArtifactsService/ListArtifacts", runtime.WithHTTPPathPattern("/libraries/v2beta1/artifacts"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -195,20 +177,15 @@ func RegisterArtifactsServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ArtifactsService_ListArtifacts_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_ArtifactsService_ListArtifactVersions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ArtifactsService_ListArtifactVersions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.ArtifactsService/ListArtifactVersions", runtime.WithHTTPPathPattern("/libraries/v2beta1/artifacts/{artifact_id=*}/versions"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.ArtifactsService/ListArtifactVersions", runtime.WithHTTPPathPattern("/libraries/v2beta1/artifacts/{artifact_id=*}/versions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -220,20 +197,15 @@ func RegisterArtifactsServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ArtifactsService_ListArtifactVersions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_ArtifactsService_GetArtifactCount_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ArtifactsService_GetArtifactCount_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.ArtifactsService/GetArtifactCount", runtime.WithHTTPPathPattern("/libraries/v2beta1/artifacts/count"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.ArtifactsService/GetArtifactCount", runtime.WithHTTPPathPattern("/libraries/v2beta1/artifacts/count"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -245,9 +217,7 @@ func RegisterArtifactsServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ArtifactsService_GetArtifactCount_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -274,7 +244,6 @@ func RegisterArtifactsServiceHandlerFromEndpoint(ctx context.Context, mux *runti
 			}
 		}()
 	}()
-
 	return RegisterArtifactsServiceHandler(ctx, mux, conn)
 }
 
@@ -290,14 +259,11 @@ func RegisterArtifactsServiceHandler(ctx context.Context, mux *runtime.ServeMux,
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "ArtifactsServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterArtifactsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ArtifactsServiceClient) error {
-
-	mux.Handle("GET", pattern_ArtifactsService_ListArtifacts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ArtifactsService_ListArtifacts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.ArtifactsService/ListArtifacts", runtime.WithHTTPPathPattern("/libraries/v2beta1/artifacts"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.ArtifactsService/ListArtifacts", runtime.WithHTTPPathPattern("/libraries/v2beta1/artifacts"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -308,18 +274,13 @@ func RegisterArtifactsServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ArtifactsService_ListArtifacts_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_ArtifactsService_ListArtifactVersions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ArtifactsService_ListArtifactVersions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.ArtifactsService/ListArtifactVersions", runtime.WithHTTPPathPattern("/libraries/v2beta1/artifacts/{artifact_id=*}/versions"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.ArtifactsService/ListArtifactVersions", runtime.WithHTTPPathPattern("/libraries/v2beta1/artifacts/{artifact_id=*}/versions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -330,18 +291,13 @@ func RegisterArtifactsServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ArtifactsService_ListArtifactVersions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_ArtifactsService_GetArtifactCount_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ArtifactsService_GetArtifactCount_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.ArtifactsService/GetArtifactCount", runtime.WithHTTPPathPattern("/libraries/v2beta1/artifacts/count"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.libraries.v2beta1.ArtifactsService/GetArtifactCount", runtime.WithHTTPPathPattern("/libraries/v2beta1/artifacts/count"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -352,26 +308,19 @@ func RegisterArtifactsServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ArtifactsService_GetArtifactCount_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
-	pattern_ArtifactsService_ListArtifacts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"libraries", "v2beta1", "artifacts"}, ""))
-
+	pattern_ArtifactsService_ListArtifacts_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"libraries", "v2beta1", "artifacts"}, ""))
 	pattern_ArtifactsService_ListArtifactVersions_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"libraries", "v2beta1", "artifacts", "artifact_id", "versions"}, ""))
-
-	pattern_ArtifactsService_GetArtifactCount_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"libraries", "v2beta1", "artifacts", "count"}, ""))
+	pattern_ArtifactsService_GetArtifactCount_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"libraries", "v2beta1", "artifacts", "count"}, ""))
 )
 
 var (
-	forward_ArtifactsService_ListArtifacts_0 = runtime.ForwardResponseMessage
-
+	forward_ArtifactsService_ListArtifacts_0        = runtime.ForwardResponseMessage
 	forward_ArtifactsService_ListArtifactVersions_0 = runtime.ForwardResponseMessage
-
-	forward_ArtifactsService_GetArtifactCount_0 = runtime.ForwardResponseMessage
+	forward_ArtifactsService_GetArtifactCount_0     = runtime.ForwardResponseMessage
 )
