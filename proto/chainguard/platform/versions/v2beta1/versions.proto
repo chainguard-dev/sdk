@@ -18,8 +18,8 @@ option java_package = "com.chainguard.platform.versions.v2beta1";
 
 // VersionsService is a read-only view of the upstream software versions
 // Chainguard tracks in its version_data catalog: which projects we monitor,
-// where we discover their releases, each version stream's end-of-life and LTS
-// status, the versions in each stream, and the APKs we build for them.
+// each version stream's end-of-life and LTS status, and the versions in each
+// stream with where upstream published them.
 //
 // The version-reconciler owns all writes, so this service has no mutating
 // RPCs. Both RPCs require the version.list capability, which every role
@@ -39,7 +39,7 @@ service VersionsService {
       }
     };
     option (chainguard.annotations.mcp) = {
-      description: "Get the version data Chainguard tracks for one upstream project: discovery sources, version streams with end-of-life and LTS status, versions, and built APKs."
+      description: "Get the version data Chainguard tracks for one upstream project: version streams with end-of-life and LTS status, and each version with its upstream sources."
       read_only: true
       destructive: false
       idempotent: true
@@ -128,58 +128,13 @@ message Project {
   // name is the project name, e.g. "nginx".
   string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // metadata describes where the version-reconciler discovers this project's
-  // releases.
-  Metadata metadata = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // metadata, the version-reconciler's discovery configuration, is
+  // internal-only and is not served.
+  reserved 2;
+  reserved "metadata";
 
   // streams are the project's version streams.
   repeated Stream streams = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
-}
-
-// Metadata describes where a project's releases are discovered.
-message Metadata {
-  // release_monitor identifies the project on release-monitoring.org, when
-  // it is tracked there.
-  ReleaseMonitor release_monitor = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // endoflife identifies the product on endoflife.date, when it is tracked
-  // there.
-  EndoflifeDateProduct endoflife = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // git_tags are the git repositories whose tags are monitored.
-  repeated string git_tags = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // github_releases are the GitHub repositories whose releases are monitored.
-  repeated string github_releases = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // oci_tags are the OCI image repositories whose tags are monitored.
-  repeated string oci_tags = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // tag_regexps filter the tags and releases discovered from git_tags and
-  // github_releases. A tag is kept when it matches at least one pattern;
-  // matching is unanchored. When empty, every tag is kept.
-  repeated string tag_regexps = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // git_branches are the git repositories whose release branches are
-  // monitored.
-  repeated string git_branches = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
-}
-
-// ReleaseMonitor identifies a project on release-monitoring.org.
-message ReleaseMonitor {
-  // id is the release-monitoring.org project ID.
-  // (-- api-linter: core::0141::forbidden-types=disabled
-  //     aip.dev/not-precedent: Mirrors the upstream integer project ID. --)
-  int64 id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // project is the release-monitoring.org project name.
-  string project = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
-}
-
-// EndoflifeDateProduct identifies a product on endoflife.date.
-message EndoflifeDateProduct {
-  // product is the endoflife.date product name, e.g. "nodejs".
-  string product = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // Stream is a line of releases within a project, e.g. "1.27".
@@ -198,9 +153,10 @@ message Stream {
   // versions are the releases observed in this stream.
   repeated Version versions = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // apk_groups maps a package group to the APKs built for this stream in that
-  // group.
-  map<string, ApkGroup> apk_groups = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // apk_groups, which names the internal groups a stream is built in, is
+  // internal-only and is not served.
+  reserved 5;
+  reserved "apk_groups";
 }
 
 // EndOfLife is an end-of-life status.
@@ -253,32 +209,6 @@ message LongTermSupport {
   // start_time is when the stream became, or will become, a long-term-support
   // stream. It is unset when no date is known or designated is false.
   google.protobuf.Timestamp start_time = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
-}
-
-// ApkGroup holds the APKs built for a stream within one package group.
-message ApkGroup {
-  // architectures maps an architecture, e.g. "x86_64" or "aarch64", to the
-  // APKs built for it.
-  map<string, ApkList> architectures = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-}
-
-// ApkList is a list of APKs.
-message ApkList {
-  // apks are the APKs.
-  repeated Apk apks = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-}
-
-// Apk is one APK package built for a stream.
-message Apk {
-  // uri locates the APK.
-  string uri = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // variant is the package variant, e.g. "fips". It is empty for the default
-  // variant.
-  string variant = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // publish_time is when the APK was published.
-  google.protobuf.Timestamp publish_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // Version is one release within a stream, e.g. "1.27.3".

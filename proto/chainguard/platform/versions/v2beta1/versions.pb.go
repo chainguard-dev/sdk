@@ -106,7 +106,7 @@ func (x EndOfLife_Origin) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use EndOfLife_Origin.Descriptor instead.
 func (EndOfLife_Origin) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{8, 0}
+	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{5, 0}
 }
 
 // Type is the kind of upstream source.
@@ -183,7 +183,7 @@ func (x Source_Type) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Source_Type.Descriptor instead.
 func (Source_Type) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{14, 0}
+	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{8, 0}
 }
 
 // GetProjectRequest identifies one project by name.
@@ -410,9 +410,6 @@ type Project struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// name is the project name, e.g. "nginx".
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// metadata describes where the version-reconciler discovers this project's
-	// releases.
-	Metadata *Metadata `protobuf:"bytes,2,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	// streams are the project's version streams.
 	Streams       []*Stream `protobuf:"bytes,3,rep,name=streams,proto3" json:"streams,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -456,226 +453,11 @@ func (x *Project) GetName() string {
 	return ""
 }
 
-func (x *Project) GetMetadata() *Metadata {
-	if x != nil {
-		return x.Metadata
-	}
-	return nil
-}
-
 func (x *Project) GetStreams() []*Stream {
 	if x != nil {
 		return x.Streams
 	}
 	return nil
-}
-
-// Metadata describes where a project's releases are discovered.
-type Metadata struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// release_monitor identifies the project on release-monitoring.org, when
-	// it is tracked there.
-	ReleaseMonitor *ReleaseMonitor `protobuf:"bytes,1,opt,name=release_monitor,json=releaseMonitor,proto3" json:"release_monitor,omitempty"`
-	// endoflife identifies the product on endoflife.date, when it is tracked
-	// there.
-	Endoflife *EndoflifeDateProduct `protobuf:"bytes,2,opt,name=endoflife,proto3" json:"endoflife,omitempty"`
-	// git_tags are the git repositories whose tags are monitored.
-	GitTags []string `protobuf:"bytes,3,rep,name=git_tags,json=gitTags,proto3" json:"git_tags,omitempty"`
-	// github_releases are the GitHub repositories whose releases are monitored.
-	GithubReleases []string `protobuf:"bytes,4,rep,name=github_releases,json=githubReleases,proto3" json:"github_releases,omitempty"`
-	// oci_tags are the OCI image repositories whose tags are monitored.
-	OciTags []string `protobuf:"bytes,5,rep,name=oci_tags,json=ociTags,proto3" json:"oci_tags,omitempty"`
-	// tag_regexps filter the tags and releases discovered from git_tags and
-	// github_releases. A tag is kept when it matches at least one pattern;
-	// matching is unanchored. When empty, every tag is kept.
-	TagRegexps []string `protobuf:"bytes,6,rep,name=tag_regexps,json=tagRegexps,proto3" json:"tag_regexps,omitempty"`
-	// git_branches are the git repositories whose release branches are
-	// monitored.
-	GitBranches   []string `protobuf:"bytes,7,rep,name=git_branches,json=gitBranches,proto3" json:"git_branches,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Metadata) Reset() {
-	*x = Metadata{}
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Metadata) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Metadata) ProtoMessage() {}
-
-func (x *Metadata) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Metadata.ProtoReflect.Descriptor instead.
-func (*Metadata) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *Metadata) GetReleaseMonitor() *ReleaseMonitor {
-	if x != nil {
-		return x.ReleaseMonitor
-	}
-	return nil
-}
-
-func (x *Metadata) GetEndoflife() *EndoflifeDateProduct {
-	if x != nil {
-		return x.Endoflife
-	}
-	return nil
-}
-
-func (x *Metadata) GetGitTags() []string {
-	if x != nil {
-		return x.GitTags
-	}
-	return nil
-}
-
-func (x *Metadata) GetGithubReleases() []string {
-	if x != nil {
-		return x.GithubReleases
-	}
-	return nil
-}
-
-func (x *Metadata) GetOciTags() []string {
-	if x != nil {
-		return x.OciTags
-	}
-	return nil
-}
-
-func (x *Metadata) GetTagRegexps() []string {
-	if x != nil {
-		return x.TagRegexps
-	}
-	return nil
-}
-
-func (x *Metadata) GetGitBranches() []string {
-	if x != nil {
-		return x.GitBranches
-	}
-	return nil
-}
-
-// ReleaseMonitor identifies a project on release-monitoring.org.
-type ReleaseMonitor struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// id is the release-monitoring.org project ID.
-	// (-- api-linter: core::0141::forbidden-types=disabled
-	//     aip.dev/not-precedent: Mirrors the upstream integer project ID. --)
-	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	// project is the release-monitoring.org project name.
-	Project       string `protobuf:"bytes,2,opt,name=project,proto3" json:"project,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ReleaseMonitor) Reset() {
-	*x = ReleaseMonitor{}
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ReleaseMonitor) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ReleaseMonitor) ProtoMessage() {}
-
-func (x *ReleaseMonitor) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ReleaseMonitor.ProtoReflect.Descriptor instead.
-func (*ReleaseMonitor) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *ReleaseMonitor) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *ReleaseMonitor) GetProject() string {
-	if x != nil {
-		return x.Project
-	}
-	return ""
-}
-
-// EndoflifeDateProduct identifies a product on endoflife.date.
-type EndoflifeDateProduct struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// product is the endoflife.date product name, e.g. "nodejs".
-	Product       string `protobuf:"bytes,1,opt,name=product,proto3" json:"product,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *EndoflifeDateProduct) Reset() {
-	*x = EndoflifeDateProduct{}
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *EndoflifeDateProduct) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*EndoflifeDateProduct) ProtoMessage() {}
-
-func (x *EndoflifeDateProduct) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use EndoflifeDateProduct.ProtoReflect.Descriptor instead.
-func (*EndoflifeDateProduct) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *EndoflifeDateProduct) GetProduct() string {
-	if x != nil {
-		return x.Product
-	}
-	return ""
 }
 
 // Stream is a line of releases within a project, e.g. "1.27".
@@ -690,17 +472,14 @@ type Stream struct {
 	// unset when the designation is unknown.
 	Lts *LongTermSupport `protobuf:"bytes,3,opt,name=lts,proto3" json:"lts,omitempty"`
 	// versions are the releases observed in this stream.
-	Versions []*Version `protobuf:"bytes,4,rep,name=versions,proto3" json:"versions,omitempty"`
-	// apk_groups maps a package group to the APKs built for this stream in that
-	// group.
-	ApkGroups     map[string]*ApkGroup `protobuf:"bytes,5,rep,name=apk_groups,json=apkGroups,proto3" json:"apk_groups,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Versions      []*Version `protobuf:"bytes,4,rep,name=versions,proto3" json:"versions,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Stream) Reset() {
 	*x = Stream{}
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[7]
+	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -712,7 +491,7 @@ func (x *Stream) String() string {
 func (*Stream) ProtoMessage() {}
 
 func (x *Stream) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[7]
+	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -725,7 +504,7 @@ func (x *Stream) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Stream.ProtoReflect.Descriptor instead.
 func (*Stream) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{7}
+	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Stream) GetStream() string {
@@ -756,13 +535,6 @@ func (x *Stream) GetVersions() []*Version {
 	return nil
 }
 
-func (x *Stream) GetApkGroups() map[string]*ApkGroup {
-	if x != nil {
-		return x.ApkGroups
-	}
-	return nil
-}
-
 // EndOfLife is an end-of-life status.
 type EndOfLife struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -782,7 +554,7 @@ type EndOfLife struct {
 
 func (x *EndOfLife) Reset() {
 	*x = EndOfLife{}
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[8]
+	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -794,7 +566,7 @@ func (x *EndOfLife) String() string {
 func (*EndOfLife) ProtoMessage() {}
 
 func (x *EndOfLife) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[8]
+	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -807,7 +579,7 @@ func (x *EndOfLife) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EndOfLife.ProtoReflect.Descriptor instead.
 func (*EndOfLife) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{8}
+	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *EndOfLife) GetReached() bool {
@@ -846,7 +618,7 @@ type LongTermSupport struct {
 
 func (x *LongTermSupport) Reset() {
 	*x = LongTermSupport{}
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[9]
+	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -858,7 +630,7 @@ func (x *LongTermSupport) String() string {
 func (*LongTermSupport) ProtoMessage() {}
 
 func (x *LongTermSupport) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[9]
+	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -871,7 +643,7 @@ func (x *LongTermSupport) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LongTermSupport.ProtoReflect.Descriptor instead.
 func (*LongTermSupport) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{9}
+	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *LongTermSupport) GetDesignated() bool {
@@ -884,164 +656,6 @@ func (x *LongTermSupport) GetDesignated() bool {
 func (x *LongTermSupport) GetStartTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.StartTime
-	}
-	return nil
-}
-
-// ApkGroup holds the APKs built for a stream within one package group.
-type ApkGroup struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// architectures maps an architecture, e.g. "x86_64" or "aarch64", to the
-	// APKs built for it.
-	Architectures map[string]*ApkList `protobuf:"bytes,1,rep,name=architectures,proto3" json:"architectures,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ApkGroup) Reset() {
-	*x = ApkGroup{}
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ApkGroup) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ApkGroup) ProtoMessage() {}
-
-func (x *ApkGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ApkGroup.ProtoReflect.Descriptor instead.
-func (*ApkGroup) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *ApkGroup) GetArchitectures() map[string]*ApkList {
-	if x != nil {
-		return x.Architectures
-	}
-	return nil
-}
-
-// ApkList is a list of APKs.
-type ApkList struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// apks are the APKs.
-	Apks          []*Apk `protobuf:"bytes,1,rep,name=apks,proto3" json:"apks,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ApkList) Reset() {
-	*x = ApkList{}
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ApkList) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ApkList) ProtoMessage() {}
-
-func (x *ApkList) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ApkList.ProtoReflect.Descriptor instead.
-func (*ApkList) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *ApkList) GetApks() []*Apk {
-	if x != nil {
-		return x.Apks
-	}
-	return nil
-}
-
-// Apk is one APK package built for a stream.
-type Apk struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// uri locates the APK.
-	Uri string `protobuf:"bytes,1,opt,name=uri,proto3" json:"uri,omitempty"`
-	// variant is the package variant, e.g. "fips". It is empty for the default
-	// variant.
-	Variant string `protobuf:"bytes,2,opt,name=variant,proto3" json:"variant,omitempty"`
-	// publish_time is when the APK was published.
-	PublishTime   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=publish_time,json=publishTime,proto3" json:"publish_time,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Apk) Reset() {
-	*x = Apk{}
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Apk) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Apk) ProtoMessage() {}
-
-func (x *Apk) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Apk.ProtoReflect.Descriptor instead.
-func (*Apk) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *Apk) GetUri() string {
-	if x != nil {
-		return x.Uri
-	}
-	return ""
-}
-
-func (x *Apk) GetVariant() string {
-	if x != nil {
-		return x.Variant
-	}
-	return ""
-}
-
-func (x *Apk) GetPublishTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.PublishTime
 	}
 	return nil
 }
@@ -1065,7 +679,7 @@ type Version struct {
 
 func (x *Version) Reset() {
 	*x = Version{}
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[13]
+	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1077,7 +691,7 @@ func (x *Version) String() string {
 func (*Version) ProtoMessage() {}
 
 func (x *Version) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[13]
+	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1090,7 +704,7 @@ func (x *Version) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Version.ProtoReflect.Descriptor instead.
 func (*Version) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{13}
+	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *Version) GetVersion() string {
@@ -1138,7 +752,7 @@ type Source struct {
 
 func (x *Source) Reset() {
 	*x = Source{}
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[14]
+	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1150,7 +764,7 @@ func (x *Source) String() string {
 func (*Source) ProtoMessage() {}
 
 func (x *Source) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[14]
+	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1163,7 +777,7 @@ func (x *Source) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Source.ProtoReflect.Descriptor instead.
 func (*Source) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{14}
+	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *Source) GetType() Source_Type {
@@ -1222,7 +836,7 @@ type Git struct {
 
 func (x *Git) Reset() {
 	*x = Git{}
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[15]
+	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1234,7 +848,7 @@ func (x *Git) String() string {
 func (*Git) ProtoMessage() {}
 
 func (x *Git) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[15]
+	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1247,7 +861,7 @@ func (x *Git) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Git.ProtoReflect.Descriptor instead.
 func (*Git) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{15}
+	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *Git) GetTagUri() string {
@@ -1279,7 +893,7 @@ type NvidiaRedist struct {
 
 func (x *NvidiaRedist) Reset() {
 	*x = NvidiaRedist{}
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[16]
+	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1291,7 +905,7 @@ func (x *NvidiaRedist) String() string {
 func (*NvidiaRedist) ProtoMessage() {}
 
 func (x *NvidiaRedist) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[16]
+	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1304,7 +918,7 @@ func (x *NvidiaRedist) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NvidiaRedist.ProtoReflect.Descriptor instead.
 func (*NvidiaRedist) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{16}
+	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *NvidiaRedist) GetComponentVersion() string {
@@ -1335,7 +949,7 @@ type Archive struct {
 
 func (x *Archive) Reset() {
 	*x = Archive{}
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[17]
+	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1347,7 +961,7 @@ func (x *Archive) String() string {
 func (*Archive) ProtoMessage() {}
 
 func (x *Archive) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[17]
+	mi := &file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1360,7 +974,7 @@ func (x *Archive) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Archive.ProtoReflect.Descriptor instead.
 func (*Archive) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{17}
+	return file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *Archive) GetRelativePath() string {
@@ -1397,35 +1011,16 @@ const file_chainguard_platform_versions_v2beta1_versions_proto_rawDesc = "" +
 	"\vtotal_count\x18\x03 \x01(\x03H\x00R\n" +
 	"totalCount\x88\x01\x01\x12\x18\n" +
 	"\askipped\x18\x04 \x01(\x05R\askippedB\x0e\n" +
-	"\f_total_count\"\xc3\x01\n" +
+	"\f_total_count\"\x81\x01\n" +
 	"\aProject\x12\x18\n" +
-	"\x04name\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x04name\x12P\n" +
-	"\bmetadata\x18\x02 \x01(\v2..chainguard.platform.versions.v2beta1.MetadataB\x04\xe2A\x01\x03R\bmetadata\x12L\n" +
-	"\astreams\x18\x03 \x03(\v2,.chainguard.platform.versions.v2beta1.StreamB\x04\xe2A\x01\x03R\astreams\"\x90\x03\n" +
-	"\bMetadata\x12c\n" +
-	"\x0frelease_monitor\x18\x01 \x01(\v24.chainguard.platform.versions.v2beta1.ReleaseMonitorB\x04\xe2A\x01\x03R\x0ereleaseMonitor\x12^\n" +
-	"\tendoflife\x18\x02 \x01(\v2:.chainguard.platform.versions.v2beta1.EndoflifeDateProductB\x04\xe2A\x01\x03R\tendoflife\x12\x1f\n" +
-	"\bgit_tags\x18\x03 \x03(\tB\x04\xe2A\x01\x03R\agitTags\x12-\n" +
-	"\x0fgithub_releases\x18\x04 \x03(\tB\x04\xe2A\x01\x03R\x0egithubReleases\x12\x1f\n" +
-	"\boci_tags\x18\x05 \x03(\tB\x04\xe2A\x01\x03R\aociTags\x12%\n" +
-	"\vtag_regexps\x18\x06 \x03(\tB\x04\xe2A\x01\x03R\n" +
-	"tagRegexps\x12'\n" +
-	"\fgit_branches\x18\a \x03(\tB\x04\xe2A\x01\x03R\vgitBranches\"F\n" +
-	"\x0eReleaseMonitor\x12\x14\n" +
-	"\x02id\x18\x01 \x01(\x03B\x04\xe2A\x01\x03R\x02id\x12\x1e\n" +
-	"\aproject\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\aproject\"6\n" +
-	"\x14EndoflifeDateProduct\x12\x1e\n" +
-	"\aproduct\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\aproduct\"\xdf\x03\n" +
+	"\x04name\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x04name\x12L\n" +
+	"\astreams\x18\x03 \x03(\v2,.chainguard.platform.versions.v2beta1.StreamB\x04\xe2A\x01\x03R\astreamsJ\x04\b\x02\x10\x03R\bmetadata\"\xa1\x02\n" +
 	"\x06Stream\x12\x1c\n" +
 	"\x06stream\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x06stream\x12G\n" +
 	"\x03eol\x18\x02 \x01(\v2/.chainguard.platform.versions.v2beta1.EndOfLifeB\x04\xe2A\x01\x03R\x03eol\x12M\n" +
 	"\x03lts\x18\x03 \x01(\v25.chainguard.platform.versions.v2beta1.LongTermSupportB\x04\xe2A\x01\x03R\x03lts\x12O\n" +
-	"\bversions\x18\x04 \x03(\v2-.chainguard.platform.versions.v2beta1.VersionB\x04\xe2A\x01\x03R\bversions\x12`\n" +
-	"\n" +
-	"apk_groups\x18\x05 \x03(\v2;.chainguard.platform.versions.v2beta1.Stream.ApkGroupsEntryB\x04\xe2A\x01\x03R\tapkGroups\x1al\n" +
-	"\x0eApkGroupsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12D\n" +
-	"\x05value\x18\x02 \x01(\v2..chainguard.platform.versions.v2beta1.ApkGroupR\x05value:\x028\x01\"\xb4\x03\n" +
+	"\bversions\x18\x04 \x03(\v2-.chainguard.platform.versions.v2beta1.VersionB\x04\xe2A\x01\x03R\bversionsJ\x04\b\x05\x10\x06R\n" +
+	"apk_groups\"\xb4\x03\n" +
 	"\tEndOfLife\x12\x1e\n" +
 	"\areached\x18\x01 \x01(\bB\x04\xe2A\x01\x03R\areached\x12;\n" +
 	"\beol_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\aeolTime\x12T\n" +
@@ -1447,18 +1042,7 @@ const file_chainguard_platform_versions_v2beta1_versions_proto_rawDesc = "" +
 	"designated\x18\x01 \x01(\bB\x04\xe2A\x01\x03R\n" +
 	"designated\x12?\n" +
 	"\n" +
-	"start_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\tstartTime\"\xea\x01\n" +
-	"\bApkGroup\x12m\n" +
-	"\rarchitectures\x18\x01 \x03(\v2A.chainguard.platform.versions.v2beta1.ApkGroup.ArchitecturesEntryB\x04\xe2A\x01\x03R\rarchitectures\x1ao\n" +
-	"\x12ArchitecturesEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12C\n" +
-	"\x05value\x18\x02 \x01(\v2-.chainguard.platform.versions.v2beta1.ApkListR\x05value:\x028\x01\"N\n" +
-	"\aApkList\x12C\n" +
-	"\x04apks\x18\x01 \x03(\v2).chainguard.platform.versions.v2beta1.ApkB\x04\xe2A\x01\x03R\x04apks\"\x82\x01\n" +
-	"\x03Apk\x12\x16\n" +
-	"\x03uri\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uri\x12\x1e\n" +
-	"\avariant\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\avariant\x12C\n" +
-	"\fpublish_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\vpublishTime\"\x97\x01\n" +
+	"start_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\tstartTime\"\x97\x01\n" +
 	"\aVersion\x12\x1e\n" +
 	"\aversion\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\aversion\x12L\n" +
 	"\asources\x18\x02 \x03(\v2,.chainguard.platform.versions.v2beta1.SourceB\x04\xe2A\x01\x03R\asources\x12\x1e\n" +
@@ -1491,12 +1075,12 @@ const file_chainguard_platform_versions_v2beta1_versions_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\v2-.chainguard.platform.versions.v2beta1.ArchiveR\x05value:\x028\x01\"R\n" +
 	"\aArchive\x12)\n" +
 	"\rrelative_path\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\frelativePath\x12\x1c\n" +
-	"\x06sha256\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x06sha2562\xb4\x05\n" +
-	"\x0fVersionsService\x12\xde\x02\n" +
+	"\x06sha256\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x06sha2562\xb3\x05\n" +
+	"\x0fVersionsService\x12\xdd\x02\n" +
 	"\n" +
-	"GetProject\x127.chainguard.platform.versions.v2beta1.GetProjectRequest\x1a-.chainguard.platform.versions.v2beta1.Project\"\xe7\x01\x82\xd3\xe4\x93\x02#\x12!/versions/v2beta1/projects/{name}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x02\xf6\f\x10\x01\x9a\xaf\xa8\xd2\x05\xa9\x01\n" +
-	"\x9e\x01Get the version data Chainguard tracks for one upstream project: discovery sources, version streams with end-of-life and LTS status, versions, and built APKs.\x18\x01 \x00(\x010\x00\x12\xbf\x02\n" +
+	"GetProject\x127.chainguard.platform.versions.v2beta1.GetProjectRequest\x1a-.chainguard.platform.versions.v2beta1.Project\"\xe6\x01\x82\xd3\xe4\x93\x02#\x12!/versions/v2beta1/projects/{name}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02\xf6\f\x10\x01\x9a\xaf\xa8\xd2\x05\xa8\x01\n" +
+	"\x9d\x01Get the version data Chainguard tracks for one upstream project: version streams with end-of-life and LTS status, and each version with its upstream sources.\x18\x01 \x00(\x010\x00\x12\xbf\x02\n" +
 	"\fListProjects\x129.chainguard.platform.versions.v2beta1.ListProjectsRequest\x1a:.chainguard.platform.versions.v2beta1.ListProjectsResponse\"\xb7\x01\x82\xd3\xe4\x93\x02\x1c\x12\x1a/versions/v2beta1/projects\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\xf6\f\x10\x01\x9a\xaf\xa8\xd2\x05\x80\x01\n" +
 	"vList the upstream projects Chainguard tracks version data for, optionally filtered to one or more exact project names.\x18\x01 \x00(\x010\x00Bz\n" +
@@ -1515,7 +1099,7 @@ func file_chainguard_platform_versions_v2beta1_versions_proto_rawDescGZIP() []by
 }
 
 var file_chainguard_platform_versions_v2beta1_versions_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_chainguard_platform_versions_v2beta1_versions_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_chainguard_platform_versions_v2beta1_versions_proto_goTypes = []any{
 	(EndOfLife_Origin)(0),         // 0: chainguard.platform.versions.v2beta1.EndOfLife.Origin
 	(Source_Type)(0),              // 1: chainguard.platform.versions.v2beta1.Source.Type
@@ -1523,60 +1107,43 @@ var file_chainguard_platform_versions_v2beta1_versions_proto_goTypes = []any{
 	(*ListProjectsRequest)(nil),   // 3: chainguard.platform.versions.v2beta1.ListProjectsRequest
 	(*ListProjectsResponse)(nil),  // 4: chainguard.platform.versions.v2beta1.ListProjectsResponse
 	(*Project)(nil),               // 5: chainguard.platform.versions.v2beta1.Project
-	(*Metadata)(nil),              // 6: chainguard.platform.versions.v2beta1.Metadata
-	(*ReleaseMonitor)(nil),        // 7: chainguard.platform.versions.v2beta1.ReleaseMonitor
-	(*EndoflifeDateProduct)(nil),  // 8: chainguard.platform.versions.v2beta1.EndoflifeDateProduct
-	(*Stream)(nil),                // 9: chainguard.platform.versions.v2beta1.Stream
-	(*EndOfLife)(nil),             // 10: chainguard.platform.versions.v2beta1.EndOfLife
-	(*LongTermSupport)(nil),       // 11: chainguard.platform.versions.v2beta1.LongTermSupport
-	(*ApkGroup)(nil),              // 12: chainguard.platform.versions.v2beta1.ApkGroup
-	(*ApkList)(nil),               // 13: chainguard.platform.versions.v2beta1.ApkList
-	(*Apk)(nil),                   // 14: chainguard.platform.versions.v2beta1.Apk
-	(*Version)(nil),               // 15: chainguard.platform.versions.v2beta1.Version
-	(*Source)(nil),                // 16: chainguard.platform.versions.v2beta1.Source
-	(*Git)(nil),                   // 17: chainguard.platform.versions.v2beta1.Git
-	(*NvidiaRedist)(nil),          // 18: chainguard.platform.versions.v2beta1.NvidiaRedist
-	(*Archive)(nil),               // 19: chainguard.platform.versions.v2beta1.Archive
-	nil,                           // 20: chainguard.platform.versions.v2beta1.Stream.ApkGroupsEntry
-	nil,                           // 21: chainguard.platform.versions.v2beta1.ApkGroup.ArchitecturesEntry
-	nil,                           // 22: chainguard.platform.versions.v2beta1.NvidiaRedist.ArchivesEntry
-	(*timestamppb.Timestamp)(nil), // 23: google.protobuf.Timestamp
+	(*Stream)(nil),                // 6: chainguard.platform.versions.v2beta1.Stream
+	(*EndOfLife)(nil),             // 7: chainguard.platform.versions.v2beta1.EndOfLife
+	(*LongTermSupport)(nil),       // 8: chainguard.platform.versions.v2beta1.LongTermSupport
+	(*Version)(nil),               // 9: chainguard.platform.versions.v2beta1.Version
+	(*Source)(nil),                // 10: chainguard.platform.versions.v2beta1.Source
+	(*Git)(nil),                   // 11: chainguard.platform.versions.v2beta1.Git
+	(*NvidiaRedist)(nil),          // 12: chainguard.platform.versions.v2beta1.NvidiaRedist
+	(*Archive)(nil),               // 13: chainguard.platform.versions.v2beta1.Archive
+	nil,                           // 14: chainguard.platform.versions.v2beta1.NvidiaRedist.ArchivesEntry
+	(*timestamppb.Timestamp)(nil), // 15: google.protobuf.Timestamp
 }
 var file_chainguard_platform_versions_v2beta1_versions_proto_depIdxs = []int32{
 	5,  // 0: chainguard.platform.versions.v2beta1.ListProjectsResponse.projects:type_name -> chainguard.platform.versions.v2beta1.Project
-	6,  // 1: chainguard.platform.versions.v2beta1.Project.metadata:type_name -> chainguard.platform.versions.v2beta1.Metadata
-	9,  // 2: chainguard.platform.versions.v2beta1.Project.streams:type_name -> chainguard.platform.versions.v2beta1.Stream
-	7,  // 3: chainguard.platform.versions.v2beta1.Metadata.release_monitor:type_name -> chainguard.platform.versions.v2beta1.ReleaseMonitor
-	8,  // 4: chainguard.platform.versions.v2beta1.Metadata.endoflife:type_name -> chainguard.platform.versions.v2beta1.EndoflifeDateProduct
-	10, // 5: chainguard.platform.versions.v2beta1.Stream.eol:type_name -> chainguard.platform.versions.v2beta1.EndOfLife
-	11, // 6: chainguard.platform.versions.v2beta1.Stream.lts:type_name -> chainguard.platform.versions.v2beta1.LongTermSupport
-	15, // 7: chainguard.platform.versions.v2beta1.Stream.versions:type_name -> chainguard.platform.versions.v2beta1.Version
-	20, // 8: chainguard.platform.versions.v2beta1.Stream.apk_groups:type_name -> chainguard.platform.versions.v2beta1.Stream.ApkGroupsEntry
-	23, // 9: chainguard.platform.versions.v2beta1.EndOfLife.eol_time:type_name -> google.protobuf.Timestamp
-	0,  // 10: chainguard.platform.versions.v2beta1.EndOfLife.origin:type_name -> chainguard.platform.versions.v2beta1.EndOfLife.Origin
-	23, // 11: chainguard.platform.versions.v2beta1.LongTermSupport.start_time:type_name -> google.protobuf.Timestamp
-	21, // 12: chainguard.platform.versions.v2beta1.ApkGroup.architectures:type_name -> chainguard.platform.versions.v2beta1.ApkGroup.ArchitecturesEntry
-	14, // 13: chainguard.platform.versions.v2beta1.ApkList.apks:type_name -> chainguard.platform.versions.v2beta1.Apk
-	23, // 14: chainguard.platform.versions.v2beta1.Apk.publish_time:type_name -> google.protobuf.Timestamp
-	16, // 15: chainguard.platform.versions.v2beta1.Version.sources:type_name -> chainguard.platform.versions.v2beta1.Source
-	1,  // 16: chainguard.platform.versions.v2beta1.Source.type:type_name -> chainguard.platform.versions.v2beta1.Source.Type
-	23, // 17: chainguard.platform.versions.v2beta1.Source.publish_time:type_name -> google.protobuf.Timestamp
-	10, // 18: chainguard.platform.versions.v2beta1.Source.eol:type_name -> chainguard.platform.versions.v2beta1.EndOfLife
-	17, // 19: chainguard.platform.versions.v2beta1.Source.git:type_name -> chainguard.platform.versions.v2beta1.Git
-	18, // 20: chainguard.platform.versions.v2beta1.Source.nvidia_redist:type_name -> chainguard.platform.versions.v2beta1.NvidiaRedist
-	22, // 21: chainguard.platform.versions.v2beta1.NvidiaRedist.archives:type_name -> chainguard.platform.versions.v2beta1.NvidiaRedist.ArchivesEntry
-	12, // 22: chainguard.platform.versions.v2beta1.Stream.ApkGroupsEntry.value:type_name -> chainguard.platform.versions.v2beta1.ApkGroup
-	13, // 23: chainguard.platform.versions.v2beta1.ApkGroup.ArchitecturesEntry.value:type_name -> chainguard.platform.versions.v2beta1.ApkList
-	19, // 24: chainguard.platform.versions.v2beta1.NvidiaRedist.ArchivesEntry.value:type_name -> chainguard.platform.versions.v2beta1.Archive
-	2,  // 25: chainguard.platform.versions.v2beta1.VersionsService.GetProject:input_type -> chainguard.platform.versions.v2beta1.GetProjectRequest
-	3,  // 26: chainguard.platform.versions.v2beta1.VersionsService.ListProjects:input_type -> chainguard.platform.versions.v2beta1.ListProjectsRequest
-	5,  // 27: chainguard.platform.versions.v2beta1.VersionsService.GetProject:output_type -> chainguard.platform.versions.v2beta1.Project
-	4,  // 28: chainguard.platform.versions.v2beta1.VersionsService.ListProjects:output_type -> chainguard.platform.versions.v2beta1.ListProjectsResponse
-	27, // [27:29] is the sub-list for method output_type
-	25, // [25:27] is the sub-list for method input_type
-	25, // [25:25] is the sub-list for extension type_name
-	25, // [25:25] is the sub-list for extension extendee
-	0,  // [0:25] is the sub-list for field type_name
+	6,  // 1: chainguard.platform.versions.v2beta1.Project.streams:type_name -> chainguard.platform.versions.v2beta1.Stream
+	7,  // 2: chainguard.platform.versions.v2beta1.Stream.eol:type_name -> chainguard.platform.versions.v2beta1.EndOfLife
+	8,  // 3: chainguard.platform.versions.v2beta1.Stream.lts:type_name -> chainguard.platform.versions.v2beta1.LongTermSupport
+	9,  // 4: chainguard.platform.versions.v2beta1.Stream.versions:type_name -> chainguard.platform.versions.v2beta1.Version
+	15, // 5: chainguard.platform.versions.v2beta1.EndOfLife.eol_time:type_name -> google.protobuf.Timestamp
+	0,  // 6: chainguard.platform.versions.v2beta1.EndOfLife.origin:type_name -> chainguard.platform.versions.v2beta1.EndOfLife.Origin
+	15, // 7: chainguard.platform.versions.v2beta1.LongTermSupport.start_time:type_name -> google.protobuf.Timestamp
+	10, // 8: chainguard.platform.versions.v2beta1.Version.sources:type_name -> chainguard.platform.versions.v2beta1.Source
+	1,  // 9: chainguard.platform.versions.v2beta1.Source.type:type_name -> chainguard.platform.versions.v2beta1.Source.Type
+	15, // 10: chainguard.platform.versions.v2beta1.Source.publish_time:type_name -> google.protobuf.Timestamp
+	7,  // 11: chainguard.platform.versions.v2beta1.Source.eol:type_name -> chainguard.platform.versions.v2beta1.EndOfLife
+	11, // 12: chainguard.platform.versions.v2beta1.Source.git:type_name -> chainguard.platform.versions.v2beta1.Git
+	12, // 13: chainguard.platform.versions.v2beta1.Source.nvidia_redist:type_name -> chainguard.platform.versions.v2beta1.NvidiaRedist
+	14, // 14: chainguard.platform.versions.v2beta1.NvidiaRedist.archives:type_name -> chainguard.platform.versions.v2beta1.NvidiaRedist.ArchivesEntry
+	13, // 15: chainguard.platform.versions.v2beta1.NvidiaRedist.ArchivesEntry.value:type_name -> chainguard.platform.versions.v2beta1.Archive
+	2,  // 16: chainguard.platform.versions.v2beta1.VersionsService.GetProject:input_type -> chainguard.platform.versions.v2beta1.GetProjectRequest
+	3,  // 17: chainguard.platform.versions.v2beta1.VersionsService.ListProjects:input_type -> chainguard.platform.versions.v2beta1.ListProjectsRequest
+	5,  // 18: chainguard.platform.versions.v2beta1.VersionsService.GetProject:output_type -> chainguard.platform.versions.v2beta1.Project
+	4,  // 19: chainguard.platform.versions.v2beta1.VersionsService.ListProjects:output_type -> chainguard.platform.versions.v2beta1.ListProjectsResponse
+	18, // [18:20] is the sub-list for method output_type
+	16, // [16:18] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_versions_v2beta1_versions_proto_init() }
@@ -1591,7 +1158,7 @@ func file_chainguard_platform_versions_v2beta1_versions_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_versions_v2beta1_versions_proto_rawDesc), len(file_chainguard_platform_versions_v2beta1_versions_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   21,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

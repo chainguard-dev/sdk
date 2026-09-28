@@ -32,8 +32,8 @@ const (
 //
 // VersionsService is a read-only view of the upstream software versions
 // Chainguard tracks in its version_data catalog: which projects we monitor,
-// where we discover their releases, each version stream's end-of-life and LTS
-// status, the versions in each stream, and the APKs we build for them.
+// each version stream's end-of-life and LTS status, and the versions in each
+// stream with where upstream published them.
 //
 // The version-reconciler owns all writes, so this service has no mutating
 // RPCs. Both RPCs require the version.list capability, which every role
@@ -84,8 +84,8 @@ func (c *versionsServiceClient) ListProjects(ctx context.Context, in *ListProjec
 //
 // VersionsService is a read-only view of the upstream software versions
 // Chainguard tracks in its version_data catalog: which projects we monitor,
-// where we discover their releases, each version stream's end-of-life and LTS
-// status, the versions in each stream, and the APKs we build for them.
+// each version stream's end-of-life and LTS status, and the versions in each
+// stream with where upstream published them.
 //
 // The version-reconciler owns all writes, so this service has no mutating
 // RPCs. Both RPCs require the version.list capability, which every role
