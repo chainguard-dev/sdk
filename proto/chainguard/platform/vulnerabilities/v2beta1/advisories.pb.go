@@ -2063,7 +2063,7 @@ const file_chainguard_platform_vulnerabilities_v2beta1_advisories_proto_rawDesc 
 	"\x10TYPE_UNSPECIFIED\x10\x00\x12\x10\n" +
 	"\fTYPE_CVSS_V2\x10\x01\x12\x10\n" +
 	"\fTYPE_CVSS_V3\x10\x02\x12\x10\n" +
-	"\fTYPE_CVSS_V4\x10\x03\"\xa2\x1d\n" +
+	"\fTYPE_CVSS_V4\x10\x03\"\xd8\x1d\n" +
 	"\rAdvisoryEvent\x12\x16\n" +
 	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12A\n" +
 	"\vcreate_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
@@ -2074,17 +2074,17 @@ const file_chainguard_platform_vulnerabilities_v2beta1_advisories_proto_rawDesc 
 	"\freview_state\x18\x06 \x01(\x0e28.chainguard.platform.vulnerabilities.v2beta1.ReviewStateB\x04\xe2A\x01\x02R\vreviewState\x12\x1f\n" +
 	"\x05issue\x18\a \x01(\tB\x04\xe2A\x01\x01H\x01R\x05issue\x88\x01\x01\x12%\n" +
 	"\vreview_note\x18\b \x01(\tB\x04\xe2A\x01\x03R\n" +
-	"reviewNote\x12d\n" +
+	"reviewNote\x12j\n" +
 	"\tdetection\x18\n" +
-	" \x01(\v2D.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.DetectionH\x00R\tdetection\x12X\n" +
-	"\x05fixed\x18\v \x01(\v2@.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.FixedH\x00R\x05fixed\x12\x99\x01\n" +
-	"\x1cfalse_positive_determination\x18\f \x01(\v2U.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.FalsePositiveDeterminationH\x00R\x1afalsePositiveDetermination\x12\x81\x01\n" +
-	"\x14analysis_not_planned\x18\r \x01(\v2M.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.AnalysisNotPlannedH\x00R\x12analysisNotPlanned\x12r\n" +
-	"\x0ffix_not_planned\x18\x0e \x01(\v2H.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.FixNotPlannedH\x00R\rfixNotPlanned\x12\x81\x01\n" +
-	"\x14pending_upstream_fix\x18\x0f \x01(\v2M.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.PendingUpstreamFixH\x00R\x12pendingUpstreamFix\x12\x96\x01\n" +
-	"\x1btrue_positive_determination\x18\x10 \x01(\v2T.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.TruePositiveDeterminationH\x00R\x19truePositiveDetermination\x12^\n" +
-	"\apatched\x18\x11 \x01(\v2B.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.PatchedH\x00R\apatched\x12\x93\x01\n" +
-	"\x1acomponent_location_changed\x18\x12 \x01(\v2S.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.ComponentLocationChangedH\x00R\x18componentLocationChanged\x1a\x99\a\n" +
+	" \x01(\v2D.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.DetectionB\x04\xe2A\x01\x03H\x00R\tdetection\x12^\n" +
+	"\x05fixed\x18\v \x01(\v2@.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.FixedB\x04\xe2A\x01\x03H\x00R\x05fixed\x12\x9f\x01\n" +
+	"\x1cfalse_positive_determination\x18\f \x01(\v2U.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.FalsePositiveDeterminationB\x04\xe2A\x01\x03H\x00R\x1afalsePositiveDetermination\x12\x87\x01\n" +
+	"\x14analysis_not_planned\x18\r \x01(\v2M.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.AnalysisNotPlannedB\x04\xe2A\x01\x03H\x00R\x12analysisNotPlanned\x12x\n" +
+	"\x0ffix_not_planned\x18\x0e \x01(\v2H.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.FixNotPlannedB\x04\xe2A\x01\x03H\x00R\rfixNotPlanned\x12\x87\x01\n" +
+	"\x14pending_upstream_fix\x18\x0f \x01(\v2M.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.PendingUpstreamFixB\x04\xe2A\x01\x03H\x00R\x12pendingUpstreamFix\x12\x9c\x01\n" +
+	"\x1btrue_positive_determination\x18\x10 \x01(\v2T.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.TruePositiveDeterminationB\x04\xe2A\x01\x03H\x00R\x19truePositiveDetermination\x12d\n" +
+	"\apatched\x18\x11 \x01(\v2B.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.PatchedB\x04\xe2A\x01\x03H\x00R\apatched\x12\x99\x01\n" +
+	"\x1acomponent_location_changed\x18\x12 \x01(\v2S.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.ComponentLocationChangedB\x04\xe2A\x01\x03H\x00R\x18componentLocationChanged\x1a\x99\a\n" +
 	"\tDetection\x12e\n" +
 	"\x06nvdapi\x18\x01 \x01(\v2K.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.Detection.NVDAPIH\x00R\x06nvdapi\x12e\n" +
 	"\x06manual\x18\x02 \x01(\v2K.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.Detection.ManualH\x00R\x06manual\x12e\n" +

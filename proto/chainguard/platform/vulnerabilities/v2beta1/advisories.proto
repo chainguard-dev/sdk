@@ -181,23 +181,23 @@ message AdvisoryEvent {
   // Event specific data depending on the type of advisory event this is.
   oneof type {
     // Vulnerability detected by a scanner.
-    Detection detection = 10;
+    Detection detection = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
     // The version at which a vulnerability is fixed.
-    Fixed fixed = 11;
+    Fixed fixed = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
     // The vulnerability is determined not to affect the artifact.
-    FalsePositiveDetermination false_positive_determination = 12;
+    FalsePositiveDetermination false_positive_determination = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
     // Analysis of the vulnerability is not planned.
-    AnalysisNotPlanned analysis_not_planned = 13;
+    AnalysisNotPlanned analysis_not_planned = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
     // No fix is planned for this vulnerability.
-    FixNotPlanned fix_not_planned = 14;
+    FixNotPlanned fix_not_planned = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
     // A fix is pending on the upstream repository.
-    PendingUpstreamFix pending_upstream_fix = 15;
+    PendingUpstreamFix pending_upstream_fix = 15 [(google.api.field_behavior) = OUTPUT_ONLY];
     // The vulnerability has been determined to actively affect the artifact.
-    TruePositiveDetermination true_positive_determination = 16;
+    TruePositiveDetermination true_positive_determination = 16 [(google.api.field_behavior) = OUTPUT_ONLY];
     // A patch has been applied to the given versions to address the vulnerability.
-    Patched patched = 17;
+    Patched patched = 17 [(google.api.field_behavior) = OUTPUT_ONLY];
     // The vulnerable component moved to a different location in the artifact.
-    ComponentLocationChanged component_location_changed = 18;
+    ComponentLocationChanged component_location_changed = 18 [(google.api.field_behavior) = OUTPUT_ONLY];
   }
 
   // Detection and acknowledgement of a vulnerability via scanner, NVD API, or manually.
