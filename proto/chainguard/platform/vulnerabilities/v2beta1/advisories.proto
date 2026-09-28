@@ -215,9 +215,9 @@ message AdvisoryEvent {
     // The vulnerability as detected via the NVD API.
     message NVDAPI {
       // The name or keyword used to determine the vulnerability match.
-      string cpe_searched = 1;
+      string cpe_searched = 1 [(google.api.field_behavior) = OPTIONAL];
       // CPE found that matches the artifact this vulnerability affects.
-      string cpe_found = 2;
+      string cpe_found = 2 [(google.api.field_behavior) = OPTIONAL];
     }
 
     // The vulnerability was detected manually.
@@ -226,48 +226,48 @@ message AdvisoryEvent {
     // The vulnerability was detected by a scanner, with the given match data.
     message ScanV1 {
       // The scanner that detected the vulnerability.
-      string scanner = 1;
+      string scanner = 1 [(google.api.field_behavior) = OPTIONAL];
       // The subpackage the vulnerability was detected in. Matches the artifact name of the advisory.
-      string subpackage = 2;
+      string subpackage = 2 [(google.api.field_behavior) = OPTIONAL];
       // A scanner determined ID for the component the vulnerability was detected in.
-      string component_id = 3;
+      string component_id = 3 [(google.api.field_behavior) = OPTIONAL];
       // The name of the component within the subpackage the vulnerability was detected din.
-      string component = 4;
+      string component = 4 [(google.api.field_behavior) = OPTIONAL];
       // The version of the matched component.
-      string component_version = 5;
+      string component_version = 5 [(google.api.field_behavior) = OPTIONAL];
       // The type of the matched component.
-      string component_type = 6;
+      string component_type = 6 [(google.api.field_behavior) = OPTIONAL];
       // The location within the subpackage of the matched component.
-      string component_location = 7;
+      string component_location = 7 [(google.api.field_behavior) = OPTIONAL];
       // The version of the artifact (origin package or subpackage) that was scanned when the vulnerability was detected. Pairs with the advisory's artifact_name.
-      string artifact_version = 8;
+      string artifact_version = 8 [(google.api.field_behavior) = OPTIONAL];
       // The version of the vulnerability scanner (grype) that produced this detection.
-      string scanner_version = 9;
+      string scanner_version = 9 [(google.api.field_behavior) = OPTIONAL];
       // The build timestamp (RFC 3339) of the grype vulnerability database used for this detection.
-      string grype_db_built = 10;
+      string grype_db_built = 10 [(google.api.field_behavior) = OPTIONAL];
       // The integrity checksum of the grype vulnerability database used for this detection.
-      string grype_db_checksum = 11;
+      string grype_db_checksum = 11 [(google.api.field_behavior) = OPTIONAL];
     }
   }
 
   // The vulnerability has been fixed at the given version.
   message Fixed {
     // The first version of the artifact in which the vulnerability is considered fixed.
-    string fixed_version = 1;
+    string fixed_version = 1 [(google.api.field_behavior) = OPTIONAL];
     // Additional textual comments about the fix.
-    string note = 2;
+    string note = 2 [(google.api.field_behavior) = OPTIONAL];
     // The version of the vulnerability scanner (grype) that produced this fixed determination.
-    string scanner_version = 3;
+    string scanner_version = 3 [(google.api.field_behavior) = OPTIONAL];
     // The build timestamp (RFC 3339) of the grype vulnerability database used for this fixed determination.
-    string grype_db_built = 4;
+    string grype_db_built = 4 [(google.api.field_behavior) = OPTIONAL];
     // The integrity checksum of the grype vulnerability database used for this fixed determination.
-    string grype_db_checksum = 5;
+    string grype_db_checksum = 5 [(google.api.field_behavior) = OPTIONAL];
   }
 
   // The vulnerability has been determined to affect the matched artifact.
   message TruePositiveDetermination {
     // Textual comments about why this vulnerability was determined to be a true positive.
-    string note = 1;
+    string note = 1 [(google.api.field_behavior) = OPTIONAL];
   }
 
   // The vulnerability has been determined to not affect the matched artifact,
@@ -327,46 +327,46 @@ message AdvisoryEvent {
       TYPE_INLINE_MITIGATIONS_EXIST = 7;
     }
     // The type of false positive this vulnerability was determined to be.
-    Type type = 1;
+    Type type = 1 [(google.api.field_behavior) = OPTIONAL];
     // Additional textual comments about why this vulnerability was determined to be a false positive.
-    string note = 2;
+    string note = 2 [(google.api.field_behavior) = OPTIONAL];
   }
 
   // No analysis of the vulnerability is planned for the matched artifact.
   message AnalysisNotPlanned {
     // Textual comments about why analysis is not planned for the vulnerability.
-    string note = 1;
+    string note = 1 [(google.api.field_behavior) = OPTIONAL];
   }
 
   // A fix is not planned for the vulnerability in the matched artifact.
   message FixNotPlanned {
     // Textual comments about why a fix is not planned for the vulnerability.
-    string note = 1;
+    string note = 1 [(google.api.field_behavior) = OPTIONAL];
   }
 
   // A fix is pending on the upstream repository.
   message PendingUpstreamFix {
     // Textual comments about the upstream fix.
-    string note = 1;
+    string note = 1 [(google.api.field_behavior) = OPTIONAL];
   }
 
   // The vulnerability has been patched at the given versions of the artifact.
   message Patched {
     // The versions of the artifact that were patched to address the vulnerability.
-    repeated string patched_versions = 1;
+    repeated string patched_versions = 1 [(google.api.field_behavior) = OPTIONAL];
     // Textual comments about the patch applied to fix the vulnerability.
-    string note = 2;
+    string note = 2 [(google.api.field_behavior) = OPTIONAL];
   }
 
   // The vulnerable component moved to a different location in the artifact.
   // The advisory stays applicable. Only the location of the component changes.
   message ComponentLocationChanged {
     // The location of the component before the move.
-    string previous_location = 1;
+    string previous_location = 1 [(google.api.field_behavior) = OPTIONAL];
     // The location of the component after the move.
-    string new_location = 2;
+    string new_location = 2 [(google.api.field_behavior) = OPTIONAL];
     // Textual comments about why the component moved.
-    string note = 3;
+    string note = 3 [(google.api.field_behavior) = OPTIONAL];
   }
 }
 

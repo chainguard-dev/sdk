@@ -2063,7 +2063,7 @@ const file_chainguard_platform_vulnerabilities_v2beta1_advisories_proto_rawDesc 
 	"\x10TYPE_UNSPECIFIED\x10\x00\x12\x10\n" +
 	"\fTYPE_CVSS_V2\x10\x01\x12\x10\n" +
 	"\fTYPE_CVSS_V3\x10\x02\x12\x10\n" +
-	"\fTYPE_CVSS_V4\x10\x03\"\xf3\x1b\n" +
+	"\fTYPE_CVSS_V4\x10\x03\"\xa2\x1d\n" +
 	"\rAdvisoryEvent\x12\x16\n" +
 	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12A\n" +
 	"\vcreate_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
@@ -2084,42 +2084,42 @@ const file_chainguard_platform_vulnerabilities_v2beta1_advisories_proto_rawDesc 
 	"\x14pending_upstream_fix\x18\x0f \x01(\v2M.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.PendingUpstreamFixH\x00R\x12pendingUpstreamFix\x12\x96\x01\n" +
 	"\x1btrue_positive_determination\x18\x10 \x01(\v2T.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.TruePositiveDeterminationH\x00R\x19truePositiveDetermination\x12^\n" +
 	"\apatched\x18\x11 \x01(\v2B.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.PatchedH\x00R\apatched\x12\x93\x01\n" +
-	"\x1acomponent_location_changed\x18\x12 \x01(\v2S.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.ComponentLocationChangedH\x00R\x18componentLocationChanged\x1a\xcb\x06\n" +
+	"\x1acomponent_location_changed\x18\x12 \x01(\v2S.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.ComponentLocationChangedH\x00R\x18componentLocationChanged\x1a\x99\a\n" +
 	"\tDetection\x12e\n" +
 	"\x06nvdapi\x18\x01 \x01(\v2K.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.Detection.NVDAPIH\x00R\x06nvdapi\x12e\n" +
 	"\x06manual\x18\x02 \x01(\v2K.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.Detection.ManualH\x00R\x06manual\x12e\n" +
-	"\x06scanv1\x18\x03 \x01(\v2K.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.Detection.ScanV1H\x00R\x06scanv1\x1aH\n" +
-	"\x06NVDAPI\x12!\n" +
-	"\fcpe_searched\x18\x01 \x01(\tR\vcpeSearched\x12\x1b\n" +
-	"\tcpe_found\x18\x02 \x01(\tR\bcpeFound\x1a\b\n" +
-	"\x06Manual\x1a\xac\x03\n" +
-	"\x06ScanV1\x12\x18\n" +
-	"\ascanner\x18\x01 \x01(\tR\ascanner\x12\x1e\n" +
+	"\x06scanv1\x18\x03 \x01(\v2K.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.Detection.ScanV1H\x00R\x06scanv1\x1aT\n" +
+	"\x06NVDAPI\x12'\n" +
+	"\fcpe_searched\x18\x01 \x01(\tB\x04\xe2A\x01\x01R\vcpeSearched\x12!\n" +
+	"\tcpe_found\x18\x02 \x01(\tB\x04\xe2A\x01\x01R\bcpeFound\x1a\b\n" +
+	"\x06Manual\x1a\xee\x03\n" +
+	"\x06ScanV1\x12\x1e\n" +
+	"\ascanner\x18\x01 \x01(\tB\x04\xe2A\x01\x01R\ascanner\x12$\n" +
 	"\n" +
-	"subpackage\x18\x02 \x01(\tR\n" +
-	"subpackage\x12!\n" +
-	"\fcomponent_id\x18\x03 \x01(\tR\vcomponentId\x12\x1c\n" +
-	"\tcomponent\x18\x04 \x01(\tR\tcomponent\x12+\n" +
-	"\x11component_version\x18\x05 \x01(\tR\x10componentVersion\x12%\n" +
-	"\x0ecomponent_type\x18\x06 \x01(\tR\rcomponentType\x12-\n" +
-	"\x12component_location\x18\a \x01(\tR\x11componentLocation\x12)\n" +
-	"\x10artifact_version\x18\b \x01(\tR\x0fartifactVersion\x12'\n" +
-	"\x0fscanner_version\x18\t \x01(\tR\x0escannerVersion\x12$\n" +
+	"subpackage\x18\x02 \x01(\tB\x04\xe2A\x01\x01R\n" +
+	"subpackage\x12'\n" +
+	"\fcomponent_id\x18\x03 \x01(\tB\x04\xe2A\x01\x01R\vcomponentId\x12\"\n" +
+	"\tcomponent\x18\x04 \x01(\tB\x04\xe2A\x01\x01R\tcomponent\x121\n" +
+	"\x11component_version\x18\x05 \x01(\tB\x04\xe2A\x01\x01R\x10componentVersion\x12+\n" +
+	"\x0ecomponent_type\x18\x06 \x01(\tB\x04\xe2A\x01\x01R\rcomponentType\x123\n" +
+	"\x12component_location\x18\a \x01(\tB\x04\xe2A\x01\x01R\x11componentLocation\x12/\n" +
+	"\x10artifact_version\x18\b \x01(\tB\x04\xe2A\x01\x01R\x0fartifactVersion\x12-\n" +
+	"\x0fscanner_version\x18\t \x01(\tB\x04\xe2A\x01\x01R\x0escannerVersion\x12*\n" +
 	"\x0egrype_db_built\x18\n" +
-	" \x01(\tR\fgrypeDbBuilt\x12*\n" +
-	"\x11grype_db_checksum\x18\v \x01(\tR\x0fgrypeDbChecksumB\x06\n" +
-	"\x04type\x1a\xbb\x01\n" +
-	"\x05Fixed\x12#\n" +
-	"\rfixed_version\x18\x01 \x01(\tR\ffixedVersion\x12\x12\n" +
-	"\x04note\x18\x02 \x01(\tR\x04note\x12'\n" +
-	"\x0fscanner_version\x18\x03 \x01(\tR\x0escannerVersion\x12$\n" +
-	"\x0egrype_db_built\x18\x04 \x01(\tR\fgrypeDbBuilt\x12*\n" +
-	"\x11grype_db_checksum\x18\x05 \x01(\tR\x0fgrypeDbChecksum\x1a/\n" +
-	"\x19TruePositiveDetermination\x12\x12\n" +
-	"\x04note\x18\x01 \x01(\tR\x04note\x1a\x88\x04\n" +
-	"\x1aFalsePositiveDetermination\x12n\n" +
-	"\x04type\x18\x01 \x01(\x0e2Z.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.FalsePositiveDetermination.TypeR\x04type\x12\x12\n" +
-	"\x04note\x18\x02 \x01(\tR\x04note\"\xe5\x02\n" +
+	" \x01(\tB\x04\xe2A\x01\x01R\fgrypeDbBuilt\x120\n" +
+	"\x11grype_db_checksum\x18\v \x01(\tB\x04\xe2A\x01\x01R\x0fgrypeDbChecksumB\x06\n" +
+	"\x04type\x1a\xd9\x01\n" +
+	"\x05Fixed\x12)\n" +
+	"\rfixed_version\x18\x01 \x01(\tB\x04\xe2A\x01\x01R\ffixedVersion\x12\x18\n" +
+	"\x04note\x18\x02 \x01(\tB\x04\xe2A\x01\x01R\x04note\x12-\n" +
+	"\x0fscanner_version\x18\x03 \x01(\tB\x04\xe2A\x01\x01R\x0escannerVersion\x12*\n" +
+	"\x0egrype_db_built\x18\x04 \x01(\tB\x04\xe2A\x01\x01R\fgrypeDbBuilt\x120\n" +
+	"\x11grype_db_checksum\x18\x05 \x01(\tB\x04\xe2A\x01\x01R\x0fgrypeDbChecksum\x1a5\n" +
+	"\x19TruePositiveDetermination\x12\x18\n" +
+	"\x04note\x18\x01 \x01(\tB\x04\xe2A\x01\x01R\x04note\x1a\x94\x04\n" +
+	"\x1aFalsePositiveDetermination\x12t\n" +
+	"\x04type\x18\x01 \x01(\x0e2Z.chainguard.platform.vulnerabilities.v2beta1.AdvisoryEvent.FalsePositiveDetermination.TypeB\x04\xe2A\x01\x01R\x04type\x12\x18\n" +
+	"\x04note\x18\x02 \x01(\tB\x04\xe2A\x01\x01R\x04note\"\xe5\x02\n" +
 	"\x04Type\x12\x14\n" +
 	"\x10TYPE_UNSPECIFIED\x10\x00\x120\n" +
 	",TYPE_VULNERABILITY_RECORD_ANALYSIS_CONTESTED\x10\x01\x12)\n" +
@@ -2128,20 +2128,20 @@ const file_chainguard_platform_vulnerabilities_v2beta1_advisories_proto_rawDesc 
 	",TYPE_VULNERABLE_CODE_NOT_INCLUDED_IN_PACKAGE\x10\x04\x12.\n" +
 	"*TYPE_VULNERABLE_CODE_NOT_IN_EXECUTION_PATH\x10\x05\x12:\n" +
 	"6TYPE_VULNERABLE_CODE_CANNOT_BE_CONTROLLED_BY_ADVERSARY\x10\x06\x12!\n" +
-	"\x1dTYPE_INLINE_MITIGATIONS_EXIST\x10\a\x1a(\n" +
-	"\x12AnalysisNotPlanned\x12\x12\n" +
-	"\x04note\x18\x01 \x01(\tR\x04note\x1a#\n" +
-	"\rFixNotPlanned\x12\x12\n" +
-	"\x04note\x18\x01 \x01(\tR\x04note\x1a(\n" +
-	"\x12PendingUpstreamFix\x12\x12\n" +
-	"\x04note\x18\x01 \x01(\tR\x04note\x1aH\n" +
-	"\aPatched\x12)\n" +
-	"\x10patched_versions\x18\x01 \x03(\tR\x0fpatchedVersions\x12\x12\n" +
-	"\x04note\x18\x02 \x01(\tR\x04note\x1a~\n" +
-	"\x18ComponentLocationChanged\x12+\n" +
-	"\x11previous_location\x18\x01 \x01(\tR\x10previousLocation\x12!\n" +
-	"\fnew_location\x18\x02 \x01(\tR\vnewLocation\x12\x12\n" +
-	"\x04note\x18\x03 \x01(\tR\x04note:v\xeaAs\n" +
+	"\x1dTYPE_INLINE_MITIGATIONS_EXIST\x10\a\x1a.\n" +
+	"\x12AnalysisNotPlanned\x12\x18\n" +
+	"\x04note\x18\x01 \x01(\tB\x04\xe2A\x01\x01R\x04note\x1a)\n" +
+	"\rFixNotPlanned\x12\x18\n" +
+	"\x04note\x18\x01 \x01(\tB\x04\xe2A\x01\x01R\x04note\x1a.\n" +
+	"\x12PendingUpstreamFix\x12\x18\n" +
+	"\x04note\x18\x01 \x01(\tB\x04\xe2A\x01\x01R\x04note\x1aT\n" +
+	"\aPatched\x12/\n" +
+	"\x10patched_versions\x18\x01 \x03(\tB\x04\xe2A\x01\x01R\x0fpatchedVersions\x12\x18\n" +
+	"\x04note\x18\x02 \x01(\tB\x04\xe2A\x01\x01R\x04note\x1a\x90\x01\n" +
+	"\x18ComponentLocationChanged\x121\n" +
+	"\x11previous_location\x18\x01 \x01(\tB\x04\xe2A\x01\x01R\x10previousLocation\x12'\n" +
+	"\fnew_location\x18\x02 \x01(\tB\x04\xe2A\x01\x01R\vnewLocation\x12\x18\n" +
+	"\x04note\x18\x03 \x01(\tB\x04\xe2A\x01\x01R\x04note:v\xeaAs\n" +
 	",vulnerabilities.chainguard.dev/AdvisoryEvent\x12$advisories/{advisory}/events/{event}*\x0eadvisoryEvents2\radvisoryEventB\x06\n" +
 	"\x04typeB\b\n" +
 	"\x06_issue\"2\n" +
