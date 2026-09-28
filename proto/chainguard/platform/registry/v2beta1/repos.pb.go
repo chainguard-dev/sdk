@@ -385,9 +385,11 @@ type CustomOverlay struct {
 	// Account customizations applied during rebuilds.
 	Accounts *CustomOverlay_Accounts `protobuf:"bytes,4,opt,name=accounts,proto3" json:"accounts,omitempty"`
 	// Custom certificates to include in the image.
-	Certificates  *CustomOverlay_Certificates `protobuf:"bytes,5,opt,name=certificates,proto3" json:"certificates,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Certificates *CustomOverlay_Certificates `protobuf:"bytes,5,opt,name=certificates,proto3" json:"certificates,omitempty"`
+	// Wraps the image entrypoint with /usr/bin/guarded-entrypoint on rebuild.
+	GuardedEntrypoint bool `protobuf:"varint,6,opt,name=guarded_entrypoint,json=guardedEntrypoint,proto3" json:"guarded_entrypoint,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *CustomOverlay) Reset() {
@@ -453,6 +455,13 @@ func (x *CustomOverlay) GetCertificates() *CustomOverlay_Certificates {
 		return x.Certificates
 	}
 	return nil
+}
+
+func (x *CustomOverlay) GetGuardedEntrypoint() bool {
+	if x != nil {
+		return x.GuardedEntrypoint
+	}
+	return false
 }
 
 // GetRepoRequest is the request message for GetRepo.
@@ -1494,13 +1503,14 @@ const file_chainguard_platform_registry_v2beta1_repos_proto_rawDesc = "" +
 	"\x06amazon\x18\x05 \x01(\tB\x04\xe2A\x01\x01R\x06amazon\x12\x1a\n" +
 	"\x05azure\x18\x06 \x01(\tB\x04\xe2A\x01\x01R\x05azure\x12'\n" +
 	"\fapko_overlay\x18\a \x01(\tB\x04\xe2A\x01\x03R\vapkoOverlay\x12'\n" +
-	"\fgrace_period\x18\b \x01(\bB\x04\xe2A\x01\x03R\vgracePeriod\"\xe8\r\n" +
+	"\fgrace_period\x18\b \x01(\bB\x04\xe2A\x01\x03R\vgracePeriod\"\x9d\x0e\n" +
 	"\rCustomOverlay\x12c\n" +
 	"\bcontents\x18\x01 \x01(\v2A.chainguard.platform.registry.v2beta1.CustomOverlay.ImageContentsB\x04\xe2A\x01\x01R\bcontents\x12l\n" +
 	"\venvironment\x18\x02 \x03(\v2D.chainguard.platform.registry.v2beta1.CustomOverlay.EnvironmentEntryB\x04\xe2A\x01\x01R\venvironment\x12l\n" +
 	"\vannotations\x18\x03 \x03(\v2D.chainguard.platform.registry.v2beta1.CustomOverlay.AnnotationsEntryB\x04\xe2A\x01\x01R\vannotations\x12^\n" +
 	"\baccounts\x18\x04 \x01(\v2<.chainguard.platform.registry.v2beta1.CustomOverlay.AccountsB\x04\xe2A\x01\x01R\baccounts\x12j\n" +
-	"\fcertificates\x18\x05 \x01(\v2@.chainguard.platform.registry.v2beta1.CustomOverlay.CertificatesB\x04\xe2A\x01\x01R\fcertificates\x1a>\n" +
+	"\fcertificates\x18\x05 \x01(\v2@.chainguard.platform.registry.v2beta1.CustomOverlay.CertificatesB\x04\xe2A\x01\x01R\fcertificates\x123\n" +
+	"\x12guarded_entrypoint\x18\x06 \x01(\bB\x04\xe2A\x01\x01R\x11guardedEntrypoint\x1a>\n" +
 	"\x10EnvironmentEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +

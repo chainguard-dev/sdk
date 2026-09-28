@@ -559,6 +559,9 @@ message CustomOverlay {
     repeated string providers = 2;
   }
   Certificates certificates = 15;
+
+  // Wraps the image entrypoint with /usr/bin/guarded-entrypoint on rebuild.
+  bool guarded_entrypoint = 5;
 }
 
 message ImageContents {

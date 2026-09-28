@@ -610,10 +610,12 @@ type CustomOverlay struct {
 	Environment map[string]string `protobuf:"bytes,2,rep,name=environment,proto3" json:"environment,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Annotations map[string]string `protobuf:"bytes,3,rep,name=annotations,proto3" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Additional account customizations applied during rebuilds.
-	Accounts      *ApkoConfig_Accounts        `protobuf:"bytes,4,opt,name=accounts,proto3" json:"accounts,omitempty"`
-	Certificates  *CustomOverlay_Certificates `protobuf:"bytes,15,opt,name=certificates,proto3" json:"certificates,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Accounts     *ApkoConfig_Accounts        `protobuf:"bytes,4,opt,name=accounts,proto3" json:"accounts,omitempty"`
+	Certificates *CustomOverlay_Certificates `protobuf:"bytes,15,opt,name=certificates,proto3" json:"certificates,omitempty"`
+	// Wraps the image entrypoint with /usr/bin/guarded-entrypoint on rebuild.
+	GuardedEntrypoint bool `protobuf:"varint,5,opt,name=guarded_entrypoint,json=guardedEntrypoint,proto3" json:"guarded_entrypoint,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *CustomOverlay) Reset() {
@@ -679,6 +681,13 @@ func (x *CustomOverlay) GetCertificates() *CustomOverlay_Certificates {
 		return x.Certificates
 	}
 	return nil
+}
+
+func (x *CustomOverlay) GetGuardedEntrypoint() bool {
+	if x != nil {
+		return x.GuardedEntrypoint
+	}
+	return false
 }
 
 type ImageContents struct {
@@ -6088,13 +6097,14 @@ const file_registry_platform_proto_rawDesc = "" +
 	"\x05azure\x18\x06 \x01(\tR\x05azure\x12\x1f\n" +
 	"\tsync_apks\x18\a \x01(\bB\x02\x18\x01R\bsyncApks\x12!\n" +
 	"\fapko_overlay\x18\b \x01(\tR\vapkoOverlay\x12!\n" +
-	"\fgrace_period\x18\t \x01(\bR\vgracePeriod\"\x9f\x06\n" +
+	"\fgrace_period\x18\t \x01(\bR\vgracePeriod\"\xce\x06\n" +
 	"\rCustomOverlay\x12G\n" +
 	"\bcontents\x18\x01 \x01(\v2+.chainguard.platform.registry.ImageContentsR\bcontents\x12^\n" +
 	"\venvironment\x18\x02 \x03(\v2<.chainguard.platform.registry.CustomOverlay.EnvironmentEntryR\venvironment\x12^\n" +
 	"\vannotations\x18\x03 \x03(\v2<.chainguard.platform.registry.CustomOverlay.AnnotationsEntryR\vannotations\x12M\n" +
 	"\baccounts\x18\x04 \x01(\v21.chainguard.platform.registry.ApkoConfig.AccountsR\baccounts\x12\\\n" +
-	"\fcertificates\x18\x0f \x01(\v28.chainguard.platform.registry.CustomOverlay.CertificatesR\fcertificates\x1a>\n" +
+	"\fcertificates\x18\x0f \x01(\v28.chainguard.platform.registry.CustomOverlay.CertificatesR\fcertificates\x12-\n" +
+	"\x12guarded_entrypoint\x18\x05 \x01(\bR\x11guardedEntrypoint\x1a>\n" +
 	"\x10EnvironmentEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +

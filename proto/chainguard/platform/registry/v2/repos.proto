@@ -337,6 +337,9 @@ message CustomOverlay {
   // Custom certificates to include in the image.
   Certificates certificates = 5 [(google.api.field_behavior) = OPTIONAL];
 
+  // Wraps the image entrypoint with /usr/bin/guarded-entrypoint on rebuild.
+  bool guarded_entrypoint = 6 [(google.api.field_behavior) = OPTIONAL];
+
   // ImageContents specifies additional image content.
   message ImageContents {
     // Packages to append to the image.
