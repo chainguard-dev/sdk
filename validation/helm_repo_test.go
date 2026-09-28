@@ -50,7 +50,7 @@ func TestValidateHelmRepoURL(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			got := ValidateHelmRepoURL(tt.Input)
 			if (got == nil) != tt.Expect {
-				t.Errorf("Expected ValidateHelmRepoURL(`%s`) to return (err == nil) == %v, but got %v", tt.Input, tt.Expect, got)
+				t.Errorf("ValidateHelmRepoURL(%q): got (err == nil) = %v, want %v", tt.Input, got == nil, tt.Expect)
 			}
 		})
 	}

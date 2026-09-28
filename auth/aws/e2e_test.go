@@ -6,7 +6,6 @@ SPDX-License-Identifier: Apache-2.0
 package aws
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -26,7 +25,7 @@ func TestGenerateToken(t *testing.T) {
 	timeNow = epochTime
 
 	var creds = aws.Credentials{AccessKeyID: "AKID", SecretAccessKey: "SECRET", SessionToken: "SESSION"}
-	validToken, err := GenerateToken(context.Background(), creds, "aud", "identity")
+	validToken, err := GenerateToken(t.Context(), creds, "aud", "identity")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -134,7 +133,7 @@ func TestGenerateToken(t *testing.T) {
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			gotClaims, err := VerifyToken(
-				context.Background(),
+				t.Context(),
 				test.token,
 				WithAudience(sets.New(test.audience)),
 				WithIdentity(test.identity),

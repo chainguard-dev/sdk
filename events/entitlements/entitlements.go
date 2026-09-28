@@ -126,8 +126,8 @@ type ChangeEvent struct {
 }
 
 var (
-	_ events.Extendable = ChangeEvent{}
-	_ events.Redactable = ChangeEvent{}
+	_ events.Extendable = (*ChangeEvent)(nil)
+	_ events.Redactable = (*ChangeEvent)(nil)
 )
 
 // CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension.

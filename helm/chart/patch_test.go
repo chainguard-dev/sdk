@@ -511,10 +511,10 @@ sidecar:
 			patched, _, err := PatchChartImages(chartImg, tt.ci, resolve)
 			if tt.wantErr != "" {
 				if err == nil {
-					t.Fatalf("expected error containing %q, got nil", tt.wantErr)
+					t.Fatalf("got nil error, want error containing %q", tt.wantErr)
 				}
 				if !strings.Contains(err.Error(), tt.wantErr) {
-					t.Fatalf("expected error containing %q, got: %v", tt.wantErr, err)
+					t.Fatalf("got error = %v, want error containing %q", err, tt.wantErr)
 				}
 				return
 			}

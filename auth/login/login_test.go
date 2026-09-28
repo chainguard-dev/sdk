@@ -169,10 +169,10 @@ func TestBuildHeadlessURL(t *testing.T) {
 			got, err := BuildHeadlessURL(tt.opts...)
 			if tt.wantErr != "" {
 				if err == nil {
-					t.Fatal("expected error, got none")
+					t.Fatal("got nil error, want error")
 				}
 				if !strings.Contains(err.Error(), tt.wantErr) {
-					t.Fatalf("expected error %s, got %s", tt.wantErr, err)
+					t.Fatalf("got error %s, want error containing %s", err, tt.wantErr)
 				}
 				return
 			}

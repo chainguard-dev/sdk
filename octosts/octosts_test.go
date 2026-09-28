@@ -172,7 +172,7 @@ func TestTokenSource_Exchange_PropagatesError(t *testing.T) {
 	base := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: "base"})
 	tok, err := octosts.NewTokenSourceContext(ctx, base, xchg).Token()
 	if err == nil {
-		t.Fatal("expected error but got none")
+		t.Fatal("got nil error, want error")
 	}
 	if tok != nil {
 		t.Errorf("token: got = %v, want = nil", tok)
@@ -188,7 +188,7 @@ func TestTokenSource_BaseTokenError(t *testing.T) {
 
 	tok, err := octosts.NewTokenSourceContext(ctx, &errTokenSource{err: wantErr}, xchg).Token()
 	if err == nil {
-		t.Fatal("expected error but got none")
+		t.Fatal("got nil error, want error")
 	}
 	if tok != nil {
 		t.Errorf("token: got = %v, want = nil", tok)

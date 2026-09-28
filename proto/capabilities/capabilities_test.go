@@ -368,8 +368,8 @@ func TestEncoding(t *testing.T) {
 			if err := json.Unmarshal(raw, &got); err != nil {
 				t.Fatalf("json.Unmarshal() = %v", err)
 			}
-			if diff := cmp.Diff(got, test.caps); diff != "" {
-				t.Errorf("(-got +want) = %s", diff)
+			if diff := cmp.Diff(test.caps, got); diff != "" {
+				t.Errorf("(-want +got) = %s", diff)
 			}
 		})
 
@@ -389,8 +389,8 @@ func TestEncoding(t *testing.T) {
 			if err := json.Unmarshal(raw, &got); err != nil {
 				t.Fatalf("json.Unmarshal() = %v", err)
 			}
-			if diff := cmp.Diff(got, test.caps); diff != "" {
-				t.Errorf("(-got +want) = %s", diff)
+			if diff := cmp.Diff(test.caps, got); diff != "" {
+				t.Errorf("(-want +got) = %s", diff)
 			}
 		})
 	}

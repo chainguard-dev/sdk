@@ -129,7 +129,7 @@ func TestReplaceValues(t *testing.T) {
 
 	want := "image:\n  registry: my-registry.io\n  repository: my-group/nginx\n"
 	if string(got) != want {
-		t.Errorf("after ReplaceValues, ReadValues: got = %q, wanted = %q", got, want)
+		t.Errorf("after ReplaceValues, ReadValues: got = %q, want = %q", got, want)
 	}
 }
 
@@ -138,7 +138,7 @@ func TestReplaceValues_ErrorWithoutValues(t *testing.T) {
 
 	_, err := ReplaceValues(chart, &images.Mapping{}, map[string]string{})
 	if err == nil {
-		t.Fatal("expected error for chart without values.yaml")
+		t.Fatal("got nil error, want error for chart without values.yaml")
 	}
 }
 

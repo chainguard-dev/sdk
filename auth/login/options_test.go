@@ -143,7 +143,7 @@ func TestConfFromOptions(t *testing.T) {
 				t.Errorf("got unexpected error %#v", err)
 				return
 			} else if err == nil && data.WantErr {
-				t.Error("expected error and got none")
+				t.Error("got nil error, want error")
 				return
 			}
 

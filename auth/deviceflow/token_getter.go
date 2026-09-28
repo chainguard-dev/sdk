@@ -117,26 +117,32 @@ func (d *TokenGetter) deviceFlow(p *oidc.Provider, clientID, redirectURL string,
 	d.messagePrinter(fmt.Sprintf("Code will be valid for %d seconds", parsed.ExpiresIn))
 	d.sleeper(time.Duration(parsed.Interval) * time.Second)
 
-	for {
+	pollOnce := func() (tokenResp, error) {
 		data := url.Values{
 			"client_id":   []string{clientID},
 			"grant_type":  []string{"urn:ietf:params:oauth:grant-type:device_code"},
 			"device_code": []string{parsed.DeviceCode},
 		}
-
 		/* #nosec */
 		resp, err := http.PostForm(p.Endpoint().TokenURL, data)
 		if err != nil {
-			return "", err
+			return tokenResp{}, err
 		}
 		defer resp.Body.Close()
-
 		b, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return "", err
+			return tokenResp{}, err
 		}
-		tr := tokenResp{}
+		var tr tokenResp
 		if err := json.Unmarshal(b, &tr); err != nil {
+			return tokenResp{}, err
+		}
+		return tr, nil
+	}
+
+	for {
+		tr, err := pollOnce()
+		if err != nil {
 			return "", err
 		}
 

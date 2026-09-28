@@ -1291,7 +1291,7 @@ func TestHTTP1DowngradeExchangeCancelPreservesLastError(t *testing.T) {
 	select {
 	case err := <-errCh:
 		if err == nil {
-			t.Fatal("expected an error after cancellation, got nil")
+			t.Fatal("got nil error, want error after cancellation")
 		}
 		if !errors.Is(err, context.Canceled) {
 			t.Errorf("error must unwrap to context.Canceled, got: %v", err)

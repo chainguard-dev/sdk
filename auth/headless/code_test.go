@@ -33,7 +33,7 @@ func TestVerifyCode(t *testing.T) {
 			err := VerifyCode(tt.code)
 			if tt.wantErr != "" {
 				if err == nil {
-					t.Fatal("expected error, see none")
+					t.Fatal("got nil error, want error")
 				}
 				if !strings.Contains(err.Error(), tt.wantErr) {
 					t.Fatalf("got %v, want %v", err, tt.wantErr)
@@ -64,7 +64,7 @@ func TestNewSession(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := tt.code.NewSession([]byte("idtoken"))
 			if err == nil && tt.wantErr != "" {
-				t.Fatal("expected error, see none")
+				t.Fatal("got nil error, want error")
 			}
 			if err != nil && tt.wantErr == "" {
 				t.Fatalf("unexpected error: %v", err)
@@ -89,13 +89,13 @@ func TestEncrypt(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := symmetricEncrypt([]byte("token"), tt.key)
 			if err == nil && tt.wantErr != "" {
-				t.Fatalf("expected error, got none")
+				t.Fatalf("got nil error, want error")
 			}
 			if err != nil && tt.wantErr == "" {
 				t.Fatalf("unexpected error %s", err)
 			}
 			if !strings.Contains(err.Error(), tt.wantErr) {
-				t.Fatalf("expected error %s, got %s", tt.wantErr, err)
+				t.Fatalf("got error %s, want error containing %s", err, tt.wantErr)
 			}
 		})
 	}

@@ -58,7 +58,7 @@ func TestValidateDescription(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := ValidateDescription(tt.input)
 			if (got == nil) != tt.expect {
-				t.Errorf("Expected (`%s`) to return (err == nil) == %v, but got %v", tt.input, tt.expect, got)
+				t.Errorf("Validate(%q): got (err == nil) = %v, want %v", tt.input, got == nil, tt.expect)
 			}
 		})
 	}

@@ -103,7 +103,7 @@ func TestSave(t *testing.T) {
 			// Manually check the expected file location
 			_, err := os.Stat(test.wantPath)
 			if err != nil {
-				t.Fatalf("Expected token path returned error: %v", err)
+				t.Fatalf("os.Stat(%q): got error = %v, want nil", test.wantPath, err)
 			}
 
 			gotContents, err := os.ReadFile(test.wantPath)
@@ -460,7 +460,7 @@ func TestSaveLoadToken(t *testing.T) {
 					t.Fatal(err)
 				}
 				if string(contents) != string(tokenContents) {
-					t.Fatalf("expected %s got %s", string(tokenContents), string(contents))
+					t.Fatalf("Load(): got = %s, want = %s", string(contents), string(tokenContents))
 				}
 			}
 		})

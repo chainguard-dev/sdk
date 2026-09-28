@@ -63,7 +63,7 @@ func TestReparent(t *testing.T) {
 		root := NewUIDP("")
 		_, err := root.Reparent(newParent)
 		if err == nil {
-			t.Error("expected error when calling Reparent on a root UIDP, got nil")
+			t.Error("got nil error, want error when calling Reparent on a root UIDP")
 		}
 	})
 }

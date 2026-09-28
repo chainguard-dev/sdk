@@ -68,7 +68,7 @@ func TestValidateReadme(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			diff, got := ValidateReadme(tt.Input)
 			if (got == nil) != tt.Expect {
-				t.Errorf("Expected ValidateReadme(`%s`) to return (err == nil) == %v, but got %v. diff: %s", tt.Input, tt.Expect, got, diff)
+				t.Errorf("ValidateReadme(%q): got (err == nil) = %v, want %v. diff: %s", tt.Input, got == nil, tt.Expect, diff)
 			}
 		})
 	}

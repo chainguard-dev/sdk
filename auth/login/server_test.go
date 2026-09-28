@@ -15,7 +15,7 @@ import (
 )
 
 func TestServerTimeout(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	ctx, cancel := context.WithTimeout(t.Context(), 10*time.Millisecond)
 	defer cancel()
 	s, err := newServer(ctx)
 	if err != nil {
@@ -29,7 +29,7 @@ func TestServerTimeout(t *testing.T) {
 }
 
 func TestServerHappyPath(t *testing.T) {
-	s, err := newServer(context.Background())
+	s, err := newServer(t.Context())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -39,10 +39,10 @@ func TestServerHappyPath(t *testing.T) {
 
 	token, err := s.Token()
 	if err != nil {
-		t.Errorf("expected no error, got %#v", err)
+		t.Errorf("Token(): got error = %#v, want nil", err)
 	}
 	if token != "foo" {
-		t.Errorf("expected token == foo, but got token == %q", token)
+		t.Errorf("Token(): got = %q, want = %q", token, "foo")
 	}
 
 	s.Close()

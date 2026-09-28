@@ -52,7 +52,7 @@ func TestTokenRoundTrip(t *testing.T) {
 			}
 
 			if string(tt.token) != string(decrypted) {
-				t.Fatalf("expected %s, got %s", tt.token, decrypted)
+				t.Fatalf("got = %s, want = %s", decrypted, tt.token)
 			}
 		})
 	}
@@ -121,10 +121,10 @@ func TestDecryptToken_invalid(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := DecryptIDToken(tt.headlessSession, tt.privateKey)
 			if err == nil {
-				t.Fatalf("expected error, got nil")
+				t.Fatalf("got nil error, want error")
 			}
 			if !strings.Contains(err.Error(), tt.err) {
-				t.Fatalf("expected error %s, got %s", tt.err, err)
+				t.Fatalf("got error %s, want error containing %s", err, tt.err)
 			}
 		})
 	}
@@ -155,13 +155,13 @@ func TestDecrypt(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := symmetricDecrypt([]byte("token"), tt.key)
 			if err == nil && tt.wantErr != "" {
-				t.Fatalf("expected error, got none")
+				t.Fatalf("got nil error, want error")
 			}
 			if err != nil && tt.wantErr == "" {
 				t.Fatalf("unexpected error %s", err)
 			}
 			if !strings.Contains(err.Error(), tt.wantErr) {
-				t.Fatalf("expected error %s, got %s", tt.wantErr, err)
+				t.Fatalf("got error %s, want error containing %s", err, tt.wantErr)
 			}
 		})
 	}

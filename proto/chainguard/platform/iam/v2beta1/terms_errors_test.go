@@ -21,7 +21,7 @@ func TestErrTermsNotAccepted_Roundtrip(t *testing.T) {
 	})
 	ok, docs := terms.IsTermsNotAccepted(err)
 	if !ok {
-		t.Fatal("expected IsTermsNotAccepted to return true")
+		t.Fatal("got false, want IsTermsNotAccepted to return true")
 	}
 	if len(docs) != 1 || docs[0].ID != "guardener-tos.v1" {
 		t.Fatalf("unexpected docs: %+v", docs)
@@ -37,10 +37,10 @@ func TestIsTermsNotAccepted_V1Error(t *testing.T) {
 	})
 	ok, docs := terms.IsTermsNotAccepted(err)
 	if !ok {
-		t.Fatal("expected IsTermsNotAccepted to return true for v1 error")
+		t.Fatal("got false, want IsTermsNotAccepted to return true for v1 error")
 	}
 	if len(docs) != 1 {
-		t.Fatalf("expected 1 doc, got %d", len(docs))
+		t.Fatalf("got %d docs, want 1", len(docs))
 	}
 	if docs[0].ID != "sfdpa.v1" || docs[0].Label != "Data Privacy Agreement" {
 		t.Errorf("unexpected doc: %+v", docs[0])
@@ -54,10 +54,10 @@ func TestIsTermsNotAccepted_MultipleDocuments(t *testing.T) {
 	})
 	ok, docs := terms.IsTermsNotAccepted(err)
 	if !ok {
-		t.Fatal("expected IsTermsNotAccepted to return true")
+		t.Fatal("got false, want IsTermsNotAccepted to return true")
 	}
 	if len(docs) != 2 {
-		t.Fatalf("expected 2 docs, got %d", len(docs))
+		t.Fatalf("got %d docs, want 2", len(docs))
 	}
 }
 
@@ -65,10 +65,10 @@ func TestIsTermsNotAccepted_EmptyMissing(t *testing.T) {
 	err := iamv2b.ErrTermsNotAccepted(nil)
 	ok, docs := terms.IsTermsNotAccepted(err)
 	if !ok {
-		t.Fatal("expected true even with empty missing list")
+		t.Fatal("got false, want true even with empty missing list")
 	}
 	if len(docs) != 0 {
-		t.Errorf("expected 0 docs, got %d", len(docs))
+		t.Errorf("got %d docs, want 0", len(docs))
 	}
 }
 
@@ -81,10 +81,10 @@ func TestIsTermsNotAccepted_FieldPreservation(t *testing.T) {
 	err := iamv2b.ErrTermsNotAccepted([]terms.Document{want})
 	ok, docs := terms.IsTermsNotAccepted(err)
 	if !ok {
-		t.Fatal("expected IsTermsNotAccepted to return true")
+		t.Fatal("got false, want IsTermsNotAccepted to return true")
 	}
 	if len(docs) != 1 {
-		t.Fatalf("expected 1 doc, got %d", len(docs))
+		t.Fatalf("got %d docs, want 1", len(docs))
 	}
 	if docs[0] != want {
 		t.Errorf("field values not preserved:\ngot:  %+v\nwant: %+v", docs[0], want)
@@ -116,6 +116,6 @@ func TestIsTermsNotAccepted_V1AndV2Beta1Interop(t *testing.T) {
 func TestIsTermsNotAccepted_WrongCode(t *testing.T) {
 	ok, _ := terms.IsTermsNotAccepted(status.Error(codes.NotFound, "not found"))
 	if ok {
-		t.Fatal("expected false for NotFound error")
+		t.Fatal("got true, want false for NotFound error")
 	}
 }

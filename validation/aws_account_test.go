@@ -25,7 +25,7 @@ func TestValidateAWSAccount(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			got := ValidateAWSAccount(tt.Input)
 			if (got == nil) != tt.Expect {
-				t.Errorf("Expected GroupName(`%s`) to return (err == nil) == %v, but got %v", tt.Input, tt.Expect, got)
+				t.Errorf("GroupName(%q): got (err == nil) = %v, want %v", tt.Input, got == nil, tt.Expect)
 			}
 		})
 	}

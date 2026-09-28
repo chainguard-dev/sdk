@@ -17,28 +17,28 @@ import (
 func TestIsTermsNotAccepted_NilError(t *testing.T) {
 	ok, _ := terms.IsTermsNotAccepted(nil)
 	if ok {
-		t.Fatal("expected false for nil error")
+		t.Fatal("got true, want false for nil error")
 	}
 }
 
 func TestIsTermsNotAccepted_WrongStatusCode(t *testing.T) {
 	ok, _ := terms.IsTermsNotAccepted(status.Error(codes.NotFound, "not found"))
 	if ok {
-		t.Fatal("expected false for NotFound error")
+		t.Fatal("got true, want false for NotFound error")
 	}
 }
 
 func TestIsTermsNotAccepted_FailedPreconditionWithoutDetail(t *testing.T) {
 	ok, _ := terms.IsTermsNotAccepted(status.Error(codes.FailedPrecondition, "other precondition"))
 	if ok {
-		t.Fatal("expected false for FailedPrecondition without detail")
+		t.Fatal("got true, want false for FailedPrecondition without detail")
 	}
 }
 
 func TestIsTermsNotAccepted_NonGRPCError(t *testing.T) {
 	ok, _ := terms.IsTermsNotAccepted(fmt.Errorf("plain error"))
 	if ok {
-		t.Fatal("expected false for non-gRPC error")
+		t.Fatal("got true, want false for non-gRPC error")
 	}
 }
 

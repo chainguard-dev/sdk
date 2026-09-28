@@ -106,7 +106,7 @@ func (t *Tree) Add(key, value, label string) error {
 	}
 	// We've reached the leaf, if there is a Value it must have already existed
 	if n.Value != "" {
-		return fmt.Errorf("value \"%s\" already exists at key \"%s\"", value, key)
+		return fmt.Errorf("value %q already exists at key %q", value, key)
 	}
 	// Remove newlines from the value and label, they mess with output
 	n.Value = strings.ReplaceAll(value, "\n", " ")
@@ -147,14 +147,14 @@ func (t *Tree) Delete(key string) (string, error) {
 	for _, k := range parts {
 		next, ok := n.children[k]
 		if !ok {
-			return "", fmt.Errorf("key \"%s\" does not exist in the tree", key)
+			return "", fmt.Errorf("key %q does not exist in the tree", key)
 		}
 		p = n
 		n = next
 	}
 
 	if len(n.children) > 0 {
-		return "", fmt.Errorf("cannot delete key \"%s\" because it has %d children", key, len(n.children))
+		return "", fmt.Errorf("cannot delete key %q because it has %d children", key, len(n.children))
 	}
 	delete(p.children, parts[len(parts)-1])
 	t.count--
@@ -215,7 +215,7 @@ func (t *Tree) Get(key string) (string, error) {
 	for _, k := range parts {
 		next, ok := n.children[k]
 		if !ok {
-			return "", fmt.Errorf("key \"%s\" not found in \"%s\"", k, n.Key)
+			return "", fmt.Errorf("key %q not found in %q", k, n.Key)
 		}
 		n = next
 	}
@@ -244,7 +244,7 @@ func (t *Tree) Update(key, value, label string) error {
 		next, ok := n.children[k]
 		// Any missing nodes in the path imply this Key hasn't been added yet
 		if !ok {
-			return fmt.Errorf("key \"%s\" does not exist in the tree", key)
+			return fmt.Errorf("key %q does not exist in the tree", key)
 		}
 		n = next
 	}

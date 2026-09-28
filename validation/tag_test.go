@@ -33,7 +33,7 @@ func TestValidateTag(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			got := ValidateTag(tt.Input)
 			if (got == nil) != tt.Expect {
-				t.Errorf("Expected ValidateTag(`%s`) to return (err == nil) == %v, but got %v", tt.Input, tt.Expect, got)
+				t.Errorf("ValidateTag(%q): got (err == nil) = %v, want %v", tt.Input, got == nil, tt.Expect)
 			}
 		})
 	}

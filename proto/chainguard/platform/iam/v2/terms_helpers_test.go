@@ -44,7 +44,7 @@ func TestCheckTermsAcceptance_SomeMissing(t *testing.T) {
 	err := iamv2b.CheckTermsAcceptance(t.Context(), "group-1", mock, []string{"guardener-tos.v1", "sfdpa.v1"})
 	ok, docs := terms.IsTermsNotAccepted(err)
 	if !ok {
-		t.Fatal("expected terms not accepted error")
+		t.Fatal("got false, want terms not accepted error")
 	}
 	if len(docs) != 1 || docs[0].ID != "sfdpa.v1" {
 		t.Fatalf("unexpected missing docs: %+v", docs)
@@ -63,7 +63,7 @@ func TestCheckTermsAcceptance_NoneAccepted(t *testing.T) {
 	err := iamv2b.CheckTermsAcceptance(t.Context(), "group-1", mock, []string{"guardener-tos.v1"})
 	ok, docs := terms.IsTermsNotAccepted(err)
 	if !ok {
-		t.Fatal("expected terms not accepted error")
+		t.Fatal("got false, want terms not accepted error")
 	}
 	if len(docs) != 1 || docs[0].ID != "guardener-tos.v1" {
 		t.Fatalf("unexpected missing docs: %+v", docs)
@@ -78,7 +78,7 @@ func TestCheckTermsAcceptance_ListError(t *testing.T) {
 	}
 	err := iamv2b.CheckTermsAcceptance(t.Context(), "group-1", mock, []string{"guardener-tos.v1"})
 	if err == nil {
-		t.Fatal("expected error when ListTermsAcceptances fails")
+		t.Fatal("got nil error, want error when ListTermsAcceptances fails")
 	}
 	ok, _ := terms.IsTermsNotAccepted(err)
 	if ok {

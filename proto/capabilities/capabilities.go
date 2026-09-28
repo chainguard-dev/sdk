@@ -6,10 +6,12 @@ SPDX-License-Identifier: Apache-2.0
 package capabilities
 
 import (
+	"cmp"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -56,8 +58,8 @@ func initBitifyMap() {
 		bitCaps = append(bitCaps, bitcap{bit, capability})
 	}
 
-	sort.Slice(bitCaps, func(i int, j int) bool {
-		return bitCaps[i].cap < bitCaps[j].cap
+	slices.SortFunc(bitCaps, func(a, b bitcap) int {
+		return cmp.Compare(a.cap, b.cap)
 	})
 }
 

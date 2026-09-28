@@ -31,7 +31,7 @@ func TestValidateAliases(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			got := ValidateAliases(tt.Input)
 			if (got == nil) != tt.Expect {
-				t.Errorf("Expected Bundles(`%s`) to return (err == nil) == %v, but got %v", tt.Input, tt.Expect, got)
+				t.Errorf("Bundles(%q): got (err == nil) = %v, want %v", tt.Input, got == nil, tt.Expect)
 			}
 		})
 	}

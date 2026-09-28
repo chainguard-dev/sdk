@@ -267,10 +267,10 @@ func TestRead(t *testing.T) {
 			got, err := Read(tc.fsys)
 			if tc.wantErr != "" {
 				if err == nil {
-					t.Fatalf("expected error containing %q, got nil", tc.wantErr)
+					t.Fatalf("got nil error, want error containing %q", tc.wantErr)
 				}
 				if !strings.Contains(err.Error(), tc.wantErr) {
-					t.Fatalf("expected error containing %q, got: %v", tc.wantErr, err)
+					t.Fatalf("got error = %v, want error containing %q", err, tc.wantErr)
 				}
 				return
 			}

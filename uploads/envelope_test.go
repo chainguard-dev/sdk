@@ -77,17 +77,17 @@ func TestSealEnvelope_RejectsWrongAlgorithm(t *testing.T) {
 	_, pubPEM := keypair(t)
 	_, err := uploads.SealEnvelope([]byte("x"), pubPEM, "RSA_DECRYPT_OAEP_2048_SHA256", "1")
 	if err == nil {
-		t.Fatal("expected error on algorithm mismatch, got nil")
+		t.Fatal("got nil error, want error on algorithm mismatch")
 	}
 	if !strings.Contains(err.Error(), "algorithm") {
-		t.Fatalf("expected error to mention algorithm, got: %v", err)
+		t.Fatalf("got error = %v, want error mentioning algorithm", err)
 	}
 }
 
 func TestSealEnvelope_RejectsMalformedPEM(t *testing.T) {
 	_, err := uploads.SealEnvelope([]byte("x"), "not a pem", uploads.EncryptionAlgorithm, "1")
 	if err == nil {
-		t.Fatal("expected error on malformed PEM, got nil")
+		t.Fatal("got nil error, want error on malformed PEM")
 	}
 }
 
@@ -141,7 +141,7 @@ func TestParseEnvelope_Shape(t *testing.T) {
 func TestParseEnvelope_RejectsNonJSON(t *testing.T) {
 	_, err := uploads.ParseEnvelope("not json {{{")
 	if err == nil {
-		t.Fatal("expected error on non-JSON payload, got nil")
+		t.Fatal("got nil error, want error on non-JSON payload")
 	}
 }
 
@@ -172,7 +172,7 @@ func TestOpenEnvelope_RejectsTamperedCiphertext(t *testing.T) {
 		t.Fatalf("remarshal: %v", err)
 	}
 	if _, err := uploads.OpenEnvelope(string(tamperedJSON), rsaUnwrap(priv)); err == nil {
-		t.Fatal("expected GCM authentication failure on tampered ciphertext, got nil")
+		t.Fatal("got nil error, want GCM authentication failure on tampered ciphertext")
 	}
 }
 
@@ -195,10 +195,10 @@ func TestOpenEnvelope_RejectsBadIVLength(t *testing.T) {
 	}
 	_, err = uploads.OpenEnvelope(string(bad), rsaUnwrap(priv))
 	if err == nil {
-		t.Fatal("expected error on wrong-length IV, got nil")
+		t.Fatal("got nil error, want error on wrong-length IV")
 	}
 	if !strings.Contains(err.Error(), "iv has wrong length") {
-		t.Fatalf("expected iv-length error, got: %v", err)
+		t.Fatalf("got error = %v, want iv-length error", err)
 	}
 }
 
@@ -213,10 +213,10 @@ func TestOpenEnvelope_RejectsBadKeyLength(t *testing.T) {
 		return make([]byte, 24), nil
 	})
 	if err == nil {
-		t.Fatal("expected error on wrong-length AES key, got nil")
+		t.Fatal("got nil error, want error on wrong-length AES key")
 	}
 	if !strings.Contains(err.Error(), "aes key has wrong length") {
-		t.Fatalf("expected aes-key-length error, got: %v", err)
+		t.Fatalf("got error = %v, want aes-key-length error", err)
 	}
 }
 

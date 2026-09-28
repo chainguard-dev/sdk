@@ -290,10 +290,10 @@ func TestParse(t *testing.T) {
 
 			if tc.wantErr != "" {
 				if err == nil {
-					t.Fatalf("expected error containing %q, got nil", tc.wantErr)
+					t.Fatalf("got nil error, want error containing %q", tc.wantErr)
 				}
 				if !strings.Contains(err.Error(), tc.wantErr) {
-					t.Fatalf("expected error containing %q, got: %v", tc.wantErr, err)
+					t.Fatalf("got error = %v, want error containing %q", err, tc.wantErr)
 				}
 				return
 			}
@@ -314,7 +314,7 @@ func TestWalkNilCallback(t *testing.T) {
 	}}
 	_, err := m.Walk(nil)
 	if err == nil {
-		t.Fatal("expected error for nil callback")
+		t.Fatal("got nil error, want error for nil callback")
 	}
 }
 
@@ -602,10 +602,10 @@ func TestWalk(t *testing.T) {
 
 			if tc.wantErr != "" {
 				if err == nil {
-					t.Fatalf("expected error containing %q, got nil", tc.wantErr)
+					t.Fatalf("got nil error, want error containing %q", tc.wantErr)
 				}
 				if !strings.Contains(err.Error(), tc.wantErr) {
-					t.Fatalf("expected error containing %q, got: %v", tc.wantErr, err)
+					t.Fatalf("got error = %v, want error containing %q", err, tc.wantErr)
 				}
 				return
 			}
@@ -1241,10 +1241,10 @@ global:
 			got, err := tc.mapping.Resolve(tc.refs, strings.NewReader(tc.valuesYAML), tc.opts...)
 			if tc.wantErr != "" {
 				if err == nil {
-					t.Fatalf("expected error containing %q, got nil", tc.wantErr)
+					t.Fatalf("got nil error, want error containing %q", tc.wantErr)
 				}
 				if !strings.Contains(err.Error(), tc.wantErr) {
-					t.Fatalf("expected error containing %q, got %q", tc.wantErr, err.Error())
+					t.Fatalf("got error = %q, want error containing %q", err.Error(), tc.wantErr)
 				}
 				return
 			}
@@ -1352,7 +1352,7 @@ func TestImageValuesMerge(t *testing.T) {
 			got, err := tc.input.Merge()
 			if tc.wantErr {
 				if err == nil {
-					t.Fatal("expected error, got nil")
+					t.Fatal("got nil error, want error")
 				}
 				return
 			}

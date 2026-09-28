@@ -67,7 +67,7 @@ func TestOSVRecordJSONConformsToOSVSpec(t *testing.T) {
 		`"ECOSYSTEM"`,
 	} {
 		if !strings.Contains(got, want) {
-			t.Errorf("expected %s in %s", want, got)
+			t.Errorf("got = %s, want it to contain %s", got, want)
 		}
 	}
 	for _, reject := range []string{

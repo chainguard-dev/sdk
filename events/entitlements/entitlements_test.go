@@ -16,7 +16,7 @@ import (
 
 // ChangeEvent must satisfy events.Extendable as a value, since the events
 // framework probes the Occurrence body for extensions.
-var _ events.Extendable = entitlements.ChangeEvent{}
+var _ events.Extendable = (*entitlements.ChangeEvent)(nil)
 
 func TestChangedEventType(t *testing.T) {
 	if got := entitlements.ChangedEventType; got != "dev.chainguard.entitlement.changed.v1" {
