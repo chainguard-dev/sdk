@@ -1,0 +1,375 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.versions.v2beta1;
+
+import "annotations/auth.proto";
+import "annotations/mcp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/versions/v2beta1";
+option java_multiple_files = true;
+option java_outer_classname = "VersionsProto";
+option java_package = "com.chainguard.platform.versions.v2beta1";
+
+// VersionsService is a read-only view of the upstream software versions
+// Chainguard tracks in its version_data catalog: which projects we monitor,
+// where we discover their releases, each version stream's end-of-life and LTS
+// status, the versions in each stream, and the APKs we build for them.
+//
+// The version-reconciler owns all writes, so this service has no mutating
+// RPCs. Both RPCs require the version.list capability, which every role
+// grants, but do not scope results to a group: every authorized caller sees
+// the same catalog.
+service VersionsService {
+  // GetProject returns the version data for one project.
+  // (-- api-linter: core::0127::resource-name-extraction=disabled
+  //     aip.dev/not-precedent: Projects are keyed by bare catalog names
+  //     rather than resource names. --)
+  rpc GetProject(GetProjectRequest) returns (Project) {
+    option (google.api.http) = {get: "/versions/v2beta1/projects/{name}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_VERSION_LIST]
+        unscoped: true
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get the version data Chainguard tracks for one upstream project: discovery sources, version streams with end-of-life and LTS status, versions, and built APKs."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // ListProjects returns the version data for many projects, one page at a
+  // time.
+  rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse) {
+    option (google.api.http) = {get: "/versions/v2beta1/projects"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_VERSION_LIST]
+        unscoped: true
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List the upstream projects Chainguard tracks version data for, optionally filtered to one or more exact project names."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+}
+
+// GetProjectRequest identifies one project by name.
+message GetProjectRequest {
+  // name is the project name, e.g. "nginx".
+  // (-- api-linter: core::0131::request-name-reference=disabled
+  //     aip.dev/not-precedent: Projects are keyed by bare catalog names
+  //     rather than resource names. --)
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListProjectsRequest filters and pages through the project catalog.
+message ListProjectsRequest {
+  // names limits results to projects with these exact names. When empty,
+  // every project is returned.
+  repeated string names = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // page_size is the maximum number of projects to return. The server picks a
+  // default when it is zero and may cap large values.
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // page_token is the next_page_token from a previous ListProjects call with
+  // the same names. Omit it to fetch the first page.
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order results by field. Format: "field [asc|desc]"
+  // Default: "name asc"
+  // Note: Changing order_by between pages invalidates the page token.
+  string order_by = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of results to skip before returning.
+  // Used for random-access pagination (jumping to arbitrary pages).
+  // Can be combined with page_token to skip from cursor position.
+  // Must be non-negative.
+  int32 skip = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListProjectsResponse is one page of projects.
+message ListProjectsResponse {
+  // projects are this page's projects, in order_by order.
+  repeated Project projects = 1;
+
+  // next_page_token fetches the next page. It is empty on the last page.
+  string next_page_token = 2;
+
+  // Total number of projects matching the filter.
+  // Optional, provided for UI pagination.
+  optional int64 total_count = 3;
+
+  // Number of results that were skipped.
+  // Accumulates across paginated requests.
+  int32 skipped = 4;
+}
+
+// Project is one upstream piece of software whose releases Chainguard tracks,
+// such as a language runtime, a library, a CLI, or a GitHub Action.
+// (-- api-linter: core::0123::resource-annotation=disabled
+//     aip.dev/not-precedent: Projects are keyed by bare catalog names rather
+//     than resource names. --)
+message Project {
+  // name is the project name, e.g. "nginx".
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // metadata describes where the version-reconciler discovers this project's
+  // releases.
+  Metadata metadata = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // streams are the project's version streams.
+  repeated Stream streams = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Metadata describes where a project's releases are discovered.
+message Metadata {
+  // release_monitor identifies the project on release-monitoring.org, when
+  // it is tracked there.
+  ReleaseMonitor release_monitor = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // endoflife identifies the product on endoflife.date, when it is tracked
+  // there.
+  EndoflifeDateProduct endoflife = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // git_tags are the git repositories whose tags are monitored.
+  repeated string git_tags = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // github_releases are the GitHub repositories whose releases are monitored.
+  repeated string github_releases = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // oci_tags are the OCI image repositories whose tags are monitored.
+  repeated string oci_tags = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // tag_regexps filter the tags and releases discovered from git_tags and
+  // github_releases. A tag is kept when it matches at least one pattern;
+  // matching is unanchored. When empty, every tag is kept.
+  repeated string tag_regexps = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // git_branches are the git repositories whose release branches are
+  // monitored.
+  repeated string git_branches = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ReleaseMonitor identifies a project on release-monitoring.org.
+message ReleaseMonitor {
+  // id is the release-monitoring.org project ID.
+  // (-- api-linter: core::0141::forbidden-types=disabled
+  //     aip.dev/not-precedent: Mirrors the upstream integer project ID. --)
+  int64 id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // project is the release-monitoring.org project name.
+  string project = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// EndoflifeDateProduct identifies a product on endoflife.date.
+message EndoflifeDateProduct {
+  // product is the endoflife.date product name, e.g. "nodejs".
+  string product = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Stream is a line of releases within a project, e.g. "1.27".
+message Stream {
+  // stream identifies the stream within its project, e.g. "1.27".
+  string stream = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // eol is the stream's end-of-life status. It is unset when we have
+  // no end-of-life information for the stream.
+  EndOfLife eol = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // lts is the stream's long-term-support designation. It is
+  // unset when the designation is unknown.
+  LongTermSupport lts = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // versions are the releases observed in this stream.
+  repeated Version versions = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // apk_groups maps a package group to the APKs built for this stream in that
+  // group.
+  map<string, ApkGroup> apk_groups = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// EndOfLife is an end-of-life status.
+message EndOfLife {
+  // Origin is where end-of-life information came from.
+  enum Origin {
+    // The origin is not known.
+    ORIGIN_UNSPECIFIED = 0;
+    // Read from endoflife.date.
+    ORIGIN_ENDOFLIFE_DATE = 1;
+    // Inferred by the version-reconciler from a support-policy page, release
+    // heuristics, or a value with no recorded origin.
+    ORIGIN_AGENTIC = 2;
+    // Set by hand.
+    ORIGIN_MANUAL = 3;
+    // Derived from git tags.
+    ORIGIN_GIT = 4;
+    // Derived from GitHub releases.
+    ORIGIN_GITHUB_RELEASE = 5;
+    // Derived from release-monitoring.org.
+    ORIGIN_RELEASE_MONITOR = 6;
+    // Derived from an NVIDIA redistributable manifest.
+    ORIGIN_NVIDIA_REDIST = 7;
+    // Derived from OCI image tags.
+    ORIGIN_OCI_TAGS = 8;
+    // Derived from git release branches.
+    ORIGIN_RELEASE_BRANCH = 9;
+  }
+
+  // reached reports whether end of life has been reached as of the request.
+  // When eol_time is set, reached is true exactly when eol_time is at or
+  // before the request time.
+  bool reached = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // eol_time is when end of life is or was reached. It is unset when no date
+  // is known.
+  google.protobuf.Timestamp eol_time = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // origin is where this end-of-life information came from. It is unset on a
+  // Source's eol, where the Source's type already says where it came from.
+  Origin origin = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// LongTermSupport is a stream's long-term-support designation.
+message LongTermSupport {
+  // designated reports whether the stream is, or is scheduled to become, a
+  // long-term-support stream.
+  bool designated = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // start_time is when the stream became, or will become, a long-term-support
+  // stream. It is unset when no date is known or designated is false.
+  google.protobuf.Timestamp start_time = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ApkGroup holds the APKs built for a stream within one package group.
+message ApkGroup {
+  // architectures maps an architecture, e.g. "x86_64" or "aarch64", to the
+  // APKs built for it.
+  map<string, ApkList> architectures = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ApkList is a list of APKs.
+message ApkList {
+  // apks are the APKs.
+  repeated Apk apks = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Apk is one APK package built for a stream.
+message Apk {
+  // uri locates the APK.
+  string uri = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // variant is the package variant, e.g. "fips". It is empty for the default
+  // variant.
+  string variant = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // publish_time is when the APK was published.
+  google.protobuf.Timestamp publish_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Version is one release within a stream, e.g. "1.27.3".
+message Version {
+  // version is the version string, e.g. "1.27.3".
+  string version = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // sources are the upstream places this version was discovered. The same
+  // version is often seen by more than one source.
+  repeated Source sources = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // license is the SPDX license expression evaluated from the upstream source
+  // at this version's tag: an SPDX identifier such as "Apache-2.0", or a
+  // LicenseRef-<hash> reference to a non-standard license. It is empty when
+  // the license has not been evaluated.
+  string license = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Source is one upstream place a version was discovered.
+message Source {
+  // Type is the kind of upstream source.
+  enum Type {
+    // The type is not known to this API version.
+    TYPE_UNSPECIFIED = 0;
+    // A git tag.
+    TYPE_GIT = 1;
+    // A GitHub release.
+    TYPE_GITHUB_RELEASE = 2;
+    // A release-monitoring.org project.
+    TYPE_RELEASE_MONITOR = 3;
+    // An endoflife.date product.
+    TYPE_ENDOFLIFE_DATE = 4;
+    // An NVIDIA redistributable manifest.
+    TYPE_NVIDIA_REDIST = 5;
+    // An OCI image tag.
+    TYPE_OCI_TAGS = 6;
+    // A git release branch.
+    TYPE_RELEASE_BRANCH = 7;
+    // Added by hand.
+    TYPE_MANUAL = 8;
+  }
+
+  // type is the kind of source.
+  Type type = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // tag is the name the source gives this version, e.g. the git tag
+  // "v1.27.3". For NVIDIA redistributable sources it is the toolkit version.
+  string tag = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // publish_time is when this source published the version, when known.
+  google.protobuf.Timestamp publish_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // eol is the end-of-life status this source reported for the version, when
+  // it reported one.
+  EndOfLife eol = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // git holds details only git-hosted sources report: git tags, GitHub
+  // releases, and release branches.
+  Git git = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // nvidia_redist holds details only NVIDIA redistributable sources report.
+  NvidiaRedist nvidia_redist = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Git holds details reported by a git-hosted source.
+message Git {
+  // tag_uri links to the upstream tag or release, or to the repository for
+  // release branches.
+  string tag_uri = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // commit is the commit SHA the tag or release points to, when known.
+  string commit = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// NvidiaRedist holds details reported by an NVIDIA redistributable manifest.
+message NvidiaRedist {
+  // component_version is the component's own version within the toolkit
+  // release.
+  string component_version = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // archives maps a platform, e.g. "linux-x86_64" or "linux-sbsa", to its
+  // downloadable archive.
+  map<string, Archive> archives = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Archive is a downloadable archive for one platform.
+message Archive {
+  // relative_path is the archive's download path relative to the NVIDIA
+  // redistribution base URL.
+  string relative_path = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // sha256 is the hex-encoded SHA-256 digest of the archive.
+  string sha256 = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

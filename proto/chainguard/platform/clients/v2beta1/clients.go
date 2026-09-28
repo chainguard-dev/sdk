@@ -17,6 +17,7 @@ import (
 	advisory "chainguard.dev/sdk/proto/chainguard/platform/advisory/v2beta1"
 	iamv2 "chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1"
 	registry "chainguard.dev/sdk/proto/chainguard/platform/registry/v2beta1"
+	versions "chainguard.dev/sdk/proto/chainguard/platform/versions/v2beta1"
 	vuln "chainguard.dev/sdk/proto/chainguard/platform/vulnerabilities/v2beta1"
 	"github.com/chainguard-dev/clog"
 )
@@ -26,6 +27,7 @@ type Clients interface {
 	Advisory() advisory.Clients
 	IAM() iamv2.Clients
 	Registry() registry.Clients
+	Versions() versions.Clients
 	Vulnerabilities() vuln.Clients
 	Close() error
 }
@@ -34,6 +36,7 @@ type clients struct {
 	advisory advisory.Clients
 	iam      iamv2.Clients
 	registry registry.Clients
+	versions versions.Clients
 	vuln     vuln.Clients
 	conn     *grpc.ClientConn
 }
@@ -69,6 +72,7 @@ func NewClients(ctx context.Context, apiURL, userAgent string, cred credentials.
 		advisory: advisory.NewClientsFromConnection(conn),
 		iam:      iamv2.NewClientsFromConnection(conn),
 		registry: registry.NewClientsFromConnection(conn),
+		versions: versions.NewClientsFromConnection(conn),
 		vuln:     vuln.NewClientsFromConnection(conn),
 		conn:     conn,
 	}, nil
@@ -84,6 +88,10 @@ func (c *clients) IAM() iamv2.Clients {
 
 func (c *clients) Registry() registry.Clients {
 	return c.registry
+}
+
+func (c *clients) Versions() versions.Clients {
+	return c.versions
 }
 
 func (c *clients) Vulnerabilities() vuln.Clients {
