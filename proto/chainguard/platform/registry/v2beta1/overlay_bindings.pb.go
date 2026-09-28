@@ -39,14 +39,13 @@ const (
 	// `tags` must be non-empty; `variant_type` must be unset.
 	TagSelector_KIND_EXACT TagSelector_Kind = 1
 	// KIND_ALL matches every tag on the parent repo. `tags` and
-	// `variant_type` must be unset. A repo can hold at most one
-	// KIND_ALL binding — this is the way to customize a whole repo
-	// and the migration target for legacy repo.custom_overlay values.
+	// `variant_type` must be unset. This is the way to customize a
+	// whole repo and the migration target for legacy
+	// repo.custom_overlay values.
 	TagSelector_KIND_ALL TagSelector_Kind = 2
 	// KIND_VARIANT matches every tag on the parent repo that belongs
 	// to the variant named by `variant_type`. `tags` must be unset and
-	// `variant_type` must not be VARIANT_TYPE_UNSPECIFIED. A repo can
-	// hold at most one KIND_VARIANT binding per (repo, variant_type).
+	// `variant_type` must not be VARIANT_TYPE_UNSPECIFIED.
 	TagSelector_KIND_VARIANT TagSelector_Kind = 3
 )
 
@@ -237,14 +236,16 @@ func (x *OverlayBinding) GetTagSelector() *TagSelector {
 // match input. Overlay bindings apply in a fixed precedence when multiple
 // bindings match a single tag being rebuilt:
 //
-//  1. KIND_ALL binding on the repo (at most one).
-//  2. KIND_VARIANT binding whose variant_type matches the tag (at most
-//     one per (repo, variant_type); today only VARIANT_TYPE_DEV,
-//     matching the "-dev" tag suffix).
-//  3. KIND_EXACT binding whose `tags` include the tag.
+//  1. The repo's KIND_ALL bindings.
+//  2. KIND_VARIANT bindings whose variant_type matches the tag (today
+//     only VARIANT_TYPE_DEV, matching the "-dev" tag suffix).
+//  3. KIND_EXACT bindings whose `tags` include the tag.
 //
 // Layers merge later-wins for scalar fields; packages accumulate. All
-// three can stack on a single tag (e.g. `latest-dev`).
+// three can stack on a single tag (e.g. `latest-dev`). Within one layer,
+// co-matching bindings merge commutatively: the bind-time compatibility
+// check (see CreateOverlayBindingRequest.tag_selector) guarantees their
+// overlays' configs never set the same field to different values.
 type TagSelector struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Kind is the matching mode.
@@ -330,13 +331,24 @@ type CreateOverlayBindingRequest struct {
 	Overlay string `protobuf:"bytes,2,opt,name=overlay,proto3" json:"overlay,omitempty"`
 	// The selector picking which tags on the parent repo this binding
 	// applies to. See TagSelector for the supported kinds and their
-	// per-kind validation rules. Uniqueness rules (at most one ALL per
-	// repo; at most one VARIANT per (repo, variant_type); EXACT bindings
-	// must not share any tag with another EXACT binding on the same repo)
-	// are enforced at create time and surface as AlreadyExists. Bindings
-	// are rejected on repos whose legacy custom_overlay is set
-	// (FailedPrecondition) — the two customization paths are mutually
-	// exclusive until the legacy value is migrated to an ALL binding.
+	// per-kind validation rules. Per-repo rules are enforced at create
+	// time: at most one binding per (repo, overlay) pair, surfacing as
+	// AlreadyExists; beyond that, any number of bindings per selector
+	// kind, provided every co-matching pair — two ALL; two VARIANT of one
+	// variant type; two EXACT sharing a tag — references overlays whose
+	// configs merge commutatively (list fields union; map keys, named
+	// entries, and scalars must not be set to different values). A content
+	// conflict surfaces as FailedPrecondition whose PreconditionFailure
+	// detail carries violation type OVERLAY_BINDING_CONFLICT, naming the
+	// conflicting binding id(s) and field paths in the message; earlier
+	// releases rejected same-kind overlap as AlreadyExists, so clients
+	// branching on that code should branch on the violation type instead.
+	// Cross-kind overlap is precedence-layered at rebuild time and never a
+	// conflict. Bindings are also rejected on repos whose legacy
+	// custom_overlay is set — FailedPrecondition too, but without the
+	// OVERLAY_BINDING_CONFLICT violation type — the two customization
+	// paths are mutually exclusive until the legacy value is migrated to
+	// an ALL binding.
 	TagSelector   *TagSelector `protobuf:"bytes,4,opt,name=tag_selector,json=tagSelector,proto3" json:"tag_selector,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

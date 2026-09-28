@@ -96,8 +96,12 @@ service OverlaysService {
   }
 
   // UpdateOverlay updates an overlay's mutable fields: its name and its
-  // config. A submitted config is validated like create and replaces the
-  // stored config wholesale.
+  // config. A submitted config is validated like create, replaces the
+  // stored config wholesale, and is re-checked for binding compatibility
+  // everywhere the overlay is bound — a conflict with a co-matching
+  // binding's overlay on any repo fails with FailedPrecondition
+  // (violation type OVERLAY_BINDING_CONFLICT); see
+  // UpdateOverlayRequest.update_mask.
   rpc UpdateOverlay(UpdateOverlayRequest) returns (Overlay) {
     option (google.api.http) = {
       patch: "/registry/v2beta1/overlays/{overlay.uid=**}"
@@ -218,7 +222,14 @@ message UpdateOverlayRequest {
   // (have non-default values). Only the top-level paths "name" and
   // "config" are accepted; any other path — including sub-paths such
   // as "config.contents.packages" — fails with InvalidArgument. A
-  // masked "config" replaces the stored config wholesale.
+  // masked "config" replaces the stored config wholesale, and is
+  // re-checked for binding compatibility everywhere the overlay is
+  // bound: a config that no longer merges commutatively with a
+  // co-matching binding's overlay on any repo fails with
+  // FailedPrecondition whose PreconditionFailure detail carries
+  // violation type OVERLAY_BINDING_CONFLICT, naming the conflicting
+  // bindings and field paths — fix the config or detach the conflicting
+  // binding. A rename alone is never blocked by this check.
   google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 

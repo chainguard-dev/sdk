@@ -218,7 +218,14 @@ type UpdateOverlayRequest struct {
 	// (have non-default values). Only the top-level paths "name" and
 	// "config" are accepted; any other path — including sub-paths such
 	// as "config.contents.packages" — fails with InvalidArgument. A
-	// masked "config" replaces the stored config wholesale.
+	// masked "config" replaces the stored config wholesale, and is
+	// re-checked for binding compatibility everywhere the overlay is
+	// bound: a config that no longer merges commutatively with a
+	// co-matching binding's overlay on any repo fails with
+	// FailedPrecondition whose PreconditionFailure detail carries
+	// violation type OVERLAY_BINDING_CONFLICT, naming the conflicting
+	// bindings and field paths — fix the config or detach the conflicting
+	// binding. A rename alone is never blocked by this check.
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

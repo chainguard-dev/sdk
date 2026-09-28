@@ -1004,7 +1004,10 @@ type CustomOverlay_ImageContents struct {
 	RuntimeRepositories []string `protobuf:"bytes,2,rep,name=runtime_repositories,json=runtimeRepositories,proto3" json:"runtime_repositories,omitempty"`
 	// Customer-supplied APK signing public keys to write to /etc/apk/keys.
 	// Mirrors apko's contents.runtime_keyring (same name, shape, and
-	// placement), which carries these keys into the build.
+	// placement), which carries these keys into the build. In an overlay's
+	// config (CreateOverlay/UpdateOverlay), entry names must be unique
+	// within the list (InvalidArgument otherwise): each name is one file
+	// on disk, and overlay composition keys on it.
 	RuntimeKeyring []*CustomOverlay_ImageContents_RuntimeKeyringEntry `protobuf:"bytes,3,rep,name=runtime_keyring,json=runtimeKeyring,proto3" json:"runtime_keyring,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -1066,9 +1069,14 @@ type CustomOverlay_Accounts struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Run-as user configuration.
 	RunAs string `protobuf:"bytes,1,opt,name=run_as,json=runAs,proto3" json:"run_as,omitempty"`
-	// User entries to add.
+	// User entries to add. In an overlay's config
+	// (CreateOverlay/UpdateOverlay), usernames must be unique within the
+	// list (InvalidArgument otherwise): each is one passwd row, and
+	// overlay composition keys on the name.
 	Users []*CustomOverlay_Accounts_User `protobuf:"bytes,2,rep,name=users,proto3" json:"users,omitempty"`
-	// Group entries to add.
+	// Group entries to add. In an overlay's config
+	// (CreateOverlay/UpdateOverlay), group names must be unique within
+	// the list (InvalidArgument otherwise), like users.
 	Groups        []*CustomOverlay_Accounts_Group `protobuf:"bytes,3,rep,name=groups,proto3" json:"groups,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1128,7 +1136,10 @@ func (x *CustomOverlay_Accounts) GetGroups() []*CustomOverlay_Accounts_Group {
 // Certificates specifies additional certificate configuration.
 type CustomOverlay_Certificates struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Additional certificates to include.
+	// Additional certificates to include. In an overlay's config
+	// (CreateOverlay/UpdateOverlay), entry names must be unique within
+	// the list (InvalidArgument otherwise): each name is one file on
+	// disk, and overlay composition keys on it.
 	Additional []*CustomOverlay_Certificates_AdditionalEntry `protobuf:"bytes,1,rep,name=additional,proto3" json:"additional,omitempty"`
 	// Certificate providers via packages.
 	Providers     []string `protobuf:"bytes,2,rep,name=providers,proto3" json:"providers,omitempty"`

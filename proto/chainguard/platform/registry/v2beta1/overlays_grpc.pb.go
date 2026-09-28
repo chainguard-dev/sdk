@@ -54,8 +54,12 @@ type OverlaysServiceClient interface {
 	// Repo.custom_overlay.
 	CreateOverlay(ctx context.Context, in *CreateOverlayRequest, opts ...grpc.CallOption) (*Overlay, error)
 	// UpdateOverlay updates an overlay's mutable fields: its name and its
-	// config. A submitted config is validated like create and replaces the
-	// stored config wholesale.
+	// config. A submitted config is validated like create, replaces the
+	// stored config wholesale, and is re-checked for binding compatibility
+	// everywhere the overlay is bound — a conflict with a co-matching
+	// binding's overlay on any repo fails with FailedPrecondition
+	// (violation type OVERLAY_BINDING_CONFLICT); see
+	// UpdateOverlayRequest.update_mask.
 	UpdateOverlay(ctx context.Context, in *UpdateOverlayRequest, opts ...grpc.CallOption) (*Overlay, error)
 	// DeleteOverlay deletes an overlay by UID. Deleting an overlay that is
 	// still referenced by bindings fails with FailedPrecondition.
@@ -144,8 +148,12 @@ type OverlaysServiceServer interface {
 	// Repo.custom_overlay.
 	CreateOverlay(context.Context, *CreateOverlayRequest) (*Overlay, error)
 	// UpdateOverlay updates an overlay's mutable fields: its name and its
-	// config. A submitted config is validated like create and replaces the
-	// stored config wholesale.
+	// config. A submitted config is validated like create, replaces the
+	// stored config wholesale, and is re-checked for binding compatibility
+	// everywhere the overlay is bound — a conflict with a co-matching
+	// binding's overlay on any repo fails with FailedPrecondition
+	// (violation type OVERLAY_BINDING_CONFLICT); see
+	// UpdateOverlayRequest.update_mask.
 	UpdateOverlay(context.Context, *UpdateOverlayRequest) (*Overlay, error)
 	// DeleteOverlay deletes an overlay by UID. Deleting an overlay that is
 	// still referenced by bindings fails with FailedPrecondition.

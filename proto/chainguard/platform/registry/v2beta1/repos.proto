@@ -324,7 +324,10 @@ message CustomOverlay {
 
     // Customer-supplied APK signing public keys to write to /etc/apk/keys.
     // Mirrors apko's contents.runtime_keyring (same name, shape, and
-    // placement), which carries these keys into the build.
+    // placement), which carries these keys into the build. In an overlay's
+    // config (CreateOverlay/UpdateOverlay), entry names must be unique
+    // within the list (InvalidArgument otherwise): each name is one file
+    // on disk, and overlay composition keys on it.
     repeated RuntimeKeyringEntry runtime_keyring = 3 [(google.api.field_behavior) = OPTIONAL];
 
     // RuntimeKeyringEntry is a single customer-supplied APK signing public
@@ -347,10 +350,15 @@ message CustomOverlay {
     // Run-as user configuration.
     string run_as = 1 [(google.api.field_behavior) = OPTIONAL];
 
-    // User entries to add.
+    // User entries to add. In an overlay's config
+    // (CreateOverlay/UpdateOverlay), usernames must be unique within the
+    // list (InvalidArgument otherwise): each is one passwd row, and
+    // overlay composition keys on the name.
     repeated User users = 2 [(google.api.field_behavior) = OPTIONAL];
 
-    // Group entries to add.
+    // Group entries to add. In an overlay's config
+    // (CreateOverlay/UpdateOverlay), group names must be unique within
+    // the list (InvalidArgument otherwise), like users.
     repeated Group groups = 3 [(google.api.field_behavior) = OPTIONAL];
 
     // User represents a user account.
@@ -389,7 +397,10 @@ message CustomOverlay {
 
   // Certificates specifies additional certificate configuration.
   message Certificates {
-    // Additional certificates to include.
+    // Additional certificates to include. In an overlay's config
+    // (CreateOverlay/UpdateOverlay), entry names must be unique within
+    // the list (InvalidArgument otherwise): each name is one file on
+    // disk, and overlay composition keys on it.
     repeated AdditionalEntry additional = 1 [(google.api.field_behavior) = OPTIONAL];
 
     // Certificate providers via packages.
