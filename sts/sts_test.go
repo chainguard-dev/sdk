@@ -1303,3 +1303,91 @@ func TestHTTP1DowngradeExchangeCancelPreservesLastError(t *testing.T) {
 		t.Fatal("Exchange did not return within 5s of cancellation")
 	}
 }
+
+// TestExchangeDelegation checks that WithDelegation and WithTask reach the
+// gRPC ExchangeRequest.
+func TestExchangeDelegation(t *testing.T) {
+	t.Cleanup(func() { oidcNewClients = oidc.NewClients })
+	oidcNewClients = func(_ context.Context, _ string, _ string, _ ...oidc.ClientOption) (oidc.Clients, error) {
+		return test.MockOIDCClient{
+			STSClient: test.MockSTSClient{
+				OnExchange: []test.STSOnExchange{{
+					Given: &oidc.ExchangeRequest{
+						Aud:       []string{"delegation"},
+						Identity:  "agent-uid",
+						Scope:     "org", //nolint:staticcheck // the client still populates the deprecated singular Scope for backward compatibility
+						Scopes:    []string{"org"},
+						Cap:       []string{"repo.list"},
+						Delegated: true,
+						Task:      "run-1",
+					},
+					Exchanged: &oidc.RawToken{Token: "delegated!"},
+				}},
+			},
+		}, nil
+	}
+
+	got, err := ExchangePair(t.Context(), "issuer", "delegation", "grant-token",
+		WithIdentity("agent-uid"), WithScope("org"), WithCapabilities("repo.list"), WithDelegation(), WithTask("run-1"))
+	if err != nil {
+		t.Fatalf("ExchangePair() = %v", err)
+	}
+	if diff := cmp.Diff(TokenPair{AccessToken: "delegated!"}, got); diff != "" {
+		t.Errorf("token (-want, +got):\n%s", diff)
+	}
+}
+
+// TestHTTP1DowngradeDelegationGatewayContract checks the same two fields
+// reach the server through the HTTP/1 form encoding.
+func TestHTTP1DowngradeDelegationGatewayContract(t *testing.T) {
+	fake, srv := newGatewaySTSServer(t)
+
+	exch := NewHTTP1DowngradeExchanger(srv.URL, "delegation",
+		WithIdentity("agent-uid"), WithScope("org"), WithCapabilities("repo.list"), WithDelegation(), WithTask("run-1"))
+	if _, err := exch.Exchange(t.Context(), "grant-token"); err != nil {
+		t.Fatalf("Exchange() = %v", err)
+	}
+
+	want := &oidc.ExchangeRequest{
+		Aud:       []string{"delegation"},
+		Scope:     "org", //nolint:staticcheck // the client still populates the deprecated singular Scope for backward compatibility
+		Scopes:    []string{"org"},
+		Identity:  "agent-uid",
+		Cap:       []string{"repo.list"},
+		Delegated: true,
+		Task:      "run-1",
+	}
+	fake.mu.Lock()
+	got := fake.exchangeReq
+	fake.mu.Unlock()
+	if diff := cmp.Diff(want, got, protocmp.Transform()); diff != "" {
+		t.Errorf("server-side ExchangeRequest (-want +got):\n%s", diff)
+	}
+}
+
+func TestDelegationAudience(t *testing.T) {
+	const issuer = "https://issuer.example"
+	if got, want := DelegationAudience(issuer+"/", "sessions"), issuer+"/delegation/sessions"; got != want {
+		t.Errorf("DelegationAudience: got = %q, want = %q", got, want)
+	}
+	tests := []struct {
+		aud  string
+		want bool
+	}{
+		{aud: issuer + "/delegation/sessions", want: true},
+		{aud: issuer + "/delegation/a/b", want: true},
+		{aud: issuer + "/delegation/"},
+		{aud: issuer + "/delegation/x,https://console-api.example"},
+		{aud: issuer + "/delegation"},
+		{aud: issuer},
+		{aud: "https://other.example/delegation/sessions"},
+		{aud: "https://console-api.example"},
+		{aud: "https://build-mcp.example/mcp"},
+		{aud: "cgr.dev"},
+	}
+	for _, tt := range tests {
+		if got := IsDelegationAudience(issuer, tt.aud); got != tt.want {
+			t.Errorf("IsDelegationAudience(%q): got = %v, want = %v", tt.aud, got, tt.want)
+		}
+	}
+}

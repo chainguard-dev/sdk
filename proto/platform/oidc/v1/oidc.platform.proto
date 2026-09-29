@@ -91,6 +91,28 @@ message ExchangeRequest {
   //  - given scopes = [foo, foo/bar] => {foo: [foo/rb-id-1], foo/bar: [foo/bar/rb-id-2]}
   //  - given scopes = [foo/bar] => {foo/bar: [foo/rb-id-1, foo/bar/rb-id-2]}
   repeated string scopes = 8;
+
+  // delegated requests the delegated exchange mode when assuming `identity`.
+  // The assumed identity's own role bindings are not consulted; instead the
+  // returned token's capabilities are a per-scope subset of the presented
+  // credential's capabilities, selected by `scopes` and `cap` (both
+  // required), and its expiry never exceeds the presented credential's. A
+  // request for any capability or scope the presented credential does not
+  // hold is rejected, never trimmed. The presented credential must be a
+  // delegation grant: a token minted by this issuer whose only audience is
+  // "<issuer>/delegation/<name>", pinned by the identity's claim_match, and
+  // the identity must be marked delegation_only. A token minted by a
+  // delegated exchange is never accepted as a grant. No refresh token is
+  // issued. The returned token's subject is the assumed identity, its `act`
+  // claim is the presented credential's verified claims, and its
+  // `act_chain` records the transfer.
+  bool delegated = 9;
+
+  // task is an optional opaque identifier for the work the delegated token
+  // is minted for (e.g. a session id), recorded as the token's `task` claim
+  // for attribution. It is never used for authorization. At most 128 bytes
+  // of letters, digits, and `. _ : / @ -`. Only honored with `delegated`.
+  string task = 10;
 }
 
 message RawToken {

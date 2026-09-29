@@ -134,7 +134,27 @@ type ExchangeRequest struct {
 	// and a role binding on group `foo/bar` with id `foo/bar/rb-id-2`:
 	//  - given scopes = [foo, foo/bar] => {foo: [foo/rb-id-1], foo/bar: [foo/bar/rb-id-2]}
 	//  - given scopes = [foo/bar] => {foo/bar: [foo/rb-id-1, foo/bar/rb-id-2]}
-	Scopes        []string `protobuf:"bytes,8,rep,name=scopes,proto3" json:"scopes,omitempty"`
+	Scopes []string `protobuf:"bytes,8,rep,name=scopes,proto3" json:"scopes,omitempty"`
+	// delegated requests the delegated exchange mode when assuming `identity`.
+	// The assumed identity's own role bindings are not consulted; instead the
+	// returned token's capabilities are a per-scope subset of the presented
+	// credential's capabilities, selected by `scopes` and `cap` (both
+	// required), and its expiry never exceeds the presented credential's. A
+	// request for any capability or scope the presented credential does not
+	// hold is rejected, never trimmed. The presented credential must be a
+	// delegation grant: a token minted by this issuer whose only audience is
+	// "<issuer>/delegation/<name>", pinned by the identity's claim_match, and
+	// the identity must be marked delegation_only. A token minted by a
+	// delegated exchange is never accepted as a grant. No refresh token is
+	// issued. The returned token's subject is the assumed identity, its `act`
+	// claim is the presented credential's verified claims, and its
+	// `act_chain` records the transfer.
+	Delegated bool `protobuf:"varint,9,opt,name=delegated,proto3" json:"delegated,omitempty"`
+	// task is an optional opaque identifier for the work the delegated token
+	// is minted for (e.g. a session id), recorded as the token's `task` claim
+	// for attribution. It is never used for authorization. At most 128 bytes
+	// of letters, digits, and `. _ : / @ -`. Only honored with `delegated`.
+	Task          string `protobuf:"bytes,10,opt,name=task,proto3" json:"task,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -210,6 +230,20 @@ func (x *ExchangeRequest) GetScopes() []string {
 		return x.Scopes
 	}
 	return nil
+}
+
+func (x *ExchangeRequest) GetDelegated() bool {
+	if x != nil {
+		return x.Delegated
+	}
+	return false
+}
+
+func (x *ExchangeRequest) GetTask() string {
+	if x != nil {
+		return x.Task
+	}
+	return ""
 }
 
 type RawToken struct {
@@ -337,7 +371,7 @@ const file_oidc_platform_proto_rawDesc = "" +
 	"\x05scope\x18\x02 \x01(\tB\x02\x18\x01R\x05scope\x129\n" +
 	"\x03cap\x18\x03 \x03(\tB'\xfaA$\n" +
 	"\"chainguard.capabilities/CapabilityR\x03cap\x12\x16\n" +
-	"\x06scopes\x18\x04 \x03(\tR\x06scopes\"\x86\x02\n" +
+	"\x06scopes\x18\x04 \x03(\tR\x06scopes\"\xb8\x02\n" +
 	"\x0fExchangeRequest\x12\x10\n" +
 	"\x03aud\x18\x01 \x03(\tR\x03aud\x12\x18\n" +
 	"\x05scope\x18\x02 \x01(\tB\x02\x18\x01R\x05scope\x12\x1a\n" +
@@ -345,7 +379,10 @@ const file_oidc_platform_proto_rawDesc = "" +
 	"\x03cap\x18\x05 \x03(\tB'\xfaA$\n" +
 	"\"chainguard.capabilities/CapabilityR\x03cap\x12+\n" +
 	"\x11identity_provider\x18\a \x01(\tR\x10identityProvider\x12\x16\n" +
-	"\x06scopes\x18\b \x03(\tR\x06scopesJ\x04\b\x03\x10\x04J\x04\b\x06\x10\aR\aclusterR\x16include_upstream_token\"y\n" +
+	"\x06scopes\x18\b \x03(\tR\x06scopes\x12\x1c\n" +
+	"\tdelegated\x18\t \x01(\bR\tdelegated\x12\x12\n" +
+	"\x04task\x18\n" +
+	" \x01(\tR\x04taskJ\x04\b\x03\x10\x04J\x04\b\x06\x10\aR\aclusterR\x16include_upstream_token\"y\n" +
 	"\bRawToken\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\x12#\n" +
 	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\x122\n" +

@@ -116,6 +116,8 @@ type options struct {
 	identity         string
 	http1Downgrade   bool
 	identityProvider string
+	delegated        bool
+	task             string
 }
 
 var _ Exchanger = (*impl)(nil)
@@ -279,6 +281,8 @@ func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOpti
 			Identity:         o.identity,
 			Cap:              o.capabilities,
 			IdentityProvider: o.identityProvider,
+			Delegated:        o.delegated,
+			Task:             o.task,
 		})
 		c.Close()
 		if err != nil {
@@ -398,6 +402,50 @@ func WithIdentityProvider(idp string) ExchangerOption {
 	return func(i *options) {
 		i.identityProvider = idp
 	}
+}
+
+// WithDelegation requests the delegated exchange mode when assuming the
+// identity set by WithIdentity: the returned token's capabilities are a
+// per-scope subset of the presented credential's, selected by WithScope and
+// WithCapabilities (both required), and its expiry never exceeds the
+// presented credential's. The presented credential must be a delegation
+// grant: a Chainguard token whose only audience is a DelegationAudience that
+// the identity's claim_match pins. No refresh token is issued.
+func WithDelegation() ExchangerOption {
+	return func(i *options) {
+		i.delegated = true
+	}
+}
+
+// WithTask records an opaque task identifier (e.g. a CI run id) as the
+// `task` claim of a delegated token, for attribution. It requires
+// WithDelegation: the server rejects an exchange that sets a task without it.
+// At most 128 bytes of letters, digits, and `. _ : / @ -`.
+func WithTask(task string) ExchangerOption {
+	return func(i *options) {
+		i.task = task
+	}
+}
+
+// delegationAudiencePath is the path, under the issuer URL, that every
+// delegation grant audience lives beneath.
+const delegationAudiencePath = "/delegation/"
+
+// DelegationAudience returns the delegation grant audience named name for
+// issuer: "<issuer>/delegation/<name>". A token minted for this audience is
+// accepted by no API; its only use is as the input to a delegated exchange
+// (WithDelegation) for an identity whose claim_match pins the same audience.
+func DelegationAudience(issuer, name string) string {
+	return strings.TrimSuffix(issuer, "/") + delegationAudiencePath + name
+}
+
+// IsDelegationAudience reports whether aud is a delegation grant audience
+// for issuer, as built by DelegationAudience with a non-empty name. A name
+// holding a comma is rejected: New splits its audience argument on commas,
+// so such a value would request the grant audience next to another one.
+func IsDelegationAudience(issuer, aud string) bool {
+	name, ok := strings.CutPrefix(aud, strings.TrimSuffix(issuer, "/")+delegationAudiencePath)
+	return ok && name != "" && !strings.Contains(name, ",")
 }
 
 type HTTP1DowngradeExchanger struct {
@@ -581,6 +629,12 @@ func (i *HTTP1DowngradeExchanger) Exchange(ctx context.Context, token string, op
 	}
 	if o.identityProvider != "" {
 		form.Set("identity_provider", o.identityProvider)
+	}
+	if o.delegated {
+		form.Set("delegated", "true")
+	}
+	if o.task != "" {
+		form.Set("task", o.task)
 	}
 	out := new(oidc.RawToken)
 	if err := i.retryHTTP1(ctx, token, "/sts/exchange", form, out, o.userAgent, retryable); err != nil {

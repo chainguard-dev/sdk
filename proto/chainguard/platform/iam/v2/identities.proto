@@ -211,6 +211,14 @@ message Identity {
   // When the identity was last updated.
   google.protobuf.Timestamp update_time = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
 
+  // When true, the identity may only be assumed through the delegated token
+  // exchange (ExchangeRequest.delegated), in which its capabilities are a
+  // requested subset of the presented delegation grant's and its role
+  // bindings are never consulted. A plain assume is refused, so the identity
+  // never holds standing authority. The delegated exchange is refused for
+  // every identity without it. Only valid on a claim_match identity.
+  bool delegation_only = 11 [(google.api.field_behavior) = OPTIONAL];
+
   // The relationship configuration for this identity.
   // Exactly one must be set.
   oneof relationship {

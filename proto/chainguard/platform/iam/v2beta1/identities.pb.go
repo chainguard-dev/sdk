@@ -215,6 +215,13 @@ type Identity struct {
 	CreateTime *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
 	// When the identity was last updated.
 	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+	// When true, the identity may only be assumed through the delegated token
+	// exchange (ExchangeRequest.delegated), in which its capabilities are a
+	// requested subset of the presented delegation grant's and its role
+	// bindings are never consulted. A plain assume is refused, so the identity
+	// never holds standing authority. The delegated exchange is refused for
+	// every identity without it. Only valid on a claim_match identity.
+	DelegationOnly bool `protobuf:"varint,11,opt,name=delegation_only,json=delegationOnly,proto3" json:"delegation_only,omitempty"`
 	// The relationship configuration for this identity.
 	// Exactly one must be set.
 	//
@@ -320,6 +327,13 @@ func (x *Identity) GetUpdateTime() *timestamppb.Timestamp {
 		return x.UpdateTime
 	}
 	return nil
+}
+
+func (x *Identity) GetDelegationOnly() bool {
+	if x != nil {
+		return x.DelegationOnly
+	}
+	return false
 }
 
 func (x *Identity) GetRelationship() isIdentity_Relationship {
@@ -1590,7 +1604,7 @@ var File_chainguard_platform_iam_v2beta1_identities_proto protoreflect.FileDescr
 
 const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\n" +
-	"0chainguard/platform/iam/v2beta1/identities.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xd5\x0f\n" +
+	"0chainguard/platform/iam/v2beta1/identities.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\x84\x10\n" +
 	"\bIdentity\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
@@ -1604,7 +1618,8 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"createTime\x12A\n" +
 	"\vupdate_time\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
-	"updateTime\x12]\n" +
+	"updateTime\x12-\n" +
+	"\x0fdelegation_only\x18\v \x01(\bB\x04\xe2A\x01\x01R\x0edelegationOnly\x12]\n" +
 	"\vclaim_match\x18\x14 \x01(\v24.chainguard.platform.iam.v2beta1.Identity.ClaimMatchB\x04\xe2A\x01\x01H\x00R\n" +
 	"claimMatch\x12]\n" +
 	"\vstatic_keys\x18\x15 \x01(\v24.chainguard.platform.iam.v2beta1.Identity.StaticKeysB\x04\xe2A\x01\x01H\x00R\n" +
