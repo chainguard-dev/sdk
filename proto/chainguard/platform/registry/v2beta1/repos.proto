@@ -352,6 +352,43 @@ message CustomOverlay {
     OnFailure on_failure = 5 [(google.api.field_behavior) = OPTIONAL];
   }
 
+  // Command override for the guarded_entrypoint wrapper. Requires
+  // guarded_entrypoint.
+  CommandOverride command_override = 8 [(google.api.field_behavior) = OPTIONAL];
+
+  // CommandOverride decides what the wrapper execs after preparing
+  // the environment: in MODE_DEFAULT the wrapper execs its own argv
+  // (the image's original ENTRYPOINT followed by CMD) unchanged; in
+  // MODE_PREPEND it execs command followed by that argv; in
+  // MODE_OVERRIDE it execs command alone. The image's ENTRYPOINT
+  // (wrapper-prefixed) and CMD are unchanged in every mode. The
+  // syncer bakes this into the image as two environment variables:
+  // GUARDED_COMMAND_MODE=default|prepend|override and
+  // GUARDED_COMMAND=<JSON array>, e.g.
+  // GUARDED_COMMAND=["redis-server","--requirepass","hunter2"].
+  message CommandOverride {
+    // Argument list that combines with the container's runtime
+    // arguments per mode. When empty, no override applies.
+    repeated string command = 1 [(google.api.field_behavior) = OPTIONAL];
+
+    // Mode decides how command combines with the container's runtime
+    // arguments.
+    enum Mode {
+      // Treated as MODE_DEFAULT.
+      MODE_UNSPECIFIED = 0;
+      // Use command only when the container passes no arguments.
+      MODE_DEFAULT = 1;
+      // command first, then the container's arguments.
+      MODE_PREPEND = 2;
+      // command always; container arguments are dropped.
+      MODE_OVERRIDE = 3;
+    }
+    // How command combines with the container's runtime arguments.
+    // Default is MODE_DEFAULT. Non-empty command is required when mode
+    // is MODE_PREPEND or MODE_OVERRIDE.
+    Mode mode = 2 [(google.api.field_behavior) = OPTIONAL];
+  }
+
   // ImageContents specifies additional image content.
   message ImageContents {
     // Packages to append to the image.

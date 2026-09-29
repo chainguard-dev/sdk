@@ -592,6 +592,38 @@ message CustomOverlay {
     // What happens when the check fails. Default FAIL.
     OnFailure on_failure = 5;
   }
+
+  // Command override for the guarded_entrypoint wrapper. Requires
+  // guarded_entrypoint.
+  CommandOverride command_override = 7;
+
+  // CommandOverride decides what the wrapper execs after preparing
+  // the environment: in MODE_DEFAULT the wrapper execs its own argv
+  // (the image's original ENTRYPOINT followed by CMD) unchanged; in
+  // MODE_PREPEND it execs command followed by that argv; in
+  // MODE_OVERRIDE it execs command alone. The image's ENTRYPOINT
+  // (wrapper-prefixed) and CMD are unchanged in every mode. The
+  // syncer bakes this into the image as two environment variables:
+  // GUARDED_COMMAND_MODE=default|prepend|override and
+  // GUARDED_COMMAND=<JSON array>, e.g.
+  // GUARDED_COMMAND=["redis-server","--requirepass","hunter2"].
+  message CommandOverride {
+    // Argument list that combines with the container's runtime
+    // arguments per mode. When empty, no override applies.
+    repeated string command = 1;
+    // Mode decides how command combines with the container's runtime
+    // arguments.
+    enum Mode {
+      MODE_UNSPECIFIED = 0;
+      MODE_DEFAULT = 1;
+      MODE_PREPEND = 2;
+      MODE_OVERRIDE = 3;
+    }
+    // How command combines with the container's runtime arguments.
+    // Default is MODE_DEFAULT. Non-empty command is required when mode
+    // is MODE_PREPEND or MODE_OVERRIDE.
+    Mode mode = 2;
+  }
 }
 
 message ImageContents {
