@@ -315,6 +315,43 @@ message CustomOverlay {
   // Wraps the image entrypoint with /usr/bin/guarded-entrypoint on rebuild.
   bool guarded_entrypoint = 6 [(google.api.field_behavior) = OPTIONAL];
 
+  // Readiness checks to run before starting the app. Requires
+  // guarded_entrypoint. Up to 32 entries.
+  repeated Preflight preflight = 7 [(google.api.field_behavior) = OPTIONAL];
+
+  // Preflight is one readiness check to run before the app starts.
+  message Preflight {
+    // TCP endpoint to dial (host:port). Set exactly one of tcp or path.
+    // Supports ${VAR} expansion from the resolved environment. Must
+    // not contain "," or "=".
+    string tcp = 1 [(google.api.field_behavior) = OPTIONAL];
+
+    // Filesystem path that must exist. Set exactly one of tcp or path.
+    // Supports ${VAR} expansion from the resolved environment. Must
+    // not contain "," or "=".
+    string path = 2 [(google.api.field_behavior) = OPTIONAL];
+
+    // Time budget for the check, as a Go duration string like "30s".
+    // Non-negative. Default 30s.
+    string timeout = 3 [(google.api.field_behavior) = OPTIONAL];
+
+    // Polling interval between attempts, as a Go duration string.
+    // Non-negative. Default 500ms.
+    string interval = 4 [(google.api.field_behavior) = OPTIONAL];
+
+    // OnFailure decides what happens when a preflight check fails.
+    enum OnFailure {
+      // Treated as FAIL.
+      ON_FAILURE_UNSPECIFIED = 0;
+      // Stops the container from starting.
+      ON_FAILURE_FAIL = 1;
+      // Startup proceeds; the failure is logged.
+      ON_FAILURE_CONTINUE = 2;
+    }
+    // What happens when the check fails. Default FAIL.
+    OnFailure on_failure = 5 [(google.api.field_behavior) = OPTIONAL];
+  }
+
   // ImageContents specifies additional image content.
   message ImageContents {
     // Packages to append to the image.
