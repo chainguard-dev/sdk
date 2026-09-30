@@ -356,6 +356,15 @@ const (
 	// Argos — Private OSV API (customer-facing OSV query surface).
 	Capability_CAP_ARGOS_OSV_READ Capability = 2604
 	Capability_CAP_ARGOS_OSV_DUMP Capability = 2614
+	// Argos — identity types. Mutually exclusive: an identity holding both is
+	// treated as a mitigation partner (the more restrictive of the two) for any
+	// API call which varies the return value based on identity type.
+	Capability_CAP_ARGOS_COALITION_MEMBER   Capability = 2616
+	Capability_CAP_ARGOS_MITIGATION_PARTNER Capability = 2617
+	// Argos — mitigation partner capabilities. request lets a partner submit
+	// its capabilities and interests; approve lets staff review them.
+	Capability_CAP_ARGOS_PARTNER_CAPABILITY_REQUEST Capability = 2618
+	Capability_CAP_ARGOS_PARTNER_CAPABILITY_APPROVE Capability = 2619
 	// Libraries Policy Gates — customer-facing policies and bindings that
 	// configure the cooldown and malware gates applied to upstream package pulls,
 	// plus the block events recorded when a pull is withheld.
@@ -617,6 +626,10 @@ var (
 		2615:  "CAP_ARGOS_DOCUMENTATION_READ",
 		2604:  "CAP_ARGOS_OSV_READ",
 		2614:  "CAP_ARGOS_OSV_DUMP",
+		2616:  "CAP_ARGOS_COALITION_MEMBER",
+		2617:  "CAP_ARGOS_MITIGATION_PARTNER",
+		2618:  "CAP_ARGOS_PARTNER_CAPABILITY_REQUEST",
+		2619:  "CAP_ARGOS_PARTNER_CAPABILITY_APPROVE",
 		2605:  "CAP_LIBRARIES_POLICY_CREATE",
 		2606:  "CAP_LIBRARIES_POLICY_UPDATE",
 		2607:  "CAP_LIBRARIES_POLICY_LIST",
@@ -844,6 +857,10 @@ var (
 		"CAP_ARGOS_DOCUMENTATION_READ":                       2615,
 		"CAP_ARGOS_OSV_READ":                                 2604,
 		"CAP_ARGOS_OSV_DUMP":                                 2614,
+		"CAP_ARGOS_COALITION_MEMBER":                         2616,
+		"CAP_ARGOS_MITIGATION_PARTNER":                       2617,
+		"CAP_ARGOS_PARTNER_CAPABILITY_REQUEST":               2618,
+		"CAP_ARGOS_PARTNER_CAPABILITY_APPROVE":               2619,
 		"CAP_LIBRARIES_POLICY_CREATE":                        2605,
 		"CAP_LIBRARIES_POLICY_UPDATE":                        2606,
 		"CAP_LIBRARIES_POLICY_LIST":                          2607,
@@ -958,7 +975,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xf5z\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xbb}\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1173,7 +1190,11 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x1aCAP_ARGOS_DOCUMENTS_DELETE\x10\xab\x14\x1a\"\xa8ˑM\x92\x01\x9a\xaf\xa8\xd2\x05\x16argos.documents.delete\x12G\n" +
 	"\x1cCAP_ARGOS_DOCUMENTATION_READ\x10\xb7\x14\x1a$\xa8ˑM\xde\x01\x9a\xaf\xa8\xd2\x05\x18argos.documentation.read\x123\n" +
 	"\x12CAP_ARGOS_OSV_READ\x10\xac\x14\x1a\x1a\xa8ˑM\x93\x01\x9a\xaf\xa8\xd2\x05\x0eargos.osv.read\x123\n" +
-	"\x12CAP_ARGOS_OSV_DUMP\x10\xb6\x14\x1a\x1a\xa8ˑM\xc6\x01\x9a\xaf\xa8\xd2\x05\x0eargos.osv.dump\x12E\n" +
+	"\x12CAP_ARGOS_OSV_DUMP\x10\xb6\x14\x1a\x1a\xa8ˑM\xc6\x01\x9a\xaf\xa8\xd2\x05\x0eargos.osv.dump\x12C\n" +
+	"\x1aCAP_ARGOS_COALITION_MEMBER\x10\xb8\x14\x1a\"\xa8ˑM\xe6\x01\x9a\xaf\xa8\xd2\x05\x16argos.coalition_member\x12G\n" +
+	"\x1cCAP_ARGOS_MITIGATION_PARTNER\x10\xb9\x14\x1a$\xa8ˑM\xe7\x01\x9a\xaf\xa8\xd2\x05\x18argos.mitigation_partner\x12W\n" +
+	"$CAP_ARGOS_PARTNER_CAPABILITY_REQUEST\x10\xba\x14\x1a,\xa8ˑM\xe8\x01\x9a\xaf\xa8\xd2\x05 argos.partner.capability.request\x12]\n" +
+	"$CAP_ARGOS_PARTNER_CAPABILITY_APPROVE\x10\xbb\x14\x1a2\xa8ˑM\xe9\x01\x9a\xaf\xa8\xd2\x05 argos.partner.capability.approve\xa0\xaf\xa8\xd2\x05\x01\x12E\n" +
 	"\x1bCAP_LIBRARIES_POLICY_CREATE\x10\xad\x14\x1a#\xa8ˑM\x94\x01\x9a\xaf\xa8\xd2\x05\x17libraries.policy.create\x12E\n" +
 	"\x1bCAP_LIBRARIES_POLICY_UPDATE\x10\xae\x14\x1a#\xa8ˑM\x95\x01\x9a\xaf\xa8\xd2\x05\x17libraries.policy.update\x12A\n" +
 	"\x19CAP_LIBRARIES_POLICY_LIST\x10\xaf\x14\x1a!\xa8ˑM\x96\x01\x9a\xaf\xa8\xd2\x05\x15libraries.policy.list\x12E\n" +

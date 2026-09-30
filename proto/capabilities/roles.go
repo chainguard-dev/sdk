@@ -579,6 +579,23 @@ var (
 	ArgosOSVDumperCaps = SortCaps([]Capability{
 		Capability_CAP_ARGOS_OSV_DUMP,
 	})
+
+	// ArgosCoalitionMemberCaps marks an identity as an Athena coalition member.
+	ArgosCoalitionMemberCaps = SortCaps([]Capability{
+		Capability_CAP_ARGOS_COALITION_MEMBER,
+	})
+
+	// ArgosMitigationPartnerCaps marks an identity as a mitigation partner,
+	// whose CGP visibility is limited to its approved capabilities.
+	ArgosMitigationPartnerCaps = SortCaps([]Capability{
+		Capability_CAP_ARGOS_MITIGATION_PARTNER,
+	})
+
+	// ArgosMitigationPartnerCapabilityRequesterCaps lets a mitigation partner
+	// submit its capabilities and interests for approval.
+	ArgosMitigationPartnerCapabilityRequesterCaps = SortCaps([]Capability{
+		Capability_CAP_ARGOS_PARTNER_CAPABILITY_REQUEST,
+	})
 )
 
 func SortCaps(caps ...[]Capability) []Capability {

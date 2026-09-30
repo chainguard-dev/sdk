@@ -409,6 +409,30 @@ enum Capability {
   CAP_ARGOS_OSV_READ = 2604 [(name) = "argos.osv.read", (bit) = 147];
   CAP_ARGOS_OSV_DUMP = 2614 [(name) = "argos.osv.dump", (bit) = 198];
 
+  // Argos — identity types. Mutually exclusive: an identity holding both is
+  // treated as a mitigation partner (the more restrictive of the two) for any
+  // API call which varies the return value based on identity type.
+  CAP_ARGOS_COALITION_MEMBER = 2616 [
+    (name) = "argos.coalition_member",
+    (bit) = 230
+  ];
+  CAP_ARGOS_MITIGATION_PARTNER = 2617 [
+    (name) = "argos.mitigation_partner",
+    (bit) = 231
+  ];
+
+  // Argos — mitigation partner capabilities. request lets a partner submit
+  // its capabilities and interests; approve lets staff review them.
+  CAP_ARGOS_PARTNER_CAPABILITY_REQUEST = 2618 [
+    (name) = "argos.partner.capability.request",
+    (bit) = 232
+  ];
+  CAP_ARGOS_PARTNER_CAPABILITY_APPROVE = 2619 [
+    (name) = "argos.partner.capability.approve",
+    (bit) = 233,
+    (internal_only) = true
+  ];
+
   // Libraries Policy Gates — customer-facing policies and bindings that
   // configure the cooldown and malware gates applied to upstream package pulls,
   // plus the block events recorded when a pull is withheld.
@@ -482,5 +506,5 @@ enum Capability {
   CAP_SANDBOX_RUN_CANCEL = 3003 [(name) = "sandbox.run.cancel", (bit) = 228];
 
   reserved 1;
-  // next bit: 230
+  // next bit: 234
 }
