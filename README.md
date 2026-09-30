@@ -26,9 +26,9 @@ This requires Docker but no local installation of `protoc` or its plugins.
 
 #### Prerequisites
 
-Install `protoc` [v34.1](https://github.com/protocolbuffers/protobuf/releases/tag/v34.1): https://grpc.io/docs/protoc-installation/
+Install `protoc` [v36.2](https://github.com/protocolbuffers/protobuf/releases/tag/v36.2): https://grpc.io/docs/protoc-installation/
 
-We currently require `protoc` v34.1.
+We currently require `protoc` v36.2.
 
 Install `protoc` codegen dependencies:
 
