@@ -99,6 +99,61 @@ func (CatalogTier) EnumDescriptor() ([]byte, []int) {
 	return file_chainguard_platform_registry_v2_repos_proto_rawDescGZIP(), []int{0}
 }
 
+// FailMode decides what the wrapper does when secret resolution fails
+// (see the wrapper's fail-mode setting): fail-closed (the default)
+// refuses to start the app; fail-open logs and starts anyway.
+type CustomOverlay_FailMode int32
+
+const (
+	// Treated as FAIL_MODE_CLOSED.
+	CustomOverlay_FAIL_MODE_UNSPECIFIED CustomOverlay_FailMode = 0
+	// Wrapper refuses to start the app when secret resolution fails.
+	CustomOverlay_FAIL_MODE_CLOSED CustomOverlay_FailMode = 1
+	// Wrapper starts the app and logs the failure.
+	CustomOverlay_FAIL_MODE_OPEN CustomOverlay_FailMode = 2
+)
+
+// Enum value maps for CustomOverlay_FailMode.
+var (
+	CustomOverlay_FailMode_name = map[int32]string{
+		0: "FAIL_MODE_UNSPECIFIED",
+		1: "FAIL_MODE_CLOSED",
+		2: "FAIL_MODE_OPEN",
+	}
+	CustomOverlay_FailMode_value = map[string]int32{
+		"FAIL_MODE_UNSPECIFIED": 0,
+		"FAIL_MODE_CLOSED":      1,
+		"FAIL_MODE_OPEN":        2,
+	}
+)
+
+func (x CustomOverlay_FailMode) Enum() *CustomOverlay_FailMode {
+	p := new(CustomOverlay_FailMode)
+	*p = x
+	return p
+}
+
+func (x CustomOverlay_FailMode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CustomOverlay_FailMode) Descriptor() protoreflect.EnumDescriptor {
+	return file_chainguard_platform_registry_v2_repos_proto_enumTypes[1].Descriptor()
+}
+
+func (CustomOverlay_FailMode) Type() protoreflect.EnumType {
+	return &file_chainguard_platform_registry_v2_repos_proto_enumTypes[1]
+}
+
+func (x CustomOverlay_FailMode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CustomOverlay_FailMode.Descriptor instead.
+func (CustomOverlay_FailMode) EnumDescriptor() ([]byte, []int) {
+	return file_chainguard_platform_registry_v2_repos_proto_rawDescGZIP(), []int{2, 0}
+}
+
 // OnFailure decides what happens when a preflight check fails.
 type CustomOverlay_Preflight_OnFailure int32
 
@@ -136,11 +191,11 @@ func (x CustomOverlay_Preflight_OnFailure) String() string {
 }
 
 func (CustomOverlay_Preflight_OnFailure) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_registry_v2_repos_proto_enumTypes[1].Descriptor()
+	return file_chainguard_platform_registry_v2_repos_proto_enumTypes[2].Descriptor()
 }
 
 func (CustomOverlay_Preflight_OnFailure) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_registry_v2_repos_proto_enumTypes[1]
+	return &file_chainguard_platform_registry_v2_repos_proto_enumTypes[2]
 }
 
 func (x CustomOverlay_Preflight_OnFailure) Number() protoreflect.EnumNumber {
@@ -194,11 +249,11 @@ func (x CustomOverlay_CommandOverride_Mode) String() string {
 }
 
 func (CustomOverlay_CommandOverride_Mode) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_registry_v2_repos_proto_enumTypes[2].Descriptor()
+	return file_chainguard_platform_registry_v2_repos_proto_enumTypes[3].Descriptor()
 }
 
 func (CustomOverlay_CommandOverride_Mode) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_registry_v2_repos_proto_enumTypes[2]
+	return &file_chainguard_platform_registry_v2_repos_proto_enumTypes[3]
 }
 
 func (x CustomOverlay_CommandOverride_Mode) Number() protoreflect.EnumNumber {
@@ -497,16 +552,33 @@ type CustomOverlay struct {
 	Accounts *CustomOverlay_Accounts `protobuf:"bytes,4,opt,name=accounts,proto3" json:"accounts,omitempty"`
 	// Custom certificates to include in the image.
 	Certificates *CustomOverlay_Certificates `protobuf:"bytes,5,opt,name=certificates,proto3" json:"certificates,omitempty"`
+	// NOTE: Guarded Entrypoint is IN DEVELOPMENT and not yet available;
+	// setting this field is rejected for every organization.
+	//
 	// Wraps the image entrypoint with /usr/bin/guarded-entrypoint on rebuild.
 	GuardedEntrypoint bool `protobuf:"varint,6,opt,name=guarded_entrypoint,json=guardedEntrypoint,proto3" json:"guarded_entrypoint,omitempty"`
+	// NOTE: Part of Guarded Entrypoint, which is IN DEVELOPMENT and not yet
+	// available; setting this field is rejected for every organization.
+	//
 	// Readiness checks to run before starting the app. Requires
 	// guarded_entrypoint. Up to 32 entries.
 	Preflight []*CustomOverlay_Preflight `protobuf:"bytes,7,rep,name=preflight,proto3" json:"preflight,omitempty"`
+	// NOTE: Part of Guarded Entrypoint, which is IN DEVELOPMENT and not yet
+	// available; setting this field is rejected for every organization.
+	//
 	// Command override for the guarded_entrypoint wrapper. Requires
 	// guarded_entrypoint.
 	CommandOverride *CustomOverlay_CommandOverride `protobuf:"bytes,8,opt,name=command_override,json=commandOverride,proto3" json:"command_override,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// NOTE: Part of Guarded Entrypoint, which is IN DEVELOPMENT and not yet
+	// available; setting this field is rejected for every organization.
+	//
+	// How the wrapper handles secret-resolution failures. Requires
+	// guarded_entrypoint. Default is FAIL_MODE_CLOSED. Baked into the
+	// image by the syncer as GUARDED_FAIL_MODE=closed|open, emitted only
+	// when FAIL_MODE_OPEN; a closed repo's image is unchanged.
+	FailMode      CustomOverlay_FailMode `protobuf:"varint,9,opt,name=fail_mode,json=failMode,proto3,enum=chainguard.platform.registry.v2.CustomOverlay_FailMode" json:"fail_mode,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CustomOverlay) Reset() {
@@ -593,6 +665,13 @@ func (x *CustomOverlay) GetCommandOverride() *CustomOverlay_CommandOverride {
 		return x.CommandOverride
 	}
 	return nil
+}
+
+func (x *CustomOverlay) GetFailMode() CustomOverlay_FailMode {
+	if x != nil {
+		return x.FailMode
+	}
+	return CustomOverlay_FAIL_MODE_UNSPECIFIED
 }
 
 // GetRepoRequest is the request message for GetRepo.
@@ -1870,7 +1949,7 @@ const file_chainguard_platform_registry_v2_repos_proto_rawDesc = "" +
 	"\x06amazon\x18\x05 \x01(\tB\x04\xe2A\x01\x01R\x06amazon\x12\x1a\n" +
 	"\x05azure\x18\x06 \x01(\tB\x04\xe2A\x01\x01R\x05azure\x12'\n" +
 	"\fapko_overlay\x18\a \x01(\tB\x04\xe2A\x01\x03R\vapkoOverlay\x12'\n" +
-	"\fgrace_period\x18\b \x01(\bB\x04\xe2A\x01\x03R\vgracePeriod\"\xe8\x13\n" +
+	"\fgrace_period\x18\b \x01(\bB\x04\xe2A\x01\x03R\vgracePeriod\"\x95\x15\n" +
 	"\rCustomOverlay\x12^\n" +
 	"\bcontents\x18\x01 \x01(\v2<.chainguard.platform.registry.v2.CustomOverlay.ImageContentsB\x04\xe2A\x01\x01R\bcontents\x12g\n" +
 	"\venvironment\x18\x02 \x03(\v2?.chainguard.platform.registry.v2.CustomOverlay.EnvironmentEntryB\x04\xe2A\x01\x01R\venvironment\x12g\n" +
@@ -1879,7 +1958,8 @@ const file_chainguard_platform_registry_v2_repos_proto_rawDesc = "" +
 	"\fcertificates\x18\x05 \x01(\v2;.chainguard.platform.registry.v2.CustomOverlay.CertificatesB\x04\xe2A\x01\x01R\fcertificates\x123\n" +
 	"\x12guarded_entrypoint\x18\x06 \x01(\bB\x04\xe2A\x01\x01R\x11guardedEntrypoint\x12\\\n" +
 	"\tpreflight\x18\a \x03(\v28.chainguard.platform.registry.v2.CustomOverlay.PreflightB\x04\xe2A\x01\x01R\tpreflight\x12o\n" +
-	"\x10command_override\x18\b \x01(\v2>.chainguard.platform.registry.v2.CustomOverlay.CommandOverrideB\x04\xe2A\x01\x01R\x0fcommandOverride\x1a>\n" +
+	"\x10command_override\x18\b \x01(\v2>.chainguard.platform.registry.v2.CustomOverlay.CommandOverrideB\x04\xe2A\x01\x01R\x0fcommandOverride\x12Z\n" +
+	"\tfail_mode\x18\t \x01(\x0e27.chainguard.platform.registry.v2.CustomOverlay.FailModeB\x04\xe2A\x01\x01R\bfailMode\x1a>\n" +
 	"\x10EnvironmentEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +
@@ -1935,7 +2015,11 @@ const file_chainguard_platform_registry_v2_repos_proto_rawDesc = "" +
 	"\tproviders\x18\x02 \x03(\tB\x04\xe2A\x01\x01R\tproviders\x1aK\n" +
 	"\x0fAdditionalEntry\x12\x18\n" +
 	"\x04name\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x04name\x12\x1e\n" +
-	"\acontent\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\acontent\".\n" +
+	"\acontent\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\acontent\"O\n" +
+	"\bFailMode\x12\x19\n" +
+	"\x15FAIL_MODE_UNSPECIFIED\x10\x00\x12\x14\n" +
+	"\x10FAIL_MODE_CLOSED\x10\x01\x12\x12\n" +
+	"\x0eFAIL_MODE_OPEN\x10\x02\".\n" +
 	"\x0eGetRepoRequest\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\"1\n" +
@@ -2046,89 +2130,91 @@ func file_chainguard_platform_registry_v2_repos_proto_rawDescGZIP() []byte {
 	return file_chainguard_platform_registry_v2_repos_proto_rawDescData
 }
 
-var file_chainguard_platform_registry_v2_repos_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_chainguard_platform_registry_v2_repos_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
 var file_chainguard_platform_registry_v2_repos_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_chainguard_platform_registry_v2_repos_proto_goTypes = []any{
-	(CatalogTier)(0),                        // 0: chainguard.platform.registry.v2.CatalogTier
-	(CustomOverlay_Preflight_OnFailure)(0),  // 1: chainguard.platform.registry.v2.CustomOverlay.Preflight.OnFailure
-	(CustomOverlay_CommandOverride_Mode)(0), // 2: chainguard.platform.registry.v2.CustomOverlay.CommandOverride.Mode
-	(*Repo)(nil),                            // 3: chainguard.platform.registry.v2.Repo
-	(*SyncConfig)(nil),                      // 4: chainguard.platform.registry.v2.SyncConfig
-	(*CustomOverlay)(nil),                   // 5: chainguard.platform.registry.v2.CustomOverlay
-	(*GetRepoRequest)(nil),                  // 6: chainguard.platform.registry.v2.GetRepoRequest
-	(*DeleteRepoRequest)(nil),               // 7: chainguard.platform.registry.v2.DeleteRepoRequest
-	(*CreateRepoRequest)(nil),               // 8: chainguard.platform.registry.v2.CreateRepoRequest
-	(*UpdateRepoRequest)(nil),               // 9: chainguard.platform.registry.v2.UpdateRepoRequest
-	(*ListCatalogImagesRequest)(nil),        // 10: chainguard.platform.registry.v2.ListCatalogImagesRequest
-	(*ListReposRequest)(nil),                // 11: chainguard.platform.registry.v2.ListReposRequest
-	(*ListReposResponse)(nil),               // 12: chainguard.platform.registry.v2.ListReposResponse
-	(*RepoReadme)(nil),                      // 13: chainguard.platform.registry.v2.RepoReadme
-	(*GetRepoReadmeRequest)(nil),            // 14: chainguard.platform.registry.v2.GetRepoReadmeRequest
-	(*UpdateRepoReadmeRequest)(nil),         // 15: chainguard.platform.registry.v2.UpdateRepoReadmeRequest
-	nil,                                     // 16: chainguard.platform.registry.v2.CustomOverlay.EnvironmentEntry
-	nil,                                     // 17: chainguard.platform.registry.v2.CustomOverlay.AnnotationsEntry
-	(*CustomOverlay_Preflight)(nil),         // 18: chainguard.platform.registry.v2.CustomOverlay.Preflight
-	(*CustomOverlay_CommandOverride)(nil),   // 19: chainguard.platform.registry.v2.CustomOverlay.CommandOverride
-	(*CustomOverlay_ImageContents)(nil),     // 20: chainguard.platform.registry.v2.CustomOverlay.ImageContents
-	(*CustomOverlay_Accounts)(nil),          // 21: chainguard.platform.registry.v2.CustomOverlay.Accounts
-	(*CustomOverlay_Certificates)(nil),      // 22: chainguard.platform.registry.v2.CustomOverlay.Certificates
-	(*CustomOverlay_ImageContents_RuntimeKeyringEntry)(nil), // 23: chainguard.platform.registry.v2.CustomOverlay.ImageContents.RuntimeKeyringEntry
-	(*CustomOverlay_Accounts_User)(nil),                     // 24: chainguard.platform.registry.v2.CustomOverlay.Accounts.User
-	(*CustomOverlay_Accounts_Group)(nil),                    // 25: chainguard.platform.registry.v2.CustomOverlay.Accounts.Group
-	(*CustomOverlay_Certificates_AdditionalEntry)(nil),      // 26: chainguard.platform.registry.v2.CustomOverlay.Certificates.AdditionalEntry
-	(*timestamppb.Timestamp)(nil),                           // 27: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),                           // 28: google.protobuf.FieldMask
-	(*v1.UIDPFilter)(nil),                                   // 29: chainguard.platform.common.UIDPFilter
-	(*emptypb.Empty)(nil),                                   // 30: google.protobuf.Empty
+	(CatalogTier)(0),                                        // 0: chainguard.platform.registry.v2.CatalogTier
+	(CustomOverlay_FailMode)(0),                             // 1: chainguard.platform.registry.v2.CustomOverlay.FailMode
+	(CustomOverlay_Preflight_OnFailure)(0),                  // 2: chainguard.platform.registry.v2.CustomOverlay.Preflight.OnFailure
+	(CustomOverlay_CommandOverride_Mode)(0),                 // 3: chainguard.platform.registry.v2.CustomOverlay.CommandOverride.Mode
+	(*Repo)(nil),                                            // 4: chainguard.platform.registry.v2.Repo
+	(*SyncConfig)(nil),                                      // 5: chainguard.platform.registry.v2.SyncConfig
+	(*CustomOverlay)(nil),                                   // 6: chainguard.platform.registry.v2.CustomOverlay
+	(*GetRepoRequest)(nil),                                  // 7: chainguard.platform.registry.v2.GetRepoRequest
+	(*DeleteRepoRequest)(nil),                               // 8: chainguard.platform.registry.v2.DeleteRepoRequest
+	(*CreateRepoRequest)(nil),                               // 9: chainguard.platform.registry.v2.CreateRepoRequest
+	(*UpdateRepoRequest)(nil),                               // 10: chainguard.platform.registry.v2.UpdateRepoRequest
+	(*ListCatalogImagesRequest)(nil),                        // 11: chainguard.platform.registry.v2.ListCatalogImagesRequest
+	(*ListReposRequest)(nil),                                // 12: chainguard.platform.registry.v2.ListReposRequest
+	(*ListReposResponse)(nil),                               // 13: chainguard.platform.registry.v2.ListReposResponse
+	(*RepoReadme)(nil),                                      // 14: chainguard.platform.registry.v2.RepoReadme
+	(*GetRepoReadmeRequest)(nil),                            // 15: chainguard.platform.registry.v2.GetRepoReadmeRequest
+	(*UpdateRepoReadmeRequest)(nil),                         // 16: chainguard.platform.registry.v2.UpdateRepoReadmeRequest
+	nil,                                                     // 17: chainguard.platform.registry.v2.CustomOverlay.EnvironmentEntry
+	nil,                                                     // 18: chainguard.platform.registry.v2.CustomOverlay.AnnotationsEntry
+	(*CustomOverlay_Preflight)(nil),                         // 19: chainguard.platform.registry.v2.CustomOverlay.Preflight
+	(*CustomOverlay_CommandOverride)(nil),                   // 20: chainguard.platform.registry.v2.CustomOverlay.CommandOverride
+	(*CustomOverlay_ImageContents)(nil),                     // 21: chainguard.platform.registry.v2.CustomOverlay.ImageContents
+	(*CustomOverlay_Accounts)(nil),                          // 22: chainguard.platform.registry.v2.CustomOverlay.Accounts
+	(*CustomOverlay_Certificates)(nil),                      // 23: chainguard.platform.registry.v2.CustomOverlay.Certificates
+	(*CustomOverlay_ImageContents_RuntimeKeyringEntry)(nil), // 24: chainguard.platform.registry.v2.CustomOverlay.ImageContents.RuntimeKeyringEntry
+	(*CustomOverlay_Accounts_User)(nil),                     // 25: chainguard.platform.registry.v2.CustomOverlay.Accounts.User
+	(*CustomOverlay_Accounts_Group)(nil),                    // 26: chainguard.platform.registry.v2.CustomOverlay.Accounts.Group
+	(*CustomOverlay_Certificates_AdditionalEntry)(nil),      // 27: chainguard.platform.registry.v2.CustomOverlay.Certificates.AdditionalEntry
+	(*timestamppb.Timestamp)(nil),                           // 28: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),                           // 29: google.protobuf.FieldMask
+	(*v1.UIDPFilter)(nil),                                   // 30: chainguard.platform.common.UIDPFilter
+	(*emptypb.Empty)(nil),                                   // 31: google.protobuf.Empty
 }
 var file_chainguard_platform_registry_v2_repos_proto_depIdxs = []int32{
 	0,  // 0: chainguard.platform.registry.v2.Repo.catalog_tier:type_name -> chainguard.platform.registry.v2.CatalogTier
-	4,  // 1: chainguard.platform.registry.v2.Repo.sync_config:type_name -> chainguard.platform.registry.v2.SyncConfig
-	5,  // 2: chainguard.platform.registry.v2.Repo.custom_overlay:type_name -> chainguard.platform.registry.v2.CustomOverlay
-	27, // 3: chainguard.platform.registry.v2.Repo.create_time:type_name -> google.protobuf.Timestamp
-	27, // 4: chainguard.platform.registry.v2.Repo.update_time:type_name -> google.protobuf.Timestamp
-	27, // 5: chainguard.platform.registry.v2.SyncConfig.expiration_time:type_name -> google.protobuf.Timestamp
-	20, // 6: chainguard.platform.registry.v2.CustomOverlay.contents:type_name -> chainguard.platform.registry.v2.CustomOverlay.ImageContents
-	16, // 7: chainguard.platform.registry.v2.CustomOverlay.environment:type_name -> chainguard.platform.registry.v2.CustomOverlay.EnvironmentEntry
-	17, // 8: chainguard.platform.registry.v2.CustomOverlay.annotations:type_name -> chainguard.platform.registry.v2.CustomOverlay.AnnotationsEntry
-	21, // 9: chainguard.platform.registry.v2.CustomOverlay.accounts:type_name -> chainguard.platform.registry.v2.CustomOverlay.Accounts
-	22, // 10: chainguard.platform.registry.v2.CustomOverlay.certificates:type_name -> chainguard.platform.registry.v2.CustomOverlay.Certificates
-	18, // 11: chainguard.platform.registry.v2.CustomOverlay.preflight:type_name -> chainguard.platform.registry.v2.CustomOverlay.Preflight
-	19, // 12: chainguard.platform.registry.v2.CustomOverlay.command_override:type_name -> chainguard.platform.registry.v2.CustomOverlay.CommandOverride
-	3,  // 13: chainguard.platform.registry.v2.CreateRepoRequest.repo:type_name -> chainguard.platform.registry.v2.Repo
-	3,  // 14: chainguard.platform.registry.v2.UpdateRepoRequest.repo:type_name -> chainguard.platform.registry.v2.Repo
-	28, // 15: chainguard.platform.registry.v2.UpdateRepoRequest.update_mask:type_name -> google.protobuf.FieldMask
-	29, // 16: chainguard.platform.registry.v2.ListReposRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	3,  // 17: chainguard.platform.registry.v2.ListReposResponse.repos:type_name -> chainguard.platform.registry.v2.Repo
-	13, // 18: chainguard.platform.registry.v2.UpdateRepoReadmeRequest.repo_readme:type_name -> chainguard.platform.registry.v2.RepoReadme
-	28, // 19: chainguard.platform.registry.v2.UpdateRepoReadmeRequest.update_mask:type_name -> google.protobuf.FieldMask
-	1,  // 20: chainguard.platform.registry.v2.CustomOverlay.Preflight.on_failure:type_name -> chainguard.platform.registry.v2.CustomOverlay.Preflight.OnFailure
-	2,  // 21: chainguard.platform.registry.v2.CustomOverlay.CommandOverride.mode:type_name -> chainguard.platform.registry.v2.CustomOverlay.CommandOverride.Mode
-	23, // 22: chainguard.platform.registry.v2.CustomOverlay.ImageContents.runtime_keyring:type_name -> chainguard.platform.registry.v2.CustomOverlay.ImageContents.RuntimeKeyringEntry
-	24, // 23: chainguard.platform.registry.v2.CustomOverlay.Accounts.users:type_name -> chainguard.platform.registry.v2.CustomOverlay.Accounts.User
-	25, // 24: chainguard.platform.registry.v2.CustomOverlay.Accounts.groups:type_name -> chainguard.platform.registry.v2.CustomOverlay.Accounts.Group
-	26, // 25: chainguard.platform.registry.v2.CustomOverlay.Certificates.additional:type_name -> chainguard.platform.registry.v2.CustomOverlay.Certificates.AdditionalEntry
-	6,  // 26: chainguard.platform.registry.v2.ReposService.GetRepo:input_type -> chainguard.platform.registry.v2.GetRepoRequest
-	8,  // 27: chainguard.platform.registry.v2.ReposService.CreateRepo:input_type -> chainguard.platform.registry.v2.CreateRepoRequest
-	9,  // 28: chainguard.platform.registry.v2.ReposService.UpdateRepo:input_type -> chainguard.platform.registry.v2.UpdateRepoRequest
-	7,  // 29: chainguard.platform.registry.v2.ReposService.DeleteRepo:input_type -> chainguard.platform.registry.v2.DeleteRepoRequest
-	11, // 30: chainguard.platform.registry.v2.ReposService.ListRepos:input_type -> chainguard.platform.registry.v2.ListReposRequest
-	10, // 31: chainguard.platform.registry.v2.ReposService.ListCatalogImages:input_type -> chainguard.platform.registry.v2.ListCatalogImagesRequest
-	14, // 32: chainguard.platform.registry.v2.ReposService.GetRepoReadme:input_type -> chainguard.platform.registry.v2.GetRepoReadmeRequest
-	15, // 33: chainguard.platform.registry.v2.ReposService.UpdateRepoReadme:input_type -> chainguard.platform.registry.v2.UpdateRepoReadmeRequest
-	3,  // 34: chainguard.platform.registry.v2.ReposService.GetRepo:output_type -> chainguard.platform.registry.v2.Repo
-	3,  // 35: chainguard.platform.registry.v2.ReposService.CreateRepo:output_type -> chainguard.platform.registry.v2.Repo
-	3,  // 36: chainguard.platform.registry.v2.ReposService.UpdateRepo:output_type -> chainguard.platform.registry.v2.Repo
-	30, // 37: chainguard.platform.registry.v2.ReposService.DeleteRepo:output_type -> google.protobuf.Empty
-	12, // 38: chainguard.platform.registry.v2.ReposService.ListRepos:output_type -> chainguard.platform.registry.v2.ListReposResponse
-	12, // 39: chainguard.platform.registry.v2.ReposService.ListCatalogImages:output_type -> chainguard.platform.registry.v2.ListReposResponse
-	13, // 40: chainguard.platform.registry.v2.ReposService.GetRepoReadme:output_type -> chainguard.platform.registry.v2.RepoReadme
-	13, // 41: chainguard.platform.registry.v2.ReposService.UpdateRepoReadme:output_type -> chainguard.platform.registry.v2.RepoReadme
-	34, // [34:42] is the sub-list for method output_type
-	26, // [26:34] is the sub-list for method input_type
-	26, // [26:26] is the sub-list for extension type_name
-	26, // [26:26] is the sub-list for extension extendee
-	0,  // [0:26] is the sub-list for field type_name
+	5,  // 1: chainguard.platform.registry.v2.Repo.sync_config:type_name -> chainguard.platform.registry.v2.SyncConfig
+	6,  // 2: chainguard.platform.registry.v2.Repo.custom_overlay:type_name -> chainguard.platform.registry.v2.CustomOverlay
+	28, // 3: chainguard.platform.registry.v2.Repo.create_time:type_name -> google.protobuf.Timestamp
+	28, // 4: chainguard.platform.registry.v2.Repo.update_time:type_name -> google.protobuf.Timestamp
+	28, // 5: chainguard.platform.registry.v2.SyncConfig.expiration_time:type_name -> google.protobuf.Timestamp
+	21, // 6: chainguard.platform.registry.v2.CustomOverlay.contents:type_name -> chainguard.platform.registry.v2.CustomOverlay.ImageContents
+	17, // 7: chainguard.platform.registry.v2.CustomOverlay.environment:type_name -> chainguard.platform.registry.v2.CustomOverlay.EnvironmentEntry
+	18, // 8: chainguard.platform.registry.v2.CustomOverlay.annotations:type_name -> chainguard.platform.registry.v2.CustomOverlay.AnnotationsEntry
+	22, // 9: chainguard.platform.registry.v2.CustomOverlay.accounts:type_name -> chainguard.platform.registry.v2.CustomOverlay.Accounts
+	23, // 10: chainguard.platform.registry.v2.CustomOverlay.certificates:type_name -> chainguard.platform.registry.v2.CustomOverlay.Certificates
+	19, // 11: chainguard.platform.registry.v2.CustomOverlay.preflight:type_name -> chainguard.platform.registry.v2.CustomOverlay.Preflight
+	20, // 12: chainguard.platform.registry.v2.CustomOverlay.command_override:type_name -> chainguard.platform.registry.v2.CustomOverlay.CommandOverride
+	1,  // 13: chainguard.platform.registry.v2.CustomOverlay.fail_mode:type_name -> chainguard.platform.registry.v2.CustomOverlay.FailMode
+	4,  // 14: chainguard.platform.registry.v2.CreateRepoRequest.repo:type_name -> chainguard.platform.registry.v2.Repo
+	4,  // 15: chainguard.platform.registry.v2.UpdateRepoRequest.repo:type_name -> chainguard.platform.registry.v2.Repo
+	29, // 16: chainguard.platform.registry.v2.UpdateRepoRequest.update_mask:type_name -> google.protobuf.FieldMask
+	30, // 17: chainguard.platform.registry.v2.ListReposRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	4,  // 18: chainguard.platform.registry.v2.ListReposResponse.repos:type_name -> chainguard.platform.registry.v2.Repo
+	14, // 19: chainguard.platform.registry.v2.UpdateRepoReadmeRequest.repo_readme:type_name -> chainguard.platform.registry.v2.RepoReadme
+	29, // 20: chainguard.platform.registry.v2.UpdateRepoReadmeRequest.update_mask:type_name -> google.protobuf.FieldMask
+	2,  // 21: chainguard.platform.registry.v2.CustomOverlay.Preflight.on_failure:type_name -> chainguard.platform.registry.v2.CustomOverlay.Preflight.OnFailure
+	3,  // 22: chainguard.platform.registry.v2.CustomOverlay.CommandOverride.mode:type_name -> chainguard.platform.registry.v2.CustomOverlay.CommandOverride.Mode
+	24, // 23: chainguard.platform.registry.v2.CustomOverlay.ImageContents.runtime_keyring:type_name -> chainguard.platform.registry.v2.CustomOverlay.ImageContents.RuntimeKeyringEntry
+	25, // 24: chainguard.platform.registry.v2.CustomOverlay.Accounts.users:type_name -> chainguard.platform.registry.v2.CustomOverlay.Accounts.User
+	26, // 25: chainguard.platform.registry.v2.CustomOverlay.Accounts.groups:type_name -> chainguard.platform.registry.v2.CustomOverlay.Accounts.Group
+	27, // 26: chainguard.platform.registry.v2.CustomOverlay.Certificates.additional:type_name -> chainguard.platform.registry.v2.CustomOverlay.Certificates.AdditionalEntry
+	7,  // 27: chainguard.platform.registry.v2.ReposService.GetRepo:input_type -> chainguard.platform.registry.v2.GetRepoRequest
+	9,  // 28: chainguard.platform.registry.v2.ReposService.CreateRepo:input_type -> chainguard.platform.registry.v2.CreateRepoRequest
+	10, // 29: chainguard.platform.registry.v2.ReposService.UpdateRepo:input_type -> chainguard.platform.registry.v2.UpdateRepoRequest
+	8,  // 30: chainguard.platform.registry.v2.ReposService.DeleteRepo:input_type -> chainguard.platform.registry.v2.DeleteRepoRequest
+	12, // 31: chainguard.platform.registry.v2.ReposService.ListRepos:input_type -> chainguard.platform.registry.v2.ListReposRequest
+	11, // 32: chainguard.platform.registry.v2.ReposService.ListCatalogImages:input_type -> chainguard.platform.registry.v2.ListCatalogImagesRequest
+	15, // 33: chainguard.platform.registry.v2.ReposService.GetRepoReadme:input_type -> chainguard.platform.registry.v2.GetRepoReadmeRequest
+	16, // 34: chainguard.platform.registry.v2.ReposService.UpdateRepoReadme:input_type -> chainguard.platform.registry.v2.UpdateRepoReadmeRequest
+	4,  // 35: chainguard.platform.registry.v2.ReposService.GetRepo:output_type -> chainguard.platform.registry.v2.Repo
+	4,  // 36: chainguard.platform.registry.v2.ReposService.CreateRepo:output_type -> chainguard.platform.registry.v2.Repo
+	4,  // 37: chainguard.platform.registry.v2.ReposService.UpdateRepo:output_type -> chainguard.platform.registry.v2.Repo
+	31, // 38: chainguard.platform.registry.v2.ReposService.DeleteRepo:output_type -> google.protobuf.Empty
+	13, // 39: chainguard.platform.registry.v2.ReposService.ListRepos:output_type -> chainguard.platform.registry.v2.ListReposResponse
+	13, // 40: chainguard.platform.registry.v2.ReposService.ListCatalogImages:output_type -> chainguard.platform.registry.v2.ListReposResponse
+	14, // 41: chainguard.platform.registry.v2.ReposService.GetRepoReadme:output_type -> chainguard.platform.registry.v2.RepoReadme
+	14, // 42: chainguard.platform.registry.v2.ReposService.UpdateRepoReadme:output_type -> chainguard.platform.registry.v2.RepoReadme
+	35, // [35:43] is the sub-list for method output_type
+	27, // [27:35] is the sub-list for method input_type
+	27, // [27:27] is the sub-list for extension type_name
+	27, // [27:27] is the sub-list for extension extendee
+	0,  // [0:27] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_registry_v2_repos_proto_init() }
@@ -2144,7 +2230,7 @@ func file_chainguard_platform_registry_v2_repos_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_registry_v2_repos_proto_rawDesc), len(file_chainguard_platform_registry_v2_repos_proto_rawDesc)),
-			NumEnums:      3,
+			NumEnums:      4,
 			NumMessages:   24,
 			NumExtensions: 0,
 			NumServices:   1,

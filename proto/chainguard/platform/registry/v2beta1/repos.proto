@@ -312,9 +312,15 @@ message CustomOverlay {
   // Custom certificates to include in the image.
   Certificates certificates = 5 [(google.api.field_behavior) = OPTIONAL];
 
+  // NOTE: Guarded Entrypoint is IN DEVELOPMENT and not yet available;
+  // setting this field is rejected for every organization.
+  //
   // Wraps the image entrypoint with /usr/bin/guarded-entrypoint on rebuild.
   bool guarded_entrypoint = 6 [(google.api.field_behavior) = OPTIONAL];
 
+  // NOTE: Part of Guarded Entrypoint, which is IN DEVELOPMENT and not yet
+  // available; setting this field is rejected for every organization.
+  //
   // Readiness checks to run before starting the app. Requires
   // guarded_entrypoint. Up to 32 entries.
   repeated Preflight preflight = 7 [(google.api.field_behavior) = OPTIONAL];
@@ -352,6 +358,9 @@ message CustomOverlay {
     OnFailure on_failure = 5 [(google.api.field_behavior) = OPTIONAL];
   }
 
+  // NOTE: Part of Guarded Entrypoint, which is IN DEVELOPMENT and not yet
+  // available; setting this field is rejected for every organization.
+  //
   // Command override for the guarded_entrypoint wrapper. Requires
   // guarded_entrypoint.
   CommandOverride command_override = 8 [(google.api.field_behavior) = OPTIONAL];
@@ -388,6 +397,27 @@ message CustomOverlay {
     // is MODE_PREPEND or MODE_OVERRIDE.
     Mode mode = 2 [(google.api.field_behavior) = OPTIONAL];
   }
+
+  // FailMode decides what the wrapper does when secret resolution fails
+  // (see the wrapper's fail-mode setting): fail-closed (the default)
+  // refuses to start the app; fail-open logs and starts anyway.
+  enum FailMode {
+    // Treated as FAIL_MODE_CLOSED.
+    FAIL_MODE_UNSPECIFIED = 0;
+    // Wrapper refuses to start the app when secret resolution fails.
+    FAIL_MODE_CLOSED = 1;
+    // Wrapper starts the app and logs the failure.
+    FAIL_MODE_OPEN = 2;
+  }
+
+  // NOTE: Part of Guarded Entrypoint, which is IN DEVELOPMENT and not yet
+  // available; setting this field is rejected for every organization.
+  //
+  // How the wrapper handles secret-resolution failures. Requires
+  // guarded_entrypoint. Default is FAIL_MODE_CLOSED. Baked into the
+  // image by the syncer as GUARDED_FAIL_MODE=closed|open, emitted only
+  // when FAIL_MODE_OPEN; a closed repo's image is unchanged.
+  FailMode fail_mode = 9 [(google.api.field_behavior) = OPTIONAL];
 
   // ImageContents specifies additional image content.
   message ImageContents {
