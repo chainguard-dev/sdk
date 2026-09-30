@@ -777,7 +777,11 @@ type CustomOverlay struct {
 	// available; setting this field is rejected for every organization.
 	//
 	// Readiness checks to run before starting the app. Requires
-	// guarded_entrypoint. Up to 32 entries.
+	// guarded_entrypoint. Up to 32 entries. The syncer bakes each
+	// entry into the image as one environment variable using a flat
+	// encoding, e.g.
+	// GUARDED_PREFLIGHT_0=tcp=redis:6379,timeout=60s,interval=1s,on_failure=fail
+	// (n starts at 0; values may not contain "," or "=").
 	Preflight []*CustomOverlay_Preflight `protobuf:"bytes,6,rep,name=preflight,proto3" json:"preflight,omitempty"`
 	// NOTE: Part of Guarded Entrypoint, which is IN DEVELOPMENT and not yet
 	// available; setting this field is rejected for every organization.
@@ -6002,8 +6006,9 @@ func (x *CustomOverlay_Preflight) GetOnFailure() CustomOverlay_Preflight_OnFailu
 }
 
 // CommandOverride decides what the wrapper execs after preparing
-// the environment: in MODE_DEFAULT the wrapper execs its own argv
-// (the image's original ENTRYPOINT followed by CMD) unchanged; in
+// the environment: in MODE_DEFAULT the wrapper execs command only
+// when the container passes no arguments, and its own argv (the
+// image's original ENTRYPOINT followed by CMD) otherwise; in
 // MODE_PREPEND it execs command followed by that argv; in
 // MODE_OVERRIDE it execs command alone. The image's ENTRYPOINT
 // (wrapper-prefixed) and CMD are unchanged in every mode. The
