@@ -624,6 +624,15 @@ message CustomOverlay {
   message CommandOverride {
     // Argument list that combines with the container's runtime
     // arguments per mode. When empty, no override applies.
+    //
+    // Each entry expands ${VAR} from the container's resolved
+    // environment, after secret references are resolved; the runtime
+    // arguments are never expanded. $$ is a literal $, and any other $
+    // is kept as is. A ${VAR} whose variable is not set stops the
+    // container (exit 121) instead of expanding to an empty string. An
+    // expanded value is visible in the process's command line, so a
+    // secret passed this way is readable by anything that can inspect
+    // the process.
     repeated string command = 1;
     // Mode decides how command combines with the container's runtime
     // arguments.

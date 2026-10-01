@@ -6020,6 +6020,15 @@ type CustomOverlay_CommandOverride struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Argument list that combines with the container's runtime
 	// arguments per mode. When empty, no override applies.
+	//
+	// Each entry expands ${VAR} from the container's resolved
+	// environment, after secret references are resolved; the runtime
+	// arguments are never expanded. $$ is a literal $, and any other $
+	// is kept as is. A ${VAR} whose variable is not set stops the
+	// container (exit 121) instead of expanding to an empty string. An
+	// expanded value is visible in the process's command line, so a
+	// secret passed this way is readable by anything that can inspect
+	// the process.
 	Command []string `protobuf:"bytes,1,rep,name=command,proto3" json:"command,omitempty"`
 	// How command combines with the container's runtime arguments.
 	// Default is MODE_DEFAULT. Non-empty command is required when mode
