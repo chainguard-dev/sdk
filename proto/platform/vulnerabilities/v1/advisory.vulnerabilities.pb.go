@@ -1407,6 +1407,262 @@ func (x *AdvisoryEventList) GetItems() []*AdvisoryEvent {
 	return nil
 }
 
+// AdvisoryEventsFilter selects events for ListEvents. The advisory_* fields,
+// aliases, origin and artifact_names match the event's advisory. Time bounds
+// are exclusive.
+type AdvisoryEventsFilter struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// uidp filters by the advisory's position in the group hierarchy.
+	Uidp *v1.UIDPFilter `protobuf:"bytes,1,opt,name=uidp,proto3" json:"uidp,omitempty"`
+	// advisory_ids filters by CGA ID (e.g., CGA-xvgw-cvr7-9g2q).
+	AdvisoryIds []string `protobuf:"bytes,2,rep,name=advisory_ids,json=advisoryIds,proto3" json:"advisory_ids,omitempty"`
+	// aliases filters by vulnerability alias (CVE, GHSA, etc.).
+	Aliases []string `protobuf:"bytes,3,rep,name=aliases,proto3" json:"aliases,omitempty"`
+	// origin filters by origin package, including subpackages. It cannot be
+	// combined with artifact_names.
+	Origin *string `protobuf:"bytes,4,opt,name=origin,proto3,oneof" json:"origin,omitempty"`
+	// artifact_names filters by package name.
+	ArtifactNames []string `protobuf:"bytes,5,rep,name=artifact_names,json=artifactNames,proto3" json:"artifact_names,omitempty"`
+	// advisory_created_since_time filters to advisories created after this time.
+	AdvisoryCreatedSinceTime *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=advisory_created_since_time,json=advisoryCreatedSinceTime,proto3" json:"advisory_created_since_time,omitempty"`
+	// advisory_created_before_time filters to advisories created before this
+	// time.
+	AdvisoryCreatedBeforeTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=advisory_created_before_time,json=advisoryCreatedBeforeTime,proto3" json:"advisory_created_before_time,omitempty"`
+	// authors filters by event author email.
+	Authors []string `protobuf:"bytes,8,rep,name=authors,proto3" json:"authors,omitempty"`
+	// created_since_time filters to events created after this time.
+	CreatedSinceTime *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_since_time,json=createdSinceTime,proto3" json:"created_since_time,omitempty"`
+	// created_before_time filters to events created before this time.
+	CreatedBeforeTime *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=created_before_time,json=createdBeforeTime,proto3" json:"created_before_time,omitempty"`
+	// page_size is the maximum number of events to return.
+	PageSize int64 `protobuf:"varint,11,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// page_token is the next_page_token from a previous response.
+	PageToken     string `protobuf:"bytes,12,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdvisoryEventsFilter) Reset() {
+	*x = AdvisoryEventsFilter{}
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdvisoryEventsFilter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdvisoryEventsFilter) ProtoMessage() {}
+
+func (x *AdvisoryEventsFilter) ProtoReflect() protoreflect.Message {
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdvisoryEventsFilter.ProtoReflect.Descriptor instead.
+func (*AdvisoryEventsFilter) Descriptor() ([]byte, []int) {
+	return file_advisory_vulnerabilities_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *AdvisoryEventsFilter) GetUidp() *v1.UIDPFilter {
+	if x != nil {
+		return x.Uidp
+	}
+	return nil
+}
+
+func (x *AdvisoryEventsFilter) GetAdvisoryIds() []string {
+	if x != nil {
+		return x.AdvisoryIds
+	}
+	return nil
+}
+
+func (x *AdvisoryEventsFilter) GetAliases() []string {
+	if x != nil {
+		return x.Aliases
+	}
+	return nil
+}
+
+func (x *AdvisoryEventsFilter) GetOrigin() string {
+	if x != nil && x.Origin != nil {
+		return *x.Origin
+	}
+	return ""
+}
+
+func (x *AdvisoryEventsFilter) GetArtifactNames() []string {
+	if x != nil {
+		return x.ArtifactNames
+	}
+	return nil
+}
+
+func (x *AdvisoryEventsFilter) GetAdvisoryCreatedSinceTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.AdvisoryCreatedSinceTime
+	}
+	return nil
+}
+
+func (x *AdvisoryEventsFilter) GetAdvisoryCreatedBeforeTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.AdvisoryCreatedBeforeTime
+	}
+	return nil
+}
+
+func (x *AdvisoryEventsFilter) GetAuthors() []string {
+	if x != nil {
+		return x.Authors
+	}
+	return nil
+}
+
+func (x *AdvisoryEventsFilter) GetCreatedSinceTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedSinceTime
+	}
+	return nil
+}
+
+func (x *AdvisoryEventsFilter) GetCreatedBeforeTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedBeforeTime
+	}
+	return nil
+}
+
+func (x *AdvisoryEventsFilter) GetPageSize() int64 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *AdvisoryEventsFilter) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+type AdvisoryEventsList struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Items []*AdvisoryEventMatch  `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	// next_page_token is empty on the last page.
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdvisoryEventsList) Reset() {
+	*x = AdvisoryEventsList{}
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdvisoryEventsList) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdvisoryEventsList) ProtoMessage() {}
+
+func (x *AdvisoryEventsList) ProtoReflect() protoreflect.Message {
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdvisoryEventsList.ProtoReflect.Descriptor instead.
+func (*AdvisoryEventsList) Descriptor() ([]byte, []int) {
+	return file_advisory_vulnerabilities_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *AdvisoryEventsList) GetItems() []*AdvisoryEventMatch {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+func (x *AdvisoryEventsList) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
+}
+
+type AdvisoryEventMatch struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Event *AdvisoryEvent         `protobuf:"bytes,1,opt,name=event,proto3" json:"event,omitempty"`
+	// cga_id is the CGA ID of the event's advisory, whose UIDP is the parent of
+	// the event's UIDP.
+	CgaId         string `protobuf:"bytes,2,opt,name=cga_id,json=cgaId,proto3" json:"cga_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdvisoryEventMatch) Reset() {
+	*x = AdvisoryEventMatch{}
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdvisoryEventMatch) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdvisoryEventMatch) ProtoMessage() {}
+
+func (x *AdvisoryEventMatch) ProtoReflect() protoreflect.Message {
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdvisoryEventMatch.ProtoReflect.Descriptor instead.
+func (*AdvisoryEventMatch) Descriptor() ([]byte, []int) {
+	return file_advisory_vulnerabilities_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *AdvisoryEventMatch) GetEvent() *AdvisoryEvent {
+	if x != nil {
+		return x.Event
+	}
+	return nil
+}
+
+func (x *AdvisoryEventMatch) GetCgaId() string {
+	if x != nil {
+		return x.CgaId
+	}
+	return ""
+}
+
 type AdvisoryEvent_Detection struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// NOTE: detection events dont have notes
@@ -1423,7 +1679,7 @@ type AdvisoryEvent_Detection struct {
 
 func (x *AdvisoryEvent_Detection) Reset() {
 	*x = AdvisoryEvent_Detection{}
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[10]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1435,7 +1691,7 @@ func (x *AdvisoryEvent_Detection) String() string {
 func (*AdvisoryEvent_Detection) ProtoMessage() {}
 
 func (x *AdvisoryEvent_Detection) ProtoReflect() protoreflect.Message {
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[10]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1526,7 +1782,7 @@ type AdvisoryEvent_Fixed struct {
 
 func (x *AdvisoryEvent_Fixed) Reset() {
 	*x = AdvisoryEvent_Fixed{}
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[11]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1538,7 +1794,7 @@ func (x *AdvisoryEvent_Fixed) String() string {
 func (*AdvisoryEvent_Fixed) ProtoMessage() {}
 
 func (x *AdvisoryEvent_Fixed) ProtoReflect() protoreflect.Message {
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[11]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1598,7 +1854,7 @@ type AdvisoryEvent_TruePositiveDetermination struct {
 
 func (x *AdvisoryEvent_TruePositiveDetermination) Reset() {
 	*x = AdvisoryEvent_TruePositiveDetermination{}
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[12]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1610,7 +1866,7 @@ func (x *AdvisoryEvent_TruePositiveDetermination) String() string {
 func (*AdvisoryEvent_TruePositiveDetermination) ProtoMessage() {}
 
 func (x *AdvisoryEvent_TruePositiveDetermination) ProtoReflect() protoreflect.Message {
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[12]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1645,7 +1901,7 @@ type AdvisoryEvent_FalsePositiveDetermination struct {
 
 func (x *AdvisoryEvent_FalsePositiveDetermination) Reset() {
 	*x = AdvisoryEvent_FalsePositiveDetermination{}
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[13]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1657,7 +1913,7 @@ func (x *AdvisoryEvent_FalsePositiveDetermination) String() string {
 func (*AdvisoryEvent_FalsePositiveDetermination) ProtoMessage() {}
 
 func (x *AdvisoryEvent_FalsePositiveDetermination) ProtoReflect() protoreflect.Message {
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[13]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1696,7 +1952,7 @@ type AdvisoryEvent_AnalysisNotPlanned struct {
 
 func (x *AdvisoryEvent_AnalysisNotPlanned) Reset() {
 	*x = AdvisoryEvent_AnalysisNotPlanned{}
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[14]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1708,7 +1964,7 @@ func (x *AdvisoryEvent_AnalysisNotPlanned) String() string {
 func (*AdvisoryEvent_AnalysisNotPlanned) ProtoMessage() {}
 
 func (x *AdvisoryEvent_AnalysisNotPlanned) ProtoReflect() protoreflect.Message {
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[14]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1740,7 +1996,7 @@ type AdvisoryEvent_FixNotPlanned struct {
 
 func (x *AdvisoryEvent_FixNotPlanned) Reset() {
 	*x = AdvisoryEvent_FixNotPlanned{}
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[15]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1752,7 +2008,7 @@ func (x *AdvisoryEvent_FixNotPlanned) String() string {
 func (*AdvisoryEvent_FixNotPlanned) ProtoMessage() {}
 
 func (x *AdvisoryEvent_FixNotPlanned) ProtoReflect() protoreflect.Message {
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[15]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1784,7 +2040,7 @@ type AdvisoryEvent_PendingUpstreamFix struct {
 
 func (x *AdvisoryEvent_PendingUpstreamFix) Reset() {
 	*x = AdvisoryEvent_PendingUpstreamFix{}
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[16]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1796,7 +2052,7 @@ func (x *AdvisoryEvent_PendingUpstreamFix) String() string {
 func (*AdvisoryEvent_PendingUpstreamFix) ProtoMessage() {}
 
 func (x *AdvisoryEvent_PendingUpstreamFix) ProtoReflect() protoreflect.Message {
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[16]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1829,7 +2085,7 @@ type AdvisoryEvent_Patched struct {
 
 func (x *AdvisoryEvent_Patched) Reset() {
 	*x = AdvisoryEvent_Patched{}
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[17]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1841,7 +2097,7 @@ func (x *AdvisoryEvent_Patched) String() string {
 func (*AdvisoryEvent_Patched) ProtoMessage() {}
 
 func (x *AdvisoryEvent_Patched) ProtoReflect() protoreflect.Message {
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[17]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1882,7 +2138,7 @@ type AdvisoryEvent_ComponentLocationChanged struct {
 
 func (x *AdvisoryEvent_ComponentLocationChanged) Reset() {
 	*x = AdvisoryEvent_ComponentLocationChanged{}
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[18]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1894,7 +2150,7 @@ func (x *AdvisoryEvent_ComponentLocationChanged) String() string {
 func (*AdvisoryEvent_ComponentLocationChanged) ProtoMessage() {}
 
 func (x *AdvisoryEvent_ComponentLocationChanged) ProtoReflect() protoreflect.Message {
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[18]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1941,7 +2197,7 @@ type AdvisoryEvent_Detection_NVDAPI struct {
 
 func (x *AdvisoryEvent_Detection_NVDAPI) Reset() {
 	*x = AdvisoryEvent_Detection_NVDAPI{}
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[19]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1953,7 +2209,7 @@ func (x *AdvisoryEvent_Detection_NVDAPI) String() string {
 func (*AdvisoryEvent_Detection_NVDAPI) ProtoMessage() {}
 
 func (x *AdvisoryEvent_Detection_NVDAPI) ProtoReflect() protoreflect.Message {
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[19]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1991,7 +2247,7 @@ type AdvisoryEvent_Detection_Manual struct {
 
 func (x *AdvisoryEvent_Detection_Manual) Reset() {
 	*x = AdvisoryEvent_Detection_Manual{}
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[20]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2003,7 +2259,7 @@ func (x *AdvisoryEvent_Detection_Manual) String() string {
 func (*AdvisoryEvent_Detection_Manual) ProtoMessage() {}
 
 func (x *AdvisoryEvent_Detection_Manual) ProtoReflect() protoreflect.Message {
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[20]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2046,7 +2302,7 @@ type AdvisoryEvent_Detection_ScanV1 struct {
 
 func (x *AdvisoryEvent_Detection_ScanV1) Reset() {
 	*x = AdvisoryEvent_Detection_ScanV1{}
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[21]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2058,7 +2314,7 @@ func (x *AdvisoryEvent_Detection_ScanV1) String() string {
 func (*AdvisoryEvent_Detection_ScanV1) ProtoMessage() {}
 
 func (x *AdvisoryEvent_Detection_ScanV1) ProtoReflect() protoreflect.Message {
-	mi := &file_advisory_vulnerabilities_proto_msgTypes[21]
+	mi := &file_advisory_vulnerabilities_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2311,7 +2567,29 @@ const file_advisory_vulnerabilities_proto_rawDesc = "" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\"\x85\x01\n" +
 	"\x11AdvisoryEventList\x12#\n" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12K\n" +
-	"\x05items\x18\x02 \x03(\v25.chainguard.platform.vulnerabilities.v1.AdvisoryEventR\x05items*Y\n" +
+	"\x05items\x18\x02 \x03(\v25.chainguard.platform.vulnerabilities.v1.AdvisoryEventR\x05items\"\x82\x05\n" +
+	"\x14AdvisoryEventsFilter\x12:\n" +
+	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterR\x04uidp\x12!\n" +
+	"\fadvisory_ids\x18\x02 \x03(\tR\vadvisoryIds\x12\x18\n" +
+	"\aaliases\x18\x03 \x03(\tR\aaliases\x12\x1b\n" +
+	"\x06origin\x18\x04 \x01(\tH\x00R\x06origin\x88\x01\x01\x12%\n" +
+	"\x0eartifact_names\x18\x05 \x03(\tR\rartifactNames\x12Y\n" +
+	"\x1badvisory_created_since_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x18advisoryCreatedSinceTime\x12[\n" +
+	"\x1cadvisory_created_before_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x19advisoryCreatedBeforeTime\x12\x18\n" +
+	"\aauthors\x18\b \x03(\tR\aauthors\x12H\n" +
+	"\x12created_since_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\x10createdSinceTime\x12J\n" +
+	"\x13created_before_time\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\x11createdBeforeTime\x12\x1b\n" +
+	"\tpage_size\x18\v \x01(\x03R\bpageSize\x12\x1d\n" +
+	"\n" +
+	"page_token\x18\f \x01(\tR\tpageTokenB\t\n" +
+	"\a_origin\"\x8e\x01\n" +
+	"\x12AdvisoryEventsList\x12P\n" +
+	"\x05items\x18\x01 \x03(\v2:.chainguard.platform.vulnerabilities.v1.AdvisoryEventMatchR\x05items\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"x\n" +
+	"\x12AdvisoryEventMatch\x12K\n" +
+	"\x05event\x18\x01 \x01(\v25.chainguard.platform.vulnerabilities.v1.AdvisoryEventR\x05event\x12\x15\n" +
+	"\x06cga_id\x18\x02 \x01(\tR\x05cgaId*Y\n" +
 	"\fReviewStatus\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\v\n" +
 	"\aPENDING\x10\x01\x12\f\n" +
@@ -2342,7 +2620,7 @@ const file_advisory_vulnerabilities_proto_rawDesc = "" +
 	"!EVENT_TYPE_FILTER_FIX_NOT_PLANNED\x10\x06\x12*\n" +
 	"&EVENT_TYPE_FILTER_PENDING_UPSTREAM_FIX\x10\a\x12\x1d\n" +
 	"\x19EVENT_TYPE_FILTER_PATCHED\x10\b\x120\n" +
-	",EVENT_TYPE_FILTER_COMPONENT_LOCATION_CHANGED\x10\t2\xf2\v\n" +
+	",EVENT_TYPE_FILTER_COMPONENT_LOCATION_CHANGED\x10\t2\xb6\r\n" +
 	"\n" +
 	"Advisories\x12\xb0\x01\n" +
 	"\x06Create\x12=.chainguard.platform.vulnerabilities.v1.CreateAdvisoryRequest\x1a0.chainguard.platform.vulnerabilities.v1.Advisory\"5\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/vulnerabilities/v1/advisories\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
@@ -2360,7 +2638,10 @@ const file_advisory_vulnerabilities_proto_rawDesc = "" +
 	"\x13UpdateAdvisoryEvent\x125.chainguard.platform.vulnerabilities.v1.AdvisoryEvent\x1a5.chainguard.platform.vulnerabilities.v1.AdvisoryEvent\"B\x82\xd3\xe4\x93\x020:\x01*\x1a+/vulnerabilities/v1/advisory_events/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xed\x0e\x12\xb2\x01\n" +
 	"\x13DeleteAdvisoryEvent\x12B.chainguard.platform.vulnerabilities.v1.DeleteAdvisoryEventRequest\x1a\x16.google.protobuf.Empty\"?\x82\xd3\xe4\x93\x02-*+/vulnerabilities/v1/advisory_events/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xef\x0eB6Z4chainguard.dev/sdk/proto/platform/vulnerabilities/v1b\x06proto3"
+	"\x02\xef\x0e\x12\xc1\x01\n" +
+	"\n" +
+	"ListEvents\x12<.chainguard.platform.vulnerabilities.v1.AdvisoryEventsFilter\x1a:.chainguard.platform.vulnerabilities.v1.AdvisoryEventsList\"9\x82\xd3\xe4\x93\x02%\x12#/vulnerabilities/v1/advisory_events\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x02\xee\x0e\x10\x01B6Z4chainguard.dev/sdk/proto/platform/vulnerabilities/v1b\x06proto3"
 
 var (
 	file_advisory_vulnerabilities_proto_rawDescOnce sync.Once
@@ -2375,7 +2656,7 @@ func file_advisory_vulnerabilities_proto_rawDescGZIP() []byte {
 }
 
 var file_advisory_vulnerabilities_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_advisory_vulnerabilities_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
+var file_advisory_vulnerabilities_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
 var file_advisory_vulnerabilities_proto_goTypes = []any{
 	(ReviewStatus)(0),    // 0: chainguard.platform.vulnerabilities.v1.ReviewStatus
 	(OrderBy)(0),         // 1: chainguard.platform.vulnerabilities.v1.OrderBy
@@ -2391,76 +2672,88 @@ var file_advisory_vulnerabilities_proto_goTypes = []any{
 	(*CreateAdvisoryEventRequest)(nil),               // 11: chainguard.platform.vulnerabilities.v1.CreateAdvisoryEventRequest
 	(*AdvisoryEventFilter)(nil),                      // 12: chainguard.platform.vulnerabilities.v1.AdvisoryEventFilter
 	(*AdvisoryEventList)(nil),                        // 13: chainguard.platform.vulnerabilities.v1.AdvisoryEventList
-	(*AdvisoryEvent_Detection)(nil),                  // 14: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection
-	(*AdvisoryEvent_Fixed)(nil),                      // 15: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Fixed
-	(*AdvisoryEvent_TruePositiveDetermination)(nil),  // 16: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.TruePositiveDetermination
-	(*AdvisoryEvent_FalsePositiveDetermination)(nil), // 17: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.FalsePositiveDetermination
-	(*AdvisoryEvent_AnalysisNotPlanned)(nil),         // 18: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.AnalysisNotPlanned
-	(*AdvisoryEvent_FixNotPlanned)(nil),              // 19: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.FixNotPlanned
-	(*AdvisoryEvent_PendingUpstreamFix)(nil),         // 20: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.PendingUpstreamFix
-	(*AdvisoryEvent_Patched)(nil),                    // 21: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Patched
-	(*AdvisoryEvent_ComponentLocationChanged)(nil),   // 22: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.ComponentLocationChanged
-	(*AdvisoryEvent_Detection_NVDAPI)(nil),           // 23: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.NVDAPI
-	(*AdvisoryEvent_Detection_Manual)(nil),           // 24: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.Manual
-	(*AdvisoryEvent_Detection_ScanV1)(nil),           // 25: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.ScanV1
-	(*timestamppb.Timestamp)(nil),                    // 26: google.protobuf.Timestamp
-	(*v1.UIDPFilter)(nil),                            // 27: chainguard.platform.common.UIDPFilter
-	(*emptypb.Empty)(nil),                            // 28: google.protobuf.Empty
+	(*AdvisoryEventsFilter)(nil),                     // 14: chainguard.platform.vulnerabilities.v1.AdvisoryEventsFilter
+	(*AdvisoryEventsList)(nil),                       // 15: chainguard.platform.vulnerabilities.v1.AdvisoryEventsList
+	(*AdvisoryEventMatch)(nil),                       // 16: chainguard.platform.vulnerabilities.v1.AdvisoryEventMatch
+	(*AdvisoryEvent_Detection)(nil),                  // 17: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection
+	(*AdvisoryEvent_Fixed)(nil),                      // 18: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Fixed
+	(*AdvisoryEvent_TruePositiveDetermination)(nil),  // 19: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.TruePositiveDetermination
+	(*AdvisoryEvent_FalsePositiveDetermination)(nil), // 20: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.FalsePositiveDetermination
+	(*AdvisoryEvent_AnalysisNotPlanned)(nil),         // 21: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.AnalysisNotPlanned
+	(*AdvisoryEvent_FixNotPlanned)(nil),              // 22: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.FixNotPlanned
+	(*AdvisoryEvent_PendingUpstreamFix)(nil),         // 23: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.PendingUpstreamFix
+	(*AdvisoryEvent_Patched)(nil),                    // 24: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Patched
+	(*AdvisoryEvent_ComponentLocationChanged)(nil),   // 25: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.ComponentLocationChanged
+	(*AdvisoryEvent_Detection_NVDAPI)(nil),           // 26: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.NVDAPI
+	(*AdvisoryEvent_Detection_Manual)(nil),           // 27: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.Manual
+	(*AdvisoryEvent_Detection_ScanV1)(nil),           // 28: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.ScanV1
+	(*timestamppb.Timestamp)(nil),                    // 29: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),                            // 30: chainguard.platform.common.UIDPFilter
+	(*emptypb.Empty)(nil),                            // 31: google.protobuf.Empty
 }
 var file_advisory_vulnerabilities_proto_depIdxs = []int32{
-	26, // 0: chainguard.platform.vulnerabilities.v1.Advisory.created_at:type_name -> google.protobuf.Timestamp
-	26, // 1: chainguard.platform.vulnerabilities.v1.Advisory.updated_at:type_name -> google.protobuf.Timestamp
-	26, // 2: chainguard.platform.vulnerabilities.v1.Advisory.deleted_at:type_name -> google.protobuf.Timestamp
+	29, // 0: chainguard.platform.vulnerabilities.v1.Advisory.created_at:type_name -> google.protobuf.Timestamp
+	29, // 1: chainguard.platform.vulnerabilities.v1.Advisory.updated_at:type_name -> google.protobuf.Timestamp
+	29, // 2: chainguard.platform.vulnerabilities.v1.Advisory.deleted_at:type_name -> google.protobuf.Timestamp
 	5,  // 3: chainguard.platform.vulnerabilities.v1.Advisory.events:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent
-	26, // 4: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.timestamp:type_name -> google.protobuf.Timestamp
-	14, // 5: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.detection:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection
-	15, // 6: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.fixed:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Fixed
-	17, // 7: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.false_positive_determination:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.FalsePositiveDetermination
-	18, // 8: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.analysis_not_planned:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.AnalysisNotPlanned
-	19, // 9: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.fix_not_planned:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.FixNotPlanned
-	20, // 10: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.pending_upstream_fix:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.PendingUpstreamFix
-	16, // 11: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.true_positive_determination:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.TruePositiveDetermination
-	21, // 12: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.patched:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Patched
-	22, // 13: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.component_location_changed:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.ComponentLocationChanged
+	29, // 4: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.timestamp:type_name -> google.protobuf.Timestamp
+	17, // 5: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.detection:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection
+	18, // 6: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.fixed:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Fixed
+	20, // 7: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.false_positive_determination:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.FalsePositiveDetermination
+	21, // 8: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.analysis_not_planned:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.AnalysisNotPlanned
+	22, // 9: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.fix_not_planned:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.FixNotPlanned
+	23, // 10: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.pending_upstream_fix:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.PendingUpstreamFix
+	19, // 11: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.true_positive_determination:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.TruePositiveDetermination
+	24, // 12: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.patched:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Patched
+	25, // 13: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.component_location_changed:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.ComponentLocationChanged
 	0,  // 14: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.status:type_name -> chainguard.platform.vulnerabilities.v1.ReviewStatus
-	27, // 15: chainguard.platform.vulnerabilities.v1.AdvisoryFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	30, // 15: chainguard.platform.vulnerabilities.v1.AdvisoryFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
 	0,  // 16: chainguard.platform.vulnerabilities.v1.AdvisoryFilter.event_statuses:type_name -> chainguard.platform.vulnerabilities.v1.ReviewStatus
 	2,  // 17: chainguard.platform.vulnerabilities.v1.AdvisoryFilter.event_types:type_name -> chainguard.platform.vulnerabilities.v1.EventTypeFilter
 	1,  // 18: chainguard.platform.vulnerabilities.v1.AdvisoryFilter.order_by:type_name -> chainguard.platform.vulnerabilities.v1.OrderBy
 	2,  // 19: chainguard.platform.vulnerabilities.v1.AdvisoryFilter.latest_event_type:type_name -> chainguard.platform.vulnerabilities.v1.EventTypeFilter
-	26, // 20: chainguard.platform.vulnerabilities.v1.AdvisoryFilter.event_created_since_time:type_name -> google.protobuf.Timestamp
-	26, // 21: chainguard.platform.vulnerabilities.v1.AdvisoryFilter.event_created_before_time:type_name -> google.protobuf.Timestamp
-	26, // 22: chainguard.platform.vulnerabilities.v1.AdvisoryFilter.created_since_time:type_name -> google.protobuf.Timestamp
-	26, // 23: chainguard.platform.vulnerabilities.v1.AdvisoryFilter.created_before_time:type_name -> google.protobuf.Timestamp
+	29, // 20: chainguard.platform.vulnerabilities.v1.AdvisoryFilter.event_created_since_time:type_name -> google.protobuf.Timestamp
+	29, // 21: chainguard.platform.vulnerabilities.v1.AdvisoryFilter.event_created_before_time:type_name -> google.protobuf.Timestamp
+	29, // 22: chainguard.platform.vulnerabilities.v1.AdvisoryFilter.created_since_time:type_name -> google.protobuf.Timestamp
+	29, // 23: chainguard.platform.vulnerabilities.v1.AdvisoryFilter.created_before_time:type_name -> google.protobuf.Timestamp
 	4,  // 24: chainguard.platform.vulnerabilities.v1.AdvisoriesList.items:type_name -> chainguard.platform.vulnerabilities.v1.Advisory
 	4,  // 25: chainguard.platform.vulnerabilities.v1.CreateAdvisoryRequest.advisory:type_name -> chainguard.platform.vulnerabilities.v1.Advisory
 	5,  // 26: chainguard.platform.vulnerabilities.v1.CreateAdvisoryEventRequest.advisory_event:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent
 	5,  // 27: chainguard.platform.vulnerabilities.v1.AdvisoryEventList.items:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent
-	23, // 28: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.nvdapi:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.NVDAPI
-	24, // 29: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.manual:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.Manual
-	25, // 30: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.scanv1:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.ScanV1
-	3,  // 31: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.FalsePositiveDetermination.type:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.FalsePositiveDetermination.Type
-	10, // 32: chainguard.platform.vulnerabilities.v1.Advisories.Create:input_type -> chainguard.platform.vulnerabilities.v1.CreateAdvisoryRequest
-	6,  // 33: chainguard.platform.vulnerabilities.v1.Advisories.List:input_type -> chainguard.platform.vulnerabilities.v1.AdvisoryFilter
-	4,  // 34: chainguard.platform.vulnerabilities.v1.Advisories.Update:input_type -> chainguard.platform.vulnerabilities.v1.Advisory
-	8,  // 35: chainguard.platform.vulnerabilities.v1.Advisories.Delete:input_type -> chainguard.platform.vulnerabilities.v1.DeleteAdvisoryRequest
-	11, // 36: chainguard.platform.vulnerabilities.v1.Advisories.CreateAdvisoryEvent:input_type -> chainguard.platform.vulnerabilities.v1.CreateAdvisoryEventRequest
-	12, // 37: chainguard.platform.vulnerabilities.v1.Advisories.ListAdvisoryEvents:input_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEventFilter
-	5,  // 38: chainguard.platform.vulnerabilities.v1.Advisories.UpdateAdvisoryEvent:input_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent
-	9,  // 39: chainguard.platform.vulnerabilities.v1.Advisories.DeleteAdvisoryEvent:input_type -> chainguard.platform.vulnerabilities.v1.DeleteAdvisoryEventRequest
-	4,  // 40: chainguard.platform.vulnerabilities.v1.Advisories.Create:output_type -> chainguard.platform.vulnerabilities.v1.Advisory
-	7,  // 41: chainguard.platform.vulnerabilities.v1.Advisories.List:output_type -> chainguard.platform.vulnerabilities.v1.AdvisoriesList
-	4,  // 42: chainguard.platform.vulnerabilities.v1.Advisories.Update:output_type -> chainguard.platform.vulnerabilities.v1.Advisory
-	28, // 43: chainguard.platform.vulnerabilities.v1.Advisories.Delete:output_type -> google.protobuf.Empty
-	5,  // 44: chainguard.platform.vulnerabilities.v1.Advisories.CreateAdvisoryEvent:output_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent
-	13, // 45: chainguard.platform.vulnerabilities.v1.Advisories.ListAdvisoryEvents:output_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEventList
-	5,  // 46: chainguard.platform.vulnerabilities.v1.Advisories.UpdateAdvisoryEvent:output_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent
-	28, // 47: chainguard.platform.vulnerabilities.v1.Advisories.DeleteAdvisoryEvent:output_type -> google.protobuf.Empty
-	40, // [40:48] is the sub-list for method output_type
-	32, // [32:40] is the sub-list for method input_type
-	32, // [32:32] is the sub-list for extension type_name
-	32, // [32:32] is the sub-list for extension extendee
-	0,  // [0:32] is the sub-list for field type_name
+	30, // 28: chainguard.platform.vulnerabilities.v1.AdvisoryEventsFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	29, // 29: chainguard.platform.vulnerabilities.v1.AdvisoryEventsFilter.advisory_created_since_time:type_name -> google.protobuf.Timestamp
+	29, // 30: chainguard.platform.vulnerabilities.v1.AdvisoryEventsFilter.advisory_created_before_time:type_name -> google.protobuf.Timestamp
+	29, // 31: chainguard.platform.vulnerabilities.v1.AdvisoryEventsFilter.created_since_time:type_name -> google.protobuf.Timestamp
+	29, // 32: chainguard.platform.vulnerabilities.v1.AdvisoryEventsFilter.created_before_time:type_name -> google.protobuf.Timestamp
+	16, // 33: chainguard.platform.vulnerabilities.v1.AdvisoryEventsList.items:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEventMatch
+	5,  // 34: chainguard.platform.vulnerabilities.v1.AdvisoryEventMatch.event:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent
+	26, // 35: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.nvdapi:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.NVDAPI
+	27, // 36: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.manual:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.Manual
+	28, // 37: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.scanv1:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.ScanV1
+	3,  // 38: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.FalsePositiveDetermination.type:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.FalsePositiveDetermination.Type
+	10, // 39: chainguard.platform.vulnerabilities.v1.Advisories.Create:input_type -> chainguard.platform.vulnerabilities.v1.CreateAdvisoryRequest
+	6,  // 40: chainguard.platform.vulnerabilities.v1.Advisories.List:input_type -> chainguard.platform.vulnerabilities.v1.AdvisoryFilter
+	4,  // 41: chainguard.platform.vulnerabilities.v1.Advisories.Update:input_type -> chainguard.platform.vulnerabilities.v1.Advisory
+	8,  // 42: chainguard.platform.vulnerabilities.v1.Advisories.Delete:input_type -> chainguard.platform.vulnerabilities.v1.DeleteAdvisoryRequest
+	11, // 43: chainguard.platform.vulnerabilities.v1.Advisories.CreateAdvisoryEvent:input_type -> chainguard.platform.vulnerabilities.v1.CreateAdvisoryEventRequest
+	12, // 44: chainguard.platform.vulnerabilities.v1.Advisories.ListAdvisoryEvents:input_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEventFilter
+	5,  // 45: chainguard.platform.vulnerabilities.v1.Advisories.UpdateAdvisoryEvent:input_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent
+	9,  // 46: chainguard.platform.vulnerabilities.v1.Advisories.DeleteAdvisoryEvent:input_type -> chainguard.platform.vulnerabilities.v1.DeleteAdvisoryEventRequest
+	14, // 47: chainguard.platform.vulnerabilities.v1.Advisories.ListEvents:input_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEventsFilter
+	4,  // 48: chainguard.platform.vulnerabilities.v1.Advisories.Create:output_type -> chainguard.platform.vulnerabilities.v1.Advisory
+	7,  // 49: chainguard.platform.vulnerabilities.v1.Advisories.List:output_type -> chainguard.platform.vulnerabilities.v1.AdvisoriesList
+	4,  // 50: chainguard.platform.vulnerabilities.v1.Advisories.Update:output_type -> chainguard.platform.vulnerabilities.v1.Advisory
+	31, // 51: chainguard.platform.vulnerabilities.v1.Advisories.Delete:output_type -> google.protobuf.Empty
+	5,  // 52: chainguard.platform.vulnerabilities.v1.Advisories.CreateAdvisoryEvent:output_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent
+	13, // 53: chainguard.platform.vulnerabilities.v1.Advisories.ListAdvisoryEvents:output_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEventList
+	5,  // 54: chainguard.platform.vulnerabilities.v1.Advisories.UpdateAdvisoryEvent:output_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent
+	31, // 55: chainguard.platform.vulnerabilities.v1.Advisories.DeleteAdvisoryEvent:output_type -> google.protobuf.Empty
+	15, // 56: chainguard.platform.vulnerabilities.v1.Advisories.ListEvents:output_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEventsList
+	48, // [48:57] is the sub-list for method output_type
+	39, // [39:48] is the sub-list for method input_type
+	39, // [39:39] is the sub-list for extension type_name
+	39, // [39:39] is the sub-list for extension extendee
+	0,  // [0:39] is the sub-list for field type_name
 }
 
 func init() { file_advisory_vulnerabilities_proto_init() }
@@ -2482,7 +2775,8 @@ func file_advisory_vulnerabilities_proto_init() {
 	}
 	file_advisory_vulnerabilities_proto_msgTypes[2].OneofWrappers = []any{}
 	file_advisory_vulnerabilities_proto_msgTypes[3].OneofWrappers = []any{}
-	file_advisory_vulnerabilities_proto_msgTypes[10].OneofWrappers = []any{
+	file_advisory_vulnerabilities_proto_msgTypes[10].OneofWrappers = []any{}
+	file_advisory_vulnerabilities_proto_msgTypes[13].OneofWrappers = []any{
 		(*AdvisoryEvent_Detection_Nvdapi)(nil),
 		(*AdvisoryEvent_Detection_Manual_)(nil),
 		(*AdvisoryEvent_Detection_Scanv1)(nil),
@@ -2493,7 +2787,7 @@ func file_advisory_vulnerabilities_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_advisory_vulnerabilities_proto_rawDesc), len(file_advisory_vulnerabilities_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   22,
+			NumMessages:   25,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

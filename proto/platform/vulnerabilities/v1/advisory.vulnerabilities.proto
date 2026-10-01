@@ -109,6 +109,20 @@ service Advisories {
       }
     };
   }
+
+  // ListEvents lists active advisory events across advisories.
+  rpc ListEvents(AdvisoryEventsFilter) returns (AdvisoryEventsList) {
+    option (google.api.http) = {
+      get: "/vulnerabilities/v1/advisory_events"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        // This gets restricted in the api-impl code.
+        unscoped: true
+        capabilities: [CAP_ADVISORIES_LIST]
+      }
+    };
+  }
 }
 
 // ReviewStatus represents the possible states of review for an advisory event
@@ -509,4 +523,54 @@ message AdvisoryEventList {
   // advisories.
   string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
   repeated AdvisoryEvent items = 2;
+}
+
+// AdvisoryEventsFilter selects events for ListEvents. The advisory_* fields,
+// aliases, origin and artifact_names match the event's advisory. Time bounds
+// are exclusive.
+message AdvisoryEventsFilter {
+  // uidp filters by the advisory's position in the group hierarchy.
+  chainguard.platform.common.UIDPFilter uidp = 1;
+
+  // advisory_ids filters by CGA ID (e.g., CGA-xvgw-cvr7-9g2q).
+  repeated string advisory_ids = 2;
+  // aliases filters by vulnerability alias (CVE, GHSA, etc.).
+  repeated string aliases = 3;
+  // origin filters by origin package, including subpackages. It cannot be
+  // combined with artifact_names.
+  optional string origin = 4;
+  // artifact_names filters by package name.
+  repeated string artifact_names = 5;
+  // advisory_created_since_time filters to advisories created after this time.
+  google.protobuf.Timestamp advisory_created_since_time = 6;
+  // advisory_created_before_time filters to advisories created before this
+  // time.
+  google.protobuf.Timestamp advisory_created_before_time = 7;
+
+  // authors filters by event author email.
+  repeated string authors = 8;
+  // created_since_time filters to events created after this time.
+  google.protobuf.Timestamp created_since_time = 9;
+  // created_before_time filters to events created before this time.
+  google.protobuf.Timestamp created_before_time = 10;
+
+  // page_size is the maximum number of events to return.
+  int64 page_size = 11;
+  // page_token is the next_page_token from a previous response.
+  string page_token = 12;
+
+  // next id: 13
+}
+
+message AdvisoryEventsList {
+  repeated AdvisoryEventMatch items = 1;
+  // next_page_token is empty on the last page.
+  string next_page_token = 2;
+}
+
+message AdvisoryEventMatch {
+  AdvisoryEvent event = 1;
+  // cga_id is the CGA ID of the event's advisory, whose UIDP is the parent of
+  // the event's UIDP.
+  string cga_id = 2;
 }

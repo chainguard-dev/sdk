@@ -31,6 +31,7 @@ type MockAdvisoriesClient struct {
 	OnCreateAdvisoryEvent []AdvisoriesOnEventCreate
 	OnUpdateAdvisoryEvent []AdvisoriesOnEventUpdate
 	OnDeleteAdvisoryEvent []AdvisoriesOnEventDelete
+	OnListEvents          []AdvisoriesOnListEvents
 }
 
 type AdvisoriesOnList struct {
@@ -82,6 +83,12 @@ type AdvisoriesOnEventUpdate struct {
 
 type AdvisoriesOnEventDelete struct {
 	Given *vulnerabilities.DeleteAdvisoryEventRequest
+	Error error
+}
+
+type AdvisoriesOnListEvents struct {
+	Given *vulnerabilities.AdvisoryEventsFilter
+	List  *vulnerabilities.AdvisoryEventsList
 	Error error
 }
 
@@ -164,4 +171,13 @@ func (m MockAdvisoriesClient) DeleteAdvisoryEvent(_ context.Context, given *vuln
 		}
 	}
 	return &emptypb.Empty{}, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockAdvisoriesClient) ListEvents(_ context.Context, given *vulnerabilities.AdvisoryEventsFilter, _ ...grpc.CallOption) (*vulnerabilities.AdvisoryEventsList, error) {
+	for _, o := range m.OnListEvents {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.List, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
 }

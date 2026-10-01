@@ -32,6 +32,7 @@ const (
 	Advisories_ListAdvisoryEvents_FullMethodName  = "/chainguard.platform.vulnerabilities.v1.Advisories/ListAdvisoryEvents"
 	Advisories_UpdateAdvisoryEvent_FullMethodName = "/chainguard.platform.vulnerabilities.v1.Advisories/UpdateAdvisoryEvent"
 	Advisories_DeleteAdvisoryEvent_FullMethodName = "/chainguard.platform.vulnerabilities.v1.Advisories/DeleteAdvisoryEvent"
+	Advisories_ListEvents_FullMethodName          = "/chainguard.platform.vulnerabilities.v1.Advisories/ListEvents"
 )
 
 // AdvisoriesClient is the client API for Advisories service.
@@ -46,6 +47,8 @@ type AdvisoriesClient interface {
 	ListAdvisoryEvents(ctx context.Context, in *AdvisoryEventFilter, opts ...grpc.CallOption) (*AdvisoryEventList, error)
 	UpdateAdvisoryEvent(ctx context.Context, in *AdvisoryEvent, opts ...grpc.CallOption) (*AdvisoryEvent, error)
 	DeleteAdvisoryEvent(ctx context.Context, in *DeleteAdvisoryEventRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// ListEvents lists active advisory events across advisories.
+	ListEvents(ctx context.Context, in *AdvisoryEventsFilter, opts ...grpc.CallOption) (*AdvisoryEventsList, error)
 }
 
 type advisoriesClient struct {
@@ -136,6 +139,16 @@ func (c *advisoriesClient) DeleteAdvisoryEvent(ctx context.Context, in *DeleteAd
 	return out, nil
 }
 
+func (c *advisoriesClient) ListEvents(ctx context.Context, in *AdvisoryEventsFilter, opts ...grpc.CallOption) (*AdvisoryEventsList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdvisoryEventsList)
+	err := c.cc.Invoke(ctx, Advisories_ListEvents_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AdvisoriesServer is the server API for Advisories service.
 // All implementations must embed UnimplementedAdvisoriesServer
 // for forward compatibility.
@@ -148,6 +161,8 @@ type AdvisoriesServer interface {
 	ListAdvisoryEvents(context.Context, *AdvisoryEventFilter) (*AdvisoryEventList, error)
 	UpdateAdvisoryEvent(context.Context, *AdvisoryEvent) (*AdvisoryEvent, error)
 	DeleteAdvisoryEvent(context.Context, *DeleteAdvisoryEventRequest) (*emptypb.Empty, error)
+	// ListEvents lists active advisory events across advisories.
+	ListEvents(context.Context, *AdvisoryEventsFilter) (*AdvisoryEventsList, error)
 	mustEmbedUnimplementedAdvisoriesServer()
 }
 
@@ -181,6 +196,9 @@ func (UnimplementedAdvisoriesServer) UpdateAdvisoryEvent(context.Context, *Advis
 }
 func (UnimplementedAdvisoriesServer) DeleteAdvisoryEvent(context.Context, *DeleteAdvisoryEventRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteAdvisoryEvent not implemented")
+}
+func (UnimplementedAdvisoriesServer) ListEvents(context.Context, *AdvisoryEventsFilter) (*AdvisoryEventsList, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListEvents not implemented")
 }
 func (UnimplementedAdvisoriesServer) mustEmbedUnimplementedAdvisoriesServer() {}
 func (UnimplementedAdvisoriesServer) testEmbeddedByValue()                    {}
@@ -347,6 +365,24 @@ func _Advisories_DeleteAdvisoryEvent_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Advisories_ListEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdvisoryEventsFilter)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdvisoriesServer).ListEvents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Advisories_ListEvents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdvisoriesServer).ListEvents(ctx, req.(*AdvisoryEventsFilter))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Advisories_ServiceDesc is the grpc.ServiceDesc for Advisories service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -385,6 +421,10 @@ var Advisories_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteAdvisoryEvent",
 			Handler:    _Advisories_DeleteAdvisoryEvent_Handler,
+		},
+		{
+			MethodName: "ListEvents",
+			Handler:    _Advisories_ListEvents_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
