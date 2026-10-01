@@ -1,0 +1,86 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.libraries.v2beta1;
+
+import "annotations/auth.proto";
+import "annotations/mcp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+option go_package =
+    "chainguard.dev/sdk/proto/chainguard/platform/libraries/v2beta1";
+option java_multiple_files = true;
+option java_outer_classname = "StorageUsageProto";
+option java_package = "com.chainguard.platform.libraries.v2beta1";
+
+// StorageUsageService reports how much storage an organization's own uploads
+// consume in Chainguard Libraries, per language ecosystem.
+service StorageUsageService {
+  // GetStorageUsage returns the organization's storage usage, one entry per
+  // ecosystem. Only the organization's own uploads count: Chainguard-built and
+  // mirrored upstream artifacts are not charged to it.
+  rpc GetStorageUsage(GetStorageUsageRequest)
+      returns (StorageUsage) {
+    option (google.api.http) = {get: "/libraries/v2beta1/storageUsage"};
+    option (chainguard.annotations.iam) = {
+      enabled: {capabilities: [CAP_LIBRARIES_STORAGE_USAGE_GET]}
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get an organization's Chainguard Libraries storage usage "
+                   "(bytes and version count) per ecosystem for artifacts the "
+                   "organization uploaded itself."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+}
+
+// GetStorageUsageRequest is the request message for GetStorageUsage.
+message GetStorageUsageRequest {
+  // The organization whose storage usage to report.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Limit the report to these ecosystems. Empty means every ecosystem that
+  // reports usage.
+  repeated StorageUsageEcosystem ecosystems = 2
+      [(google.api.field_behavior) = OPTIONAL];
+}
+
+// StorageUsage is an organization's storage usage across ecosystems.
+message StorageUsage {
+  // Storage usage for each reported ecosystem.
+  repeated EcosystemStorageUsage ecosystem_usages = 1;
+}
+
+// EcosystemStorageUsage is an organization's storage usage in one ecosystem.
+message EcosystemStorageUsage {
+  // The ecosystem.
+  StorageUsageEcosystem ecosystem = 1;
+
+  // Total size of the organization's live uploaded artifacts, in bytes. For Go
+  // this is the module ZIPs only; the server-generated .mod and .info files,
+  // deleted versions, and orphaned storage objects are not counted.
+  int64 storage_bytes = 2;
+
+  // Number of live uploaded versions.
+  int64 version_count = 3;
+}
+
+// StorageUsageEcosystem is an ecosystem that reports usage. It is deliberately
+// not the artifacts service's Ecosystem: that enum must be handled by every
+// artifacts listing path, and usage starts with Go alone.
+enum StorageUsageEcosystem {
+  // Unspecified ecosystem.
+  STORAGE_USAGE_ECOSYSTEM_UNSPECIFIED = 0;
+
+  // Go modules.
+  STORAGE_USAGE_ECOSYSTEM_GO = 1;
+}
