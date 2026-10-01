@@ -1,0 +1,255 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.entitlements.v1alpha1;
+
+import "annotations/auth.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+// protolint:disable:next MAX_LINE_LENGTH
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/entitlements/v1alpha1";
+option java_multiple_files = true;
+option java_outer_classname = "FeaturesProto";
+option java_package = "com.chainguard.platform.entitlements.v1alpha1";
+
+// Features serves an organization's FEATURE entitlements: product features
+// such as sandbox Checks and Workspaces, each with its per-organization
+// limits. An organization holds at most one live entitlement per feature.
+service Features {
+  // ListFeatureEntitlements returns the organization's live FEATURE
+  // entitlements as stored, including any whose expire_time has passed:
+  // callers decide what an expired entitlement means.
+  rpc ListFeatureEntitlements(ListFeatureEntitlementsRequest)
+      returns (ListFeatureEntitlementsResponse) {
+    option (google.api.http) = {
+      get: "/entitlements/v1alpha1/features/{parent=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ENTITLEMENTS_FEATURES_LIST]
+      }
+    };
+  }
+
+  // SetFeatureEntitlement creates the organization's entitlement for a
+  // feature, or replaces the configuration and expiry of the live one. It is
+  // an internal (support) operation: the source is INTERNAL or CONSOLE_ADMIN.
+  // A write whose source ranks above the live entitlement's supersedes it; a
+  // write that ranks below it (for example over a SALESFORCE entitlement)
+  // fails with FAILED_PRECONDITION and changes nothing.
+  rpc SetFeatureEntitlement(SetFeatureEntitlementRequest)
+      returns (FeatureEntitlement) {
+    option (google.api.http) = {
+      post: "/entitlements/v1alpha1/features/{parent=**}:set"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_ENTITLEMENTS_FEATURES_MANAGE,
+          CAP_INTERNAL
+        ]
+      }
+    };
+  }
+
+  // DeleteFeatureEntitlement deletes the organization's live entitlement for
+  // a feature, whatever its source. It fails with NOT_FOUND when there is no
+  // live entitlement for the feature.
+  rpc DeleteFeatureEntitlement(DeleteFeatureEntitlementRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/entitlements/v1alpha1/features/{parent=**}:delete"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_ENTITLEMENTS_FEATURES_MANAGE,
+          CAP_INTERNAL
+        ]
+      }
+    };
+  }
+}
+
+// FeatureSource is the system of record for a FEATURE entitlement. A write
+// from a higher-ranked source supersedes a lower-ranked one; the ranking is
+// CUSTOMER < INTERNAL < CONSOLE_ADMIN < SALESFORCE.
+enum FeatureSource {
+  // Unset. Never valid on a write.
+  FEATURE_SOURCE_UNSPECIFIED = 0;
+  // A self-serve trial the organization started.
+  FEATURE_SOURCE_CUSTOMER = 1;
+  // Chainguard automation or a backfill.
+  FEATURE_SOURCE_INTERNAL = 2;
+  // A Chainguard support or console administrator.
+  FEATURE_SOURCE_CONSOLE_ADMIN = 3;
+  // Salesforce, the system of record for sold entitlements.
+  FEATURE_SOURCE_SALESFORCE = 4;
+}
+
+// FeatureEntitlement is one organization's entitlement to one feature.
+message FeatureEntitlement {
+  // uid is the entitlement's UIDP.
+  string uid = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // parent is the UIDP of the entitled organization.
+  string parent = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // feature is the feature key: "sandbox_checks" or "sandbox_workspaces".
+  string feature = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // source is the entitlement's system of record.
+  FeatureSource source = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // config is the feature's per-organization limits. The member matches
+  // feature.
+  oneof config {
+    // Limits for "sandbox_checks".
+    SandboxChecksConfig sandbox_checks = 5;
+    // Limits for "sandbox_workspaces".
+    SandboxWorkspacesConfig sandbox_workspaces = 6;
+  }
+
+  // expire_time is when the entitlement ends. Unset means it does not expire.
+  google.protobuf.Timestamp expire_time = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // create_time is when the entitlement was created.
+  google.protobuf.Timestamp create_time = 8 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // update_time is when the entitlement last changed.
+  google.protobuf.Timestamp update_time = 9 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // version_token is an opaque optimistic-concurrency token. Echo it as
+  // expected_version_token to make a write conditional on this version.
+  string version_token = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// SandboxChecksConfig holds an organization's limits for sandbox Checks. An
+// unset field means no per-organization limit; the sandbox's own ceilings
+// still apply. A field set to 0 allows none.
+message SandboxChecksConfig {
+  // The most workflow runs the organization may have outstanding at once.
+  optional int32 max_outstanding_runs = 1 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+  // The most guest VMs one run may start.
+  optional int32 max_vms_per_run = 2 [(google.api.field_behavior) = OPTIONAL];
+  // The most vCPUs one run may use across its VMs.
+  optional int32 max_vcpus_per_run = 3 [(google.api.field_behavior) = OPTIONAL];
+  // The largest resource class one guest may request.
+  ResourceClassLimit max_resource_class = 4 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+  // The compute budget in vCPU-hours, counted from the entitlement's creation.
+  optional int64 vcpu_hour_budget = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// SandboxWorkspacesConfig holds an organization's limits for sandbox
+// Workspaces. An unset field means no per-organization limit; the sandbox's
+// own ceilings still apply. A field set to 0 allows none.
+message SandboxWorkspacesConfig {
+  // The most sessions the organization may hold at once.
+  optional int32 max_sessions_per_org = 1 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+  // The most sessions one user in the organization may hold at once.
+  optional int32 max_sessions_per_user = 2 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+  // The compute budget in vCPU-hours, counted from the entitlement's creation.
+  optional int64 vcpu_hour_budget = 3 [(google.api.field_behavior) = OPTIONAL];
+  // The largest resource class one session's guest may request.
+  ResourceClassLimit max_resource_class = 4 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+}
+
+// ResourceClassLimit caps the size of one guest. Both fields are positive.
+message ResourceClassLimit {
+  // The most vCPUs one guest may request.
+  int32 cpus = 1 [(google.api.field_behavior) = REQUIRED];
+  // The most memory one guest may request, in MiB.
+  int64 memory_mib = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ListFeatureEntitlementsRequest {
+  // parent is the UIDP of the organization.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+message ListFeatureEntitlementsResponse {
+  // feature_entitlements are the organization's live FEATURE entitlements.
+  repeated FeatureEntitlement feature_entitlements = 1;
+}
+
+message SetFeatureEntitlementRequest {
+  // parent is the UIDP of the organization.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // feature is the feature key: "sandbox_checks" or "sandbox_workspaces".
+  string feature = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // source is INTERNAL (backfill, automation) or CONSOLE_ADMIN (support).
+  FeatureSource source = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // config is the feature's full set of limits, replacing any stored ones.
+  // The member must match feature.
+  oneof config {
+    // Limits for "sandbox_checks".
+    SandboxChecksConfig sandbox_checks = 4;
+    // Limits for "sandbox_workspaces".
+    SandboxWorkspacesConfig sandbox_workspaces = 5;
+  }
+
+  // expire_time is when the entitlement ends. Unset makes it non-expiring.
+  google.protobuf.Timestamp expire_time = 6 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // expected_version_token, when set, makes the write apply only if the live
+  // entitlement is still at that version.
+  optional string expected_version_token = 7 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // reason is recorded with the change for audit.
+  string reason = 8 [(google.api.field_behavior) = REQUIRED];
+}
+
+message DeleteFeatureEntitlementRequest {
+  // parent is the UIDP of the organization.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // feature is the feature key: "sandbox_checks" or "sandbox_workspaces".
+  string feature = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // source is the surface making the change, recorded with it for audit:
+  // INTERNAL or CONSOLE_ADMIN. It does not select the entitlement; the live
+  // entitlement is deleted whatever its own source.
+  FeatureSource source = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // reason is recorded with the change for audit.
+  string reason = 4 [(google.api.field_behavior) = REQUIRED];
+}

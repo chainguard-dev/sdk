@@ -1,0 +1,59 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.sandbox.v1alpha1;
+
+import "annotations/auth.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+// protolint:disable:next MAX_LINE_LENGTH
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/sandbox/v1alpha1";
+option java_multiple_files = true;
+option java_outer_classname = "InstallationsProto";
+option java_package = "com.chainguard.platform.sandbox.v1alpha1";
+
+// Installations is the internal surface the ACID sandbox GitHub reconciler
+// uses to find the Chainguard organization behind a pull request's GitHub App
+// installation. It serves Chainguard's own sandbox control plane only.
+service Installations {
+  // ResolveGitHubInstallation returns the root group a guardener GitHub App
+  // installation is linked to. The App is fixed on the server to the
+  // guardener App; the caller supplies only the installation ID.
+  //
+  // The caller must hold CAP_SANDBOX_INSTALLATIONS_RESOLVE (internal only) at
+  // the sandbox tenancy group the server is configured with. The request
+  // names no group: the answer is another organization, so the server checks
+  // the capability at that fixed group before any lookup. A caller without
+  // it is refused the same way whether or not the installation is linked.
+  rpc ResolveGitHubInstallation(ResolveGitHubInstallationRequest)
+      returns (ResolveGitHubInstallationResponse) {
+    option (google.api.http) = {
+      get: "/sandbox/v1alpha1/githubInstallations/{installation_id}:resolve"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_SANDBOX_INSTALLATIONS_RESOLVE]
+        unscoped: true
+      }
+    };
+  }
+}
+
+message ResolveGitHubInstallationRequest {
+  // installation_id is the guardener GitHub App installation ID to resolve.
+  int64 installation_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ResolveGitHubInstallationResponse {
+  // group is the UIDP of the root group (organization) the installation is
+  // linked to. An installation linked to a folder resolves to that folder's
+  // organization. That attribution cannot cross organizations: linking an
+  // installation to a group takes CAP_GUARDENER_ASSOCIATION_MANAGE on that
+  // group plus proof of GitHub ownership of the installation's account, so an
+  // installation is only ever attributed to an organization by someone
+  // holding a grant inside it.
+  string group = 1;
+}

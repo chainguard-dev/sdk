@@ -431,6 +431,23 @@ const (
 	Capability_CAP_SANDBOX_RUN_CREATE Capability = 3001
 	Capability_CAP_SANDBOX_RUN_LIST   Capability = 3002
 	Capability_CAP_SANDBOX_RUN_CANCEL Capability = 3003
+	// Resolving a guardener GitHub App installation to the root group it is
+	// linked to. Internal only: the answer names another customer's
+	// organization, so it is held by the sandbox GitHub reconciler alone and
+	// checked at the acid-sandbox group, never at a customer group.
+	Capability_CAP_SANDBOX_INSTALLATIONS_RESOLVE Capability = 3004
+	// Central Entitlements Service FEATURE entitlements (product features such
+	// as sandbox_checks). Reading an organization's FEATURE rows. Internal only:
+	// it is held by the SANDBOX service principal's sandbox.service_agent role,
+	// which reads the org's rows to admit work. It is separate from
+	// registry.entitlements.list so the SANDBOX principal cannot read image
+	// entitlements.
+	Capability_CAP_ENTITLEMENTS_FEATURES_LIST Capability = 3201
+	// Writing and deleting an organization's FEATURE rows as Chainguard
+	// (the INTERNAL and CONSOLE_ADMIN sources). Internal only: it is the support
+	// surface for backfill, trial extension and the kill switch, held through the
+	// support role.
+	Capability_CAP_ENTITLEMENTS_FEATURES_MANAGE Capability = 3202
 	// Sandbox develop sessions (the Sessions API, ai-cicd/sandbox): resident
 	// development sessions opened with `chainctl develop`. session.create opens
 	// sessions and lets the caller see and manage its own; it is
@@ -674,6 +691,9 @@ var (
 		3001:  "CAP_SANDBOX_RUN_CREATE",
 		3002:  "CAP_SANDBOX_RUN_LIST",
 		3003:  "CAP_SANDBOX_RUN_CANCEL",
+		3004:  "CAP_SANDBOX_INSTALLATIONS_RESOLVE",
+		3201:  "CAP_ENTITLEMENTS_FEATURES_LIST",
+		3202:  "CAP_ENTITLEMENTS_FEATURES_MANAGE",
 		3010:  "CAP_SANDBOX_SESSION_CREATE",
 		3011:  "CAP_SANDBOX_SESSION_LIST",
 	}
@@ -908,6 +928,9 @@ var (
 		"CAP_SANDBOX_RUN_CREATE":                             3001,
 		"CAP_SANDBOX_RUN_LIST":                               3002,
 		"CAP_SANDBOX_RUN_CANCEL":                             3003,
+		"CAP_SANDBOX_INSTALLATIONS_RESOLVE":                  3004,
+		"CAP_ENTITLEMENTS_FEATURES_LIST":                     3201,
+		"CAP_ENTITLEMENTS_FEATURES_MANAGE":                   3202,
 		"CAP_SANDBOX_SESSION_CREATE":                         3010,
 		"CAP_SANDBOX_SESSION_LIST":                           3011,
 	}
@@ -993,7 +1016,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x90\x7f\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x93\x81\x01\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1244,7 +1267,10 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x1dCAP_ACTIONS_DEPENDENCIES_LIST\x10\x97\x15\x1a+\xa8ˑM\xe0\x01\x9a\xaf\xa8\xd2\x05\x19actions.dependencies.list\xa0\xaf\xa8\xd2\x05\x01\x12;\n" +
 	"\x16CAP_SANDBOX_RUN_CREATE\x10\xb9\x17\x1a\x1e\xa8ˑM\xe2\x01\x9a\xaf\xa8\xd2\x05\x12sandbox.run.create\x127\n" +
 	"\x14CAP_SANDBOX_RUN_LIST\x10\xba\x17\x1a\x1c\xa8ˑM\xe3\x01\x9a\xaf\xa8\xd2\x05\x10sandbox.run.list\x12;\n" +
-	"\x16CAP_SANDBOX_RUN_CANCEL\x10\xbb\x17\x1a\x1e\xa8ˑM\xe4\x01\x9a\xaf\xa8\xd2\x05\x12sandbox.run.cancel\x12C\n" +
+	"\x16CAP_SANDBOX_RUN_CANCEL\x10\xbb\x17\x1a\x1e\xa8ˑM\xe4\x01\x9a\xaf\xa8\xd2\x05\x12sandbox.run.cancel\x12W\n" +
+	"!CAP_SANDBOX_INSTALLATIONS_RESOLVE\x10\xbc\x17\x1a/\xa8ˑM\xed\x01\x9a\xaf\xa8\xd2\x05\x1dsandbox.installations.resolve\xa0\xaf\xa8\xd2\x05\x01\x12Q\n" +
+	"\x1eCAP_ENTITLEMENTS_FEATURES_LIST\x10\x81\x19\x1a,\xa8ˑM\xee\x01\x9a\xaf\xa8\xd2\x05\x1aentitlements.features.list\xa0\xaf\xa8\xd2\x05\x01\x12U\n" +
+	" CAP_ENTITLEMENTS_FEATURES_MANAGE\x10\x82\x19\x1a.\xa8ˑM\xef\x01\x9a\xaf\xa8\xd2\x05\x1centitlements.features.manage\xa0\xaf\xa8\xd2\x05\x01\x12C\n" +
 	"\x1aCAP_SANDBOX_SESSION_CREATE\x10\xc2\x17\x1a\"\xa8ˑM\xeb\x01\x9a\xaf\xa8\xd2\x05\x16sandbox.session.create\x12?\n" +
 	"\x18CAP_SANDBOX_SESSION_LIST\x10\xc3\x17\x1a \xa8ˑM\xec\x01\x9a\xaf\xa8\xd2\x05\x14sandbox.session.list\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x06\b\xd1\x0e\x10\xd1\x0e\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +

@@ -512,6 +512,36 @@ enum Capability {
   CAP_SANDBOX_RUN_CREATE = 3001 [(name) = "sandbox.run.create", (bit) = 226];
   CAP_SANDBOX_RUN_LIST   = 3002 [(name) = "sandbox.run.list",   (bit) = 227];
   CAP_SANDBOX_RUN_CANCEL = 3003 [(name) = "sandbox.run.cancel", (bit) = 228];
+  // Resolving a guardener GitHub App installation to the root group it is
+  // linked to. Internal only: the answer names another customer's
+  // organization, so it is held by the sandbox GitHub reconciler alone and
+  // checked at the acid-sandbox group, never at a customer group.
+  CAP_SANDBOX_INSTALLATIONS_RESOLVE = 3004 [
+    (name) = "sandbox.installations.resolve",
+    (bit) = 237,
+    (internal_only) = true
+  ];
+
+  // Central Entitlements Service FEATURE entitlements (product features such
+  // as sandbox_checks). Reading an organization's FEATURE rows. Internal only:
+  // it is held by the SANDBOX service principal's sandbox.service_agent role,
+  // which reads the org's rows to admit work. It is separate from
+  // registry.entitlements.list so the SANDBOX principal cannot read image
+  // entitlements.
+  CAP_ENTITLEMENTS_FEATURES_LIST = 3201 [
+    (name) = "entitlements.features.list",
+    (bit) = 238,
+    (internal_only) = true
+  ];
+  // Writing and deleting an organization's FEATURE rows as Chainguard
+  // (the INTERNAL and CONSOLE_ADMIN sources). Internal only: it is the support
+  // surface for backfill, trial extension and the kill switch, held through the
+  // support role.
+  CAP_ENTITLEMENTS_FEATURES_MANAGE = 3202 [
+    (name) = "entitlements.features.manage",
+    (bit) = 239,
+    (internal_only) = true
+  ];
 
   // Sandbox develop sessions (the Sessions API, ai-cicd/sandbox): resident
   // development sessions opened with `chainctl develop`. session.create opens
@@ -523,5 +553,5 @@ enum Capability {
   CAP_SANDBOX_SESSION_LIST   = 3011 [(name) = "sandbox.session.list",   (bit) = 236];
 
   reserved 1;
-  // next bit: 237
+  // next bit: 240
 }
