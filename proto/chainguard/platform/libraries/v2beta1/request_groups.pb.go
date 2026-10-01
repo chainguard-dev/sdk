@@ -281,6 +281,20 @@ const (
 	// Every CVE on this version was ruled out of scope. The decision on
 	// CVERemediation says which kind of out-of-scope.
 	CVERemediationStatus_CVE_REMEDIATION_STATUS_WONT_REMEDIATE CVERemediationStatus = 6
+	// A fix exists that the caller can move to now, and Chainguard has not
+	// delivered a build of the pinned version. fix_version names the target
+	// where one can be named.
+	//
+	// Distinct from REVIEWING, which says remediation has not started and would
+	// hide an upgrade available today, and from COMPLETE, which claims a build
+	// Chainguard shipped. Reached when an untriaged CVE already records a fix
+	// target, or when an advisory named a fix at or above the pinned version
+	// that Chainguard never ingested.
+	//
+	// Added after the other values, so a client generated from an earlier copy
+	// of this file decodes it as UNSPECIFIED. A version that reports it today
+	// reported REVIEWING before this value existed.
+	CVERemediationStatus_CVE_REMEDIATION_STATUS_FIX_AVAILABLE CVERemediationStatus = 7
 )
 
 // Enum value maps for CVERemediationStatus.
@@ -293,6 +307,7 @@ var (
 		4: "CVE_REMEDIATION_STATUS_IN_PROGRESS",
 		5: "CVE_REMEDIATION_STATUS_COMPLETE",
 		6: "CVE_REMEDIATION_STATUS_WONT_REMEDIATE",
+		7: "CVE_REMEDIATION_STATUS_FIX_AVAILABLE",
 	}
 	CVERemediationStatus_value = map[string]int32{
 		"CVE_REMEDIATION_STATUS_UNSPECIFIED":           0,
@@ -302,6 +317,7 @@ var (
 		"CVE_REMEDIATION_STATUS_IN_PROGRESS":           4,
 		"CVE_REMEDIATION_STATUS_COMPLETE":              5,
 		"CVE_REMEDIATION_STATUS_WONT_REMEDIATE":        6,
+		"CVE_REMEDIATION_STATUS_FIX_AVAILABLE":         7,
 	}
 )
 
@@ -4086,12 +4102,12 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	")libraries.chainguard.dev/RequestGroupItem\x12*requestGroups/{request_group}/items/{item}*\x11requestGroupItems2\x10requestGroupItem\"e\n" +
 	"\aUpgrade\x12-\n" +
 	"\x0fclosest_version\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x0eclosestVersion\x12+\n" +
-	"\x0elatest_version\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\rlatestVersion\"\xa6\x02\n" +
+	"\x0elatest_version\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\rlatestVersion\"\xac\x02\n" +
 	"\x0eCVERemediation\x12Y\n" +
 	"\x06status\x18\x01 \x01(\x0e2;.chainguard.platform.libraries.v2beta1.CVERemediationStatusB\x04\xe2A\x01\x03R\x06status\x12/\n" +
 	"\x10remediated_count\x18\x02 \x01(\x05B\x04\xe2A\x01\x03R\x0fremediatedCount\x12!\n" +
 	"\tcve_count\x18\x03 \x01(\x05B\x04\xe2A\x01\x03R\bcveCount\x12_\n" +
-	"\bdecision\x18\x05 \x01(\x0e2=.chainguard.platform.libraries.v2beta1.CVERemediationDecisionB\x04\xe2A\x01\x03R\bdecisionJ\x04\b\x04\x10\x05\"\xd1\x01\n" +
+	"\bdecision\x18\x05 \x01(\x0e2=.chainguard.platform.libraries.v2beta1.CVERemediationDecisionB\x04\xe2A\x01\x03R\bdecisionJ\x04\b\x04\x10\x05J\x04\b\x06\x10\a\"\xd1\x01\n" +
 	"\rInputMetadata\x12 \n" +
 	"\bfilename\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\bfilename\x12P\n" +
 	"\x06format\x18\x02 \x01(\x0e22.chainguard.platform.libraries.v2beta1.InputFormatB\x04\xe2A\x01\x03R\x06format\x12'\n" +
@@ -4351,7 +4367,7 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	" AVAILABILITY_INVALID_REQUIREMENT\x10\x06\x12\x19\n" +
 	"\x15AVAILABILITY_BUILDING\x10\a\x12\x1d\n" +
 	"\x19AVAILABILITY_BUILD_FAILED\x10\b\x12\x15\n" +
-	"\x11AVAILABILITY_HELD\x10\t*\xb6\x02\n" +
+	"\x11AVAILABILITY_HELD\x10\t*\xe0\x02\n" +
 	"\x14CVERemediationStatus\x12&\n" +
 	"\"CVE_REMEDIATION_STATUS_UNSPECIFIED\x10\x00\x12&\n" +
 	"\"CVE_REMEDIATION_STATUS_SCAN_QUEUED\x10\x01\x120\n" +
@@ -4359,7 +4375,8 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	" CVE_REMEDIATION_STATUS_REVIEWING\x10\x03\x12&\n" +
 	"\"CVE_REMEDIATION_STATUS_IN_PROGRESS\x10\x04\x12#\n" +
 	"\x1fCVE_REMEDIATION_STATUS_COMPLETE\x10\x05\x12)\n" +
-	"%CVE_REMEDIATION_STATUS_WONT_REMEDIATE\x10\x06*\xca\x01\n" +
+	"%CVE_REMEDIATION_STATUS_WONT_REMEDIATE\x10\x06\x12(\n" +
+	"$CVE_REMEDIATION_STATUS_FIX_AVAILABLE\x10\a*\xca\x01\n" +
 	"\x16CVERemediationDecision\x12(\n" +
 	"$CVE_REMEDIATION_DECISION_UNSPECIFIED\x10\x00\x12)\n" +
 	"%CVE_REMEDIATION_DECISION_NOT_AFFECTED\x10\x01\x12+\n" +

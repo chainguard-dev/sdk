@@ -580,6 +580,15 @@ message CVERemediation {
   // value. NOT_AFFECTED is reported only when it holds for every CVE on the
   // version. Read the per-CVE detail for the answer on any single CVE.
   CVERemediationDecision decision = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // 6 is reserved for a version-level fix target. Naming one means naming an
+  // upgrade for a customer to take, and the design requires every fix target to
+  // be checked against the malware block list at read time through the
+  // fail-closed checker -- a rollforward target is an upstream version, so it
+  // can be on that list. Until that check exists, this message carries the
+  // state without the target: FIX_AVAILABLE says a fix exists, and the per-CVE
+  // read is where a target is reported per CVE.
+  reserved 6;
 }
 
 // InputMetadata describes the uploaded input. The content is deliberately not
@@ -1494,6 +1503,21 @@ enum CVERemediationStatus {
   // Every CVE on this version was ruled out of scope. The decision on
   // CVERemediation says which kind of out-of-scope.
   CVE_REMEDIATION_STATUS_WONT_REMEDIATE = 6;
+
+  // A fix exists that the caller can move to now, and Chainguard has not
+  // delivered a build of the pinned version. fix_version names the target
+  // where one can be named.
+  //
+  // Distinct from REVIEWING, which says remediation has not started and would
+  // hide an upgrade available today, and from COMPLETE, which claims a build
+  // Chainguard shipped. Reached when an untriaged CVE already records a fix
+  // target, or when an advisory named a fix at or above the pinned version
+  // that Chainguard never ingested.
+  //
+  // Added after the other values, so a client generated from an earlier copy
+  // of this file decodes it as UNSPECIFIED. A version that reports it today
+  // reported REVIEWING before this value existed.
+  CVE_REMEDIATION_STATUS_FIX_AVAILABLE = 7;
 }
 
 // CVERemediationDecision is what a Chainguard reviewer decided about a CVE,
