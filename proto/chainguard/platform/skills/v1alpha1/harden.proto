@@ -253,4 +253,10 @@ message HardenOperationResponse {
   // the same input never collide on one digest. The job's identity (job_id,
   // group, skill_name) is on Operation.metadata, present on success and failure.
   string hardened_ref = 1;
+  // hardened is true when the skill passed the post-hardening scan and
+  // hardened_ref is its hardened rewrite. When false, the scan rejected the
+  // rewrite, and hardened_ref is the submitted skill, published unmodified with
+  // a HARDENING.md report of the findings. The artifact's
+  // dev.chainguard.skill.hardened manifest annotation records the same verdict.
+  bool hardened = 2;
 }

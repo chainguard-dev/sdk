@@ -508,7 +508,13 @@ type HardenOperationResponse struct {
 	// skills.cgr.dev/<group>/<user>/<skill_name>@<digest>, so two users hardening
 	// the same input never collide on one digest. The job's identity (job_id,
 	// group, skill_name) is on Operation.metadata, present on success and failure.
-	HardenedRef   string `protobuf:"bytes,1,opt,name=hardened_ref,json=hardenedRef,proto3" json:"hardened_ref,omitempty"`
+	HardenedRef string `protobuf:"bytes,1,opt,name=hardened_ref,json=hardenedRef,proto3" json:"hardened_ref,omitempty"`
+	// hardened is true when the skill passed the post-hardening scan and
+	// hardened_ref is its hardened rewrite. When false, the scan rejected the
+	// rewrite, and hardened_ref is the submitted skill, published unmodified with
+	// a HARDENING.md report of the findings. The artifact's
+	// dev.chainguard.skill.hardened manifest annotation records the same verdict.
+	Hardened      bool `protobuf:"varint,2,opt,name=hardened,proto3" json:"hardened,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -548,6 +554,13 @@ func (x *HardenOperationResponse) GetHardenedRef() string {
 		return x.HardenedRef
 	}
 	return ""
+}
+
+func (x *HardenOperationResponse) GetHardened() bool {
+	if x != nil {
+		return x.Hardened
+	}
+	return false
 }
 
 // PhaseChange records a single phase transition and when it occurred.
@@ -642,9 +655,10 @@ const file_chainguard_platform_skills_v1alpha1_harden_proto_rawDesc = "" +
 	" \x03(\v2H.chainguard.platform.skills.v1alpha1.HardenOperationMetadata.PhaseChangeR\fphaseChanges\x1a\x85\x01\n" +
 	"\vPhaseChange\x12F\n" +
 	"\x05phase\x18\x01 \x01(\x0e20.chainguard.platform.skills.v1alpha1.HardenPhaseR\x05phase\x12.\n" +
-	"\x04time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04time\"<\n" +
+	"\x04time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04time\"X\n" +
 	"\x17HardenOperationResponse\x12!\n" +
-	"\fhardened_ref\x18\x01 \x01(\tR\vhardenedRef*\x96\x01\n" +
+	"\fhardened_ref\x18\x01 \x01(\tR\vhardenedRef\x12\x1a\n" +
+	"\bhardened\x18\x02 \x01(\bR\bhardened*\x96\x01\n" +
 	"\vHardenPhase\x12\x1c\n" +
 	"\x18HARDEN_PHASE_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13HARDEN_PHASE_QUEUED\x10\x01\x12\x18\n" +
