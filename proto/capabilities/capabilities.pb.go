@@ -431,6 +431,14 @@ const (
 	Capability_CAP_SANDBOX_RUN_CREATE Capability = 3001
 	Capability_CAP_SANDBOX_RUN_LIST   Capability = 3002
 	Capability_CAP_SANDBOX_RUN_CANCEL Capability = 3003
+	// Sandbox develop sessions (the Sessions API, ai-cicd/sandbox): resident
+	// development sessions opened with `chainctl develop`. session.create opens
+	// sessions and lets the caller see and manage its own; it is
+	// customer-grantable via the sandbox.user role. session.list sees and
+	// manages (renames, deletes) every user's sessions in the instance — an
+	// administrative power held by Owners, not by sandbox.user.
+	Capability_CAP_SANDBOX_SESSION_CREATE Capability = 3010
+	Capability_CAP_SANDBOX_SESSION_LIST   Capability = 3011
 )
 
 // Enum value maps for Capability.
@@ -666,6 +674,8 @@ var (
 		3001:  "CAP_SANDBOX_RUN_CREATE",
 		3002:  "CAP_SANDBOX_RUN_LIST",
 		3003:  "CAP_SANDBOX_RUN_CANCEL",
+		3010:  "CAP_SANDBOX_SESSION_CREATE",
+		3011:  "CAP_SANDBOX_SESSION_LIST",
 	}
 	Capability_value = map[string]int32{
 		"UNKNOWN":                                            0,
@@ -898,6 +908,8 @@ var (
 		"CAP_SANDBOX_RUN_CREATE":                             3001,
 		"CAP_SANDBOX_RUN_LIST":                               3002,
 		"CAP_SANDBOX_RUN_CANCEL":                             3003,
+		"CAP_SANDBOX_SESSION_CREATE":                         3010,
+		"CAP_SANDBOX_SESSION_LIST":                           3011,
 	}
 )
 
@@ -981,7 +993,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x8a~\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x90\x7f\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1232,7 +1244,9 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x1dCAP_ACTIONS_DEPENDENCIES_LIST\x10\x97\x15\x1a+\xa8ˑM\xe0\x01\x9a\xaf\xa8\xd2\x05\x19actions.dependencies.list\xa0\xaf\xa8\xd2\x05\x01\x12;\n" +
 	"\x16CAP_SANDBOX_RUN_CREATE\x10\xb9\x17\x1a\x1e\xa8ˑM\xe2\x01\x9a\xaf\xa8\xd2\x05\x12sandbox.run.create\x127\n" +
 	"\x14CAP_SANDBOX_RUN_LIST\x10\xba\x17\x1a\x1c\xa8ˑM\xe3\x01\x9a\xaf\xa8\xd2\x05\x10sandbox.run.list\x12;\n" +
-	"\x16CAP_SANDBOX_RUN_CANCEL\x10\xbb\x17\x1a\x1e\xa8ˑM\xe4\x01\x9a\xaf\xa8\xd2\x05\x12sandbox.run.cancel\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x06\b\xd1\x0e\x10\xd1\x0e\"\x04\b\x01\x10\x01:8\n" +
+	"\x16CAP_SANDBOX_RUN_CANCEL\x10\xbb\x17\x1a\x1e\xa8ˑM\xe4\x01\x9a\xaf\xa8\xd2\x05\x12sandbox.run.cancel\x12C\n" +
+	"\x1aCAP_SANDBOX_SESSION_CREATE\x10\xc2\x17\x1a\"\xa8ˑM\xeb\x01\x9a\xaf\xa8\xd2\x05\x16sandbox.session.create\x12?\n" +
+	"\x18CAP_SANDBOX_SESSION_LIST\x10\xc3\x17\x1a \xa8ˑM\xec\x01\x9a\xaf\xa8\xd2\x05\x14sandbox.session.list\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x06\b\xd1\x0e\x10\xd1\x0e\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +
 	"\x03bit\x12!.google.protobuf.EnumValueOptions\x18\xb5\x99\xd2\t \x01(\rR\x03bit:I\n" +
 	"\rinternal_only\x12!.google.protobuf.EnumValueOptions\x18\xf4\x85\xa5Z \x01(\bR\finternalOnlyB'Z%chainguard.dev/sdk/proto/capabilitiesb\x06proto3"

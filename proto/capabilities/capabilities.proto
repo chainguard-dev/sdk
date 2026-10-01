@@ -513,6 +513,15 @@ enum Capability {
   CAP_SANDBOX_RUN_LIST   = 3002 [(name) = "sandbox.run.list",   (bit) = 227];
   CAP_SANDBOX_RUN_CANCEL = 3003 [(name) = "sandbox.run.cancel", (bit) = 228];
 
+  // Sandbox develop sessions (the Sessions API, ai-cicd/sandbox): resident
+  // development sessions opened with `chainctl develop`. session.create opens
+  // sessions and lets the caller see and manage its own; it is
+  // customer-grantable via the sandbox.user role. session.list sees and
+  // manages (renames, deletes) every user's sessions in the instance — an
+  // administrative power held by Owners, not by sandbox.user.
+  CAP_SANDBOX_SESSION_CREATE = 3010 [(name) = "sandbox.session.create", (bit) = 235];
+  CAP_SANDBOX_SESSION_LIST   = 3011 [(name) = "sandbox.session.list",   (bit) = 236];
+
   reserved 1;
-  // next bit: 235
+  // next bit: 237
 }

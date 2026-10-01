@@ -240,8 +240,10 @@ var (
 		// link/unlink a GitHub org to the group in addition to running DFC sessions.
 		GuardenerAdminCaps,
 		// Owners can run, watch, and cancel workflow runs on the sandbox Runs
-		// control plane, and grant the same to others via sandbox.user.
-		SandboxUserCaps,
+		// control plane and open develop sessions, and grant the same to
+		// others via sandbox.user; they also see and manage every user's
+		// develop sessions in the group.
+		SandboxAdminCaps,
 	)
 
 	RegistryRepoAdminCaps = SortCaps(RegistryEditorCaps)
@@ -540,16 +542,29 @@ var (
 		Capability_CAP_MCP_TOOL_CALL,
 	})
 
-	// SandboxUserCaps is the capability set for using the ACID sandbox Runs
-	// control plane (the WorkflowRuns API): submitting workflow runs, reading
-	// them and their operations, and cancelling them, all scoped to the
-	// caller's own instance (group). It backs the sandbox.user role and is
-	// included in OwnerCaps.
+	// SandboxUserCaps is the capability set for using the ACID sandbox: on the
+	// Runs control plane (the WorkflowRuns API), submitting workflow runs,
+	// reading them and their operations, and cancelling them; on the Sessions
+	// API, opening develop sessions and seeing and managing one's own. All are
+	// scoped to the caller's own instance (group). It backs the sandbox.user
+	// role and is included in OwnerCaps. It deliberately omits
+	// sandbox.session.list, which reaches every user's sessions
+	// (SandboxAdminCaps).
 	SandboxUserCaps = SortCaps([]Capability{
 		Capability_CAP_SANDBOX_RUN_CREATE,
 		Capability_CAP_SANDBOX_RUN_LIST,
 		Capability_CAP_SANDBOX_RUN_CANCEL,
+		Capability_CAP_SANDBOX_SESSION_CREATE,
 	})
+
+	// SandboxAdminCaps extends SandboxUserCaps with sandbox.session.list: seeing
+	// and managing (renaming, deleting) every user's develop sessions in the
+	// instance, not only one's own. Deleting a session destroys its sealed
+	// snapshot, so this is an administrative power; it is included in
+	// OwnerCaps and in no customer-grantable role below Owner.
+	SandboxAdminCaps = SortCaps([]Capability{
+		Capability_CAP_SANDBOX_SESSION_LIST,
+	}, SandboxUserCaps)
 
 	// ArgosOperatorCaps is the capability set for managing argos
 	// (client-side-encrypted document) records.
