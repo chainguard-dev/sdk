@@ -258,5 +258,7 @@ message HardenOperationResponse {
   // rewrite, and hardened_ref is the submitted skill, published unmodified with
   // a HARDENING.md report of the findings. The artifact's
   // dev.chainguard.skill.hardened manifest annotation records the same verdict.
-  bool hardened = 2;
+  // Unset on responses from servers that predate the field, which only
+  // completed successfully for skills that passed: treat unset as true.
+  optional bool hardened = 2;
 }
