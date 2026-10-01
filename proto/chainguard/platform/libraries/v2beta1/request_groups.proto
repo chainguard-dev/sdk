@@ -366,6 +366,41 @@ service RequestGroupsService {
       open_world: false
     };
   }
+
+  // ListRequestedLibraryVersionCves is the click-through detail behind one
+  // version's aggregate CVE status: the individual CVEs, what Chainguard
+  // decided about each, and which release fixes it.
+  //
+  // The aggregate on RequestedLibraryVersion and ListRequestGroupItems
+  // collapses this list to a status and two counts, which is lossy by
+  // construction. This is the authoritative answer for any single CVE.
+  //
+  // The signature is over the 80-character limit and cannot be brought under
+  // it: buf format puts an rpc signature on one line, and the method name plus
+  // its request and response leave 14 characters for a name that has to say
+  // which resource it lists. Disabled for this line only, rather than for the
+  // file or the rule, so every other line still has to fit.
+  // protolint:disable:next MAX_LINE_LENGTH
+  rpc ListRequestedLibraryVersionCves(ListRequestedLibraryVersionCvesRequest) returns (ListRequestedLibraryVersionCvesResponse) {
+    option (google.api.http) = {
+      get:
+        "/libraries/v2beta1/requestedLibraries"
+        ":listRequestedLibraryVersionCves"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {capabilities: [CAP_LIBRARIES_REQUEST_GROUPS_LIST]}
+    };
+    option (chainguard.annotations.mcp) = {
+      description:
+        "List the individual CVEs recorded against one requested library "
+        "version, with severity, KEV status, per-CVE remediation state, and "
+        "the Chainguard release that fixes each."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
 }
 
 // RequestGroup is one organization's request for a set of library versions.
@@ -1236,6 +1271,109 @@ message ListRequestedLibraryVersionsResponse {
   int32 skipped = 4;
 }
 
+// ListRequestedLibraryVersionCvesRequest names one version of one library.
+//
+// The triple (name, ecosystem, version) identifies the version, for the same
+// reason ListRequestedLibraryVersions needs name and ecosystem together: one
+// package name can exist under two ecosystems.
+message ListRequestedLibraryVersionCvesRequest {
+  // The organization whose requests to read.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The library's canonical name, as returned by ListRequestedLibraries.
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The library's ecosystem.
+  Ecosystem ecosystem = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // The version as requested, as returned by ListRequestedLibraryVersions.
+  string version = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // Maximum CVEs to return. Default 50, maximum 1000.
+  int32 page_size = 10 [(google.api.field_behavior) = OPTIONAL];
+
+  // Opaque page token from a previous response.
+  string page_token = 11 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of results to skip before returning, for random-access pagination.
+  // Combines with page_token to skip from the cursor position. Must be
+  // non-negative.
+  int32 skip = 13 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListRequestedLibraryVersionCvesResponse returns a page of CVEs.
+message ListRequestedLibraryVersionCvesResponse {
+  // The CVEs on this page, KEV first.
+  repeated RequestedLibraryVersionCVE cves = 1;
+
+  // Token for the next page; empty when there are no more.
+  string next_page_token = 2;
+
+  // Total CVEs recorded against this version, across all pages.
+  optional int64 total_count = 3;
+
+  // Results skipped before this page, accumulated across paginated requests.
+  int32 skipped = 4;
+
+  // Whether Chainguard has cross-referenced this version against advisory data.
+  //
+  // False with an empty list means "no answer yet", not "no CVEs" — rows are
+  // created only when the cross-reference returns a decision, so a clean
+  // version and an unprocessed one are otherwise indistinguishable. A caller
+  // must not render an empty list as "no CVEs found" unless this is true.
+  bool cross_referenced = 5;
+}
+
+// RequestedLibraryVersionCVE is one CVE recorded against one version.
+//
+// One row per (version, CVE). Rows are shared across request groups: if
+// several groups pin the same version, there is one record and a triage
+// decision applies to all of them.
+message RequestedLibraryVersionCVE {
+  // The CVE identifier, e.g. "CVE-2024-12345". For a vulnerability with no CVE
+  // assigned, an internal synthetic identifier.
+  string cve_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Severity band, from the advisory data.
+  CVESeverity severity = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether the CVE is in CISA's Known Exploited Vulnerabilities catalog.
+  bool kev = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Remediation state of this CVE on this version.
+  CVEStatus status = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The reviewer's decision, where one was recorded. Per CVE, so unlike the
+  // aggregate on CVERemediation this value is not collapsed across a version.
+  //
+  // Over the line limit by two characters, and buf format puts a field and its
+  // options on one line. Disabled for this line only; the identical
+  // declaration on CVERemediation above predates the limit.
+  // protolint:disable:next MAX_LINE_LENGTH
+  CVERemediationDecision decision = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The earliest Chainguard build carrying the fix, e.g. "0.115.0+cgr.1". May
+  // move to an earlier version as older backports land, never to a later one.
+  //
+  // Empty means no Chainguard build is recorded against this CVE. It does not
+  // mean no fix exists: an upstream release may carry one, and status
+  // FIX_AVAILABLE says so where we know. Rendering an empty value as "no fix"
+  // is the one reading that stops a customer investigating.
+  //
+  // This field does not yet carry the upstream upgrade target, and does not yet
+  // report a fix target that landed on the malware block list as blocked. Until
+  // it does, treat it as evidence of a Chainguard build and not as the complete
+  // answer about where a fix exists.
+  string remediated_version = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // What this row asserts. Read it before presenting the row as a finding:
+  // an UPSTREAM row is a detection, not a Chainguard determination.
+  CVEProvenance provenance = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
 // RequestGroupState selects drafts or submitted groups when listing.
 enum RequestGroupState {
   // Unspecified: the server applies its default, which is submitted.
@@ -1391,6 +1529,95 @@ enum CVERemediationDecision {
   // Chainguard does not plan to publish a remediated build of the pinned
   // version, because moving to a later version resolves it.
   CVE_REMEDIATION_DECISION_UPGRADE_AVAILABLE = 3;
+}
+
+// CVEStatus is the remediation state of one CVE on one version.
+//
+// Deliberately not CVERemediationStatus, which is the aggregate ladder over a
+// whole version and has a different vocabulary. The two share only IN_PROGRESS,
+// so one enum serving both would report a per-CVE state in words that mean
+// something else at the version level.
+enum CVEStatus {
+  // Unspecified state.
+  CVE_STATUS_UNSPECIFIED = 0;
+
+  // Recorded by the cross-reference and not yet triaged.
+  CVE_STATUS_PENDING = 1;
+
+  // A reviewer has decided how to remediate; work has not started.
+  CVE_STATUS_TRIAGED = 2;
+
+  // A rebuild or backport is underway.
+  CVE_STATUS_IN_PROGRESS = 3;
+
+  // Chainguard delivered a build carrying the fix, and remediated_version
+  // names it.
+  //
+  // Delivery, not the existence of a fix somewhere. The stored status alone
+  // does not establish it: a row completes as soon as an advisory names a fix
+  // at or above the affected version, and that fix may be one Chainguard never
+  // ingested. Such a row reports FIX_AVAILABLE instead, so this value never
+  // appears without a remediated_version beside it.
+  CVE_STATUS_COMPLETED = 4;
+
+  // Ruled out of scope. decision says which kind of out-of-scope, and is the
+  // field to render: "not affected" and "no fix planned" mean opposite things
+  // to the reader.
+  CVE_STATUS_EXCLUDED = 5;
+
+  // No active request group references this version any more, so the row is no
+  // longer maintained. Reported rather than hidden, because a caller that
+  // pinned the version earlier may still be running it.
+  CVE_STATUS_SUPERSEDED = 6;
+
+  // An advisory names a fix, but Chainguard has not delivered a build carrying
+  // it. remediated_version is empty: there is no Chainguard build to name.
+  //
+  // Its own value rather than COMPLETED, which would claim a remediation
+  // nobody shipped, and rather than IN_PROGRESS or TRIAGED, which say
+  // remediation has not landed yet while hiding that the CVE is resolved by
+  // moving to a later upstream version today.
+  CVE_STATUS_FIX_AVAILABLE = 7;
+}
+
+// CVESeverity is the severity band from the advisory data.
+//
+// UNSPECIFIED covers two cases a caller should treat alike: no severity was
+// recorded, and the advisory reported a band this API does not enumerate. The
+// second is mapped rather than dropped, so the CVE still appears.
+enum CVESeverity {
+  // No severity recorded, or a band this API does not enumerate.
+  CVE_SEVERITY_UNSPECIFIED = 0;
+
+  // The advisory reported "low".
+  CVE_SEVERITY_LOW = 1;
+
+  // The advisory reported "medium".
+  CVE_SEVERITY_MEDIUM = 2;
+
+  // The advisory reported "high".
+  CVE_SEVERITY_HIGH = 3;
+
+  // The advisory reported "critical".
+  CVE_SEVERITY_CRITICAL = 4;
+}
+
+// CVEProvenance is what a CVE row asserts, which differs by where it came from.
+//
+// It exists because the two are not interchangeable to a reader. An ADVISORY
+// row is a Chainguard determination: we rebuilt the artifact and the rebuild
+// remediates this CVE. An UPSTREAM row is an untriaged detection that this
+// version is affected. Presenting an upstream detection as a determination
+// reports input we have not stood behind as a finding we have.
+enum CVEProvenance {
+  // Unspecified provenance.
+  CVE_PROVENANCE_UNSPECIFIED = 0;
+
+  // Chainguard's rebuild of this artifact remediates this CVE.
+  CVE_PROVENANCE_ADVISORY = 1;
+
+  // This version is affected by this CVE. An untriaged detection.
+  CVE_PROVENANCE_UPSTREAM = 2;
 }
 
 // InputFormat is how a submitted input is parsed.

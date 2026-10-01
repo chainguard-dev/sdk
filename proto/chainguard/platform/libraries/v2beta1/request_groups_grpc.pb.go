@@ -23,19 +23,20 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	RequestGroupsService_CreateRequestGroup_FullMethodName           = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/CreateRequestGroup"
-	RequestGroupsService_ListRequestGroups_FullMethodName            = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestGroups"
-	RequestGroupsService_GetRequestGroup_FullMethodName              = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/GetRequestGroup"
-	RequestGroupsService_ListRequestGroupItems_FullMethodName        = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestGroupItems"
-	RequestGroupsService_SubmitRequestGroup_FullMethodName           = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/SubmitRequestGroup"
-	RequestGroupsService_UpdateRequestGroup_FullMethodName           = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/UpdateRequestGroup"
-	RequestGroupsService_RemoveItems_FullMethodName                  = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RemoveItems"
-	RequestGroupsService_RestoreItems_FullMethodName                 = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RestoreItems"
-	RequestGroupsService_DeleteRequestGroup_FullMethodName           = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/DeleteRequestGroup"
-	RequestGroupsService_DeleteSubmittedRequestGroup_FullMethodName  = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/DeleteSubmittedRequestGroup"
-	RequestGroupsService_RefreshCoverage_FullMethodName              = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RefreshCoverage"
-	RequestGroupsService_ListRequestedLibraries_FullMethodName       = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestedLibraries"
-	RequestGroupsService_ListRequestedLibraryVersions_FullMethodName = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestedLibraryVersions"
+	RequestGroupsService_CreateRequestGroup_FullMethodName              = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/CreateRequestGroup"
+	RequestGroupsService_ListRequestGroups_FullMethodName               = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestGroups"
+	RequestGroupsService_GetRequestGroup_FullMethodName                 = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/GetRequestGroup"
+	RequestGroupsService_ListRequestGroupItems_FullMethodName           = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestGroupItems"
+	RequestGroupsService_SubmitRequestGroup_FullMethodName              = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/SubmitRequestGroup"
+	RequestGroupsService_UpdateRequestGroup_FullMethodName              = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/UpdateRequestGroup"
+	RequestGroupsService_RemoveItems_FullMethodName                     = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RemoveItems"
+	RequestGroupsService_RestoreItems_FullMethodName                    = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RestoreItems"
+	RequestGroupsService_DeleteRequestGroup_FullMethodName              = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/DeleteRequestGroup"
+	RequestGroupsService_DeleteSubmittedRequestGroup_FullMethodName     = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/DeleteSubmittedRequestGroup"
+	RequestGroupsService_RefreshCoverage_FullMethodName                 = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RefreshCoverage"
+	RequestGroupsService_ListRequestedLibraries_FullMethodName          = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestedLibraries"
+	RequestGroupsService_ListRequestedLibraryVersions_FullMethodName    = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestedLibraryVersions"
+	RequestGroupsService_ListRequestedLibraryVersionCves_FullMethodName = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestedLibraryVersionCves"
 )
 
 // RequestGroupsServiceClient is the client API for RequestGroupsService service.
@@ -144,6 +145,21 @@ type RequestGroupsServiceClient interface {
 	// rather than a stored resource with a uid, so this reads as a custom method on
 	// the collection instead of a sub-resource of an addressable parent.
 	ListRequestedLibraryVersions(ctx context.Context, in *ListRequestedLibraryVersionsRequest, opts ...grpc.CallOption) (*ListRequestedLibraryVersionsResponse, error)
+	// ListRequestedLibraryVersionCves is the click-through detail behind one
+	// version's aggregate CVE status: the individual CVEs, what Chainguard
+	// decided about each, and which release fixes it.
+	//
+	// The aggregate on RequestedLibraryVersion and ListRequestGroupItems
+	// collapses this list to a status and two counts, which is lossy by
+	// construction. This is the authoritative answer for any single CVE.
+	//
+	// The signature is over the 80-character limit and cannot be brought under
+	// it: buf format puts an rpc signature on one line, and the method name plus
+	// its request and response leave 14 characters for a name that has to say
+	// which resource it lists. Disabled for this line only, rather than for the
+	// file or the rule, so every other line still has to fit.
+	// protolint:disable:next MAX_LINE_LENGTH
+	ListRequestedLibraryVersionCves(ctx context.Context, in *ListRequestedLibraryVersionCvesRequest, opts ...grpc.CallOption) (*ListRequestedLibraryVersionCvesResponse, error)
 }
 
 type requestGroupsServiceClient struct {
@@ -284,6 +300,16 @@ func (c *requestGroupsServiceClient) ListRequestedLibraryVersions(ctx context.Co
 	return out, nil
 }
 
+func (c *requestGroupsServiceClient) ListRequestedLibraryVersionCves(ctx context.Context, in *ListRequestedLibraryVersionCvesRequest, opts ...grpc.CallOption) (*ListRequestedLibraryVersionCvesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListRequestedLibraryVersionCvesResponse)
+	err := c.cc.Invoke(ctx, RequestGroupsService_ListRequestedLibraryVersionCves_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RequestGroupsServiceServer is the server API for RequestGroupsService service.
 // All implementations must embed UnimplementedRequestGroupsServiceServer
 // for forward compatibility.
@@ -390,6 +416,21 @@ type RequestGroupsServiceServer interface {
 	// rather than a stored resource with a uid, so this reads as a custom method on
 	// the collection instead of a sub-resource of an addressable parent.
 	ListRequestedLibraryVersions(context.Context, *ListRequestedLibraryVersionsRequest) (*ListRequestedLibraryVersionsResponse, error)
+	// ListRequestedLibraryVersionCves is the click-through detail behind one
+	// version's aggregate CVE status: the individual CVEs, what Chainguard
+	// decided about each, and which release fixes it.
+	//
+	// The aggregate on RequestedLibraryVersion and ListRequestGroupItems
+	// collapses this list to a status and two counts, which is lossy by
+	// construction. This is the authoritative answer for any single CVE.
+	//
+	// The signature is over the 80-character limit and cannot be brought under
+	// it: buf format puts an rpc signature on one line, and the method name plus
+	// its request and response leave 14 characters for a name that has to say
+	// which resource it lists. Disabled for this line only, rather than for the
+	// file or the rule, so every other line still has to fit.
+	// protolint:disable:next MAX_LINE_LENGTH
+	ListRequestedLibraryVersionCves(context.Context, *ListRequestedLibraryVersionCvesRequest) (*ListRequestedLibraryVersionCvesResponse, error)
 	mustEmbedUnimplementedRequestGroupsServiceServer()
 }
 
@@ -438,6 +479,9 @@ func (UnimplementedRequestGroupsServiceServer) ListRequestedLibraries(context.Co
 }
 func (UnimplementedRequestGroupsServiceServer) ListRequestedLibraryVersions(context.Context, *ListRequestedLibraryVersionsRequest) (*ListRequestedLibraryVersionsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListRequestedLibraryVersions not implemented")
+}
+func (UnimplementedRequestGroupsServiceServer) ListRequestedLibraryVersionCves(context.Context, *ListRequestedLibraryVersionCvesRequest) (*ListRequestedLibraryVersionCvesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListRequestedLibraryVersionCves not implemented")
 }
 func (UnimplementedRequestGroupsServiceServer) mustEmbedUnimplementedRequestGroupsServiceServer() {}
 func (UnimplementedRequestGroupsServiceServer) testEmbeddedByValue()                              {}
@@ -694,6 +738,24 @@ func _RequestGroupsService_ListRequestedLibraryVersions_Handler(srv interface{},
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RequestGroupsService_ListRequestedLibraryVersionCves_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRequestedLibraryVersionCvesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RequestGroupsServiceServer).ListRequestedLibraryVersionCves(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RequestGroupsService_ListRequestedLibraryVersionCves_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RequestGroupsServiceServer).ListRequestedLibraryVersionCves(ctx, req.(*ListRequestedLibraryVersionCvesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RequestGroupsService_ServiceDesc is the grpc.ServiceDesc for RequestGroupsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -752,6 +814,10 @@ var RequestGroupsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListRequestedLibraryVersions",
 			Handler:    _RequestGroupsService_ListRequestedLibraryVersions_Handler,
+		},
+		{
+			MethodName: "ListRequestedLibraryVersionCves",
+			Handler:    _RequestGroupsService_ListRequestedLibraryVersionCves_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
