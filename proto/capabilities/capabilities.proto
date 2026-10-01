@@ -249,6 +249,14 @@ enum Capability {
   CAP_LIBRARIES_REMOTE_REGISTRIES_LIST = 1883 [(name) = "libraries.remote_registries.list", (bit) = 220];
   CAP_LIBRARIES_REMOTE_REGISTRIES_DELETE = 1884 [(name) = "libraries.remote_registries.delete", (bit) = 221];
 
+  // Storage usage: how much storage an org's own uploads consume in each
+  // language ecosystem. Owner-only because it is org-wide accounting (and the
+  // basis for upcoming quotas), not something every member needs to see.
+  CAP_LIBRARIES_STORAGE_USAGE_GET = 1885 [
+    (name) = "libraries.storage_usage.get",
+    (bit) = 234
+  ];
+
   // Registry Entitlements
   CAP_REGISTRY_ENTITLEMENTS_LIST = 1680 [(name) = "registry.entitlements.list", (bit) = 87];
   CAP_REGISTRY_ENTITLEMENTS_CREATE = 1681 [(name) = "registry.entitlements.create", (bit) = 96];
@@ -506,5 +514,5 @@ enum Capability {
   CAP_SANDBOX_RUN_CANCEL = 3003 [(name) = "sandbox.run.cancel", (bit) = 228];
 
   reserved 1;
-  // next bit: 234
+  // next bit: 235
 }

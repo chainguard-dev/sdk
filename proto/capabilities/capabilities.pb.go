@@ -218,6 +218,10 @@ const (
 	Capability_CAP_LIBRARIES_REMOTE_REGISTRIES_CREATE Capability = 1882
 	Capability_CAP_LIBRARIES_REMOTE_REGISTRIES_LIST   Capability = 1883
 	Capability_CAP_LIBRARIES_REMOTE_REGISTRIES_DELETE Capability = 1884
+	// Storage usage: how much storage an org's own uploads consume in each
+	// language ecosystem. Owner-only because it is org-wide accounting (and the
+	// basis for upcoming quotas), not something every member needs to see.
+	Capability_CAP_LIBRARIES_STORAGE_USAGE_GET Capability = 1885
 	// Registry Entitlements
 	Capability_CAP_REGISTRY_ENTITLEMENTS_LIST          Capability = 1680
 	Capability_CAP_REGISTRY_ENTITLEMENTS_CREATE        Capability = 1681
@@ -561,6 +565,7 @@ var (
 		1882:  "CAP_LIBRARIES_REMOTE_REGISTRIES_CREATE",
 		1883:  "CAP_LIBRARIES_REMOTE_REGISTRIES_LIST",
 		1884:  "CAP_LIBRARIES_REMOTE_REGISTRIES_DELETE",
+		1885:  "CAP_LIBRARIES_STORAGE_USAGE_GET",
 		1680:  "CAP_REGISTRY_ENTITLEMENTS_LIST",
 		1681:  "CAP_REGISTRY_ENTITLEMENTS_CREATE",
 		1682:  "CAP_REGISTRY_ENTITLEMENTS_DELETE",
@@ -792,6 +797,7 @@ var (
 		"CAP_LIBRARIES_REMOTE_REGISTRIES_CREATE":             1882,
 		"CAP_LIBRARIES_REMOTE_REGISTRIES_LIST":               1883,
 		"CAP_LIBRARIES_REMOTE_REGISTRIES_DELETE":             1884,
+		"CAP_LIBRARIES_STORAGE_USAGE_GET":                    1885,
 		"CAP_REGISTRY_ENTITLEMENTS_LIST":                     1680,
 		"CAP_REGISTRY_ENTITLEMENTS_CREATE":                   1681,
 		"CAP_REGISTRY_ENTITLEMENTS_DELETE":                   1682,
@@ -975,7 +981,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xbb}\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x8a~\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1123,7 +1129,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"-CAP_LIBRARIES_REQUEST_GROUPS_DELETE_SUBMITTED\x10\xd9\x0e\x1a;\xa8ˑM\xd8\x01\x9a\xaf\xa8\xd2\x05)libraries.request_groups.delete_submitted\xa0\xaf\xa8\xd2\x05\x01\x12[\n" +
 	"&CAP_LIBRARIES_REMOTE_REGISTRIES_CREATE\x10\xda\x0e\x1a.\xa8ˑM\xdb\x01\x9a\xaf\xa8\xd2\x05\"libraries.remote_registries.create\x12W\n" +
 	"$CAP_LIBRARIES_REMOTE_REGISTRIES_LIST\x10\xdb\x0e\x1a,\xa8ˑM\xdc\x01\x9a\xaf\xa8\xd2\x05 libraries.remote_registries.list\x12[\n" +
-	"&CAP_LIBRARIES_REMOTE_REGISTRIES_DELETE\x10\xdc\x0e\x1a.\xa8ˑM\xdd\x01\x9a\xaf\xa8\xd2\x05\"libraries.remote_registries.delete\x12J\n" +
+	"&CAP_LIBRARIES_REMOTE_REGISTRIES_DELETE\x10\xdc\x0e\x1a.\xa8ˑM\xdd\x01\x9a\xaf\xa8\xd2\x05\"libraries.remote_registries.delete\x12M\n" +
+	"\x1fCAP_LIBRARIES_STORAGE_USAGE_GET\x10\xdd\x0e\x1a'\xa8ˑM\xea\x01\x9a\xaf\xa8\xd2\x05\x1blibraries.storage_usage.get\x12J\n" +
 	"\x1eCAP_REGISTRY_ENTITLEMENTS_LIST\x10\x90\r\x1a%\xa8ˑMW\x9a\xaf\xa8\xd2\x05\x1aregistry.entitlements.list\x12N\n" +
 	" CAP_REGISTRY_ENTITLEMENTS_CREATE\x10\x91\r\x1a'\xa8ˑM`\x9a\xaf\xa8\xd2\x05\x1cregistry.entitlements.create\x12N\n" +
 	" CAP_REGISTRY_ENTITLEMENTS_DELETE\x10\x92\r\x1a'\xa8ˑMa\x9a\xaf\xa8\xd2\x05\x1cregistry.entitlements.delete\x12W\n" +

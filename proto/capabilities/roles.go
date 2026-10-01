@@ -210,6 +210,9 @@ var (
 		Capability_CAP_LIBRARIES_REMOTE_REGISTRIES_CREATE,
 		Capability_CAP_LIBRARIES_REMOTE_REGISTRIES_DELETE,
 
+		// Owner-only: org-wide storage accounting for the org's own uploads.
+		Capability_CAP_LIBRARIES_STORAGE_USAGE_GET,
+
 		Capability_CAP_TERMS_ACCEPT,
 		Capability_CAP_TERMS_LIST,
 
