@@ -105,7 +105,8 @@ func (CatalogTier) EnumDescriptor() ([]byte, []int) {
 type CustomOverlay_FailMode int32
 
 const (
-	// Treated as FAIL_MODE_CLOSED.
+	// No value. Uses a broader binding's value when overlays are layered,
+	// and FAIL_MODE_CLOSED when none sets one.
 	CustomOverlay_FAIL_MODE_UNSPECIFIED CustomOverlay_FailMode = 0
 	// Wrapper refuses to start the app when secret resolution fails.
 	CustomOverlay_FAIL_MODE_CLOSED CustomOverlay_FailMode = 1
@@ -556,30 +557,50 @@ type CustomOverlay struct {
 	// setting this field is rejected for every organization.
 	//
 	// Wraps the image entrypoint with /usr/bin/guarded-entrypoint on rebuild.
+	// When several overlay bindings apply to one tag, the entrypoint is
+	// wrapped if any of them sets this to true; a more specific binding
+	// cannot turn it off.
 	GuardedEntrypoint bool `protobuf:"varint,6,opt,name=guarded_entrypoint,json=guardedEntrypoint,proto3" json:"guarded_entrypoint,omitempty"`
 	// NOTE: Part of Guarded Entrypoint, which is IN DEVELOPMENT and not yet
 	// available; setting this field is rejected for every organization.
 	//
 	// Readiness checks to run before starting the app. Requires
-	// guarded_entrypoint. Up to 32 entries. The syncer bakes each
-	// entry into the image as one environment variable using a flat
-	// encoding, e.g.
+	// guarded_entrypoint in the same overlay config, even when a broader
+	// binding already sets it. Up to 32 entries per overlay. The syncer
+	// bakes each entry into the image as one environment variable using a
+	// flat encoding, e.g.
 	// GUARDED_PREFLIGHT_0=tcp=redis:6379,timeout=60s,interval=1s,on_failure=fail
 	// (n starts at 0; values may not contain "," or "=").
+	// When several overlay bindings apply to one tag, their checks are
+	// combined, broader bindings first, and identical entries are dropped.
+	// The combined list can exceed 32.
 	Preflight []*CustomOverlay_Preflight `protobuf:"bytes,7,rep,name=preflight,proto3" json:"preflight,omitempty"`
 	// NOTE: Part of Guarded Entrypoint, which is IN DEVELOPMENT and not yet
 	// available; setting this field is rejected for every organization.
 	//
 	// Command override for the guarded_entrypoint wrapper. Requires
-	// guarded_entrypoint.
+	// guarded_entrypoint in the same overlay config, even when a broader
+	// binding already sets it. When several overlay bindings apply to one
+	// tag, the most specific one that sets it wins (see TagSelector); one
+	// that leaves it unset uses the value from a broader one. An empty
+	// command_override counts as set, so it cancels a broader override.
 	CommandOverride *CustomOverlay_CommandOverride `protobuf:"bytes,8,opt,name=command_override,json=commandOverride,proto3" json:"command_override,omitempty"`
 	// NOTE: Part of Guarded Entrypoint, which is IN DEVELOPMENT and not yet
 	// available; setting this field is rejected for every organization.
 	//
 	// How the wrapper handles secret-resolution failures. Requires
-	// guarded_entrypoint. Default is FAIL_MODE_CLOSED. Baked into the
+	// guarded_entrypoint in the same overlay config, even when a broader
+	// binding already sets it. FAIL_MODE_CLOSED when no applicable binding
+	// sets it. Baked into the
 	// image by the syncer as GUARDED_FAIL_MODE=closed|open, emitted only
 	// when FAIL_MODE_OPEN; a closed repo's image is unchanged.
+	// When several overlay bindings apply to one tag, the most specific one
+	// that sets it wins (see TagSelector); one that leaves it unset
+	// (FAIL_MODE_UNSPECIFIED) uses the value from a broader one, which may
+	// be FAIL_MODE_OPEN. To keep a tag fail-closed, bind an overlay that
+	// sets guarded_entrypoint and FAIL_MODE_CLOSED to that tag at a more
+	// specific layer than the one setting FAIL_MODE_OPEN. If the open value
+	// comes from the tag's own KIND_EXACT binding, change that overlay.
 	FailMode      CustomOverlay_FailMode `protobuf:"varint,9,opt,name=fail_mode,json=failMode,proto3,enum=chainguard.platform.registry.v2beta1.CustomOverlay_FailMode" json:"fail_mode,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

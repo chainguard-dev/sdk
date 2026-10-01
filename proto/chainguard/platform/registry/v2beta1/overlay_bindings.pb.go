@@ -241,11 +241,14 @@ func (x *OverlayBinding) GetTagSelector() *TagSelector {
 //     only VARIANT_TYPE_DEV, matching the "-dev" tag suffix).
 //  3. KIND_EXACT bindings whose `tags` include the tag.
 //
-// Layers merge later-wins for scalar fields; packages accumulate. All
-// three can stack on a single tag (e.g. `latest-dev`). Within one layer,
-// co-matching bindings merge commutatively: the bind-time compatibility
-// check (see CreateOverlayBindingRequest.tag_selector) guarantees their
-// overlays' configs never set the same field to different values.
+// Layers merge later-wins for scalar fields; packages accumulate. A later
+// layer is more specific. The Guarded Entrypoint fields
+// (guarded_entrypoint, preflight, command_override, fail_mode) state how
+// they layer on each field of CustomOverlay. All three layers can stack on
+// a single tag (e.g. `latest-dev`). Within one layer, co-matching bindings
+// merge commutatively: the bind-time compatibility check (see
+// CreateOverlayBindingRequest.tag_selector) guarantees their overlays'
+// configs never set the same field to different values.
 type TagSelector struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Kind is the matching mode.

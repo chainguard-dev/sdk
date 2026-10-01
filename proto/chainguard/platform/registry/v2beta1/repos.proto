@@ -316,17 +316,24 @@ message CustomOverlay {
   // setting this field is rejected for every organization.
   //
   // Wraps the image entrypoint with /usr/bin/guarded-entrypoint on rebuild.
+  // When several overlay bindings apply to one tag, the entrypoint is
+  // wrapped if any of them sets this to true; a more specific binding
+  // cannot turn it off.
   bool guarded_entrypoint = 6 [(google.api.field_behavior) = OPTIONAL];
 
   // NOTE: Part of Guarded Entrypoint, which is IN DEVELOPMENT and not yet
   // available; setting this field is rejected for every organization.
   //
   // Readiness checks to run before starting the app. Requires
-  // guarded_entrypoint. Up to 32 entries. The syncer bakes each
-  // entry into the image as one environment variable using a flat
-  // encoding, e.g.
+  // guarded_entrypoint in the same overlay config, even when a broader
+  // binding already sets it. Up to 32 entries per overlay. The syncer
+  // bakes each entry into the image as one environment variable using a
+  // flat encoding, e.g.
   // GUARDED_PREFLIGHT_0=tcp=redis:6379,timeout=60s,interval=1s,on_failure=fail
   // (n starts at 0; values may not contain "," or "=").
+  // When several overlay bindings apply to one tag, their checks are
+  // combined, broader bindings first, and identical entries are dropped.
+  // The combined list can exceed 32.
   repeated Preflight preflight = 7 [(google.api.field_behavior) = OPTIONAL];
 
   // Preflight is one readiness check to run before the app starts.
@@ -366,7 +373,11 @@ message CustomOverlay {
   // available; setting this field is rejected for every organization.
   //
   // Command override for the guarded_entrypoint wrapper. Requires
-  // guarded_entrypoint.
+  // guarded_entrypoint in the same overlay config, even when a broader
+  // binding already sets it. When several overlay bindings apply to one
+  // tag, the most specific one that sets it wins (see TagSelector); one
+  // that leaves it unset uses the value from a broader one. An empty
+  // command_override counts as set, so it cancels a broader override.
   CommandOverride command_override = 8 [(google.api.field_behavior) = OPTIONAL];
 
   // CommandOverride decides what the wrapper execs after preparing
@@ -416,7 +427,8 @@ message CustomOverlay {
   // (see the wrapper's fail-mode setting): fail-closed (the default)
   // refuses to start the app; fail-open logs and starts anyway.
   enum FailMode {
-    // Treated as FAIL_MODE_CLOSED.
+    // No value. Uses a broader binding's value when overlays are layered,
+    // and FAIL_MODE_CLOSED when none sets one.
     FAIL_MODE_UNSPECIFIED = 0;
     // Wrapper refuses to start the app when secret resolution fails.
     FAIL_MODE_CLOSED = 1;
@@ -428,9 +440,18 @@ message CustomOverlay {
   // available; setting this field is rejected for every organization.
   //
   // How the wrapper handles secret-resolution failures. Requires
-  // guarded_entrypoint. Default is FAIL_MODE_CLOSED. Baked into the
+  // guarded_entrypoint in the same overlay config, even when a broader
+  // binding already sets it. FAIL_MODE_CLOSED when no applicable binding
+  // sets it. Baked into the
   // image by the syncer as GUARDED_FAIL_MODE=closed|open, emitted only
   // when FAIL_MODE_OPEN; a closed repo's image is unchanged.
+  // When several overlay bindings apply to one tag, the most specific one
+  // that sets it wins (see TagSelector); one that leaves it unset
+  // (FAIL_MODE_UNSPECIFIED) uses the value from a broader one, which may
+  // be FAIL_MODE_OPEN. To keep a tag fail-closed, bind an overlay that
+  // sets guarded_entrypoint and FAIL_MODE_CLOSED to that tag at a more
+  // specific layer than the one setting FAIL_MODE_OPEN. If the open value
+  // comes from the tag's own KIND_EXACT binding, change that overlay.
   FailMode fail_mode = 9 [(google.api.field_behavior) = OPTIONAL];
 
   // ImageContents specifies additional image content.
