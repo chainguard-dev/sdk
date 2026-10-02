@@ -31,8 +31,7 @@ const (
 // HardenPhase tracks a harden job's lifecycle progress only. The terminal
 // outcome is not a phase: success is carried in Operation.response (the hardened
 // artifact ref) and failure in Operation.error. COMPLETED means the job reached
-// a terminal state — read the Operation's response/error for the result. The
-// pipeline stage within RUNNING is HardenOperationMetadata.stage.
+// a terminal state — read the Operation's response/error for the result.
 type HardenPhase int32
 
 const (
@@ -40,8 +39,7 @@ const (
 	HardenPhase_HARDEN_PHASE_UNSPECIFIED HardenPhase = 0
 	// HARDEN_PHASE_QUEUED: enqueued, not yet picked up by the pipeline.
 	HardenPhase_HARDEN_PHASE_QUEUED HardenPhase = 1
-	// HARDEN_PHASE_RUNNING: the pipeline has reported a stage; see
-	// HardenOperationMetadata.stage.
+	// HARDEN_PHASE_RUNNING: the pipeline is running.
 	HardenPhase_HARDEN_PHASE_RUNNING HardenPhase = 2
 	// HARDEN_PHASE_COMPLETED: terminal; the job finished. Outcome is in the
 	// Operation — response on success, error on failure.
@@ -147,123 +145,6 @@ func (HardenTrigger) EnumDescriptor() ([]byte, []int) {
 	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{1}
 }
 
-// HardenStage is the pipeline stage a running job is in, or the stage a
-// finished job ended in. UNSPECIFIED when unknown (queued, or an older server).
-type HardenStage int32
-
-const (
-	HardenStage_HARDEN_STAGE_UNSPECIFIED HardenStage = 0
-	HardenStage_HARDEN_STAGE_INGEST      HardenStage = 1
-	HardenStage_HARDEN_STAGE_PRE_EVAL    HardenStage = 2
-	HardenStage_HARDEN_STAGE_REVIEW      HardenStage = 3
-	HardenStage_HARDEN_STAGE_HARDEN      HardenStage = 4
-	HardenStage_HARDEN_STAGE_POST_EVAL   HardenStage = 5
-	HardenStage_HARDEN_STAGE_PUBLISH     HardenStage = 6
-)
-
-// Enum value maps for HardenStage.
-var (
-	HardenStage_name = map[int32]string{
-		0: "HARDEN_STAGE_UNSPECIFIED",
-		1: "HARDEN_STAGE_INGEST",
-		2: "HARDEN_STAGE_PRE_EVAL",
-		3: "HARDEN_STAGE_REVIEW",
-		4: "HARDEN_STAGE_HARDEN",
-		5: "HARDEN_STAGE_POST_EVAL",
-		6: "HARDEN_STAGE_PUBLISH",
-	}
-	HardenStage_value = map[string]int32{
-		"HARDEN_STAGE_UNSPECIFIED": 0,
-		"HARDEN_STAGE_INGEST":      1,
-		"HARDEN_STAGE_PRE_EVAL":    2,
-		"HARDEN_STAGE_REVIEW":      3,
-		"HARDEN_STAGE_HARDEN":      4,
-		"HARDEN_STAGE_POST_EVAL":   5,
-		"HARDEN_STAGE_PUBLISH":     6,
-	}
-)
-
-func (x HardenStage) Enum() *HardenStage {
-	p := new(HardenStage)
-	*p = x
-	return p
-}
-
-func (x HardenStage) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (HardenStage) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_skills_v1alpha1_harden_proto_enumTypes[2].Descriptor()
-}
-
-func (HardenStage) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_skills_v1alpha1_harden_proto_enumTypes[2]
-}
-
-func (x HardenStage) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use HardenStage.Descriptor instead.
-func (HardenStage) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{2}
-}
-
-// HardenFailure identifies the scanner finding that failed the job. Both
-// fields are identifiers, never finding text.
-type HardenFailure struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Scanner       string                 `protobuf:"bytes,1,opt,name=scanner,proto3" json:"scanner,omitempty"`
-	RuleId        string                 `protobuf:"bytes,2,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *HardenFailure) Reset() {
-	*x = HardenFailure{}
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *HardenFailure) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*HardenFailure) ProtoMessage() {}
-
-func (x *HardenFailure) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use HardenFailure.ProtoReflect.Descriptor instead.
-func (*HardenFailure) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *HardenFailure) GetScanner() string {
-	if x != nil {
-		return x.Scanner
-	}
-	return ""
-}
-
-func (x *HardenFailure) GetRuleId() string {
-	if x != nil {
-		return x.RuleId
-	}
-	return ""
-}
-
 // HardenSkillRequest names a skill artifact already uploaded to uploads.cgr.dev
 // and the group to harden it into. The caller supplies components, not a ref:
 // the server builds the digest-pinned source ref
@@ -314,7 +195,7 @@ type HardenSkillRequest struct {
 
 func (x *HardenSkillRequest) Reset() {
 	*x = HardenSkillRequest{}
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[1]
+	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -326,7 +207,7 @@ func (x *HardenSkillRequest) String() string {
 func (*HardenSkillRequest) ProtoMessage() {}
 
 func (x *HardenSkillRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[1]
+	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -339,7 +220,7 @@ func (x *HardenSkillRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HardenSkillRequest.ProtoReflect.Descriptor instead.
 func (*HardenSkillRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{1}
+	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *HardenSkillRequest) GetGroup() string {
@@ -383,7 +264,7 @@ type GetHardenOperationRequest struct {
 
 func (x *GetHardenOperationRequest) Reset() {
 	*x = GetHardenOperationRequest{}
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[2]
+	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -395,7 +276,7 @@ func (x *GetHardenOperationRequest) String() string {
 func (*GetHardenOperationRequest) ProtoMessage() {}
 
 func (x *GetHardenOperationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[2]
+	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -408,7 +289,7 @@ func (x *GetHardenOperationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHardenOperationRequest.ProtoReflect.Descriptor instead.
 func (*GetHardenOperationRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{2}
+	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *GetHardenOperationRequest) GetGroup() string {
@@ -439,7 +320,7 @@ type CancelHardenOperationRequest struct {
 
 func (x *CancelHardenOperationRequest) Reset() {
 	*x = CancelHardenOperationRequest{}
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[3]
+	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -451,7 +332,7 @@ func (x *CancelHardenOperationRequest) String() string {
 func (*CancelHardenOperationRequest) ProtoMessage() {}
 
 func (x *CancelHardenOperationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[3]
+	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -464,7 +345,7 @@ func (x *CancelHardenOperationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelHardenOperationRequest.ProtoReflect.Descriptor instead.
 func (*CancelHardenOperationRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{3}
+	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *CancelHardenOperationRequest) GetGroup() string {
@@ -508,28 +389,20 @@ type HardenOperationMetadata struct {
 	// create_time is when the operation was created.
 	CreateTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
 	// update_time is when the operation was last modified (the timestamp of the
-	// most recent phase or stage change).
+	// most recent phase change).
 	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
 	// phase is the current lifecycle phase of the harden job.
 	Phase HardenPhase `protobuf:"varint,9,opt,name=phase,proto3,enum=chainguard.platform.skills.v1alpha1.HardenPhase" json:"phase,omitempty"`
 	// phase_changes is the ordered history of phase transitions this job has gone
 	// through, oldest first.
-	PhaseChanges []*HardenOperationMetadata_PhaseChange `protobuf:"bytes,10,rep,name=phase_changes,json=phaseChanges,proto3" json:"phase_changes,omitempty"`
-	// stage is the pipeline stage the job is in while running, or the stage it
-	// ended in once done. UNSPECIFIED while queued, or when the server predates
-	// stage reporting.
-	Stage HardenStage `protobuf:"varint,11,opt,name=stage,proto3,enum=chainguard.platform.skills.v1alpha1.HardenStage" json:"stage,omitempty"`
-	// failure is set only on a done operation that failed on a scanner finding.
-	// It names the finding by scanner and rule id; the finding's text is never
-	// carried.
-	Failure       *HardenFailure `protobuf:"bytes,12,opt,name=failure,proto3" json:"failure,omitempty"`
+	PhaseChanges  []*HardenOperationMetadata_PhaseChange `protobuf:"bytes,10,rep,name=phase_changes,json=phaseChanges,proto3" json:"phase_changes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *HardenOperationMetadata) Reset() {
 	*x = HardenOperationMetadata{}
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[4]
+	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -541,7 +414,7 @@ func (x *HardenOperationMetadata) String() string {
 func (*HardenOperationMetadata) ProtoMessage() {}
 
 func (x *HardenOperationMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[4]
+	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -554,7 +427,7 @@ func (x *HardenOperationMetadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HardenOperationMetadata.ProtoReflect.Descriptor instead.
 func (*HardenOperationMetadata) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{4}
+	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *HardenOperationMetadata) GetJobId() string {
@@ -627,20 +500,6 @@ func (x *HardenOperationMetadata) GetPhaseChanges() []*HardenOperationMetadata_P
 	return nil
 }
 
-func (x *HardenOperationMetadata) GetStage() HardenStage {
-	if x != nil {
-		return x.Stage
-	}
-	return HardenStage_HARDEN_STAGE_UNSPECIFIED
-}
-
-func (x *HardenOperationMetadata) GetFailure() *HardenFailure {
-	if x != nil {
-		return x.Failure
-	}
-	return nil
-}
-
 // HardenOperationResponse is carried in Operation.response when a harden job
 // completes successfully. Terminal failures are reported via Operation.error;
 // when the post-hardening scan rejected the rewrite but the submitted skill was
@@ -667,7 +526,7 @@ type HardenOperationResponse struct {
 
 func (x *HardenOperationResponse) Reset() {
 	*x = HardenOperationResponse{}
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[5]
+	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -679,7 +538,7 @@ func (x *HardenOperationResponse) String() string {
 func (*HardenOperationResponse) ProtoMessage() {}
 
 func (x *HardenOperationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[5]
+	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -692,7 +551,7 @@ func (x *HardenOperationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HardenOperationResponse.ProtoReflect.Descriptor instead.
 func (*HardenOperationResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{5}
+	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *HardenOperationResponse) GetHardenedRef() string {
@@ -722,7 +581,7 @@ type HardenOperationMetadata_PhaseChange struct {
 
 func (x *HardenOperationMetadata_PhaseChange) Reset() {
 	*x = HardenOperationMetadata_PhaseChange{}
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[6]
+	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -734,7 +593,7 @@ func (x *HardenOperationMetadata_PhaseChange) String() string {
 func (*HardenOperationMetadata_PhaseChange) ProtoMessage() {}
 
 func (x *HardenOperationMetadata_PhaseChange) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[6]
+	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -747,7 +606,7 @@ func (x *HardenOperationMetadata_PhaseChange) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use HardenOperationMetadata_PhaseChange.ProtoReflect.Descriptor instead.
 func (*HardenOperationMetadata_PhaseChange) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{4, 0}
+	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{3, 0}
 }
 
 func (x *HardenOperationMetadata_PhaseChange) GetPhase() HardenPhase {
@@ -768,10 +627,7 @@ var File_chainguard_platform_skills_v1alpha1_harden_proto protoreflect.FileDescr
 
 const file_chainguard_platform_skills_v1alpha1_harden_proto_rawDesc = "" +
 	"\n" +
-	"0chainguard/platform/skills/v1alpha1/harden.proto\x12#chainguard.platform.skills.v1alpha1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a#google/longrunning/operations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"B\n" +
-	"\rHardenFailure\x12\x18\n" +
-	"\ascanner\x18\x01 \x01(\tR\ascanner\x12\x17\n" +
-	"\arule_id\x18\x02 \x01(\tR\x06ruleId\"\xa9\x01\n" +
+	"0chainguard/platform/skills/v1alpha1/harden.proto\x12#chainguard.platform.skills.v1alpha1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a#google/longrunning/operations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa9\x01\n" +
 	"\x12HardenSkillRequest\x12 \n" +
 	"\x05group\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x05group\x12#\n" +
@@ -786,7 +642,7 @@ const file_chainguard_platform_skills_v1alpha1_harden_proto_rawDesc = "" +
 	"\x1cCancelHardenOperationRequest\x12 \n" +
 	"\x05group\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x05group\x12\x1b\n" +
-	"\x06job_id\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x05jobId\"\xbf\x06\n" +
+	"\x06job_id\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x05jobId\"\xa9\x05\n" +
 	"\x17HardenOperationMetadata\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12\x14\n" +
 	"\x05group\x18\x02 \x01(\tR\x05group\x12\x1d\n" +
@@ -801,9 +657,7 @@ const file_chainguard_platform_skills_v1alpha1_harden_proto_rawDesc = "" +
 	"updateTime\x12F\n" +
 	"\x05phase\x18\t \x01(\x0e20.chainguard.platform.skills.v1alpha1.HardenPhaseR\x05phase\x12m\n" +
 	"\rphase_changes\x18\n" +
-	" \x03(\v2H.chainguard.platform.skills.v1alpha1.HardenOperationMetadata.PhaseChangeR\fphaseChanges\x12F\n" +
-	"\x05stage\x18\v \x01(\x0e20.chainguard.platform.skills.v1alpha1.HardenStageR\x05stage\x12L\n" +
-	"\afailure\x18\f \x01(\v22.chainguard.platform.skills.v1alpha1.HardenFailureR\afailure\x1a\x85\x01\n" +
+	" \x03(\v2H.chainguard.platform.skills.v1alpha1.HardenOperationMetadata.PhaseChangeR\fphaseChanges\x1a\x85\x01\n" +
 	"\vPhaseChange\x12F\n" +
 	"\x05phase\x18\x01 \x01(\x0e20.chainguard.platform.skills.v1alpha1.HardenPhaseR\x05phase\x12.\n" +
 	"\x04time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04time\"j\n" +
@@ -820,15 +674,7 @@ const file_chainguard_platform_skills_v1alpha1_harden_proto_rawDesc = "" +
 	"\rHardenTrigger\x12\x1e\n" +
 	"\x1aHARDEN_TRIGGER_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13HARDEN_TRIGGER_USER\x10\x01\x12\x19\n" +
-	"\x15HARDEN_TRIGGER_SYSTEM\x10\x02*\xc7\x01\n" +
-	"\vHardenStage\x12\x1c\n" +
-	"\x18HARDEN_STAGE_UNSPECIFIED\x10\x00\x12\x17\n" +
-	"\x13HARDEN_STAGE_INGEST\x10\x01\x12\x19\n" +
-	"\x15HARDEN_STAGE_PRE_EVAL\x10\x02\x12\x17\n" +
-	"\x13HARDEN_STAGE_REVIEW\x10\x03\x12\x17\n" +
-	"\x13HARDEN_STAGE_HARDEN\x10\x04\x12\x1a\n" +
-	"\x16HARDEN_STAGE_POST_EVAL\x10\x05\x12\x18\n" +
-	"\x14HARDEN_STAGE_PUBLISH\x10\x062\xdf\a\n" +
+	"\x15HARDEN_TRIGGER_SYSTEM\x10\x022\xdf\a\n" +
 	"\fSkillsHarden\x12\xb9\x03\n" +
 	"\vHardenSkill\x127.chainguard.platform.skills.v1alpha1.HardenSkillRequest\x1a\x1d.google.longrunning.Operation\"\xd1\x02\xcaAz\n" +
 	";chainguard.platform.skills.v1alpha1.HardenOperationResponse\x12;chainguard.platform.skills.v1alpha1.HardenOperationMetadata\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/skills/v1alpha1/harden\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
@@ -854,43 +700,39 @@ func file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP() []byte 
 	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescData
 }
 
-var file_chainguard_platform_skills_v1alpha1_harden_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_chainguard_platform_skills_v1alpha1_harden_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_chainguard_platform_skills_v1alpha1_harden_proto_goTypes = []any{
 	(HardenPhase)(0),                            // 0: chainguard.platform.skills.v1alpha1.HardenPhase
 	(HardenTrigger)(0),                          // 1: chainguard.platform.skills.v1alpha1.HardenTrigger
-	(HardenStage)(0),                            // 2: chainguard.platform.skills.v1alpha1.HardenStage
-	(*HardenFailure)(nil),                       // 3: chainguard.platform.skills.v1alpha1.HardenFailure
-	(*HardenSkillRequest)(nil),                  // 4: chainguard.platform.skills.v1alpha1.HardenSkillRequest
-	(*GetHardenOperationRequest)(nil),           // 5: chainguard.platform.skills.v1alpha1.GetHardenOperationRequest
-	(*CancelHardenOperationRequest)(nil),        // 6: chainguard.platform.skills.v1alpha1.CancelHardenOperationRequest
-	(*HardenOperationMetadata)(nil),             // 7: chainguard.platform.skills.v1alpha1.HardenOperationMetadata
-	(*HardenOperationResponse)(nil),             // 8: chainguard.platform.skills.v1alpha1.HardenOperationResponse
-	(*HardenOperationMetadata_PhaseChange)(nil), // 9: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.PhaseChange
-	(*timestamppb.Timestamp)(nil),               // 10: google.protobuf.Timestamp
-	(*longrunningpb.Operation)(nil),             // 11: google.longrunning.Operation
+	(*HardenSkillRequest)(nil),                  // 2: chainguard.platform.skills.v1alpha1.HardenSkillRequest
+	(*GetHardenOperationRequest)(nil),           // 3: chainguard.platform.skills.v1alpha1.GetHardenOperationRequest
+	(*CancelHardenOperationRequest)(nil),        // 4: chainguard.platform.skills.v1alpha1.CancelHardenOperationRequest
+	(*HardenOperationMetadata)(nil),             // 5: chainguard.platform.skills.v1alpha1.HardenOperationMetadata
+	(*HardenOperationResponse)(nil),             // 6: chainguard.platform.skills.v1alpha1.HardenOperationResponse
+	(*HardenOperationMetadata_PhaseChange)(nil), // 7: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.PhaseChange
+	(*timestamppb.Timestamp)(nil),               // 8: google.protobuf.Timestamp
+	(*longrunningpb.Operation)(nil),             // 9: google.longrunning.Operation
 }
 var file_chainguard_platform_skills_v1alpha1_harden_proto_depIdxs = []int32{
 	1,  // 0: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.trigger:type_name -> chainguard.platform.skills.v1alpha1.HardenTrigger
-	10, // 1: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.create_time:type_name -> google.protobuf.Timestamp
-	10, // 2: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.update_time:type_name -> google.protobuf.Timestamp
+	8,  // 1: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.create_time:type_name -> google.protobuf.Timestamp
+	8,  // 2: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.update_time:type_name -> google.protobuf.Timestamp
 	0,  // 3: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.phase:type_name -> chainguard.platform.skills.v1alpha1.HardenPhase
-	9,  // 4: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.phase_changes:type_name -> chainguard.platform.skills.v1alpha1.HardenOperationMetadata.PhaseChange
-	2,  // 5: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.stage:type_name -> chainguard.platform.skills.v1alpha1.HardenStage
-	3,  // 6: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.failure:type_name -> chainguard.platform.skills.v1alpha1.HardenFailure
-	0,  // 7: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.PhaseChange.phase:type_name -> chainguard.platform.skills.v1alpha1.HardenPhase
-	10, // 8: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.PhaseChange.time:type_name -> google.protobuf.Timestamp
-	4,  // 9: chainguard.platform.skills.v1alpha1.SkillsHarden.HardenSkill:input_type -> chainguard.platform.skills.v1alpha1.HardenSkillRequest
-	5,  // 10: chainguard.platform.skills.v1alpha1.SkillsHarden.GetHardenOperation:input_type -> chainguard.platform.skills.v1alpha1.GetHardenOperationRequest
-	6,  // 11: chainguard.platform.skills.v1alpha1.SkillsHarden.CancelHardenOperation:input_type -> chainguard.platform.skills.v1alpha1.CancelHardenOperationRequest
-	11, // 12: chainguard.platform.skills.v1alpha1.SkillsHarden.HardenSkill:output_type -> google.longrunning.Operation
-	11, // 13: chainguard.platform.skills.v1alpha1.SkillsHarden.GetHardenOperation:output_type -> google.longrunning.Operation
-	11, // 14: chainguard.platform.skills.v1alpha1.SkillsHarden.CancelHardenOperation:output_type -> google.longrunning.Operation
-	12, // [12:15] is the sub-list for method output_type
-	9,  // [9:12] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	7,  // 4: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.phase_changes:type_name -> chainguard.platform.skills.v1alpha1.HardenOperationMetadata.PhaseChange
+	0,  // 5: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.PhaseChange.phase:type_name -> chainguard.platform.skills.v1alpha1.HardenPhase
+	8,  // 6: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.PhaseChange.time:type_name -> google.protobuf.Timestamp
+	2,  // 7: chainguard.platform.skills.v1alpha1.SkillsHarden.HardenSkill:input_type -> chainguard.platform.skills.v1alpha1.HardenSkillRequest
+	3,  // 8: chainguard.platform.skills.v1alpha1.SkillsHarden.GetHardenOperation:input_type -> chainguard.platform.skills.v1alpha1.GetHardenOperationRequest
+	4,  // 9: chainguard.platform.skills.v1alpha1.SkillsHarden.CancelHardenOperation:input_type -> chainguard.platform.skills.v1alpha1.CancelHardenOperationRequest
+	9,  // 10: chainguard.platform.skills.v1alpha1.SkillsHarden.HardenSkill:output_type -> google.longrunning.Operation
+	9,  // 11: chainguard.platform.skills.v1alpha1.SkillsHarden.GetHardenOperation:output_type -> google.longrunning.Operation
+	9,  // 12: chainguard.platform.skills.v1alpha1.SkillsHarden.CancelHardenOperation:output_type -> google.longrunning.Operation
+	10, // [10:13] is the sub-list for method output_type
+	7,  // [7:10] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_skills_v1alpha1_harden_proto_init() }
@@ -898,14 +740,14 @@ func file_chainguard_platform_skills_v1alpha1_harden_proto_init() {
 	if File_chainguard_platform_skills_v1alpha1_harden_proto != nil {
 		return
 	}
-	file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[5].OneofWrappers = []any{}
+	file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_skills_v1alpha1_harden_proto_rawDesc), len(file_chainguard_platform_skills_v1alpha1_harden_proto_rawDesc)),
-			NumEnums:      3,
-			NumMessages:   7,
+			NumEnums:      2,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

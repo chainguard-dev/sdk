@@ -102,15 +102,13 @@ service SkillsHarden {
 // HardenPhase tracks a harden job's lifecycle progress only. The terminal
 // outcome is not a phase: success is carried in Operation.response (the hardened
 // artifact ref) and failure in Operation.error. COMPLETED means the job reached
-// a terminal state — read the Operation's response/error for the result. The
-// pipeline stage within RUNNING is HardenOperationMetadata.stage.
+// a terminal state — read the Operation's response/error for the result.
 enum HardenPhase {
   // HARDEN_PHASE_UNSPECIFIED: phase not set.
   HARDEN_PHASE_UNSPECIFIED = 0;
   // HARDEN_PHASE_QUEUED: enqueued, not yet picked up by the pipeline.
   HARDEN_PHASE_QUEUED = 1;
-  // HARDEN_PHASE_RUNNING: the pipeline has reported a stage; see
-  // HardenOperationMetadata.stage.
+  // HARDEN_PHASE_RUNNING: the pipeline is running.
   HARDEN_PHASE_RUNNING = 2;
   // HARDEN_PHASE_COMPLETED: terminal; the job finished. Outcome is in the
   // Operation — response on success, error on failure.
@@ -126,25 +124,6 @@ enum HardenTrigger {
   HARDEN_TRIGGER_USER = 1;
   // The system (registry-push reconciler or cron) enqueued the harden.
   HARDEN_TRIGGER_SYSTEM = 2;
-}
-
-// HardenStage is the pipeline stage a running job is in, or the stage a
-// finished job ended in. UNSPECIFIED when unknown (queued, or an older server).
-enum HardenStage {
-  HARDEN_STAGE_UNSPECIFIED = 0;
-  HARDEN_STAGE_INGEST = 1;
-  HARDEN_STAGE_PRE_EVAL = 2;
-  HARDEN_STAGE_REVIEW = 3;
-  HARDEN_STAGE_HARDEN = 4;
-  HARDEN_STAGE_POST_EVAL = 5;
-  HARDEN_STAGE_PUBLISH = 6;
-}
-
-// HardenFailure identifies the scanner finding that failed the job. Both
-// fields are identifiers, never finding text.
-message HardenFailure {
-  string scanner = 1;
-  string rule_id = 2;
 }
 
 // HardenSkillRequest names a skill artifact already uploaded to uploads.cgr.dev
@@ -249,21 +228,13 @@ message HardenOperationMetadata {
   // create_time is when the operation was created.
   google.protobuf.Timestamp create_time = 7;
   // update_time is when the operation was last modified (the timestamp of the
-  // most recent phase or stage change).
+  // most recent phase change).
   google.protobuf.Timestamp update_time = 8;
   // phase is the current lifecycle phase of the harden job.
   HardenPhase phase = 9;
   // phase_changes is the ordered history of phase transitions this job has gone
   // through, oldest first.
   repeated PhaseChange phase_changes = 10;
-  // stage is the pipeline stage the job is in while running, or the stage it
-  // ended in once done. UNSPECIFIED while queued, or when the server predates
-  // stage reporting.
-  HardenStage stage = 11;
-  // failure is set only on a done operation that failed on a scanner finding.
-  // It names the finding by scanner and rule id; the finding's text is never
-  // carried.
-  HardenFailure failure = 12;
 
   // PhaseChange records a single phase transition and when it occurred.
   message PhaseChange {
