@@ -26,6 +26,8 @@ const (
 	Skills_ListSkills_FullMethodName       = "/chainguard.platform.skills.v1alpha1.Skills/ListSkills"
 	Skills_SearchSkills_FullMethodName     = "/chainguard.platform.skills.v1alpha1.Skills/SearchSkills"
 	Skills_ListSkillSources_FullMethodName = "/chainguard.platform.skills.v1alpha1.Skills/ListSkillSources"
+	Skills_ListSkillFiles_FullMethodName   = "/chainguard.platform.skills.v1alpha1.Skills/ListSkillFiles"
+	Skills_GetSkillFile_FullMethodName     = "/chainguard.platform.skills.v1alpha1.Skills/GetSkillFile"
 	Skills_UpdateSkill_FullMethodName      = "/chainguard.platform.skills.v1alpha1.Skills/UpdateSkill"
 	Skills_DeleteSkill_FullMethodName      = "/chainguard.platform.skills.v1alpha1.Skills/DeleteSkill"
 )
@@ -61,6 +63,14 @@ type SkillsClient interface {
 	// SearchSkills `source` will match, so the dropdown cannot offer an empty
 	// filter. Scoped exactly like ListSkills.
 	ListSkillSources(ctx context.Context, in *ListSkillSourcesRequest, opts ...grpc.CallOption) (*ListSkillSourcesResponse, error)
+	// ListSkillFiles lists the files in one skill version's artifact. The
+	// artifact is pulled with the caller's own credentials, so the capabilities
+	// below include the registry's pull checks: a cached read is authorized
+	// exactly as a pull would be.
+	ListSkillFiles(ctx context.Context, in *ListSkillFilesRequest, opts ...grpc.CallOption) (*ListSkillFilesResponse, error)
+	// GetSkillFile returns one file from a skill version's artifact, such as
+	// SKILL.md to render on the skill's page. Authorized like ListSkillFiles.
+	GetSkillFile(ctx context.Context, in *GetSkillFileRequest, opts ...grpc.CallOption) (*SkillFile, error)
 	// UpdateSkill writes a skill's catalog metadata row at publish time, keyed by
 	// repo_uidp (the skill's id — a skill is a registry repo). It follows AIP-134
 	// create-or-update: with allow_missing=true the row is created when none
@@ -107,6 +117,26 @@ func (c *skillsClient) ListSkillSources(ctx context.Context, in *ListSkillSource
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListSkillSourcesResponse)
 	err := c.cc.Invoke(ctx, Skills_ListSkillSources_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *skillsClient) ListSkillFiles(ctx context.Context, in *ListSkillFilesRequest, opts ...grpc.CallOption) (*ListSkillFilesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListSkillFilesResponse)
+	err := c.cc.Invoke(ctx, Skills_ListSkillFiles_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *skillsClient) GetSkillFile(ctx context.Context, in *GetSkillFileRequest, opts ...grpc.CallOption) (*SkillFile, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SkillFile)
+	err := c.cc.Invoke(ctx, Skills_GetSkillFile_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -164,6 +194,14 @@ type SkillsServer interface {
 	// SearchSkills `source` will match, so the dropdown cannot offer an empty
 	// filter. Scoped exactly like ListSkills.
 	ListSkillSources(context.Context, *ListSkillSourcesRequest) (*ListSkillSourcesResponse, error)
+	// ListSkillFiles lists the files in one skill version's artifact. The
+	// artifact is pulled with the caller's own credentials, so the capabilities
+	// below include the registry's pull checks: a cached read is authorized
+	// exactly as a pull would be.
+	ListSkillFiles(context.Context, *ListSkillFilesRequest) (*ListSkillFilesResponse, error)
+	// GetSkillFile returns one file from a skill version's artifact, such as
+	// SKILL.md to render on the skill's page. Authorized like ListSkillFiles.
+	GetSkillFile(context.Context, *GetSkillFileRequest) (*SkillFile, error)
 	// UpdateSkill writes a skill's catalog metadata row at publish time, keyed by
 	// repo_uidp (the skill's id — a skill is a registry repo). It follows AIP-134
 	// create-or-update: with allow_missing=true the row is created when none
@@ -194,6 +232,12 @@ func (UnimplementedSkillsServer) SearchSkills(context.Context, *SearchSkillsRequ
 }
 func (UnimplementedSkillsServer) ListSkillSources(context.Context, *ListSkillSourcesRequest) (*ListSkillSourcesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListSkillSources not implemented")
+}
+func (UnimplementedSkillsServer) ListSkillFiles(context.Context, *ListSkillFilesRequest) (*ListSkillFilesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListSkillFiles not implemented")
+}
+func (UnimplementedSkillsServer) GetSkillFile(context.Context, *GetSkillFileRequest) (*SkillFile, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetSkillFile not implemented")
 }
 func (UnimplementedSkillsServer) UpdateSkill(context.Context, *UpdateSkillRequest) (*Skill, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateSkill not implemented")
@@ -276,6 +320,42 @@ func _Skills_ListSkillSources_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Skills_ListSkillFiles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListSkillFilesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SkillsServer).ListSkillFiles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Skills_ListSkillFiles_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SkillsServer).ListSkillFiles(ctx, req.(*ListSkillFilesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Skills_GetSkillFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSkillFileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SkillsServer).GetSkillFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Skills_GetSkillFile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SkillsServer).GetSkillFile(ctx, req.(*GetSkillFileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Skills_UpdateSkill_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateSkillRequest)
 	if err := dec(in); err != nil {
@@ -330,6 +410,14 @@ var Skills_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListSkillSources",
 			Handler:    _Skills_ListSkillSources_Handler,
+		},
+		{
+			MethodName: "ListSkillFiles",
+			Handler:    _Skills_ListSkillFiles_Handler,
+		},
+		{
+			MethodName: "GetSkillFile",
+			Handler:    _Skills_GetSkillFile_Handler,
 		},
 		{
 			MethodName: "UpdateSkill",

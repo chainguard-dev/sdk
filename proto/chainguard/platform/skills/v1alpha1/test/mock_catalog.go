@@ -25,6 +25,20 @@ type MockCatalogClient struct {
 	OnListSkillSources []SkillsOnListSkillSources
 	OnUpdateSkill      []SkillsOnUpdate
 	OnDeleteSkill      []SkillsOnDelete
+	OnListSkillFiles   []SkillsOnListSkillFiles
+	OnGetSkillFile     []SkillsOnGetSkillFile
+}
+
+type SkillsOnListSkillFiles struct {
+	Given *skills.ListSkillFilesRequest
+	List  *skills.ListSkillFilesResponse
+	Error error
+}
+
+type SkillsOnGetSkillFile struct {
+	Given *skills.GetSkillFileRequest
+	File  *skills.SkillFile
+	Error error
 }
 
 type SkillsOnList struct {
@@ -78,6 +92,24 @@ func (m MockCatalogClient) ListSkillSources(_ context.Context, given *skills.Lis
 	for _, o := range m.OnListSkillSources {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.List, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockCatalogClient) ListSkillFiles(_ context.Context, given *skills.ListSkillFilesRequest, _ ...grpc.CallOption) (*skills.ListSkillFilesResponse, error) {
+	for _, o := range m.OnListSkillFiles {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.List, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockCatalogClient) GetSkillFile(_ context.Context, given *skills.GetSkillFileRequest, _ ...grpc.CallOption) (*skills.SkillFile, error) {
+	for _, o := range m.OnGetSkillFile {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.File, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)

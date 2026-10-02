@@ -94,6 +94,60 @@ service Skills {
     option (chainguard.annotations.mcp) = {hidden: true};
   }
 
+  // ListSkillFiles lists the files in one skill version's artifact. The
+  // artifact is pulled with the caller's own credentials, so the capabilities
+  // below include the registry's pull checks: a cached read is authorized
+  // exactly as a pull would be.
+  rpc ListSkillFiles(ListSkillFilesRequest) returns (ListSkillFilesResponse) {
+    option (google.api.http) = {get: "/skills/v1alpha1/files"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_SKILLS_LIST,
+          CAP_IAM_GROUPS_LIST,
+          CAP_REPO_LIST,
+          CAP_TAG_LIST,
+          CAP_MANIFEST_LIST,
+          CAP_REPO_BLOBS_GET
+        ]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List the files in a skill version (registry tag UIDP), "
+                   "e.g. SKILL.md, HARDENING.md and its scripts."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // GetSkillFile returns one file from a skill version's artifact, such as
+  // SKILL.md to render on the skill's page. Authorized like ListSkillFiles.
+  rpc GetSkillFile(GetSkillFileRequest) returns (SkillFile) {
+    option (google.api.http) = {get: "/skills/v1alpha1/files:get"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_SKILLS_LIST,
+          CAP_IAM_GROUPS_LIST,
+          CAP_REPO_LIST,
+          CAP_TAG_LIST,
+          CAP_MANIFEST_LIST,
+          CAP_REPO_BLOBS_GET
+        ]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Read one file from a skill version (registry tag UIDP) by "
+                   "its relative path, e.g. SKILL.md."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
   // UpdateSkill writes a skill's catalog metadata row at publish time, keyed by
   // repo_uidp (the skill's id — a skill is a registry repo). It follows AIP-134
   // create-or-update: with allow_missing=true the row is created when none
@@ -169,6 +223,41 @@ message Skill {
   // source is the organization that published the skill (e.g. "anthropics").
   string source = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
   // next id: 13
+}
+
+message ListSkillFilesRequest {
+  // parent_id is the org (or group) UIDP the skill belongs to; it scopes the
+  // capability check, and tag_id must be within its subtree.
+  string parent_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+  // tag_id is the registry tag UIDP of the skill version.
+  string tag_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ListSkillFilesResponse {
+  // paths are the files' relative paths, sorted.
+  repeated string paths = 1;
+}
+
+message GetSkillFileRequest {
+  // parent_id is the org (or group) UIDP the skill belongs to; it scopes the
+  // capability check, and tag_id must be within its subtree.
+  string parent_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+  // tag_id is the registry tag UIDP of the skill version.
+  string tag_id = 2 [(google.api.field_behavior) = REQUIRED];
+  // path is the file's relative path, e.g. "SKILL.md".
+  string path = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// SkillFile is one file from a skill artifact.
+message SkillFile {
+  string path = 1;
+  bytes content = 2;
 }
 
 message UpdateSkillRequest {
