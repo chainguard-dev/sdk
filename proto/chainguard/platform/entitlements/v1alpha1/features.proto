@@ -76,6 +76,40 @@ service Features {
       }
     };
   }
+
+  // StartTrial starts the organization's self-serve trial of sandbox Checks
+  // and Workspaces: a CUSTOMER entitlement for each feature that expires 37
+  // days out (a 30-day trial plus a 7-day grace period) and carries the trial
+  // limits and compute budget.
+  //
+  // The caller must hold CAP_IAM_GROUPS_UPDATE on the organization
+  // (PERMISSION_DENIED otherwise), and parent must be an organization, a root
+  // group (INVALID_ARGUMENT otherwise). The organization must have accepted
+  // the required terms of service and must have linked a GitHub organization
+  // through the Chainguard GitHub App at the organization itself; otherwise it
+  // fails with FAILED_PRECONDITION, including on a retry after the link is
+  // removed.
+  //
+  // StartTrial writes only the entitlements. The sandbox admits the
+  // organization's work once its sandbox service principal also exists,
+  // which Chainguard creates within about an hour of the trial starting.
+  //
+  // An organization gets one trial. If it holds or held any entitlement to
+  // either feature, of any source, including a deleted one, StartTrial fails
+  // with ALREADY_EXISTS. A retry of a StartTrial that did not complete
+  // finishes it and returns the trial with its original expiry. A retry after
+  // the trial completed returns it as stored, even once it has expired.
+  rpc StartTrial(StartTrialRequest) returns (StartTrialResponse) {
+    option (google.api.http) = {
+      post: "/entitlements/v1alpha1/features/{parent=**}:startTrial"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_GROUPS_UPDATE]
+      }
+    };
+  }
 }
 
 // FeatureSource is the system of record for a FEATURE entitlement. A write
@@ -252,4 +286,18 @@ message DeleteFeatureEntitlementRequest {
 
   // reason is recorded with the change for audit.
   string reason = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+message StartTrialRequest {
+  // parent is the UIDP of the organization.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+message StartTrialResponse {
+  // feature_entitlements are the organization's trial entitlements, one per
+  // feature.
+  repeated FeatureEntitlement feature_entitlements = 1;
 }

@@ -26,6 +26,7 @@ const (
 	Features_ListFeatureEntitlements_FullMethodName  = "/chainguard.platform.entitlements.v1alpha1.Features/ListFeatureEntitlements"
 	Features_SetFeatureEntitlement_FullMethodName    = "/chainguard.platform.entitlements.v1alpha1.Features/SetFeatureEntitlement"
 	Features_DeleteFeatureEntitlement_FullMethodName = "/chainguard.platform.entitlements.v1alpha1.Features/DeleteFeatureEntitlement"
+	Features_StartTrial_FullMethodName               = "/chainguard.platform.entitlements.v1alpha1.Features/StartTrial"
 )
 
 // FeaturesClient is the client API for Features service.
@@ -51,6 +52,29 @@ type FeaturesClient interface {
 	// a feature, whatever its source. It fails with NOT_FOUND when there is no
 	// live entitlement for the feature.
 	DeleteFeatureEntitlement(ctx context.Context, in *DeleteFeatureEntitlementRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// StartTrial starts the organization's self-serve trial of sandbox Checks
+	// and Workspaces: a CUSTOMER entitlement for each feature that expires 37
+	// days out (a 30-day trial plus a 7-day grace period) and carries the trial
+	// limits and compute budget.
+	//
+	// The caller must hold CAP_IAM_GROUPS_UPDATE on the organization
+	// (PERMISSION_DENIED otherwise), and parent must be an organization, a root
+	// group (INVALID_ARGUMENT otherwise). The organization must have accepted
+	// the required terms of service and must have linked a GitHub organization
+	// through the Chainguard GitHub App at the organization itself; otherwise it
+	// fails with FAILED_PRECONDITION, including on a retry after the link is
+	// removed.
+	//
+	// StartTrial writes only the entitlements. The sandbox admits the
+	// organization's work once its sandbox service principal also exists,
+	// which Chainguard creates within about an hour of the trial starting.
+	//
+	// An organization gets one trial. If it holds or held any entitlement to
+	// either feature, of any source, including a deleted one, StartTrial fails
+	// with ALREADY_EXISTS. A retry of a StartTrial that did not complete
+	// finishes it and returns the trial with its original expiry. A retry after
+	// the trial completed returns it as stored, even once it has expired.
+	StartTrial(ctx context.Context, in *StartTrialRequest, opts ...grpc.CallOption) (*StartTrialResponse, error)
 }
 
 type featuresClient struct {
@@ -91,6 +115,16 @@ func (c *featuresClient) DeleteFeatureEntitlement(ctx context.Context, in *Delet
 	return out, nil
 }
 
+func (c *featuresClient) StartTrial(ctx context.Context, in *StartTrialRequest, opts ...grpc.CallOption) (*StartTrialResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StartTrialResponse)
+	err := c.cc.Invoke(ctx, Features_StartTrial_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FeaturesServer is the server API for Features service.
 // All implementations must embed UnimplementedFeaturesServer
 // for forward compatibility.
@@ -114,6 +148,29 @@ type FeaturesServer interface {
 	// a feature, whatever its source. It fails with NOT_FOUND when there is no
 	// live entitlement for the feature.
 	DeleteFeatureEntitlement(context.Context, *DeleteFeatureEntitlementRequest) (*emptypb.Empty, error)
+	// StartTrial starts the organization's self-serve trial of sandbox Checks
+	// and Workspaces: a CUSTOMER entitlement for each feature that expires 37
+	// days out (a 30-day trial plus a 7-day grace period) and carries the trial
+	// limits and compute budget.
+	//
+	// The caller must hold CAP_IAM_GROUPS_UPDATE on the organization
+	// (PERMISSION_DENIED otherwise), and parent must be an organization, a root
+	// group (INVALID_ARGUMENT otherwise). The organization must have accepted
+	// the required terms of service and must have linked a GitHub organization
+	// through the Chainguard GitHub App at the organization itself; otherwise it
+	// fails with FAILED_PRECONDITION, including on a retry after the link is
+	// removed.
+	//
+	// StartTrial writes only the entitlements. The sandbox admits the
+	// organization's work once its sandbox service principal also exists,
+	// which Chainguard creates within about an hour of the trial starting.
+	//
+	// An organization gets one trial. If it holds or held any entitlement to
+	// either feature, of any source, including a deleted one, StartTrial fails
+	// with ALREADY_EXISTS. A retry of a StartTrial that did not complete
+	// finishes it and returns the trial with its original expiry. A retry after
+	// the trial completed returns it as stored, even once it has expired.
+	StartTrial(context.Context, *StartTrialRequest) (*StartTrialResponse, error)
 	mustEmbedUnimplementedFeaturesServer()
 }
 
@@ -132,6 +189,9 @@ func (UnimplementedFeaturesServer) SetFeatureEntitlement(context.Context, *SetFe
 }
 func (UnimplementedFeaturesServer) DeleteFeatureEntitlement(context.Context, *DeleteFeatureEntitlementRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteFeatureEntitlement not implemented")
+}
+func (UnimplementedFeaturesServer) StartTrial(context.Context, *StartTrialRequest) (*StartTrialResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method StartTrial not implemented")
 }
 func (UnimplementedFeaturesServer) mustEmbedUnimplementedFeaturesServer() {}
 func (UnimplementedFeaturesServer) testEmbeddedByValue()                  {}
@@ -208,6 +268,24 @@ func _Features_DeleteFeatureEntitlement_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Features_StartTrial_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartTrialRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FeaturesServer).StartTrial(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Features_StartTrial_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FeaturesServer).StartTrial(ctx, req.(*StartTrialRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Features_ServiceDesc is the grpc.ServiceDesc for Features service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -226,6 +304,10 @@ var Features_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteFeatureEntitlement",
 			Handler:    _Features_DeleteFeatureEntitlement_Handler,
+		},
+		{
+			MethodName: "StartTrial",
+			Handler:    _Features_StartTrial_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

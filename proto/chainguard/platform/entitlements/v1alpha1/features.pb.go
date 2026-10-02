@@ -772,6 +772,97 @@ func (x *DeleteFeatureEntitlementRequest) GetReason() string {
 	return ""
 }
 
+type StartTrialRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// parent is the UIDP of the organization.
+	Parent        string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartTrialRequest) Reset() {
+	*x = StartTrialRequest{}
+	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartTrialRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartTrialRequest) ProtoMessage() {}
+
+func (x *StartTrialRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartTrialRequest.ProtoReflect.Descriptor instead.
+func (*StartTrialRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *StartTrialRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
+type StartTrialResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// feature_entitlements are the organization's trial entitlements, one per
+	// feature.
+	FeatureEntitlements []*FeatureEntitlement `protobuf:"bytes,1,rep,name=feature_entitlements,json=featureEntitlements,proto3" json:"feature_entitlements,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *StartTrialResponse) Reset() {
+	*x = StartTrialResponse{}
+	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartTrialResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartTrialResponse) ProtoMessage() {}
+
+func (x *StartTrialResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartTrialResponse.ProtoReflect.Descriptor instead.
+func (*StartTrialResponse) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *StartTrialResponse) GetFeatureEntitlements() []*FeatureEntitlement {
+	if x != nil {
+		return x.FeatureEntitlements
+	}
+	return nil
+}
+
 var File_chainguard_platform_entitlements_v1alpha1_features_proto protoreflect.FileDescriptor
 
 const file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDesc = "" +
@@ -838,20 +929,28 @@ const file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDesc = ""
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12\x1e\n" +
 	"\afeature\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\afeature\x12V\n" +
 	"\x06source\x18\x03 \x01(\x0e28.chainguard.platform.entitlements.v1alpha1.FeatureSourceB\x04\xe2A\x01\x02R\x06source\x12\x1c\n" +
-	"\x06reason\x18\x04 \x01(\tB\x04\xe2A\x01\x02R\x06reason*\xaa\x01\n" +
+	"\x06reason\x18\x04 \x01(\tB\x04\xe2A\x01\x02R\x06reason\"7\n" +
+	"\x11StartTrialRequest\x12\"\n" +
+	"\x06parent\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\x86\x01\n" +
+	"\x12StartTrialResponse\x12p\n" +
+	"\x14feature_entitlements\x18\x01 \x03(\v2=.chainguard.platform.entitlements.v1alpha1.FeatureEntitlementR\x13featureEntitlements*\xaa\x01\n" +
 	"\rFeatureSource\x12\x1e\n" +
 	"\x1aFEATURE_SOURCE_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17FEATURE_SOURCE_CUSTOMER\x10\x01\x12\x1b\n" +
 	"\x17FEATURE_SOURCE_INTERNAL\x10\x02\x12 \n" +
 	"\x1cFEATURE_SOURCE_CONSOLE_ADMIN\x10\x03\x12\x1d\n" +
-	"\x19FEATURE_SOURCE_SALESFORCE\x10\x042\xb6\x05\n" +
+	"\x19FEATURE_SOURCE_SALESFORCE\x10\x042\x90\a\n" +
 	"\bFeatures\x12\xf1\x01\n" +
 	"\x17ListFeatureEntitlements\x12I.chainguard.platform.entitlements.v1alpha1.ListFeatureEntitlementsRequest\x1aJ.chainguard.platform.entitlements.v1alpha1.ListFeatureEntitlementsResponse\"?\x82\xd3\xe4\x93\x02-\x12+/entitlements/v1alpha1/features/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x81\x19\x12\xe8\x01\n" +
 	"\x15SetFeatureEntitlement\x12G.chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest\x1a=.chainguard.platform.entitlements.v1alpha1.FeatureEntitlement\"G\x82\xd3\xe4\x93\x024:\x01*\"//entitlements/v1alpha1/features/{parent=**}:set\x8a\xaf\xa8\xd2\x05\a\x12\x05\n" +
 	"\x03\x82\x19\x02\x12\xca\x01\n" +
 	"\x18DeleteFeatureEntitlement\x12J.chainguard.platform.entitlements.v1alpha1.DeleteFeatureEntitlementRequest\x1a\x16.google.protobuf.Empty\"J\x82\xd3\xe4\x93\x027:\x01*\"2/entitlements/v1alpha1/features/{parent=**}:delete\x8a\xaf\xa8\xd2\x05\a\x12\x05\n" +
-	"\x03\x82\x19\x02B\x84\x01\n" +
+	"\x03\x82\x19\x02\x12\xd7\x01\n" +
+	"\n" +
+	"StartTrial\x12<.chainguard.platform.entitlements.v1alpha1.StartTrialRequest\x1a=.chainguard.platform.entitlements.v1alpha1.StartTrialResponse\"L\x82\xd3\xe4\x93\x02;:\x01*\"6/entitlements/v1alpha1/features/{parent=**}:startTrial\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
+	"\x01fB\x84\x01\n" +
 	"-com.chainguard.platform.entitlements.v1alpha1B\rFeaturesProtoP\x01ZBchainguard.dev/sdk/proto/chainguard/platform/entitlements/v1alpha1b\x06proto3"
 
 var (
@@ -867,7 +966,7 @@ func file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDescGZIP()
 }
 
 var file_chainguard_platform_entitlements_v1alpha1_features_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_chainguard_platform_entitlements_v1alpha1_features_proto_goTypes = []any{
 	(FeatureSource)(0),                      // 0: chainguard.platform.entitlements.v1alpha1.FeatureSource
 	(*FeatureEntitlement)(nil),              // 1: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement
@@ -878,35 +977,40 @@ var file_chainguard_platform_entitlements_v1alpha1_features_proto_goTypes = []an
 	(*ListFeatureEntitlementsResponse)(nil), // 6: chainguard.platform.entitlements.v1alpha1.ListFeatureEntitlementsResponse
 	(*SetFeatureEntitlementRequest)(nil),    // 7: chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest
 	(*DeleteFeatureEntitlementRequest)(nil), // 8: chainguard.platform.entitlements.v1alpha1.DeleteFeatureEntitlementRequest
-	(*timestamppb.Timestamp)(nil),           // 9: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),                   // 10: google.protobuf.Empty
+	(*StartTrialRequest)(nil),               // 9: chainguard.platform.entitlements.v1alpha1.StartTrialRequest
+	(*StartTrialResponse)(nil),              // 10: chainguard.platform.entitlements.v1alpha1.StartTrialResponse
+	(*timestamppb.Timestamp)(nil),           // 11: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),                   // 12: google.protobuf.Empty
 }
 var file_chainguard_platform_entitlements_v1alpha1_features_proto_depIdxs = []int32{
 	0,  // 0: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.source:type_name -> chainguard.platform.entitlements.v1alpha1.FeatureSource
 	2,  // 1: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.sandbox_checks:type_name -> chainguard.platform.entitlements.v1alpha1.SandboxChecksConfig
 	3,  // 2: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.sandbox_workspaces:type_name -> chainguard.platform.entitlements.v1alpha1.SandboxWorkspacesConfig
-	9,  // 3: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.expire_time:type_name -> google.protobuf.Timestamp
-	9,  // 4: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.create_time:type_name -> google.protobuf.Timestamp
-	9,  // 5: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.update_time:type_name -> google.protobuf.Timestamp
+	11, // 3: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.expire_time:type_name -> google.protobuf.Timestamp
+	11, // 4: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.create_time:type_name -> google.protobuf.Timestamp
+	11, // 5: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.update_time:type_name -> google.protobuf.Timestamp
 	4,  // 6: chainguard.platform.entitlements.v1alpha1.SandboxChecksConfig.max_resource_class:type_name -> chainguard.platform.entitlements.v1alpha1.ResourceClassLimit
 	4,  // 7: chainguard.platform.entitlements.v1alpha1.SandboxWorkspacesConfig.max_resource_class:type_name -> chainguard.platform.entitlements.v1alpha1.ResourceClassLimit
 	1,  // 8: chainguard.platform.entitlements.v1alpha1.ListFeatureEntitlementsResponse.feature_entitlements:type_name -> chainguard.platform.entitlements.v1alpha1.FeatureEntitlement
 	0,  // 9: chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest.source:type_name -> chainguard.platform.entitlements.v1alpha1.FeatureSource
 	2,  // 10: chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest.sandbox_checks:type_name -> chainguard.platform.entitlements.v1alpha1.SandboxChecksConfig
 	3,  // 11: chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest.sandbox_workspaces:type_name -> chainguard.platform.entitlements.v1alpha1.SandboxWorkspacesConfig
-	9,  // 12: chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest.expire_time:type_name -> google.protobuf.Timestamp
+	11, // 12: chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest.expire_time:type_name -> google.protobuf.Timestamp
 	0,  // 13: chainguard.platform.entitlements.v1alpha1.DeleteFeatureEntitlementRequest.source:type_name -> chainguard.platform.entitlements.v1alpha1.FeatureSource
-	5,  // 14: chainguard.platform.entitlements.v1alpha1.Features.ListFeatureEntitlements:input_type -> chainguard.platform.entitlements.v1alpha1.ListFeatureEntitlementsRequest
-	7,  // 15: chainguard.platform.entitlements.v1alpha1.Features.SetFeatureEntitlement:input_type -> chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest
-	8,  // 16: chainguard.platform.entitlements.v1alpha1.Features.DeleteFeatureEntitlement:input_type -> chainguard.platform.entitlements.v1alpha1.DeleteFeatureEntitlementRequest
-	6,  // 17: chainguard.platform.entitlements.v1alpha1.Features.ListFeatureEntitlements:output_type -> chainguard.platform.entitlements.v1alpha1.ListFeatureEntitlementsResponse
-	1,  // 18: chainguard.platform.entitlements.v1alpha1.Features.SetFeatureEntitlement:output_type -> chainguard.platform.entitlements.v1alpha1.FeatureEntitlement
-	10, // 19: chainguard.platform.entitlements.v1alpha1.Features.DeleteFeatureEntitlement:output_type -> google.protobuf.Empty
-	17, // [17:20] is the sub-list for method output_type
-	14, // [14:17] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	1,  // 14: chainguard.platform.entitlements.v1alpha1.StartTrialResponse.feature_entitlements:type_name -> chainguard.platform.entitlements.v1alpha1.FeatureEntitlement
+	5,  // 15: chainguard.platform.entitlements.v1alpha1.Features.ListFeatureEntitlements:input_type -> chainguard.platform.entitlements.v1alpha1.ListFeatureEntitlementsRequest
+	7,  // 16: chainguard.platform.entitlements.v1alpha1.Features.SetFeatureEntitlement:input_type -> chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest
+	8,  // 17: chainguard.platform.entitlements.v1alpha1.Features.DeleteFeatureEntitlement:input_type -> chainguard.platform.entitlements.v1alpha1.DeleteFeatureEntitlementRequest
+	9,  // 18: chainguard.platform.entitlements.v1alpha1.Features.StartTrial:input_type -> chainguard.platform.entitlements.v1alpha1.StartTrialRequest
+	6,  // 19: chainguard.platform.entitlements.v1alpha1.Features.ListFeatureEntitlements:output_type -> chainguard.platform.entitlements.v1alpha1.ListFeatureEntitlementsResponse
+	1,  // 20: chainguard.platform.entitlements.v1alpha1.Features.SetFeatureEntitlement:output_type -> chainguard.platform.entitlements.v1alpha1.FeatureEntitlement
+	12, // 21: chainguard.platform.entitlements.v1alpha1.Features.DeleteFeatureEntitlement:output_type -> google.protobuf.Empty
+	10, // 22: chainguard.platform.entitlements.v1alpha1.Features.StartTrial:output_type -> chainguard.platform.entitlements.v1alpha1.StartTrialResponse
+	19, // [19:23] is the sub-list for method output_type
+	15, // [15:19] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_entitlements_v1alpha1_features_proto_init() }
@@ -930,7 +1034,7 @@ func file_chainguard_platform_entitlements_v1alpha1_features_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDesc), len(file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   8,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
