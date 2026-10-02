@@ -291,9 +291,14 @@ const (
 	// target, or when an advisory named a fix at or above the pinned version
 	// that Chainguard never ingested.
 	//
-	// Added after the other values, so a client generated from an earlier copy
-	// of this file decodes it as UNSPECIFIED. A version that reports it today
-	// reported REVIEWING before this value existed.
+	// Added after the other values. proto3 enums are open, so a client generated
+	// from an earlier copy of this file keeps the number as an unrecognized
+	// value and its switches fall through to their default branch -- it does not
+	// read as UNSPECIFIED. A client parsing the JSON surface strictly errors on
+	// the unknown name instead. Treat an unrecognized value as not computed.
+	//
+	// A version that reports this today reported REVIEWING before the value
+	// existed.
 	CVERemediationStatus_CVE_REMEDIATION_STATUS_FIX_AVAILABLE CVERemediationStatus = 7
 )
 
@@ -858,19 +863,51 @@ type RequestedLibraryCVEStatus int32
 const (
 	// Unspecified remediation status.
 	RequestedLibraryCVEStatus_REQUESTED_LIBRARY_CVE_STATUS_UNSPECIFIED RequestedLibraryCVEStatus = 0
-	// Opted in, but no version is past being queued, or a cross-referenced version
-	// still has untriaged CVEs. A library with even one un-cross-referenced version
-	// is REVIEWING rather than clean: the alternative would report an unfinished
-	// check as a clean bill of health.
+	// No version in scope is past being queued, or a cross-referenced one still
+	// has untriaged CVEs. One un-cross-referenced version in scope makes the
+	// library REVIEWING rather than clean: the alternative would report an
+	// unfinished check as a clean bill of health.
 	RequestedLibraryCVEStatus_REQUESTED_LIBRARY_CVE_STATUS_REVIEWING RequestedLibraryCVEStatus = 1
-	// Remediation underway on at least one version.
+	// Remediation underway on at least one version in scope.
 	RequestedLibraryCVEStatus_REQUESTED_LIBRARY_CVE_STATUS_IN_PROGRESS RequestedLibraryCVEStatus = 2
-	// Every version came back cross-referenced and clean, and none is still queued.
+	// Every version in scope came back cross-referenced and clean, and none is
+	// still queued.
 	RequestedLibraryCVEStatus_REQUESTED_LIBRARY_CVE_STATUS_NO_HIGH_CRITICAL_CVES RequestedLibraryCVEStatus = 3
-	// Remediation finished with at least one CVE remediated and nothing in progress.
+	// At least one CVE remediated, with nothing in progress and no version in
+	// scope still queued.
+	//
+	// Read it as "nothing outstanding on the versions you asked us to scan, as
+	// far as the last cross-reference knows" -- not as a durable property of the
+	// library, and not as a statement about versions outside the scope.
+	//
+	// New upstream versions appear and new CVEs are disclosed against versions
+	// already pinned, so a library has no permanent finished state, and this
+	// value can go back to REVIEWING without anything regressing.
+	//
+	// A version nobody has cross-referenced holds this value off, for the reason
+	// it holds off NO_HIGH_CRITICAL_CVES: both claim full coverage of the scope,
+	// and an unexamined version in it is where that coverage is missing.
+	//
+	// remediated_cve_count is reported whatever the status, so a REVIEWING
+	// library still says how many CVEs were fixed.
 	RequestedLibraryCVEStatus_REQUESTED_LIBRARY_CVE_STATUS_COMPLETE RequestedLibraryCVEStatus = 4
-	// Every CVE across the library was ruled out of scope.
+	// Every CVE on the versions in scope was ruled out of scope. A version in
+	// scope with no CVEs does not hold this back -- it has none to leave
+	// unexcluded -- but one that was never cross-referenced does.
 	RequestedLibraryCVEStatus_REQUESTED_LIBRARY_CVE_STATUS_WONT_REMEDIATE RequestedLibraryCVEStatus = 5
+	// At least one version in scope has a CVE with a fix the caller can move to,
+	// and Chainguard has not delivered a build of that pinned version.
+	//
+	// The target is not named here. Different pinned versions upgrade to
+	// different targets, so one library-level version would be wrong for most of
+	// them -- the per-version read is where a target belongs.
+	//
+	// Added after the other values. proto3 enums are open, so a client generated
+	// from an earlier copy of this file keeps the number as an unrecognized
+	// value and its switches fall through to their default branch -- it does not
+	// read as UNSPECIFIED. A client parsing the JSON surface strictly errors on
+	// the unknown name instead. Treat an unrecognized value as not computed.
+	RequestedLibraryCVEStatus_REQUESTED_LIBRARY_CVE_STATUS_FIX_AVAILABLE RequestedLibraryCVEStatus = 6
 )
 
 // Enum value maps for RequestedLibraryCVEStatus.
@@ -882,6 +919,7 @@ var (
 		3: "REQUESTED_LIBRARY_CVE_STATUS_NO_HIGH_CRITICAL_CVES",
 		4: "REQUESTED_LIBRARY_CVE_STATUS_COMPLETE",
 		5: "REQUESTED_LIBRARY_CVE_STATUS_WONT_REMEDIATE",
+		6: "REQUESTED_LIBRARY_CVE_STATUS_FIX_AVAILABLE",
 	}
 	RequestedLibraryCVEStatus_value = map[string]int32{
 		"REQUESTED_LIBRARY_CVE_STATUS_UNSPECIFIED":           0,
@@ -890,6 +928,7 @@ var (
 		"REQUESTED_LIBRARY_CVE_STATUS_NO_HIGH_CRITICAL_CVES": 3,
 		"REQUESTED_LIBRARY_CVE_STATUS_COMPLETE":              4,
 		"REQUESTED_LIBRARY_CVE_STATUS_WONT_REMEDIATE":        5,
+		"REQUESTED_LIBRARY_CVE_STATUS_FIX_AVAILABLE":         6,
 	}
 )
 
@@ -3044,14 +3083,30 @@ type RequestedLibrary struct {
 	Ecosystem Ecosystem `protobuf:"varint,2,opt,name=ecosystem,proto3,enum=chainguard.platform.libraries.v2beta1.Ecosystem" json:"ecosystem,omitempty"`
 	// Build status across the library's requested versions.
 	BuildStatus RequestedLibraryBuildStatus `protobuf:"varint,3,opt,name=build_status,json=buildStatus,proto3,enum=chainguard.platform.libraries.v2beta1.RequestedLibraryBuildStatus" json:"build_status,omitempty"`
-	// CVE-remediation status across the library's requested versions. Populated
-	// only where a contributing group is opted in.
+	// CVE-remediation status for this library, aggregated across the versions
+	// whose request groups opted into CVE remediation.
+	//
+	// That scope is narrower than the library's requested versions, and the
+	// difference matters. Opt-in is a property of a request group, so an
+	// organization with one opted-in group and one that is not has versions of
+	// the same library inside and outside this answer. A version nobody asked us
+	// to scan is not reported here, and does not hold the status back: every
+	// rung below is a claim about the versions in scope, not about every version
+	// the organization pins.
+	//
+	// UNSPECIFIED where no contributing group opted in, which reads as "not
+	// computed" -- there is no scan to report, and any rung would claim one.
 	CveStatus RequestedLibraryCVEStatus `protobuf:"varint,4,opt,name=cve_status,json=cveStatus,proto3,enum=chainguard.platform.libraries.v2beta1.RequestedLibraryCVEStatus" json:"cve_status,omitempty"`
 	// How many distinct versions of this library the organization has requested.
 	RequestedVersionCount int32 `protobuf:"varint,5,opt,name=requested_version_count,json=requestedVersionCount,proto3" json:"requested_version_count,omitempty"`
 	// How many of those versions Chainguard has built.
 	BuiltVersionCount int32 `protobuf:"varint,6,opt,name=built_version_count,json=builtVersionCount,proto3" json:"built_version_count,omitempty"`
-	// Total CVEs remediated across the library's versions.
+	// Total CVEs remediated across the versions in cve_status's scope -- the ones
+	// whose request groups opted in, not every requested version.
+	//
+	// Reported whatever cve_status says, because a library part-way through
+	// remediation has fixed CVEs worth naming: the status answers whether it is
+	// finished and this answers what has been done.
 	RemediatedCveCount int32 `protobuf:"varint,7,opt,name=remediated_cve_count,json=remediatedCveCount,proto3" json:"remediated_cve_count,omitempty"`
 	// How the requests for this library arrived, deduplicated.
 	Sources []RequestSource `protobuf:"varint,8,rep,packed,name=sources,proto3,enum=chainguard.platform.libraries.v2beta1.RequestSource" json:"sources,omitempty"`
@@ -4419,14 +4474,15 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"(REQUESTED_LIBRARY_BUILD_STATUS_REVIEWING\x10\x01\x12.\n" +
 	"*REQUESTED_LIBRARY_BUILD_STATUS_IN_PROGRESS\x10\x02\x12+\n" +
 	"'REQUESTED_LIBRARY_BUILD_STATUS_COMPLETE\x10\x03\x12-\n" +
-	")REQUESTED_LIBRARY_BUILD_STATUS_WONT_BUILD\x10\x04*\xb7\x02\n" +
+	")REQUESTED_LIBRARY_BUILD_STATUS_WONT_BUILD\x10\x04*\xe7\x02\n" +
 	"\x19RequestedLibraryCVEStatus\x12,\n" +
 	"(REQUESTED_LIBRARY_CVE_STATUS_UNSPECIFIED\x10\x00\x12*\n" +
 	"&REQUESTED_LIBRARY_CVE_STATUS_REVIEWING\x10\x01\x12,\n" +
 	"(REQUESTED_LIBRARY_CVE_STATUS_IN_PROGRESS\x10\x02\x126\n" +
 	"2REQUESTED_LIBRARY_CVE_STATUS_NO_HIGH_CRITICAL_CVES\x10\x03\x12)\n" +
 	"%REQUESTED_LIBRARY_CVE_STATUS_COMPLETE\x10\x04\x12/\n" +
-	"+REQUESTED_LIBRARY_CVE_STATUS_WONT_REMEDIATE\x10\x052\xc5+\n" +
+	"+REQUESTED_LIBRARY_CVE_STATUS_WONT_REMEDIATE\x10\x05\x12.\n" +
+	"*REQUESTED_LIBRARY_CVE_STATUS_FIX_AVAILABLE\x10\x062\xc5+\n" +
 	"\x14RequestGroupsService\x12\xbd\x03\n" +
 	"\x12CreateRequestGroup\x12@.chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest\x1a3.chainguard.platform.libraries.v2beta1.RequestGroup\"\xaf\x02\x82\xd3\xe4\x93\x021:\x01*\",/libraries/v2beta1/requestGroups/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd2\x0e\x9a\xaf\xa8\xd2\x05\x9f\x01\n" +
