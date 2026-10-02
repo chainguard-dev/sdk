@@ -1,0 +1,427 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.skills.v1alpha1;
+
+import "annotations/auth.proto";
+import "annotations/mcp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "platform/common/v1/uidp.platform.proto";
+
+// protolint:disable:next MAX_LINE_LENGTH
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/skills/v1alpha1";
+option java_multiple_files = true;
+option java_outer_classname = "HardeningReportsProto";
+option java_package = "com.chainguard.platform.skills.v1alpha1";
+
+// SkillsHardeningReports serves the hardening result for a skill version: the
+// before/after severity counts and the findings, classified by the Chainguard
+// Skill Vulnerability Taxonomy (CGSVT). A skill version is a registry tag, so
+// reports are keyed by the tag's UIDP. The writes are internal_only and hidden
+// from the tool surface; the skills pipeline is their only caller.
+service SkillsHardeningReports {
+  // GetHardeningReport returns a skill version's hardening summary. A report is
+  // only served while the tag still points at the digest that was hardened.
+  rpc GetHardeningReport(GetHardeningReportRequest) returns (HardeningReport) {
+    option (google.api.http) = {
+      get: "/skills/v1alpha1/hardeningReports/{tag_id=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_SKILLS_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get the hardening summary of a skill version (registry tag "
+                   "UIDP): whether it passed and its before/after finding "
+                   "counts by severity."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // ListHardeningReports lists the hardening summaries for the skill versions a
+  // UIDP filter selects: children_of a skill repo for its versions, or
+  // descendants_of a skills folder for a whole catalog. Like ListSkills it is
+  // unscoped and results self-scope to the orgs the caller holds
+  // CAP_SKILLS_LIST on. A report is returned only while its tag still points at
+  // the hardened digest, so a page can hold fewer than page_size reports.
+  rpc ListHardeningReports(ListHardeningReportsRequest)
+      returns (ListHardeningReportsResponse) {
+    option (google.api.http) = {get: "/skills/v1alpha1/hardeningReports"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_SKILLS_LIST]
+        unscoped: true
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List the hardening summaries for skill versions under a "
+                   "skill repo or skills folder: whether each version passed "
+                   "and its before/after finding counts by severity."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // GetTaxonomy returns a CGSVT taxonomy version: its groups and subtypes with
+  // titles and definitions, and the scanner checks it names. Findings carry
+  // the version they are classified under.
+  rpc GetTaxonomy(GetTaxonomyRequest) returns (Taxonomy) {
+    option (google.api.http) = {get: "/skills/v1alpha1/taxonomies/{version}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_SKILLS_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Get the Chainguard Skill Vulnerability Taxonomy (CGSVT) "
+                   "version that skill findings are classified under: risk "
+                   "groups, subtypes and their definitions, and the scanner "
+                   "checks each finding can name."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // ListHardeningFindings pages a skill version's findings, most severe first.
+  rpc ListHardeningFindings(ListHardeningFindingsRequest)
+      returns (ListHardeningFindingsResponse) {
+    option (google.api.http) = {get: "/skills/v1alpha1/hardeningFindings"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_SKILLS_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List the security findings for a skill version (registry "
+                   "tag UIDP), with status (closed, open, introduced by "
+                   "hardening), severity, file, and the scanner checks that "
+                   "raised each one."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // UpdateTaxonomy loads one CGSVT taxonomy version's display metadata,
+  // following AIP-134 create-or-update: with allow_missing the version is
+  // created when it is not stored; otherwise a missing version is NOT_FOUND. A
+  // version is immutable: re-loading identical hashes rewrites the same rows,
+  // and different hashes for a stored version are FAILED_PRECONDITION. The
+  // taxonomy is not org data; parent_id only scopes the capability check.
+  rpc UpdateTaxonomy(UpdateTaxonomyRequest) returns (Taxonomy) {
+    option (google.api.http) = {
+      patch: "/skills/v1alpha1/taxonomies/{taxonomy.version}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_SKILLS_WRITE]
+      }
+    };
+    option (chainguard.annotations.mcp) = {hidden: true};
+  }
+
+  // UpdateHardeningReport replaces a skill version's report and its findings
+  // as a whole, following AIP-134 create-or-update: with allow_missing the
+  // report is created when the version has none; otherwise a missing report is
+  // NOT_FOUND. FAILED_PRECONDITION until the report's taxonomy version is
+  // loaded, or when the tag does not point at the report's digest.
+  rpc UpdateHardeningReport(UpdateHardeningReportRequest)
+      returns (HardeningReport) {
+    option (google.api.http) = {
+      patch: "/skills/v1alpha1/hardeningReports/{tag_id=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_SKILLS_WRITE]
+      }
+    };
+    option (chainguard.annotations.mcp) = {hidden: true};
+  }
+
+  // DeleteHardeningReport removes a skill version's report and findings.
+  rpc DeleteHardeningReport(DeleteHardeningReportRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/skills/v1alpha1/hardeningReports/{tag_id=**}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_SKILLS_DELETE]
+      }
+    };
+    option (chainguard.annotations.mcp) = {hidden: true};
+  }
+}
+
+// FindingSeverity is the normalized CGSVT level, most severe first.
+enum FindingSeverity {
+  FINDING_SEVERITY_UNSPECIFIED = 0;
+  FINDING_SEVERITY_CRITICAL = 1;
+  FINDING_SEVERITY_HIGH = 2;
+  FINDING_SEVERITY_MEDIUM = 3;
+  FINDING_SEVERITY_LOW = 4;
+  FINDING_SEVERITY_INFO = 5;
+}
+
+// FindingStatus is a finding's outcome across hardening.
+enum FindingStatus {
+  FINDING_STATUS_UNSPECIFIED = 0;
+  // FINDING_STATUS_CLOSED: present before hardening, gone after.
+  FINDING_STATUS_CLOSED = 1;
+  // FINDING_STATUS_OPEN: present before and after hardening.
+  FINDING_STATUS_OPEN = 2;
+  // FINDING_STATUS_INTRODUCED: present only after hardening.
+  FINDING_STATUS_INTRODUCED = 3;
+}
+
+// Taxonomy is one CGSVT version's display metadata.
+message Taxonomy {
+  // version is the taxonomy version, e.g. "1.4.0".
+  string version = 1 [(google.api.field_behavior) = REQUIRED];
+  string crosswalk_version = 2 [(google.api.field_behavior) = OPTIONAL];
+  // unified_sha256 and crosswalk_sha256 are the taxonomy files' hashes; they
+  // make a version immutable.
+  string unified_sha256 = 3 [(google.api.field_behavior) = REQUIRED];
+  string crosswalk_sha256 = 4 [(google.api.field_behavior) = REQUIRED];
+  repeated Group groups = 5 [(google.api.field_behavior) = OPTIONAL];
+  repeated Check checks = 6 [(google.api.field_behavior) = OPTIONAL];
+  google.protobuf.Timestamp create_time = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  message Group {
+    // id is the group id, e.g. "CGSVT-04".
+    string id = 1;
+    string title = 2;
+    string definition = 3;
+    // owasp_codes lists the group's OWASP LLM and agentic codes.
+    repeated string owasp_codes = 4;
+    repeated Subtype subtypes = 5;
+  }
+
+  message Subtype {
+    // id is the subtype slug, e.g. "secret-exposure".
+    string id = 1;
+    string title = 2;
+    string definition = 3;
+  }
+
+  // Check is one scanner rule's display name.
+  message Check {
+    string scanner = 1;
+    string rule_id = 2;
+    string name = 3;
+    string category = 4;
+  }
+}
+
+// SeverityCounts tallies findings by level; critical is never folded into high.
+message SeverityCounts {
+  int32 critical = 1;
+  int32 high = 2;
+  int32 medium = 3;
+  int32 low = 4;
+  int32 info = 5;
+}
+
+// HardeningReport is the hardening result for one skill version.
+message HardeningReport {
+  // tag_id is the registry tag UIDP of the skill version.
+  string tag_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // digest is the hardened artifact digest the report describes.
+  string digest = 2 [(google.api.field_behavior) = REQUIRED];
+  // version_sha is the upstream commit the version was built from.
+  string version_sha = 3 [(google.api.field_behavior) = OPTIONAL];
+  // taxonomy_version is the CGSVT version the findings are classified under.
+  string taxonomy_version = 4 [(google.api.field_behavior) = REQUIRED];
+  // passed is true when the version cleared the hardening gate.
+  bool passed = 5 [(google.api.field_behavior) = OPTIONAL];
+  SeverityCounts before = 6 [(google.api.field_behavior) = OPTIONAL];
+  SeverityCounts after = 7 [(google.api.field_behavior) = OPTIONAL];
+  // unrouted are scanner labels CGSVT does not classify, kept so a high or
+  // critical unknown is still counted.
+  repeated Unrouted unrouted_entries = 8 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+  google.protobuf.Timestamp generate_time = 9 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+  google.protobuf.Timestamp create_time = 10 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+  google.protobuf.Timestamp update_time = 11 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  message Unrouted {
+    string scanner = 1;
+    string key = 2;
+    FindingSeverity severity = 3;
+    int32 count = 4;
+  }
+}
+
+// HardeningFinding is one CGSVT finding: a distinct (group, subtype, file).
+message HardeningFinding {
+  // operational_id is the finding's stable identity across hardening.
+  string operational_id = 1;
+  string group_id = 2;
+  string subtype_id = 3;
+  string artifact_path = 4;
+  FindingSeverity severity = 5;
+  FindingStatus status = 6;
+  // detector_count is the number of distinct scanners that raised it.
+  int32 detector_count = 7;
+  // sources are in display order: sources[0] names the finding.
+  repeated Source sources = 8;
+  string group_title = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string subtype_title = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Source is one scanner check that raised the finding.
+  message Source {
+    string scanner = 1;
+    string rule_id = 2;
+    string category = 3;
+    FindingSeverity severity = 4;
+    // name is the check's display name; empty when the taxonomy does not
+    // catalogue the rule.
+    string name = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  }
+}
+
+message GetHardeningReportRequest {
+  // parent_id is the org (or group) UIDP the skill belongs to; it scopes the
+  // capability check, and tag_id must be within its subtree.
+  string parent_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+  // tag_id is the registry tag UIDP of the skill version.
+  string tag_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ListHardeningFindingsRequest {
+  // parent_id is the org (or group) UIDP the skill belongs to; it scopes the
+  // capability check, and tag_id must be within its subtree.
+  string parent_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+  // tag_id is the registry tag UIDP of the skill version.
+  string tag_id = 2 [(google.api.field_behavior) = REQUIRED];
+  // statuses and severities narrow the findings; empty matches all.
+  repeated FindingStatus statuses = 3 [(google.api.field_behavior) = OPTIONAL];
+  repeated FindingSeverity severities = 4 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+  // query matches a substring of the check names, group and subtype titles, or
+  // file path.
+  string query = 5 [(google.api.field_behavior) = OPTIONAL];
+  // page_size is bounded server-side: 0 uses the default and larger values are
+  // capped.
+  int32 page_size = 6 [(google.api.field_behavior) = OPTIONAL];
+  // page_token is the next_page_token from a previous response.
+  string page_token = 7 [(google.api.field_behavior) = OPTIONAL];
+  // skip is the number of findings to skip, for numbered pages (0 to 10,000).
+  int32 skip = 8 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListHardeningFindingsResponse {
+  repeated HardeningFinding findings = 1;
+  // total_size is the number of findings matching the filter.
+  int64 total_size = 2;
+  string next_page_token = 3;
+  // digest is the digest of the report the page was read from.
+  string digest = 4;
+}
+
+message ListHardeningReportsRequest {
+  // uidp selects skill versions by hierarchy, e.g. children_of a skill repo.
+  // One is required; there is no list-everything mode.
+  chainguard.platform.common.UIDPFilter uidp = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+  // page_size is bounded server-side: 0 uses the default and larger values are
+  // capped.
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
+  // page_token is the next_page_token from a previous response.
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
+  // skip is the number of reports to skip, for numbered pages (0 to 10,000).
+  int32 skip = 4 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListHardeningReportsResponse {
+  repeated HardeningReport reports = 1;
+  // total_size counts the stored reports the filter matches, including any
+  // whose tag has since moved.
+  int64 total_size = 2;
+  string next_page_token = 3;
+}
+
+message GetTaxonomyRequest {
+  // parent_id is the caller's org (or group) UIDP; it scopes the capability
+  // check. The taxonomy itself belongs to no org.
+  string parent_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+  // version is the taxonomy version, e.g. "1.4.0".
+  string version = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message UpdateTaxonomyRequest {
+  // parent_id scopes the capability check; the taxonomy is not stored under it.
+  string parent_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+  Taxonomy taxonomy = 2 [(google.api.field_behavior) = REQUIRED];
+  // allow_missing creates the version when it is not stored (AIP-134).
+  bool allow_missing = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message UpdateHardeningReportRequest {
+  // parent_id is the org (or group) UIDP the skill belongs to; it scopes the
+  // capability check, and tag_id must be within its subtree.
+  string parent_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+  // tag_id is the registry tag UIDP of the skill version.
+  string tag_id = 2 [(google.api.field_behavior) = REQUIRED];
+  HardeningReport report = 3 [(google.api.field_behavior) = REQUIRED];
+  // findings replace the report's findings; read them with
+  // ListHardeningFindings.
+  repeated HardeningFinding findings = 4 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+  // allow_missing creates the report when the version has none (AIP-134).
+  bool allow_missing = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message DeleteHardeningReportRequest {
+  // parent_id is the org (or group) UIDP the skill belongs to; it scopes the
+  // capability check, and tag_id must be within its subtree.
+  string parent_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+  // tag_id is the registry tag UIDP of the skill version.
+  string tag_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
