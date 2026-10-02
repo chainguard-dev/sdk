@@ -246,7 +246,10 @@ message HardenOperationMetadata {
 }
 
 // HardenOperationResponse is carried in Operation.response when a harden job
-// completes successfully. Terminal failures are reported via Operation.error.
+// completes successfully. Terminal failures are reported via Operation.error;
+// when the post-hardening scan rejected the rewrite but the submitted skill was
+// still published, Operation.error.details also carries this message, with
+// hardened set to false.
 message HardenOperationResponse {
   // hardened_ref is the published hardened skill artifact ref — a per-user path,
   // skills.cgr.dev/<group>/<user>/<skill_name>@<digest>, so two users hardening

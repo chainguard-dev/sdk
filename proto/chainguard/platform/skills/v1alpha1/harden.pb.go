@@ -501,7 +501,10 @@ func (x *HardenOperationMetadata) GetPhaseChanges() []*HardenOperationMetadata_P
 }
 
 // HardenOperationResponse is carried in Operation.response when a harden job
-// completes successfully. Terminal failures are reported via Operation.error.
+// completes successfully. Terminal failures are reported via Operation.error;
+// when the post-hardening scan rejected the rewrite but the submitted skill was
+// still published, Operation.error.details also carries this message, with
+// hardened set to false.
 type HardenOperationResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// hardened_ref is the published hardened skill artifact ref — a per-user path,
