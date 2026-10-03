@@ -10,13 +10,18 @@ import skills "chainguard.dev/sdk/proto/chainguard/platform/skills/v1alpha1"
 var _ skills.Clients = (*MockSkillsClients)(nil)
 
 type MockSkillsClients struct {
-	CatalogClient MockCatalogClient
+	CatalogClient          MockCatalogClient
+	HardeningReportsClient MockHardeningReportsClient
 
 	OnClose error
 }
 
 func (m MockSkillsClients) Skills() skills.SkillsClient {
 	return &m.CatalogClient
+}
+
+func (m MockSkillsClients) HardeningReports() skills.SkillsHardeningReportsClient {
+	return &m.HardeningReportsClient
 }
 
 func (m MockSkillsClients) Close() error {

@@ -11,25 +11,32 @@ import (
 
 type Clients interface {
 	Skills() SkillsClient
+	HardeningReports() SkillsHardeningReportsClient
 
 	Close() error
 }
 
 func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 	return &clients{
-		skills: NewSkillsClient(conn),
+		skills:           NewSkillsClient(conn),
+		hardeningReports: NewSkillsHardeningReportsClient(conn),
 		// conn is not set; this client struct does not own closing it.
 	}
 }
 
 type clients struct {
-	skills SkillsClient
+	skills           SkillsClient
+	hardeningReports SkillsHardeningReportsClient
 
 	conn *grpc.ClientConn
 }
 
 func (c *clients) Skills() SkillsClient {
 	return c.skills
+}
+
+func (c *clients) HardeningReports() SkillsHardeningReportsClient {
+	return c.hardeningReports
 }
 
 func (c *clients) Close() error {
