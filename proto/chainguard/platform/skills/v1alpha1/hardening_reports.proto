@@ -139,7 +139,9 @@ service SkillsHardeningReports {
   // as a whole, following AIP-134 create-or-update: with allow_missing the
   // report is created when the version has none; otherwise a missing report is
   // NOT_FOUND. FAILED_PRECONDITION until the report's taxonomy version is
-  // loaded, or when the tag does not point at the report's digest.
+  // loaded, or when the tag does not point at the report's digest. ABORTED
+  // when the stored report has a later generate_time, so an out-of-order write
+  // cannot replace a newer run, even across a tag move.
   rpc UpdateHardeningReport(UpdateHardeningReportRequest)
       returns (HardeningReport) {
     option (google.api.http) = {

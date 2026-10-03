@@ -69,7 +69,9 @@ type SkillsHardeningReportsClient interface {
 	// as a whole, following AIP-134 create-or-update: with allow_missing the
 	// report is created when the version has none; otherwise a missing report is
 	// NOT_FOUND. FAILED_PRECONDITION until the report's taxonomy version is
-	// loaded, or when the tag does not point at the report's digest.
+	// loaded, or when the tag does not point at the report's digest. ABORTED
+	// when the stored report has a later generate_time, so an out-of-order write
+	// cannot replace a newer run, even across a tag move.
 	UpdateHardeningReport(ctx context.Context, in *UpdateHardeningReportRequest, opts ...grpc.CallOption) (*HardeningReport, error)
 	// DeleteHardeningReport removes a skill version's report and findings.
 	DeleteHardeningReport(ctx context.Context, in *DeleteHardeningReportRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -190,7 +192,9 @@ type SkillsHardeningReportsServer interface {
 	// as a whole, following AIP-134 create-or-update: with allow_missing the
 	// report is created when the version has none; otherwise a missing report is
 	// NOT_FOUND. FAILED_PRECONDITION until the report's taxonomy version is
-	// loaded, or when the tag does not point at the report's digest.
+	// loaded, or when the tag does not point at the report's digest. ABORTED
+	// when the stored report has a later generate_time, so an out-of-order write
+	// cannot replace a newer run, even across a tag move.
 	UpdateHardeningReport(context.Context, *UpdateHardeningReportRequest) (*HardeningReport, error)
 	// DeleteHardeningReport removes a skill version's report and findings.
 	DeleteHardeningReport(context.Context, *DeleteHardeningReportRequest) (*emptypb.Empty, error)
