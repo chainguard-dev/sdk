@@ -392,6 +392,9 @@ enum OrgKind {
   // Organizations that are created via AWS Marketplace Subscriptions.
   // Orgs can move from this kind to CUSTOMER upon up-sell.
   ORG_KIND_AWS_MARKETPLACE = 5;
+  // Paid self-serve organizations on the Team plan. Orgs become TEAM
+  // only by upgrading from STARTER.
+  ORG_KIND_TEAM = 6;
 }
 
 // OrgStatus is the provisioning status of an organization.

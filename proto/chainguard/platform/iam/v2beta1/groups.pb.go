@@ -47,6 +47,9 @@ const (
 	// Organizations that are created via AWS Marketplace Subscriptions.
 	// Orgs can move from this kind to CUSTOMER upon up-sell.
 	OrgKind_ORG_KIND_AWS_MARKETPLACE OrgKind = 5
+	// Paid self-serve organizations on the Team plan. Orgs become TEAM
+	// only by upgrading from STARTER.
+	OrgKind_ORG_KIND_TEAM OrgKind = 6
 )
 
 // Enum value maps for OrgKind.
@@ -58,6 +61,7 @@ var (
 		3: "ORG_KIND_DEV",
 		4: "ORG_KIND_INFRA",
 		5: "ORG_KIND_AWS_MARKETPLACE",
+		6: "ORG_KIND_TEAM",
 	}
 	OrgKind_value = map[string]int32{
 		"ORG_KIND_UNSPECIFIED":     0,
@@ -66,6 +70,7 @@ var (
 		"ORG_KIND_DEV":             3,
 		"ORG_KIND_INFRA":           4,
 		"ORG_KIND_AWS_MARKETPLACE": 5,
+		"ORG_KIND_TEAM":            6,
 	}
 )
 
@@ -975,14 +980,15 @@ const file_chainguard_platform_iam_v2beta1_groups_proto_rawDesc = "" +
 	"\x1aRequestGroupAccessResponse\"\x19\n" +
 	"\x17CheckEligibilityRequest\"6\n" +
 	"\x18CheckEligibilityResponse\x12\x1a\n" +
-	"\beligible\x18\x01 \x01(\bR\beligible*\x94\x01\n" +
+	"\beligible\x18\x01 \x01(\bR\beligible*\xa7\x01\n" +
 	"\aOrgKind\x12\x18\n" +
 	"\x14ORG_KIND_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10ORG_KIND_STARTER\x10\x01\x12\x15\n" +
 	"\x11ORG_KIND_CUSTOMER\x10\x02\x12\x10\n" +
 	"\fORG_KIND_DEV\x10\x03\x12\x12\n" +
 	"\x0eORG_KIND_INFRA\x10\x04\x12\x1c\n" +
-	"\x18ORG_KIND_AWS_MARKETPLACE\x10\x05*t\n" +
+	"\x18ORG_KIND_AWS_MARKETPLACE\x10\x05\x12\x11\n" +
+	"\rORG_KIND_TEAM\x10\x06*t\n" +
 	"\tOrgStatus\x12\x1a\n" +
 	"\x16ORG_STATUS_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17ORG_STATUS_INITIALIZING\x10\x01\x12\x14\n" +
