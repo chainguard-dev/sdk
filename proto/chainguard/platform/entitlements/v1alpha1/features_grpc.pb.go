@@ -39,7 +39,8 @@ const (
 type FeaturesClient interface {
 	// ListFeatureEntitlements returns the organization's live FEATURE
 	// entitlements as stored, including any whose expire_time has passed:
-	// callers decide what an expired entitlement means.
+	// callers decide what an expired entitlement means. With include_deleted
+	// it also returns the deleted ones, each with delete_time set.
 	ListFeatureEntitlements(ctx context.Context, in *ListFeatureEntitlementsRequest, opts ...grpc.CallOption) (*ListFeatureEntitlementsResponse, error)
 	// SetFeatureEntitlement creates the organization's entitlement for a
 	// feature, or replaces the configuration and expiry of the live one. It is
@@ -135,7 +136,8 @@ func (c *featuresClient) StartTrial(ctx context.Context, in *StartTrialRequest, 
 type FeaturesServer interface {
 	// ListFeatureEntitlements returns the organization's live FEATURE
 	// entitlements as stored, including any whose expire_time has passed:
-	// callers decide what an expired entitlement means.
+	// callers decide what an expired entitlement means. With include_deleted
+	// it also returns the deleted ones, each with delete_time set.
 	ListFeatureEntitlements(context.Context, *ListFeatureEntitlementsRequest) (*ListFeatureEntitlementsResponse, error)
 	// SetFeatureEntitlement creates the organization's entitlement for a
 	// feature, or replaces the configuration and expiry of the live one. It is
