@@ -26,8 +26,10 @@ const (
 	SkillsHardeningReports_GetHardeningReport_FullMethodName    = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/GetHardeningReport"
 	SkillsHardeningReports_ListHardeningReports_FullMethodName  = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/ListHardeningReports"
 	SkillsHardeningReports_GetTaxonomy_FullMethodName           = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/GetTaxonomy"
+	SkillsHardeningReports_ListRationales_FullMethodName        = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/ListRationales"
 	SkillsHardeningReports_ListHardeningFindings_FullMethodName = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/ListHardeningFindings"
 	SkillsHardeningReports_UpdateTaxonomy_FullMethodName        = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/UpdateTaxonomy"
+	SkillsHardeningReports_UpdateRationales_FullMethodName      = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/UpdateRationales"
 	SkillsHardeningReports_UpdateHardeningReport_FullMethodName = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/UpdateHardeningReport"
 	SkillsHardeningReports_DeleteHardeningReport_FullMethodName = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/DeleteHardeningReport"
 )
@@ -56,6 +58,10 @@ type SkillsHardeningReportsClient interface {
 	// titles and definitions, and the scanner checks it names. Findings carry
 	// the version they are classified under.
 	GetTaxonomy(ctx context.Context, in *GetTaxonomyRequest, opts ...grpc.CallOption) (*Taxonomy, error)
+	// ListRationales pages the rationale catalog: the reviewed, generic
+	// explanations a finding's rationale_id names. Deprecated entries are
+	// included, since stored findings still reference them.
+	ListRationales(ctx context.Context, in *ListRationalesRequest, opts ...grpc.CallOption) (*ListRationalesResponse, error)
 	// ListHardeningFindings pages a skill version's findings, most severe first.
 	ListHardeningFindings(ctx context.Context, in *ListHardeningFindingsRequest, opts ...grpc.CallOption) (*ListHardeningFindingsResponse, error)
 	// UpdateTaxonomy loads one CGSVT taxonomy version's display metadata,
@@ -65,6 +71,12 @@ type SkillsHardeningReportsClient interface {
 	// and different hashes for a stored version are FAILED_PRECONDITION. The
 	// taxonomy is not org data; parent_id only scopes the capability check.
 	UpdateTaxonomy(ctx context.Context, in *UpdateTaxonomyRequest, opts ...grpc.CallOption) (*Taxonomy, error)
+	// UpdateRationales creates or updates rationale catalog entries by id. An
+	// entry's text is immutable, since stored findings reference it: different
+	// text for a stored id is FAILED_PRECONDITION, and new wording takes a new
+	// id. assessments and deprecated may change. The catalog is not org data;
+	// parent_id only scopes the capability check.
+	UpdateRationales(ctx context.Context, in *UpdateRationalesRequest, opts ...grpc.CallOption) (*UpdateRationalesResponse, error)
 	// UpdateHardeningReport replaces a skill version's report and its findings
 	// as a whole, following AIP-134 create-or-update: with allow_missing the
 	// report is created when the version has none; otherwise a missing report is
@@ -115,6 +127,16 @@ func (c *skillsHardeningReportsClient) GetTaxonomy(ctx context.Context, in *GetT
 	return out, nil
 }
 
+func (c *skillsHardeningReportsClient) ListRationales(ctx context.Context, in *ListRationalesRequest, opts ...grpc.CallOption) (*ListRationalesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListRationalesResponse)
+	err := c.cc.Invoke(ctx, SkillsHardeningReports_ListRationales_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *skillsHardeningReportsClient) ListHardeningFindings(ctx context.Context, in *ListHardeningFindingsRequest, opts ...grpc.CallOption) (*ListHardeningFindingsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListHardeningFindingsResponse)
@@ -129,6 +151,16 @@ func (c *skillsHardeningReportsClient) UpdateTaxonomy(ctx context.Context, in *U
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Taxonomy)
 	err := c.cc.Invoke(ctx, SkillsHardeningReports_UpdateTaxonomy_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *skillsHardeningReportsClient) UpdateRationales(ctx context.Context, in *UpdateRationalesRequest, opts ...grpc.CallOption) (*UpdateRationalesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateRationalesResponse)
+	err := c.cc.Invoke(ctx, SkillsHardeningReports_UpdateRationales_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -179,6 +211,10 @@ type SkillsHardeningReportsServer interface {
 	// titles and definitions, and the scanner checks it names. Findings carry
 	// the version they are classified under.
 	GetTaxonomy(context.Context, *GetTaxonomyRequest) (*Taxonomy, error)
+	// ListRationales pages the rationale catalog: the reviewed, generic
+	// explanations a finding's rationale_id names. Deprecated entries are
+	// included, since stored findings still reference them.
+	ListRationales(context.Context, *ListRationalesRequest) (*ListRationalesResponse, error)
 	// ListHardeningFindings pages a skill version's findings, most severe first.
 	ListHardeningFindings(context.Context, *ListHardeningFindingsRequest) (*ListHardeningFindingsResponse, error)
 	// UpdateTaxonomy loads one CGSVT taxonomy version's display metadata,
@@ -188,6 +224,12 @@ type SkillsHardeningReportsServer interface {
 	// and different hashes for a stored version are FAILED_PRECONDITION. The
 	// taxonomy is not org data; parent_id only scopes the capability check.
 	UpdateTaxonomy(context.Context, *UpdateTaxonomyRequest) (*Taxonomy, error)
+	// UpdateRationales creates or updates rationale catalog entries by id. An
+	// entry's text is immutable, since stored findings reference it: different
+	// text for a stored id is FAILED_PRECONDITION, and new wording takes a new
+	// id. assessments and deprecated may change. The catalog is not org data;
+	// parent_id only scopes the capability check.
+	UpdateRationales(context.Context, *UpdateRationalesRequest) (*UpdateRationalesResponse, error)
 	// UpdateHardeningReport replaces a skill version's report and its findings
 	// as a whole, following AIP-134 create-or-update: with allow_missing the
 	// report is created when the version has none; otherwise a missing report is
@@ -217,11 +259,17 @@ func (UnimplementedSkillsHardeningReportsServer) ListHardeningReports(context.Co
 func (UnimplementedSkillsHardeningReportsServer) GetTaxonomy(context.Context, *GetTaxonomyRequest) (*Taxonomy, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetTaxonomy not implemented")
 }
+func (UnimplementedSkillsHardeningReportsServer) ListRationales(context.Context, *ListRationalesRequest) (*ListRationalesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListRationales not implemented")
+}
 func (UnimplementedSkillsHardeningReportsServer) ListHardeningFindings(context.Context, *ListHardeningFindingsRequest) (*ListHardeningFindingsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListHardeningFindings not implemented")
 }
 func (UnimplementedSkillsHardeningReportsServer) UpdateTaxonomy(context.Context, *UpdateTaxonomyRequest) (*Taxonomy, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateTaxonomy not implemented")
+}
+func (UnimplementedSkillsHardeningReportsServer) UpdateRationales(context.Context, *UpdateRationalesRequest) (*UpdateRationalesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateRationales not implemented")
 }
 func (UnimplementedSkillsHardeningReportsServer) UpdateHardeningReport(context.Context, *UpdateHardeningReportRequest) (*HardeningReport, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateHardeningReport not implemented")
@@ -305,6 +353,24 @@ func _SkillsHardeningReports_GetTaxonomy_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SkillsHardeningReports_ListRationales_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRationalesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SkillsHardeningReportsServer).ListRationales(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SkillsHardeningReports_ListRationales_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SkillsHardeningReportsServer).ListRationales(ctx, req.(*ListRationalesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _SkillsHardeningReports_ListHardeningFindings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListHardeningFindingsRequest)
 	if err := dec(in); err != nil {
@@ -337,6 +403,24 @@ func _SkillsHardeningReports_UpdateTaxonomy_Handler(srv interface{}, ctx context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SkillsHardeningReportsServer).UpdateTaxonomy(ctx, req.(*UpdateTaxonomyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SkillsHardeningReports_UpdateRationales_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateRationalesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SkillsHardeningReportsServer).UpdateRationales(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SkillsHardeningReports_UpdateRationales_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SkillsHardeningReportsServer).UpdateRationales(ctx, req.(*UpdateRationalesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -397,12 +481,20 @@ var SkillsHardeningReports_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SkillsHardeningReports_GetTaxonomy_Handler,
 		},
 		{
+			MethodName: "ListRationales",
+			Handler:    _SkillsHardeningReports_ListRationales_Handler,
+		},
+		{
 			MethodName: "ListHardeningFindings",
 			Handler:    _SkillsHardeningReports_ListHardeningFindings_Handler,
 		},
 		{
 			MethodName: "UpdateTaxonomy",
 			Handler:    _SkillsHardeningReports_UpdateTaxonomy_Handler,
+		},
+		{
+			MethodName: "UpdateRationales",
+			Handler:    _SkillsHardeningReports_UpdateRationales_Handler,
 		},
 		{
 			MethodName: "UpdateHardeningReport",

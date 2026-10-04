@@ -144,6 +144,66 @@ func (FindingStatus) EnumDescriptor() ([]byte, []int) {
 	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{1}
 }
 
+// FindingAssessment is what hardening did about a finding, derived by the
+// pipeline from the edits it applied rather than from model output.
+type FindingAssessment int32
+
+const (
+	// FINDING_ASSESSMENT_UNSPECIFIED: not assessed, as for an introduced
+	// finding or a report written before assessments existed.
+	FindingAssessment_FINDING_ASSESSMENT_UNSPECIFIED FindingAssessment = 0
+	// FINDING_ASSESSMENT_FIXED: an applied edit targeted the finding and it
+	// closed.
+	FindingAssessment_FINDING_ASSESSMENT_FIXED FindingAssessment = 1
+	// FINDING_ASSESSMENT_RETAINED: hardening chose to keep the flagged content.
+	FindingAssessment_FINDING_ASSESSMENT_RETAINED FindingAssessment = 2
+	// FINDING_ASSESSMENT_NOT_ADDRESSED: no applied edit targeted the finding.
+	FindingAssessment_FINDING_ASSESSMENT_NOT_ADDRESSED FindingAssessment = 3
+)
+
+// Enum value maps for FindingAssessment.
+var (
+	FindingAssessment_name = map[int32]string{
+		0: "FINDING_ASSESSMENT_UNSPECIFIED",
+		1: "FINDING_ASSESSMENT_FIXED",
+		2: "FINDING_ASSESSMENT_RETAINED",
+		3: "FINDING_ASSESSMENT_NOT_ADDRESSED",
+	}
+	FindingAssessment_value = map[string]int32{
+		"FINDING_ASSESSMENT_UNSPECIFIED":   0,
+		"FINDING_ASSESSMENT_FIXED":         1,
+		"FINDING_ASSESSMENT_RETAINED":      2,
+		"FINDING_ASSESSMENT_NOT_ADDRESSED": 3,
+	}
+)
+
+func (x FindingAssessment) Enum() *FindingAssessment {
+	p := new(FindingAssessment)
+	*p = x
+	return p
+}
+
+func (x FindingAssessment) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (FindingAssessment) Descriptor() protoreflect.EnumDescriptor {
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_enumTypes[2].Descriptor()
+}
+
+func (FindingAssessment) Type() protoreflect.EnumType {
+	return &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_enumTypes[2]
+}
+
+func (x FindingAssessment) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use FindingAssessment.Descriptor instead.
+func (FindingAssessment) EnumDescriptor() ([]byte, []int) {
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{2}
+}
+
 // Phase is the skill the scanner evaluated, matching before and after.
 type HardeningReport_ScannerRun_Phase int32
 
@@ -180,11 +240,11 @@ func (x HardeningReport_ScannerRun_Phase) String() string {
 }
 
 func (HardeningReport_ScannerRun_Phase) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_enumTypes[2].Descriptor()
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_enumTypes[3].Descriptor()
 }
 
 func (HardeningReport_ScannerRun_Phase) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_enumTypes[2]
+	return &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_enumTypes[3]
 }
 
 func (x HardeningReport_ScannerRun_Phase) Number() protoreflect.EnumNumber {
@@ -193,7 +253,7 @@ func (x HardeningReport_ScannerRun_Phase) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use HardeningReport_ScannerRun_Phase.Descriptor instead.
 func (HardeningReport_ScannerRun_Phase) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{2, 1, 0}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{3, 1, 0}
 }
 
 type HardeningReport_ScannerRun_Status int32
@@ -236,11 +296,11 @@ func (x HardeningReport_ScannerRun_Status) String() string {
 }
 
 func (HardeningReport_ScannerRun_Status) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_enumTypes[3].Descriptor()
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_enumTypes[4].Descriptor()
 }
 
 func (HardeningReport_ScannerRun_Status) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_enumTypes[3]
+	return &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_enumTypes[4]
 }
 
 func (x HardeningReport_ScannerRun_Status) Number() protoreflect.EnumNumber {
@@ -249,7 +309,107 @@ func (x HardeningReport_ScannerRun_Status) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use HardeningReport_ScannerRun_Status.Descriptor instead.
 func (HardeningReport_ScannerRun_Status) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{2, 1, 1}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{3, 1, 1}
+}
+
+// Rationale is one reviewed rationale catalog entry. Its text is generic: it
+// names no skill, path or command, so one entry serves many findings.
+type Rationale struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id is the entry's stable identity, referenced by findings.
+	Id   string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Text string `protobuf:"bytes,2,opt,name=text,proto3" json:"text,omitempty"`
+	// assessments are the finding assessments the entry can explain.
+	Assessments []FindingAssessment `protobuf:"varint,3,rep,packed,name=assessments,proto3,enum=chainguard.platform.skills.v1alpha1.FindingAssessment" json:"assessments,omitempty"`
+	// deprecated entries are no longer chosen for new findings but still
+	// explain the findings that reference them.
+	Deprecated bool                   `protobuf:"varint,4,opt,name=deprecated,proto3" json:"deprecated,omitempty"`
+	CreateTime *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+	// group_ids are the CGSVT groups the entry is written for, e.g. "CGSVT-08";
+	// empty when it applies to any group.
+	GroupIds      []string `protobuf:"bytes,7,rep,name=group_ids,json=groupIds,proto3" json:"group_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Rationale) Reset() {
+	*x = Rationale{}
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Rationale) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Rationale) ProtoMessage() {}
+
+func (x *Rationale) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Rationale.ProtoReflect.Descriptor instead.
+func (*Rationale) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *Rationale) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Rationale) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
+func (x *Rationale) GetAssessments() []FindingAssessment {
+	if x != nil {
+		return x.Assessments
+	}
+	return nil
+}
+
+func (x *Rationale) GetDeprecated() bool {
+	if x != nil {
+		return x.Deprecated
+	}
+	return false
+}
+
+func (x *Rationale) GetCreateTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreateTime
+	}
+	return nil
+}
+
+func (x *Rationale) GetUpdateTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdateTime
+	}
+	return nil
+}
+
+func (x *Rationale) GetGroupIds() []string {
+	if x != nil {
+		return x.GroupIds
+	}
+	return nil
 }
 
 // Taxonomy is one CGSVT version's display metadata.
@@ -271,7 +431,7 @@ type Taxonomy struct {
 
 func (x *Taxonomy) Reset() {
 	*x = Taxonomy{}
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[0]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -283,7 +443,7 @@ func (x *Taxonomy) String() string {
 func (*Taxonomy) ProtoMessage() {}
 
 func (x *Taxonomy) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[0]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -296,7 +456,7 @@ func (x *Taxonomy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Taxonomy.ProtoReflect.Descriptor instead.
 func (*Taxonomy) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{0}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Taxonomy) GetVersion() string {
@@ -362,7 +522,7 @@ type SeverityCounts struct {
 
 func (x *SeverityCounts) Reset() {
 	*x = SeverityCounts{}
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[1]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -374,7 +534,7 @@ func (x *SeverityCounts) String() string {
 func (*SeverityCounts) ProtoMessage() {}
 
 func (x *SeverityCounts) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[1]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -387,7 +547,7 @@ func (x *SeverityCounts) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SeverityCounts.ProtoReflect.Descriptor instead.
 func (*SeverityCounts) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{1}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *SeverityCounts) GetCritical() int32 {
@@ -459,7 +619,7 @@ type HardeningReport struct {
 
 func (x *HardeningReport) Reset() {
 	*x = HardeningReport{}
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[2]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -471,7 +631,7 @@ func (x *HardeningReport) String() string {
 func (*HardeningReport) ProtoMessage() {}
 
 func (x *HardeningReport) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[2]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -484,7 +644,7 @@ func (x *HardeningReport) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HardeningReport.ProtoReflect.Descriptor instead.
 func (*HardeningReport) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{2}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *HardeningReport) GetTagId() string {
@@ -591,16 +751,22 @@ type HardeningFinding struct {
 	// detector_count is the number of distinct scanners that raised it.
 	DetectorCount int32 `protobuf:"varint,7,opt,name=detector_count,json=detectorCount,proto3" json:"detector_count,omitempty"`
 	// sources are in display order: sources[0] names the finding.
-	Sources       []*HardeningFinding_Source `protobuf:"bytes,8,rep,name=sources,proto3" json:"sources,omitempty"`
-	GroupTitle    string                     `protobuf:"bytes,9,opt,name=group_title,json=groupTitle,proto3" json:"group_title,omitempty"`
-	SubtypeTitle  string                     `protobuf:"bytes,10,opt,name=subtype_title,json=subtypeTitle,proto3" json:"subtype_title,omitempty"`
+	Sources      []*HardeningFinding_Source `protobuf:"bytes,8,rep,name=sources,proto3" json:"sources,omitempty"`
+	GroupTitle   string                     `protobuf:"bytes,9,opt,name=group_title,json=groupTitle,proto3" json:"group_title,omitempty"`
+	SubtypeTitle string                     `protobuf:"bytes,10,opt,name=subtype_title,json=subtypeTitle,proto3" json:"subtype_title,omitempty"`
+	// assessment is what hardening did about the finding. UNSPECIFIED for
+	// introduced findings and on reports written before the field existed.
+	Assessment FindingAssessment `protobuf:"varint,11,opt,name=assessment,proto3,enum=chainguard.platform.skills.v1alpha1.FindingAssessment" json:"assessment,omitempty"`
+	// rationale_id names the Rationale that explains the assessment; empty when
+	// none applies. Read the text with ListRationales.
+	RationaleId   string `protobuf:"bytes,12,opt,name=rationale_id,json=rationaleId,proto3" json:"rationale_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *HardeningFinding) Reset() {
 	*x = HardeningFinding{}
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[3]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -612,7 +778,7 @@ func (x *HardeningFinding) String() string {
 func (*HardeningFinding) ProtoMessage() {}
 
 func (x *HardeningFinding) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[3]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -625,7 +791,7 @@ func (x *HardeningFinding) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HardeningFinding.ProtoReflect.Descriptor instead.
 func (*HardeningFinding) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{3}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *HardeningFinding) GetOperationalId() string {
@@ -698,6 +864,20 @@ func (x *HardeningFinding) GetSubtypeTitle() string {
 	return ""
 }
 
+func (x *HardeningFinding) GetAssessment() FindingAssessment {
+	if x != nil {
+		return x.Assessment
+	}
+	return FindingAssessment_FINDING_ASSESSMENT_UNSPECIFIED
+}
+
+func (x *HardeningFinding) GetRationaleId() string {
+	if x != nil {
+		return x.RationaleId
+	}
+	return ""
+}
+
 type GetHardeningReportRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// parent_id is the org (or group) UIDP the skill belongs to; it scopes the
@@ -711,7 +891,7 @@ type GetHardeningReportRequest struct {
 
 func (x *GetHardeningReportRequest) Reset() {
 	*x = GetHardeningReportRequest{}
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[4]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -723,7 +903,7 @@ func (x *GetHardeningReportRequest) String() string {
 func (*GetHardeningReportRequest) ProtoMessage() {}
 
 func (x *GetHardeningReportRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[4]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -736,7 +916,7 @@ func (x *GetHardeningReportRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHardeningReportRequest.ProtoReflect.Descriptor instead.
 func (*GetHardeningReportRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{4}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetHardeningReportRequest) GetParentId() string {
@@ -772,14 +952,16 @@ type ListHardeningFindingsRequest struct {
 	// page_token is the next_page_token from a previous response.
 	PageToken string `protobuf:"bytes,7,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// skip is the number of findings to skip, for numbered pages (0 to 10,000).
-	Skip          int32 `protobuf:"varint,8,opt,name=skip,proto3" json:"skip,omitempty"`
+	Skip int32 `protobuf:"varint,8,opt,name=skip,proto3" json:"skip,omitempty"`
+	// assessments narrow the findings; empty matches all.
+	Assessments   []FindingAssessment `protobuf:"varint,9,rep,packed,name=assessments,proto3,enum=chainguard.platform.skills.v1alpha1.FindingAssessment" json:"assessments,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListHardeningFindingsRequest) Reset() {
 	*x = ListHardeningFindingsRequest{}
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[5]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -791,7 +973,7 @@ func (x *ListHardeningFindingsRequest) String() string {
 func (*ListHardeningFindingsRequest) ProtoMessage() {}
 
 func (x *ListHardeningFindingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[5]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -804,7 +986,7 @@ func (x *ListHardeningFindingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListHardeningFindingsRequest.ProtoReflect.Descriptor instead.
 func (*ListHardeningFindingsRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{5}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ListHardeningFindingsRequest) GetParentId() string {
@@ -863,6 +1045,13 @@ func (x *ListHardeningFindingsRequest) GetSkip() int32 {
 	return 0
 }
 
+func (x *ListHardeningFindingsRequest) GetAssessments() []FindingAssessment {
+	if x != nil {
+		return x.Assessments
+	}
+	return nil
+}
+
 type ListHardeningFindingsResponse struct {
 	state    protoimpl.MessageState `protogen:"open.v1"`
 	Findings []*HardeningFinding    `protobuf:"bytes,1,rep,name=findings,proto3" json:"findings,omitempty"`
@@ -877,7 +1066,7 @@ type ListHardeningFindingsResponse struct {
 
 func (x *ListHardeningFindingsResponse) Reset() {
 	*x = ListHardeningFindingsResponse{}
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[6]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -889,7 +1078,7 @@ func (x *ListHardeningFindingsResponse) String() string {
 func (*ListHardeningFindingsResponse) ProtoMessage() {}
 
 func (x *ListHardeningFindingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[6]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -902,7 +1091,7 @@ func (x *ListHardeningFindingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListHardeningFindingsResponse.ProtoReflect.Descriptor instead.
 func (*ListHardeningFindingsResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{6}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListHardeningFindingsResponse) GetFindings() []*HardeningFinding {
@@ -951,7 +1140,7 @@ type ListHardeningReportsRequest struct {
 
 func (x *ListHardeningReportsRequest) Reset() {
 	*x = ListHardeningReportsRequest{}
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[7]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -963,7 +1152,7 @@ func (x *ListHardeningReportsRequest) String() string {
 func (*ListHardeningReportsRequest) ProtoMessage() {}
 
 func (x *ListHardeningReportsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[7]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -976,7 +1165,7 @@ func (x *ListHardeningReportsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListHardeningReportsRequest.ProtoReflect.Descriptor instead.
 func (*ListHardeningReportsRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{7}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListHardeningReportsRequest) GetUidp() *v1.UIDPFilter {
@@ -1020,7 +1209,7 @@ type ListHardeningReportsResponse struct {
 
 func (x *ListHardeningReportsResponse) Reset() {
 	*x = ListHardeningReportsResponse{}
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[8]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1032,7 +1221,7 @@ func (x *ListHardeningReportsResponse) String() string {
 func (*ListHardeningReportsResponse) ProtoMessage() {}
 
 func (x *ListHardeningReportsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[8]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1045,7 +1234,7 @@ func (x *ListHardeningReportsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListHardeningReportsResponse.ProtoReflect.Descriptor instead.
 func (*ListHardeningReportsResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{8}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ListHardeningReportsResponse) GetReports() []*HardeningReport {
@@ -1082,7 +1271,7 @@ type GetTaxonomyRequest struct {
 
 func (x *GetTaxonomyRequest) Reset() {
 	*x = GetTaxonomyRequest{}
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[9]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1094,7 +1283,7 @@ func (x *GetTaxonomyRequest) String() string {
 func (*GetTaxonomyRequest) ProtoMessage() {}
 
 func (x *GetTaxonomyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[9]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1107,7 +1296,7 @@ func (x *GetTaxonomyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTaxonomyRequest.ProtoReflect.Descriptor instead.
 func (*GetTaxonomyRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{9}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetTaxonomyRequest) GetParentId() string {
@@ -1137,7 +1326,7 @@ type UpdateTaxonomyRequest struct {
 
 func (x *UpdateTaxonomyRequest) Reset() {
 	*x = UpdateTaxonomyRequest{}
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[10]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1149,7 +1338,7 @@ func (x *UpdateTaxonomyRequest) String() string {
 func (*UpdateTaxonomyRequest) ProtoMessage() {}
 
 func (x *UpdateTaxonomyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[10]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1162,7 +1351,7 @@ func (x *UpdateTaxonomyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateTaxonomyRequest.ProtoReflect.Descriptor instead.
 func (*UpdateTaxonomyRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{10}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *UpdateTaxonomyRequest) GetParentId() string {
@@ -1186,6 +1375,250 @@ func (x *UpdateTaxonomyRequest) GetAllowMissing() bool {
 	return false
 }
 
+type ListRationalesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// parent_id is the caller's org (or group) UIDP; it scopes the capability
+	// check. The catalog itself belongs to no org.
+	ParentId string `protobuf:"bytes,1,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
+	// ids narrows the entries to these ids; empty lists the whole catalog.
+	Ids []string `protobuf:"bytes,2,rep,name=ids,proto3" json:"ids,omitempty"`
+	// page_size is bounded server-side: 0 uses the default and larger values are
+	// capped.
+	PageSize int32 `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// page_token is the next_page_token from a previous response.
+	PageToken string `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// skip is the number of entries to skip, for numbered pages (0 to 10,000).
+	Skip          int32 `protobuf:"varint,5,opt,name=skip,proto3" json:"skip,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListRationalesRequest) Reset() {
+	*x = ListRationalesRequest{}
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListRationalesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRationalesRequest) ProtoMessage() {}
+
+func (x *ListRationalesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListRationalesRequest.ProtoReflect.Descriptor instead.
+func (*ListRationalesRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ListRationalesRequest) GetParentId() string {
+	if x != nil {
+		return x.ParentId
+	}
+	return ""
+}
+
+func (x *ListRationalesRequest) GetIds() []string {
+	if x != nil {
+		return x.Ids
+	}
+	return nil
+}
+
+func (x *ListRationalesRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *ListRationalesRequest) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+func (x *ListRationalesRequest) GetSkip() int32 {
+	if x != nil {
+		return x.Skip
+	}
+	return 0
+}
+
+type ListRationalesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// rationales are ordered by id.
+	Rationales []*Rationale `protobuf:"bytes,1,rep,name=rationales,proto3" json:"rationales,omitempty"`
+	// total_size is the number of entries matching the filter.
+	TotalSize     int64  `protobuf:"varint,2,opt,name=total_size,json=totalSize,proto3" json:"total_size,omitempty"`
+	NextPageToken string `protobuf:"bytes,3,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListRationalesResponse) Reset() {
+	*x = ListRationalesResponse{}
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListRationalesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRationalesResponse) ProtoMessage() {}
+
+func (x *ListRationalesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListRationalesResponse.ProtoReflect.Descriptor instead.
+func (*ListRationalesResponse) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ListRationalesResponse) GetRationales() []*Rationale {
+	if x != nil {
+		return x.Rationales
+	}
+	return nil
+}
+
+func (x *ListRationalesResponse) GetTotalSize() int64 {
+	if x != nil {
+		return x.TotalSize
+	}
+	return 0
+}
+
+func (x *ListRationalesResponse) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
+}
+
+type UpdateRationalesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// parent_id scopes the capability check; the catalog is not stored under it.
+	ParentId string `protobuf:"bytes,1,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
+	// rationales are created or updated by id in one transaction.
+	Rationales    []*Rationale `protobuf:"bytes,2,rep,name=rationales,proto3" json:"rationales,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateRationalesRequest) Reset() {
+	*x = UpdateRationalesRequest{}
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateRationalesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateRationalesRequest) ProtoMessage() {}
+
+func (x *UpdateRationalesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateRationalesRequest.ProtoReflect.Descriptor instead.
+func (*UpdateRationalesRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *UpdateRationalesRequest) GetParentId() string {
+	if x != nil {
+		return x.ParentId
+	}
+	return ""
+}
+
+func (x *UpdateRationalesRequest) GetRationales() []*Rationale {
+	if x != nil {
+		return x.Rationales
+	}
+	return nil
+}
+
+type UpdateRationalesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// rationales are the stored entries, in request order.
+	Rationales    []*Rationale `protobuf:"bytes,1,rep,name=rationales,proto3" json:"rationales,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateRationalesResponse) Reset() {
+	*x = UpdateRationalesResponse{}
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateRationalesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateRationalesResponse) ProtoMessage() {}
+
+func (x *UpdateRationalesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateRationalesResponse.ProtoReflect.Descriptor instead.
+func (*UpdateRationalesResponse) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *UpdateRationalesResponse) GetRationales() []*Rationale {
+	if x != nil {
+		return x.Rationales
+	}
+	return nil
+}
+
 type UpdateHardeningReportRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// parent_id is the org (or group) UIDP the skill belongs to; it scopes the
@@ -1205,7 +1638,7 @@ type UpdateHardeningReportRequest struct {
 
 func (x *UpdateHardeningReportRequest) Reset() {
 	*x = UpdateHardeningReportRequest{}
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[11]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1217,7 +1650,7 @@ func (x *UpdateHardeningReportRequest) String() string {
 func (*UpdateHardeningReportRequest) ProtoMessage() {}
 
 func (x *UpdateHardeningReportRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[11]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1230,7 +1663,7 @@ func (x *UpdateHardeningReportRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateHardeningReportRequest.ProtoReflect.Descriptor instead.
 func (*UpdateHardeningReportRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{11}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *UpdateHardeningReportRequest) GetParentId() string {
@@ -1281,7 +1714,7 @@ type DeleteHardeningReportRequest struct {
 
 func (x *DeleteHardeningReportRequest) Reset() {
 	*x = DeleteHardeningReportRequest{}
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[12]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1293,7 +1726,7 @@ func (x *DeleteHardeningReportRequest) String() string {
 func (*DeleteHardeningReportRequest) ProtoMessage() {}
 
 func (x *DeleteHardeningReportRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[12]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1306,7 +1739,7 @@ func (x *DeleteHardeningReportRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteHardeningReportRequest.ProtoReflect.Descriptor instead.
 func (*DeleteHardeningReportRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{12}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *DeleteHardeningReportRequest) GetParentId() string {
@@ -1338,7 +1771,7 @@ type Taxonomy_Group struct {
 
 func (x *Taxonomy_Group) Reset() {
 	*x = Taxonomy_Group{}
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[13]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1350,7 +1783,7 @@ func (x *Taxonomy_Group) String() string {
 func (*Taxonomy_Group) ProtoMessage() {}
 
 func (x *Taxonomy_Group) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[13]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1363,7 +1796,7 @@ func (x *Taxonomy_Group) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Taxonomy_Group.ProtoReflect.Descriptor instead.
 func (*Taxonomy_Group) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{0, 0}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{1, 0}
 }
 
 func (x *Taxonomy_Group) GetId() string {
@@ -1413,7 +1846,7 @@ type Taxonomy_Subtype struct {
 
 func (x *Taxonomy_Subtype) Reset() {
 	*x = Taxonomy_Subtype{}
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[14]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1425,7 +1858,7 @@ func (x *Taxonomy_Subtype) String() string {
 func (*Taxonomy_Subtype) ProtoMessage() {}
 
 func (x *Taxonomy_Subtype) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[14]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1438,7 +1871,7 @@ func (x *Taxonomy_Subtype) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Taxonomy_Subtype.ProtoReflect.Descriptor instead.
 func (*Taxonomy_Subtype) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{0, 1}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{1, 1}
 }
 
 func (x *Taxonomy_Subtype) GetId() string {
@@ -1475,7 +1908,7 @@ type Taxonomy_Check struct {
 
 func (x *Taxonomy_Check) Reset() {
 	*x = Taxonomy_Check{}
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[15]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1487,7 +1920,7 @@ func (x *Taxonomy_Check) String() string {
 func (*Taxonomy_Check) ProtoMessage() {}
 
 func (x *Taxonomy_Check) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[15]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1500,7 +1933,7 @@ func (x *Taxonomy_Check) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Taxonomy_Check.ProtoReflect.Descriptor instead.
 func (*Taxonomy_Check) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{0, 2}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{1, 2}
 }
 
 func (x *Taxonomy_Check) GetScanner() string {
@@ -1543,7 +1976,7 @@ type HardeningReport_Unrouted struct {
 
 func (x *HardeningReport_Unrouted) Reset() {
 	*x = HardeningReport_Unrouted{}
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[16]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1555,7 +1988,7 @@ func (x *HardeningReport_Unrouted) String() string {
 func (*HardeningReport_Unrouted) ProtoMessage() {}
 
 func (x *HardeningReport_Unrouted) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[16]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1568,7 +2001,7 @@ func (x *HardeningReport_Unrouted) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HardeningReport_Unrouted.ProtoReflect.Descriptor instead.
 func (*HardeningReport_Unrouted) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{2, 0}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{3, 0}
 }
 
 func (x *HardeningReport_Unrouted) GetScanner() string {
@@ -1611,7 +2044,7 @@ type HardeningReport_ScannerRun struct {
 
 func (x *HardeningReport_ScannerRun) Reset() {
 	*x = HardeningReport_ScannerRun{}
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[17]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1623,7 +2056,7 @@ func (x *HardeningReport_ScannerRun) String() string {
 func (*HardeningReport_ScannerRun) ProtoMessage() {}
 
 func (x *HardeningReport_ScannerRun) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[17]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1636,7 +2069,7 @@ func (x *HardeningReport_ScannerRun) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HardeningReport_ScannerRun.ProtoReflect.Descriptor instead.
 func (*HardeningReport_ScannerRun) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{2, 1}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{3, 1}
 }
 
 func (x *HardeningReport_ScannerRun) GetScanner() string {
@@ -1676,7 +2109,7 @@ type HardeningFinding_Source struct {
 
 func (x *HardeningFinding_Source) Reset() {
 	*x = HardeningFinding_Source{}
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[18]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1688,7 +2121,7 @@ func (x *HardeningFinding_Source) String() string {
 func (*HardeningFinding_Source) ProtoMessage() {}
 
 func (x *HardeningFinding_Source) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[18]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1701,7 +2134,7 @@ func (x *HardeningFinding_Source) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HardeningFinding_Source.ProtoReflect.Descriptor instead.
 func (*HardeningFinding_Source) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{3, 0}
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{4, 0}
 }
 
 func (x *HardeningFinding_Source) GetScanner() string {
@@ -1743,7 +2176,19 @@ var File_chainguard_platform_skills_v1alpha1_hardening_reports_proto protoreflec
 
 const file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDesc = "" +
 	"\n" +
-	";chainguard/platform/skills/v1alpha1/hardening_reports.proto\x12#chainguard.platform.skills.v1alpha1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xa5\x06\n" +
+	";chainguard/platform/skills/v1alpha1/hardening_reports.proto\x12#chainguard.platform.skills.v1alpha1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xea\x02\n" +
+	"\tRationale\x12\x14\n" +
+	"\x02id\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x02id\x12\x18\n" +
+	"\x04text\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x04text\x12^\n" +
+	"\vassessments\x18\x03 \x03(\x0e26.chainguard.platform.skills.v1alpha1.FindingAssessmentB\x04\xe2A\x01\x02R\vassessments\x12$\n" +
+	"\n" +
+	"deprecated\x18\x04 \x01(\bB\x04\xe2A\x01\x01R\n" +
+	"deprecated\x12A\n" +
+	"\vcreate_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
+	"createTime\x12A\n" +
+	"\vupdate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
+	"updateTime\x12!\n" +
+	"\tgroup_ids\x18\a \x03(\tB\x04\xe2A\x01\x01R\bgroupIds\"\xa5\x06\n" +
 	"\bTaxonomy\x12\x1e\n" +
 	"\aversion\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\aversion\x121\n" +
 	"\x11crosswalk_version\x18\x02 \x01(\tB\x04\xe2A\x01\x01R\x10crosswalkVersion\x12+\n" +
@@ -1816,7 +2261,7 @@ const file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDesc =
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10STATUS_COMPLETED\x10\x01\x12\x11\n" +
 	"\rSTATUS_FAILED\x10\x02\x12\x12\n" +
-	"\x0eSTATUS_SKIPPED\x10\x03\"\xcd\x05\n" +
+	"\x0eSTATUS_SKIPPED\x10\x03\"\xd4\x06\n" +
 	"\x10HardeningFinding\x12%\n" +
 	"\x0eoperational_id\x18\x01 \x01(\tR\roperationalId\x12\x19\n" +
 	"\bgroup_id\x18\x02 \x01(\tR\agroupId\x12\x1d\n" +
@@ -1830,7 +2275,11 @@ const file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDesc =
 	"\vgroup_title\x18\t \x01(\tB\x04\xe2A\x01\x03R\n" +
 	"groupTitle\x12)\n" +
 	"\rsubtype_title\x18\n" +
-	" \x01(\tB\x04\xe2A\x01\x03R\fsubtypeTitle\x1a\xc3\x01\n" +
+	" \x01(\tB\x04\xe2A\x01\x03R\fsubtypeTitle\x12\\\n" +
+	"\n" +
+	"assessment\x18\v \x01(\x0e26.chainguard.platform.skills.v1alpha1.FindingAssessmentB\x04\xe2A\x01\x01R\n" +
+	"assessment\x12'\n" +
+	"\frationale_id\x18\f \x01(\tB\x04\xe2A\x01\x01R\vrationaleId\x1a\xc3\x01\n" +
 	"\x06Source\x12\x18\n" +
 	"\ascanner\x18\x01 \x01(\tR\ascanner\x12\x17\n" +
 	"\arule_id\x18\x02 \x01(\tR\x06ruleId\x12\x1a\n" +
@@ -1840,7 +2289,7 @@ const file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDesc =
 	"\x19GetHardeningReportRequest\x12'\n" +
 	"\tparent_id\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12\x1b\n" +
-	"\x06tag_id\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x05tagId\"\x94\x03\n" +
+	"\x06tag_id\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x05tagId\"\xf4\x03\n" +
 	"\x1cListHardeningFindingsRequest\x12'\n" +
 	"\tparent_id\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12\x1b\n" +
@@ -1853,7 +2302,8 @@ const file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDesc =
 	"\tpage_size\x18\x06 \x01(\x05B\x04\xe2A\x01\x01R\bpageSize\x12#\n" +
 	"\n" +
 	"page_token\x18\a \x01(\tB\x04\xe2A\x01\x01R\tpageToken\x12\x18\n" +
-	"\x04skip\x18\b \x01(\x05B\x04\xe2A\x01\x01R\x04skip\"\xd1\x01\n" +
+	"\x04skip\x18\b \x01(\x05B\x04\xe2A\x01\x01R\x04skip\x12^\n" +
+	"\vassessments\x18\t \x03(\x0e26.chainguard.platform.skills.v1alpha1.FindingAssessmentB\x04\xe2A\x01\x01R\vassessments\"\xd1\x01\n" +
 	"\x1dListHardeningFindingsResponse\x12Q\n" +
 	"\bfindings\x18\x01 \x03(\v25.chainguard.platform.skills.v1alpha1.HardeningFindingR\bfindings\x12\x1d\n" +
 	"\n" +
@@ -1879,7 +2329,32 @@ const file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDesc =
 	"\tparent_id\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12O\n" +
 	"\btaxonomy\x18\x02 \x01(\v2-.chainguard.platform.skills.v1alpha1.TaxonomyB\x04\xe2A\x01\x02R\btaxonomy\x12)\n" +
-	"\rallow_missing\x18\x03 \x01(\bB\x04\xe2A\x01\x01R\fallowMissing\"\xbc\x02\n" +
+	"\rallow_missing\x18\x03 \x01(\bB\x04\xe2A\x01\x01R\fallowMissing\"\xba\x01\n" +
+	"\x15ListRationalesRequest\x12'\n" +
+	"\tparent_id\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12\x16\n" +
+	"\x03ids\x18\x02 \x03(\tB\x04\xe2A\x01\x01R\x03ids\x12!\n" +
+	"\tpage_size\x18\x03 \x01(\x05B\x04\xe2A\x01\x01R\bpageSize\x12#\n" +
+	"\n" +
+	"page_token\x18\x04 \x01(\tB\x04\xe2A\x01\x01R\tpageToken\x12\x18\n" +
+	"\x04skip\x18\x05 \x01(\x05B\x04\xe2A\x01\x01R\x04skip\"\xaf\x01\n" +
+	"\x16ListRationalesResponse\x12N\n" +
+	"\n" +
+	"rationales\x18\x01 \x03(\v2..chainguard.platform.skills.v1alpha1.RationaleR\n" +
+	"rationales\x12\x1d\n" +
+	"\n" +
+	"total_size\x18\x02 \x01(\x03R\ttotalSize\x12&\n" +
+	"\x0fnext_page_token\x18\x03 \x01(\tR\rnextPageToken\"\x98\x01\n" +
+	"\x17UpdateRationalesRequest\x12'\n" +
+	"\tparent_id\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12T\n" +
+	"\n" +
+	"rationales\x18\x02 \x03(\v2..chainguard.platform.skills.v1alpha1.RationaleB\x04\xe2A\x01\x02R\n" +
+	"rationales\"j\n" +
+	"\x18UpdateRationalesResponse\x12N\n" +
+	"\n" +
+	"rationales\x18\x01 \x03(\v2..chainguard.platform.skills.v1alpha1.RationaleR\n" +
+	"rationales\"\xbc\x02\n" +
 	"\x1cUpdateHardeningReportRequest\x12'\n" +
 	"\tparent_id\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12\x1b\n" +
@@ -1902,7 +2377,12 @@ const file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDesc =
 	"\x1aFINDING_STATUS_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15FINDING_STATUS_CLOSED\x10\x01\x12\x17\n" +
 	"\x13FINDING_STATUS_OPEN\x10\x02\x12\x1d\n" +
-	"\x19FINDING_STATUS_INTRODUCED\x10\x032\xa3\x11\n" +
+	"\x19FINDING_STATUS_INTRODUCED\x10\x03*\x9c\x01\n" +
+	"\x11FindingAssessment\x12\"\n" +
+	"\x1eFINDING_ASSESSMENT_UNSPECIFIED\x10\x00\x12\x1c\n" +
+	"\x18FINDING_ASSESSMENT_FIXED\x10\x01\x12\x1f\n" +
+	"\x1bFINDING_ASSESSMENT_RETAINED\x10\x02\x12$\n" +
+	" FINDING_ASSESSMENT_NOT_ADDRESSED\x10\x032\xf4\x15\n" +
 	"\x16SkillsHardeningReports\x12\xe4\x02\n" +
 	"\x12GetHardeningReport\x12>.chainguard.platform.skills.v1alpha1.GetHardeningReportRequest\x1a4.chainguard.platform.skills.v1alpha1.HardeningReport\"\xd7\x01\x82\xd3\xe4\x93\x02/\x12-/skills/v1alpha1/hardeningReports/{tag_id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xcb\x13\x9a\xaf\xa8\xd2\x05\x8f\x01\n" +
@@ -1912,11 +2392,16 @@ const file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDesc =
 	"\xa1\x01List the hardening summaries for skill versions under a skill repo or skills folder: whether each version passed and its before/after finding counts by severity.\x18\x01 \x00(\x010\x00\x12\x87\x03\n" +
 	"\vGetTaxonomy\x127.chainguard.platform.skills.v1alpha1.GetTaxonomyRequest\x1a-.chainguard.platform.skills.v1alpha1.Taxonomy\"\x8f\x02\x82\xd3\xe4\x93\x02'\x12%/skills/v1alpha1/taxonomies/{version}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xcb\x13\x9a\xaf\xa8\xd2\x05\xcf\x01\n" +
-	"\xc4\x01Get the Chainguard Skill Vulnerability Taxonomy (CGSVT) version that skill findings are classified under: risk groups, subtypes and their definitions, and the scanner checks each finding can name.\x18\x01 \x00(\x010\x00\x12\x9e\x03\n" +
+	"\xc4\x01Get the Chainguard Skill Vulnerability Taxonomy (CGSVT) version that skill findings are classified under: risk groups, subtypes and their definitions, and the scanner checks each finding can name.\x18\x01 \x00(\x010\x00\x12\xf4\x02\n" +
+	"\x0eListRationales\x12:.chainguard.platform.skills.v1alpha1.ListRationalesRequest\x1a;.chainguard.platform.skills.v1alpha1.ListRationalesResponse\"\xe8\x01\x82\xd3\xe4\x93\x02\x1d\x12\x1b/skills/v1alpha1/rationales\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xcb\x13\x9a\xaf\xa8\xd2\x05\xb2\x01\n" +
+	"\xa7\x01List the rationale catalog: the reviewed explanations for why hardening fixed, retained, or did not address a skill finding, keyed by the rationale_id on each finding.\x18\x01 \x00(\x010\x00\x12\x9e\x03\n" +
 	"\x15ListHardeningFindings\x12A.chainguard.platform.skills.v1alpha1.ListHardeningFindingsRequest\x1aB.chainguard.platform.skills.v1alpha1.ListHardeningFindingsResponse\"\xfd\x01\x82\xd3\xe4\x93\x02$\x12\"/skills/v1alpha1/hardeningFindings\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xcb\x13\x9a\xaf\xa8\xd2\x05\xc0\x01\n" +
 	"\xb5\x01List the security findings for a skill version (registry tag UIDP), with status (closed, open, introduced by hardening), severity, file, and the scanner checks that raised each one.\x18\x01 \x00(\x010\x00\x12\xca\x01\n" +
 	"\x0eUpdateTaxonomy\x12:.chainguard.platform.skills.v1alpha1.UpdateTaxonomyRequest\x1a-.chainguard.platform.skills.v1alpha1.Taxonomy\"M\x82\xd3\xe4\x93\x023:\x01*2./skills/v1alpha1/taxonomies/{taxonomy.version}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xc9\x13\x9a\xaf\xa8\xd2\x05\x02\x10\x01\x12\xd7\x01\n" +
+	"\x10UpdateRationales\x12<.chainguard.platform.skills.v1alpha1.UpdateRationalesRequest\x1a=.chainguard.platform.skills.v1alpha1.UpdateRationalesResponse\"F\x82\xd3\xe4\x93\x02,:\x01*\"'/skills/v1alpha1/rationales:batchUpdate\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xc9\x13\x9a\xaf\xa8\xd2\x05\x02\x10\x01\x12\xde\x01\n" +
 	"\x15UpdateHardeningReport\x12A.chainguard.platform.skills.v1alpha1.UpdateHardeningReportRequest\x1a4.chainguard.platform.skills.v1alpha1.HardeningReport\"L\x82\xd3\xe4\x93\x022:\x01*2-/skills/v1alpha1/hardeningReports/{tag_id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xc9\x13\x9a\xaf\xa8\xd2\x05\x02\x10\x01\x12\xbd\x01\n" +
@@ -1936,82 +2421,100 @@ func file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZI
 	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescData
 }
 
-var file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
+var file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_goTypes = []any{
 	(FindingSeverity)(0),                   // 0: chainguard.platform.skills.v1alpha1.FindingSeverity
 	(FindingStatus)(0),                     // 1: chainguard.platform.skills.v1alpha1.FindingStatus
-	(HardeningReport_ScannerRun_Phase)(0),  // 2: chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun.Phase
-	(HardeningReport_ScannerRun_Status)(0), // 3: chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun.Status
-	(*Taxonomy)(nil),                       // 4: chainguard.platform.skills.v1alpha1.Taxonomy
-	(*SeverityCounts)(nil),                 // 5: chainguard.platform.skills.v1alpha1.SeverityCounts
-	(*HardeningReport)(nil),                // 6: chainguard.platform.skills.v1alpha1.HardeningReport
-	(*HardeningFinding)(nil),               // 7: chainguard.platform.skills.v1alpha1.HardeningFinding
-	(*GetHardeningReportRequest)(nil),      // 8: chainguard.platform.skills.v1alpha1.GetHardeningReportRequest
-	(*ListHardeningFindingsRequest)(nil),   // 9: chainguard.platform.skills.v1alpha1.ListHardeningFindingsRequest
-	(*ListHardeningFindingsResponse)(nil),  // 10: chainguard.platform.skills.v1alpha1.ListHardeningFindingsResponse
-	(*ListHardeningReportsRequest)(nil),    // 11: chainguard.platform.skills.v1alpha1.ListHardeningReportsRequest
-	(*ListHardeningReportsResponse)(nil),   // 12: chainguard.platform.skills.v1alpha1.ListHardeningReportsResponse
-	(*GetTaxonomyRequest)(nil),             // 13: chainguard.platform.skills.v1alpha1.GetTaxonomyRequest
-	(*UpdateTaxonomyRequest)(nil),          // 14: chainguard.platform.skills.v1alpha1.UpdateTaxonomyRequest
-	(*UpdateHardeningReportRequest)(nil),   // 15: chainguard.platform.skills.v1alpha1.UpdateHardeningReportRequest
-	(*DeleteHardeningReportRequest)(nil),   // 16: chainguard.platform.skills.v1alpha1.DeleteHardeningReportRequest
-	(*Taxonomy_Group)(nil),                 // 17: chainguard.platform.skills.v1alpha1.Taxonomy.Group
-	(*Taxonomy_Subtype)(nil),               // 18: chainguard.platform.skills.v1alpha1.Taxonomy.Subtype
-	(*Taxonomy_Check)(nil),                 // 19: chainguard.platform.skills.v1alpha1.Taxonomy.Check
-	(*HardeningReport_Unrouted)(nil),       // 20: chainguard.platform.skills.v1alpha1.HardeningReport.Unrouted
-	(*HardeningReport_ScannerRun)(nil),     // 21: chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun
-	(*HardeningFinding_Source)(nil),        // 22: chainguard.platform.skills.v1alpha1.HardeningFinding.Source
-	(*timestamppb.Timestamp)(nil),          // 23: google.protobuf.Timestamp
-	(*v1.UIDPFilter)(nil),                  // 24: chainguard.platform.common.UIDPFilter
-	(*emptypb.Empty)(nil),                  // 25: google.protobuf.Empty
+	(FindingAssessment)(0),                 // 2: chainguard.platform.skills.v1alpha1.FindingAssessment
+	(HardeningReport_ScannerRun_Phase)(0),  // 3: chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun.Phase
+	(HardeningReport_ScannerRun_Status)(0), // 4: chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun.Status
+	(*Rationale)(nil),                      // 5: chainguard.platform.skills.v1alpha1.Rationale
+	(*Taxonomy)(nil),                       // 6: chainguard.platform.skills.v1alpha1.Taxonomy
+	(*SeverityCounts)(nil),                 // 7: chainguard.platform.skills.v1alpha1.SeverityCounts
+	(*HardeningReport)(nil),                // 8: chainguard.platform.skills.v1alpha1.HardeningReport
+	(*HardeningFinding)(nil),               // 9: chainguard.platform.skills.v1alpha1.HardeningFinding
+	(*GetHardeningReportRequest)(nil),      // 10: chainguard.platform.skills.v1alpha1.GetHardeningReportRequest
+	(*ListHardeningFindingsRequest)(nil),   // 11: chainguard.platform.skills.v1alpha1.ListHardeningFindingsRequest
+	(*ListHardeningFindingsResponse)(nil),  // 12: chainguard.platform.skills.v1alpha1.ListHardeningFindingsResponse
+	(*ListHardeningReportsRequest)(nil),    // 13: chainguard.platform.skills.v1alpha1.ListHardeningReportsRequest
+	(*ListHardeningReportsResponse)(nil),   // 14: chainguard.platform.skills.v1alpha1.ListHardeningReportsResponse
+	(*GetTaxonomyRequest)(nil),             // 15: chainguard.platform.skills.v1alpha1.GetTaxonomyRequest
+	(*UpdateTaxonomyRequest)(nil),          // 16: chainguard.platform.skills.v1alpha1.UpdateTaxonomyRequest
+	(*ListRationalesRequest)(nil),          // 17: chainguard.platform.skills.v1alpha1.ListRationalesRequest
+	(*ListRationalesResponse)(nil),         // 18: chainguard.platform.skills.v1alpha1.ListRationalesResponse
+	(*UpdateRationalesRequest)(nil),        // 19: chainguard.platform.skills.v1alpha1.UpdateRationalesRequest
+	(*UpdateRationalesResponse)(nil),       // 20: chainguard.platform.skills.v1alpha1.UpdateRationalesResponse
+	(*UpdateHardeningReportRequest)(nil),   // 21: chainguard.platform.skills.v1alpha1.UpdateHardeningReportRequest
+	(*DeleteHardeningReportRequest)(nil),   // 22: chainguard.platform.skills.v1alpha1.DeleteHardeningReportRequest
+	(*Taxonomy_Group)(nil),                 // 23: chainguard.platform.skills.v1alpha1.Taxonomy.Group
+	(*Taxonomy_Subtype)(nil),               // 24: chainguard.platform.skills.v1alpha1.Taxonomy.Subtype
+	(*Taxonomy_Check)(nil),                 // 25: chainguard.platform.skills.v1alpha1.Taxonomy.Check
+	(*HardeningReport_Unrouted)(nil),       // 26: chainguard.platform.skills.v1alpha1.HardeningReport.Unrouted
+	(*HardeningReport_ScannerRun)(nil),     // 27: chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun
+	(*HardeningFinding_Source)(nil),        // 28: chainguard.platform.skills.v1alpha1.HardeningFinding.Source
+	(*timestamppb.Timestamp)(nil),          // 29: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),                  // 30: chainguard.platform.common.UIDPFilter
+	(*emptypb.Empty)(nil),                  // 31: google.protobuf.Empty
 }
 var file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_depIdxs = []int32{
-	17, // 0: chainguard.platform.skills.v1alpha1.Taxonomy.groups:type_name -> chainguard.platform.skills.v1alpha1.Taxonomy.Group
-	19, // 1: chainguard.platform.skills.v1alpha1.Taxonomy.checks:type_name -> chainguard.platform.skills.v1alpha1.Taxonomy.Check
-	23, // 2: chainguard.platform.skills.v1alpha1.Taxonomy.create_time:type_name -> google.protobuf.Timestamp
-	5,  // 3: chainguard.platform.skills.v1alpha1.HardeningReport.before:type_name -> chainguard.platform.skills.v1alpha1.SeverityCounts
-	5,  // 4: chainguard.platform.skills.v1alpha1.HardeningReport.after:type_name -> chainguard.platform.skills.v1alpha1.SeverityCounts
-	20, // 5: chainguard.platform.skills.v1alpha1.HardeningReport.unrouted_entries:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport.Unrouted
-	23, // 6: chainguard.platform.skills.v1alpha1.HardeningReport.generate_time:type_name -> google.protobuf.Timestamp
-	23, // 7: chainguard.platform.skills.v1alpha1.HardeningReport.create_time:type_name -> google.protobuf.Timestamp
-	23, // 8: chainguard.platform.skills.v1alpha1.HardeningReport.update_time:type_name -> google.protobuf.Timestamp
-	21, // 9: chainguard.platform.skills.v1alpha1.HardeningReport.scanner_runs:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun
-	0,  // 10: chainguard.platform.skills.v1alpha1.HardeningFinding.severity:type_name -> chainguard.platform.skills.v1alpha1.FindingSeverity
-	1,  // 11: chainguard.platform.skills.v1alpha1.HardeningFinding.status:type_name -> chainguard.platform.skills.v1alpha1.FindingStatus
-	22, // 12: chainguard.platform.skills.v1alpha1.HardeningFinding.sources:type_name -> chainguard.platform.skills.v1alpha1.HardeningFinding.Source
-	1,  // 13: chainguard.platform.skills.v1alpha1.ListHardeningFindingsRequest.statuses:type_name -> chainguard.platform.skills.v1alpha1.FindingStatus
-	0,  // 14: chainguard.platform.skills.v1alpha1.ListHardeningFindingsRequest.severities:type_name -> chainguard.platform.skills.v1alpha1.FindingSeverity
-	7,  // 15: chainguard.platform.skills.v1alpha1.ListHardeningFindingsResponse.findings:type_name -> chainguard.platform.skills.v1alpha1.HardeningFinding
-	24, // 16: chainguard.platform.skills.v1alpha1.ListHardeningReportsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	6,  // 17: chainguard.platform.skills.v1alpha1.ListHardeningReportsResponse.reports:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport
-	4,  // 18: chainguard.platform.skills.v1alpha1.UpdateTaxonomyRequest.taxonomy:type_name -> chainguard.platform.skills.v1alpha1.Taxonomy
-	6,  // 19: chainguard.platform.skills.v1alpha1.UpdateHardeningReportRequest.report:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport
-	7,  // 20: chainguard.platform.skills.v1alpha1.UpdateHardeningReportRequest.findings:type_name -> chainguard.platform.skills.v1alpha1.HardeningFinding
-	18, // 21: chainguard.platform.skills.v1alpha1.Taxonomy.Group.subtypes:type_name -> chainguard.platform.skills.v1alpha1.Taxonomy.Subtype
-	0,  // 22: chainguard.platform.skills.v1alpha1.HardeningReport.Unrouted.severity:type_name -> chainguard.platform.skills.v1alpha1.FindingSeverity
-	2,  // 23: chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun.phase:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun.Phase
-	3,  // 24: chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun.status:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun.Status
-	0,  // 25: chainguard.platform.skills.v1alpha1.HardeningFinding.Source.severity:type_name -> chainguard.platform.skills.v1alpha1.FindingSeverity
-	8,  // 26: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.GetHardeningReport:input_type -> chainguard.platform.skills.v1alpha1.GetHardeningReportRequest
-	11, // 27: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.ListHardeningReports:input_type -> chainguard.platform.skills.v1alpha1.ListHardeningReportsRequest
-	13, // 28: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.GetTaxonomy:input_type -> chainguard.platform.skills.v1alpha1.GetTaxonomyRequest
-	9,  // 29: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.ListHardeningFindings:input_type -> chainguard.platform.skills.v1alpha1.ListHardeningFindingsRequest
-	14, // 30: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.UpdateTaxonomy:input_type -> chainguard.platform.skills.v1alpha1.UpdateTaxonomyRequest
-	15, // 31: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.UpdateHardeningReport:input_type -> chainguard.platform.skills.v1alpha1.UpdateHardeningReportRequest
-	16, // 32: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.DeleteHardeningReport:input_type -> chainguard.platform.skills.v1alpha1.DeleteHardeningReportRequest
-	6,  // 33: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.GetHardeningReport:output_type -> chainguard.platform.skills.v1alpha1.HardeningReport
-	12, // 34: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.ListHardeningReports:output_type -> chainguard.platform.skills.v1alpha1.ListHardeningReportsResponse
-	4,  // 35: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.GetTaxonomy:output_type -> chainguard.platform.skills.v1alpha1.Taxonomy
-	10, // 36: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.ListHardeningFindings:output_type -> chainguard.platform.skills.v1alpha1.ListHardeningFindingsResponse
-	4,  // 37: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.UpdateTaxonomy:output_type -> chainguard.platform.skills.v1alpha1.Taxonomy
-	6,  // 38: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.UpdateHardeningReport:output_type -> chainguard.platform.skills.v1alpha1.HardeningReport
-	25, // 39: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.DeleteHardeningReport:output_type -> google.protobuf.Empty
-	33, // [33:40] is the sub-list for method output_type
-	26, // [26:33] is the sub-list for method input_type
-	26, // [26:26] is the sub-list for extension type_name
-	26, // [26:26] is the sub-list for extension extendee
-	0,  // [0:26] is the sub-list for field type_name
+	2,  // 0: chainguard.platform.skills.v1alpha1.Rationale.assessments:type_name -> chainguard.platform.skills.v1alpha1.FindingAssessment
+	29, // 1: chainguard.platform.skills.v1alpha1.Rationale.create_time:type_name -> google.protobuf.Timestamp
+	29, // 2: chainguard.platform.skills.v1alpha1.Rationale.update_time:type_name -> google.protobuf.Timestamp
+	23, // 3: chainguard.platform.skills.v1alpha1.Taxonomy.groups:type_name -> chainguard.platform.skills.v1alpha1.Taxonomy.Group
+	25, // 4: chainguard.platform.skills.v1alpha1.Taxonomy.checks:type_name -> chainguard.platform.skills.v1alpha1.Taxonomy.Check
+	29, // 5: chainguard.platform.skills.v1alpha1.Taxonomy.create_time:type_name -> google.protobuf.Timestamp
+	7,  // 6: chainguard.platform.skills.v1alpha1.HardeningReport.before:type_name -> chainguard.platform.skills.v1alpha1.SeverityCounts
+	7,  // 7: chainguard.platform.skills.v1alpha1.HardeningReport.after:type_name -> chainguard.platform.skills.v1alpha1.SeverityCounts
+	26, // 8: chainguard.platform.skills.v1alpha1.HardeningReport.unrouted_entries:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport.Unrouted
+	29, // 9: chainguard.platform.skills.v1alpha1.HardeningReport.generate_time:type_name -> google.protobuf.Timestamp
+	29, // 10: chainguard.platform.skills.v1alpha1.HardeningReport.create_time:type_name -> google.protobuf.Timestamp
+	29, // 11: chainguard.platform.skills.v1alpha1.HardeningReport.update_time:type_name -> google.protobuf.Timestamp
+	27, // 12: chainguard.platform.skills.v1alpha1.HardeningReport.scanner_runs:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun
+	0,  // 13: chainguard.platform.skills.v1alpha1.HardeningFinding.severity:type_name -> chainguard.platform.skills.v1alpha1.FindingSeverity
+	1,  // 14: chainguard.platform.skills.v1alpha1.HardeningFinding.status:type_name -> chainguard.platform.skills.v1alpha1.FindingStatus
+	28, // 15: chainguard.platform.skills.v1alpha1.HardeningFinding.sources:type_name -> chainguard.platform.skills.v1alpha1.HardeningFinding.Source
+	2,  // 16: chainguard.platform.skills.v1alpha1.HardeningFinding.assessment:type_name -> chainguard.platform.skills.v1alpha1.FindingAssessment
+	1,  // 17: chainguard.platform.skills.v1alpha1.ListHardeningFindingsRequest.statuses:type_name -> chainguard.platform.skills.v1alpha1.FindingStatus
+	0,  // 18: chainguard.platform.skills.v1alpha1.ListHardeningFindingsRequest.severities:type_name -> chainguard.platform.skills.v1alpha1.FindingSeverity
+	2,  // 19: chainguard.platform.skills.v1alpha1.ListHardeningFindingsRequest.assessments:type_name -> chainguard.platform.skills.v1alpha1.FindingAssessment
+	9,  // 20: chainguard.platform.skills.v1alpha1.ListHardeningFindingsResponse.findings:type_name -> chainguard.platform.skills.v1alpha1.HardeningFinding
+	30, // 21: chainguard.platform.skills.v1alpha1.ListHardeningReportsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	8,  // 22: chainguard.platform.skills.v1alpha1.ListHardeningReportsResponse.reports:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport
+	6,  // 23: chainguard.platform.skills.v1alpha1.UpdateTaxonomyRequest.taxonomy:type_name -> chainguard.platform.skills.v1alpha1.Taxonomy
+	5,  // 24: chainguard.platform.skills.v1alpha1.ListRationalesResponse.rationales:type_name -> chainguard.platform.skills.v1alpha1.Rationale
+	5,  // 25: chainguard.platform.skills.v1alpha1.UpdateRationalesRequest.rationales:type_name -> chainguard.platform.skills.v1alpha1.Rationale
+	5,  // 26: chainguard.platform.skills.v1alpha1.UpdateRationalesResponse.rationales:type_name -> chainguard.platform.skills.v1alpha1.Rationale
+	8,  // 27: chainguard.platform.skills.v1alpha1.UpdateHardeningReportRequest.report:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport
+	9,  // 28: chainguard.platform.skills.v1alpha1.UpdateHardeningReportRequest.findings:type_name -> chainguard.platform.skills.v1alpha1.HardeningFinding
+	24, // 29: chainguard.platform.skills.v1alpha1.Taxonomy.Group.subtypes:type_name -> chainguard.platform.skills.v1alpha1.Taxonomy.Subtype
+	0,  // 30: chainguard.platform.skills.v1alpha1.HardeningReport.Unrouted.severity:type_name -> chainguard.platform.skills.v1alpha1.FindingSeverity
+	3,  // 31: chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun.phase:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun.Phase
+	4,  // 32: chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun.status:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun.Status
+	0,  // 33: chainguard.platform.skills.v1alpha1.HardeningFinding.Source.severity:type_name -> chainguard.platform.skills.v1alpha1.FindingSeverity
+	10, // 34: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.GetHardeningReport:input_type -> chainguard.platform.skills.v1alpha1.GetHardeningReportRequest
+	13, // 35: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.ListHardeningReports:input_type -> chainguard.platform.skills.v1alpha1.ListHardeningReportsRequest
+	15, // 36: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.GetTaxonomy:input_type -> chainguard.platform.skills.v1alpha1.GetTaxonomyRequest
+	17, // 37: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.ListRationales:input_type -> chainguard.platform.skills.v1alpha1.ListRationalesRequest
+	11, // 38: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.ListHardeningFindings:input_type -> chainguard.platform.skills.v1alpha1.ListHardeningFindingsRequest
+	16, // 39: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.UpdateTaxonomy:input_type -> chainguard.platform.skills.v1alpha1.UpdateTaxonomyRequest
+	19, // 40: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.UpdateRationales:input_type -> chainguard.platform.skills.v1alpha1.UpdateRationalesRequest
+	21, // 41: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.UpdateHardeningReport:input_type -> chainguard.platform.skills.v1alpha1.UpdateHardeningReportRequest
+	22, // 42: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.DeleteHardeningReport:input_type -> chainguard.platform.skills.v1alpha1.DeleteHardeningReportRequest
+	8,  // 43: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.GetHardeningReport:output_type -> chainguard.platform.skills.v1alpha1.HardeningReport
+	14, // 44: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.ListHardeningReports:output_type -> chainguard.platform.skills.v1alpha1.ListHardeningReportsResponse
+	6,  // 45: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.GetTaxonomy:output_type -> chainguard.platform.skills.v1alpha1.Taxonomy
+	18, // 46: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.ListRationales:output_type -> chainguard.platform.skills.v1alpha1.ListRationalesResponse
+	12, // 47: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.ListHardeningFindings:output_type -> chainguard.platform.skills.v1alpha1.ListHardeningFindingsResponse
+	6,  // 48: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.UpdateTaxonomy:output_type -> chainguard.platform.skills.v1alpha1.Taxonomy
+	20, // 49: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.UpdateRationales:output_type -> chainguard.platform.skills.v1alpha1.UpdateRationalesResponse
+	8,  // 50: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.UpdateHardeningReport:output_type -> chainguard.platform.skills.v1alpha1.HardeningReport
+	31, // 51: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.DeleteHardeningReport:output_type -> google.protobuf.Empty
+	43, // [43:52] is the sub-list for method output_type
+	34, // [34:43] is the sub-list for method input_type
+	34, // [34:34] is the sub-list for extension type_name
+	34, // [34:34] is the sub-list for extension extendee
+	0,  // [0:34] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_init() }
@@ -2024,8 +2527,8 @@ func file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDesc), len(file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDesc)),
-			NumEnums:      4,
-			NumMessages:   19,
+			NumEnums:      5,
+			NumMessages:   24,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
