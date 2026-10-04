@@ -18,6 +18,7 @@ import (
 type Clients interface {
 	ArtifactsService() ArtifactsServiceClient
 	RequestGroupsService() RequestGroupsServiceClient
+	StorageUsageService() StorageUsageServiceClient
 
 	ListArtifactsIter(ctx context.Context, req *ListArtifactsRequest) iter.Seq2[*Artifact, error]
 	ListArtifactsAll(ctx context.Context, req *ListArtifactsRequest) ([]*Artifact, error)
@@ -33,12 +34,14 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 	return &clients{
 		artifactsService:     NewArtifactsServiceClient(conn),
 		requestGroupsService: NewRequestGroupsServiceClient(conn),
+		storageUsageService:  NewStorageUsageServiceClient(conn),
 	}
 }
 
 type clients struct {
 	artifactsService     ArtifactsServiceClient
 	requestGroupsService RequestGroupsServiceClient
+	storageUsageService  StorageUsageServiceClient
 
 	conn *grpc.ClientConn
 }
@@ -49,6 +52,10 @@ func (c *clients) ArtifactsService() ArtifactsServiceClient {
 
 func (c *clients) RequestGroupsService() RequestGroupsServiceClient {
 	return c.requestGroupsService
+}
+
+func (c *clients) StorageUsageService() StorageUsageServiceClient {
+	return c.storageUsageService
 }
 
 func (c *clients) Close() error {

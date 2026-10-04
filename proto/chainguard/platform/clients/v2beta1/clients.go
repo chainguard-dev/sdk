@@ -16,6 +16,7 @@ import (
 	delegate "chainguard.dev/go-grpc-kit/pkg/options"
 	advisory "chainguard.dev/sdk/proto/chainguard/platform/advisory/v2beta1"
 	iamv2 "chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1"
+	libraries "chainguard.dev/sdk/proto/chainguard/platform/libraries/v2beta1"
 	registry "chainguard.dev/sdk/proto/chainguard/platform/registry/v2beta1"
 	versions "chainguard.dev/sdk/proto/chainguard/platform/versions/v2beta1"
 	vuln "chainguard.dev/sdk/proto/chainguard/platform/vulnerabilities/v2beta1"
@@ -26,6 +27,7 @@ import (
 type Clients interface {
 	Advisory() advisory.Clients
 	IAM() iamv2.Clients
+	Libraries() libraries.Clients
 	Registry() registry.Clients
 	Versions() versions.Clients
 	Vulnerabilities() vuln.Clients
@@ -33,12 +35,13 @@ type Clients interface {
 }
 
 type clients struct {
-	advisory advisory.Clients
-	iam      iamv2.Clients
-	registry registry.Clients
-	versions versions.Clients
-	vuln     vuln.Clients
-	conn     *grpc.ClientConn
+	advisory  advisory.Clients
+	iam       iamv2.Clients
+	libraries libraries.Clients
+	registry  registry.Clients
+	versions  versions.Clients
+	vuln      vuln.Clients
+	conn      *grpc.ClientConn
 }
 
 // NewClients creates a v2beta1 API gRPC client. The caller is responsible for closing the connection.
@@ -69,12 +72,13 @@ func NewClients(ctx context.Context, apiURL, userAgent string, cred credentials.
 	}
 
 	return &clients{
-		advisory: advisory.NewClientsFromConnection(conn),
-		iam:      iamv2.NewClientsFromConnection(conn),
-		registry: registry.NewClientsFromConnection(conn),
-		versions: versions.NewClientsFromConnection(conn),
-		vuln:     vuln.NewClientsFromConnection(conn),
-		conn:     conn,
+		advisory:  advisory.NewClientsFromConnection(conn),
+		iam:       iamv2.NewClientsFromConnection(conn),
+		libraries: libraries.NewClientsFromConnection(conn),
+		registry:  registry.NewClientsFromConnection(conn),
+		versions:  versions.NewClientsFromConnection(conn),
+		vuln:      vuln.NewClientsFromConnection(conn),
+		conn:      conn,
 	}, nil
 }
 
@@ -84,6 +88,10 @@ func (c *clients) Advisory() advisory.Clients {
 
 func (c *clients) IAM() iamv2.Clients {
 	return c.iam
+}
+
+func (c *clients) Libraries() libraries.Clients {
+	return c.libraries
 }
 
 func (c *clients) Registry() registry.Clients {
