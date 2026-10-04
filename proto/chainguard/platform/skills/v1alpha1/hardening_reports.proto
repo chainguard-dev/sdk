@@ -276,6 +276,9 @@ message HardeningReport {
   repeated ScannerRun scanner_runs = 12 [
     (google.api.field_behavior) = OPTIONAL
   ];
+  // summary is the pipeline's templated prose summary of the result. Empty on
+  // reports written before the field existed.
+  string summary = 13 [(google.api.field_behavior) = OPTIONAL];
 
   message Unrouted {
     string scanner = 1;

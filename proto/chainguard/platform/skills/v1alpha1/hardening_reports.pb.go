@@ -449,7 +449,10 @@ type HardeningReport struct {
 	// scanner_runs are the scanners evaluated for this version and how each
 	// ended, so a version with no findings can be told apart from one whose
 	// scanner did not finish. Empty on reports written before the field existed.
-	ScannerRuns   []*HardeningReport_ScannerRun `protobuf:"bytes,12,rep,name=scanner_runs,json=scannerRuns,proto3" json:"scanner_runs,omitempty"`
+	ScannerRuns []*HardeningReport_ScannerRun `protobuf:"bytes,12,rep,name=scanner_runs,json=scannerRuns,proto3" json:"scanner_runs,omitempty"`
+	// summary is the pipeline's templated prose summary of the result. Empty on
+	// reports written before the field existed.
+	Summary       string `protobuf:"bytes,13,opt,name=summary,proto3" json:"summary,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -566,6 +569,13 @@ func (x *HardeningReport) GetScannerRuns() []*HardeningReport_ScannerRun {
 		return x.ScannerRuns
 	}
 	return nil
+}
+
+func (x *HardeningReport) GetSummary() string {
+	if x != nil {
+		return x.Summary
+	}
+	return ""
 }
 
 // HardeningFinding is one CGSVT finding: a distinct (group, subtype, file).
@@ -1768,7 +1778,7 @@ const file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDesc =
 	"\x04high\x18\x02 \x01(\x05R\x04high\x12\x16\n" +
 	"\x06medium\x18\x03 \x01(\x05R\x06medium\x12\x10\n" +
 	"\x03low\x18\x04 \x01(\x05R\x03low\x12\x12\n" +
-	"\x04info\x18\x05 \x01(\x05R\x04info\"\xb6\n" +
+	"\x04info\x18\x05 \x01(\x05R\x04info\"\xd6\n" +
 	"\n" +
 	"\x0fHardeningReport\x12\x1b\n" +
 	"\x06tag_id\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x05tagId\x12\x1c\n" +
@@ -1786,7 +1796,8 @@ const file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDesc =
 	"createTime\x12A\n" +
 	"\vupdate_time\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
 	"updateTime\x12h\n" +
-	"\fscanner_runs\x18\f \x03(\v2?.chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRunB\x04\xe2A\x01\x01R\vscannerRuns\x1a\x9e\x01\n" +
+	"\fscanner_runs\x18\f \x03(\v2?.chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRunB\x04\xe2A\x01\x01R\vscannerRuns\x12\x1e\n" +
+	"\asummary\x18\r \x01(\tB\x04\xe2A\x01\x01R\asummary\x1a\x9e\x01\n" +
 	"\bUnrouted\x12\x18\n" +
 	"\ascanner\x18\x01 \x01(\tR\ascanner\x12\x10\n" +
 	"\x03key\x18\x02 \x01(\tR\x03key\x12P\n" +
