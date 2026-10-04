@@ -293,4 +293,9 @@ message HardenOperationResponse {
   // Unset on responses from servers that predate the field, which only
   // completed successfully for skills that passed: treat unset as true.
   optional bool hardened = 2;
+  // tag_id is the registry tag UIDP of hardened_ref. With the operation's
+  // group, it names the version's hardening report:
+  // SkillsHardeningReports.GetHardeningReport(parent_id=group, tag_id).
+  // Empty when no report was written for the version.
+  string tag_id = 3;
 }

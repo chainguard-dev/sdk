@@ -660,7 +660,12 @@ type HardenOperationResponse struct {
 	// dev.chainguard.skill.hardened manifest annotation records the same verdict.
 	// Unset on responses from servers that predate the field, which only
 	// completed successfully for skills that passed: treat unset as true.
-	Hardened      *bool `protobuf:"varint,2,opt,name=hardened,proto3,oneof" json:"hardened,omitempty"`
+	Hardened *bool `protobuf:"varint,2,opt,name=hardened,proto3,oneof" json:"hardened,omitempty"`
+	// tag_id is the registry tag UIDP of hardened_ref. With the operation's
+	// group, it names the version's hardening report:
+	// SkillsHardeningReports.GetHardeningReport(parent_id=group, tag_id).
+	// Empty when no report was written for the version.
+	TagId         string `protobuf:"bytes,3,opt,name=tag_id,json=tagId,proto3" json:"tag_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -707,6 +712,13 @@ func (x *HardenOperationResponse) GetHardened() bool {
 		return *x.Hardened
 	}
 	return false
+}
+
+func (x *HardenOperationResponse) GetTagId() string {
+	if x != nil {
+		return x.TagId
+	}
+	return ""
 }
 
 // PhaseChange records a single phase transition and when it occurred.
@@ -806,10 +818,11 @@ const file_chainguard_platform_skills_v1alpha1_harden_proto_rawDesc = "" +
 	"\afailure\x18\f \x01(\v22.chainguard.platform.skills.v1alpha1.HardenFailureR\afailure\x1a\x85\x01\n" +
 	"\vPhaseChange\x12F\n" +
 	"\x05phase\x18\x01 \x01(\x0e20.chainguard.platform.skills.v1alpha1.HardenPhaseR\x05phase\x12.\n" +
-	"\x04time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04time\"j\n" +
+	"\x04time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04time\"\x81\x01\n" +
 	"\x17HardenOperationResponse\x12!\n" +
 	"\fhardened_ref\x18\x01 \x01(\tR\vhardenedRef\x12\x1f\n" +
-	"\bhardened\x18\x02 \x01(\bH\x00R\bhardened\x88\x01\x01B\v\n" +
+	"\bhardened\x18\x02 \x01(\bH\x00R\bhardened\x88\x01\x01\x12\x15\n" +
+	"\x06tag_id\x18\x03 \x01(\tR\x05tagIdB\v\n" +
 	"\t_hardened*\x96\x01\n" +
 	"\vHardenPhase\x12\x1c\n" +
 	"\x18HARDEN_PHASE_UNSPECIFIED\x10\x00\x12\x17\n" +
