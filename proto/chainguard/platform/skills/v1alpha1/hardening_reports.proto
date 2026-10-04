@@ -270,12 +270,43 @@ message HardeningReport {
   google.protobuf.Timestamp update_time = 11 [
     (google.api.field_behavior) = OUTPUT_ONLY
   ];
+  // scanner_runs are the scanners evaluated for this version and how each
+  // ended, so a version with no findings can be told apart from one whose
+  // scanner did not finish. Empty on reports written before the field existed.
+  repeated ScannerRun scanner_runs = 12 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
 
   message Unrouted {
     string scanner = 1;
     string key = 2;
     FindingSeverity severity = 3;
     int32 count = 4;
+  }
+
+  // ScannerRun is one scanner's outcome in one evaluation.
+  message ScannerRun {
+    // Phase is the skill the scanner evaluated, matching before and after.
+    enum Phase {
+      PHASE_UNSPECIFIED = 0;
+      // PHASE_BEFORE is the submitted skill, before hardening.
+      PHASE_BEFORE = 1;
+      // PHASE_AFTER is the hardened skill.
+      PHASE_AFTER = 2;
+    }
+    enum Status {
+      STATUS_UNSPECIFIED = 0;
+      STATUS_COMPLETED = 1;
+      // STATUS_FAILED means the scanner did not finish: its findings are
+      // missing from the report, not zero.
+      STATUS_FAILED = 2;
+      // STATUS_SKIPPED means the scanner is not enabled in this environment,
+      // so it did not scan the skill.
+      STATUS_SKIPPED = 3;
+    }
+    string scanner = 1;
+    Phase phase = 2;
+    Status status = 3;
   }
 }
 

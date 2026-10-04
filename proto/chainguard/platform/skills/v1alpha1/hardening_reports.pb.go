@@ -144,6 +144,114 @@ func (FindingStatus) EnumDescriptor() ([]byte, []int) {
 	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{1}
 }
 
+// Phase is the skill the scanner evaluated, matching before and after.
+type HardeningReport_ScannerRun_Phase int32
+
+const (
+	HardeningReport_ScannerRun_PHASE_UNSPECIFIED HardeningReport_ScannerRun_Phase = 0
+	// PHASE_BEFORE is the submitted skill, before hardening.
+	HardeningReport_ScannerRun_PHASE_BEFORE HardeningReport_ScannerRun_Phase = 1
+	// PHASE_AFTER is the hardened skill.
+	HardeningReport_ScannerRun_PHASE_AFTER HardeningReport_ScannerRun_Phase = 2
+)
+
+// Enum value maps for HardeningReport_ScannerRun_Phase.
+var (
+	HardeningReport_ScannerRun_Phase_name = map[int32]string{
+		0: "PHASE_UNSPECIFIED",
+		1: "PHASE_BEFORE",
+		2: "PHASE_AFTER",
+	}
+	HardeningReport_ScannerRun_Phase_value = map[string]int32{
+		"PHASE_UNSPECIFIED": 0,
+		"PHASE_BEFORE":      1,
+		"PHASE_AFTER":       2,
+	}
+)
+
+func (x HardeningReport_ScannerRun_Phase) Enum() *HardeningReport_ScannerRun_Phase {
+	p := new(HardeningReport_ScannerRun_Phase)
+	*p = x
+	return p
+}
+
+func (x HardeningReport_ScannerRun_Phase) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (HardeningReport_ScannerRun_Phase) Descriptor() protoreflect.EnumDescriptor {
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_enumTypes[2].Descriptor()
+}
+
+func (HardeningReport_ScannerRun_Phase) Type() protoreflect.EnumType {
+	return &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_enumTypes[2]
+}
+
+func (x HardeningReport_ScannerRun_Phase) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use HardeningReport_ScannerRun_Phase.Descriptor instead.
+func (HardeningReport_ScannerRun_Phase) EnumDescriptor() ([]byte, []int) {
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{2, 1, 0}
+}
+
+type HardeningReport_ScannerRun_Status int32
+
+const (
+	HardeningReport_ScannerRun_STATUS_UNSPECIFIED HardeningReport_ScannerRun_Status = 0
+	HardeningReport_ScannerRun_STATUS_COMPLETED   HardeningReport_ScannerRun_Status = 1
+	// STATUS_FAILED means the scanner did not finish: its findings are
+	// missing from the report, not zero.
+	HardeningReport_ScannerRun_STATUS_FAILED HardeningReport_ScannerRun_Status = 2
+	// STATUS_SKIPPED means the scanner is not enabled in this environment,
+	// so it did not scan the skill.
+	HardeningReport_ScannerRun_STATUS_SKIPPED HardeningReport_ScannerRun_Status = 3
+)
+
+// Enum value maps for HardeningReport_ScannerRun_Status.
+var (
+	HardeningReport_ScannerRun_Status_name = map[int32]string{
+		0: "STATUS_UNSPECIFIED",
+		1: "STATUS_COMPLETED",
+		2: "STATUS_FAILED",
+		3: "STATUS_SKIPPED",
+	}
+	HardeningReport_ScannerRun_Status_value = map[string]int32{
+		"STATUS_UNSPECIFIED": 0,
+		"STATUS_COMPLETED":   1,
+		"STATUS_FAILED":      2,
+		"STATUS_SKIPPED":     3,
+	}
+)
+
+func (x HardeningReport_ScannerRun_Status) Enum() *HardeningReport_ScannerRun_Status {
+	p := new(HardeningReport_ScannerRun_Status)
+	*p = x
+	return p
+}
+
+func (x HardeningReport_ScannerRun_Status) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (HardeningReport_ScannerRun_Status) Descriptor() protoreflect.EnumDescriptor {
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_enumTypes[3].Descriptor()
+}
+
+func (HardeningReport_ScannerRun_Status) Type() protoreflect.EnumType {
+	return &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_enumTypes[3]
+}
+
+func (x HardeningReport_ScannerRun_Status) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use HardeningReport_ScannerRun_Status.Descriptor instead.
+func (HardeningReport_ScannerRun_Status) EnumDescriptor() ([]byte, []int) {
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{2, 1, 1}
+}
+
 // Taxonomy is one CGSVT version's display metadata.
 type Taxonomy struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -338,8 +446,12 @@ type HardeningReport struct {
 	GenerateTime    *timestamppb.Timestamp      `protobuf:"bytes,9,opt,name=generate_time,json=generateTime,proto3" json:"generate_time,omitempty"`
 	CreateTime      *timestamppb.Timestamp      `protobuf:"bytes,10,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
 	UpdateTime      *timestamppb.Timestamp      `protobuf:"bytes,11,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// scanner_runs are the scanners evaluated for this version and how each
+	// ended, so a version with no findings can be told apart from one whose
+	// scanner did not finish. Empty on reports written before the field existed.
+	ScannerRuns   []*HardeningReport_ScannerRun `protobuf:"bytes,12,rep,name=scanner_runs,json=scannerRuns,proto3" json:"scanner_runs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *HardeningReport) Reset() {
@@ -445,6 +557,13 @@ func (x *HardeningReport) GetCreateTime() *timestamppb.Timestamp {
 func (x *HardeningReport) GetUpdateTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.UpdateTime
+	}
+	return nil
+}
+
+func (x *HardeningReport) GetScannerRuns() []*HardeningReport_ScannerRun {
+	if x != nil {
+		return x.ScannerRuns
 	}
 	return nil
 }
@@ -1470,6 +1589,67 @@ func (x *HardeningReport_Unrouted) GetCount() int32 {
 	return 0
 }
 
+// ScannerRun is one scanner's outcome in one evaluation.
+type HardeningReport_ScannerRun struct {
+	state         protoimpl.MessageState            `protogen:"open.v1"`
+	Scanner       string                            `protobuf:"bytes,1,opt,name=scanner,proto3" json:"scanner,omitempty"`
+	Phase         HardeningReport_ScannerRun_Phase  `protobuf:"varint,2,opt,name=phase,proto3,enum=chainguard.platform.skills.v1alpha1.HardeningReport_ScannerRun_Phase" json:"phase,omitempty"`
+	Status        HardeningReport_ScannerRun_Status `protobuf:"varint,3,opt,name=status,proto3,enum=chainguard.platform.skills.v1alpha1.HardeningReport_ScannerRun_Status" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HardeningReport_ScannerRun) Reset() {
+	*x = HardeningReport_ScannerRun{}
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HardeningReport_ScannerRun) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HardeningReport_ScannerRun) ProtoMessage() {}
+
+func (x *HardeningReport_ScannerRun) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HardeningReport_ScannerRun.ProtoReflect.Descriptor instead.
+func (*HardeningReport_ScannerRun) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZIP(), []int{2, 1}
+}
+
+func (x *HardeningReport_ScannerRun) GetScanner() string {
+	if x != nil {
+		return x.Scanner
+	}
+	return ""
+}
+
+func (x *HardeningReport_ScannerRun) GetPhase() HardeningReport_ScannerRun_Phase {
+	if x != nil {
+		return x.Phase
+	}
+	return HardeningReport_ScannerRun_PHASE_UNSPECIFIED
+}
+
+func (x *HardeningReport_ScannerRun) GetStatus() HardeningReport_ScannerRun_Status {
+	if x != nil {
+		return x.Status
+	}
+	return HardeningReport_ScannerRun_STATUS_UNSPECIFIED
+}
+
 // Source is one scanner check that raised the finding.
 type HardeningFinding_Source struct {
 	state    protoimpl.MessageState `protogen:"open.v1"`
@@ -1486,7 +1666,7 @@ type HardeningFinding_Source struct {
 
 func (x *HardeningFinding_Source) Reset() {
 	*x = HardeningFinding_Source{}
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[17]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1498,7 +1678,7 @@ func (x *HardeningFinding_Source) String() string {
 func (*HardeningFinding_Source) ProtoMessage() {}
 
 func (x *HardeningFinding_Source) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[17]
+	mi := &file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1588,7 +1768,8 @@ const file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDesc =
 	"\x04high\x18\x02 \x01(\x05R\x04high\x12\x16\n" +
 	"\x06medium\x18\x03 \x01(\x05R\x06medium\x12\x10\n" +
 	"\x03low\x18\x04 \x01(\x05R\x03low\x12\x12\n" +
-	"\x04info\x18\x05 \x01(\x05R\x04info\"\xc4\x06\n" +
+	"\x04info\x18\x05 \x01(\x05R\x04info\"\xb6\n" +
+	"\n" +
 	"\x0fHardeningReport\x12\x1b\n" +
 	"\x06tag_id\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x05tagId\x12\x1c\n" +
 	"\x06digest\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x06digest\x12%\n" +
@@ -1604,12 +1785,27 @@ const file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDesc =
 	" \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
 	"createTime\x12A\n" +
 	"\vupdate_time\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
-	"updateTime\x1a\x9e\x01\n" +
+	"updateTime\x12h\n" +
+	"\fscanner_runs\x18\f \x03(\v2?.chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRunB\x04\xe2A\x01\x01R\vscannerRuns\x1a\x9e\x01\n" +
 	"\bUnrouted\x12\x18\n" +
 	"\ascanner\x18\x01 \x01(\tR\ascanner\x12\x10\n" +
 	"\x03key\x18\x02 \x01(\tR\x03key\x12P\n" +
 	"\bseverity\x18\x03 \x01(\x0e24.chainguard.platform.skills.v1alpha1.FindingSeverityR\bseverity\x12\x14\n" +
-	"\x05count\x18\x04 \x01(\x05R\x05count\"\xcd\x05\n" +
+	"\x05count\x18\x04 \x01(\x05R\x05count\x1a\x85\x03\n" +
+	"\n" +
+	"ScannerRun\x12\x18\n" +
+	"\ascanner\x18\x01 \x01(\tR\ascanner\x12[\n" +
+	"\x05phase\x18\x02 \x01(\x0e2E.chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun.PhaseR\x05phase\x12^\n" +
+	"\x06status\x18\x03 \x01(\x0e2F.chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun.StatusR\x06status\"A\n" +
+	"\x05Phase\x12\x15\n" +
+	"\x11PHASE_UNSPECIFIED\x10\x00\x12\x10\n" +
+	"\fPHASE_BEFORE\x10\x01\x12\x0f\n" +
+	"\vPHASE_AFTER\x10\x02\"]\n" +
+	"\x06Status\x12\x16\n" +
+	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x14\n" +
+	"\x10STATUS_COMPLETED\x10\x01\x12\x11\n" +
+	"\rSTATUS_FAILED\x10\x02\x12\x12\n" +
+	"\x0eSTATUS_SKIPPED\x10\x03\"\xcd\x05\n" +
 	"\x10HardeningFinding\x12%\n" +
 	"\x0eoperational_id\x18\x01 \x01(\tR\roperationalId\x12\x19\n" +
 	"\bgroup_id\x18\x02 \x01(\tR\agroupId\x12\x1d\n" +
@@ -1729,76 +1925,82 @@ func file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescGZI
 	return file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDescData
 }
 
-var file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_goTypes = []any{
-	(FindingSeverity)(0),                  // 0: chainguard.platform.skills.v1alpha1.FindingSeverity
-	(FindingStatus)(0),                    // 1: chainguard.platform.skills.v1alpha1.FindingStatus
-	(*Taxonomy)(nil),                      // 2: chainguard.platform.skills.v1alpha1.Taxonomy
-	(*SeverityCounts)(nil),                // 3: chainguard.platform.skills.v1alpha1.SeverityCounts
-	(*HardeningReport)(nil),               // 4: chainguard.platform.skills.v1alpha1.HardeningReport
-	(*HardeningFinding)(nil),              // 5: chainguard.platform.skills.v1alpha1.HardeningFinding
-	(*GetHardeningReportRequest)(nil),     // 6: chainguard.platform.skills.v1alpha1.GetHardeningReportRequest
-	(*ListHardeningFindingsRequest)(nil),  // 7: chainguard.platform.skills.v1alpha1.ListHardeningFindingsRequest
-	(*ListHardeningFindingsResponse)(nil), // 8: chainguard.platform.skills.v1alpha1.ListHardeningFindingsResponse
-	(*ListHardeningReportsRequest)(nil),   // 9: chainguard.platform.skills.v1alpha1.ListHardeningReportsRequest
-	(*ListHardeningReportsResponse)(nil),  // 10: chainguard.platform.skills.v1alpha1.ListHardeningReportsResponse
-	(*GetTaxonomyRequest)(nil),            // 11: chainguard.platform.skills.v1alpha1.GetTaxonomyRequest
-	(*UpdateTaxonomyRequest)(nil),         // 12: chainguard.platform.skills.v1alpha1.UpdateTaxonomyRequest
-	(*UpdateHardeningReportRequest)(nil),  // 13: chainguard.platform.skills.v1alpha1.UpdateHardeningReportRequest
-	(*DeleteHardeningReportRequest)(nil),  // 14: chainguard.platform.skills.v1alpha1.DeleteHardeningReportRequest
-	(*Taxonomy_Group)(nil),                // 15: chainguard.platform.skills.v1alpha1.Taxonomy.Group
-	(*Taxonomy_Subtype)(nil),              // 16: chainguard.platform.skills.v1alpha1.Taxonomy.Subtype
-	(*Taxonomy_Check)(nil),                // 17: chainguard.platform.skills.v1alpha1.Taxonomy.Check
-	(*HardeningReport_Unrouted)(nil),      // 18: chainguard.platform.skills.v1alpha1.HardeningReport.Unrouted
-	(*HardeningFinding_Source)(nil),       // 19: chainguard.platform.skills.v1alpha1.HardeningFinding.Source
-	(*timestamppb.Timestamp)(nil),         // 20: google.protobuf.Timestamp
-	(*v1.UIDPFilter)(nil),                 // 21: chainguard.platform.common.UIDPFilter
-	(*emptypb.Empty)(nil),                 // 22: google.protobuf.Empty
+	(FindingSeverity)(0),                   // 0: chainguard.platform.skills.v1alpha1.FindingSeverity
+	(FindingStatus)(0),                     // 1: chainguard.platform.skills.v1alpha1.FindingStatus
+	(HardeningReport_ScannerRun_Phase)(0),  // 2: chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun.Phase
+	(HardeningReport_ScannerRun_Status)(0), // 3: chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun.Status
+	(*Taxonomy)(nil),                       // 4: chainguard.platform.skills.v1alpha1.Taxonomy
+	(*SeverityCounts)(nil),                 // 5: chainguard.platform.skills.v1alpha1.SeverityCounts
+	(*HardeningReport)(nil),                // 6: chainguard.platform.skills.v1alpha1.HardeningReport
+	(*HardeningFinding)(nil),               // 7: chainguard.platform.skills.v1alpha1.HardeningFinding
+	(*GetHardeningReportRequest)(nil),      // 8: chainguard.platform.skills.v1alpha1.GetHardeningReportRequest
+	(*ListHardeningFindingsRequest)(nil),   // 9: chainguard.platform.skills.v1alpha1.ListHardeningFindingsRequest
+	(*ListHardeningFindingsResponse)(nil),  // 10: chainguard.platform.skills.v1alpha1.ListHardeningFindingsResponse
+	(*ListHardeningReportsRequest)(nil),    // 11: chainguard.platform.skills.v1alpha1.ListHardeningReportsRequest
+	(*ListHardeningReportsResponse)(nil),   // 12: chainguard.platform.skills.v1alpha1.ListHardeningReportsResponse
+	(*GetTaxonomyRequest)(nil),             // 13: chainguard.platform.skills.v1alpha1.GetTaxonomyRequest
+	(*UpdateTaxonomyRequest)(nil),          // 14: chainguard.platform.skills.v1alpha1.UpdateTaxonomyRequest
+	(*UpdateHardeningReportRequest)(nil),   // 15: chainguard.platform.skills.v1alpha1.UpdateHardeningReportRequest
+	(*DeleteHardeningReportRequest)(nil),   // 16: chainguard.platform.skills.v1alpha1.DeleteHardeningReportRequest
+	(*Taxonomy_Group)(nil),                 // 17: chainguard.platform.skills.v1alpha1.Taxonomy.Group
+	(*Taxonomy_Subtype)(nil),               // 18: chainguard.platform.skills.v1alpha1.Taxonomy.Subtype
+	(*Taxonomy_Check)(nil),                 // 19: chainguard.platform.skills.v1alpha1.Taxonomy.Check
+	(*HardeningReport_Unrouted)(nil),       // 20: chainguard.platform.skills.v1alpha1.HardeningReport.Unrouted
+	(*HardeningReport_ScannerRun)(nil),     // 21: chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun
+	(*HardeningFinding_Source)(nil),        // 22: chainguard.platform.skills.v1alpha1.HardeningFinding.Source
+	(*timestamppb.Timestamp)(nil),          // 23: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),                  // 24: chainguard.platform.common.UIDPFilter
+	(*emptypb.Empty)(nil),                  // 25: google.protobuf.Empty
 }
 var file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_depIdxs = []int32{
-	15, // 0: chainguard.platform.skills.v1alpha1.Taxonomy.groups:type_name -> chainguard.platform.skills.v1alpha1.Taxonomy.Group
-	17, // 1: chainguard.platform.skills.v1alpha1.Taxonomy.checks:type_name -> chainguard.platform.skills.v1alpha1.Taxonomy.Check
-	20, // 2: chainguard.platform.skills.v1alpha1.Taxonomy.create_time:type_name -> google.protobuf.Timestamp
-	3,  // 3: chainguard.platform.skills.v1alpha1.HardeningReport.before:type_name -> chainguard.platform.skills.v1alpha1.SeverityCounts
-	3,  // 4: chainguard.platform.skills.v1alpha1.HardeningReport.after:type_name -> chainguard.platform.skills.v1alpha1.SeverityCounts
-	18, // 5: chainguard.platform.skills.v1alpha1.HardeningReport.unrouted_entries:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport.Unrouted
-	20, // 6: chainguard.platform.skills.v1alpha1.HardeningReport.generate_time:type_name -> google.protobuf.Timestamp
-	20, // 7: chainguard.platform.skills.v1alpha1.HardeningReport.create_time:type_name -> google.protobuf.Timestamp
-	20, // 8: chainguard.platform.skills.v1alpha1.HardeningReport.update_time:type_name -> google.protobuf.Timestamp
-	0,  // 9: chainguard.platform.skills.v1alpha1.HardeningFinding.severity:type_name -> chainguard.platform.skills.v1alpha1.FindingSeverity
-	1,  // 10: chainguard.platform.skills.v1alpha1.HardeningFinding.status:type_name -> chainguard.platform.skills.v1alpha1.FindingStatus
-	19, // 11: chainguard.platform.skills.v1alpha1.HardeningFinding.sources:type_name -> chainguard.platform.skills.v1alpha1.HardeningFinding.Source
-	1,  // 12: chainguard.platform.skills.v1alpha1.ListHardeningFindingsRequest.statuses:type_name -> chainguard.platform.skills.v1alpha1.FindingStatus
-	0,  // 13: chainguard.platform.skills.v1alpha1.ListHardeningFindingsRequest.severities:type_name -> chainguard.platform.skills.v1alpha1.FindingSeverity
-	5,  // 14: chainguard.platform.skills.v1alpha1.ListHardeningFindingsResponse.findings:type_name -> chainguard.platform.skills.v1alpha1.HardeningFinding
-	21, // 15: chainguard.platform.skills.v1alpha1.ListHardeningReportsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	4,  // 16: chainguard.platform.skills.v1alpha1.ListHardeningReportsResponse.reports:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport
-	2,  // 17: chainguard.platform.skills.v1alpha1.UpdateTaxonomyRequest.taxonomy:type_name -> chainguard.platform.skills.v1alpha1.Taxonomy
-	4,  // 18: chainguard.platform.skills.v1alpha1.UpdateHardeningReportRequest.report:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport
-	5,  // 19: chainguard.platform.skills.v1alpha1.UpdateHardeningReportRequest.findings:type_name -> chainguard.platform.skills.v1alpha1.HardeningFinding
-	16, // 20: chainguard.platform.skills.v1alpha1.Taxonomy.Group.subtypes:type_name -> chainguard.platform.skills.v1alpha1.Taxonomy.Subtype
-	0,  // 21: chainguard.platform.skills.v1alpha1.HardeningReport.Unrouted.severity:type_name -> chainguard.platform.skills.v1alpha1.FindingSeverity
-	0,  // 22: chainguard.platform.skills.v1alpha1.HardeningFinding.Source.severity:type_name -> chainguard.platform.skills.v1alpha1.FindingSeverity
-	6,  // 23: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.GetHardeningReport:input_type -> chainguard.platform.skills.v1alpha1.GetHardeningReportRequest
-	9,  // 24: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.ListHardeningReports:input_type -> chainguard.platform.skills.v1alpha1.ListHardeningReportsRequest
-	11, // 25: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.GetTaxonomy:input_type -> chainguard.platform.skills.v1alpha1.GetTaxonomyRequest
-	7,  // 26: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.ListHardeningFindings:input_type -> chainguard.platform.skills.v1alpha1.ListHardeningFindingsRequest
-	12, // 27: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.UpdateTaxonomy:input_type -> chainguard.platform.skills.v1alpha1.UpdateTaxonomyRequest
-	13, // 28: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.UpdateHardeningReport:input_type -> chainguard.platform.skills.v1alpha1.UpdateHardeningReportRequest
-	14, // 29: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.DeleteHardeningReport:input_type -> chainguard.platform.skills.v1alpha1.DeleteHardeningReportRequest
-	4,  // 30: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.GetHardeningReport:output_type -> chainguard.platform.skills.v1alpha1.HardeningReport
-	10, // 31: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.ListHardeningReports:output_type -> chainguard.platform.skills.v1alpha1.ListHardeningReportsResponse
-	2,  // 32: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.GetTaxonomy:output_type -> chainguard.platform.skills.v1alpha1.Taxonomy
-	8,  // 33: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.ListHardeningFindings:output_type -> chainguard.platform.skills.v1alpha1.ListHardeningFindingsResponse
-	2,  // 34: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.UpdateTaxonomy:output_type -> chainguard.platform.skills.v1alpha1.Taxonomy
-	4,  // 35: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.UpdateHardeningReport:output_type -> chainguard.platform.skills.v1alpha1.HardeningReport
-	22, // 36: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.DeleteHardeningReport:output_type -> google.protobuf.Empty
-	30, // [30:37] is the sub-list for method output_type
-	23, // [23:30] is the sub-list for method input_type
-	23, // [23:23] is the sub-list for extension type_name
-	23, // [23:23] is the sub-list for extension extendee
-	0,  // [0:23] is the sub-list for field type_name
+	17, // 0: chainguard.platform.skills.v1alpha1.Taxonomy.groups:type_name -> chainguard.platform.skills.v1alpha1.Taxonomy.Group
+	19, // 1: chainguard.platform.skills.v1alpha1.Taxonomy.checks:type_name -> chainguard.platform.skills.v1alpha1.Taxonomy.Check
+	23, // 2: chainguard.platform.skills.v1alpha1.Taxonomy.create_time:type_name -> google.protobuf.Timestamp
+	5,  // 3: chainguard.platform.skills.v1alpha1.HardeningReport.before:type_name -> chainguard.platform.skills.v1alpha1.SeverityCounts
+	5,  // 4: chainguard.platform.skills.v1alpha1.HardeningReport.after:type_name -> chainguard.platform.skills.v1alpha1.SeverityCounts
+	20, // 5: chainguard.platform.skills.v1alpha1.HardeningReport.unrouted_entries:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport.Unrouted
+	23, // 6: chainguard.platform.skills.v1alpha1.HardeningReport.generate_time:type_name -> google.protobuf.Timestamp
+	23, // 7: chainguard.platform.skills.v1alpha1.HardeningReport.create_time:type_name -> google.protobuf.Timestamp
+	23, // 8: chainguard.platform.skills.v1alpha1.HardeningReport.update_time:type_name -> google.protobuf.Timestamp
+	21, // 9: chainguard.platform.skills.v1alpha1.HardeningReport.scanner_runs:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun
+	0,  // 10: chainguard.platform.skills.v1alpha1.HardeningFinding.severity:type_name -> chainguard.platform.skills.v1alpha1.FindingSeverity
+	1,  // 11: chainguard.platform.skills.v1alpha1.HardeningFinding.status:type_name -> chainguard.platform.skills.v1alpha1.FindingStatus
+	22, // 12: chainguard.platform.skills.v1alpha1.HardeningFinding.sources:type_name -> chainguard.platform.skills.v1alpha1.HardeningFinding.Source
+	1,  // 13: chainguard.platform.skills.v1alpha1.ListHardeningFindingsRequest.statuses:type_name -> chainguard.platform.skills.v1alpha1.FindingStatus
+	0,  // 14: chainguard.platform.skills.v1alpha1.ListHardeningFindingsRequest.severities:type_name -> chainguard.platform.skills.v1alpha1.FindingSeverity
+	7,  // 15: chainguard.platform.skills.v1alpha1.ListHardeningFindingsResponse.findings:type_name -> chainguard.platform.skills.v1alpha1.HardeningFinding
+	24, // 16: chainguard.platform.skills.v1alpha1.ListHardeningReportsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	6,  // 17: chainguard.platform.skills.v1alpha1.ListHardeningReportsResponse.reports:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport
+	4,  // 18: chainguard.platform.skills.v1alpha1.UpdateTaxonomyRequest.taxonomy:type_name -> chainguard.platform.skills.v1alpha1.Taxonomy
+	6,  // 19: chainguard.platform.skills.v1alpha1.UpdateHardeningReportRequest.report:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport
+	7,  // 20: chainguard.platform.skills.v1alpha1.UpdateHardeningReportRequest.findings:type_name -> chainguard.platform.skills.v1alpha1.HardeningFinding
+	18, // 21: chainguard.platform.skills.v1alpha1.Taxonomy.Group.subtypes:type_name -> chainguard.platform.skills.v1alpha1.Taxonomy.Subtype
+	0,  // 22: chainguard.platform.skills.v1alpha1.HardeningReport.Unrouted.severity:type_name -> chainguard.platform.skills.v1alpha1.FindingSeverity
+	2,  // 23: chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun.phase:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun.Phase
+	3,  // 24: chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun.status:type_name -> chainguard.platform.skills.v1alpha1.HardeningReport.ScannerRun.Status
+	0,  // 25: chainguard.platform.skills.v1alpha1.HardeningFinding.Source.severity:type_name -> chainguard.platform.skills.v1alpha1.FindingSeverity
+	8,  // 26: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.GetHardeningReport:input_type -> chainguard.platform.skills.v1alpha1.GetHardeningReportRequest
+	11, // 27: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.ListHardeningReports:input_type -> chainguard.platform.skills.v1alpha1.ListHardeningReportsRequest
+	13, // 28: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.GetTaxonomy:input_type -> chainguard.platform.skills.v1alpha1.GetTaxonomyRequest
+	9,  // 29: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.ListHardeningFindings:input_type -> chainguard.platform.skills.v1alpha1.ListHardeningFindingsRequest
+	14, // 30: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.UpdateTaxonomy:input_type -> chainguard.platform.skills.v1alpha1.UpdateTaxonomyRequest
+	15, // 31: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.UpdateHardeningReport:input_type -> chainguard.platform.skills.v1alpha1.UpdateHardeningReportRequest
+	16, // 32: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.DeleteHardeningReport:input_type -> chainguard.platform.skills.v1alpha1.DeleteHardeningReportRequest
+	6,  // 33: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.GetHardeningReport:output_type -> chainguard.platform.skills.v1alpha1.HardeningReport
+	12, // 34: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.ListHardeningReports:output_type -> chainguard.platform.skills.v1alpha1.ListHardeningReportsResponse
+	4,  // 35: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.GetTaxonomy:output_type -> chainguard.platform.skills.v1alpha1.Taxonomy
+	10, // 36: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.ListHardeningFindings:output_type -> chainguard.platform.skills.v1alpha1.ListHardeningFindingsResponse
+	4,  // 37: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.UpdateTaxonomy:output_type -> chainguard.platform.skills.v1alpha1.Taxonomy
+	6,  // 38: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.UpdateHardeningReport:output_type -> chainguard.platform.skills.v1alpha1.HardeningReport
+	25, // 39: chainguard.platform.skills.v1alpha1.SkillsHardeningReports.DeleteHardeningReport:output_type -> google.protobuf.Empty
+	33, // [33:40] is the sub-list for method output_type
+	26, // [26:33] is the sub-list for method input_type
+	26, // [26:26] is the sub-list for extension type_name
+	26, // [26:26] is the sub-list for extension extendee
+	0,  // [0:26] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_init() }
@@ -1811,8 +2013,8 @@ func file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDesc), len(file_chainguard_platform_skills_v1alpha1_hardening_reports_proto_rawDesc)),
-			NumEnums:      2,
-			NumMessages:   18,
+			NumEnums:      4,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
