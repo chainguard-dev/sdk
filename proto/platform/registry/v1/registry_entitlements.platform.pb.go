@@ -1759,14 +1759,14 @@ const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\x10PLAN_UNSPECIFIED\x10\x00\x12\r\n" +
 	"\tPER_IMAGE\x10\x01\x12\v\n" +
 	"\aCATALOG\x10\x02\x12\v\n" +
-	"\aSTARTER\x10\x032\xd7\x15\n" +
+	"\aSTARTER\x10\x032\xda\x15\n" +
 	"\fEntitlements\x12\xc6\x01\n" +
 	"\x10ListEntitlements\x12/.chainguard.platform.registry.EntitlementFilter\x1a-.chainguard.platform.registry.EntitlementList\"R\x92A\x16\n" +
 	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x02'\x12%/registry/v1/entitlements/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\x90\r\x12\xde\x01\n" +
-	"\x15ListEntitlementImages\x125.chainguard.platform.registry.EntitlementImagesFilter\x1a3.chainguard.platform.registry.EntitlementImagesList\"Y\x92A\x16\n" +
+	"\x02\x90\r\x12\xe1\x01\n" +
+	"\x15ListEntitlementImages\x125.chainguard.platform.registry.EntitlementImagesFilter\x1a3.chainguard.platform.registry.EntitlementImagesList\"\\\x92A\x16\n" +
 	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x02.\x12,/registry/v1/entitlements/{parent=**}/images\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\x90\r\x12\xed\x01\n" +
+	"\x02\x90\r\x88\x02\x01\x12\xed\x01\n" +
 	"\x1cListEntitlementCatalogImages\x125.chainguard.platform.registry.EntitlementImagesFilter\x1a3.chainguard.platform.registry.EntitlementImagesList\"a\x92A\x16\n" +
 	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x026\x124/registry/v1/entitlements/{parent=**}/catalog-images\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x90\r\x12\xd8\x01\n" +

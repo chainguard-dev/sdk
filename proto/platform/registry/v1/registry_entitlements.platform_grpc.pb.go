@@ -41,6 +41,8 @@ const (
 // NOTE: This API is EARLY ACCESS and is subject to change without notice.
 type EntitlementsClient interface {
 	ListEntitlements(ctx context.Context, in *EntitlementFilter, opts ...grpc.CallOption) (*EntitlementList, error)
+	// Deprecated: Do not use.
+	// Deprecated: use ListEntitlementCatalogImages.
 	ListEntitlementImages(ctx context.Context, in *EntitlementImagesFilter, opts ...grpc.CallOption) (*EntitlementImagesList, error)
 	// ListEntitlementCatalogImages returns catalog images for per-repo entitlements only.
 	// AYCE entitlements return empty list since access is captured in parent Entitlement.
@@ -121,6 +123,7 @@ func (c *entitlementsClient) ListEntitlements(ctx context.Context, in *Entitleme
 	return out, nil
 }
 
+// Deprecated: Do not use.
 func (c *entitlementsClient) ListEntitlementImages(ctx context.Context, in *EntitlementImagesFilter, opts ...grpc.CallOption) (*EntitlementImagesList, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(EntitlementImagesList)
@@ -229,6 +232,8 @@ func (c *entitlementsClient) SwapEntitlementImages(ctx context.Context, in *Swap
 // NOTE: This API is EARLY ACCESS and is subject to change without notice.
 type EntitlementsServer interface {
 	ListEntitlements(context.Context, *EntitlementFilter) (*EntitlementList, error)
+	// Deprecated: Do not use.
+	// Deprecated: use ListEntitlementCatalogImages.
 	ListEntitlementImages(context.Context, *EntitlementImagesFilter) (*EntitlementImagesList, error)
 	// ListEntitlementCatalogImages returns catalog images for per-repo entitlements only.
 	// AYCE entitlements return empty list since access is captured in parent Entitlement.

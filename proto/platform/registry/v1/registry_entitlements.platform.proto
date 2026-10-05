@@ -30,7 +30,9 @@ service Entitlements {
       }
     };
   }
+  // Deprecated: use ListEntitlementCatalogImages.
   rpc ListEntitlementImages(EntitlementImagesFilter) returns (EntitlementImagesList) {
+    option deprecated = true;
     option (google.api.http) = {get: "/registry/v1/entitlements/{parent=**}/images"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {tags: "RegistryEntitlements"};
     option (chainguard.annotations.iam) = {
