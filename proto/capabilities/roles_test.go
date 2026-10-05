@@ -83,6 +83,44 @@ func TestConsoleViewerCapsGuardenerEntitlement(t *testing.T) {
 	}
 }
 
+// TestTelemetryContainersListFollowsGuardenerScanList pins that a role set
+// can list the container images telemetry derives from a group's guardener
+// scans exactly when it can list those scans, so a regression can't silently
+// leave the telemetry read ungranted or grant it on its own.
+func TestTelemetryContainersListFollowsGuardenerScanList(t *testing.T) {
+	tests := []struct {
+		name     string
+		caps     []Capability
+		wantScan bool
+	}{
+		{name: "ConsoleViewerCaps", caps: ConsoleViewerCaps, wantScan: true},
+		{name: "ViewerCaps", caps: ViewerCaps, wantScan: true},
+		{name: "EditorCaps", caps: EditorCaps, wantScan: true},
+		{name: "OwnerCaps", caps: OwnerCaps, wantScan: true},
+		{name: "GuardenerUserCaps", caps: GuardenerUserCaps, wantScan: true},
+		{name: "GuardenerAdminCaps", caps: GuardenerAdminCaps, wantScan: true},
+		{name: "RegistryPullCaps", caps: RegistryPullCaps},
+		{name: "RegistryEditorCaps", caps: RegistryEditorCaps},
+		{name: "AdvisoriesViewerCaps", caps: AdvisoriesViewerCaps},
+		{name: "ActionsViewerCaps", caps: ActionsViewerCaps},
+		{name: "SkillsPublishCaps", caps: SkillsPublishCaps},
+		{name: "MCPToolUserCaps", caps: MCPToolUserCaps},
+		{name: "SandboxUserCaps", caps: SandboxUserCaps},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			scan := slices.Contains(tt.caps, Capability_CAP_GUARDENER_SCAN_LIST)
+			telemetry := slices.Contains(tt.caps, Capability_CAP_TELEMETRY_CONTAINERS_LIST)
+			if scan != tt.wantScan {
+				t.Errorf("%v present = %t, want %t", Capability_CAP_GUARDENER_SCAN_LIST, scan, tt.wantScan)
+			}
+			if telemetry != scan {
+				t.Errorf("%v present = %t, want %t (matching %v)", Capability_CAP_TELEMETRY_CONTAINERS_LIST, telemetry, scan, Capability_CAP_GUARDENER_SCAN_LIST)
+			}
+		})
+	}
+}
+
 func TestSortCaps(t *testing.T) {
 	tests := []struct {
 		name      string

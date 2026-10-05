@@ -6,8 +6,9 @@ SPDX-License-Identifier: Apache-2.0
 package capabilities
 
 import (
+	"slices"
+
 	"golang.org/x/exp/maps"
-	"golang.org/x/exp/slices"
 )
 
 var (
@@ -83,6 +84,8 @@ var (
 		Capability_CAP_GUARDENER_ENTITLEMENT_LIST,
 		Capability_CAP_GUARDENER_SCAN_LIST,
 		Capability_CAP_GUARDENER_SCAN_GET,
+
+		Capability_CAP_TELEMETRY_CONTAINERS_LIST,
 	})
 
 	// ViewerCaps are read-only capabilities that do not affect state,
@@ -519,7 +522,8 @@ var (
 	// actions.migrate and images.migrate let users enqueue the repository's
 	// configured migrations in the group. scan.list/scan.get let
 	// users read the dependency scans guardener builds for the group's
-	// repositories.
+	// repositories. telemetry.containers.list lets users read the container
+	// images telemetry derives from those scans.
 	GuardenerUserCaps = SortCaps([]Capability{
 		Capability_CAP_GUARDENER_DFC_CONVERT,
 		Capability_CAP_GUARDENER_ASSOCIATION_LIST,
@@ -527,6 +531,7 @@ var (
 		Capability_CAP_GUARDENER_IMAGES_MIGRATE,
 		Capability_CAP_GUARDENER_SCAN_LIST,
 		Capability_CAP_GUARDENER_SCAN_GET,
+		Capability_CAP_TELEMETRY_CONTAINERS_LIST,
 		Capability_CAP_TERMS_LIST,
 	}, RegistryPullCaps)
 
@@ -625,6 +630,6 @@ func SortCaps(caps ...[]Capability) []Capability {
 		}
 	}
 	out := maps.Keys(uniq)
-	slices.Sort(out) // These are sorted by enum value, not string name
+	slices.Sort(out) // Sort by enum value, not string name.
 	return out
 }

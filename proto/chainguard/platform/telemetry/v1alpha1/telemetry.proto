@@ -1,0 +1,467 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.telemetry.v1alpha1;
+
+import "annotations/auth.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/type/date.proto";
+
+// protolint:disable:next MAX_LINE_LENGTH
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/telemetry/v1alpha1";
+option java_multiple_files = true;
+option java_outer_classname = "TelemetryProto";
+option java_package = "com.chainguard.platform.telemetry.v1alpha1";
+
+// TelemetryService is the customer-facing read surface for the telemetry a
+// group's linked repositories produce. It covers the container images those
+// repositories declare, as observed from guardener's dependency scans.
+service TelemetryService {
+  // ListImages lists the container images a group's linked repositories
+  // declare now, one entry per image with the repositories that declare it.
+  // It covers each repository's latest scan only; a repository whose latest
+  // scan declares no images contributes nothing, and a repository no longer
+  // scanned drops out. Use ListContainers for history.
+  //
+  // An image is keyed by (image_repository, tag), or by (image_repository,
+  // digest) when the reference carries no tag, so one tag resolved to
+  // different digests across repositories is one entry.
+  //
+  // Images are ordered migration-ready first, then by repository_count
+  // descending, then by image_repository, tag, and digest ascending. Paging
+  // is offset-based over that order, so an ingest landing between requests
+  // can shift later pages: an entry can repeat on the next page or be skipped.
+  rpc ListImages(ListImagesRequest) returns (ListImagesResponse) {
+    option (google.api.http) = {get: "/telemetry/v1alpha1/{group=**}/images"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TELEMETRY_CONTAINERS_LIST]
+      }
+    };
+  }
+
+  // SummarizeImages returns the coverage counts over the same images
+  // ListImages lists: how many there are in total and per category, and how
+  // many repositories are scanned.
+  rpc SummarizeImages(SummarizeImagesRequest) returns (ImageSummary) {
+    // protolint:disable:next MAX_LINE_LENGTH
+    option (google.api.http) = {get: "/telemetry/v1alpha1/{group=**}/images:summary"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TELEMETRY_CONTAINERS_LIST]
+      }
+    };
+  }
+
+  // ListContainers lists the container-image references a group's linked
+  // repositories declare, optionally filtered to one repository. Each entry is
+  // one image reference observed in one repository, with the files that
+  // declared it. A group (or filtered repository) with no observations yields
+  // an empty list.
+  //
+  // The listing is history, not only each repository's latest scan: it lists
+  // the stored observations, one per repository, commit, and image. An
+  // observation keeps the scan_time of the scan that first recorded it, so
+  // rescanning a commit does not refresh the images already seen there.
+  //
+  // Observations are not grouped by scan, so the listing cannot say exactly
+  // what a repository declares now; ListImages does. A rescan records only
+  // images not already stored, and a scan that finds no images records
+  // nothing, so a repository's newest entry can belong to an earlier scan
+  // than the latest one.
+  //
+  // Paging reaches roughly the first 10,000 entries; no next_page_token is
+  // issued past that offset. Filter by source_repository to reach older
+  // history of a large group.
+  rpc ListContainers(ListContainersRequest) returns (ListContainersResponse) {
+    // protolint:disable:next MAX_LINE_LENGTH
+    option (google.api.http) = {get: "/telemetry/v1alpha1/{group=**}/containers"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TELEMETRY_CONTAINERS_LIST]
+      }
+    };
+  }
+}
+
+message ListContainersRequest {
+  // UIDP of the caller's group; the IAM scope. Observations are stored per
+  // group, so this scopes the listing to the group's own repositories.
+  string group = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Optional: filters the listing to one scanned repository, as its
+  // host-prefixed path, e.g. "github.com/owner/repo". Carried as a query
+  // parameter over HTTP, since the group UIDP is the multi-segment URL path
+  // variable.
+  string source_repository = 2;
+
+  // Maximum number of results to return per page. Defaults to 50 when unset
+  // or zero; values above 1000 are capped at 1000. A negative value is
+  // rejected.
+  int32 page_size = 3;
+
+  // Page token from a previous response's next_page_token. Paging is
+  // offset-based, so if new scans land between requests, later pages shift:
+  // an entry can repeat on the next page or be skipped.
+  string page_token = 4;
+
+  // Optional: filters the listing to one image repository, e.g.
+  // "docker.io/library/nginx". These filters select historical observations;
+  // they do not enumerate a ListImages entry's current usages.
+  string image_repository = 5;
+
+  // Optional: filters the listing to one tag. Empty matches every tag.
+  string tag = 6;
+
+  // Optional: filters the listing to one sha256: digest. Empty matches every
+  // digest. This also matches tagged references resolved to the digest; an
+  // empty tag is not a filter for digest-only references. The image filters
+  // combine: every set one must match.
+  string digest = 7;
+}
+
+message ListContainersResponse {
+  // The matching container-image observations, ordered newest first
+  // (scan_time descending).
+  repeated Container containers = 1;
+
+  // Token for the next page of results. Empty when there are no more results
+  // or when the next page would start past offset 10,000.
+  string next_page_token = 2;
+}
+
+// Container is one container-image reference a scanned repository declares at
+// one commit. The image is identified by (image_repository, tag, digest); the
+// observation is unique per (group, source_repository, commit_sha) and that
+// image identity, so the same image declared at two commits is two entries.
+message Container {
+  // ReferenceKind is how precisely the reference identifies an image.
+  enum ReferenceKind {
+    // Unspecified is returned for a kind this API version does not know.
+    REFERENCE_KIND_UNSPECIFIED = 0;
+    // The reference carries a digest and no tag. It covers both repo@digest
+    // and repo:tag@digest, since the scanner drops the tag from the second
+    // form.
+    // buf:lint:ignore ENUM_VALUE_PREFIX
+    // protolint:disable:next ENUM_FIELD_NAMES_PREFIX
+    DIGEST_PINNED = 1;
+    // A tag reference the scanner resolved to a digest.
+    // buf:lint:ignore ENUM_VALUE_PREFIX
+    // protolint:disable:next ENUM_FIELD_NAMES_PREFIX
+    RESOLVED_TAG = 2;
+    // A tag reference with no digest, because resolution was unsupported or
+    // unsuccessful.
+    // buf:lint:ignore ENUM_VALUE_PREFIX
+    // protolint:disable:next ENUM_FIELD_NAMES_PREFIX
+    TAG_ONLY = 3;
+  }
+
+  // UIDP of the group that owns the scanned repository.
+  string group = 1;
+
+  // The scanned repository, as its host-prefixed path, e.g.
+  // "github.com/owner/repo".
+  string source_repository = 2;
+
+  // The commit the scan ran against.
+  string commit_sha = 3;
+
+  // When the scan ran.
+  google.protobuf.Timestamp scan_time = 4;
+
+  // Opaque id of the guardener scan the observation came from. Carried for
+  // tracing; not part of the container's identity.
+  string scan_id = 5;
+
+  // The image repository, the authoritative identity, e.g.
+  // "cgr.dev/chainguard/static".
+  string image_repository = 6;
+
+  // The registry host, e.g. "cgr.dev".
+  string registry = 7;
+
+  // The repository path within the registry, e.g. "chainguard/static".
+  string repository_path = 8;
+
+  // The tag, if the reference carries one.
+  string tag = 9;
+
+  // The sha256: digest, if the reference carries one.
+  string digest = 10;
+
+  // How precisely the reference identifies an image.
+  ReferenceKind reference_kind = 11;
+
+  // Repository-relative paths of the files that declared the image, sorted
+  // (e.g. "Dockerfile", "deploy/compose.yaml").
+  repeated string paths = 12;
+
+  // The raw package URL (https://github.com/package-url/purl-spec) of the
+  // reference, kept for audit; not part of the container's identity.
+  string purl = 13;
+}
+
+// ImageCategory classifies an image by how it relates to Chainguard's catalog.
+// Every image has exactly one category: the first of CHAINGUARD,
+// MIGRATION_READY, CUSTOMER_BUILT, NO_EQUIVALENT that applies, else
+// UNCLASSIFIED. The per-category counts in ImageSummary therefore add up to
+// its total_images.
+enum ImageCategory {
+  // Unspecified is returned for a category this API version does not know.
+  IMAGE_CATEGORY_UNSPECIFIED = 0;
+  // The image is served from cgr.dev, including images a customer builds
+  // there with custom assembly.
+  IMAGE_CATEGORY_CHAINGUARD = 1;
+  // The image is not a Chainguard image and has a Chainguard equivalent it
+  // can migrate to; see Image.equivalent.
+  IMAGE_CATEGORY_MIGRATION_READY = 2;
+  // The image comes from a known public registry and Chainguard's catalog
+  // has no equivalent for it.
+  IMAGE_CATEGORY_NO_EQUIVALENT = 3;
+  // The image is built by the customer, so no Chainguard equivalent applies.
+  IMAGE_CATEGORY_CUSTOMER_BUILT = 4;
+  // The image could not be placed in any other category, e.g. it comes from
+  // a private registry or mirror whose origin is not known.
+  IMAGE_CATEGORY_UNCLASSIFIED = 5;
+}
+
+message ListImagesRequest {
+  // UIDP of the caller's group; the IAM scope.
+  string group = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Optional: lists only images in these categories. Empty lists every
+  // category. IMAGE_CATEGORY_UNSPECIFIED is rejected.
+  repeated ImageCategory categories = 2;
+
+  // Optional: lists only images declared by this scanned repository, as its
+  // host-prefixed path, e.g. "github.com/owner/repo". Guardener's ListScans
+  // lists the scanned repositories.
+  string source_repository = 3;
+
+  // Maximum number of results to return per page. Defaults to 50 when unset
+  // or zero; values above 200 are capped at 200. A negative value is
+  // rejected.
+  int32 page_size = 4;
+
+  // Page token from a previous response's next_page_token. A token is bound
+  // to the filters it was issued for and is rejected with any others.
+  string page_token = 5;
+
+  // Number of matching images to skip, after the page_token position when
+  // set, or from the beginning otherwise. Supports jumping to an arbitrary
+  // page without fetching earlier pages. Must be non-negative; a resulting
+  // offset above 10,000 is rejected. Skipping past the available images
+  // returns an empty page without a next_page_token; total_size is unchanged.
+  int32 skip = 6 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListImagesResponse {
+  // The matching images, in the order ListImages documents.
+  repeated Image images = 1;
+
+  // Token for the next page of results. Empty when there are no more results
+  // or when the next page would start past offset 10,000.
+  string next_page_token = 2;
+
+  // The number of images matching the filters, across all pages.
+  int32 total_size = 3;
+}
+
+// Image is one container image a group's repositories declare, with where
+// they declare it.
+message Image {
+  // The image repository, e.g. "docker.io/library/nginx".
+  string image_repository = 1;
+
+  // The registry host, e.g. "docker.io".
+  string registry = 2;
+
+  // The repository path within the registry, e.g. "library/nginx".
+  string repository_path = 3;
+
+  // The tag. Empty when the image is referenced by digest alone.
+  string tag = 4;
+
+  // The sha256: digest, set only when the image is referenced by digest
+  // alone. A tagged image carries its resolved digests on each Usage.
+  string digest = 5;
+
+  // The image's category.
+  ImageCategory category = 6;
+
+  // The number of distinct repositories that declare the image.
+  int32 repository_count = 7;
+
+  // Where the image is declared, one entry per repository, ordered by
+  // source_repository. Capped at 10 entries; see usages_truncated.
+  // ListContainers provides historical declarations and cannot enumerate
+  // the remaining current usages.
+  repeated Usage usages = 8;
+
+  // True when usages holds fewer entries than repository_count.
+  bool usages_truncated = 9;
+
+  // The Chainguard image this one can migrate to. Set only for
+  // IMAGE_CATEGORY_MIGRATION_READY.
+  ChainguardEquivalent equivalent = 10;
+
+  // The vulnerabilities known for this image.
+  VulnerabilitySummary vulnerabilities = 11;
+}
+
+// Usage is one repository declaring an image at its latest scan.
+message Usage {
+  // The scanned repository, as its host-prefixed path, e.g.
+  // "github.com/owner/repo".
+  string source_repository = 1;
+
+  // The commit the repository's latest scan ran against.
+  string commit_sha = 2;
+
+  // When the repository's latest scan ran.
+  google.protobuf.Timestamp scan_time = 3;
+
+  // Repository-relative paths of the files that declared the image, sorted.
+  repeated string paths = 4;
+
+  // The sha256: digest the reference carries or resolved to, if any.
+  string digest = 5;
+
+  // How precisely the reference identifies an image.
+  Container.ReferenceKind reference_kind = 6;
+}
+
+// ChainguardEquivalent is the Chainguard image an image can migrate to.
+message ChainguardEquivalent {
+  // MatchKind is how the equivalent was matched to the image.
+  enum MatchKind {
+    // Unspecified is returned for a match kind this API version does not
+    // know.
+    MATCH_KIND_UNSPECIFIED = 0;
+    // The Chainguard image lists the image as an alias it replaces.
+    MATCH_KIND_ALIAS = 1;
+    // The image's repository path ends in a Chainguard alias, e.g. an image
+    // pulled through a private mirror.
+    MATCH_KIND_PATH_SUFFIX = 2;
+    // The image's name matches a Chainguard image's name.
+    MATCH_KIND_NAME = 3;
+  }
+
+  // The Chainguard image repository, e.g. "cgr.dev/example.com/nginx".
+  string image_repository = 1;
+
+  // The Chainguard tag matched to the image's tag.
+  string tag = 2;
+
+  // Whether Chainguard actively maintains the matched tag.
+  bool tag_maintained = 3;
+
+  // How the equivalent was matched.
+  MatchKind match_kind = 4;
+
+  // The vulnerabilities known for the equivalent.
+  VulnerabilitySummary vulnerabilities = 5;
+}
+
+// VulnerabilitySummary counts the vulnerabilities a scan found in one image
+// reference. The scanned reference can differ from the declared one: an
+// upstream image is scanned at the tag Chainguard tracks for it, not at every
+// tag customers declare.
+message VulnerabilitySummary {
+  // Status is whether vulnerability data is available.
+  enum Status {
+    // No vulnerability data is available; the counts are not meaningful.
+    STATUS_UNSPECIFIED = 0;
+    // The counts come from a scan of scanned_reference.
+    STATUS_AVAILABLE = 1;
+  }
+
+  // Whether the counts are meaningful.
+  Status status = 1;
+
+  // protolint:disable:next MAX_LINE_LENGTH
+  // The image reference that was scanned, e.g. "docker.io/library/nginx:latest".
+  string scanned_reference = 2;
+
+  // The day of the scan the counts come from.
+  google.type.Date report_date = 3;
+
+  // The vulnerabilities the scan found.
+  VulnerabilityCounts counts = 4;
+}
+
+// VulnerabilityCounts counts vulnerabilities by severity.
+message VulnerabilityCounts {
+  int32 critical = 1;
+  int32 high = 2;
+  int32 medium = 3;
+  int32 low = 4;
+  // Vulnerabilities of negligible or unknown severity.
+  int32 other = 5;
+}
+
+message SummarizeImagesRequest {
+  // UIDP of the caller's group; the IAM scope.
+  string group = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// ImageSummary counts the images ListImages lists for a group, unfiltered.
+message ImageSummary {
+  // The number of distinct images.
+  int32 total_images = 1;
+
+  // Images and repositories per category, one entry per category, ordered by
+  // category.
+  repeated CategoryCount categories = 2;
+
+  // The number of repositories with a latest scan, including those whose
+  // latest scan declares no images.
+  int32 scanned_repositories = 3;
+
+  // The number of repositories whose latest scan declares at least one image.
+  int32 repositories_with_images = 4;
+
+  // Vulnerabilities summed over the images whose vulnerabilities status is
+  // STATUS_AVAILABLE.
+  VulnerabilityCounts vulnerabilities = 5;
+
+  // The number of images that contributed to vulnerabilities.
+  int32 images_with_vulnerabilities = 6;
+
+  // Vulnerabilities summed over the Chainguard equivalents whose
+  // vulnerabilities status is STATUS_AVAILABLE.
+  VulnerabilityCounts equivalent_vulnerabilities = 7;
+
+  // The number of equivalents that contributed to equivalent_vulnerabilities.
+  int32 equivalents_with_vulnerabilities = 8;
+
+  // When the group's images were last ingested. Unset when they never were.
+  google.protobuf.Timestamp as_of = 9;
+}
+
+// CategoryCount counts the images in one category.
+message CategoryCount {
+  // The category.
+  ImageCategory category = 1;
+
+  // The number of images in the category.
+  int32 images = 2;
+
+  // The number of distinct repositories declaring an image in the category. A
+  // repository declaring images in several categories counts in each, so
+  // these do not add up to ImageSummary.repositories_with_images.
+  int32 repositories = 3;
+}

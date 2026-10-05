@@ -458,6 +458,10 @@ const (
 	// administrative power held by Owners, not by sandbox.user.
 	Capability_CAP_SANDBOX_SESSION_CREATE Capability = 3010
 	Capability_CAP_SANDBOX_SESSION_LIST   Capability = 3011
+	// Telemetry: read access to the container images a group's linked
+	// repositories declare, as observed by the telemetry reconciler.
+	// protolint:disable:next ENUM_FIELD_NAMES_PREFIX MAX_LINE_LENGTH
+	Capability_CAP_TELEMETRY_CONTAINERS_LIST Capability = 3101
 )
 
 // Enum value maps for Capability.
@@ -699,6 +703,7 @@ var (
 		3202:  "CAP_ENTITLEMENTS_FEATURES_MANAGE",
 		3010:  "CAP_SANDBOX_SESSION_CREATE",
 		3011:  "CAP_SANDBOX_SESSION_LIST",
+		3101:  "CAP_TELEMETRY_CONTAINERS_LIST",
 	}
 	Capability_value = map[string]int32{
 		"UNKNOWN":                                            0,
@@ -937,6 +942,7 @@ var (
 		"CAP_ENTITLEMENTS_FEATURES_MANAGE":                   3202,
 		"CAP_SANDBOX_SESSION_CREATE":                         3010,
 		"CAP_SANDBOX_SESSION_LIST":                           3011,
+		"CAP_TELEMETRY_CONTAINERS_LIST":                      3101,
 	}
 )
 
@@ -1020,7 +1026,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*܁\x01\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xa7\x82\x01\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1277,7 +1283,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x1eCAP_ENTITLEMENTS_FEATURES_LIST\x10\x81\x19\x1a,\xa8ˑM\xee\x01\x9a\xaf\xa8\xd2\x05\x1aentitlements.features.list\xa0\xaf\xa8\xd2\x05\x01\x12U\n" +
 	" CAP_ENTITLEMENTS_FEATURES_MANAGE\x10\x82\x19\x1a.\xa8ˑM\xef\x01\x9a\xaf\xa8\xd2\x05\x1centitlements.features.manage\xa0\xaf\xa8\xd2\x05\x01\x12C\n" +
 	"\x1aCAP_SANDBOX_SESSION_CREATE\x10\xc2\x17\x1a\"\xa8ˑM\xeb\x01\x9a\xaf\xa8\xd2\x05\x16sandbox.session.create\x12?\n" +
-	"\x18CAP_SANDBOX_SESSION_LIST\x10\xc3\x17\x1a \xa8ˑM\xec\x01\x9a\xaf\xa8\xd2\x05\x14sandbox.session.list\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x06\b\xd1\x0e\x10\xd1\x0e\"\x04\b\x01\x10\x01:8\n" +
+	"\x18CAP_SANDBOX_SESSION_LIST\x10\xc3\x17\x1a \xa8ˑM\xec\x01\x9a\xaf\xa8\xd2\x05\x14sandbox.session.list\x12I\n" +
+	"\x1dCAP_TELEMETRY_CONTAINERS_LIST\x10\x9d\x18\x1a%\xa8ˑM\xf1\x01\x9a\xaf\xa8\xd2\x05\x19telemetry.containers.list\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x06\b\xd1\x0e\x10\xd1\x0e\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +
 	"\x03bit\x12!.google.protobuf.EnumValueOptions\x18\xb5\x99\xd2\t \x01(\rR\x03bit:I\n" +
 	"\rinternal_only\x12!.google.protobuf.EnumValueOptions\x18\xf4\x85\xa5Z \x01(\bR\finternalOnlyB'Z%chainguard.dev/sdk/proto/capabilitiesb\x06proto3"

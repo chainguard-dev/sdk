@@ -557,6 +557,11 @@ enum Capability {
   CAP_SANDBOX_SESSION_CREATE = 3010 [(name) = "sandbox.session.create", (bit) = 235];
   CAP_SANDBOX_SESSION_LIST   = 3011 [(name) = "sandbox.session.list",   (bit) = 236];
 
+  // Telemetry: read access to the container images a group's linked
+  // repositories declare, as observed by the telemetry reconciler.
+  // protolint:disable:next ENUM_FIELD_NAMES_PREFIX MAX_LINE_LENGTH
+  CAP_TELEMETRY_CONTAINERS_LIST = 3101 [(name) = "telemetry.containers.list", (bit) = 241];
+
   reserved 1;
-  // next bit: 241
+  // next bit: 242
 }
