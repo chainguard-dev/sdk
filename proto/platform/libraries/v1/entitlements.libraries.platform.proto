@@ -138,6 +138,10 @@ enum Source {
   SOURCE_UNKNOWN = 0; // default; treat as SOURCE_TRIAL for backwards compatibility
   SOURCE_TRIAL = 1;   // self-service trial entitlement
   SOURCE_SFDC = 2;    // created or managed via Salesforce
+  SOURCE_AWS_MARKETPLACE = 3; // managed by an AWS Marketplace subscription
+  SOURCE_CONSOLE_ADMIN = 4; // managed by a Chainguard administrator
+  SOURCE_GITHUB_YAML = 5; // managed by a GitHub YAML declaration
+  SOURCE_INTERNAL = 6; // managed by first-party Chainguard automation
 }
 
 message CreateEntitlementRequest {

@@ -175,9 +175,13 @@ func (Policy) EnumDescriptor() ([]byte, []int) {
 type Source int32
 
 const (
-	Source_SOURCE_UNKNOWN Source = 0 // default; treat as SOURCE_TRIAL for backwards compatibility
-	Source_SOURCE_TRIAL   Source = 1 // self-service trial entitlement
-	Source_SOURCE_SFDC    Source = 2 // created or managed via Salesforce
+	Source_SOURCE_UNKNOWN         Source = 0 // default; treat as SOURCE_TRIAL for backwards compatibility
+	Source_SOURCE_TRIAL           Source = 1 // self-service trial entitlement
+	Source_SOURCE_SFDC            Source = 2 // created or managed via Salesforce
+	Source_SOURCE_AWS_MARKETPLACE Source = 3 // managed by an AWS Marketplace subscription
+	Source_SOURCE_CONSOLE_ADMIN   Source = 4 // managed by a Chainguard administrator
+	Source_SOURCE_GITHUB_YAML     Source = 5 // managed by a GitHub YAML declaration
+	Source_SOURCE_INTERNAL        Source = 6 // managed by first-party Chainguard automation
 )
 
 // Enum value maps for Source.
@@ -186,11 +190,19 @@ var (
 		0: "SOURCE_UNKNOWN",
 		1: "SOURCE_TRIAL",
 		2: "SOURCE_SFDC",
+		3: "SOURCE_AWS_MARKETPLACE",
+		4: "SOURCE_CONSOLE_ADMIN",
+		5: "SOURCE_GITHUB_YAML",
+		6: "SOURCE_INTERNAL",
 	}
 	Source_value = map[string]int32{
-		"SOURCE_UNKNOWN": 0,
-		"SOURCE_TRIAL":   1,
-		"SOURCE_SFDC":    2,
+		"SOURCE_UNKNOWN":         0,
+		"SOURCE_TRIAL":           1,
+		"SOURCE_SFDC":            2,
+		"SOURCE_AWS_MARKETPLACE": 3,
+		"SOURCE_CONSOLE_ADMIN":   4,
+		"SOURCE_GITHUB_YAML":     5,
+		"SOURCE_INTERNAL":        6,
 	}
 )
 
@@ -582,11 +594,15 @@ const file_entitlements_libraries_platform_proto_rawDesc = "" +
 	"\x06Policy\x12\x12\n" +
 	"\x0ePOLICY_UNKNOWN\x10\x00\x12\x15\n" +
 	"\x11POLICY_CHAINGUARD\x10\x01\x12\"\n" +
-	"\x1ePOLICY_CHAINGUARD_AND_UPSTREAM\x10\x02*?\n" +
+	"\x1ePOLICY_CHAINGUARD_AND_UPSTREAM\x10\x02*\xa2\x01\n" +
 	"\x06Source\x12\x12\n" +
 	"\x0eSOURCE_UNKNOWN\x10\x00\x12\x10\n" +
 	"\fSOURCE_TRIAL\x10\x01\x12\x0f\n" +
-	"\vSOURCE_SFDC\x10\x022\x8b\x06\n" +
+	"\vSOURCE_SFDC\x10\x02\x12\x1a\n" +
+	"\x16SOURCE_AWS_MARKETPLACE\x10\x03\x12\x18\n" +
+	"\x14SOURCE_CONSOLE_ADMIN\x10\x04\x12\x16\n" +
+	"\x12SOURCE_GITHUB_YAML\x10\x05\x12\x13\n" +
+	"\x0fSOURCE_INTERNAL\x10\x062\x8b\x06\n" +
 	"\fEntitlements\x12\x97\x02\n" +
 	"\x06Create\x127.chainguard.platform.libraries.CreateEntitlementRequest\x1a*.chainguard.platform.libraries.Entitlement\"\xa7\x01\x92A\x17\n" +
 	"\x15LibrariesEntitlements\x82\xd3\xe4\x93\x026:\tecosystem\")/libraries/v1/entitlements/{parent_id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
