@@ -53,6 +53,10 @@ type GuardenerClient interface {
 	// repository and returns a long-running operation. The migration opens (or
 	// updates) a single pull request replacing upstream GitHub Actions with their
 	// Chainguard equivalents at version-equivalent tags.
+	// With configured_migrations set, registered workers check their repository
+	// opt-ins and report independent outcomes in one operation. Each feature
+	// requires its own migration capability. Permission refusals are feature
+	// results, and deployment-disabled features finish as successful no-ops.
 	//
 	// The caller's group must own the repository's GitHub installation (verified
 	// via a matching account_association); the resulting operation is namespaced
@@ -61,6 +65,9 @@ type GuardenerClient interface {
 	// GetMigrationOperation returns the current state of a migration operation
 	// previously returned by MigrateRepository. The operation name embeds the
 	// owning group's UIDP; group must match and is the IAM scope.
+	// Each feature's permission is checked separately; unauthorized feature
+	// details are replaced with a permission-denied result. Legacy operations
+	// require the Actions migration capability.
 	GetMigrationOperation(ctx context.Context, in *GetMigrationOperationRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
 	// ListScans lists summaries of a group's dependency scans — one per
 	// repository, its most recent scan — newest first, optionally filtered to
@@ -166,6 +173,10 @@ type GuardenerServer interface {
 	// repository and returns a long-running operation. The migration opens (or
 	// updates) a single pull request replacing upstream GitHub Actions with their
 	// Chainguard equivalents at version-equivalent tags.
+	// With configured_migrations set, registered workers check their repository
+	// opt-ins and report independent outcomes in one operation. Each feature
+	// requires its own migration capability. Permission refusals are feature
+	// results, and deployment-disabled features finish as successful no-ops.
 	//
 	// The caller's group must own the repository's GitHub installation (verified
 	// via a matching account_association); the resulting operation is namespaced
@@ -174,6 +185,9 @@ type GuardenerServer interface {
 	// GetMigrationOperation returns the current state of a migration operation
 	// previously returned by MigrateRepository. The operation name embeds the
 	// owning group's UIDP; group must match and is the IAM scope.
+	// Each feature's permission is checked separately; unauthorized feature
+	// details are replaced with a permission-denied result. Legacy operations
+	// require the Actions migration capability.
 	GetMigrationOperation(context.Context, *GetMigrationOperationRequest) (*longrunningpb.Operation, error)
 	// ListScans lists summaries of a group's dependency scans — one per
 	// repository, its most recent scan — newest first, optionally filtered to
