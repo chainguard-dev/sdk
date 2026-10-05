@@ -559,7 +559,13 @@ message AdvisoryEventsFilter {
   // page_token is the next_page_token from a previous response.
   string page_token = 12;
 
-  // next id: 13
+  // event_types matches events of any of the given types, ANDed with the
+  // other event-level filters on the same event. UNSPECIFIED and unknown
+  // values are rejected with InvalidArgument. Servers that predate this field
+  // ignore it and return events of every type.
+  repeated EventTypeFilter event_types = 13;
+
+  // next id: 14
 }
 
 message AdvisoryEventsList {

@@ -1437,7 +1437,12 @@ type AdvisoryEventsFilter struct {
 	// page_size is the maximum number of events to return.
 	PageSize int64 `protobuf:"varint,11,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	// page_token is the next_page_token from a previous response.
-	PageToken     string `protobuf:"bytes,12,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	PageToken string `protobuf:"bytes,12,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// event_types matches events of any of the given types, ANDed with the
+	// other event-level filters on the same event. UNSPECIFIED and unknown
+	// values are rejected with InvalidArgument. Servers that predate this field
+	// ignore it and return events of every type.
+	EventTypes    []EventTypeFilter `protobuf:"varint,13,rep,packed,name=event_types,json=eventTypes,proto3,enum=chainguard.platform.vulnerabilities.v1.EventTypeFilter" json:"event_types,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1554,6 +1559,13 @@ func (x *AdvisoryEventsFilter) GetPageToken() string {
 		return x.PageToken
 	}
 	return ""
+}
+
+func (x *AdvisoryEventsFilter) GetEventTypes() []EventTypeFilter {
+	if x != nil {
+		return x.EventTypes
+	}
+	return nil
 }
 
 type AdvisoryEventsList struct {
@@ -2567,7 +2579,7 @@ const file_advisory_vulnerabilities_proto_rawDesc = "" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\"\x85\x01\n" +
 	"\x11AdvisoryEventList\x12#\n" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12K\n" +
-	"\x05items\x18\x02 \x03(\v25.chainguard.platform.vulnerabilities.v1.AdvisoryEventR\x05items\"\x82\x05\n" +
+	"\x05items\x18\x02 \x03(\v25.chainguard.platform.vulnerabilities.v1.AdvisoryEventR\x05items\"\xdc\x05\n" +
 	"\x14AdvisoryEventsFilter\x12:\n" +
 	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterR\x04uidp\x12!\n" +
 	"\fadvisory_ids\x18\x02 \x03(\tR\vadvisoryIds\x12\x18\n" +
@@ -2582,7 +2594,9 @@ const file_advisory_vulnerabilities_proto_rawDesc = "" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\x11createdBeforeTime\x12\x1b\n" +
 	"\tpage_size\x18\v \x01(\x03R\bpageSize\x12\x1d\n" +
 	"\n" +
-	"page_token\x18\f \x01(\tR\tpageTokenB\t\n" +
+	"page_token\x18\f \x01(\tR\tpageToken\x12X\n" +
+	"\vevent_types\x18\r \x03(\x0e27.chainguard.platform.vulnerabilities.v1.EventTypeFilterR\n" +
+	"eventTypesB\t\n" +
 	"\a_origin\"\x8e\x01\n" +
 	"\x12AdvisoryEventsList\x12P\n" +
 	"\x05items\x18\x01 \x03(\v2:.chainguard.platform.vulnerabilities.v1.AdvisoryEventMatchR\x05items\x12&\n" +
@@ -2725,35 +2739,36 @@ var file_advisory_vulnerabilities_proto_depIdxs = []int32{
 	29, // 30: chainguard.platform.vulnerabilities.v1.AdvisoryEventsFilter.advisory_created_before_time:type_name -> google.protobuf.Timestamp
 	29, // 31: chainguard.platform.vulnerabilities.v1.AdvisoryEventsFilter.created_since_time:type_name -> google.protobuf.Timestamp
 	29, // 32: chainguard.platform.vulnerabilities.v1.AdvisoryEventsFilter.created_before_time:type_name -> google.protobuf.Timestamp
-	16, // 33: chainguard.platform.vulnerabilities.v1.AdvisoryEventsList.items:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEventMatch
-	5,  // 34: chainguard.platform.vulnerabilities.v1.AdvisoryEventMatch.event:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent
-	26, // 35: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.nvdapi:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.NVDAPI
-	27, // 36: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.manual:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.Manual
-	28, // 37: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.scanv1:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.ScanV1
-	3,  // 38: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.FalsePositiveDetermination.type:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.FalsePositiveDetermination.Type
-	10, // 39: chainguard.platform.vulnerabilities.v1.Advisories.Create:input_type -> chainguard.platform.vulnerabilities.v1.CreateAdvisoryRequest
-	6,  // 40: chainguard.platform.vulnerabilities.v1.Advisories.List:input_type -> chainguard.platform.vulnerabilities.v1.AdvisoryFilter
-	4,  // 41: chainguard.platform.vulnerabilities.v1.Advisories.Update:input_type -> chainguard.platform.vulnerabilities.v1.Advisory
-	8,  // 42: chainguard.platform.vulnerabilities.v1.Advisories.Delete:input_type -> chainguard.platform.vulnerabilities.v1.DeleteAdvisoryRequest
-	11, // 43: chainguard.platform.vulnerabilities.v1.Advisories.CreateAdvisoryEvent:input_type -> chainguard.platform.vulnerabilities.v1.CreateAdvisoryEventRequest
-	12, // 44: chainguard.platform.vulnerabilities.v1.Advisories.ListAdvisoryEvents:input_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEventFilter
-	5,  // 45: chainguard.platform.vulnerabilities.v1.Advisories.UpdateAdvisoryEvent:input_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent
-	9,  // 46: chainguard.platform.vulnerabilities.v1.Advisories.DeleteAdvisoryEvent:input_type -> chainguard.platform.vulnerabilities.v1.DeleteAdvisoryEventRequest
-	14, // 47: chainguard.platform.vulnerabilities.v1.Advisories.ListEvents:input_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEventsFilter
-	4,  // 48: chainguard.platform.vulnerabilities.v1.Advisories.Create:output_type -> chainguard.platform.vulnerabilities.v1.Advisory
-	7,  // 49: chainguard.platform.vulnerabilities.v1.Advisories.List:output_type -> chainguard.platform.vulnerabilities.v1.AdvisoriesList
-	4,  // 50: chainguard.platform.vulnerabilities.v1.Advisories.Update:output_type -> chainguard.platform.vulnerabilities.v1.Advisory
-	31, // 51: chainguard.platform.vulnerabilities.v1.Advisories.Delete:output_type -> google.protobuf.Empty
-	5,  // 52: chainguard.platform.vulnerabilities.v1.Advisories.CreateAdvisoryEvent:output_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent
-	13, // 53: chainguard.platform.vulnerabilities.v1.Advisories.ListAdvisoryEvents:output_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEventList
-	5,  // 54: chainguard.platform.vulnerabilities.v1.Advisories.UpdateAdvisoryEvent:output_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent
-	31, // 55: chainguard.platform.vulnerabilities.v1.Advisories.DeleteAdvisoryEvent:output_type -> google.protobuf.Empty
-	15, // 56: chainguard.platform.vulnerabilities.v1.Advisories.ListEvents:output_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEventsList
-	48, // [48:57] is the sub-list for method output_type
-	39, // [39:48] is the sub-list for method input_type
-	39, // [39:39] is the sub-list for extension type_name
-	39, // [39:39] is the sub-list for extension extendee
-	0,  // [0:39] is the sub-list for field type_name
+	2,  // 33: chainguard.platform.vulnerabilities.v1.AdvisoryEventsFilter.event_types:type_name -> chainguard.platform.vulnerabilities.v1.EventTypeFilter
+	16, // 34: chainguard.platform.vulnerabilities.v1.AdvisoryEventsList.items:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEventMatch
+	5,  // 35: chainguard.platform.vulnerabilities.v1.AdvisoryEventMatch.event:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent
+	26, // 36: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.nvdapi:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.NVDAPI
+	27, // 37: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.manual:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.Manual
+	28, // 38: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.scanv1:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.Detection.ScanV1
+	3,  // 39: chainguard.platform.vulnerabilities.v1.AdvisoryEvent.FalsePositiveDetermination.type:type_name -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent.FalsePositiveDetermination.Type
+	10, // 40: chainguard.platform.vulnerabilities.v1.Advisories.Create:input_type -> chainguard.platform.vulnerabilities.v1.CreateAdvisoryRequest
+	6,  // 41: chainguard.platform.vulnerabilities.v1.Advisories.List:input_type -> chainguard.platform.vulnerabilities.v1.AdvisoryFilter
+	4,  // 42: chainguard.platform.vulnerabilities.v1.Advisories.Update:input_type -> chainguard.platform.vulnerabilities.v1.Advisory
+	8,  // 43: chainguard.platform.vulnerabilities.v1.Advisories.Delete:input_type -> chainguard.platform.vulnerabilities.v1.DeleteAdvisoryRequest
+	11, // 44: chainguard.platform.vulnerabilities.v1.Advisories.CreateAdvisoryEvent:input_type -> chainguard.platform.vulnerabilities.v1.CreateAdvisoryEventRequest
+	12, // 45: chainguard.platform.vulnerabilities.v1.Advisories.ListAdvisoryEvents:input_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEventFilter
+	5,  // 46: chainguard.platform.vulnerabilities.v1.Advisories.UpdateAdvisoryEvent:input_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent
+	9,  // 47: chainguard.platform.vulnerabilities.v1.Advisories.DeleteAdvisoryEvent:input_type -> chainguard.platform.vulnerabilities.v1.DeleteAdvisoryEventRequest
+	14, // 48: chainguard.platform.vulnerabilities.v1.Advisories.ListEvents:input_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEventsFilter
+	4,  // 49: chainguard.platform.vulnerabilities.v1.Advisories.Create:output_type -> chainguard.platform.vulnerabilities.v1.Advisory
+	7,  // 50: chainguard.platform.vulnerabilities.v1.Advisories.List:output_type -> chainguard.platform.vulnerabilities.v1.AdvisoriesList
+	4,  // 51: chainguard.platform.vulnerabilities.v1.Advisories.Update:output_type -> chainguard.platform.vulnerabilities.v1.Advisory
+	31, // 52: chainguard.platform.vulnerabilities.v1.Advisories.Delete:output_type -> google.protobuf.Empty
+	5,  // 53: chainguard.platform.vulnerabilities.v1.Advisories.CreateAdvisoryEvent:output_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent
+	13, // 54: chainguard.platform.vulnerabilities.v1.Advisories.ListAdvisoryEvents:output_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEventList
+	5,  // 55: chainguard.platform.vulnerabilities.v1.Advisories.UpdateAdvisoryEvent:output_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEvent
+	31, // 56: chainguard.platform.vulnerabilities.v1.Advisories.DeleteAdvisoryEvent:output_type -> google.protobuf.Empty
+	15, // 57: chainguard.platform.vulnerabilities.v1.Advisories.ListEvents:output_type -> chainguard.platform.vulnerabilities.v1.AdvisoryEventsList
+	49, // [49:58] is the sub-list for method output_type
+	40, // [40:49] is the sub-list for method input_type
+	40, // [40:40] is the sub-list for extension type_name
+	40, // [40:40] is the sub-list for extension extendee
+	0,  // [0:40] is the sub-list for field type_name
 }
 
 func init() { file_advisory_vulnerabilities_proto_init() }
