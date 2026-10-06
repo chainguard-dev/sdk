@@ -23,13 +23,17 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SkillsHardeningReports_GetHardeningReport_FullMethodName    = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/GetHardeningReport"
-	SkillsHardeningReports_ListHardeningReports_FullMethodName  = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/ListHardeningReports"
-	SkillsHardeningReports_GetTaxonomy_FullMethodName           = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/GetTaxonomy"
-	SkillsHardeningReports_ListHardeningFindings_FullMethodName = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/ListHardeningFindings"
-	SkillsHardeningReports_UpdateTaxonomy_FullMethodName        = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/UpdateTaxonomy"
-	SkillsHardeningReports_UpdateHardeningReport_FullMethodName = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/UpdateHardeningReport"
-	SkillsHardeningReports_DeleteHardeningReport_FullMethodName = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/DeleteHardeningReport"
+	SkillsHardeningReports_GetHardeningReport_FullMethodName      = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/GetHardeningReport"
+	SkillsHardeningReports_ListHardeningReports_FullMethodName    = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/ListHardeningReports"
+	SkillsHardeningReports_GetTaxonomy_FullMethodName             = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/GetTaxonomy"
+	SkillsHardeningReports_ListRationales_FullMethodName          = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/ListRationales"
+	SkillsHardeningReports_ListRationalesForReview_FullMethodName = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/ListRationalesForReview"
+	SkillsHardeningReports_ListHardeningFindings_FullMethodName   = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/ListHardeningFindings"
+	SkillsHardeningReports_UpdateTaxonomy_FullMethodName          = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/UpdateTaxonomy"
+	SkillsHardeningReports_UpdateRationales_FullMethodName        = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/UpdateRationales"
+	SkillsHardeningReports_ReviewRationale_FullMethodName         = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/ReviewRationale"
+	SkillsHardeningReports_UpdateHardeningReport_FullMethodName   = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/UpdateHardeningReport"
+	SkillsHardeningReports_DeleteHardeningReport_FullMethodName   = "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/DeleteHardeningReport"
 )
 
 // SkillsHardeningReportsClient is the client API for SkillsHardeningReports service.
@@ -56,6 +60,18 @@ type SkillsHardeningReportsClient interface {
 	// titles and definitions, and the scanner checks it names. Findings carry
 	// the version they are classified under.
 	GetTaxonomy(ctx context.Context, in *GetTaxonomyRequest, opts ...grpc.CallOption) (*Taxonomy, error)
+	// ListRationales pages the rationale catalog: the reviewed, generic
+	// explanations a finding's rationale_id names. Only approved entries are
+	// listed unless states says otherwise; listing any other state also takes
+	// CAP_SKILLS_WRITE. Deprecated entries are included, since stored findings
+	// still reference them. reviewer is never returned; ListRationalesForReview
+	// serves it to catalog writers.
+	ListRationales(ctx context.Context, in *ListRationalesRequest, opts ...grpc.CallOption) (*ListRationalesResponse, error)
+	// ListRationalesForReview pages the rationale catalog in any review state,
+	// reviewer included, for catalog writers. It takes CAP_SKILLS_WRITE alone,
+	// so a writer without CAP_SKILLS_LIST can load the review queue. The catalog
+	// is not org data; parent_id only scopes the capability check.
+	ListRationalesForReview(ctx context.Context, in *ListRationalesForReviewRequest, opts ...grpc.CallOption) (*ListRationalesForReviewResponse, error)
 	// ListHardeningFindings pages a skill version's findings, most severe first.
 	ListHardeningFindings(ctx context.Context, in *ListHardeningFindingsRequest, opts ...grpc.CallOption) (*ListHardeningFindingsResponse, error)
 	// UpdateTaxonomy loads one CGSVT taxonomy version's display metadata,
@@ -65,11 +81,25 @@ type SkillsHardeningReportsClient interface {
 	// and different hashes for a stored version are FAILED_PRECONDITION. The
 	// taxonomy is not org data; parent_id only scopes the capability check.
 	UpdateTaxonomy(ctx context.Context, in *UpdateTaxonomyRequest, opts ...grpc.CallOption) (*Taxonomy, error)
+	// UpdateRationales creates or updates rationale catalog entries by id. An
+	// entry's text is immutable, since stored findings reference it: different
+	// text for a stored id is FAILED_PRECONDITION, and new wording takes a new
+	// id. assessments and deprecated may change. A new entry is created PENDING
+	// or APPROVED; an update cannot change an entry's state, and a REJECTED
+	// entry's id can never be written again (both FAILED_PRECONDITION). The
+	// catalog is not org data; parent_id only scopes the capability check.
+	UpdateRationales(ctx context.Context, in *UpdateRationalesRequest, opts ...grpc.CallOption) (*UpdateRationalesResponse, error)
+	// ReviewRationale approves or rejects a PENDING rationale and records who
+	// reviewed it. Any other transition is FAILED_PRECONDITION: approval is
+	// final, and a rejected id stays reserved. The catalog is not org data;
+	// parent_id only scopes the capability check.
+	ReviewRationale(ctx context.Context, in *ReviewRationaleRequest, opts ...grpc.CallOption) (*Rationale, error)
 	// UpdateHardeningReport replaces a skill version's report and its findings
 	// as a whole, following AIP-134 create-or-update: with allow_missing the
 	// report is created when the version has none; otherwise a missing report is
 	// NOT_FOUND. FAILED_PRECONDITION until the report's taxonomy version is
-	// loaded, or when the tag does not point at the report's digest. ABORTED
+	// loaded, when a finding's rationale_id names no APPROVED rationale, or when
+	// the tag does not point at the report's digest. ABORTED
 	// when the stored report has a later generate_time, so an out-of-order write
 	// cannot replace a newer run, even across a tag move.
 	UpdateHardeningReport(ctx context.Context, in *UpdateHardeningReportRequest, opts ...grpc.CallOption) (*HardeningReport, error)
@@ -115,6 +145,26 @@ func (c *skillsHardeningReportsClient) GetTaxonomy(ctx context.Context, in *GetT
 	return out, nil
 }
 
+func (c *skillsHardeningReportsClient) ListRationales(ctx context.Context, in *ListRationalesRequest, opts ...grpc.CallOption) (*ListRationalesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListRationalesResponse)
+	err := c.cc.Invoke(ctx, SkillsHardeningReports_ListRationales_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *skillsHardeningReportsClient) ListRationalesForReview(ctx context.Context, in *ListRationalesForReviewRequest, opts ...grpc.CallOption) (*ListRationalesForReviewResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListRationalesForReviewResponse)
+	err := c.cc.Invoke(ctx, SkillsHardeningReports_ListRationalesForReview_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *skillsHardeningReportsClient) ListHardeningFindings(ctx context.Context, in *ListHardeningFindingsRequest, opts ...grpc.CallOption) (*ListHardeningFindingsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListHardeningFindingsResponse)
@@ -129,6 +179,26 @@ func (c *skillsHardeningReportsClient) UpdateTaxonomy(ctx context.Context, in *U
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Taxonomy)
 	err := c.cc.Invoke(ctx, SkillsHardeningReports_UpdateTaxonomy_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *skillsHardeningReportsClient) UpdateRationales(ctx context.Context, in *UpdateRationalesRequest, opts ...grpc.CallOption) (*UpdateRationalesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateRationalesResponse)
+	err := c.cc.Invoke(ctx, SkillsHardeningReports_UpdateRationales_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *skillsHardeningReportsClient) ReviewRationale(ctx context.Context, in *ReviewRationaleRequest, opts ...grpc.CallOption) (*Rationale, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Rationale)
+	err := c.cc.Invoke(ctx, SkillsHardeningReports_ReviewRationale_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -179,6 +249,18 @@ type SkillsHardeningReportsServer interface {
 	// titles and definitions, and the scanner checks it names. Findings carry
 	// the version they are classified under.
 	GetTaxonomy(context.Context, *GetTaxonomyRequest) (*Taxonomy, error)
+	// ListRationales pages the rationale catalog: the reviewed, generic
+	// explanations a finding's rationale_id names. Only approved entries are
+	// listed unless states says otherwise; listing any other state also takes
+	// CAP_SKILLS_WRITE. Deprecated entries are included, since stored findings
+	// still reference them. reviewer is never returned; ListRationalesForReview
+	// serves it to catalog writers.
+	ListRationales(context.Context, *ListRationalesRequest) (*ListRationalesResponse, error)
+	// ListRationalesForReview pages the rationale catalog in any review state,
+	// reviewer included, for catalog writers. It takes CAP_SKILLS_WRITE alone,
+	// so a writer without CAP_SKILLS_LIST can load the review queue. The catalog
+	// is not org data; parent_id only scopes the capability check.
+	ListRationalesForReview(context.Context, *ListRationalesForReviewRequest) (*ListRationalesForReviewResponse, error)
 	// ListHardeningFindings pages a skill version's findings, most severe first.
 	ListHardeningFindings(context.Context, *ListHardeningFindingsRequest) (*ListHardeningFindingsResponse, error)
 	// UpdateTaxonomy loads one CGSVT taxonomy version's display metadata,
@@ -188,11 +270,25 @@ type SkillsHardeningReportsServer interface {
 	// and different hashes for a stored version are FAILED_PRECONDITION. The
 	// taxonomy is not org data; parent_id only scopes the capability check.
 	UpdateTaxonomy(context.Context, *UpdateTaxonomyRequest) (*Taxonomy, error)
+	// UpdateRationales creates or updates rationale catalog entries by id. An
+	// entry's text is immutable, since stored findings reference it: different
+	// text for a stored id is FAILED_PRECONDITION, and new wording takes a new
+	// id. assessments and deprecated may change. A new entry is created PENDING
+	// or APPROVED; an update cannot change an entry's state, and a REJECTED
+	// entry's id can never be written again (both FAILED_PRECONDITION). The
+	// catalog is not org data; parent_id only scopes the capability check.
+	UpdateRationales(context.Context, *UpdateRationalesRequest) (*UpdateRationalesResponse, error)
+	// ReviewRationale approves or rejects a PENDING rationale and records who
+	// reviewed it. Any other transition is FAILED_PRECONDITION: approval is
+	// final, and a rejected id stays reserved. The catalog is not org data;
+	// parent_id only scopes the capability check.
+	ReviewRationale(context.Context, *ReviewRationaleRequest) (*Rationale, error)
 	// UpdateHardeningReport replaces a skill version's report and its findings
 	// as a whole, following AIP-134 create-or-update: with allow_missing the
 	// report is created when the version has none; otherwise a missing report is
 	// NOT_FOUND. FAILED_PRECONDITION until the report's taxonomy version is
-	// loaded, or when the tag does not point at the report's digest. ABORTED
+	// loaded, when a finding's rationale_id names no APPROVED rationale, or when
+	// the tag does not point at the report's digest. ABORTED
 	// when the stored report has a later generate_time, so an out-of-order write
 	// cannot replace a newer run, even across a tag move.
 	UpdateHardeningReport(context.Context, *UpdateHardeningReportRequest) (*HardeningReport, error)
@@ -217,11 +313,23 @@ func (UnimplementedSkillsHardeningReportsServer) ListHardeningReports(context.Co
 func (UnimplementedSkillsHardeningReportsServer) GetTaxonomy(context.Context, *GetTaxonomyRequest) (*Taxonomy, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetTaxonomy not implemented")
 }
+func (UnimplementedSkillsHardeningReportsServer) ListRationales(context.Context, *ListRationalesRequest) (*ListRationalesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListRationales not implemented")
+}
+func (UnimplementedSkillsHardeningReportsServer) ListRationalesForReview(context.Context, *ListRationalesForReviewRequest) (*ListRationalesForReviewResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListRationalesForReview not implemented")
+}
 func (UnimplementedSkillsHardeningReportsServer) ListHardeningFindings(context.Context, *ListHardeningFindingsRequest) (*ListHardeningFindingsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListHardeningFindings not implemented")
 }
 func (UnimplementedSkillsHardeningReportsServer) UpdateTaxonomy(context.Context, *UpdateTaxonomyRequest) (*Taxonomy, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateTaxonomy not implemented")
+}
+func (UnimplementedSkillsHardeningReportsServer) UpdateRationales(context.Context, *UpdateRationalesRequest) (*UpdateRationalesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateRationales not implemented")
+}
+func (UnimplementedSkillsHardeningReportsServer) ReviewRationale(context.Context, *ReviewRationaleRequest) (*Rationale, error) {
+	return nil, status.Error(codes.Unimplemented, "method ReviewRationale not implemented")
 }
 func (UnimplementedSkillsHardeningReportsServer) UpdateHardeningReport(context.Context, *UpdateHardeningReportRequest) (*HardeningReport, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateHardeningReport not implemented")
@@ -305,6 +413,42 @@ func _SkillsHardeningReports_GetTaxonomy_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SkillsHardeningReports_ListRationales_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRationalesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SkillsHardeningReportsServer).ListRationales(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SkillsHardeningReports_ListRationales_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SkillsHardeningReportsServer).ListRationales(ctx, req.(*ListRationalesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SkillsHardeningReports_ListRationalesForReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRationalesForReviewRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SkillsHardeningReportsServer).ListRationalesForReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SkillsHardeningReports_ListRationalesForReview_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SkillsHardeningReportsServer).ListRationalesForReview(ctx, req.(*ListRationalesForReviewRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _SkillsHardeningReports_ListHardeningFindings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListHardeningFindingsRequest)
 	if err := dec(in); err != nil {
@@ -337,6 +481,42 @@ func _SkillsHardeningReports_UpdateTaxonomy_Handler(srv interface{}, ctx context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SkillsHardeningReportsServer).UpdateTaxonomy(ctx, req.(*UpdateTaxonomyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SkillsHardeningReports_UpdateRationales_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateRationalesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SkillsHardeningReportsServer).UpdateRationales(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SkillsHardeningReports_UpdateRationales_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SkillsHardeningReportsServer).UpdateRationales(ctx, req.(*UpdateRationalesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SkillsHardeningReports_ReviewRationale_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReviewRationaleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SkillsHardeningReportsServer).ReviewRationale(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SkillsHardeningReports_ReviewRationale_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SkillsHardeningReportsServer).ReviewRationale(ctx, req.(*ReviewRationaleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -397,12 +577,28 @@ var SkillsHardeningReports_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SkillsHardeningReports_GetTaxonomy_Handler,
 		},
 		{
+			MethodName: "ListRationales",
+			Handler:    _SkillsHardeningReports_ListRationales_Handler,
+		},
+		{
+			MethodName: "ListRationalesForReview",
+			Handler:    _SkillsHardeningReports_ListRationalesForReview_Handler,
+		},
+		{
 			MethodName: "ListHardeningFindings",
 			Handler:    _SkillsHardeningReports_ListHardeningFindings_Handler,
 		},
 		{
 			MethodName: "UpdateTaxonomy",
 			Handler:    _SkillsHardeningReports_UpdateTaxonomy_Handler,
+		},
+		{
+			MethodName: "UpdateRationales",
+			Handler:    _SkillsHardeningReports_UpdateRationales_Handler,
+		},
+		{
+			MethodName: "ReviewRationale",
+			Handler:    _SkillsHardeningReports_ReviewRationale_Handler,
 		},
 		{
 			MethodName: "UpdateHardeningReport",
