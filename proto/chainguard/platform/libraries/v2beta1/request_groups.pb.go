@@ -1380,10 +1380,18 @@ type CVERemediation struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Aggregate remediation status for this version.
 	Status CVERemediationStatus `protobuf:"varint,1,opt,name=status,proto3,enum=chainguard.platform.libraries.v2beta1.CVERemediationStatus" json:"status,omitempty"`
-	// How many CVEs on this version are remediated. Meaningful regardless of the
-	// aggregate status, since a version can be partly remediated.
+	// How many High and Critical CVEs on this version are remediated. Meaningful
+	// regardless of the aggregate status, since a version can be partly
+	// remediated. Scoped like cve_count below.
 	RemediatedCount int32 `protobuf:"varint,2,opt,name=remediated_count,json=remediatedCount,proto3" json:"remediated_count,omitempty"`
-	// How many CVEs were found against this version.
+	// How many High and Critical CVEs were found against this version.
+	//
+	// Scoped to match the vocabulary around it: cve_status reports
+	// NO_HIGH_CRITICAL_CVES, so this counts the findings that claim speaks to.
+	// Medium and low findings are excluded, as are findings for which no CVSS
+	// score was recorded. The per-CVE read
+	// (ListRequestedLibraryVersionCVEs) is NOT scoped and lists every finding,
+	// so it can return more CVEs than this counts.
 	CveCount int32 `protobuf:"varint,3,opt,name=cve_count,json=cveCount,proto3" json:"cve_count,omitempty"`
 	// The reviewer's decision, where a reviewer recorded one. UNSPECIFIED
 	// otherwise, which is the common case: most rows are settled by automation and
@@ -1722,7 +1730,8 @@ type CVERemediationSummary struct {
 	Complete int32 `protobuf:"varint,5,opt,name=complete,proto3" json:"complete,omitempty"`
 	// Versions whose CVEs were all ruled out of scope.
 	WontRemediate int32 `protobuf:"varint,6,opt,name=wont_remediate,json=wontRemediate,proto3" json:"wont_remediate,omitempty"`
-	// Total CVEs remediated across the group.
+	// Total High and Critical CVEs remediated across the group. Scoped like
+	// CVERemediation.cve_count.
 	RemediatedCount int32 `protobuf:"varint,7,opt,name=remediated_count,json=remediatedCount,proto3" json:"remediated_count,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
@@ -3113,8 +3122,10 @@ type RequestedLibrary struct {
 	RequestedVersionCount int32 `protobuf:"varint,5,opt,name=requested_version_count,json=requestedVersionCount,proto3" json:"requested_version_count,omitempty"`
 	// How many of those versions Chainguard has built.
 	BuiltVersionCount int32 `protobuf:"varint,6,opt,name=built_version_count,json=builtVersionCount,proto3" json:"built_version_count,omitempty"`
-	// Total CVEs remediated across the versions in cve_status's scope -- the ones
-	// whose request groups opted in, not every requested version.
+	// Total High and Critical CVEs remediated across the versions in cve_status's
+	// scope -- the ones whose request groups opted in, not every requested
+	// version. Severity-scoped like CVERemediation.cve_count: medium and low
+	// findings are excluded, as are findings with no recorded CVSS score.
 	//
 	// Reported whatever cve_status says, because a library part-way through
 	// remediation has fixed CVEs worth naming: the status answers whether it is
