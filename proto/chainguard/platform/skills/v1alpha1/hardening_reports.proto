@@ -96,8 +96,10 @@ service SkillsHardeningReports {
   }
 
   // ListRationales pages the rationale catalog: the reviewed, generic
-  // explanations a finding's rationale_id names. Deprecated entries are
-  // included, since stored findings still reference them.
+  // explanations a finding's rationale_id names. Only approved entries are
+  // listed unless states says otherwise; listing any other state takes
+  // CAP_SKILLS_WRITE. Deprecated entries are included, since stored findings
+  // still reference them.
   rpc ListRationales(ListRationalesRequest) returns (ListRationalesResponse) {
     option (google.api.http) = {get: "/skills/v1alpha1/rationales"};
     option (chainguard.annotations.iam) = {
@@ -159,8 +161,10 @@ service SkillsHardeningReports {
   // UpdateRationales creates or updates rationale catalog entries by id. An
   // entry's text is immutable, since stored findings reference it: different
   // text for a stored id is FAILED_PRECONDITION, and new wording takes a new
-  // id. assessments and deprecated may change. The catalog is not org data;
-  // parent_id only scopes the capability check.
+  // id. assessments and deprecated may change. A new entry is created PENDING
+  // or APPROVED; an update cannot change an entry's state, and a REJECTED
+  // entry's id can never be written again (both FAILED_PRECONDITION). The
+  // catalog is not org data; parent_id only scopes the capability check.
   rpc UpdateRationales(UpdateRationalesRequest)
       returns (UpdateRationalesResponse) {
     option (google.api.http) = {
@@ -175,11 +179,29 @@ service SkillsHardeningReports {
     option (chainguard.annotations.mcp) = {hidden: true};
   }
 
+  // ReviewRationale approves or rejects a PENDING rationale and records who
+  // reviewed it. Any other transition is FAILED_PRECONDITION: approval is
+  // final, and a rejected id stays reserved. The catalog is not org data;
+  // parent_id only scopes the capability check.
+  rpc ReviewRationale(ReviewRationaleRequest) returns (Rationale) {
+    option (google.api.http) = {
+      post: "/skills/v1alpha1/rationales/{id}:review"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_SKILLS_WRITE]
+      }
+    };
+    option (chainguard.annotations.mcp) = {hidden: true};
+  }
+
   // UpdateHardeningReport replaces a skill version's report and its findings
   // as a whole, following AIP-134 create-or-update: with allow_missing the
   // report is created when the version has none; otherwise a missing report is
   // NOT_FOUND. FAILED_PRECONDITION until the report's taxonomy version is
-  // loaded, or when the tag does not point at the report's digest. ABORTED
+  // loaded, when a finding's rationale_id names no APPROVED rationale, or when
+  // the tag does not point at the report's digest. ABORTED
   // when the stored report has a later generate_time, so an out-of-order write
   // cannot replace a newer run, even across a tag move.
   rpc UpdateHardeningReport(UpdateHardeningReportRequest)
@@ -247,6 +269,18 @@ enum FindingAssessment {
   FINDING_ASSESSMENT_NOT_ADDRESSED = 3;
 }
 
+// RationaleState is where a rationale catalog entry is in review. Only
+// APPROVED entries can be cited by findings or listed publicly.
+enum RationaleState {
+  RATIONALE_STATE_UNSPECIFIED = 0;
+  // RATIONALE_STATE_PENDING: proposed, awaiting review.
+  RATIONALE_STATE_PENDING = 1;
+  // RATIONALE_STATE_APPROVED: reviewed and citable.
+  RATIONALE_STATE_APPROVED = 2;
+  // RATIONALE_STATE_REJECTED: reviewed and refused; the id is never reused.
+  RATIONALE_STATE_REJECTED = 3;
+}
+
 // Rationale is one reviewed rationale catalog entry. Its text is generic: it
 // names no skill, path or command, so one entry serves many findings.
 message Rationale {
@@ -269,6 +303,16 @@ message Rationale {
   // group_ids are the CGSVT groups the entry is written for, e.g. "CGSVT-08";
   // empty when it applies to any group.
   repeated string group_ids = 7 [(google.api.field_behavior) = OPTIONAL];
+  // state is required to create an entry (PENDING or APPROVED) and is changed
+  // only by ReviewRationale. On an update it is left unset or matches the
+  // stored state.
+  RationaleState state = 8 [(google.api.field_behavior) = OPTIONAL];
+  // reviewer is who approved or rejected the entry; empty for an entry
+  // created APPROVED or not yet reviewed.
+  string reviewer = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp review_time = 10 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
 }
 
 // Taxonomy is one CGSVT version's display metadata.
@@ -410,8 +454,8 @@ message HardeningFinding {
   // assessment is what hardening did about the finding. UNSPECIFIED for
   // introduced findings and on reports written before the field existed.
   FindingAssessment assessment = 11 [(google.api.field_behavior) = OPTIONAL];
-  // rationale_id names the Rationale that explains the assessment; empty when
-  // none applies. Read the text with ListRationales.
+  // rationale_id names the APPROVED Rationale that explains the assessment;
+  // empty when none applies. Read the text with ListRationales.
   string rationale_id = 12 [(google.api.field_behavior) = OPTIONAL];
 
   // Source is one scanner check that raised the finding.
@@ -537,6 +581,9 @@ message ListRationalesRequest {
   string page_token = 4 [(google.api.field_behavior) = OPTIONAL];
   // skip is the number of entries to skip, for numbered pages (0 to 10,000).
   int32 skip = 5 [(google.api.field_behavior) = OPTIONAL];
+  // states narrow the entries; empty lists APPROVED only. Any state other
+  // than APPROVED takes CAP_SKILLS_WRITE on parent_id.
+  repeated RationaleState states = 6 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message ListRationalesResponse {
@@ -560,6 +607,20 @@ message UpdateRationalesRequest {
 message UpdateRationalesResponse {
   // rationales are the stored entries, in request order.
   repeated Rationale rationales = 1;
+}
+
+message ReviewRationaleRequest {
+  // parent_id scopes the capability check; the catalog is not stored under it.
+  string parent_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+  // id is the PENDING entry to review.
+  string id = 2 [(google.api.field_behavior) = REQUIRED];
+  // state is the decision: APPROVED or REJECTED.
+  RationaleState state = 3 [(google.api.field_behavior) = REQUIRED];
+  // reviewer identifies the person who made the decision, e.g. an email.
+  string reviewer = 4 [(google.api.field_behavior) = REQUIRED];
 }
 
 message UpdateHardeningReportRequest {

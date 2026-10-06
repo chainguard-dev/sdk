@@ -313,6 +313,51 @@ func local_request_SkillsHardeningReports_UpdateRationales_0(ctx context.Context
 	return msg, metadata, err
 }
 
+func request_SkillsHardeningReports_ReviewRationale_0(ctx context.Context, marshaler runtime.Marshaler, client SkillsHardeningReportsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ReviewRationaleRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	val, ok := pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+	protoReq.Id, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.ReviewRationale(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_SkillsHardeningReports_ReviewRationale_0(ctx context.Context, marshaler runtime.Marshaler, server SkillsHardeningReportsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ReviewRationaleRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	val, ok := pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+	protoReq.Id, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+	msg, err := server.ReviewRationale(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 func request_SkillsHardeningReports_UpdateHardeningReport_0(ctx context.Context, marshaler runtime.Marshaler, client SkillsHardeningReportsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq UpdateHardeningReportRequest
@@ -557,6 +602,26 @@ func RegisterSkillsHardeningReportsHandlerServer(ctx context.Context, mux *runti
 		}
 		forward_SkillsHardeningReports_UpdateRationales_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_SkillsHardeningReports_ReviewRationale_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/ReviewRationale", runtime.WithHTTPPathPattern("/skills/v1alpha1/rationales/{id}:review"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_SkillsHardeningReports_ReviewRationale_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_SkillsHardeningReports_ReviewRationale_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodPatch, pattern_SkillsHardeningReports_UpdateHardeningReport_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -756,6 +821,23 @@ func RegisterSkillsHardeningReportsHandlerClient(ctx context.Context, mux *runti
 		}
 		forward_SkillsHardeningReports_UpdateRationales_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_SkillsHardeningReports_ReviewRationale_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.skills.v1alpha1.SkillsHardeningReports/ReviewRationale", runtime.WithHTTPPathPattern("/skills/v1alpha1/rationales/{id}:review"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_SkillsHardeningReports_ReviewRationale_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_SkillsHardeningReports_ReviewRationale_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodPatch, pattern_SkillsHardeningReports_UpdateHardeningReport_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -801,6 +883,7 @@ var (
 	pattern_SkillsHardeningReports_ListHardeningFindings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"skills", "v1alpha1", "hardeningFindings"}, ""))
 	pattern_SkillsHardeningReports_UpdateTaxonomy_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"skills", "v1alpha1", "taxonomies", "taxonomy.version"}, ""))
 	pattern_SkillsHardeningReports_UpdateRationales_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"skills", "v1alpha1", "rationales"}, "batchUpdate"))
+	pattern_SkillsHardeningReports_ReviewRationale_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"skills", "v1alpha1", "rationales", "id"}, "review"))
 	pattern_SkillsHardeningReports_UpdateHardeningReport_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"skills", "v1alpha1", "hardeningReports", "tag_id"}, ""))
 	pattern_SkillsHardeningReports_DeleteHardeningReport_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"skills", "v1alpha1", "hardeningReports", "tag_id"}, ""))
 )
@@ -813,6 +896,7 @@ var (
 	forward_SkillsHardeningReports_ListHardeningFindings_0 = runtime.ForwardResponseMessage
 	forward_SkillsHardeningReports_UpdateTaxonomy_0        = runtime.ForwardResponseMessage
 	forward_SkillsHardeningReports_UpdateRationales_0      = runtime.ForwardResponseMessage
+	forward_SkillsHardeningReports_ReviewRationale_0       = runtime.ForwardResponseMessage
 	forward_SkillsHardeningReports_UpdateHardeningReport_0 = runtime.ForwardResponseMessage
 	forward_SkillsHardeningReports_DeleteHardeningReport_0 = runtime.ForwardResponseMessage
 )

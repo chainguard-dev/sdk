@@ -29,6 +29,13 @@ type MockHardeningReportsClient struct {
 	OnDeleteHardeningReport []HardeningReportsOnDelete
 	OnListRationales        []HardeningReportsOnListRationales
 	OnUpdateRationales      []HardeningReportsOnUpdateRationales
+	OnReviewRationale       []HardeningReportsOnReviewRationale
+}
+
+type HardeningReportsOnReviewRationale struct {
+	Given     *skills.ReviewRationaleRequest
+	Rationale *skills.Rationale
+	Error     error
 }
 
 type HardeningReportsOnListRationales struct {
@@ -163,6 +170,15 @@ func (m MockHardeningReportsClient) UpdateRationales(_ context.Context, given *s
 	for _, o := range m.OnUpdateRationales {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Result, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockHardeningReportsClient) ReviewRationale(_ context.Context, given *skills.ReviewRationaleRequest, _ ...grpc.CallOption) (*skills.Rationale, error) {
+	for _, o := range m.OnReviewRationale {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Rationale, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)
