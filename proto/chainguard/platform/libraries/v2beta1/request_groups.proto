@@ -840,6 +840,12 @@ message ListRequestGroupItemsRequest {
     (chainguard.annotations.iam_scope) = true
   ];
 
+  // Return only items for this package. An exact match on the canonical name,
+  // as RequestGroupItem.package_name reports it, not a substring. Items whose
+  // requirement yielded no package name never match. At most 255 characters,
+  // the longest name the service stores.
+  string package_name = 7 [(google.api.field_behavior) = OPTIONAL];
+
   // Maximum items to return. Default 50, maximum 1000.
   int32 page_size = 10 [(google.api.field_behavior) = OPTIONAL];
 
@@ -1213,6 +1219,13 @@ message ListRequestedLibrariesRequest {
 
   // Filter by computed CVE-remediation status.
   RequestedLibraryCVEStatus cve_status = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // Exact match on the library's canonical name, as RequestedLibrary.name
+  // reports it. Unlike query, "requests" does not also match
+  // "requests-oauthlib". One name can exist in more than one ecosystem, so set
+  // ecosystem as well to get at most one library. At most 255 characters, the
+  // longest name the service stores.
+  string name = 6 [(google.api.field_behavior) = OPTIONAL];
 
   // Maximum libraries to return. Default 50, maximum 1000.
   int32 page_size = 10 [(google.api.field_behavior) = OPTIONAL];

@@ -2225,6 +2225,11 @@ type ListRequestGroupItemsRequest struct {
 	// Numbered 6 rather than appended after skip so it sits with the identifying and
 	// filter fields instead of inside the pagination block at 10-13.
 	Parent string `protobuf:"bytes,6,opt,name=parent,proto3" json:"parent,omitempty"`
+	// Return only items for this package. An exact match on the canonical name,
+	// as RequestGroupItem.package_name reports it, not a substring. Items whose
+	// requirement yielded no package name never match. At most 255 characters,
+	// the longest name the service stores.
+	PackageName string `protobuf:"bytes,7,opt,name=package_name,json=packageName,proto3" json:"package_name,omitempty"`
 	// Maximum items to return. Default 50, maximum 1000.
 	PageSize int32 `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	// Opaque page token from a previous response.
@@ -2308,6 +2313,13 @@ func (x *ListRequestGroupItemsRequest) GetIncludeRemoved() bool {
 func (x *ListRequestGroupItemsRequest) GetParent() string {
 	if x != nil {
 		return x.Parent
+	}
+	return ""
+}
+
+func (x *ListRequestGroupItemsRequest) GetPackageName() string {
+	if x != nil {
+		return x.PackageName
 	}
 	return ""
 }
@@ -3419,6 +3431,12 @@ type ListRequestedLibrariesRequest struct {
 	BuildStatus RequestedLibraryBuildStatus `protobuf:"varint,4,opt,name=build_status,json=buildStatus,proto3,enum=chainguard.platform.libraries.v2beta1.RequestedLibraryBuildStatus" json:"build_status,omitempty"`
 	// Filter by computed CVE-remediation status.
 	CveStatus RequestedLibraryCVEStatus `protobuf:"varint,5,opt,name=cve_status,json=cveStatus,proto3,enum=chainguard.platform.libraries.v2beta1.RequestedLibraryCVEStatus" json:"cve_status,omitempty"`
+	// Exact match on the library's canonical name, as RequestedLibrary.name
+	// reports it. Unlike query, "requests" does not also match
+	// "requests-oauthlib". One name can exist in more than one ecosystem, so set
+	// ecosystem as well to get at most one library. At most 255 characters, the
+	// longest name the service stores.
+	Name string `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`
 	// Maximum libraries to return. Default 50, maximum 1000.
 	PageSize int32 `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	// Opaque page token from a previous response.
@@ -3497,6 +3515,13 @@ func (x *ListRequestedLibrariesRequest) GetCveStatus() RequestedLibraryCVEStatus
 		return x.CveStatus
 	}
 	return RequestedLibraryCVEStatus_REQUESTED_LIBRARY_CVE_STATUS_UNSPECIFIED
+}
+
+func (x *ListRequestedLibrariesRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
 }
 
 func (x *ListRequestedLibrariesRequest) GetPageSize() int32 {
@@ -4234,7 +4259,7 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"\x16GetRequestGroupRequest\x12\x16\n" +
 	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x03uid\x12\"\n" +
 	"\x06parent\x18\x02 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\xae\x04\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\xd7\x04\n" +
 	"\x1cListRequestGroupItemsRequest\x12\x16\n" +
 	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x03uid\x12]\n" +
 	"\favailability\x18\x02 \x01(\x0e23.chainguard.platform.libraries.v2beta1.AvailabilityB\x04\xe2A\x01\x01R\favailability\x12w\n" +
@@ -4242,7 +4267,8 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"\x0fmin_update_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x01R\rminUpdateTime\x12-\n" +
 	"\x0finclude_removed\x18\x05 \x01(\bB\x04\xe2A\x01\x01R\x0eincludeRemoved\x12\"\n" +
 	"\x06parent\x18\x06 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12!\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12'\n" +
+	"\fpackage_name\x18\a \x01(\tB\x04\xe2A\x01\x01R\vpackageName\x12!\n" +
 	"\tpage_size\x18\n" +
 	" \x01(\x05B\x04\xe2A\x01\x01R\bpageSize\x12#\n" +
 	"\n" +
@@ -4327,7 +4353,7 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"\asources\x18\x06 \x03(\x0e24.chainguard.platform.libraries.v2beta1.RequestSourceB\x04\xe2A\x01\x03R\asources\x12'\n" +
 	"\frequested_by\x18\a \x03(\tB\x04\xe2A\x01\x03R\vrequestedBy\x12m\n" +
 	"\x13contributing_groups\x18\b \x03(\v26.chainguard.platform.libraries.v2beta1.RequestGroupRefB\x04\xe2A\x01\x03R\x12contributingGroups\x12L\n" +
-	"\x11last_request_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\x0flastRequestTime\"\x8c\x04\n" +
+	"\x11last_request_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\x0flastRequestTime\"\xa6\x04\n" +
 	"\x1dListRequestedLibrariesRequest\x12\"\n" +
 	"\x06parent\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12T\n" +
@@ -4335,7 +4361,8 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"\x05query\x18\x03 \x01(\tB\x04\xe2A\x01\x01R\x05query\x12k\n" +
 	"\fbuild_status\x18\x04 \x01(\x0e2B.chainguard.platform.libraries.v2beta1.RequestedLibraryBuildStatusB\x04\xe2A\x01\x01R\vbuildStatus\x12e\n" +
 	"\n" +
-	"cve_status\x18\x05 \x01(\x0e2@.chainguard.platform.libraries.v2beta1.RequestedLibraryCVEStatusB\x04\xe2A\x01\x01R\tcveStatus\x12!\n" +
+	"cve_status\x18\x05 \x01(\x0e2@.chainguard.platform.libraries.v2beta1.RequestedLibraryCVEStatusB\x04\xe2A\x01\x01R\tcveStatus\x12\x18\n" +
+	"\x04name\x18\x06 \x01(\tB\x04\xe2A\x01\x01R\x04name\x12!\n" +
 	"\tpage_size\x18\n" +
 	" \x01(\x05B\x04\xe2A\x01\x01R\bpageSize\x12#\n" +
 	"\n" +
