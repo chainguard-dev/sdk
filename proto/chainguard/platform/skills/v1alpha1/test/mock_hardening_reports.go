@@ -27,27 +27,6 @@ type MockHardeningReportsClient struct {
 	OnUpdateTaxonomy        []HardeningReportsOnUpdateTaxonomy
 	OnUpdateHardeningReport []HardeningReportsOnUpdate
 	OnDeleteHardeningReport []HardeningReportsOnDelete
-	OnListRationales        []HardeningReportsOnListRationales
-	OnUpdateRationales      []HardeningReportsOnUpdateRationales
-	OnReviewRationale       []HardeningReportsOnReviewRationale
-}
-
-type HardeningReportsOnReviewRationale struct {
-	Given     *skills.ReviewRationaleRequest
-	Rationale *skills.Rationale
-	Error     error
-}
-
-type HardeningReportsOnListRationales struct {
-	Given *skills.ListRationalesRequest
-	List  *skills.ListRationalesResponse
-	Error error
-}
-
-type HardeningReportsOnUpdateRationales struct {
-	Given  *skills.UpdateRationalesRequest
-	Result *skills.UpdateRationalesResponse
-	Error  error
 }
 
 type HardeningReportsOnGet struct {
@@ -152,33 +131,6 @@ func (m MockHardeningReportsClient) DeleteHardeningReport(_ context.Context, giv
 				return nil, o.Error
 			}
 			return &emptypb.Empty{}, nil
-		}
-	}
-	return nil, fmt.Errorf("mock not found for %v", given)
-}
-
-func (m MockHardeningReportsClient) ListRationales(_ context.Context, given *skills.ListRationalesRequest, _ ...grpc.CallOption) (*skills.ListRationalesResponse, error) {
-	for _, o := range m.OnListRationales {
-		if cmp.Equal(o.Given, given, protocmp.Transform()) {
-			return o.List, o.Error
-		}
-	}
-	return nil, fmt.Errorf("mock not found for %v", given)
-}
-
-func (m MockHardeningReportsClient) UpdateRationales(_ context.Context, given *skills.UpdateRationalesRequest, _ ...grpc.CallOption) (*skills.UpdateRationalesResponse, error) {
-	for _, o := range m.OnUpdateRationales {
-		if cmp.Equal(o.Given, given, protocmp.Transform()) {
-			return o.Result, o.Error
-		}
-	}
-	return nil, fmt.Errorf("mock not found for %v", given)
-}
-
-func (m MockHardeningReportsClient) ReviewRationale(_ context.Context, given *skills.ReviewRationaleRequest, _ ...grpc.CallOption) (*skills.Rationale, error) {
-	for _, o := range m.OnReviewRationale {
-		if cmp.Equal(o.Given, given, protocmp.Transform()) {
-			return o.Rationale, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)
