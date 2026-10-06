@@ -38,8 +38,10 @@ type StigReportsServiceClient interface {
 	// which is distinct from a report with zero failures.
 	GetStigReport(ctx context.Context, in *GetStigReportRequest, opts ...grpc.CallOption) (*StigReport, error)
 	// DownloadStigReport returns the report's canonical XCCDF XML document.
-	// Its data is the exact document represented by GetStigReport, identified
-	// by StigReport.xccdf_sha256.
+	// Get and Download perform independent reads; publication between calls can
+	// change the selected report. An architecture-scoped request selecting an
+	// index report with unknown architecture returns FAILED_PRECONDITION. Request
+	// the index digest without architecture to download that historical report.
 	// (-- api-linter: core::0136::response-message-name=disabled
 	// api-linter: core::0136::http-uri-suffix=disabled
 	// aip.dev/not-precedent: HttpBody preserves the raw XML response, and the
@@ -86,8 +88,10 @@ type StigReportsServiceServer interface {
 	// which is distinct from a report with zero failures.
 	GetStigReport(context.Context, *GetStigReportRequest) (*StigReport, error)
 	// DownloadStigReport returns the report's canonical XCCDF XML document.
-	// Its data is the exact document represented by GetStigReport, identified
-	// by StigReport.xccdf_sha256.
+	// Get and Download perform independent reads; publication between calls can
+	// change the selected report. An architecture-scoped request selecting an
+	// index report with unknown architecture returns FAILED_PRECONDITION. Request
+	// the index digest without architecture to download that historical report.
 	// (-- api-linter: core::0136::response-message-name=disabled
 	// api-linter: core::0136::http-uri-suffix=disabled
 	// aip.dev/not-precedent: HttpBody preserves the raw XML response, and the

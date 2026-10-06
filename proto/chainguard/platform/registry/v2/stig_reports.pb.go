@@ -121,6 +121,8 @@ type GetStigReportRequest struct {
 	// Architecture to descend into when the digest addresses an OCI index
 	// (e.g., "amd64", "arm64"). When empty, the report is read from the
 	// manifest as addressed by the digest, with no per-architecture descent.
+	// If the child has no report, an index report may be returned with the index
+	// as scanned_digest and architecture absent. Invalid reports are errors.
 	Architecture  string `protobuf:"bytes,3,opt,name=architecture,proto3" json:"architecture,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -187,6 +189,9 @@ type DownloadStigReportRequest struct {
 	// Architecture to descend into when the digest addresses an OCI index
 	// (e.g., "amd64", "arm64"). When empty, the document is read from the
 	// manifest as addressed by the digest, with no per-architecture descent.
+	// If discovery selects an index report with unknown architecture, an
+	// architecture-scoped download returns FAILED_PRECONDITION. Omit architecture
+	// to explicitly download the historical index report.
 	Architecture  string `protobuf:"bytes,3,opt,name=architecture,proto3" json:"architecture,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -491,9 +496,10 @@ type StigReport struct {
 	Rules []*StigRuleResult `protobuf:"bytes,7,rep,name=rules,proto3" json:"rules,omitempty"`
 	// Number of rules per result.
 	ResultCounts []*StigResultCount `protobuf:"bytes,8,rep,name=result_counts,json=resultCounts,proto3" json:"result_counts,omitempty"`
-	// Digest of the manifest whose filesystem contents were evaluated. Equal
-	// to the requested digest when the image itself was scanned; the assembly
-	// origin digest when serving the report for a custom-assembled rebuild.
+	// Signed subject digest of the selected report: the addressed manifest,
+	// resolved architecture child, or assembly origin. Historical index fallback
+	// returns the requested index digest with architecture absent; equality with
+	// the requested digest does not establish coverage for a requested child.
 	ScannedDigest string `protobuf:"bytes,9,opt,name=scanned_digest,json=scannedDigest,proto3" json:"scanned_digest,omitempty"`
 	// Per-group rollup of rule verdicts, one entry per group in the scan
 	// content, ordered by group ID. Empty when the scan document does not
@@ -502,8 +508,9 @@ type StigReport struct {
 	// Architecture of the manifest whose filesystem contents were evaluated;
 	// absent when it cannot be determined for a historical report.
 	Architecture *string `protobuf:"bytes,11,opt,name=architecture,proto3,oneof" json:"architecture,omitempty"`
-	// Lowercase hexadecimal SHA-256 digest of the canonical XCCDF XML returned
-	// by DownloadStigReport.
+	// Lowercase hexadecimal SHA-256 digest of this report's canonical XCCDF XML.
+	// A separate DownloadStigReport call may select a different report if
+	// registry publication changes between calls.
 	XccdfSha256   string `protobuf:"bytes,12,opt,name=xccdf_sha256,json=xccdfSha256,proto3" json:"xccdf_sha256,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

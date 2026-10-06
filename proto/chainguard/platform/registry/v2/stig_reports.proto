@@ -55,17 +55,18 @@ service StigReportsService {
   }
 
   // DownloadStigReport returns the report's canonical XCCDF XML document.
-  // Its data is the exact document represented by GetStigReport, identified
-  // by StigReport.xccdf_sha256.
+  // Get and Download perform independent reads; publication between calls can
+  // change the selected report. An architecture-scoped request selecting an
+  // index report with unknown architecture returns FAILED_PRECONDITION. Request
+  // the index digest without architecture to download that historical report.
   // (-- api-linter: core::0136::response-message-name=disabled
   // api-linter: core::0136::http-uri-suffix=disabled
   // aip.dev/not-precedent: HttpBody preserves the raw XML response, and the
   // resource-local download action intentionally uses the stable :download suffix. --)
   rpc DownloadStigReport(DownloadStigReportRequest) returns (google.api.HttpBody) {
     option (google.api.http) = {get: "/registry/v2/repos/{repo_uid=**}/digests/{digest}/stig:download"};
-    // Download performs the same verified registry read as GetStigReport;
-    // only the response representation differs. Keep its capability union,
-    // including TAG_LIST for legacy .att fallback, identical (see above).
+    // Keep the capability union identical to GetStigReport, including TAG_LIST
+    // for legacy .att fallback: both perform the same verified registry read.
     option (chainguard.annotations.iam) = {
       enabled: {
         capabilities: [
@@ -96,6 +97,8 @@ message GetStigReportRequest {
   // Architecture to descend into when the digest addresses an OCI index
   // (e.g., "amd64", "arm64"). When empty, the report is read from the
   // manifest as addressed by the digest, with no per-architecture descent.
+  // If the child has no report, an index report may be returned with the index
+  // as scanned_digest and architecture absent. Invalid reports are errors.
   string architecture = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
@@ -113,6 +116,9 @@ message DownloadStigReportRequest {
   // Architecture to descend into when the digest addresses an OCI index
   // (e.g., "amd64", "arm64"). When empty, the document is read from the
   // manifest as addressed by the digest, with no per-architecture descent.
+  // If discovery selects an index report with unknown architecture, an
+  // architecture-scoped download returns FAILED_PRECONDITION. Omit architecture
+  // to explicitly download the historical index report.
   string architecture = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
@@ -199,9 +205,10 @@ message StigReport {
   // Number of rules per result.
   repeated StigResultCount result_counts = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Digest of the manifest whose filesystem contents were evaluated. Equal
-  // to the requested digest when the image itself was scanned; the assembly
-  // origin digest when serving the report for a custom-assembled rebuild.
+  // Signed subject digest of the selected report: the addressed manifest,
+  // resolved architecture child, or assembly origin. Historical index fallback
+  // returns the requested index digest with architecture absent; equality with
+  // the requested digest does not establish coverage for a requested child.
   string scanned_digest = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Per-group rollup of rule verdicts, one entry per group in the scan
@@ -213,8 +220,9 @@ message StigReport {
   // absent when it cannot be determined for a historical report.
   optional string architecture = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Lowercase hexadecimal SHA-256 digest of the canonical XCCDF XML returned
-  // by DownloadStigReport.
+  // Lowercase hexadecimal SHA-256 digest of this report's canonical XCCDF XML.
+  // A separate DownloadStigReport call may select a different report if
+  // registry publication changes between calls.
   string xccdf_sha256 = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
