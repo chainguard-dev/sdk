@@ -14,6 +14,20 @@ import (
 	telemetry "chainguard.dev/sdk/proto/chainguard/platform/telemetry/v1alpha1"
 )
 
+func ExampleNewClientsFromConnection() {
+	conn, err := grpc.NewClient("api.chainguard.dev:443",
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	clients := telemetry.NewClientsFromConnection(conn)
+
+	fmt.Println(clients.Telemetry() != nil)
+	// Output: true
+}
+
 func ExampleNewTelemetryServiceClient() {
 	conn, err := grpc.NewClient("api.chainguard.dev:443",
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
