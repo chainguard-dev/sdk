@@ -147,17 +147,20 @@ func (TagSelector_VariantType) EnumDescriptor() ([]byte, []int) {
 	return file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDescGZIP(), []int{1, 1}
 }
 
-// OverlayBinding binds one overlay to one repo under a tag selector.
-// Its UID is a UIDP under the repo it attaches to. Bindings have no
-// name; audit rendering comes from the repo, the selector, and the
-// expanded overlay content.
+// OverlayBinding binds one overlay to one repo — or, when all_repos is
+// set, to every repo in an organization — under a tag selector. Its UID
+// is a UIDP under the resource it attaches to: the repo, or the
+// organization (root group) for all-repos bindings. Bindings have no
+// name; audit rendering comes from the repo (or the all-repos marker),
+// the selector, and the expanded overlay content.
 type OverlayBinding struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The unique identifier of this OverlayBinding, a UIDP under the repo
 	// it attaches to. Carries iam_scope so requests that embed the resource
 	// (UpdateOverlayBinding) resolve their authorization scope from it.
 	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
-	// The UIDP of the repo this binding applies to.
+	// The UIDP of the repo this binding applies to. Empty when all_repos
+	// is set.
 	Repo string `protobuf:"bytes,2,opt,name=repo,proto3" json:"repo,omitempty"`
 	// The referenced Overlay expanded inline (uid, name, and its config
 	// rendered in full) so list responses are audit-complete without
@@ -168,7 +171,14 @@ type OverlayBinding struct {
 	Overlay *Overlay `protobuf:"bytes,3,opt,name=overlay,proto3" json:"overlay,omitempty"`
 	// The selector picking which tags on the repo this binding applies to.
 	// See TagSelector for the supported kinds and precedence rules.
-	TagSelector   *TagSelector `protobuf:"bytes,5,opt,name=tag_selector,json=tagSelector,proto3" json:"tag_selector,omitempty"`
+	TagSelector *TagSelector `protobuf:"bytes,5,opt,name=tag_selector,json=tagSelector,proto3" json:"tag_selector,omitempty"`
+	// AllRepos marks a binding that applies to every repo in the
+	// organization — current and future — instead of a single repo. Such a
+	// binding's UID is a UIDP under the organization (root group) and
+	// `repo` is empty; the tag selector still scopes which tags are
+	// customized on each repo. Immutable, like the repo reference:
+	// changing a binding's scope is delete plus create.
+	AllRepos      bool `protobuf:"varint,6,opt,name=all_repos,json=allRepos,proto3" json:"all_repos,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -231,6 +241,13 @@ func (x *OverlayBinding) GetTagSelector() *TagSelector {
 	return nil
 }
 
+func (x *OverlayBinding) GetAllRepos() bool {
+	if x != nil {
+		return x.AllRepos
+	}
+	return false
+}
+
 // TagSelector selects a set of image tags on a repo. Kind discriminates
 // the matching mode; the payload field corresponding to Kind carries the
 // match input. Overlay bindings apply in a fixed precedence when multiple
@@ -249,6 +266,17 @@ func (x *OverlayBinding) GetTagSelector() *TagSelector {
 // merge commutatively: the bind-time compatibility check (see
 // CreateOverlayBindingRequest.tag_selector) guarantees their overlays'
 // configs never set the same field to different values.
+//
+// When the organization has all-repos bindings (see
+// CreateOverlayBindingRequest.all_repos), their three kind layers apply
+// BELOW the repo's own: all-repos ALL, VARIANT, EXACT compose first, then
+// the repo-scoped layers on top — a repo-scoped binding always wins
+// scalar conflicts against an all-repos binding, so all-repos bindings
+// act as organization-wide defaults that each repo's own bindings can
+// override. Packages still accumulate across all six layers. Scope
+// layers never co-match each other: the bind-time compatibility check
+// runs among all-repos bindings of the organization and among the repo's
+// own bindings, never across the two scopes.
 type TagSelector struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Kind is the matching mode.
@@ -327,7 +355,9 @@ func (x *TagSelector) GetVariantType() TagSelector_VariantType {
 //	content is unrepresentable by design. --)
 type CreateOverlayBindingRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The UIDP of the repo to attach to.
+	// The UIDP of the repo to attach to — or, when all_repos is set, the
+	// UIDP of the organization (root group) whose repos the binding
+	// applies to.
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
 	// References the overlay to attach: its UIDP, or its name resolved
 	// within the repo's organization.
@@ -352,7 +382,22 @@ type CreateOverlayBindingRequest struct {
 	// OVERLAY_BINDING_CONFLICT violation type — the two customization
 	// paths are mutually exclusive until the legacy value is migrated to
 	// an ALL binding.
-	TagSelector   *TagSelector `protobuf:"bytes,4,opt,name=tag_selector,json=tagSelector,proto3" json:"tag_selector,omitempty"`
+	TagSelector *TagSelector `protobuf:"bytes,4,opt,name=tag_selector,json=tagSelector,proto3" json:"tag_selector,omitempty"`
+	// AllRepos, when true, attaches the overlay to every repo in the
+	// organization named by `parent` — including repos created after the
+	// binding exists — instead of a single repo. `parent` must then be the
+	// organization's root group UIDP; a non-root parent fails
+	// InvalidArgument. The tag selector still scopes which tags are
+	// customized on each repo. At create time an all-repos binding is
+	// checked against the organization's other all-repos bindings only —
+	// at most one all-repos binding per (organization, overlay) pair
+	// (AlreadyExists), and co-matching selectors must reference overlays
+	// whose configs merge commutatively (FailedPrecondition) — never
+	// against individual repos' bindings: the two scopes compose in
+	// separate precedence layers at rebuild time (see TagSelector). Repos
+	// whose legacy custom_overlay is set keep the legacy behavior and skip
+	// all-repos bindings at rebuild time.
+	AllRepos      bool `protobuf:"varint,5,opt,name=all_repos,json=allRepos,proto3" json:"all_repos,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -408,14 +453,21 @@ func (x *CreateOverlayBindingRequest) GetTagSelector() *TagSelector {
 	return nil
 }
 
+func (x *CreateOverlayBindingRequest) GetAllRepos() bool {
+	if x != nil {
+		return x.AllRepos
+	}
+	return false
+}
+
 // UpdateOverlayBindingRequest is the request message for
 // UpdateOverlayBinding.
 type UpdateOverlayBindingRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The binding to update. The uid identifies the binding; tag_selector
-	// is its only mutable field. The repo and overlay reference are
-	// immutable (OUTPUT_ONLY): moving a binding is delete on the old repo
-	// plus create on the new one.
+	// is its only mutable field. The repo, the all_repos scope, and the
+	// overlay reference are immutable (OUTPUT_ONLY): moving or re-scoping
+	// a binding is delete on the old scope plus create on the new one.
 	OverlayBinding *OverlayBinding `protobuf:"bytes,1,opt,name=overlay_binding,json=overlayBinding,proto3" json:"overlay_binding,omitempty"`
 	// The list of fields to update. If not provided, an implied
 	// field mask is used equivalent to all fields that are populated
@@ -570,7 +622,8 @@ type ListOverlayBindingsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Filters records based on their position in the group hierarchy.
 	// Bindings are children of their repo, so children_of a repo UIDP
-	// lists one repo's bindings.
+	// lists one repo's bindings. All-repos bindings are children of the
+	// organization, so children_of the org's root UIDP lists them.
 	Uidp *v1.UIDPFilter `protobuf:"bytes,1,opt,name=uidp,proto3" json:"uidp,omitempty"`
 	// If set, only returns bindings referencing this overlay UID.
 	Overlay string `protobuf:"bytes,2,opt,name=overlay,proto3" json:"overlay,omitempty"`
@@ -746,13 +799,14 @@ var File_chainguard_platform_registry_v2beta1_overlay_bindings_proto protoreflec
 
 const file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDesc = "" +
 	"\n" +
-	";chainguard/platform/registry/v2beta1/overlay_bindings.proto\x12$chainguard.platform.registry.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a3chainguard/platform/registry/v2beta1/overlays.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a&platform/common/v1/uidp.platform.proto\"\xf0\x02\n" +
+	";chainguard/platform/registry/v2beta1/overlay_bindings.proto\x12$chainguard.platform.registry.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a3chainguard/platform/registry/v2beta1/overlays.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a&platform/common/v1/uidp.platform.proto\"\x93\x03\n" +
 	"\x0eOverlayBinding\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
 	"\x04repo\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x04repo\x12M\n" +
 	"\aoverlay\x18\x03 \x01(\v2-.chainguard.platform.registry.v2beta1.OverlayB\x04\xe2A\x01\x03R\aoverlay\x12Z\n" +
-	"\ftag_selector\x18\x05 \x01(\v21.chainguard.platform.registry.v2beta1.TagSelectorB\x04\xe2A\x01\x02R\vtagSelector:o\xeaAl\n" +
+	"\ftag_selector\x18\x05 \x01(\v21.chainguard.platform.registry.v2beta1.TagSelectorB\x04\xe2A\x01\x02R\vtagSelector\x12!\n" +
+	"\tall_repos\x18\x06 \x01(\bB\x04\xe2A\x01\x03R\ballRepos:o\xeaAl\n" +
 	"&registry.chainguard.dev/OverlayBinding\x12!overlayBindings/{overlay_binding}*\x0foverlayBindings2\x0eoverlayBindingJ\x04\b\x04\x10\x05R\x04tags\"\xf2\x02\n" +
 	"\vTagSelector\x12P\n" +
 	"\x04kind\x18\x01 \x01(\x0e26.chainguard.platform.registry.v2beta1.TagSelector.KindB\x04\xe2A\x01\x02R\x04kind\x12\x18\n" +
@@ -766,12 +820,13 @@ const file_chainguard_platform_registry_v2beta1_overlay_bindings_proto_rawDesc =
 	"\fKIND_VARIANT\x10\x03\"A\n" +
 	"\vVariantType\x12\x1c\n" +
 	"\x18VARIANT_TYPE_UNSPECIFIED\x10\x00\x12\x14\n" +
-	"\x10VARIANT_TYPE_DEV\x10\x01\"\xc9\x01\n" +
+	"\x10VARIANT_TYPE_DEV\x10\x01\"\xec\x01\n" +
 	"\x1bCreateOverlayBindingRequest\x12\"\n" +
 	"\x06parent\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12\x1e\n" +
 	"\aoverlay\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\aoverlay\x12Z\n" +
-	"\ftag_selector\x18\x04 \x01(\v21.chainguard.platform.registry.v2beta1.TagSelectorB\x04\xe2A\x01\x02R\vtagSelectorJ\x04\b\x03\x10\x04R\x04tags\"\xcb\x01\n" +
+	"\ftag_selector\x18\x04 \x01(\v21.chainguard.platform.registry.v2beta1.TagSelectorB\x04\xe2A\x01\x02R\vtagSelector\x12!\n" +
+	"\tall_repos\x18\x05 \x01(\bB\x04\xe2A\x01\x01R\ballReposJ\x04\b\x03\x10\x04R\x04tags\"\xcb\x01\n" +
 	"\x1bUpdateOverlayBindingRequest\x12i\n" +
 	"\x0foverlay_binding\x18\x01 \x01(\v24.chainguard.platform.registry.v2beta1.OverlayBindingB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x0eoverlayBinding\x12A\n" +

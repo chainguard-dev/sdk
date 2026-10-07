@@ -130,9 +130,10 @@ func Test_Conformance_PayloadShape(t *testing.T) {
 	}
 }
 
-// Requirement: Binding lifecycle — one repo per binding, overlay
-// referenced by a plain string (UIDP or name), a tag_selector carrying
-// the matching mode + payload, and no inline-content field of any kind.
+// Requirement: Binding lifecycle — one repo per binding (or every repo
+// in the organization when all_repos is set), overlay referenced by a
+// plain string (UIDP or name), a tag_selector carrying the matching
+// mode + payload, and no inline-content field of any kind.
 func Test_Conformance_BindingShape(t *testing.T) {
 	create := (&CreateOverlayBindingRequest{}).ProtoReflect().Descriptor()
 	fields := make([]string, 0, create.Fields().Len())
@@ -140,22 +141,23 @@ func Test_Conformance_BindingShape(t *testing.T) {
 		fields = append(fields, string(create.Fields().Get(i).Name()))
 	}
 	slices.Sort(fields)
-	if want := []string{"overlay", "parent", "tag_selector"}; !slices.Equal(fields, want) {
+	if want := []string{"all_repos", "overlay", "parent", "tag_selector"}; !slices.Equal(fields, want) {
 		t.Errorf("CreateOverlayBindingRequest fields: got = %v, want = %v", fields, want)
 	}
 	if fd := create.Fields().ByName("overlay"); fd.Kind() != protoreflect.StringKind {
 		t.Error("CreateOverlayBindingRequest.overlay must be a plain string reference — inline content is unrepresentable")
 	}
 
-	// Audit-complete shapes: binding embeds the overlay, its repo, and
-	// the tag_selector; the list request narrows by scope and by overlay.
+	// Audit-complete shapes: binding embeds the overlay, its repo (or
+	// the all_repos marker), and the tag_selector; the list request
+	// narrows by scope and by overlay.
 	att := (&OverlayBinding{}).ProtoReflect().Descriptor()
 	attFields := make([]string, 0, att.Fields().Len())
 	for i := range att.Fields().Len() {
 		attFields = append(attFields, string(att.Fields().Get(i).Name()))
 	}
 	slices.Sort(attFields)
-	if want := []string{"overlay", "repo", "tag_selector", "uid"}; !slices.Equal(attFields, want) {
+	if want := []string{"all_repos", "overlay", "repo", "tag_selector", "uid"}; !slices.Equal(attFields, want) {
 		t.Errorf("OverlayBinding fields: got = %v, want = %v", attFields, want)
 	}
 
