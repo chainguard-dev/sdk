@@ -555,22 +555,40 @@ var (
 	// scoped to the caller's own instance (group). It backs the sandbox.user
 	// role and is included in OwnerCaps. It deliberately omits
 	// sandbox.session.list, which reaches every user's sessions
-	// (SandboxAdminCaps).
+	// (SandboxAdminCaps). It includes sandbox.identity.create, so a user can
+	// define personal identities for their own sessions; defining one grants
+	// nothing until the customer's cloud trusts its subject. It omits
+	// sandbox.identity.use (SandboxIdentityUserCaps): sandbox.user is usually
+	// bound at the organization root, and use is checked at a shared
+	// identity's groups, so carrying it here would admit every sandbox user to
+	// every shared identity.
 	SandboxUserCaps = SortCaps([]Capability{
 		Capability_CAP_SANDBOX_RUN_CREATE,
 		Capability_CAP_SANDBOX_RUN_LIST,
 		Capability_CAP_SANDBOX_RUN_CANCEL,
 		Capability_CAP_SANDBOX_SESSION_CREATE,
+		Capability_CAP_SANDBOX_IDENTITY_CREATE,
+	})
+
+	// SandboxIdentityUserCaps is sandbox.identity.use: consenting a shared
+	// develop-session identity into one's own session. It backs the
+	// sandbox.identity.user role, which an owner binds at the groups a shared
+	// identity names; holding it at one of them is what admits a user.
+	SandboxIdentityUserCaps = SortCaps([]Capability{
+		Capability_CAP_SANDBOX_IDENTITY_USE,
 	})
 
 	// SandboxAdminCaps extends SandboxUserCaps with sandbox.session.list: seeing
 	// and managing (renaming, deleting) every user's develop sessions in the
 	// instance, not only one's own. Deleting a session destroys its sealed
 	// snapshot, so this is an administrative power; it is included in
-	// OwnerCaps and in no customer-grantable role below Owner.
+	// OwnerCaps and in no customer-grantable role below Owner. It also carries
+	// sandbox.identity.admin (defining shared identities) and
+	// sandbox.identity.use.
 	SandboxAdminCaps = SortCaps([]Capability{
 		Capability_CAP_SANDBOX_SESSION_LIST,
-	}, SandboxUserCaps)
+		Capability_CAP_SANDBOX_IDENTITY_ADMIN,
+	}, SandboxUserCaps, SandboxIdentityUserCaps)
 
 	// ArgosOperatorCaps is the capability set for managing argos
 	// (client-side-encrypted document) records.

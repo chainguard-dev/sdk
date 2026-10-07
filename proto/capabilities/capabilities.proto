@@ -556,6 +556,26 @@ enum Capability {
   // administrative power held by Owners, not by sandbox.user.
   CAP_SANDBOX_SESSION_CREATE = 3010 [(name) = "sandbox.session.create", (bit) = 235];
   CAP_SANDBOX_SESSION_LIST   = 3011 [(name) = "sandbox.session.list",   (bit) = 236];
+  // Sandbox develop session identities: the GCP (and later other cloud)
+  // identities a session may act as. identity.create defines, updates, and
+  // deletes the caller's own personal identities, via the sandbox.user role.
+  // identity.use consents a shared identity into one's session; it is checked
+  // at the shared identity's groups, so it has its own role
+  // (sandbox.identity.user) that an owner binds at the groups they choose.
+  // identity.admin defines shared identities and sees every identity in the
+  // instance; Owners hold it.
+  CAP_SANDBOX_IDENTITY_CREATE = 3012 [
+    (name) = "sandbox.identity.create",
+    (bit) = 242
+  ];
+  CAP_SANDBOX_IDENTITY_USE = 3013 [
+    (name) = "sandbox.identity.use",
+    (bit) = 243
+  ];
+  CAP_SANDBOX_IDENTITY_ADMIN = 3014 [
+    (name) = "sandbox.identity.admin",
+    (bit) = 244
+  ];
 
   // Telemetry: read access to the container images a group's linked
   // repositories declare, as observed by the telemetry reconciler.
@@ -563,5 +583,5 @@ enum Capability {
   CAP_TELEMETRY_CONTAINERS_LIST = 3101 [(name) = "telemetry.containers.list", (bit) = 241];
 
   reserved 1;
-  // next bit: 242
+  // next bit: 245
 }

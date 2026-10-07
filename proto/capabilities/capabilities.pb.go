@@ -458,6 +458,17 @@ const (
 	// administrative power held by Owners, not by sandbox.user.
 	Capability_CAP_SANDBOX_SESSION_CREATE Capability = 3010
 	Capability_CAP_SANDBOX_SESSION_LIST   Capability = 3011
+	// Sandbox develop session identities: the GCP (and later other cloud)
+	// identities a session may act as. identity.create defines, updates, and
+	// deletes the caller's own personal identities, via the sandbox.user role.
+	// identity.use consents a shared identity into one's session; it is checked
+	// at the shared identity's groups, so it has its own role
+	// (sandbox.identity.user) that an owner binds at the groups they choose.
+	// identity.admin defines shared identities and sees every identity in the
+	// instance; Owners hold it.
+	Capability_CAP_SANDBOX_IDENTITY_CREATE Capability = 3012
+	Capability_CAP_SANDBOX_IDENTITY_USE    Capability = 3013
+	Capability_CAP_SANDBOX_IDENTITY_ADMIN  Capability = 3014
 	// Telemetry: read access to the container images a group's linked
 	// repositories declare, as observed by the telemetry reconciler.
 	// protolint:disable:next ENUM_FIELD_NAMES_PREFIX MAX_LINE_LENGTH
@@ -703,6 +714,9 @@ var (
 		3202:  "CAP_ENTITLEMENTS_FEATURES_MANAGE",
 		3010:  "CAP_SANDBOX_SESSION_CREATE",
 		3011:  "CAP_SANDBOX_SESSION_LIST",
+		3012:  "CAP_SANDBOX_IDENTITY_CREATE",
+		3013:  "CAP_SANDBOX_IDENTITY_USE",
+		3014:  "CAP_SANDBOX_IDENTITY_ADMIN",
 		3101:  "CAP_TELEMETRY_CONTAINERS_LIST",
 	}
 	Capability_value = map[string]int32{
@@ -942,6 +956,9 @@ var (
 		"CAP_ENTITLEMENTS_FEATURES_MANAGE":                   3202,
 		"CAP_SANDBOX_SESSION_CREATE":                         3010,
 		"CAP_SANDBOX_SESSION_LIST":                           3011,
+		"CAP_SANDBOX_IDENTITY_CREATE":                        3012,
+		"CAP_SANDBOX_IDENTITY_USE":                           3013,
+		"CAP_SANDBOX_IDENTITY_ADMIN":                         3014,
 		"CAP_TELEMETRY_CONTAINERS_LIST":                      3101,
 	}
 )
@@ -1026,7 +1043,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xa7\x82\x01\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xf4\x83\x01\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1283,7 +1300,10 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x1eCAP_ENTITLEMENTS_FEATURES_LIST\x10\x81\x19\x1a,\xa8ˑM\xee\x01\x9a\xaf\xa8\xd2\x05\x1aentitlements.features.list\xa0\xaf\xa8\xd2\x05\x01\x12U\n" +
 	" CAP_ENTITLEMENTS_FEATURES_MANAGE\x10\x82\x19\x1a.\xa8ˑM\xef\x01\x9a\xaf\xa8\xd2\x05\x1centitlements.features.manage\xa0\xaf\xa8\xd2\x05\x01\x12C\n" +
 	"\x1aCAP_SANDBOX_SESSION_CREATE\x10\xc2\x17\x1a\"\xa8ˑM\xeb\x01\x9a\xaf\xa8\xd2\x05\x16sandbox.session.create\x12?\n" +
-	"\x18CAP_SANDBOX_SESSION_LIST\x10\xc3\x17\x1a \xa8ˑM\xec\x01\x9a\xaf\xa8\xd2\x05\x14sandbox.session.list\x12I\n" +
+	"\x18CAP_SANDBOX_SESSION_LIST\x10\xc3\x17\x1a \xa8ˑM\xec\x01\x9a\xaf\xa8\xd2\x05\x14sandbox.session.list\x12E\n" +
+	"\x1bCAP_SANDBOX_IDENTITY_CREATE\x10\xc4\x17\x1a#\xa8ˑM\xf2\x01\x9a\xaf\xa8\xd2\x05\x17sandbox.identity.create\x12?\n" +
+	"\x18CAP_SANDBOX_IDENTITY_USE\x10\xc5\x17\x1a \xa8ˑM\xf3\x01\x9a\xaf\xa8\xd2\x05\x14sandbox.identity.use\x12C\n" +
+	"\x1aCAP_SANDBOX_IDENTITY_ADMIN\x10\xc6\x17\x1a\"\xa8ˑM\xf4\x01\x9a\xaf\xa8\xd2\x05\x16sandbox.identity.admin\x12I\n" +
 	"\x1dCAP_TELEMETRY_CONTAINERS_LIST\x10\x9d\x18\x1a%\xa8ˑM\xf1\x01\x9a\xaf\xa8\xd2\x05\x19telemetry.containers.list\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x06\b\xd1\x0e\x10\xd1\x0e\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +
 	"\x03bit\x12!.google.protobuf.EnumValueOptions\x18\xb5\x99\xd2\t \x01(\rR\x03bit:I\n" +
