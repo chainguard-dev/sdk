@@ -768,13 +768,17 @@ type CustomOverlay struct {
 	// Additional account customizations applied during rebuilds.
 	Accounts     *ApkoConfig_Accounts        `protobuf:"bytes,4,opt,name=accounts,proto3" json:"accounts,omitempty"`
 	Certificates *CustomOverlay_Certificates `protobuf:"bytes,15,opt,name=certificates,proto3" json:"certificates,omitempty"`
-	// NOTE: Guarded Entrypoint is IN DEVELOPMENT and not yet available;
-	// setting this field is rejected for every organization.
+	// Guarded Entrypoint is a Beta feature. To get access, contact Chainguard
+	// customer support.
 	//
 	// Wraps the image entrypoint with /usr/bin/guarded-entrypoint on rebuild.
+	// At container start the wrapper replaces each environment value written
+	// as a secret reference, cg+BACKEND://REF (for example
+	// cg+gsm://projects/acme/secrets/db/versions/latest), with the secret,
+	// runs any preflight checks, and then starts the app.
 	GuardedEntrypoint bool `protobuf:"varint,5,opt,name=guarded_entrypoint,json=guardedEntrypoint,proto3" json:"guarded_entrypoint,omitempty"`
-	// NOTE: Part of Guarded Entrypoint, which is IN DEVELOPMENT and not yet
-	// available; setting this field is rejected for every organization.
+	// Part of Guarded Entrypoint, a Beta feature. To get access, contact
+	// Chainguard customer support.
 	//
 	// Readiness checks to run before starting the app. Requires
 	// guarded_entrypoint. Up to 32 entries. The syncer bakes each
@@ -783,14 +787,14 @@ type CustomOverlay struct {
 	// GUARDED_PREFLIGHT_0=tcp=redis:6379,timeout=60s,interval=1s,on_failure=fail
 	// (n starts at 0; values may not contain "," or "=").
 	Preflight []*CustomOverlay_Preflight `protobuf:"bytes,6,rep,name=preflight,proto3" json:"preflight,omitempty"`
-	// NOTE: Part of Guarded Entrypoint, which is IN DEVELOPMENT and not yet
-	// available; setting this field is rejected for every organization.
+	// Part of Guarded Entrypoint, a Beta feature. To get access, contact
+	// Chainguard customer support.
 	//
 	// Command override for the guarded_entrypoint wrapper. Requires
 	// guarded_entrypoint.
 	CommandOverride *CustomOverlay_CommandOverride `protobuf:"bytes,7,opt,name=command_override,json=commandOverride,proto3" json:"command_override,omitempty"`
-	// NOTE: Part of Guarded Entrypoint, which is IN DEVELOPMENT and not yet
-	// available; setting this field is rejected for every organization.
+	// Part of Guarded Entrypoint, a Beta feature. To get access, contact
+	// Chainguard customer support.
 	//
 	// How the wrapper handles secret-resolution failures. Requires
 	// guarded_entrypoint. Default is FAIL_MODE_CLOSED. Baked into the
@@ -6007,19 +6011,21 @@ func (x *CustomOverlay_Preflight) GetOnFailure() CustomOverlay_Preflight_OnFailu
 
 // CommandOverride decides what the wrapper execs after preparing
 // the environment: in MODE_DEFAULT the wrapper execs command only
-// when the container passes no arguments, and its own argv (the
-// image's original ENTRYPOINT followed by CMD) otherwise; in
-// MODE_PREPEND it execs command followed by that argv; in
+// when it receives no arguments at all (the image has no ENTRYPOINT
+// or CMD and none are passed at run time), and otherwise execs the
+// arguments it received; in MODE_PREPEND it execs command followed
+// by those arguments; in
 // MODE_OVERRIDE it execs command alone. The image's ENTRYPOINT
 // (wrapper-prefixed) and CMD are unchanged in every mode. The
 // syncer bakes this into the image as two environment variables:
 // GUARDED_COMMAND_MODE=default|prepend|override and
 // GUARDED_COMMAND=<JSON array>, e.g.
-// GUARDED_COMMAND=["redis-server","--requirepass","hunter2"].
+// GUARDED_COMMAND=["redis-server","--requirepass","${REDIS_PASSWORD}"].
 type CustomOverlay_CommandOverride struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Argument list that combines with the container's runtime
-	// arguments per mode. When empty, no override applies.
+	// arguments per mode. When empty, the wrapper execs the arguments
+	// it received.
 	//
 	// Each entry expands ${VAR} from the container's resolved
 	// environment, after secret references are resolved; the runtime
@@ -6029,6 +6035,13 @@ type CustomOverlay_CommandOverride struct {
 	// expanded value is visible in the process's command line, so a
 	// secret passed this way is readable by anything that can inspect
 	// the process.
+	//
+	// The command itself is stored in the image config, which anyone who
+	// can pull the image can read, so never write a secret into it as a
+	// literal value. Reference an environment variable that holds a
+	// secret reference instead, for example ${REDIS_PASSWORD}. That keeps
+	// the secret out of the image, but as with any ${VAR}, the expanded
+	// value is still visible in the process's command line.
 	Command []string `protobuf:"bytes,1,rep,name=command,proto3" json:"command,omitempty"`
 	// How command combines with the container's runtime arguments.
 	// Default is MODE_DEFAULT. Non-empty command is required when mode
