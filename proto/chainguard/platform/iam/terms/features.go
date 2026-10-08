@@ -14,9 +14,9 @@ var featureDocuments = map[string][]string{
 	// Checks runs customer code under the Code Analysis Terms, and is a
 	// Technology Preview as the MSLA defines one.
 	"sandbox_checks": {"code-analysis-terms.v1", "msla.v1"},
-	// Workspaces has its own terms, not yet published. They must be before
-	// Workspaces is granted to customers outside a trial.
-	"sandbox_workspaces": nil,
+	// Workspaces is a Secured Platform Offering under the Secured Platform
+	// Terms, and a Technology Preview as the MSLA defines one.
+	"sandbox_workspaces": {"secure-platform-terms.v1", "msla.v1"},
 }
 
 // FeatureDocuments returns the IDs of the documents an organization must

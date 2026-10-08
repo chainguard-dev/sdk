@@ -167,6 +167,7 @@ func TestDocumentMetadata_KnownDocs(t *testing.T) {
 		{"agent-skills-tos.v1", "Agent Skills Terms of Service"},
 		{"code-analysis-terms.v1", "Code Analysis Terms"},
 		{"msla.v1", "Master Service and License Agreement"},
+		{"secure-platform-terms.v1", "Secured Platform Terms"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.id, func(t *testing.T) {

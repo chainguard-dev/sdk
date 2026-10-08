@@ -44,6 +44,11 @@ var knownDocuments = map[string]Document{
 		Label: "Master Service and License Agreement",
 		URL:   "https://www.chainguard.dev/legal/master-service-and-license-agreement",
 	},
+	"secure-platform-terms.v1": {
+		ID:    "secure-platform-terms.v1",
+		Label: "Secured Platform Terms",
+		URL:   "https://www.chainguard.dev/legal/secure-platform-terms",
+	},
 }
 
 // DocumentMetadata returns the display metadata for a known document ID,
