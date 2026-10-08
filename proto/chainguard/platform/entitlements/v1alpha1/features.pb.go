@@ -422,13 +422,16 @@ func (x *SandboxWorkspacesConfig) GetMaxResourceClass() *ResourceClassLimit {
 	return nil
 }
 
-// ResourceClassLimit caps the size of one guest. Both fields are positive.
+// ResourceClassLimit caps the size of one guest. CPU and memory are positive.
 type ResourceClassLimit struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The most vCPUs one guest may request.
 	Cpus int32 `protobuf:"varint,1,opt,name=cpus,proto3" json:"cpus,omitempty"`
 	// The most memory one guest may request, in MiB.
-	MemoryMib     int64 `protobuf:"varint,2,opt,name=memory_mib,json=memoryMib,proto3" json:"memory_mib,omitempty"`
+	MemoryMib int64 `protobuf:"varint,2,opt,name=memory_mib,json=memoryMib,proto3" json:"memory_mib,omitempty"`
+	// The most guest scratch disk in MiB. Unset means no disk cap;
+	// zero allows none.
+	DiskMib       *int64 `protobuf:"varint,3,opt,name=disk_mib,json=diskMib,proto3,oneof" json:"disk_mib,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -473,6 +476,13 @@ func (x *ResourceClassLimit) GetCpus() int32 {
 func (x *ResourceClassLimit) GetMemoryMib() int64 {
 	if x != nil {
 		return x.MemoryMib
+	}
+	return 0
+}
+
+func (x *ResourceClassLimit) GetDiskMib() int64 {
+	if x != nil && x.DiskMib != nil {
+		return *x.DiskMib
 	}
 	return 0
 }
@@ -926,11 +936,13 @@ const file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDesc = ""
 	"\x12max_resource_class\x18\x04 \x01(\v2=.chainguard.platform.entitlements.v1alpha1.ResourceClassLimitB\x04\xe2A\x01\x01R\x10maxResourceClassB\x17\n" +
 	"\x15_max_sessions_per_orgB\x18\n" +
 	"\x16_max_sessions_per_userB\x13\n" +
-	"\x11_vcpu_hour_budget\"S\n" +
+	"\x11_vcpu_hour_budget\"\x86\x01\n" +
 	"\x12ResourceClassLimit\x12\x18\n" +
 	"\x04cpus\x18\x01 \x01(\x05B\x04\xe2A\x01\x02R\x04cpus\x12#\n" +
 	"\n" +
-	"memory_mib\x18\x02 \x01(\x03B\x04\xe2A\x01\x02R\tmemoryMib\"s\n" +
+	"memory_mib\x18\x02 \x01(\x03B\x04\xe2A\x01\x02R\tmemoryMib\x12$\n" +
+	"\bdisk_mib\x18\x03 \x01(\x03B\x04\xe2A\x01\x01H\x00R\adiskMib\x88\x01\x01B\v\n" +
+	"\t_disk_mib\"s\n" +
 	"\x1eListFeatureEntitlementsRequest\x12\"\n" +
 	"\x06parent\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12-\n" +
@@ -1051,6 +1063,7 @@ func file_chainguard_platform_entitlements_v1alpha1_features_proto_init() {
 	}
 	file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[2].OneofWrappers = []any{}
+	file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[3].OneofWrappers = []any{}
 	file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[6].OneofWrappers = []any{
 		(*SetFeatureEntitlementRequest_SandboxChecks)(nil),
 		(*SetFeatureEntitlementRequest_SandboxWorkspaces)(nil),

@@ -219,12 +219,15 @@ message SandboxWorkspacesConfig {
   ];
 }
 
-// ResourceClassLimit caps the size of one guest. Both fields are positive.
+// ResourceClassLimit caps the size of one guest. CPU and memory are positive.
 message ResourceClassLimit {
   // The most vCPUs one guest may request.
   int32 cpus = 1 [(google.api.field_behavior) = REQUIRED];
   // The most memory one guest may request, in MiB.
   int64 memory_mib = 2 [(google.api.field_behavior) = REQUIRED];
+  // The most guest scratch disk in MiB. Unset means no disk cap;
+  // zero allows none.
+  optional int64 disk_mib = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message ListFeatureEntitlementsRequest {
