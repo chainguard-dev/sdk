@@ -134,6 +134,55 @@ func (MigrationFeature) EnumDescriptor() ([]byte, []int) {
 	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{1}
 }
 
+// MigrationMode distinguishes configured migrations from one-time requests.
+type MigrationMode int32
+
+const (
+	// Preserve existing behavior controlled by configured_migrations.
+	MigrationMode_MIGRATION_MODE_UNSPECIFIED MigrationMode = 0
+	// Run Images once without requiring a repository migration opt-in.
+	MigrationMode_MIGRATION_MODE_ON_DEMAND MigrationMode = 1
+)
+
+// Enum value maps for MigrationMode.
+var (
+	MigrationMode_name = map[int32]string{
+		0: "MIGRATION_MODE_UNSPECIFIED",
+		1: "MIGRATION_MODE_ON_DEMAND",
+	}
+	MigrationMode_value = map[string]int32{
+		"MIGRATION_MODE_UNSPECIFIED": 0,
+		"MIGRATION_MODE_ON_DEMAND":   1,
+	}
+)
+
+func (x MigrationMode) Enum() *MigrationMode {
+	p := new(MigrationMode)
+	*p = x
+	return p
+}
+
+func (x MigrationMode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (MigrationMode) Descriptor() protoreflect.EnumDescriptor {
+	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_enumTypes[2].Descriptor()
+}
+
+func (MigrationMode) Type() protoreflect.EnumType {
+	return &file_chainguard_platform_guardener_v1alpha1_guardener_proto_enumTypes[2]
+}
+
+func (x MigrationMode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use MigrationMode.Descriptor instead.
+func (MigrationMode) EnumDescriptor() ([]byte, []int) {
+	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{2}
+}
+
 // RepoVisibilityScope controls which repositories guardener responds to for the
 // group.
 type Entitlement_RepoVisibilityScope int32
@@ -175,11 +224,11 @@ func (x Entitlement_RepoVisibilityScope) String() string {
 }
 
 func (Entitlement_RepoVisibilityScope) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_enumTypes[2].Descriptor()
+	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_enumTypes[3].Descriptor()
 }
 
 func (Entitlement_RepoVisibilityScope) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_guardener_v1alpha1_guardener_proto_enumTypes[2]
+	return &file_chainguard_platform_guardener_v1alpha1_guardener_proto_enumTypes[3]
 }
 
 func (x Entitlement_RepoVisibilityScope) Number() protoreflect.EnumNumber {
@@ -364,6 +413,8 @@ func (x *UpdateEntitlementRequest) GetRepoVisibilityScope() Entitlement_RepoVisi
 	return Entitlement_REPO_VISIBILITY_SCOPE_UNSPECIFIED
 }
 
+// MigrateRepositoryRequest identifies the repository, group and migration
+// intent.
 type MigrateRepositoryRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// UIDP of the caller's group (org). Must own the repository's installation.
@@ -375,10 +426,17 @@ type MigrateRepositoryRequest struct {
 	Url string `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
 	// Run registered migrations enabled by the repository's configuration.
 	// Permissions and deployment availability are reported per feature.
-	// False preserves legacy Actions-only behavior.
+	// False with an unspecified mode preserves legacy Actions-only behavior.
 	ConfiguredMigrations bool `protobuf:"varint,3,opt,name=configured_migrations,json=configuredMigrations,proto3" json:"configured_migrations,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// ON_DEMAND authorizes a one-time Images run without a YAML migration opt-in.
+	// It requires features to contain only IMAGES and cannot be combined with
+	// configured_migrations. An explicit migration opt-out remains effective.
+	Mode MigrationMode `protobuf:"varint,4,opt,name=mode,proto3,enum=chainguard.platform.guardener.v1alpha1.MigrationMode" json:"mode,omitempty"`
+	// Workers to run for an ON_DEMAND request, which currently requires exactly
+	// IMAGES. Must be empty for other requests.
+	Features      []MigrationFeature `protobuf:"varint,5,rep,packed,name=features,proto3,enum=chainguard.platform.guardener.v1alpha1.MigrationFeature" json:"features,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *MigrateRepositoryRequest) Reset() {
@@ -432,7 +490,21 @@ func (x *MigrateRepositoryRequest) GetConfiguredMigrations() bool {
 	return false
 }
 
-// MigrationFeatureResult describes one feature in a configured migration.
+func (x *MigrateRepositoryRequest) GetMode() MigrationMode {
+	if x != nil {
+		return x.Mode
+	}
+	return MigrationMode_MIGRATION_MODE_UNSPECIFIED
+}
+
+func (x *MigrateRepositoryRequest) GetFeatures() []MigrationFeature {
+	if x != nil {
+		return x.Features
+	}
+	return nil
+}
+
+// MigrationFeatureResult describes one feature in a repository migration.
 type MigrationFeatureResult struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The feature whose effective configuration controls this migration.
@@ -609,7 +681,9 @@ type MigrateOperationMetadata struct {
 	// True when this operation tracks configuration-driven feature migrations.
 	ConfiguredMigrations bool `protobuf:"varint,7,opt,name=configured_migrations,json=configuredMigrations,proto3" json:"configured_migrations,omitempty"`
 	// Progress of each feature, including any already-completed PRs or failures.
-	Results       []*MigrationFeatureResult `protobuf:"bytes,8,rep,name=results,proto3" json:"results,omitempty"`
+	Results []*MigrationFeatureResult `protobuf:"bytes,8,rep,name=results,proto3" json:"results,omitempty"`
+	// The requested mode; unspecified preserves legacy/configured behavior.
+	Mode          MigrationMode `protobuf:"varint,9,opt,name=mode,proto3,enum=chainguard.platform.guardener.v1alpha1.MigrationMode" json:"mode,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -700,8 +774,15 @@ func (x *MigrateOperationMetadata) GetResults() []*MigrationFeatureResult {
 	return nil
 }
 
+func (x *MigrateOperationMetadata) GetMode() MigrationMode {
+	if x != nil {
+		return x.Mode
+	}
+	return MigrationMode_MIGRATION_MODE_UNSPECIFIED
+}
+
 // MigrateOperationResponse is carried in Operation.response when a migration
-// completes. Leaf failures use Operation.error. Configured requests instead
+// completes. Leaf failures use Operation.error. Parent operations instead
 // carry independent feature failures in results so successful PRs remain
 // visible.
 type MigrateOperationResponse struct {
@@ -714,7 +795,7 @@ type MigrateOperationResponse struct {
 	NoOp bool `protobuf:"varint,2,opt,name=no_op,json=noOp,proto3" json:"no_op,omitempty"`
 	// True when repository configuration or the deployment disabled migration.
 	Disabled bool `protobuf:"varint,3,opt,name=disabled,proto3" json:"disabled,omitempty"`
-	// Results for a configured request. The parent completes after all children
+	// Results for a parent operation. The parent completes after all children
 	// terminate; check each error before treating the request as successful.
 	Results       []*MigrationFeatureResult `protobuf:"bytes,4,rep,name=results,proto3" json:"results,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1266,12 +1347,14 @@ const file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDesc = "" +
 	"\x18UpdateEntitlementRequest\x12 \n" +
 	"\x05group\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x05group\x12{\n" +
-	"\x15repo_visibility_scope\x18\x02 \x01(\x0e2G.chainguard.platform.guardener.v1alpha1.Entitlement.RepoVisibilityScopeR\x13repoVisibilityScope\"\x8f\x01\n" +
+	"\x15repo_visibility_scope\x18\x02 \x01(\x0e2G.chainguard.platform.guardener.v1alpha1.Entitlement.RepoVisibilityScopeR\x13repoVisibilityScope\"\xbc\x02\n" +
 	"\x18MigrateRepositoryRequest\x12 \n" +
 	"\x05group\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x05group\x12\x16\n" +
 	"\x03url\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x03url\x129\n" +
-	"\x15configured_migrations\x18\x03 \x01(\bB\x04\xe2A\x01\x01R\x14configuredMigrations\"\xcd\x02\n" +
+	"\x15configured_migrations\x18\x03 \x01(\bB\x04\xe2A\x01\x01R\x14configuredMigrations\x12O\n" +
+	"\x04mode\x18\x04 \x01(\x0e25.chainguard.platform.guardener.v1alpha1.MigrationModeB\x04\xe2A\x01\x01R\x04mode\x12Z\n" +
+	"\bfeatures\x18\x05 \x03(\x0e28.chainguard.platform.guardener.v1alpha1.MigrationFeatureB\x04\xe2A\x01\x01R\bfeatures\"\xcd\x02\n" +
 	"\x16MigrationFeatureResult\x12X\n" +
 	"\afeature\x18\x01 \x01(\x0e28.chainguard.platform.guardener.v1alpha1.MigrationFeatureB\x04\xe2A\x01\x03R\afeature\x12\"\n" +
 	"\toperation\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\toperation\x12\x18\n" +
@@ -1283,7 +1366,7 @@ const file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDesc = "" +
 	"\x1cGetMigrationOperationRequest\x12 \n" +
 	"\x05group\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x05group\x12\x18\n" +
-	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x04name\"\xda\x03\n" +
+	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x04name\"\xab\x04\n" +
 	"\x18MigrateOperationMetadata\x12\x10\n" +
 	"\x03url\x18\x01 \x01(\tR\x03url\x12\x19\n" +
 	"\brepo_key\x18\x02 \x01(\tR\arepoKey\x12;\n" +
@@ -1293,7 +1376,8 @@ const file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDesc = "" +
 	"\x05actor\x18\x05 \x01(\tR\x05actor\x12X\n" +
 	"\afeature\x18\x06 \x01(\x0e28.chainguard.platform.guardener.v1alpha1.MigrationFeatureB\x04\xe2A\x01\x03R\afeature\x129\n" +
 	"\x15configured_migrations\x18\a \x01(\bB\x04\xe2A\x01\x03R\x14configuredMigrations\x12^\n" +
-	"\aresults\x18\b \x03(\v2>.chainguard.platform.guardener.v1alpha1.MigrationFeatureResultB\x04\xe2A\x01\x03R\aresults\"\xdb\x01\n" +
+	"\aresults\x18\b \x03(\v2>.chainguard.platform.guardener.v1alpha1.MigrationFeatureResultB\x04\xe2A\x01\x03R\aresults\x12O\n" +
+	"\x04mode\x18\t \x01(\x0e25.chainguard.platform.guardener.v1alpha1.MigrationModeB\x04\xe2A\x01\x03R\x04mode\"\xdb\x01\n" +
 	"\x18MigrateOperationResponse\x12(\n" +
 	"\x10pull_request_url\x18\x01 \x01(\tR\x0epullRequestUrl\x12\x13\n" +
 	"\x05no_op\x18\x02 \x01(\bR\x04noOp\x12 \n" +
@@ -1338,15 +1422,18 @@ const file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDesc = "" +
 	"\x10MigrationFeature\x12!\n" +
 	"\x1dMIGRATION_FEATURE_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19MIGRATION_FEATURE_ACTIONS\x10\x01\x12\x1c\n" +
-	"\x18MIGRATION_FEATURE_IMAGES\x10\x022\xf4\x0e\n" +
+	"\x18MIGRATION_FEATURE_IMAGES\x10\x02*M\n" +
+	"\rMigrationMode\x12\x1e\n" +
+	"\x1aMIGRATION_MODE_UNSPECIFIED\x10\x00\x12\x1c\n" +
+	"\x18MIGRATION_MODE_ON_DEMAND\x10\x012\xd8\x0f\n" +
 	"\tGuardener\x12\xc5\x01\n" +
 	"\x0eGetEntitlement\x12=.chainguard.platform.guardener.v1alpha1.GetEntitlementRequest\x1a3.chainguard.platform.guardener.v1alpha1.Entitlement\"?\x82\xd3\xe4\x93\x02-\x12+/guardener/v1alpha1/entitlements/{group=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x81\x12\x12\xcf\x01\n" +
 	"\x11UpdateEntitlement\x12@.chainguard.platform.guardener.v1alpha1.UpdateEntitlementRequest\x1a3.chainguard.platform.guardener.v1alpha1.Entitlement\"C\x82\xd3\xe4\x93\x020:\x01*\x1a+/guardener/v1alpha1/entitlements/{group=**}\x8a\xaf\xa8\xd2\x05\a\x12\x05\n" +
-	"\x03\x80\x12\x02\x12\xf3\x03\n" +
-	"\x11MigrateRepository\x12@.chainguard.platform.guardener.v1alpha1.MigrateRepositoryRequest\x1a\x1d.google.longrunning.Operation\"\xfc\x02\xcaA\x82\x01\n" +
-	"?chainguard.platform.guardener.v1alpha1.MigrateOperationResponse\x12?chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/guardener/v1alpha1/migrate\x8a\xaf\xa8\xd2\x05\x02\x12\x00\x9a\xaf\xa8\xd2\x05\xc1\x01\n" +
-	"\xb8\x01Enqueue repository migration. Set configured_migrations to run the opted-in Actions and image migrations with separate results and pull requests; omitted retains Actions-only behavior. \x00(\x010\x00\x12\x99\x02\n" +
+	"\x03\x80\x12\x02\x12\xd7\x04\n" +
+	"\x11MigrateRepository\x12@.chainguard.platform.guardener.v1alpha1.MigrateRepositoryRequest\x1a\x1d.google.longrunning.Operation\"\xe0\x03\xcaA\x82\x01\n" +
+	"?chainguard.platform.guardener.v1alpha1.MigrateOperationResponse\x12?chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/guardener/v1alpha1/migrate\x8a\xaf\xa8\xd2\x05\x02\x12\x00\x9a\xaf\xa8\xd2\x05\xa5\x02\n" +
+	"\x9c\x02Enqueue repository migration. Set configured_migrations to run the opted-in Actions and image migrations with separate results and pull requests. Set ON_DEMAND mode and the Images feature for a one-time image migration without YAML opt-in. Omitting both retains Actions-only behavior. \x00(\x010\x00\x12\x99\x02\n" +
 	"\x15GetMigrationOperation\x12D.chainguard.platform.guardener.v1alpha1.GetMigrationOperationRequest\x1a\x1d.google.longrunning.Operation\"\x9a\x01\x82\xd3\xe4\x93\x022\x120/guardener/v1alpha1/{name=operations/migrate/**}\x8a\xaf\xa8\xd2\x05\x02\x12\x00\x9a\xaf\xa8\xd2\x05T\n" +
 	"JGet the state of a guardener migration long-running operation by its name.\x18\x01 \x00(\x010\x00\x12\xf8\x02\n" +
 	"\tListScans\x128.chainguard.platform.guardener.v1alpha1.ListScansRequest\x1a9.chainguard.platform.guardener.v1alpha1.ListScansResponse\"\xf5\x01\x82\xd3\xe4\x93\x02&\x12$/guardener/v1alpha1/{group=**}/scans\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
@@ -1369,65 +1456,69 @@ func file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP() [
 	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescData
 }
 
-var file_chainguard_platform_guardener_v1alpha1_guardener_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_chainguard_platform_guardener_v1alpha1_guardener_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
 var file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_chainguard_platform_guardener_v1alpha1_guardener_proto_goTypes = []any{
 	(Trigger)(0),                         // 0: chainguard.platform.guardener.v1alpha1.Trigger
 	(MigrationFeature)(0),                // 1: chainguard.platform.guardener.v1alpha1.MigrationFeature
-	(Entitlement_RepoVisibilityScope)(0), // 2: chainguard.platform.guardener.v1alpha1.Entitlement.RepoVisibilityScope
-	(*Entitlement)(nil),                  // 3: chainguard.platform.guardener.v1alpha1.Entitlement
-	(*GetEntitlementRequest)(nil),        // 4: chainguard.platform.guardener.v1alpha1.GetEntitlementRequest
-	(*UpdateEntitlementRequest)(nil),     // 5: chainguard.platform.guardener.v1alpha1.UpdateEntitlementRequest
-	(*MigrateRepositoryRequest)(nil),     // 6: chainguard.platform.guardener.v1alpha1.MigrateRepositoryRequest
-	(*MigrationFeatureResult)(nil),       // 7: chainguard.platform.guardener.v1alpha1.MigrationFeatureResult
-	(*GetMigrationOperationRequest)(nil), // 8: chainguard.platform.guardener.v1alpha1.GetMigrationOperationRequest
-	(*MigrateOperationMetadata)(nil),     // 9: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata
-	(*MigrateOperationResponse)(nil),     // 10: chainguard.platform.guardener.v1alpha1.MigrateOperationResponse
-	(*ListScansRequest)(nil),             // 11: chainguard.platform.guardener.v1alpha1.ListScansRequest
-	(*ListScansResponse)(nil),            // 12: chainguard.platform.guardener.v1alpha1.ListScansResponse
-	(*ScanSummary)(nil),                  // 13: chainguard.platform.guardener.v1alpha1.ScanSummary
-	(*GetScanRequest)(nil),               // 14: chainguard.platform.guardener.v1alpha1.GetScanRequest
-	(*Scan)(nil),                         // 15: chainguard.platform.guardener.v1alpha1.Scan
-	(*ScanArtifact)(nil),                 // 16: chainguard.platform.guardener.v1alpha1.ScanArtifact
-	(*ScanRelationship)(nil),             // 17: chainguard.platform.guardener.v1alpha1.ScanRelationship
-	(*timestamppb.Timestamp)(nil),        // 18: google.protobuf.Timestamp
-	(*status.Status)(nil),                // 19: google.rpc.Status
-	(*longrunningpb.Operation)(nil),      // 20: google.longrunning.Operation
+	(MigrationMode)(0),                   // 2: chainguard.platform.guardener.v1alpha1.MigrationMode
+	(Entitlement_RepoVisibilityScope)(0), // 3: chainguard.platform.guardener.v1alpha1.Entitlement.RepoVisibilityScope
+	(*Entitlement)(nil),                  // 4: chainguard.platform.guardener.v1alpha1.Entitlement
+	(*GetEntitlementRequest)(nil),        // 5: chainguard.platform.guardener.v1alpha1.GetEntitlementRequest
+	(*UpdateEntitlementRequest)(nil),     // 6: chainguard.platform.guardener.v1alpha1.UpdateEntitlementRequest
+	(*MigrateRepositoryRequest)(nil),     // 7: chainguard.platform.guardener.v1alpha1.MigrateRepositoryRequest
+	(*MigrationFeatureResult)(nil),       // 8: chainguard.platform.guardener.v1alpha1.MigrationFeatureResult
+	(*GetMigrationOperationRequest)(nil), // 9: chainguard.platform.guardener.v1alpha1.GetMigrationOperationRequest
+	(*MigrateOperationMetadata)(nil),     // 10: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata
+	(*MigrateOperationResponse)(nil),     // 11: chainguard.platform.guardener.v1alpha1.MigrateOperationResponse
+	(*ListScansRequest)(nil),             // 12: chainguard.platform.guardener.v1alpha1.ListScansRequest
+	(*ListScansResponse)(nil),            // 13: chainguard.platform.guardener.v1alpha1.ListScansResponse
+	(*ScanSummary)(nil),                  // 14: chainguard.platform.guardener.v1alpha1.ScanSummary
+	(*GetScanRequest)(nil),               // 15: chainguard.platform.guardener.v1alpha1.GetScanRequest
+	(*Scan)(nil),                         // 16: chainguard.platform.guardener.v1alpha1.Scan
+	(*ScanArtifact)(nil),                 // 17: chainguard.platform.guardener.v1alpha1.ScanArtifact
+	(*ScanRelationship)(nil),             // 18: chainguard.platform.guardener.v1alpha1.ScanRelationship
+	(*timestamppb.Timestamp)(nil),        // 19: google.protobuf.Timestamp
+	(*status.Status)(nil),                // 20: google.rpc.Status
+	(*longrunningpb.Operation)(nil),      // 21: google.longrunning.Operation
 }
 var file_chainguard_platform_guardener_v1alpha1_guardener_proto_depIdxs = []int32{
-	2,  // 0: chainguard.platform.guardener.v1alpha1.Entitlement.repo_visibility_scope:type_name -> chainguard.platform.guardener.v1alpha1.Entitlement.RepoVisibilityScope
-	18, // 1: chainguard.platform.guardener.v1alpha1.Entitlement.create_time:type_name -> google.protobuf.Timestamp
-	18, // 2: chainguard.platform.guardener.v1alpha1.Entitlement.update_time:type_name -> google.protobuf.Timestamp
-	2,  // 3: chainguard.platform.guardener.v1alpha1.UpdateEntitlementRequest.repo_visibility_scope:type_name -> chainguard.platform.guardener.v1alpha1.Entitlement.RepoVisibilityScope
-	1,  // 4: chainguard.platform.guardener.v1alpha1.MigrationFeatureResult.feature:type_name -> chainguard.platform.guardener.v1alpha1.MigrationFeature
-	19, // 5: chainguard.platform.guardener.v1alpha1.MigrationFeatureResult.error:type_name -> google.rpc.Status
-	18, // 6: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata.create_time:type_name -> google.protobuf.Timestamp
-	0,  // 7: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata.trigger:type_name -> chainguard.platform.guardener.v1alpha1.Trigger
-	1,  // 8: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata.feature:type_name -> chainguard.platform.guardener.v1alpha1.MigrationFeature
-	7,  // 9: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata.results:type_name -> chainguard.platform.guardener.v1alpha1.MigrationFeatureResult
-	7,  // 10: chainguard.platform.guardener.v1alpha1.MigrateOperationResponse.results:type_name -> chainguard.platform.guardener.v1alpha1.MigrationFeatureResult
-	13, // 11: chainguard.platform.guardener.v1alpha1.ListScansResponse.scans:type_name -> chainguard.platform.guardener.v1alpha1.ScanSummary
-	18, // 12: chainguard.platform.guardener.v1alpha1.ScanSummary.scan_time:type_name -> google.protobuf.Timestamp
-	18, // 13: chainguard.platform.guardener.v1alpha1.Scan.scan_time:type_name -> google.protobuf.Timestamp
-	16, // 14: chainguard.platform.guardener.v1alpha1.Scan.artifacts:type_name -> chainguard.platform.guardener.v1alpha1.ScanArtifact
-	17, // 15: chainguard.platform.guardener.v1alpha1.Scan.relationships:type_name -> chainguard.platform.guardener.v1alpha1.ScanRelationship
-	4,  // 16: chainguard.platform.guardener.v1alpha1.Guardener.GetEntitlement:input_type -> chainguard.platform.guardener.v1alpha1.GetEntitlementRequest
-	5,  // 17: chainguard.platform.guardener.v1alpha1.Guardener.UpdateEntitlement:input_type -> chainguard.platform.guardener.v1alpha1.UpdateEntitlementRequest
-	6,  // 18: chainguard.platform.guardener.v1alpha1.Guardener.MigrateRepository:input_type -> chainguard.platform.guardener.v1alpha1.MigrateRepositoryRequest
-	8,  // 19: chainguard.platform.guardener.v1alpha1.Guardener.GetMigrationOperation:input_type -> chainguard.platform.guardener.v1alpha1.GetMigrationOperationRequest
-	11, // 20: chainguard.platform.guardener.v1alpha1.Guardener.ListScans:input_type -> chainguard.platform.guardener.v1alpha1.ListScansRequest
-	14, // 21: chainguard.platform.guardener.v1alpha1.Guardener.GetScan:input_type -> chainguard.platform.guardener.v1alpha1.GetScanRequest
-	3,  // 22: chainguard.platform.guardener.v1alpha1.Guardener.GetEntitlement:output_type -> chainguard.platform.guardener.v1alpha1.Entitlement
-	3,  // 23: chainguard.platform.guardener.v1alpha1.Guardener.UpdateEntitlement:output_type -> chainguard.platform.guardener.v1alpha1.Entitlement
-	20, // 24: chainguard.platform.guardener.v1alpha1.Guardener.MigrateRepository:output_type -> google.longrunning.Operation
-	20, // 25: chainguard.platform.guardener.v1alpha1.Guardener.GetMigrationOperation:output_type -> google.longrunning.Operation
-	12, // 26: chainguard.platform.guardener.v1alpha1.Guardener.ListScans:output_type -> chainguard.platform.guardener.v1alpha1.ListScansResponse
-	15, // 27: chainguard.platform.guardener.v1alpha1.Guardener.GetScan:output_type -> chainguard.platform.guardener.v1alpha1.Scan
-	22, // [22:28] is the sub-list for method output_type
-	16, // [16:22] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	3,  // 0: chainguard.platform.guardener.v1alpha1.Entitlement.repo_visibility_scope:type_name -> chainguard.platform.guardener.v1alpha1.Entitlement.RepoVisibilityScope
+	19, // 1: chainguard.platform.guardener.v1alpha1.Entitlement.create_time:type_name -> google.protobuf.Timestamp
+	19, // 2: chainguard.platform.guardener.v1alpha1.Entitlement.update_time:type_name -> google.protobuf.Timestamp
+	3,  // 3: chainguard.platform.guardener.v1alpha1.UpdateEntitlementRequest.repo_visibility_scope:type_name -> chainguard.platform.guardener.v1alpha1.Entitlement.RepoVisibilityScope
+	2,  // 4: chainguard.platform.guardener.v1alpha1.MigrateRepositoryRequest.mode:type_name -> chainguard.platform.guardener.v1alpha1.MigrationMode
+	1,  // 5: chainguard.platform.guardener.v1alpha1.MigrateRepositoryRequest.features:type_name -> chainguard.platform.guardener.v1alpha1.MigrationFeature
+	1,  // 6: chainguard.platform.guardener.v1alpha1.MigrationFeatureResult.feature:type_name -> chainguard.platform.guardener.v1alpha1.MigrationFeature
+	20, // 7: chainguard.platform.guardener.v1alpha1.MigrationFeatureResult.error:type_name -> google.rpc.Status
+	19, // 8: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata.create_time:type_name -> google.protobuf.Timestamp
+	0,  // 9: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata.trigger:type_name -> chainguard.platform.guardener.v1alpha1.Trigger
+	1,  // 10: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata.feature:type_name -> chainguard.platform.guardener.v1alpha1.MigrationFeature
+	8,  // 11: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata.results:type_name -> chainguard.platform.guardener.v1alpha1.MigrationFeatureResult
+	2,  // 12: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata.mode:type_name -> chainguard.platform.guardener.v1alpha1.MigrationMode
+	8,  // 13: chainguard.platform.guardener.v1alpha1.MigrateOperationResponse.results:type_name -> chainguard.platform.guardener.v1alpha1.MigrationFeatureResult
+	14, // 14: chainguard.platform.guardener.v1alpha1.ListScansResponse.scans:type_name -> chainguard.platform.guardener.v1alpha1.ScanSummary
+	19, // 15: chainguard.platform.guardener.v1alpha1.ScanSummary.scan_time:type_name -> google.protobuf.Timestamp
+	19, // 16: chainguard.platform.guardener.v1alpha1.Scan.scan_time:type_name -> google.protobuf.Timestamp
+	17, // 17: chainguard.platform.guardener.v1alpha1.Scan.artifacts:type_name -> chainguard.platform.guardener.v1alpha1.ScanArtifact
+	18, // 18: chainguard.platform.guardener.v1alpha1.Scan.relationships:type_name -> chainguard.platform.guardener.v1alpha1.ScanRelationship
+	5,  // 19: chainguard.platform.guardener.v1alpha1.Guardener.GetEntitlement:input_type -> chainguard.platform.guardener.v1alpha1.GetEntitlementRequest
+	6,  // 20: chainguard.platform.guardener.v1alpha1.Guardener.UpdateEntitlement:input_type -> chainguard.platform.guardener.v1alpha1.UpdateEntitlementRequest
+	7,  // 21: chainguard.platform.guardener.v1alpha1.Guardener.MigrateRepository:input_type -> chainguard.platform.guardener.v1alpha1.MigrateRepositoryRequest
+	9,  // 22: chainguard.platform.guardener.v1alpha1.Guardener.GetMigrationOperation:input_type -> chainguard.platform.guardener.v1alpha1.GetMigrationOperationRequest
+	12, // 23: chainguard.platform.guardener.v1alpha1.Guardener.ListScans:input_type -> chainguard.platform.guardener.v1alpha1.ListScansRequest
+	15, // 24: chainguard.platform.guardener.v1alpha1.Guardener.GetScan:input_type -> chainguard.platform.guardener.v1alpha1.GetScanRequest
+	4,  // 25: chainguard.platform.guardener.v1alpha1.Guardener.GetEntitlement:output_type -> chainguard.platform.guardener.v1alpha1.Entitlement
+	4,  // 26: chainguard.platform.guardener.v1alpha1.Guardener.UpdateEntitlement:output_type -> chainguard.platform.guardener.v1alpha1.Entitlement
+	21, // 27: chainguard.platform.guardener.v1alpha1.Guardener.MigrateRepository:output_type -> google.longrunning.Operation
+	21, // 28: chainguard.platform.guardener.v1alpha1.Guardener.GetMigrationOperation:output_type -> google.longrunning.Operation
+	13, // 29: chainguard.platform.guardener.v1alpha1.Guardener.ListScans:output_type -> chainguard.platform.guardener.v1alpha1.ListScansResponse
+	16, // 30: chainguard.platform.guardener.v1alpha1.Guardener.GetScan:output_type -> chainguard.platform.guardener.v1alpha1.Scan
+	25, // [25:31] is the sub-list for method output_type
+	19, // [19:25] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_guardener_v1alpha1_guardener_proto_init() }
@@ -1440,7 +1531,7 @@ func file_chainguard_platform_guardener_v1alpha1_guardener_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDesc), len(file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDesc)),
-			NumEnums:      3,
+			NumEnums:      4,
 			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,

@@ -20,7 +20,7 @@ option java_package = "com.chainguard.platform.guardener.v1alpha1";
 
 // Guardener is the customer-facing surface for the guardener platform. It covers
 // a group's guardener entitlement (settings only support can change), the
-// on-demand GitHub Actions migration API (enqueue a migration for a repository
+// on-demand migration API (enqueue a migration for a repository
 // and track it via a long-running operation), and read access to the dependency
 // scans guardener continuously builds for the group's linked repositories.
 service Guardener {
@@ -62,6 +62,8 @@ service Guardener {
   // opt-ins and report independent outcomes in one operation. Each feature
   // requires its own migration capability. Permission refusals are feature
   // results, and deployment-disabled features finish as successful no-ops.
+  // ON_DEMAND mode with the Images feature requests a one-time image migration
+  // without a YAML opt-in. Explicit migration opt-outs and ignores still apply.
   //
   // The caller's group must own the repository's GitHub installation (verified
   // via a matching account_association); the resulting operation is namespaced
@@ -81,7 +83,9 @@ service Guardener {
     option (chainguard.annotations.mcp) = {
       description: "Enqueue repository migration. Set configured_migrations "
                    "to run the opted-in Actions and image migrations with "
-                   "separate results and pull requests; omitted retains "
+                   "separate results and pull requests. Set ON_DEMAND mode "
+                   "and the Images feature for a one-time image migration "
+                   "without YAML opt-in. Omitting both retains "
                    "Actions-only behavior."
       read_only: false
       destructive: false
@@ -205,6 +209,8 @@ message UpdateEntitlementRequest {
   Entitlement.RepoVisibilityScope repo_visibility_scope = 2;
 }
 
+// MigrateRepositoryRequest identifies the repository, group and migration
+// intent.
 message MigrateRepositoryRequest {
   // UIDP of the caller's group (org). Must own the repository's installation.
   string group = 1 [
@@ -219,11 +225,20 @@ message MigrateRepositoryRequest {
   string url = 2 [(google.api.field_behavior) = REQUIRED];
   // Run registered migrations enabled by the repository's configuration.
   // Permissions and deployment availability are reported per feature.
-  // False preserves legacy Actions-only behavior.
+  // False with an unspecified mode preserves legacy Actions-only behavior.
   bool configured_migrations = 3 [(google.api.field_behavior) = OPTIONAL];
+  // ON_DEMAND authorizes a one-time Images run without a YAML migration opt-in.
+  // It requires features to contain only IMAGES and cannot be combined with
+  // configured_migrations. An explicit migration opt-out remains effective.
+  MigrationMode mode = 4 [(google.api.field_behavior) = OPTIONAL];
+  // Workers to run for an ON_DEMAND request, which currently requires exactly
+  // IMAGES. Must be empty for other requests.
+  repeated MigrationFeature features = 5 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
 }
 
-// MigrationFeatureResult describes one feature in a configured migration.
+// MigrationFeatureResult describes one feature in a repository migration.
 message MigrationFeatureResult {
   // The feature whose effective configuration controls this migration.
   MigrationFeature feature = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -286,10 +301,12 @@ message MigrateOperationMetadata {
   repeated MigrationFeatureResult results = 8 [
     (google.api.field_behavior) = OUTPUT_ONLY
   ];
+  // The requested mode; unspecified preserves legacy/configured behavior.
+  MigrationMode mode = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // MigrateOperationResponse is carried in Operation.response when a migration
-// completes. Leaf failures use Operation.error. Configured requests instead
+// completes. Leaf failures use Operation.error. Parent operations instead
 // carry independent feature failures in results so successful PRs remain
 // visible.
 message MigrateOperationResponse {
@@ -301,7 +318,7 @@ message MigrateOperationResponse {
   bool no_op = 2;
   // True when repository configuration or the deployment disabled migration.
   bool disabled = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // Results for a configured request. The parent completes after all children
+  // Results for a parent operation. The parent completes after all children
   // terminate; check each error before treating the request as successful.
   repeated MigrationFeatureResult results = 4 [
     (google.api.field_behavior) = OUTPUT_ONLY
@@ -421,4 +438,12 @@ enum MigrationFeature {
   MIGRATION_FEATURE_ACTIONS = 1;
   // Container image reference migration.
   MIGRATION_FEATURE_IMAGES = 2;
+}
+
+// MigrationMode distinguishes configured migrations from one-time requests.
+enum MigrationMode {
+  // Preserve existing behavior controlled by configured_migrations.
+  MIGRATION_MODE_UNSPECIFIED = 0;
+  // Run Images once without requiring a repository migration opt-in.
+  MIGRATION_MODE_ON_DEMAND = 1;
 }

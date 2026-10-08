@@ -37,7 +37,7 @@ const (
 //
 // Guardener is the customer-facing surface for the guardener platform. It covers
 // a group's guardener entitlement (settings only support can change), the
-// on-demand GitHub Actions migration API (enqueue a migration for a repository
+// on-demand migration API (enqueue a migration for a repository
 // and track it via a long-running operation), and read access to the dependency
 // scans guardener continuously builds for the group's linked repositories.
 type GuardenerClient interface {
@@ -57,6 +57,8 @@ type GuardenerClient interface {
 	// opt-ins and report independent outcomes in one operation. Each feature
 	// requires its own migration capability. Permission refusals are feature
 	// results, and deployment-disabled features finish as successful no-ops.
+	// ON_DEMAND mode with the Images feature requests a one-time image migration
+	// without a YAML opt-in. Explicit migration opt-outs and ignores still apply.
 	//
 	// The caller's group must own the repository's GitHub installation (verified
 	// via a matching account_association); the resulting operation is namespaced
@@ -157,7 +159,7 @@ func (c *guardenerClient) GetScan(ctx context.Context, in *GetScanRequest, opts 
 //
 // Guardener is the customer-facing surface for the guardener platform. It covers
 // a group's guardener entitlement (settings only support can change), the
-// on-demand GitHub Actions migration API (enqueue a migration for a repository
+// on-demand migration API (enqueue a migration for a repository
 // and track it via a long-running operation), and read access to the dependency
 // scans guardener continuously builds for the group's linked repositories.
 type GuardenerServer interface {
@@ -177,6 +179,8 @@ type GuardenerServer interface {
 	// opt-ins and report independent outcomes in one operation. Each feature
 	// requires its own migration capability. Permission refusals are feature
 	// results, and deployment-disabled features finish as successful no-ops.
+	// ON_DEMAND mode with the Images feature requests a one-time image migration
+	// without a YAML opt-in. Explicit migration opt-outs and ignores still apply.
 	//
 	// The caller's group must own the repository's GitHub installation (verified
 	// via a matching account_association); the resulting operation is namespaced
