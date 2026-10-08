@@ -83,7 +83,10 @@ type RequestGroupsServiceClient interface {
 	// CVE-remediation decision. That lets it hold a distinct, Owner-only
 	// capability, which a mask on update could not express.
 	//
-	// Items in the cannot-be-requested set must be removed first.
+	// Items that block a submit must be removed first: not_found_upstream,
+	// invalid_requirement and held. A wont_build item does not block one. It
+	// stays in the group as the record of what Chainguard declined to rebuild,
+	// and nothing builds it.
 	SubmitRequestGroup(ctx context.Context, in *SubmitRequestGroupRequest, opts ...grpc.CallOption) (*RequestGroup, error)
 	// UpdateRequestGroup edits group metadata under a field mask. Renaming is the
 	// expected use; it cannot submit a group or change its items.
@@ -354,7 +357,10 @@ type RequestGroupsServiceServer interface {
 	// CVE-remediation decision. That lets it hold a distinct, Owner-only
 	// capability, which a mask on update could not express.
 	//
-	// Items in the cannot-be-requested set must be removed first.
+	// Items that block a submit must be removed first: not_found_upstream,
+	// invalid_requirement and held. A wont_build item does not block one. It
+	// stays in the group as the record of what Chainguard declined to rebuild,
+	// and nothing builds it.
 	SubmitRequestGroup(context.Context, *SubmitRequestGroupRequest) (*RequestGroup, error)
 	// UpdateRequestGroup edits group metadata under a field mask. Renaming is the
 	// expected use; it cannot submit a group or change its items.

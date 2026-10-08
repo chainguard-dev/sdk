@@ -1564,13 +1564,18 @@ type AvailabilitySummary struct {
 	// Items the customer removed from the draft.
 	Removed int32 `protobuf:"varint,9,opt,name=removed,proto3" json:"removed,omitempty"`
 	// Items the customer must resolve before the group can be submitted: the sum
-	// of not_found_upstream, wont_build, invalid_requirement and held. Blocked
-	// items are deliberately NOT counted here — they stay requestable with the
-	// build held.
+	// of not_found_upstream, invalid_requirement and held.
+	//
+	// Two kinds of item are deliberately NOT counted. A blocked item stays
+	// requestable with the build held. A wont_build item is not requestable at
+	// all, but the group keeps it as the record of a refusal, so it is counted
+	// only under wont_build.
 	BlockingSubmit int32 `protobuf:"varint,10,opt,name=blocking_submit,json=blockingSubmit,proto3" json:"blocking_submit,omitempty"`
 	// Versions whose build was declined and is being held. Counted in
-	// blocking_submit: unlike a blocked item, a held one is not requestable, so
-	// the customer has to take it out of the group to submit.
+	// blocking_submit, because a hold is somebody else's decision and asking
+	// again must not launder it, so the customer has to take the item out of the
+	// group to submit. Being unrequestable is not the reason: a wont_build item
+	// is unrequestable too and the group keeps it.
 	Held int32 `protobuf:"varint,11,opt,name=held,proto3" json:"held,omitempty"`
 	// Items with no answer yet, because their coverage check has not run or has
 	// not finished. Every other field counts an answer; this one counts their
@@ -1584,9 +1589,9 @@ type AvailabilitySummary struct {
 	//
 	// It is not the sum of the fields above, and it exists because that sum is
 	// wrong: blocking_submit deliberately re-counts not_found_upstream,
-	// wont_build, invalid_requirement and held, so adding the fields together
-	// counts every blocking item twice. A field added here later would change
-	// what a summing client computed, as well.
+	// invalid_requirement and held, so adding the fields together counts every
+	// blocking item twice. A field added here later would change what a summing
+	// client computed, as well.
 	//
 	// Progress is total - pending, which stays right however the buckets change.
 	Total         int32 `protobuf:"varint,13,opt,name=total,proto3" json:"total,omitempty"`
