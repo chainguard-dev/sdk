@@ -1,0 +1,121 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.billing.v2beta1;
+
+import "annotations/auth.proto";
+import "annotations/mcp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+// protolint:disable:next MAX_LINE_LENGTH
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/billing/v2beta1";
+option java_multiple_files = true;
+option java_outer_classname = "BillingProto";
+option java_package = "com.chainguard.platform.billing.v2beta1";
+
+// BillingService starts self-serve plan purchases and card management for an
+// organization. Payment pages are hosted by the payment provider; no card data
+// passes through this API.
+service BillingService {
+  // CreateCheckoutSession opens a hosted checkout page where an owner of a
+  // Starter organization enters a card to upgrade the organization to the
+  // Team plan. The organization is upgraded once the first invoice is paid,
+  // not when this call returns.
+  // (-- api-linter: core::0133::http-body=disabled
+  //     aip.dev/not-precedent: the session is built entirely by the server
+  //     from the organization, so the request carries no resource. --)
+  rpc CreateCheckoutSession(CreateCheckoutSessionRequest)
+      returns (CheckoutSession) {
+    option (google.api.http) = {
+      post: "/billing/v2beta1/checkoutSessions"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {capabilities: [CAP_BILLING_MANAGE]}
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Start a checkout to upgrade a Starter organization to "
+                   "the paid Team plan. Returns the URL of a hosted payment "
+                   "page."
+      read_only: false
+      destructive: false
+      idempotent: false
+      open_world: true
+      // Withheld from the MCP tool surface: it starts a purchase.
+      hidden: true
+    };
+  }
+
+  // CreatePortalSession opens a hosted page where an owner of a Team
+  // organization updates the card the organization pays with.
+  // (-- api-linter: core::0133::http-body=disabled
+  //     aip.dev/not-precedent: the session is built entirely by the server
+  //     from the organization, so the request carries no resource. --)
+  rpc CreatePortalSession(CreatePortalSessionRequest)
+      returns (PortalSession) {
+    option (google.api.http) = {
+      post: "/billing/v2beta1/portalSessions"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {capabilities: [CAP_BILLING_MANAGE]}
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Open the hosted page where an organization owner updates "
+                   "the card used to pay for the organization's plan. "
+                   "Returns the page URL."
+      read_only: false
+      destructive: false
+      idempotent: false
+      open_world: true
+      // Withheld from the MCP tool surface: the URL grants access to the
+      // organization's payment settings.
+      hidden: true
+    };
+  }
+}
+
+// CreateCheckoutSessionRequest is the request message for
+// CreateCheckoutSession.
+// (-- api-linter: core::0133::request-resource-field=disabled
+//     aip.dev/not-precedent: the server builds the session from parent. --)
+message CreateCheckoutSessionRequest {
+  // The organization to upgrade. Must be a Starter organization with no
+  // subscription in progress.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// CheckoutSession is a hosted checkout page.
+message CheckoutSession {
+  // The URL of the hosted checkout page. Send the user's browser there.
+  string url = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // When the page stops accepting payment details.
+  google.protobuf.Timestamp expire_time = 2
+      [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// CreatePortalSessionRequest is the request message for CreatePortalSession.
+// (-- api-linter: core::0133::request-resource-field=disabled
+//     aip.dev/not-precedent: the server builds the session from parent. --)
+message CreatePortalSessionRequest {
+  // The organization whose payment details to manage. Must have a
+  // subscription.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// PortalSession is a hosted page for managing payment details.
+message PortalSession {
+  // The URL of the hosted page. Send the user's browser there.
+  string url = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

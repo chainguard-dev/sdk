@@ -582,6 +582,15 @@ enum Capability {
   // protolint:disable:next ENUM_FIELD_NAMES_PREFIX MAX_LINE_LENGTH
   CAP_TELEMETRY_CONTAINERS_LIST = 3101 [(name) = "telemetry.containers.list", (bit) = 241];
 
+  // Billing: buying and paying for a self-serve plan for an org. Starting a
+  // checkout leads to a charge and, once the first invoice is paid, to the
+  // purchaser becoming the org's owner, so it is held by owner and
+  // limited_owner only.
+  CAP_BILLING_MANAGE = 3301 [
+    (name) = "billing.manage",
+    (bit) = 245
+  ];
+
   reserved 1;
-  // next bit: 245
+  // next bit: 246
 }

@@ -473,6 +473,11 @@ const (
 	// repositories declare, as observed by the telemetry reconciler.
 	// protolint:disable:next ENUM_FIELD_NAMES_PREFIX MAX_LINE_LENGTH
 	Capability_CAP_TELEMETRY_CONTAINERS_LIST Capability = 3101
+	// Billing: buying and paying for a self-serve plan for an org. Starting a
+	// checkout leads to a charge and, once the first invoice is paid, to the
+	// purchaser becoming the org's owner, so it is held by owner and
+	// limited_owner only.
+	Capability_CAP_BILLING_MANAGE Capability = 3301
 )
 
 // Enum value maps for Capability.
@@ -718,6 +723,7 @@ var (
 		3013:  "CAP_SANDBOX_IDENTITY_USE",
 		3014:  "CAP_SANDBOX_IDENTITY_ADMIN",
 		3101:  "CAP_TELEMETRY_CONTAINERS_LIST",
+		3301:  "CAP_BILLING_MANAGE",
 	}
 	Capability_value = map[string]int32{
 		"UNKNOWN":                                            0,
@@ -960,6 +966,7 @@ var (
 		"CAP_SANDBOX_IDENTITY_USE":                           3013,
 		"CAP_SANDBOX_IDENTITY_ADMIN":                         3014,
 		"CAP_TELEMETRY_CONTAINERS_LIST":                      3101,
+		"CAP_BILLING_MANAGE":                                 3301,
 	}
 )
 
@@ -1043,7 +1050,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xf4\x83\x01\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xa9\x84\x01\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1304,7 +1311,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x1bCAP_SANDBOX_IDENTITY_CREATE\x10\xc4\x17\x1a#\xa8ˑM\xf2\x01\x9a\xaf\xa8\xd2\x05\x17sandbox.identity.create\x12?\n" +
 	"\x18CAP_SANDBOX_IDENTITY_USE\x10\xc5\x17\x1a \xa8ˑM\xf3\x01\x9a\xaf\xa8\xd2\x05\x14sandbox.identity.use\x12C\n" +
 	"\x1aCAP_SANDBOX_IDENTITY_ADMIN\x10\xc6\x17\x1a\"\xa8ˑM\xf4\x01\x9a\xaf\xa8\xd2\x05\x16sandbox.identity.admin\x12I\n" +
-	"\x1dCAP_TELEMETRY_CONTAINERS_LIST\x10\x9d\x18\x1a%\xa8ˑM\xf1\x01\x9a\xaf\xa8\xd2\x05\x19telemetry.containers.list\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x06\b\xd1\x0e\x10\xd1\x0e\"\x04\b\x01\x10\x01:8\n" +
+	"\x1dCAP_TELEMETRY_CONTAINERS_LIST\x10\x9d\x18\x1a%\xa8ˑM\xf1\x01\x9a\xaf\xa8\xd2\x05\x19telemetry.containers.list\x123\n" +
+	"\x12CAP_BILLING_MANAGE\x10\xe5\x19\x1a\x1a\xa8ˑM\xf5\x01\x9a\xaf\xa8\xd2\x05\x0ebilling.manage\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x06\b\xd1\x0e\x10\xd1\x0e\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +
 	"\x03bit\x12!.google.protobuf.EnumValueOptions\x18\xb5\x99\xd2\t \x01(\rR\x03bit:I\n" +
 	"\rinternal_only\x12!.google.protobuf.EnumValueOptions\x18\xf4\x85\xa5Z \x01(\bR\finternalOnlyB'Z%chainguard.dev/sdk/proto/capabilitiesb\x06proto3"

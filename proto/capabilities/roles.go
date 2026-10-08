@@ -189,6 +189,11 @@ var (
 		Capability_CAP_SKILLS_ENTITLEMENTS_CREATE,
 		Capability_CAP_SKILLS_ENTITLEMENTS_DELETE,
 
+		// Starts a self-serve plan purchase and opens the hosted page that
+		// manages the org's card. Limited owners hold it too, because a
+		// Starter org's owner is a limited owner.
+		Capability_CAP_BILLING_MANAGE,
+
 		Capability_CAP_LIBRARIES_CACHE_INVALIDATE,
 		Capability_CAP_REPO_CHECK_POLICIES,
 
