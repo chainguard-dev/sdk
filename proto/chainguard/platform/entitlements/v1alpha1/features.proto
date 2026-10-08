@@ -225,8 +225,8 @@ message ResourceClassLimit {
   int32 cpus = 1 [(google.api.field_behavior) = REQUIRED];
   // The most memory one guest may request, in MiB.
   int64 memory_mib = 2 [(google.api.field_behavior) = REQUIRED];
-  // The most guest scratch disk in MiB. Unset means no disk cap;
-  // zero allows none.
+  // The most guest scratch disk in MiB. Unset uses the platform default
+  // of 100Gi; an explicit limit may raise or lower it. Zero allows none.
   optional int64 disk_mib = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 

@@ -429,8 +429,8 @@ type ResourceClassLimit struct {
 	Cpus int32 `protobuf:"varint,1,opt,name=cpus,proto3" json:"cpus,omitempty"`
 	// The most memory one guest may request, in MiB.
 	MemoryMib int64 `protobuf:"varint,2,opt,name=memory_mib,json=memoryMib,proto3" json:"memory_mib,omitempty"`
-	// The most guest scratch disk in MiB. Unset means no disk cap;
-	// zero allows none.
+	// The most guest scratch disk in MiB. Unset uses the platform default
+	// of 100Gi; an explicit limit may raise or lower it. Zero allows none.
 	DiskMib       *int64 `protobuf:"varint,3,opt,name=disk_mib,json=diskMib,proto3,oneof" json:"disk_mib,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
