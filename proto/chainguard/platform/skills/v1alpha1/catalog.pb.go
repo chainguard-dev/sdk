@@ -690,9 +690,9 @@ type ListSkillsRequest struct {
 	// hardened optionally narrows by the harden marker: unset = all, true =
 	// hardened only, false = non-hardened only.
 	Hardened *bool `protobuf:"varint,9,opt,name=hardened,proto3,oneof" json:"hardened,omitempty"`
-	// name optionally narrows results to the skill with this exact short catalog
-	// name (e.g. "academy-guide"); no partial match. Combine with source to look
-	// up one skill. Names are stored lowercase.
+	// name optionally narrows results to skills with this exact short catalog
+	// name (e.g. "academy-guide"); no partial match. Combine with source to narrow
+	// the matches; the combination is not guaranteed unique. Names are stored lowercase.
 	Name          string `protobuf:"bytes,10,opt,name=name,proto3" json:"name,omitempty"` // next id: 11
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -896,7 +896,7 @@ type SearchSkillsRequest struct {
 	// order_by is a secondary sort applied after relevance (AIP-132), e.g.
 	// "stars desc". Relevance stays the primary order. Same keys as ListSkills.
 	OrderBy string `protobuf:"bytes,10,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
-	// name optionally narrows results to the skill with this exact short catalog
+	// name optionally narrows results to skills with this exact short catalog
 	// name (parity with List); relevance still orders the matches.
 	Name          string `protobuf:"bytes,11,opt,name=name,proto3" json:"name,omitempty"` // next id: 12
 	unknownFields protoimpl.UnknownFields

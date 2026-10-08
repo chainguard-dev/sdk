@@ -365,9 +365,9 @@ message ListSkillsRequest {
   // hardened optionally narrows by the harden marker: unset = all, true =
   // hardened only, false = non-hardened only.
   optional bool hardened = 9;
-  // name optionally narrows results to the skill with this exact short catalog
-  // name (e.g. "academy-guide"); no partial match. Combine with source to look
-  // up one skill. Names are stored lowercase.
+  // name optionally narrows results to skills with this exact short catalog
+  // name (e.g. "academy-guide"); no partial match. Combine with source to narrow
+  // the matches; the combination is not guaranteed unique. Names are stored lowercase.
   string name = 10;
   // next id: 11
 }
@@ -415,7 +415,7 @@ message SearchSkillsRequest {
   // order_by is a secondary sort applied after relevance (AIP-132), e.g.
   // "stars desc". Relevance stays the primary order. Same keys as ListSkills.
   string order_by = 10;
-  // name optionally narrows results to the skill with this exact short catalog
+  // name optionally narrows results to skills with this exact short catalog
   // name (parity with List); relevance still orders the matches.
   string name = 11;
   // next id: 12
