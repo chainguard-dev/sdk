@@ -1299,12 +1299,14 @@ type ImageSummary struct {
 	// The number of repositories whose latest scan declares at least one image.
 	RepositoriesWithImages int32 `protobuf:"varint,4,opt,name=repositories_with_images,json=repositoriesWithImages,proto3" json:"repositories_with_images,omitempty"`
 	// Vulnerabilities summed over the images whose vulnerabilities status is
-	// STATUS_AVAILABLE.
+	// STATUS_AVAILABLE. Unset when no images have available vulnerability data;
+	// absence does not mean zero vulnerabilities.
 	Vulnerabilities *VulnerabilityCounts `protobuf:"bytes,5,opt,name=vulnerabilities,proto3" json:"vulnerabilities,omitempty"`
 	// The number of images that contributed to vulnerabilities.
 	ImagesWithVulnerabilities int32 `protobuf:"varint,6,opt,name=images_with_vulnerabilities,json=imagesWithVulnerabilities,proto3" json:"images_with_vulnerabilities,omitempty"`
 	// Vulnerabilities summed over the Chainguard equivalents whose
-	// vulnerabilities status is STATUS_AVAILABLE.
+	// vulnerabilities status is STATUS_AVAILABLE. Unset when no equivalents have
+	// available vulnerability data; absence does not mean zero vulnerabilities.
 	EquivalentVulnerabilities *VulnerabilityCounts `protobuf:"bytes,7,opt,name=equivalent_vulnerabilities,json=equivalentVulnerabilities,proto3" json:"equivalent_vulnerabilities,omitempty"`
 	// The number of equivalents that contributed to equivalent_vulnerabilities.
 	EquivalentsWithVulnerabilities int32 `protobuf:"varint,8,opt,name=equivalents_with_vulnerabilities,json=equivalentsWithVulnerabilities,proto3" json:"equivalents_with_vulnerabilities,omitempty"`

@@ -435,14 +435,16 @@ message ImageSummary {
   int32 repositories_with_images = 4;
 
   // Vulnerabilities summed over the images whose vulnerabilities status is
-  // STATUS_AVAILABLE.
+  // STATUS_AVAILABLE. Unset when no images have available vulnerability data;
+  // absence does not mean zero vulnerabilities.
   VulnerabilityCounts vulnerabilities = 5;
 
   // The number of images that contributed to vulnerabilities.
   int32 images_with_vulnerabilities = 6;
 
   // Vulnerabilities summed over the Chainguard equivalents whose
-  // vulnerabilities status is STATUS_AVAILABLE.
+  // vulnerabilities status is STATUS_AVAILABLE. Unset when no equivalents have
+  // available vulnerability data; absence does not mean zero vulnerabilities.
   VulnerabilityCounts equivalent_vulnerabilities = 7;
 
   // The number of equivalents that contributed to equivalent_vulnerabilities.
