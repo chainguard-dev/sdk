@@ -518,8 +518,9 @@ message RequestGroupItem {
   // Build availability of this version.
   Availability availability = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Human-readable reason accompanying availability, passed through verbatim from
-  // the exclusion or block that produced it. Empty when there is nothing to say.
+  // Human-readable reason accompanying availability, written by Chainguard: why
+  // an item will not be built, is held, or could not be read. It is never an
+  // internal note. Empty when there is nothing to say.
   string availability_reason = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // A newer built version to move to, when one exists and this version is
@@ -1195,7 +1196,8 @@ message RequestedLibraryVersion {
   // Build availability of this version.
   Availability availability = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Reason accompanying availability, passed through verbatim.
+  // Reason accompanying availability, written by Chainguard. It is never an
+  // internal note.
   string availability_reason = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // A newer built version to move to, when one exists.

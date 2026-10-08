@@ -1188,8 +1188,9 @@ type RequestGroupItem struct {
 	Ecosystem Ecosystem `protobuf:"varint,5,opt,name=ecosystem,proto3,enum=chainguard.platform.libraries.v2beta1.Ecosystem" json:"ecosystem,omitempty"`
 	// Build availability of this version.
 	Availability Availability `protobuf:"varint,6,opt,name=availability,proto3,enum=chainguard.platform.libraries.v2beta1.Availability" json:"availability,omitempty"`
-	// Human-readable reason accompanying availability, passed through verbatim from
-	// the exclusion or block that produced it. Empty when there is nothing to say.
+	// Human-readable reason accompanying availability, written by Chainguard: why
+	// an item will not be built, is held, or could not be read. It is never an
+	// internal note. Empty when there is nothing to say.
 	AvailabilityReason string `protobuf:"bytes,7,opt,name=availability_reason,json=availabilityReason,proto3" json:"availability_reason,omitempty"`
 	// A newer built version to move to, when one exists and this version is
 	// requestable.
@@ -3321,7 +3322,8 @@ type RequestedLibraryVersion struct {
 	Version string `protobuf:"bytes,1,opt,name=version,proto3" json:"version,omitempty"`
 	// Build availability of this version.
 	Availability Availability `protobuf:"varint,2,opt,name=availability,proto3,enum=chainguard.platform.libraries.v2beta1.Availability" json:"availability,omitempty"`
-	// Reason accompanying availability, passed through verbatim.
+	// Reason accompanying availability, written by Chainguard. It is never an
+	// internal note.
 	AvailabilityReason string `protobuf:"bytes,3,opt,name=availability_reason,json=availabilityReason,proto3" json:"availability_reason,omitempty"`
 	// A newer built version to move to, when one exists.
 	Upgrade *Upgrade `protobuf:"bytes,4,opt,name=upgrade,proto3" json:"upgrade,omitempty"`
