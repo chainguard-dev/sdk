@@ -431,7 +431,7 @@ type UpdateSkillRequest struct {
 	// backing repo's UIDP), so parent_id is not stored. repo_uidp must be within
 	// parent_id's subtree.
 	ParentId string `protobuf:"bytes,2,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
-	// name is the skill's normalized short catalog name, e.g. "academy-guide".
+	// name is the skill's catalog name (its path under the skills folder).
 	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	// description is a human-readable one-line summary.
 	Description string `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
@@ -689,12 +689,7 @@ type ListSkillsRequest struct {
 	Keywords []string `protobuf:"bytes,8,rep,name=keywords,proto3" json:"keywords,omitempty"`
 	// hardened optionally narrows by the harden marker: unset = all, true =
 	// hardened only, false = non-hardened only.
-	Hardened *bool `protobuf:"varint,9,opt,name=hardened,proto3,oneof" json:"hardened,omitempty"`
-	// name optionally narrows results to skills with this exact short catalog
-	// name (e.g. "academy-guide"); no partial match. Combine with source to
-	// narrow the matches; the combination is not guaranteed unique. Names are
-	// stored lowercase.
-	Name          string `protobuf:"bytes,10,opt,name=name,proto3" json:"name,omitempty"` // next id: 11
+	Hardened      *bool `protobuf:"varint,9,opt,name=hardened,proto3,oneof" json:"hardened,omitempty"` // next id: 10
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -790,13 +785,6 @@ func (x *ListSkillsRequest) GetHardened() bool {
 		return *x.Hardened
 	}
 	return false
-}
-
-func (x *ListSkillsRequest) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
 }
 
 type ListSkillsResponse struct {
@@ -896,10 +884,7 @@ type SearchSkillsRequest struct {
 	Hardened *bool `protobuf:"varint,9,opt,name=hardened,proto3,oneof" json:"hardened,omitempty"`
 	// order_by is a secondary sort applied after relevance (AIP-132), e.g.
 	// "stars desc". Relevance stays the primary order. Same keys as ListSkills.
-	OrderBy string `protobuf:"bytes,10,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
-	// name optionally narrows results to skills with this exact short catalog
-	// name (parity with List); relevance still orders the matches.
-	Name          string `protobuf:"bytes,11,opt,name=name,proto3" json:"name,omitempty"` // next id: 12
+	OrderBy       string `protobuf:"bytes,10,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"` // next id: 11
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1000,13 +985,6 @@ func (x *SearchSkillsRequest) GetHardened() bool {
 func (x *SearchSkillsRequest) GetOrderBy() string {
 	if x != nil {
 		return x.OrderBy
-	}
-	return ""
-}
-
-func (x *SearchSkillsRequest) GetName() string {
-	if x != nil {
-		return x.Name
 	}
 	return ""
 }
@@ -1319,7 +1297,7 @@ const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	"\x12DeleteSkillRequest\x12!\n" +
 	"\trepo_uidp\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\brepoUidp\x12'\n" +
 	"\tparent_id\x18\x02 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\bparentId\"\xd2\x02\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\bparentId\"\xbe\x02\n" +
 	"\x11ListSkillsRequest\x12@\n" +
 	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterB\x04\xe2A\x01\x02R\x04uidp\x12\x1a\n" +
 	"\bcategory\x18\x02 \x01(\tR\bcategory\x12\x1b\n" +
@@ -1330,15 +1308,13 @@ const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	"\x04skip\x18\x06 \x01(\x05R\x04skip\x12\x19\n" +
 	"\border_by\x18\a \x01(\tR\aorderBy\x12\x1a\n" +
 	"\bkeywords\x18\b \x03(\tR\bkeywords\x12\x1f\n" +
-	"\bhardened\x18\t \x01(\bH\x00R\bhardened\x88\x01\x01\x12\x12\n" +
-	"\x04name\x18\n" +
-	" \x01(\tR\x04nameB\v\n" +
+	"\bhardened\x18\t \x01(\bH\x00R\bhardened\x88\x01\x01B\v\n" +
 	"\t_hardened\"\x9f\x01\n" +
 	"\x12ListSkillsResponse\x12@\n" +
 	"\x05items\x18\x01 \x03(\v2*.chainguard.platform.skills.v1alpha1.SkillR\x05items\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
 	"\vtotal_count\x18\x03 \x01(\x03R\n" +
-	"totalCount\"\xea\x02\n" +
+	"totalCount\"\xd6\x02\n" +
 	"\x13SearchSkillsRequest\x12@\n" +
 	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterB\x04\xe2A\x01\x02R\x04uidp\x12\x14\n" +
 	"\x05query\x18\x02 \x01(\tR\x05query\x12\x1b\n" +
@@ -1351,8 +1327,7 @@ const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	"\bkeywords\x18\b \x03(\tR\bkeywords\x12\x1f\n" +
 	"\bhardened\x18\t \x01(\bH\x00R\bhardened\x88\x01\x01\x12\x19\n" +
 	"\border_by\x18\n" +
-	" \x01(\tR\aorderBy\x12\x12\n" +
-	"\x04name\x18\v \x01(\tR\x04nameB\v\n" +
+	" \x01(\tR\aorderByB\v\n" +
 	"\t_hardened\"\xa1\x01\n" +
 	"\x14SearchSkillsResponse\x12@\n" +
 	"\x05items\x18\x01 \x03(\v2*.chainguard.platform.skills.v1alpha1.SkillR\x05items\x12&\n" +
