@@ -366,8 +366,9 @@ message ListSkillsRequest {
   // hardened only, false = non-hardened only.
   optional bool hardened = 9;
   // name optionally narrows results to skills with this exact short catalog
-  // name (e.g. "academy-guide"); no partial match. Combine with source to narrow
-  // the matches; the combination is not guaranteed unique. Names are stored lowercase.
+  // name (e.g. "academy-guide"); no partial match. Combine with source to
+  // narrow the matches; the combination is not guaranteed unique. Names are
+  // stored lowercase.
   string name = 10;
   // next id: 11
 }

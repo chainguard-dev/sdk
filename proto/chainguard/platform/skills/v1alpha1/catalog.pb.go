@@ -691,8 +691,9 @@ type ListSkillsRequest struct {
 	// hardened only, false = non-hardened only.
 	Hardened *bool `protobuf:"varint,9,opt,name=hardened,proto3,oneof" json:"hardened,omitempty"`
 	// name optionally narrows results to skills with this exact short catalog
-	// name (e.g. "academy-guide"); no partial match. Combine with source to narrow
-	// the matches; the combination is not guaranteed unique. Names are stored lowercase.
+	// name (e.g. "academy-guide"); no partial match. Combine with source to
+	// narrow the matches; the combination is not guaranteed unique. Names are
+	// stored lowercase.
 	Name          string `protobuf:"bytes,10,opt,name=name,proto3" json:"name,omitempty"` // next id: 11
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
