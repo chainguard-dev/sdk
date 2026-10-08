@@ -11,7 +11,6 @@ import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/longrunning/operations.proto";
 import "google/protobuf/timestamp.proto";
-import "google/rpc/status.proto";
 
 option go_package = "chainguard.dev/sdk/proto/chainguard/platform/guardener/v1alpha1";
 option java_multiple_files = true;
@@ -58,12 +57,14 @@ service Guardener {
   // repository and returns a long-running operation. The migration opens (or
   // updates) a single pull request replacing upstream GitHub Actions with their
   // Chainguard equivalents at version-equivalent tags.
-  // With configured_migrations set, registered workers check their repository
-  // opt-ins and report independent outcomes in one operation. Each feature
-  // requires its own migration capability. Permission refusals are feature
-  // results, and deployment-disabled features finish as successful no-ops.
-  // ON_DEMAND mode with the Images feature requests a one-time image migration
-  // without a YAML opt-in. Explicit migration opt-outs and ignores still apply.
+  // With features set, the operation coordinates one child operation per
+  // requested feature, each honoring the repository's opt-in and opening its
+  // own pull request. Each feature requires its own migration capability:
+  // the request is refused when none is held, and otherwise unauthorized
+  // features fail the operation without stopping the authorized ones.
+  // ON_DEMAND mode with only the Images feature requests a one-time image
+  // migration without a YAML opt-in. Explicit migration opt-outs and ignores
+  // still apply.
   //
   // The caller's group must own the repository's GitHub installation (verified
   // via a matching account_association); the resulting operation is namespaced
@@ -81,12 +82,12 @@ service Guardener {
       metadata_type: "chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata"
     };
     option (chainguard.annotations.mcp) = {
-      description: "Enqueue repository migration. Set configured_migrations "
-                   "to run the opted-in Actions and image migrations with "
-                   "separate results and pull requests. Set ON_DEMAND mode "
-                   "and the Images feature for a one-time image migration "
-                   "without YAML opt-in. Omitting both retains "
-                   "Actions-only behavior."
+      description: "Enqueue repository migration. List features (Actions, "
+                   "images) to run each opted-in migration with its own "
+                   "pull request and per-feature operation; omitted runs "
+                   "Actions migration only. Set ON_DEMAND mode with only "
+                   "the Images feature for a one-time image migration "
+                   "without YAML opt-in."
       read_only: false
       destructive: false
       idempotent: true
@@ -97,9 +98,10 @@ service Guardener {
   // GetMigrationOperation returns the current state of a migration operation
   // previously returned by MigrateRepository. The operation name embeds the
   // owning group's UIDP; group must match and is the IAM scope.
-  // Each feature's permission is checked separately; unauthorized feature
-  // details are replaced with a permission-denied result. Legacy operations
-  // require the Actions migration capability.
+  // A single-feature operation requires that feature's migration capability
+  // (Actions for one created without features). A multi-feature operation
+  // requires any migration capability: it names every feature's operation,
+  // whose details each require their own feature's capability.
   rpc GetMigrationOperation(GetMigrationOperationRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {get: "/guardener/v1alpha1/{name=operations/migrate/**}"};
     option (chainguard.annotations.iam) = {
@@ -223,37 +225,27 @@ message MigrateRepositoryRequest {
   // field is a URL so other forges (GitHub Enterprise, GitLab) can be supported
   // without a request change.
   string url = 2 [(google.api.field_behavior) = REQUIRED];
-  // Run registered migrations enabled by the repository's configuration.
-  // Permissions and deployment availability are reported per feature.
-  // False with an unspecified mode preserves legacy Actions-only behavior.
-  bool configured_migrations = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  reserved 3;
+
   // ON_DEMAND authorizes a one-time Images run without a YAML migration opt-in.
-  // It requires features to contain only IMAGES and cannot be combined with
-  // configured_migrations. An explicit migration opt-out remains effective.
+  // It requires features to contain only IMAGES. An explicit migration opt-out
+  // remains effective.
   MigrationMode mode = 4 [(google.api.field_behavior) = OPTIONAL];
-  // Workers to run for an ON_DEMAND request, which currently requires exactly
-  // IMAGES. Must be empty for other requests.
-  repeated MigrationFeature features = 5 [
-    (google.api.field_behavior) = OPTIONAL
-  ];
+  // The migrations to run, each only where the repository has opted in (or,
+  // with ON_DEMAND, has not opted out). Empty runs the Actions migration alone
+  // as a single operation.
+  repeated FeatureType features = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
-// MigrationFeatureResult describes one feature in a repository migration.
-message MigrationFeatureResult {
-  // The feature whose effective configuration controls this migration.
-  MigrationFeature feature = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // The feature's child operation, namespaced under the same group.
+// FeatureMigration identifies the child operation migrating one feature of a
+// multi-feature migration. Its progress, pull request, and failure are that
+// operation's own state, available from GetMigrationOperation.
+message FeatureMigration {
+  // The migrated feature.
+  FeatureType feature = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // The feature's own operation, namespaced under the same group.
   string operation = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // False means queued or running. True does not imply success: check error.
-  bool done = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // The PR created or updated, when there are changes.
-  string pull_request_url = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // True when the feature completed successfully without edits.
-  bool no_op = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // True when repository configuration or the deployment disabled migration.
-  bool disabled = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // A terminal failure for this feature. Other features may have succeeded.
-  google.rpc.Status error = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message GetMigrationOperationRequest {
@@ -293,36 +285,38 @@ message MigrateOperationMetadata {
   // The identity that triggered the run: the caller's subject for user-
   // triggered runs, or the reconciler/cron identity for system-triggered runs.
   string actor = 5;
-  // The worker awaited by a leaf operation; unset for legacy Actions.
-  MigrationFeature feature = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // True when this operation tracks configuration-driven feature migrations.
-  bool configured_migrations = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // Progress of each feature, including any already-completed PRs or failures.
-  repeated MigrationFeatureResult results = 8 [
+  // The feature migrated by this operation; unset for an Actions migration
+  // requested without features.
+  FeatureType feature = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  reserved 7, 8;
+
+  // For a request with features, the child operation migrating each
+  // feature. A failed feature does not stop the others.
+  repeated FeatureMigration feature_migrations = 10 [
     (google.api.field_behavior) = OUTPUT_ONLY
   ];
-  // The requested mode; unspecified preserves legacy/configured behavior.
+  // The requested mode.
   MigrationMode mode = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // MigrateOperationResponse is carried in Operation.response when a migration
-// completes. Leaf failures use Operation.error. Parent operations instead
-// carry independent feature failures in results so successful PRs remain
-// visible.
+// completes successfully. Failures are reported via Operation.error. A
+// multi-feature migration completes once every feature's operation has, and
+// fails, summarizing the failed features, when any of them failed; each
+// feature's outcome remains on its own operation.
 message MigrateOperationResponse {
-  // The migration pull request opened or updated by the run. Empty when the
-  // run was a no-op (nothing to migrate).
+  // The migration pull request opened or updated by the run. Empty when there
+  // was nothing to change, when disabled, and for a multi-feature migration,
+  // whose pull requests are on each feature's operation.
   string pull_request_url = 1;
-  // True when the run completed but produced no pull request (opted out, no
-  // edits, or no net changes).
-  bool no_op = 2;
-  // True when repository configuration or the deployment disabled migration.
+
+  reserved 2, 4;
+
+  // True when the repository opted out of migration (migrate.enabled: false)
+  // or the deployment has it turned off. A successful run with neither a pull
+  // request nor disabled had nothing to change.
   bool disabled = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // Results for a parent operation. The parent completes after all children
-  // terminate; check each error before treating the request as successful.
-  repeated MigrationFeatureResult results = 4 [
-    (google.api.field_behavior) = OUTPUT_ONLY
-  ];
 }
 
 message ListScansRequest {
@@ -430,19 +424,19 @@ message ScanRelationship {
   string type = 3;
 }
 
-// MigrationFeature identifies the repository migration worker.
-enum MigrationFeature {
+// FeatureType identifies the repository migration worker.
+enum FeatureType {
   // Legacy operations did not identify their Actions worker explicitly.
-  MIGRATION_FEATURE_UNSPECIFIED = 0;
+  FEATURE_TYPE_UNSPECIFIED = 0;
   // GitHub Actions workflow migration.
-  MIGRATION_FEATURE_ACTIONS = 1;
+  FEATURE_TYPE_ACTIONS = 1;
   // Container image reference migration.
-  MIGRATION_FEATURE_IMAGES = 2;
+  FEATURE_TYPE_IMAGES = 2;
 }
 
-// MigrationMode distinguishes configured migrations from one-time requests.
+// MigrationMode distinguishes opt-in migrations from one-time requests.
 enum MigrationMode {
-  // Preserve existing behavior controlled by configured_migrations.
+  // Run only the features the repository has opted into.
   MIGRATION_MODE_UNSPECIFIED = 0;
   // Run Images once without requiring a repository migration opt-in.
   MIGRATION_MODE_ON_DEMAND = 1;

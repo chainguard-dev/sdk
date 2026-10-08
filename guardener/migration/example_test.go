@@ -22,13 +22,13 @@ func ExampleAll() {
 }
 
 func ExampleLookup() {
-	definition, ok := migration.Lookup(guardpb.MigrationFeature_MIGRATION_FEATURE_IMAGES)
+	definition, ok := migration.Lookup(guardpb.FeatureType_FEATURE_TYPE_IMAGES)
 	fmt.Println(definition.Name, ok)
 	// Output: Images true
 }
 
 func ExampleDefinition_Key() {
-	definition, _ := migration.Lookup(guardpb.MigrationFeature_MIGRATION_FEATURE_ACTIONS)
+	definition, _ := migration.Lookup(guardpb.FeatureType_FEATURE_TYPE_ACTIONS)
 	fmt.Println(definition.Key("https://github.com/acme/demo"))
 	// Output: github.com/acme/demo/tree/HEAD/.github/workflows
 }

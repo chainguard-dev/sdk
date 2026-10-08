@@ -15,22 +15,22 @@ import (
 
 // Definition identifies a migration worker and its required capability.
 type Definition struct {
-	Feature     guardpb.MigrationFeature
+	Feature     guardpb.FeatureType
 	QueueSuffix string
 	Capability  cappb.Capability
 	Name        string
 }
 
 var features = []Definition{
-	{Feature: guardpb.MigrationFeature_MIGRATION_FEATURE_ACTIONS, QueueSuffix: "/tree/HEAD/.github/workflows", Capability: cappb.Capability_CAP_GUARDENER_ACTIONS_MIGRATE, Name: "Actions"},
-	{Feature: guardpb.MigrationFeature_MIGRATION_FEATURE_IMAGES, QueueSuffix: "/tree/HEAD/.chainguard/images.yaml", Capability: cappb.Capability_CAP_GUARDENER_IMAGES_MIGRATE, Name: "Images"},
+	{Feature: guardpb.FeatureType_FEATURE_TYPE_ACTIONS, QueueSuffix: "/tree/HEAD/.github/workflows", Capability: cappb.Capability_CAP_GUARDENER_ACTIONS_MIGRATE, Name: "Actions"},
+	{Feature: guardpb.FeatureType_FEATURE_TYPE_IMAGES, QueueSuffix: "/tree/HEAD/.chainguard/images.yaml", Capability: cappb.Capability_CAP_GUARDENER_IMAGES_MIGRATE, Name: "Images"},
 }
 
 // All returns the registered features in their display order.
 func All() []Definition { return slices.Clone(features) }
 
 // Lookup returns the definition for a registered feature.
-func Lookup(feature guardpb.MigrationFeature) (Definition, bool) {
+func Lookup(feature guardpb.FeatureType) (Definition, bool) {
 	for _, definition := range features {
 		if definition.Feature == feature {
 			return definition, true

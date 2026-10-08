@@ -13,7 +13,7 @@ import (
 
 func TestRegistryCoversFeatures(t *testing.T) {
 	definitions := All()
-	seen := make(map[guardpb.MigrationFeature]struct{}, len(definitions))
+	seen := make(map[guardpb.FeatureType]struct{}, len(definitions))
 	keys := make(map[string]struct{}, len(definitions))
 	for _, definition := range definitions {
 		if _, ok := seen[definition.Feature]; ok {
@@ -32,9 +32,9 @@ func TestRegistryCoversFeatures(t *testing.T) {
 			t.Errorf("scheme-relative key = %q, want %q", got, key)
 		}
 	}
-	for value := range guardpb.MigrationFeature_name {
-		feature := guardpb.MigrationFeature(value)
-		if feature == guardpb.MigrationFeature_MIGRATION_FEATURE_UNSPECIFIED {
+	for value := range guardpb.FeatureType_name {
+		feature := guardpb.FeatureType(value)
+		if feature == guardpb.FeatureType_FEATURE_TYPE_UNSPECIFIED {
 			continue
 		}
 		if _, ok := seen[feature]; !ok {
@@ -45,7 +45,7 @@ func TestRegistryCoversFeatures(t *testing.T) {
 	if got := All()[0].Name; got == "changed" {
 		t.Fatal("All exposes mutable registry storage")
 	}
-	if _, ok := Lookup(guardpb.MigrationFeature(1000)); ok {
+	if _, ok := Lookup(guardpb.FeatureType(1000)); ok {
 		t.Fatal("unknown feature was accepted")
 	}
 }
