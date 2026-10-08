@@ -64,9 +64,10 @@ type Skill struct {
 	Downloads int64 `protobuf:"varint,11,opt,name=downloads,proto3" json:"downloads,omitempty"`
 	// source is the organization that published the skill (e.g. "anthropics").
 	Source string `protobuf:"bytes,12,opt,name=source,proto3" json:"source,omitempty"`
-	// source_repo_url is the browsable upstream repository the skill was ingested
-	// from, e.g. "https://github.com/agentspace-so/agent-skills"; empty when
-	// unknown. Public because only public auto-ingested skills are in the catalog.
+	// source_repo_url is the browsable upstream repository the skill was
+	// ingested from, e.g. "https://github.com/agentspace-so/agent-skills"; empty
+	// when unknown. Public because only public auto-ingested skills are in the
+	// catalog.
 	SourceRepoUrl string `protobuf:"bytes,13,opt,name=source_repo_url,json=sourceRepoUrl,proto3" json:"source_repo_url,omitempty"`
 	// source_path is the skill's folder within source_repo_url, e.g.
 	// "skills/academy-guide"; empty when the skill is the whole repository.
