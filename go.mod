@@ -18,7 +18,6 @@ require (
 	github.com/google/go-containerregistry v0.22.1
 	github.com/google/gofuzz v1.2.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0
-	github.com/klauspost/compress v1.20.0
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/palantir/pkg/yamlpatch v1.5.0
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
@@ -26,7 +25,6 @@ require (
 	github.com/sigstore/sigstore v1.10.9
 	golang.org/x/exp v0.0.0-20260727155853-b88d891fe743
 	golang.org/x/oauth2 v0.37.0
-	golang.org/x/text v0.41.0
 	google.golang.org/api v0.297.0
 	google.golang.org/genproto v0.0.0-20260715232425-e75dac1f907d
 	google.golang.org/genproto/googleapis/api v0.0.0-20260803160001-6ac0973c030d
@@ -72,6 +70,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/kevinburke/ssh_config v1.6.0 // indirect
+	github.com/klauspost/compress v1.20.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.3-0.20250322232337-35a7c28c31ee // indirect
@@ -109,6 +108,7 @@ require (
 	golang.org/x/sync v0.23.0 // indirect
 	golang.org/x/sys v0.48.0 // indirect
 	golang.org/x/term v0.45.0 // indirect
+	golang.org/x/text v0.41.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gotest.tools/v3 v3.5.2 // indirect
 )
