@@ -194,6 +194,59 @@ func local_request_Guardener_GetMigrationOperation_0(ctx context.Context, marsha
 	return msg, metadata, err
 }
 
+var filter_Guardener_ListMigrationOperations_0 = &utilities.DoubleArray{Encoding: map[string]int{"group": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+
+func request_Guardener_ListMigrationOperations_0(ctx context.Context, marshaler runtime.Marshaler, client GuardenerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListMigrationOperationsRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["group"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "group")
+	}
+	protoReq.Group, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "group", err)
+	}
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Guardener_ListMigrationOperations_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.ListMigrationOperations(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_Guardener_ListMigrationOperations_0(ctx context.Context, marshaler runtime.Marshaler, server GuardenerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListMigrationOperationsRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["group"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "group")
+	}
+	protoReq.Group, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "group", err)
+	}
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Guardener_ListMigrationOperations_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.ListMigrationOperations(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 var filter_Guardener_ListScans_0 = &utilities.DoubleArray{Encoding: map[string]int{"group": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_Guardener_ListScans_0(ctx context.Context, marshaler runtime.Marshaler, client GuardenerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -388,6 +441,26 @@ func RegisterGuardenerHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		}
 		forward_Guardener_GetMigrationOperation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodGet, pattern_Guardener_ListMigrationOperations_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.Guardener/ListMigrationOperations", runtime.WithHTTPPathPattern("/guardener/v1alpha1/{group=**}/migrations"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_Guardener_ListMigrationOperations_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_Guardener_ListMigrationOperations_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodGet, pattern_Guardener_ListScans_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -536,6 +609,23 @@ func RegisterGuardenerHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		}
 		forward_Guardener_GetMigrationOperation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodGet, pattern_Guardener_ListMigrationOperations_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/chainguard.platform.guardener.v1alpha1.Guardener/ListMigrationOperations", runtime.WithHTTPPathPattern("/guardener/v1alpha1/{group=**}/migrations"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_Guardener_ListMigrationOperations_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_Guardener_ListMigrationOperations_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodGet, pattern_Guardener_ListScans_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -574,19 +664,21 @@ func RegisterGuardenerHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 }
 
 var (
-	pattern_Guardener_GetEntitlement_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"guardener", "v1alpha1", "entitlements", "group"}, ""))
-	pattern_Guardener_UpdateEntitlement_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"guardener", "v1alpha1", "entitlements", "group"}, ""))
-	pattern_Guardener_MigrateRepository_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"guardener", "v1alpha1", "migrate"}, ""))
-	pattern_Guardener_GetMigrationOperation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 3, 0, 4, 3, 5, 4}, []string{"guardener", "v1alpha1", "operations", "migrate", "name"}, ""))
-	pattern_Guardener_ListScans_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 3, 0, 4, 1, 5, 2, 2, 3}, []string{"guardener", "v1alpha1", "group", "scans"}, ""))
-	pattern_Guardener_GetScan_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 3, 0, 4, 1, 5, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"guardener", "v1alpha1", "group", "scans", "id"}, ""))
+	pattern_Guardener_GetEntitlement_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"guardener", "v1alpha1", "entitlements", "group"}, ""))
+	pattern_Guardener_UpdateEntitlement_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 1, 5, 3}, []string{"guardener", "v1alpha1", "entitlements", "group"}, ""))
+	pattern_Guardener_MigrateRepository_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"guardener", "v1alpha1", "migrate"}, ""))
+	pattern_Guardener_GetMigrationOperation_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 3, 0, 4, 3, 5, 4}, []string{"guardener", "v1alpha1", "operations", "migrate", "name"}, ""))
+	pattern_Guardener_ListMigrationOperations_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 3, 0, 4, 1, 5, 2, 2, 3}, []string{"guardener", "v1alpha1", "group", "migrations"}, ""))
+	pattern_Guardener_ListScans_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 3, 0, 4, 1, 5, 2, 2, 3}, []string{"guardener", "v1alpha1", "group", "scans"}, ""))
+	pattern_Guardener_GetScan_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 3, 0, 4, 1, 5, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"guardener", "v1alpha1", "group", "scans", "id"}, ""))
 )
 
 var (
-	forward_Guardener_GetEntitlement_0        = runtime.ForwardResponseMessage
-	forward_Guardener_UpdateEntitlement_0     = runtime.ForwardResponseMessage
-	forward_Guardener_MigrateRepository_0     = runtime.ForwardResponseMessage
-	forward_Guardener_GetMigrationOperation_0 = runtime.ForwardResponseMessage
-	forward_Guardener_ListScans_0             = runtime.ForwardResponseMessage
-	forward_Guardener_GetScan_0               = runtime.ForwardResponseMessage
+	forward_Guardener_GetEntitlement_0          = runtime.ForwardResponseMessage
+	forward_Guardener_UpdateEntitlement_0       = runtime.ForwardResponseMessage
+	forward_Guardener_MigrateRepository_0       = runtime.ForwardResponseMessage
+	forward_Guardener_GetMigrationOperation_0   = runtime.ForwardResponseMessage
+	forward_Guardener_ListMigrationOperations_0 = runtime.ForwardResponseMessage
+	forward_Guardener_ListScans_0               = runtime.ForwardResponseMessage
+	forward_Guardener_GetScan_0                 = runtime.ForwardResponseMessage
 )

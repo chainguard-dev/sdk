@@ -116,6 +116,31 @@ service Guardener {
     };
   }
 
+  // ListMigrationOperations lists a group's migration operations, newest
+  // first, so a migration started by one member can be found by another.
+  // It returns each operation created by MigrateRepository and each
+  // system-triggered run, not the per-feature operations a multi-feature
+  // operation names in feature_migrations.
+  // Requires any migration capability. Each operation is authorized like
+  // GetMigrationOperation, and those the caller cannot read are left out.
+  rpc ListMigrationOperations(ListMigrationOperationsRequest)
+      returns (ListMigrationOperationsResponse) {
+    option (google.api.http) = {
+      get: "/guardener/v1alpha1/{group=**}/migrations"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {}
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List a group's guardener migration operations, newest "
+                   "first, optionally for one repository."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
   // ListScans lists summaries of a group's dependency scans — one per
   // repository, its most recent scan — newest first, optionally filtered to
   // one repository. Scans are built continuously for the repositories of the
@@ -259,6 +284,44 @@ message GetMigrationOperationRequest {
   // The operation name, as returned by MigrateRepository
   // (operations/migrate/{uidp}/{uuid}).
   string name = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListMigrationOperationsRequest selects a page of a group's migration
+// operations.
+message ListMigrationOperationsRequest {
+  // UIDP of the owning group; the IAM scope. Only operations namespaced under
+  // this group are listed, not those of its descendants.
+  string group = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Only list operations for this repository, as a full URL such as
+  // "https://github.com/owner/repo". Matching ignores case and a trailing
+  // ".git". Carried as a query parameter over HTTP.
+  string url = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // The most operations to return. Zero returns up to 50, and values above
+  // 100 are treated as 100. A page can hold fewer operations than requested
+  // even when more follow, because operations the caller cannot read are
+  // left out.
+  int32 page_size = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // A next_page_token from a previous response with the same group and url.
+  string page_token = 4 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListMigrationOperationsResponse is one page of a group's migration
+// operations.
+message ListMigrationOperationsResponse {
+  // The operations, newest first, each in the state GetMigrationOperation
+  // returns for the caller.
+  repeated google.longrunning.Operation operations = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Pass as page_token to get the next page. Empty on the last page.
+  string next_page_token = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // Trigger identifies what initiated a migration run.

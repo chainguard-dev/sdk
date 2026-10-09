@@ -606,6 +606,143 @@ func (x *GetMigrationOperationRequest) GetName() string {
 	return ""
 }
 
+// ListMigrationOperationsRequest selects a page of a group's migration
+// operations.
+type ListMigrationOperationsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UIDP of the owning group; the IAM scope. Only operations namespaced under
+	// this group are listed, not those of its descendants.
+	Group string `protobuf:"bytes,1,opt,name=group,proto3" json:"group,omitempty"`
+	// Only list operations for this repository, as a full URL such as
+	// "https://github.com/owner/repo". Matching ignores case and a trailing
+	// ".git". Carried as a query parameter over HTTP.
+	Url string `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
+	// The most operations to return. Zero returns up to 50, and values above
+	// 100 are treated as 100. A page can hold fewer operations than requested
+	// even when more follow, because operations the caller cannot read are
+	// left out.
+	PageSize int32 `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// A next_page_token from a previous response with the same group and url.
+	PageToken     string `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListMigrationOperationsRequest) Reset() {
+	*x = ListMigrationOperationsRequest{}
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListMigrationOperationsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListMigrationOperationsRequest) ProtoMessage() {}
+
+func (x *ListMigrationOperationsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListMigrationOperationsRequest.ProtoReflect.Descriptor instead.
+func (*ListMigrationOperationsRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ListMigrationOperationsRequest) GetGroup() string {
+	if x != nil {
+		return x.Group
+	}
+	return ""
+}
+
+func (x *ListMigrationOperationsRequest) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+func (x *ListMigrationOperationsRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *ListMigrationOperationsRequest) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+// ListMigrationOperationsResponse is one page of a group's migration
+// operations.
+type ListMigrationOperationsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The operations, newest first, each in the state GetMigrationOperation
+	// returns for the caller.
+	Operations []*longrunningpb.Operation `protobuf:"bytes,1,rep,name=operations,proto3" json:"operations,omitempty"`
+	// Pass as page_token to get the next page. Empty on the last page.
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListMigrationOperationsResponse) Reset() {
+	*x = ListMigrationOperationsResponse{}
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListMigrationOperationsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListMigrationOperationsResponse) ProtoMessage() {}
+
+func (x *ListMigrationOperationsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListMigrationOperationsResponse.ProtoReflect.Descriptor instead.
+func (*ListMigrationOperationsResponse) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ListMigrationOperationsResponse) GetOperations() []*longrunningpb.Operation {
+	if x != nil {
+		return x.Operations
+	}
+	return nil
+}
+
+func (x *ListMigrationOperationsResponse) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
+}
+
 // MigrateOperationMetadata is carried in Operation.metadata while a migration
 // is running and when it is done.
 type MigrateOperationMetadata struct {
@@ -636,7 +773,7 @@ type MigrateOperationMetadata struct {
 
 func (x *MigrateOperationMetadata) Reset() {
 	*x = MigrateOperationMetadata{}
-	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[6]
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -648,7 +785,7 @@ func (x *MigrateOperationMetadata) String() string {
 func (*MigrateOperationMetadata) ProtoMessage() {}
 
 func (x *MigrateOperationMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[6]
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -661,7 +798,7 @@ func (x *MigrateOperationMetadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MigrateOperationMetadata.ProtoReflect.Descriptor instead.
 func (*MigrateOperationMetadata) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{6}
+	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *MigrateOperationMetadata) GetUrl() string {
@@ -741,7 +878,7 @@ type MigrateOperationResponse struct {
 
 func (x *MigrateOperationResponse) Reset() {
 	*x = MigrateOperationResponse{}
-	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[7]
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -753,7 +890,7 @@ func (x *MigrateOperationResponse) String() string {
 func (*MigrateOperationResponse) ProtoMessage() {}
 
 func (x *MigrateOperationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[7]
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -766,7 +903,7 @@ func (x *MigrateOperationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MigrateOperationResponse.ProtoReflect.Descriptor instead.
 func (*MigrateOperationResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{7}
+	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *MigrateOperationResponse) GetPullRequestUrl() string {
@@ -802,7 +939,7 @@ type ListScansRequest struct {
 
 func (x *ListScansRequest) Reset() {
 	*x = ListScansRequest{}
-	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[8]
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -814,7 +951,7 @@ func (x *ListScansRequest) String() string {
 func (*ListScansRequest) ProtoMessage() {}
 
 func (x *ListScansRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[8]
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -827,7 +964,7 @@ func (x *ListScansRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListScansRequest.ProtoReflect.Descriptor instead.
 func (*ListScansRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{8}
+	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ListScansRequest) GetGroup() string {
@@ -855,7 +992,7 @@ type ListScansResponse struct {
 
 func (x *ListScansResponse) Reset() {
 	*x = ListScansResponse{}
-	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[9]
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -867,7 +1004,7 @@ func (x *ListScansResponse) String() string {
 func (*ListScansResponse) ProtoMessage() {}
 
 func (x *ListScansResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[9]
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -880,7 +1017,7 @@ func (x *ListScansResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListScansResponse.ProtoReflect.Descriptor instead.
 func (*ListScansResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{9}
+	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ListScansResponse) GetScans() []*ScanSummary {
@@ -911,7 +1048,7 @@ type ScanSummary struct {
 
 func (x *ScanSummary) Reset() {
 	*x = ScanSummary{}
-	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[10]
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -923,7 +1060,7 @@ func (x *ScanSummary) String() string {
 func (*ScanSummary) ProtoMessage() {}
 
 func (x *ScanSummary) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[10]
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -936,7 +1073,7 @@ func (x *ScanSummary) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScanSummary.ProtoReflect.Descriptor instead.
 func (*ScanSummary) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{10}
+	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ScanSummary) GetId() string {
@@ -980,7 +1117,7 @@ type GetScanRequest struct {
 
 func (x *GetScanRequest) Reset() {
 	*x = GetScanRequest{}
-	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[11]
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -992,7 +1129,7 @@ func (x *GetScanRequest) String() string {
 func (*GetScanRequest) ProtoMessage() {}
 
 func (x *GetScanRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[11]
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1005,7 +1142,7 @@ func (x *GetScanRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetScanRequest.ProtoReflect.Descriptor instead.
 func (*GetScanRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{11}
+	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetScanRequest) GetGroup() string {
@@ -1046,7 +1183,7 @@ type Scan struct {
 
 func (x *Scan) Reset() {
 	*x = Scan{}
-	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[12]
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1058,7 +1195,7 @@ func (x *Scan) String() string {
 func (*Scan) ProtoMessage() {}
 
 func (x *Scan) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[12]
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1071,7 +1208,7 @@ func (x *Scan) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Scan.ProtoReflect.Descriptor instead.
 func (*Scan) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{12}
+	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *Scan) GetId() string {
@@ -1133,7 +1270,7 @@ type ScanArtifact struct {
 
 func (x *ScanArtifact) Reset() {
 	*x = ScanArtifact{}
-	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[13]
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1145,7 +1282,7 @@ func (x *ScanArtifact) String() string {
 func (*ScanArtifact) ProtoMessage() {}
 
 func (x *ScanArtifact) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[13]
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1158,7 +1295,7 @@ func (x *ScanArtifact) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScanArtifact.ProtoReflect.Descriptor instead.
 func (*ScanArtifact) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{13}
+	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ScanArtifact) GetId() string {
@@ -1197,7 +1334,7 @@ type ScanRelationship struct {
 
 func (x *ScanRelationship) Reset() {
 	*x = ScanRelationship{}
-	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[14]
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1209,7 +1346,7 @@ func (x *ScanRelationship) String() string {
 func (*ScanRelationship) ProtoMessage() {}
 
 func (x *ScanRelationship) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[14]
+	mi := &file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1222,7 +1359,7 @@ func (x *ScanRelationship) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScanRelationship.ProtoReflect.Descriptor instead.
 func (*ScanRelationship) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{14}
+	return file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ScanRelationship) GetFrom() string {
@@ -1283,7 +1420,19 @@ const file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDesc = "" +
 	"\x1cGetMigrationOperationRequest\x12 \n" +
 	"\x05group\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x05group\x12\x18\n" +
-	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x04name\"\x86\x04\n" +
+	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x04name\"\xa2\x01\n" +
+	"\x1eListMigrationOperationsRequest\x12 \n" +
+	"\x05group\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x05group\x12\x16\n" +
+	"\x03url\x18\x02 \x01(\tB\x04\xe2A\x01\x01R\x03url\x12!\n" +
+	"\tpage_size\x18\x03 \x01(\x05B\x04\xe2A\x01\x01R\bpageSize\x12#\n" +
+	"\n" +
+	"page_token\x18\x04 \x01(\tB\x04\xe2A\x01\x01R\tpageToken\"\x94\x01\n" +
+	"\x1fListMigrationOperationsResponse\x12C\n" +
+	"\n" +
+	"operations\x18\x01 \x03(\v2\x1d.google.longrunning.OperationB\x04\xe2A\x01\x03R\n" +
+	"operations\x12,\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\rnextPageToken\"\x86\x04\n" +
 	"\x18MigrateOperationMetadata\x12\x10\n" +
 	"\x03url\x18\x01 \x01(\tR\x03url\x12\x19\n" +
 	"\brepo_key\x18\x02 \x01(\tR\arepoKey\x12;\n" +
@@ -1340,7 +1489,7 @@ const file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDesc = "" +
 	"\x13FEATURE_TYPE_IMAGES\x10\x02*M\n" +
 	"\rMigrationMode\x12\x1e\n" +
 	"\x1aMIGRATION_MODE_UNSPECIFIED\x10\x00\x12\x1c\n" +
-	"\x18MIGRATION_MODE_ON_DEMAND\x10\x012\xd6\x0f\n" +
+	"\x18MIGRATION_MODE_ON_DEMAND\x10\x012\xaa\x12\n" +
 	"\tGuardener\x12\xc5\x01\n" +
 	"\x0eGetEntitlement\x12=.chainguard.platform.guardener.v1alpha1.GetEntitlementRequest\x1a3.chainguard.platform.guardener.v1alpha1.Entitlement\"?\x82\xd3\xe4\x93\x02-\x12+/guardener/v1alpha1/entitlements/{group=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x81\x12\x12\xcf\x01\n" +
@@ -1350,7 +1499,9 @@ const file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDesc = "" +
 	"?chainguard.platform.guardener.v1alpha1.MigrateOperationResponse\x12?chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/guardener/v1alpha1/migrate\x8a\xaf\xa8\xd2\x05\x02\x12\x00\x9a\xaf\xa8\xd2\x05\xa3\x02\n" +
 	"\x9a\x02Enqueue repository migration. List features (Actions, images) to run each opted-in migration with its own pull request and per-feature operation; omitted runs Actions migration only. Set ON_DEMAND mode with only the Images feature for a one-time image migration without YAML opt-in. \x00(\x010\x00\x12\x99\x02\n" +
 	"\x15GetMigrationOperation\x12D.chainguard.platform.guardener.v1alpha1.GetMigrationOperationRequest\x1a\x1d.google.longrunning.Operation\"\x9a\x01\x82\xd3\xe4\x93\x022\x120/guardener/v1alpha1/{name=operations/migrate/**}\x8a\xaf\xa8\xd2\x05\x02\x12\x00\x9a\xaf\xa8\xd2\x05T\n" +
-	"JGet the state of a guardener migration long-running operation by its name.\x18\x01 \x00(\x010\x00\x12\xf8\x02\n" +
+	"JGet the state of a guardener migration long-running operation by its name.\x18\x01 \x00(\x010\x00\x12\xd1\x02\n" +
+	"\x17ListMigrationOperations\x12F.chainguard.platform.guardener.v1alpha1.ListMigrationOperationsRequest\x1aG.chainguard.platform.guardener.v1alpha1.ListMigrationOperationsResponse\"\xa4\x01\x82\xd3\xe4\x93\x02+\x12)/guardener/v1alpha1/{group=**}/migrations\x8a\xaf\xa8\xd2\x05\x02\x12\x00\x9a\xaf\xa8\xd2\x05e\n" +
+	"[List a group's guardener migration operations, newest first, optionally for one repository.\x18\x01 \x00(\x010\x00\x12\xf8\x02\n" +
 	"\tListScans\x128.chainguard.platform.guardener.v1alpha1.ListScansRequest\x1a9.chainguard.platform.guardener.v1alpha1.ListScansResponse\"\xf5\x01\x82\xd3\xe4\x93\x02&\x12$/guardener/v1alpha1/{group=**}/scans\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x83\x12\x9a\xaf\xa8\xd2\x05\xb6\x01\n" +
 	"\xab\x01List summaries of a group's guardener dependency scans (one per repository, newest first): scan id, repository, commit, and scan time. Resolve a summary's id with GetScan.\x18\x01 \x00(\x010\x00\x12\xbf\x02\n" +
@@ -1372,65 +1523,70 @@ func file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDescGZIP() [
 }
 
 var file_chainguard_platform_guardener_v1alpha1_guardener_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_chainguard_platform_guardener_v1alpha1_guardener_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_chainguard_platform_guardener_v1alpha1_guardener_proto_goTypes = []any{
-	(Trigger)(0),                         // 0: chainguard.platform.guardener.v1alpha1.Trigger
-	(FeatureType)(0),                     // 1: chainguard.platform.guardener.v1alpha1.FeatureType
-	(MigrationMode)(0),                   // 2: chainguard.platform.guardener.v1alpha1.MigrationMode
-	(Entitlement_RepoVisibilityScope)(0), // 3: chainguard.platform.guardener.v1alpha1.Entitlement.RepoVisibilityScope
-	(*Entitlement)(nil),                  // 4: chainguard.platform.guardener.v1alpha1.Entitlement
-	(*GetEntitlementRequest)(nil),        // 5: chainguard.platform.guardener.v1alpha1.GetEntitlementRequest
-	(*UpdateEntitlementRequest)(nil),     // 6: chainguard.platform.guardener.v1alpha1.UpdateEntitlementRequest
-	(*MigrateRepositoryRequest)(nil),     // 7: chainguard.platform.guardener.v1alpha1.MigrateRepositoryRequest
-	(*FeatureMigration)(nil),             // 8: chainguard.platform.guardener.v1alpha1.FeatureMigration
-	(*GetMigrationOperationRequest)(nil), // 9: chainguard.platform.guardener.v1alpha1.GetMigrationOperationRequest
-	(*MigrateOperationMetadata)(nil),     // 10: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata
-	(*MigrateOperationResponse)(nil),     // 11: chainguard.platform.guardener.v1alpha1.MigrateOperationResponse
-	(*ListScansRequest)(nil),             // 12: chainguard.platform.guardener.v1alpha1.ListScansRequest
-	(*ListScansResponse)(nil),            // 13: chainguard.platform.guardener.v1alpha1.ListScansResponse
-	(*ScanSummary)(nil),                  // 14: chainguard.platform.guardener.v1alpha1.ScanSummary
-	(*GetScanRequest)(nil),               // 15: chainguard.platform.guardener.v1alpha1.GetScanRequest
-	(*Scan)(nil),                         // 16: chainguard.platform.guardener.v1alpha1.Scan
-	(*ScanArtifact)(nil),                 // 17: chainguard.platform.guardener.v1alpha1.ScanArtifact
-	(*ScanRelationship)(nil),             // 18: chainguard.platform.guardener.v1alpha1.ScanRelationship
-	(*timestamppb.Timestamp)(nil),        // 19: google.protobuf.Timestamp
-	(*longrunningpb.Operation)(nil),      // 20: google.longrunning.Operation
+	(Trigger)(0),                            // 0: chainguard.platform.guardener.v1alpha1.Trigger
+	(FeatureType)(0),                        // 1: chainguard.platform.guardener.v1alpha1.FeatureType
+	(MigrationMode)(0),                      // 2: chainguard.platform.guardener.v1alpha1.MigrationMode
+	(Entitlement_RepoVisibilityScope)(0),    // 3: chainguard.platform.guardener.v1alpha1.Entitlement.RepoVisibilityScope
+	(*Entitlement)(nil),                     // 4: chainguard.platform.guardener.v1alpha1.Entitlement
+	(*GetEntitlementRequest)(nil),           // 5: chainguard.platform.guardener.v1alpha1.GetEntitlementRequest
+	(*UpdateEntitlementRequest)(nil),        // 6: chainguard.platform.guardener.v1alpha1.UpdateEntitlementRequest
+	(*MigrateRepositoryRequest)(nil),        // 7: chainguard.platform.guardener.v1alpha1.MigrateRepositoryRequest
+	(*FeatureMigration)(nil),                // 8: chainguard.platform.guardener.v1alpha1.FeatureMigration
+	(*GetMigrationOperationRequest)(nil),    // 9: chainguard.platform.guardener.v1alpha1.GetMigrationOperationRequest
+	(*ListMigrationOperationsRequest)(nil),  // 10: chainguard.platform.guardener.v1alpha1.ListMigrationOperationsRequest
+	(*ListMigrationOperationsResponse)(nil), // 11: chainguard.platform.guardener.v1alpha1.ListMigrationOperationsResponse
+	(*MigrateOperationMetadata)(nil),        // 12: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata
+	(*MigrateOperationResponse)(nil),        // 13: chainguard.platform.guardener.v1alpha1.MigrateOperationResponse
+	(*ListScansRequest)(nil),                // 14: chainguard.platform.guardener.v1alpha1.ListScansRequest
+	(*ListScansResponse)(nil),               // 15: chainguard.platform.guardener.v1alpha1.ListScansResponse
+	(*ScanSummary)(nil),                     // 16: chainguard.platform.guardener.v1alpha1.ScanSummary
+	(*GetScanRequest)(nil),                  // 17: chainguard.platform.guardener.v1alpha1.GetScanRequest
+	(*Scan)(nil),                            // 18: chainguard.platform.guardener.v1alpha1.Scan
+	(*ScanArtifact)(nil),                    // 19: chainguard.platform.guardener.v1alpha1.ScanArtifact
+	(*ScanRelationship)(nil),                // 20: chainguard.platform.guardener.v1alpha1.ScanRelationship
+	(*timestamppb.Timestamp)(nil),           // 21: google.protobuf.Timestamp
+	(*longrunningpb.Operation)(nil),         // 22: google.longrunning.Operation
 }
 var file_chainguard_platform_guardener_v1alpha1_guardener_proto_depIdxs = []int32{
 	3,  // 0: chainguard.platform.guardener.v1alpha1.Entitlement.repo_visibility_scope:type_name -> chainguard.platform.guardener.v1alpha1.Entitlement.RepoVisibilityScope
-	19, // 1: chainguard.platform.guardener.v1alpha1.Entitlement.create_time:type_name -> google.protobuf.Timestamp
-	19, // 2: chainguard.platform.guardener.v1alpha1.Entitlement.update_time:type_name -> google.protobuf.Timestamp
+	21, // 1: chainguard.platform.guardener.v1alpha1.Entitlement.create_time:type_name -> google.protobuf.Timestamp
+	21, // 2: chainguard.platform.guardener.v1alpha1.Entitlement.update_time:type_name -> google.protobuf.Timestamp
 	3,  // 3: chainguard.platform.guardener.v1alpha1.UpdateEntitlementRequest.repo_visibility_scope:type_name -> chainguard.platform.guardener.v1alpha1.Entitlement.RepoVisibilityScope
 	2,  // 4: chainguard.platform.guardener.v1alpha1.MigrateRepositoryRequest.mode:type_name -> chainguard.platform.guardener.v1alpha1.MigrationMode
 	1,  // 5: chainguard.platform.guardener.v1alpha1.MigrateRepositoryRequest.features:type_name -> chainguard.platform.guardener.v1alpha1.FeatureType
 	1,  // 6: chainguard.platform.guardener.v1alpha1.FeatureMigration.feature:type_name -> chainguard.platform.guardener.v1alpha1.FeatureType
-	19, // 7: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata.create_time:type_name -> google.protobuf.Timestamp
-	0,  // 8: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata.trigger:type_name -> chainguard.platform.guardener.v1alpha1.Trigger
-	1,  // 9: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata.feature:type_name -> chainguard.platform.guardener.v1alpha1.FeatureType
-	8,  // 10: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata.feature_migrations:type_name -> chainguard.platform.guardener.v1alpha1.FeatureMigration
-	2,  // 11: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata.mode:type_name -> chainguard.platform.guardener.v1alpha1.MigrationMode
-	14, // 12: chainguard.platform.guardener.v1alpha1.ListScansResponse.scans:type_name -> chainguard.platform.guardener.v1alpha1.ScanSummary
-	19, // 13: chainguard.platform.guardener.v1alpha1.ScanSummary.scan_time:type_name -> google.protobuf.Timestamp
-	19, // 14: chainguard.platform.guardener.v1alpha1.Scan.scan_time:type_name -> google.protobuf.Timestamp
-	17, // 15: chainguard.platform.guardener.v1alpha1.Scan.artifacts:type_name -> chainguard.platform.guardener.v1alpha1.ScanArtifact
-	18, // 16: chainguard.platform.guardener.v1alpha1.Scan.relationships:type_name -> chainguard.platform.guardener.v1alpha1.ScanRelationship
-	5,  // 17: chainguard.platform.guardener.v1alpha1.Guardener.GetEntitlement:input_type -> chainguard.platform.guardener.v1alpha1.GetEntitlementRequest
-	6,  // 18: chainguard.platform.guardener.v1alpha1.Guardener.UpdateEntitlement:input_type -> chainguard.platform.guardener.v1alpha1.UpdateEntitlementRequest
-	7,  // 19: chainguard.platform.guardener.v1alpha1.Guardener.MigrateRepository:input_type -> chainguard.platform.guardener.v1alpha1.MigrateRepositoryRequest
-	9,  // 20: chainguard.platform.guardener.v1alpha1.Guardener.GetMigrationOperation:input_type -> chainguard.platform.guardener.v1alpha1.GetMigrationOperationRequest
-	12, // 21: chainguard.platform.guardener.v1alpha1.Guardener.ListScans:input_type -> chainguard.platform.guardener.v1alpha1.ListScansRequest
-	15, // 22: chainguard.platform.guardener.v1alpha1.Guardener.GetScan:input_type -> chainguard.platform.guardener.v1alpha1.GetScanRequest
-	4,  // 23: chainguard.platform.guardener.v1alpha1.Guardener.GetEntitlement:output_type -> chainguard.platform.guardener.v1alpha1.Entitlement
-	4,  // 24: chainguard.platform.guardener.v1alpha1.Guardener.UpdateEntitlement:output_type -> chainguard.platform.guardener.v1alpha1.Entitlement
-	20, // 25: chainguard.platform.guardener.v1alpha1.Guardener.MigrateRepository:output_type -> google.longrunning.Operation
-	20, // 26: chainguard.platform.guardener.v1alpha1.Guardener.GetMigrationOperation:output_type -> google.longrunning.Operation
-	13, // 27: chainguard.platform.guardener.v1alpha1.Guardener.ListScans:output_type -> chainguard.platform.guardener.v1alpha1.ListScansResponse
-	16, // 28: chainguard.platform.guardener.v1alpha1.Guardener.GetScan:output_type -> chainguard.platform.guardener.v1alpha1.Scan
-	23, // [23:29] is the sub-list for method output_type
-	17, // [17:23] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	22, // 7: chainguard.platform.guardener.v1alpha1.ListMigrationOperationsResponse.operations:type_name -> google.longrunning.Operation
+	21, // 8: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata.create_time:type_name -> google.protobuf.Timestamp
+	0,  // 9: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata.trigger:type_name -> chainguard.platform.guardener.v1alpha1.Trigger
+	1,  // 10: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata.feature:type_name -> chainguard.platform.guardener.v1alpha1.FeatureType
+	8,  // 11: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata.feature_migrations:type_name -> chainguard.platform.guardener.v1alpha1.FeatureMigration
+	2,  // 12: chainguard.platform.guardener.v1alpha1.MigrateOperationMetadata.mode:type_name -> chainguard.platform.guardener.v1alpha1.MigrationMode
+	16, // 13: chainguard.platform.guardener.v1alpha1.ListScansResponse.scans:type_name -> chainguard.platform.guardener.v1alpha1.ScanSummary
+	21, // 14: chainguard.platform.guardener.v1alpha1.ScanSummary.scan_time:type_name -> google.protobuf.Timestamp
+	21, // 15: chainguard.platform.guardener.v1alpha1.Scan.scan_time:type_name -> google.protobuf.Timestamp
+	19, // 16: chainguard.platform.guardener.v1alpha1.Scan.artifacts:type_name -> chainguard.platform.guardener.v1alpha1.ScanArtifact
+	20, // 17: chainguard.platform.guardener.v1alpha1.Scan.relationships:type_name -> chainguard.platform.guardener.v1alpha1.ScanRelationship
+	5,  // 18: chainguard.platform.guardener.v1alpha1.Guardener.GetEntitlement:input_type -> chainguard.platform.guardener.v1alpha1.GetEntitlementRequest
+	6,  // 19: chainguard.platform.guardener.v1alpha1.Guardener.UpdateEntitlement:input_type -> chainguard.platform.guardener.v1alpha1.UpdateEntitlementRequest
+	7,  // 20: chainguard.platform.guardener.v1alpha1.Guardener.MigrateRepository:input_type -> chainguard.platform.guardener.v1alpha1.MigrateRepositoryRequest
+	9,  // 21: chainguard.platform.guardener.v1alpha1.Guardener.GetMigrationOperation:input_type -> chainguard.platform.guardener.v1alpha1.GetMigrationOperationRequest
+	10, // 22: chainguard.platform.guardener.v1alpha1.Guardener.ListMigrationOperations:input_type -> chainguard.platform.guardener.v1alpha1.ListMigrationOperationsRequest
+	14, // 23: chainguard.platform.guardener.v1alpha1.Guardener.ListScans:input_type -> chainguard.platform.guardener.v1alpha1.ListScansRequest
+	17, // 24: chainguard.platform.guardener.v1alpha1.Guardener.GetScan:input_type -> chainguard.platform.guardener.v1alpha1.GetScanRequest
+	4,  // 25: chainguard.platform.guardener.v1alpha1.Guardener.GetEntitlement:output_type -> chainguard.platform.guardener.v1alpha1.Entitlement
+	4,  // 26: chainguard.platform.guardener.v1alpha1.Guardener.UpdateEntitlement:output_type -> chainguard.platform.guardener.v1alpha1.Entitlement
+	22, // 27: chainguard.platform.guardener.v1alpha1.Guardener.MigrateRepository:output_type -> google.longrunning.Operation
+	22, // 28: chainguard.platform.guardener.v1alpha1.Guardener.GetMigrationOperation:output_type -> google.longrunning.Operation
+	11, // 29: chainguard.platform.guardener.v1alpha1.Guardener.ListMigrationOperations:output_type -> chainguard.platform.guardener.v1alpha1.ListMigrationOperationsResponse
+	15, // 30: chainguard.platform.guardener.v1alpha1.Guardener.ListScans:output_type -> chainguard.platform.guardener.v1alpha1.ListScansResponse
+	18, // 31: chainguard.platform.guardener.v1alpha1.Guardener.GetScan:output_type -> chainguard.platform.guardener.v1alpha1.Scan
+	25, // [25:32] is the sub-list for method output_type
+	18, // [18:25] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_guardener_v1alpha1_guardener_proto_init() }
@@ -1444,7 +1600,7 @@ func file_chainguard_platform_guardener_v1alpha1_guardener_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDesc), len(file_chainguard_platform_guardener_v1alpha1_guardener_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   15,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

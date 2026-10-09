@@ -23,12 +23,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Guardener_GetEntitlement_FullMethodName        = "/chainguard.platform.guardener.v1alpha1.Guardener/GetEntitlement"
-	Guardener_UpdateEntitlement_FullMethodName     = "/chainguard.platform.guardener.v1alpha1.Guardener/UpdateEntitlement"
-	Guardener_MigrateRepository_FullMethodName     = "/chainguard.platform.guardener.v1alpha1.Guardener/MigrateRepository"
-	Guardener_GetMigrationOperation_FullMethodName = "/chainguard.platform.guardener.v1alpha1.Guardener/GetMigrationOperation"
-	Guardener_ListScans_FullMethodName             = "/chainguard.platform.guardener.v1alpha1.Guardener/ListScans"
-	Guardener_GetScan_FullMethodName               = "/chainguard.platform.guardener.v1alpha1.Guardener/GetScan"
+	Guardener_GetEntitlement_FullMethodName          = "/chainguard.platform.guardener.v1alpha1.Guardener/GetEntitlement"
+	Guardener_UpdateEntitlement_FullMethodName       = "/chainguard.platform.guardener.v1alpha1.Guardener/UpdateEntitlement"
+	Guardener_MigrateRepository_FullMethodName       = "/chainguard.platform.guardener.v1alpha1.Guardener/MigrateRepository"
+	Guardener_GetMigrationOperation_FullMethodName   = "/chainguard.platform.guardener.v1alpha1.Guardener/GetMigrationOperation"
+	Guardener_ListMigrationOperations_FullMethodName = "/chainguard.platform.guardener.v1alpha1.Guardener/ListMigrationOperations"
+	Guardener_ListScans_FullMethodName               = "/chainguard.platform.guardener.v1alpha1.Guardener/ListScans"
+	Guardener_GetScan_FullMethodName                 = "/chainguard.platform.guardener.v1alpha1.Guardener/GetScan"
 )
 
 // GuardenerClient is the client API for Guardener service.
@@ -74,6 +75,14 @@ type GuardenerClient interface {
 	// requires any migration capability: it names every feature's operation,
 	// whose details each require their own feature's capability.
 	GetMigrationOperation(ctx context.Context, in *GetMigrationOperationRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
+	// ListMigrationOperations lists a group's migration operations, newest
+	// first, so a migration started by one member can be found by another.
+	// It returns each operation created by MigrateRepository and each
+	// system-triggered run, not the per-feature operations a multi-feature
+	// operation names in feature_migrations.
+	// Requires any migration capability. Each operation is authorized like
+	// GetMigrationOperation, and those the caller cannot read are left out.
+	ListMigrationOperations(ctx context.Context, in *ListMigrationOperationsRequest, opts ...grpc.CallOption) (*ListMigrationOperationsResponse, error)
 	// ListScans lists summaries of a group's dependency scans — one per
 	// repository, its most recent scan — newest first, optionally filtered to
 	// one repository. Scans are built continuously for the repositories of the
@@ -130,6 +139,16 @@ func (c *guardenerClient) GetMigrationOperation(ctx context.Context, in *GetMigr
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(longrunningpb.Operation)
 	err := c.cc.Invoke(ctx, Guardener_GetMigrationOperation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *guardenerClient) ListMigrationOperations(ctx context.Context, in *ListMigrationOperationsRequest, opts ...grpc.CallOption) (*ListMigrationOperationsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListMigrationOperationsResponse)
+	err := c.cc.Invoke(ctx, Guardener_ListMigrationOperations_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -199,6 +218,14 @@ type GuardenerServer interface {
 	// requires any migration capability: it names every feature's operation,
 	// whose details each require their own feature's capability.
 	GetMigrationOperation(context.Context, *GetMigrationOperationRequest) (*longrunningpb.Operation, error)
+	// ListMigrationOperations lists a group's migration operations, newest
+	// first, so a migration started by one member can be found by another.
+	// It returns each operation created by MigrateRepository and each
+	// system-triggered run, not the per-feature operations a multi-feature
+	// operation names in feature_migrations.
+	// Requires any migration capability. Each operation is authorized like
+	// GetMigrationOperation, and those the caller cannot read are left out.
+	ListMigrationOperations(context.Context, *ListMigrationOperationsRequest) (*ListMigrationOperationsResponse, error)
 	// ListScans lists summaries of a group's dependency scans — one per
 	// repository, its most recent scan — newest first, optionally filtered to
 	// one repository. Scans are built continuously for the repositories of the
@@ -232,6 +259,9 @@ func (UnimplementedGuardenerServer) MigrateRepository(context.Context, *MigrateR
 }
 func (UnimplementedGuardenerServer) GetMigrationOperation(context.Context, *GetMigrationOperationRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetMigrationOperation not implemented")
+}
+func (UnimplementedGuardenerServer) ListMigrationOperations(context.Context, *ListMigrationOperationsRequest) (*ListMigrationOperationsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListMigrationOperations not implemented")
 }
 func (UnimplementedGuardenerServer) ListScans(context.Context, *ListScansRequest) (*ListScansResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListScans not implemented")
@@ -332,6 +362,24 @@ func _Guardener_GetMigrationOperation_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Guardener_ListMigrationOperations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListMigrationOperationsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GuardenerServer).ListMigrationOperations(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Guardener_ListMigrationOperations_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GuardenerServer).ListMigrationOperations(ctx, req.(*ListMigrationOperationsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Guardener_ListScans_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListScansRequest)
 	if err := dec(in); err != nil {
@@ -390,6 +438,10 @@ var Guardener_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMigrationOperation",
 			Handler:    _Guardener_GetMigrationOperation_Handler,
+		},
+		{
+			MethodName: "ListMigrationOperations",
+			Handler:    _Guardener_ListMigrationOperations_Handler,
 		},
 		{
 			MethodName: "ListScans",

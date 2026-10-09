@@ -20,12 +20,13 @@ import (
 var _ guardener.GuardenerClient = (*MockGuardenerClient)(nil)
 
 type MockGuardenerClient struct {
-	OnGetEntitlement        []GuardenerOnGetEntitlement
-	OnUpdateEntitlement     []GuardenerOnUpdateEntitlement
-	OnMigrateRepository     []GuardenerOnMigrateRepository
-	OnGetMigrationOperation []GuardenerOnGetMigrationOperation
-	OnListScans             []GuardenerOnListScans
-	OnGetScan               []GuardenerOnGetScan
+	OnGetEntitlement          []GuardenerOnGetEntitlement
+	OnUpdateEntitlement       []GuardenerOnUpdateEntitlement
+	OnMigrateRepository       []GuardenerOnMigrateRepository
+	OnGetMigrationOperation   []GuardenerOnGetMigrationOperation
+	OnListMigrationOperations []GuardenerOnListMigrationOperations
+	OnListScans               []GuardenerOnListScans
+	OnGetScan                 []GuardenerOnGetScan
 }
 
 type GuardenerOnGetEntitlement struct {
@@ -50,6 +51,12 @@ type GuardenerOnGetMigrationOperation struct {
 	Given     *guardener.GetMigrationOperationRequest
 	Operation *longrunningpb.Operation
 	Error     error
+}
+
+type GuardenerOnListMigrationOperations struct {
+	Given *guardener.ListMigrationOperationsRequest
+	List  *guardener.ListMigrationOperationsResponse
+	Error error
 }
 
 type GuardenerOnListScans struct {
@@ -95,6 +102,15 @@ func (m MockGuardenerClient) GetMigrationOperation(_ context.Context, given *gua
 	for _, o := range m.OnGetMigrationOperation {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Operation, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockGuardenerClient) ListMigrationOperations(_ context.Context, given *guardener.ListMigrationOperationsRequest, _ ...grpc.CallOption) (*guardener.ListMigrationOperationsResponse, error) {
+	for _, o := range m.OnListMigrationOperations {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.List, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)
