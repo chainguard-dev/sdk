@@ -4063,16 +4063,31 @@ type RequestedLibraryVersionCVE struct {
 	// FIX_AVAILABLE says so where we know. Rendering an empty value as "no fix"
 	// is the one reading that stops a customer investigating.
 	//
-	// This field does not yet carry the upstream upgrade target, and does not yet
-	// report a fix target that landed on the malware block list as blocked. Until
-	// it does, treat it as evidence of a Chainguard build and not as the complete
-	// answer about where a fix exists.
+	// The upstream upgrade target is upstream_fix_version, not this field. This
+	// field does not yet report a fix target that landed on the malware block
+	// list as blocked, so treat it as evidence of a Chainguard build and not as
+	// the complete answer about where a fix exists.
 	RemediatedVersion string `protobuf:"bytes,6,opt,name=remediated_version,json=remediatedVersion,proto3" json:"remediated_version,omitempty"`
 	// What this row asserts. Read it before presenting the row as a finding:
 	// an UPSTREAM row is a detection, not a Chainguard determination.
-	Provenance    CVEProvenance `protobuf:"varint,7,opt,name=provenance,proto3,enum=chainguard.platform.libraries.v2beta1.CVEProvenance" json:"provenance,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Provenance CVEProvenance `protobuf:"varint,7,opt,name=provenance,proto3,enum=chainguard.platform.libraries.v2beta1.CVEProvenance" json:"provenance,omitempty"`
+	// The version the upstream advisory names as fixed, e.g. "3.9.2". Upstream's
+	// claim, recorded as received and not verified by Chainguard.
+	//
+	// Never a remediation Chainguard performed: remediated_version is the only
+	// field that names one. Presenting this value as a Chainguard fix credits us
+	// with upstream's work, and the two populations differ by an order of
+	// magnitude -- upstream has fixed far more CVEs than we have cut a build for.
+	//
+	// Read both to answer "how do I resolve this CVE": this field says which
+	// upstream release resolves it, remediated_version says whether Chainguard
+	// already delivered a build for the version the caller pinned.
+	//
+	// Empty where upstream recorded no fix, which covers a CVE upstream has not
+	// fixed and one whose advisory names no version.
+	UpstreamFixVersion string `protobuf:"bytes,8,opt,name=upstream_fix_version,json=upstreamFixVersion,proto3" json:"upstream_fix_version,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *RequestedLibraryVersionCVE) Reset() {
@@ -4152,6 +4167,13 @@ func (x *RequestedLibraryVersionCVE) GetProvenance() CVEProvenance {
 		return x.Provenance
 	}
 	return CVEProvenance_CVE_PROVENANCE_UNSPECIFIED
+}
+
+func (x *RequestedLibraryVersionCVE) GetUpstreamFixVersion() string {
+	if x != nil {
+		return x.UpstreamFixVersion
+	}
+	return ""
 }
 
 var File_chainguard_platform_libraries_v2beta1_request_groups_proto protoreflect.FileDescriptor
@@ -4432,7 +4454,7 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"totalCount\x88\x01\x01\x12\x18\n" +
 	"\askipped\x18\x04 \x01(\x05R\askipped\x12)\n" +
 	"\x10cross_referenced\x18\x05 \x01(\bR\x0fcrossReferencedB\x0e\n" +
-	"\f_total_count\"\xe9\x03\n" +
+	"\f_total_count\"\xa1\x04\n" +
 	"\x1aRequestedLibraryVersionCVE\x12\x1b\n" +
 	"\x06cve_id\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x05cveId\x12T\n" +
 	"\bseverity\x18\x02 \x01(\x0e22.chainguard.platform.libraries.v2beta1.CVESeverityB\x04\xe2A\x01\x03R\bseverity\x12\x16\n" +
@@ -4442,7 +4464,8 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"\x12remediated_version\x18\x06 \x01(\tB\x04\xe2A\x01\x03R\x11remediatedVersion\x12Z\n" +
 	"\n" +
 	"provenance\x18\a \x01(\x0e24.chainguard.platform.libraries.v2beta1.CVEProvenanceB\x04\xe2A\x01\x03R\n" +
-	"provenance*\x97\x01\n" +
+	"provenance\x126\n" +
+	"\x14upstream_fix_version\x18\b \x01(\tB\x04\xe2A\x01\x03R\x12upstreamFixVersion*\x97\x01\n" +
 	"\x11RequestGroupState\x12#\n" +
 	"\x1fREQUEST_GROUP_STATE_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19REQUEST_GROUP_STATE_DRAFT\x10\x01\x12!\n" +

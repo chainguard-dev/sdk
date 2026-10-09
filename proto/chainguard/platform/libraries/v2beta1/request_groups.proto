@@ -1422,15 +1422,31 @@ message RequestedLibraryVersionCVE {
   // FIX_AVAILABLE says so where we know. Rendering an empty value as "no fix"
   // is the one reading that stops a customer investigating.
   //
-  // This field does not yet carry the upstream upgrade target, and does not yet
-  // report a fix target that landed on the malware block list as blocked. Until
-  // it does, treat it as evidence of a Chainguard build and not as the complete
-  // answer about where a fix exists.
+  // The upstream upgrade target is upstream_fix_version, not this field. This
+  // field does not yet report a fix target that landed on the malware block
+  // list as blocked, so treat it as evidence of a Chainguard build and not as
+  // the complete answer about where a fix exists.
   string remediated_version = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // What this row asserts. Read it before presenting the row as a finding:
   // an UPSTREAM row is a detection, not a Chainguard determination.
   CVEProvenance provenance = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The version the upstream advisory names as fixed, e.g. "3.9.2". Upstream's
+  // claim, recorded as received and not verified by Chainguard.
+  //
+  // Never a remediation Chainguard performed: remediated_version is the only
+  // field that names one. Presenting this value as a Chainguard fix credits us
+  // with upstream's work, and the two populations differ by an order of
+  // magnitude -- upstream has fixed far more CVEs than we have cut a build for.
+  //
+  // Read both to answer "how do I resolve this CVE": this field says which
+  // upstream release resolves it, remediated_version says whether Chainguard
+  // already delivered a build for the version the caller pinned.
+  //
+  // Empty where upstream recorded no fix, which covers a CVE upstream has not
+  // fixed and one whose advisory names no version.
+  string upstream_fix_version = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // RequestGroupState selects drafts or submitted groups when listing.
