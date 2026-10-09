@@ -273,10 +273,27 @@ message EntitlementImage {
   // Identifier for the image group in whatever external system defined it
   // (Salesforce/SFDC, GitHub, or another source).
   string external_image_group_id = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // delete_time is when the image was removed from the entitlement. It is set
+  // only on a removed image, which ListEntitlementCatalogImages returns when
+  // asked with include_deleted. Always unset on ListEntitlementImages.
+  google.protobuf.Timestamp delete_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Whether the removal recorded by delete_time is charged against the
+  // organization's rolling swap budget. A property of the removal, not of the
+  // image: re-adding the image clears it along with delete_time, so a live image
+  // always reads false. Removals that are not charged include those made by
+  // deleting the whole entitlement, which removes all of its images, by internal
+  // reconcilers, or by Chainguard staff acting on the organization's behalf.
+  // Always false on ListEntitlementImages.
+  bool counts_toward_swap_quota = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message EntitlementImagesFilter {
   string parent = 1 [(chainguard.annotations.iam_scope) = true];
+  // include_deleted also returns images removed from the entitlement, each with
+  // delete_time set. Honored only by ListEntitlementCatalogImages;
+  // ListEntitlementImages accepts and ignores it.
+  bool include_deleted = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message EntitlementImagesList {
