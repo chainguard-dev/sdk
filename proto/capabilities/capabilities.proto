@@ -257,6 +257,16 @@ enum Capability {
     (bit) = 234
   ];
 
+  // Malware status: stamps the per-version scanned/malicious flags on upstream
+  // rows in serve-v2. An unscanned upstream version is withheld until it is
+  // stamped, so whoever holds this decides what reaches customers unscanned;
+  // it is internal_only so only Chainguard's scan pipeline can hold it.
+  CAP_LIBRARIES_MALWARE_STATUS_UPDATE = 1886 [
+    (name) = "libraries.malware_status.update",
+    (bit) = 246,
+    (internal_only) = true
+  ];
+
   // Registry Entitlements
   CAP_REGISTRY_ENTITLEMENTS_LIST = 1680 [(name) = "registry.entitlements.list", (bit) = 87];
   CAP_REGISTRY_ENTITLEMENTS_CREATE = 1681 [(name) = "registry.entitlements.create", (bit) = 96];
@@ -592,5 +602,5 @@ enum Capability {
   ];
 
   reserved 1;
-  // next bit: 246
+  // next bit: 247
 }

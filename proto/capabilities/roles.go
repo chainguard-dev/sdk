@@ -516,6 +516,16 @@ var (
 		Capability_CAP_INTERNAL,
 	})
 
+	// LibrariesMalwareStatusWriterCaps is for the backfiller identities that
+	// stamp per-version scan results on serve-v2's upstream rows. It must stay
+	// off every customer-grantable role: whoever holds it can mark an unscanned
+	// upstream version as scanned and clean.
+	// CAP_INTERNAL is required because malware_status.update is (internal_only).
+	LibrariesMalwareStatusWriterCaps = SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_MALWARE_STATUS_UPDATE,
+		Capability_CAP_INTERNAL,
+	})
+
 	// GuardenerUserCaps is the minimum capability set required to run
 	// guardener (DFC) sessions against a group. terms.list is required
 	// because the DFC server checks the group's terms-of-service
