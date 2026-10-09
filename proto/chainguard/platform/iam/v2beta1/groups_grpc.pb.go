@@ -84,10 +84,13 @@ type GroupsServiceClient interface {
 	//
 	// Returns INVALID_ARGUMENT when group_uid is empty.
 	RequestGroupAccess(ctx context.Context, in *RequestGroupAccessRequest, opts ...grpc.CallOption) (*RequestGroupAccessResponse, error)
-	// CheckEligibility reports whether the caller passes the same eligibility
-	// gates applied by LookupGroup and RequestGroupAccess. A response of
-	// eligible=true does not guarantee those calls succeed for other reasons
-	// (no matching org, already requested, etc.).
+	// CheckEligibility reports whether the caller's email domain may use the
+	// self-serve Groups flows. A personal-mail domain may only create an
+	// unverified Starter organization (see
+	// CheckEligibilityResponse.unverified_starter); LookupGroup and
+	// RequestGroupAccess refuse it. A response of eligible=true does not
+	// guarantee those calls succeed for other reasons (no matching org,
+	// already requested, etc.).
 	CheckEligibility(ctx context.Context, in *CheckEligibilityRequest, opts ...grpc.CallOption) (*CheckEligibilityResponse, error)
 }
 
@@ -230,10 +233,13 @@ type GroupsServiceServer interface {
 	//
 	// Returns INVALID_ARGUMENT when group_uid is empty.
 	RequestGroupAccess(context.Context, *RequestGroupAccessRequest) (*RequestGroupAccessResponse, error)
-	// CheckEligibility reports whether the caller passes the same eligibility
-	// gates applied by LookupGroup and RequestGroupAccess. A response of
-	// eligible=true does not guarantee those calls succeed for other reasons
-	// (no matching org, already requested, etc.).
+	// CheckEligibility reports whether the caller's email domain may use the
+	// self-serve Groups flows. A personal-mail domain may only create an
+	// unverified Starter organization (see
+	// CheckEligibilityResponse.unverified_starter); LookupGroup and
+	// RequestGroupAccess refuse it. A response of eligible=true does not
+	// guarantee those calls succeed for other reasons (no matching org,
+	// already requested, etc.).
 	CheckEligibility(context.Context, *CheckEligibilityRequest) (*CheckEligibilityResponse, error)
 	mustEmbedUnimplementedGroupsServiceServer()
 }

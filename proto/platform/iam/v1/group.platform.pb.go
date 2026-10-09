@@ -680,8 +680,12 @@ func (*CheckEligibilityRequest) Descriptor() ([]byte, []int) {
 // CheckEligibilityResponse is the response message for CheckEligibility.
 type CheckEligibilityResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Indicates if the domain of the caller's email address is eligible
-	// for email-domain-gated Groups flows.
+	// eligible reports whether the domain of the caller's email address may
+	// create a self-serve Starter organization. A personal-mail domain can be
+	// eligible: unverified_starter is then set too, and the organization the
+	// caller creates is unverified. Such a domain stays ineligible for
+	// LookupGroup and RequestGroupAccess, so read unverified_starter before
+	// offering those flows.
 	Eligible bool `protobuf:"varint,1,opt,name=eligible,proto3" json:"eligible,omitempty"`
 	// unverified_starter is set with eligible when the caller's email domain is
 	// a personal-mail provider: a Starter organization the caller creates is
