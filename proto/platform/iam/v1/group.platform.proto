@@ -193,6 +193,11 @@ message CheckEligibilityResponse {
   // Indicates if the domain of the caller's email address is eligible
   // for email-domain-gated Groups flows.
   bool eligible = 1;
+  // unverified_starter is set with eligible when the caller's email domain is
+  // a personal-mail provider: a Starter organization the caller creates is
+  // unverified, takes a name the caller chooses, and is never found by email
+  // domain.
+  bool unverified_starter = 2;
 }
 
 // OrgStatus is the provisioning status of an organization.

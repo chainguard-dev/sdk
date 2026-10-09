@@ -682,9 +682,14 @@ type CheckEligibilityResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Indicates if the domain of the caller's email address is eligible
 	// for email-domain-gated Groups flows.
-	Eligible      bool `protobuf:"varint,1,opt,name=eligible,proto3" json:"eligible,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Eligible bool `protobuf:"varint,1,opt,name=eligible,proto3" json:"eligible,omitempty"`
+	// unverified_starter is set with eligible when the caller's email domain is
+	// a personal-mail provider: a Starter organization the caller creates is
+	// unverified, takes a name the caller chooses, and is never found by email
+	// domain.
+	UnverifiedStarter bool `protobuf:"varint,2,opt,name=unverified_starter,json=unverifiedStarter,proto3" json:"unverified_starter,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *CheckEligibilityResponse) Reset() {
@@ -724,6 +729,13 @@ func (x *CheckEligibilityResponse) GetEligible() bool {
 	return false
 }
 
+func (x *CheckEligibilityResponse) GetUnverifiedStarter() bool {
+	if x != nil {
+		return x.UnverifiedStarter
+	}
+	return false
+}
+
 var File_group_platform_proto protoreflect.FileDescriptor
 
 const file_group_platform_proto_rawDesc = "" +
@@ -757,9 +769,10 @@ const file_group_platform_proto_rawDesc = "" +
 	"\x19RequestGroupAccessRequest\x12\x19\n" +
 	"\bgroup_id\x18\x01 \x01(\tR\agroupId\"\x1c\n" +
 	"\x1aRequestGroupAccessResponse\"\x19\n" +
-	"\x17CheckEligibilityRequest\"6\n" +
+	"\x17CheckEligibilityRequest\"e\n" +
 	"\x18CheckEligibilityResponse\x12\x1a\n" +
-	"\beligible\x18\x01 \x01(\bR\beligible*t\n" +
+	"\beligible\x18\x01 \x01(\bR\beligible\x12-\n" +
+	"\x12unverified_starter\x18\x02 \x01(\bR\x11unverifiedStarter*t\n" +
 	"\tOrgStatus\x12\x1a\n" +
 	"\x16ORG_STATUS_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17ORG_STATUS_INITIALIZING\x10\x01\x12\x14\n" +
