@@ -282,8 +282,12 @@ const (
 	// CVERemediation says which kind of out-of-scope.
 	CVERemediationStatus_CVE_REMEDIATION_STATUS_WONT_REMEDIATE CVERemediationStatus = 6
 	// A fix exists that the caller can move to now, and Chainguard has not
-	// delivered a build of the pinned version. fix_version names the target
-	// where one can be named.
+	// remediated the pinned version.
+	//
+	// No target is named at this level: CVERemediation aggregates a version's
+	// CVEs and carries no version field, so there is nothing here a caller could
+	// mistake for somewhere to go. The per-CVE read names the target, in
+	// RequestedLibraryVersionCVE.upstream_fix_version.
 	//
 	// Distinct from REVIEWING, which says remediation has not started and would
 	// hide an upgrade available today, and from COMPLETE, which claims a build
@@ -447,8 +451,8 @@ const (
 	CVEStatus_CVE_STATUS_TRIAGED CVEStatus = 2
 	// A rebuild or backport is underway.
 	CVEStatus_CVE_STATUS_IN_PROGRESS CVEStatus = 3
-	// Chainguard delivered a build carrying the fix, and remediated_version
-	// names it.
+	// Chainguard delivered a remediation carrying the fix, and
+	// remediated_version names it.
 	//
 	// Delivery, not the existence of a fix somewhere. The stored status alone
 	// does not establish it: a row completes as soon as an advisory names a fix
@@ -464,8 +468,21 @@ const (
 	// longer maintained. Reported rather than hidden, because a caller that
 	// pinned the version earlier may still be running it.
 	CVEStatus_CVE_STATUS_SUPERSEDED CVEStatus = 6
-	// An advisory names a fix, but Chainguard has not delivered a build carrying
-	// it. remediated_version is empty: there is no Chainguard build to name.
+	// An advisory names a fix, but Chainguard has not remediated the pinned
+	// version. remediated_version is empty: there is no Chainguard remediation
+	// to name.
+	//
+	// Not "no Chainguard build": we may well build the release that carries the
+	// fix, and a plain rebuild of it is content-equivalent to upstream's, so it
+	// remediates nothing we did. upstream_fix_version names that release, and is
+	// the field to read for an upgrade target.
+	//
+	// That release can be the one the caller already pins, where an advisory
+	// records the pinned version itself as fixed. Read that as "nothing to do"
+	// rather than as an upgrade: the value says only that no Chainguard
+	// remediation exists, and for that shape none is needed. Compare
+	// upstream_fix_version against the version asked about before presenting it
+	// as an action.
 	//
 	// Its own value rather than COMPLETED, which would claim a remediation
 	// nobody shipped, and rather than IN_PROGRESS or TRIAGED, which say
@@ -896,7 +913,7 @@ const (
 	// unexcluded -- but one that was never cross-referenced does.
 	RequestedLibraryCVEStatus_REQUESTED_LIBRARY_CVE_STATUS_WONT_REMEDIATE RequestedLibraryCVEStatus = 5
 	// At least one version in scope has a CVE with a fix the caller can move to,
-	// and Chainguard has not delivered a build of that pinned version.
+	// and Chainguard has not remediated that pinned version.
 	//
 	// The target is not named here. Different pinned versions upgrade to
 	// different targets, so one library-level version would be wrong for most of
@@ -4055,18 +4072,23 @@ type RequestedLibraryVersionCVE struct {
 	// declaration on CVERemediation above predates the limit.
 	// protolint:disable:next MAX_LINE_LENGTH
 	Decision CVERemediationDecision `protobuf:"varint,5,opt,name=decision,proto3,enum=chainguard.platform.libraries.v2beta1.CVERemediationDecision" json:"decision,omitempty"`
-	// The earliest Chainguard build carrying the fix, e.g. "0.115.0+cgr.1". May
-	// move to an earlier version as older backports land, never to a later one.
+	// The earliest Chainguard remediation carrying the fix, e.g.
+	// "0.115.0+cgr.1". May move to an earlier version as older backports land,
+	// never to a later one.
 	//
-	// Empty means no Chainguard build is recorded against this CVE. It does not
-	// mean no fix exists: an upstream release may carry one, and status
+	// Always a cgr cut, never a plain rebuild. A rebuild of an upstream release
+	// is built from upstream's source and carries whatever that release carries,
+	// so naming one here would credit Chainguard with a fix upstream made. The
+	// upstream release that resolves the CVE is upstream_fix_version.
+	//
+	// Empty means no Chainguard remediation is recorded against this CVE. It
+	// does not mean no fix exists: an upstream release may carry one, and status
 	// FIX_AVAILABLE says so where we know. Rendering an empty value as "no fix"
 	// is the one reading that stops a customer investigating.
 	//
-	// The upstream upgrade target is upstream_fix_version, not this field. This
-	// field does not yet report a fix target that landed on the malware block
-	// list as blocked, so treat it as evidence of a Chainguard build and not as
-	// the complete answer about where a fix exists.
+	// This field does not yet report a fix target that landed on the malware
+	// block list as blocked, so treat it as evidence of a Chainguard remediation
+	// and not as the complete answer about where a fix exists.
 	RemediatedVersion string `protobuf:"bytes,6,opt,name=remediated_version,json=remediatedVersion,proto3" json:"remediated_version,omitempty"`
 	// What this row asserts. Read it before presenting the row as a finding:
 	// an UPSTREAM row is a detection, not a Chainguard determination.
@@ -4081,7 +4103,7 @@ type RequestedLibraryVersionCVE struct {
 	//
 	// Read both to answer "how do I resolve this CVE": this field says which
 	// upstream release resolves it, remediated_version says whether Chainguard
-	// already delivered a build for the version the caller pinned.
+	// already remediated the version the caller pinned.
 	//
 	// Empty where upstream recorded no fix, which covers a CVE upstream has not
 	// fixed and one whose advisory names no version.
