@@ -317,6 +317,10 @@ message Image {
 
   // The vulnerabilities known for this image.
   VulnerabilitySummary vulnerabilities = 11;
+
+  // The scanned upstream alternative used for an estimated comparison with an
+  // already-Chainguard image. Unset when that comparison is unavailable.
+  VulnerabilitySummary upstream_alternative = 12;
 }
 
 // Usage is one repository declaring an image at its latest scan.
@@ -452,6 +456,10 @@ message ImageSummary {
 
   // When the group's images were last ingested. Unset when they never were.
   google.protobuf.Timestamp as_of = 9;
+
+  // Scan-based estimates, not measured reductions from past migrations.
+  // Coverage counts identify the subset contributing to each metric.
+  CveImpact cve_impact = 10;
 }
 
 // CategoryCount counts the images in one category.
@@ -466,4 +474,44 @@ message CategoryCount {
   // repository declaring images in several categories counts in each, so
   // these do not add up to ImageSummary.repositories_with_images.
   int32 repositories = 3;
+}
+
+// CveImpact describes vulnerability counts over the current image inventory.
+// A CVE present in several image rows contributes once for each row; these are
+// image-vulnerability occurrences, not globally distinct CVE identifiers.
+message CveImpact {
+  // Counts for already-Chainguard images with a known vulnerability report.
+  // Unset when no such reports are available; unknown is never a clean scan.
+  VulnerabilityCounts chainguard_vulnerabilities = 1;
+  // Number of Chainguard image rows contributing to the vulnerability counts.
+  int32 chainguard_images_with_vulnerabilities = 2;
+
+  // Estimated difference between upstream alternatives and images already on
+  // Chainguard. This does not establish historical removals or causation.
+  VulnerabilityComparison hardened_comparison = 3;
+
+  // Estimated difference for migration-ready images and their equivalents.
+  // chainguard contains the projected remaining vulnerabilities, not removals.
+  VulnerabilityComparison migration_comparison = 4;
+}
+
+// VulnerabilityComparison includes only image rows with both reports on the
+// same day. The scanned references can differ from declared references, as
+// recorded on Image. Unset comparisons mean no paired reports are available.
+message VulnerabilityComparison {
+  // Number of image rows with both reports on the same day.
+  int32 compared_images = 1;
+
+  // Upstream vulnerability totals for the compared image rows.
+  VulnerabilityCounts upstream = 2;
+
+  // Chainguard vulnerability totals for the compared image rows.
+  VulnerabilityCounts chainguard = 3;
+
+  // Upstream minus Chainguard across all severities. Negative means an
+  // increase. An estimate for this covered subset, not a migration history.
+  int64 estimated_reduction = 4;
+
+  // 100 * estimated_reduction / upstream total. Unset for a zero baseline.
+  optional double reduction_percent = 5;
 }

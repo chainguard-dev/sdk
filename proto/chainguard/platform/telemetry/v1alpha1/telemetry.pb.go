@@ -800,8 +800,11 @@ type Image struct {
 	Equivalent *ChainguardEquivalent `protobuf:"bytes,10,opt,name=equivalent,proto3" json:"equivalent,omitempty"`
 	// The vulnerabilities known for this image.
 	Vulnerabilities *VulnerabilitySummary `protobuf:"bytes,11,opt,name=vulnerabilities,proto3" json:"vulnerabilities,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// The scanned upstream alternative used for an estimated comparison with an
+	// already-Chainguard image. Unset when that comparison is unavailable.
+	UpstreamAlternative *VulnerabilitySummary `protobuf:"bytes,12,opt,name=upstream_alternative,json=upstreamAlternative,proto3" json:"upstream_alternative,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *Image) Reset() {
@@ -907,6 +910,13 @@ func (x *Image) GetEquivalent() *ChainguardEquivalent {
 func (x *Image) GetVulnerabilities() *VulnerabilitySummary {
 	if x != nil {
 		return x.Vulnerabilities
+	}
+	return nil
+}
+
+func (x *Image) GetUpstreamAlternative() *VulnerabilitySummary {
+	if x != nil {
+		return x.UpstreamAlternative
 	}
 	return nil
 }
@@ -1311,7 +1321,10 @@ type ImageSummary struct {
 	// The number of equivalents that contributed to equivalent_vulnerabilities.
 	EquivalentsWithVulnerabilities int32 `protobuf:"varint,8,opt,name=equivalents_with_vulnerabilities,json=equivalentsWithVulnerabilities,proto3" json:"equivalents_with_vulnerabilities,omitempty"`
 	// When the group's images were last ingested. Unset when they never were.
-	AsOf          *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=as_of,json=asOf,proto3" json:"as_of,omitempty"`
+	AsOf *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=as_of,json=asOf,proto3" json:"as_of,omitempty"`
+	// Scan-based estimates, not measured reductions from past migrations.
+	// Coverage counts identify the subset contributing to each metric.
+	CveImpact     *CveImpact `protobuf:"bytes,10,opt,name=cve_impact,json=cveImpact,proto3" json:"cve_impact,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1409,6 +1422,13 @@ func (x *ImageSummary) GetAsOf() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *ImageSummary) GetCveImpact() *CveImpact {
+	if x != nil {
+		return x.CveImpact
+	}
+	return nil
+}
+
 // CategoryCount counts the images in one category.
 type CategoryCount struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1475,6 +1495,169 @@ func (x *CategoryCount) GetRepositories() int32 {
 	return 0
 }
 
+// CveImpact describes vulnerability counts over the current image inventory.
+// A CVE present in several image rows contributes once for each row; these are
+// image-vulnerability occurrences, not globally distinct CVE identifiers.
+type CveImpact struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Counts for already-Chainguard images with a known vulnerability report.
+	// Unset when no such reports are available; unknown is never a clean scan.
+	ChainguardVulnerabilities *VulnerabilityCounts `protobuf:"bytes,1,opt,name=chainguard_vulnerabilities,json=chainguardVulnerabilities,proto3" json:"chainguard_vulnerabilities,omitempty"`
+	// Number of Chainguard image rows contributing to the vulnerability counts.
+	ChainguardImagesWithVulnerabilities int32 `protobuf:"varint,2,opt,name=chainguard_images_with_vulnerabilities,json=chainguardImagesWithVulnerabilities,proto3" json:"chainguard_images_with_vulnerabilities,omitempty"`
+	// Estimated difference between upstream alternatives and images already on
+	// Chainguard. This does not establish historical removals or causation.
+	HardenedComparison *VulnerabilityComparison `protobuf:"bytes,3,opt,name=hardened_comparison,json=hardenedComparison,proto3" json:"hardened_comparison,omitempty"`
+	// Estimated difference for migration-ready images and their equivalents.
+	// chainguard contains the projected remaining vulnerabilities, not removals.
+	MigrationComparison *VulnerabilityComparison `protobuf:"bytes,4,opt,name=migration_comparison,json=migrationComparison,proto3" json:"migration_comparison,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *CveImpact) Reset() {
+	*x = CveImpact{}
+	mi := &file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CveImpact) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CveImpact) ProtoMessage() {}
+
+func (x *CveImpact) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CveImpact.ProtoReflect.Descriptor instead.
+func (*CveImpact) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *CveImpact) GetChainguardVulnerabilities() *VulnerabilityCounts {
+	if x != nil {
+		return x.ChainguardVulnerabilities
+	}
+	return nil
+}
+
+func (x *CveImpact) GetChainguardImagesWithVulnerabilities() int32 {
+	if x != nil {
+		return x.ChainguardImagesWithVulnerabilities
+	}
+	return 0
+}
+
+func (x *CveImpact) GetHardenedComparison() *VulnerabilityComparison {
+	if x != nil {
+		return x.HardenedComparison
+	}
+	return nil
+}
+
+func (x *CveImpact) GetMigrationComparison() *VulnerabilityComparison {
+	if x != nil {
+		return x.MigrationComparison
+	}
+	return nil
+}
+
+// VulnerabilityComparison includes only image rows with both reports on the
+// same day. The scanned references can differ from declared references, as
+// recorded on Image. Unset comparisons mean no paired reports are available.
+type VulnerabilityComparison struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Number of image rows with both reports on the same day.
+	ComparedImages int32 `protobuf:"varint,1,opt,name=compared_images,json=comparedImages,proto3" json:"compared_images,omitempty"`
+	// Upstream vulnerability totals for the compared image rows.
+	Upstream *VulnerabilityCounts `protobuf:"bytes,2,opt,name=upstream,proto3" json:"upstream,omitempty"`
+	// Chainguard vulnerability totals for the compared image rows.
+	Chainguard *VulnerabilityCounts `protobuf:"bytes,3,opt,name=chainguard,proto3" json:"chainguard,omitempty"`
+	// Upstream minus Chainguard across all severities. Negative means an
+	// increase. An estimate for this covered subset, not a migration history.
+	EstimatedReduction int64 `protobuf:"varint,4,opt,name=estimated_reduction,json=estimatedReduction,proto3" json:"estimated_reduction,omitempty"`
+	// 100 * estimated_reduction / upstream total. Unset for a zero baseline.
+	ReductionPercent *float64 `protobuf:"fixed64,5,opt,name=reduction_percent,json=reductionPercent,proto3,oneof" json:"reduction_percent,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *VulnerabilityComparison) Reset() {
+	*x = VulnerabilityComparison{}
+	mi := &file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VulnerabilityComparison) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VulnerabilityComparison) ProtoMessage() {}
+
+func (x *VulnerabilityComparison) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VulnerabilityComparison.ProtoReflect.Descriptor instead.
+func (*VulnerabilityComparison) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *VulnerabilityComparison) GetComparedImages() int32 {
+	if x != nil {
+		return x.ComparedImages
+	}
+	return 0
+}
+
+func (x *VulnerabilityComparison) GetUpstream() *VulnerabilityCounts {
+	if x != nil {
+		return x.Upstream
+	}
+	return nil
+}
+
+func (x *VulnerabilityComparison) GetChainguard() *VulnerabilityCounts {
+	if x != nil {
+		return x.Chainguard
+	}
+	return nil
+}
+
+func (x *VulnerabilityComparison) GetEstimatedReduction() int64 {
+	if x != nil {
+		return x.EstimatedReduction
+	}
+	return 0
+}
+
+func (x *VulnerabilityComparison) GetReductionPercent() float64 {
+	if x != nil && x.ReductionPercent != nil {
+		return *x.ReductionPercent
+	}
+	return 0
+}
+
 var File_chainguard_platform_telemetry_v1alpha1_telemetry_proto protoreflect.FileDescriptor
 
 const file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_rawDesc = "" +
@@ -1531,7 +1714,7 @@ const file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_rawDesc = "" +
 	"\x06images\x18\x01 \x03(\v2-.chainguard.platform.telemetry.v1alpha1.ImageR\x06images\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x05R\ttotalSize\"\xd7\x04\n" +
+	"total_size\x18\x03 \x01(\x05R\ttotalSize\"\xc8\x05\n" +
 	"\x05Image\x12)\n" +
 	"\x10image_repository\x18\x01 \x01(\tR\x0fimageRepository\x12\x1a\n" +
 	"\bregistry\x18\x02 \x01(\tR\bregistry\x12'\n" +
@@ -1546,7 +1729,8 @@ const file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_rawDesc = "" +
 	"equivalent\x18\n" +
 	" \x01(\v2<.chainguard.platform.telemetry.v1alpha1.ChainguardEquivalentR\n" +
 	"equivalent\x12f\n" +
-	"\x0fvulnerabilities\x18\v \x01(\v2<.chainguard.platform.telemetry.v1alpha1.VulnerabilitySummaryR\x0fvulnerabilities\"\xa2\x02\n" +
+	"\x0fvulnerabilities\x18\v \x01(\v2<.chainguard.platform.telemetry.v1alpha1.VulnerabilitySummaryR\x0fvulnerabilities\x12o\n" +
+	"\x14upstream_alternative\x18\f \x01(\v2<.chainguard.platform.telemetry.v1alpha1.VulnerabilitySummaryR\x13upstreamAlternative\"\xa2\x02\n" +
 	"\x05Usage\x12+\n" +
 	"\x11source_repository\x18\x01 \x01(\tR\x10sourceRepository\x12\x1d\n" +
 	"\n" +
@@ -1584,7 +1768,7 @@ const file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_rawDesc = "" +
 	"\x05other\x18\x05 \x01(\x05R\x05other\":\n" +
 	"\x16SummarizeImagesRequest\x12 \n" +
 	"\x05group\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x05group\"\x93\x05\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x05group\"\xe5\x05\n" +
 	"\fImageSummary\x12!\n" +
 	"\ftotal_images\x18\x01 \x01(\x05R\vtotalImages\x12U\n" +
 	"\n" +
@@ -1596,11 +1780,28 @@ const file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_rawDesc = "" +
 	"\x1bimages_with_vulnerabilities\x18\x06 \x01(\x05R\x19imagesWithVulnerabilities\x12z\n" +
 	"\x1aequivalent_vulnerabilities\x18\a \x01(\v2;.chainguard.platform.telemetry.v1alpha1.VulnerabilityCountsR\x19equivalentVulnerabilities\x12H\n" +
 	" equivalents_with_vulnerabilities\x18\b \x01(\x05R\x1eequivalentsWithVulnerabilities\x12/\n" +
-	"\x05as_of\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\x04asOf\"\x9e\x01\n" +
+	"\x05as_of\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\x04asOf\x12P\n" +
+	"\n" +
+	"cve_impact\x18\n" +
+	" \x01(\v21.chainguard.platform.telemetry.v1alpha1.CveImpactR\tcveImpact\"\x9e\x01\n" +
 	"\rCategoryCount\x12Q\n" +
 	"\bcategory\x18\x01 \x01(\x0e25.chainguard.platform.telemetry.v1alpha1.ImageCategoryR\bcategory\x12\x16\n" +
 	"\x06images\x18\x02 \x01(\x05R\x06images\x12\"\n" +
-	"\frepositories\x18\x03 \x01(\x05R\frepositories*\xd8\x01\n" +
+	"\frepositories\x18\x03 \x01(\x05R\frepositories\"\xc2\x03\n" +
+	"\tCveImpact\x12z\n" +
+	"\x1achainguard_vulnerabilities\x18\x01 \x01(\v2;.chainguard.platform.telemetry.v1alpha1.VulnerabilityCountsR\x19chainguardVulnerabilities\x12S\n" +
+	"&chainguard_images_with_vulnerabilities\x18\x02 \x01(\x05R#chainguardImagesWithVulnerabilities\x12p\n" +
+	"\x13hardened_comparison\x18\x03 \x01(\v2?.chainguard.platform.telemetry.v1alpha1.VulnerabilityComparisonR\x12hardenedComparison\x12r\n" +
+	"\x14migration_comparison\x18\x04 \x01(\v2?.chainguard.platform.telemetry.v1alpha1.VulnerabilityComparisonR\x13migrationComparison\"\xf1\x02\n" +
+	"\x17VulnerabilityComparison\x12'\n" +
+	"\x0fcompared_images\x18\x01 \x01(\x05R\x0ecomparedImages\x12W\n" +
+	"\bupstream\x18\x02 \x01(\v2;.chainguard.platform.telemetry.v1alpha1.VulnerabilityCountsR\bupstream\x12[\n" +
+	"\n" +
+	"chainguard\x18\x03 \x01(\v2;.chainguard.platform.telemetry.v1alpha1.VulnerabilityCountsR\n" +
+	"chainguard\x12/\n" +
+	"\x13estimated_reduction\x18\x04 \x01(\x03R\x12estimatedReduction\x120\n" +
+	"\x11reduction_percent\x18\x05 \x01(\x01H\x00R\x10reductionPercent\x88\x01\x01B\x14\n" +
+	"\x12_reduction_percent*\xd8\x01\n" +
 	"\rImageCategory\x12\x1e\n" +
 	"\x1aIMAGE_CATEGORY_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19IMAGE_CATEGORY_CHAINGUARD\x10\x01\x12\"\n" +
@@ -1631,7 +1832,7 @@ func file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_rawDescGZIP() [
 }
 
 var file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_goTypes = []any{
 	(ImageCategory)(0),                  // 0: chainguard.platform.telemetry.v1alpha1.ImageCategory
 	(Container_ReferenceKind)(0),        // 1: chainguard.platform.telemetry.v1alpha1.Container.ReferenceKind
@@ -1650,12 +1851,14 @@ var file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_goTypes = []any{
 	(*SummarizeImagesRequest)(nil),      // 14: chainguard.platform.telemetry.v1alpha1.SummarizeImagesRequest
 	(*ImageSummary)(nil),                // 15: chainguard.platform.telemetry.v1alpha1.ImageSummary
 	(*CategoryCount)(nil),               // 16: chainguard.platform.telemetry.v1alpha1.CategoryCount
-	(*timestamppb.Timestamp)(nil),       // 17: google.protobuf.Timestamp
-	(*date.Date)(nil),                   // 18: google.type.Date
+	(*CveImpact)(nil),                   // 17: chainguard.platform.telemetry.v1alpha1.CveImpact
+	(*VulnerabilityComparison)(nil),     // 18: chainguard.platform.telemetry.v1alpha1.VulnerabilityComparison
+	(*timestamppb.Timestamp)(nil),       // 19: google.protobuf.Timestamp
+	(*date.Date)(nil),                   // 20: google.type.Date
 }
 var file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_depIdxs = []int32{
 	6,  // 0: chainguard.platform.telemetry.v1alpha1.ListContainersResponse.containers:type_name -> chainguard.platform.telemetry.v1alpha1.Container
-	17, // 1: chainguard.platform.telemetry.v1alpha1.Container.scan_time:type_name -> google.protobuf.Timestamp
+	19, // 1: chainguard.platform.telemetry.v1alpha1.Container.scan_time:type_name -> google.protobuf.Timestamp
 	1,  // 2: chainguard.platform.telemetry.v1alpha1.Container.reference_kind:type_name -> chainguard.platform.telemetry.v1alpha1.Container.ReferenceKind
 	0,  // 3: chainguard.platform.telemetry.v1alpha1.ListImagesRequest.categories:type_name -> chainguard.platform.telemetry.v1alpha1.ImageCategory
 	9,  // 4: chainguard.platform.telemetry.v1alpha1.ListImagesResponse.images:type_name -> chainguard.platform.telemetry.v1alpha1.Image
@@ -1663,29 +1866,36 @@ var file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_depIdxs = []int3
 	10, // 6: chainguard.platform.telemetry.v1alpha1.Image.usages:type_name -> chainguard.platform.telemetry.v1alpha1.Usage
 	11, // 7: chainguard.platform.telemetry.v1alpha1.Image.equivalent:type_name -> chainguard.platform.telemetry.v1alpha1.ChainguardEquivalent
 	12, // 8: chainguard.platform.telemetry.v1alpha1.Image.vulnerabilities:type_name -> chainguard.platform.telemetry.v1alpha1.VulnerabilitySummary
-	17, // 9: chainguard.platform.telemetry.v1alpha1.Usage.scan_time:type_name -> google.protobuf.Timestamp
-	1,  // 10: chainguard.platform.telemetry.v1alpha1.Usage.reference_kind:type_name -> chainguard.platform.telemetry.v1alpha1.Container.ReferenceKind
-	2,  // 11: chainguard.platform.telemetry.v1alpha1.ChainguardEquivalent.match_kind:type_name -> chainguard.platform.telemetry.v1alpha1.ChainguardEquivalent.MatchKind
-	12, // 12: chainguard.platform.telemetry.v1alpha1.ChainguardEquivalent.vulnerabilities:type_name -> chainguard.platform.telemetry.v1alpha1.VulnerabilitySummary
-	3,  // 13: chainguard.platform.telemetry.v1alpha1.VulnerabilitySummary.status:type_name -> chainguard.platform.telemetry.v1alpha1.VulnerabilitySummary.Status
-	18, // 14: chainguard.platform.telemetry.v1alpha1.VulnerabilitySummary.report_date:type_name -> google.type.Date
-	13, // 15: chainguard.platform.telemetry.v1alpha1.VulnerabilitySummary.counts:type_name -> chainguard.platform.telemetry.v1alpha1.VulnerabilityCounts
-	16, // 16: chainguard.platform.telemetry.v1alpha1.ImageSummary.categories:type_name -> chainguard.platform.telemetry.v1alpha1.CategoryCount
-	13, // 17: chainguard.platform.telemetry.v1alpha1.ImageSummary.vulnerabilities:type_name -> chainguard.platform.telemetry.v1alpha1.VulnerabilityCounts
-	13, // 18: chainguard.platform.telemetry.v1alpha1.ImageSummary.equivalent_vulnerabilities:type_name -> chainguard.platform.telemetry.v1alpha1.VulnerabilityCounts
-	17, // 19: chainguard.platform.telemetry.v1alpha1.ImageSummary.as_of:type_name -> google.protobuf.Timestamp
-	0,  // 20: chainguard.platform.telemetry.v1alpha1.CategoryCount.category:type_name -> chainguard.platform.telemetry.v1alpha1.ImageCategory
-	7,  // 21: chainguard.platform.telemetry.v1alpha1.TelemetryService.ListImages:input_type -> chainguard.platform.telemetry.v1alpha1.ListImagesRequest
-	14, // 22: chainguard.platform.telemetry.v1alpha1.TelemetryService.SummarizeImages:input_type -> chainguard.platform.telemetry.v1alpha1.SummarizeImagesRequest
-	4,  // 23: chainguard.platform.telemetry.v1alpha1.TelemetryService.ListContainers:input_type -> chainguard.platform.telemetry.v1alpha1.ListContainersRequest
-	8,  // 24: chainguard.platform.telemetry.v1alpha1.TelemetryService.ListImages:output_type -> chainguard.platform.telemetry.v1alpha1.ListImagesResponse
-	15, // 25: chainguard.platform.telemetry.v1alpha1.TelemetryService.SummarizeImages:output_type -> chainguard.platform.telemetry.v1alpha1.ImageSummary
-	5,  // 26: chainguard.platform.telemetry.v1alpha1.TelemetryService.ListContainers:output_type -> chainguard.platform.telemetry.v1alpha1.ListContainersResponse
-	24, // [24:27] is the sub-list for method output_type
-	21, // [21:24] is the sub-list for method input_type
-	21, // [21:21] is the sub-list for extension type_name
-	21, // [21:21] is the sub-list for extension extendee
-	0,  // [0:21] is the sub-list for field type_name
+	12, // 9: chainguard.platform.telemetry.v1alpha1.Image.upstream_alternative:type_name -> chainguard.platform.telemetry.v1alpha1.VulnerabilitySummary
+	19, // 10: chainguard.platform.telemetry.v1alpha1.Usage.scan_time:type_name -> google.protobuf.Timestamp
+	1,  // 11: chainguard.platform.telemetry.v1alpha1.Usage.reference_kind:type_name -> chainguard.platform.telemetry.v1alpha1.Container.ReferenceKind
+	2,  // 12: chainguard.platform.telemetry.v1alpha1.ChainguardEquivalent.match_kind:type_name -> chainguard.platform.telemetry.v1alpha1.ChainguardEquivalent.MatchKind
+	12, // 13: chainguard.platform.telemetry.v1alpha1.ChainguardEquivalent.vulnerabilities:type_name -> chainguard.platform.telemetry.v1alpha1.VulnerabilitySummary
+	3,  // 14: chainguard.platform.telemetry.v1alpha1.VulnerabilitySummary.status:type_name -> chainguard.platform.telemetry.v1alpha1.VulnerabilitySummary.Status
+	20, // 15: chainguard.platform.telemetry.v1alpha1.VulnerabilitySummary.report_date:type_name -> google.type.Date
+	13, // 16: chainguard.platform.telemetry.v1alpha1.VulnerabilitySummary.counts:type_name -> chainguard.platform.telemetry.v1alpha1.VulnerabilityCounts
+	16, // 17: chainguard.platform.telemetry.v1alpha1.ImageSummary.categories:type_name -> chainguard.platform.telemetry.v1alpha1.CategoryCount
+	13, // 18: chainguard.platform.telemetry.v1alpha1.ImageSummary.vulnerabilities:type_name -> chainguard.platform.telemetry.v1alpha1.VulnerabilityCounts
+	13, // 19: chainguard.platform.telemetry.v1alpha1.ImageSummary.equivalent_vulnerabilities:type_name -> chainguard.platform.telemetry.v1alpha1.VulnerabilityCounts
+	19, // 20: chainguard.platform.telemetry.v1alpha1.ImageSummary.as_of:type_name -> google.protobuf.Timestamp
+	17, // 21: chainguard.platform.telemetry.v1alpha1.ImageSummary.cve_impact:type_name -> chainguard.platform.telemetry.v1alpha1.CveImpact
+	0,  // 22: chainguard.platform.telemetry.v1alpha1.CategoryCount.category:type_name -> chainguard.platform.telemetry.v1alpha1.ImageCategory
+	13, // 23: chainguard.platform.telemetry.v1alpha1.CveImpact.chainguard_vulnerabilities:type_name -> chainguard.platform.telemetry.v1alpha1.VulnerabilityCounts
+	18, // 24: chainguard.platform.telemetry.v1alpha1.CveImpact.hardened_comparison:type_name -> chainguard.platform.telemetry.v1alpha1.VulnerabilityComparison
+	18, // 25: chainguard.platform.telemetry.v1alpha1.CveImpact.migration_comparison:type_name -> chainguard.platform.telemetry.v1alpha1.VulnerabilityComparison
+	13, // 26: chainguard.platform.telemetry.v1alpha1.VulnerabilityComparison.upstream:type_name -> chainguard.platform.telemetry.v1alpha1.VulnerabilityCounts
+	13, // 27: chainguard.platform.telemetry.v1alpha1.VulnerabilityComparison.chainguard:type_name -> chainguard.platform.telemetry.v1alpha1.VulnerabilityCounts
+	7,  // 28: chainguard.platform.telemetry.v1alpha1.TelemetryService.ListImages:input_type -> chainguard.platform.telemetry.v1alpha1.ListImagesRequest
+	14, // 29: chainguard.platform.telemetry.v1alpha1.TelemetryService.SummarizeImages:input_type -> chainguard.platform.telemetry.v1alpha1.SummarizeImagesRequest
+	4,  // 30: chainguard.platform.telemetry.v1alpha1.TelemetryService.ListContainers:input_type -> chainguard.platform.telemetry.v1alpha1.ListContainersRequest
+	8,  // 31: chainguard.platform.telemetry.v1alpha1.TelemetryService.ListImages:output_type -> chainguard.platform.telemetry.v1alpha1.ListImagesResponse
+	15, // 32: chainguard.platform.telemetry.v1alpha1.TelemetryService.SummarizeImages:output_type -> chainguard.platform.telemetry.v1alpha1.ImageSummary
+	5,  // 33: chainguard.platform.telemetry.v1alpha1.TelemetryService.ListContainers:output_type -> chainguard.platform.telemetry.v1alpha1.ListContainersResponse
+	31, // [31:34] is the sub-list for method output_type
+	28, // [28:31] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_init() }
@@ -1693,13 +1903,14 @@ func file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_init() {
 	if File_chainguard_platform_telemetry_v1alpha1_telemetry_proto != nil {
 		return
 	}
+	file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_msgTypes[14].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_rawDesc), len(file_chainguard_platform_telemetry_v1alpha1_telemetry_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   13,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
