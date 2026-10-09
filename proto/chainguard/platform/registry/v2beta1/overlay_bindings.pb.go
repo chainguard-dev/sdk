@@ -148,11 +148,12 @@ func (TagSelector_VariantType) EnumDescriptor() ([]byte, []int) {
 }
 
 // OverlayBinding binds one overlay to one repo — or, when all_repos is
-// set, to every repo in an organization — under a tag selector. Its UID
-// is a UIDP under the resource it attaches to: the repo, or the
-// organization (root group) for all-repos bindings. Bindings have no
-// name; audit rendering comes from the repo (or the all-repos marker),
-// the selector, and the expanded overlay content.
+// set, to every repo under an organization or folder — under a tag
+// selector. Its UID is a UIDP under the resource it attaches to: the
+// repo, or the group (the organization's root group, or a folder at any
+// depth) for all-repos bindings. Bindings have no name; audit rendering
+// comes from the repo (or the all-repos marker), the selector, and the
+// expanded overlay content.
 type OverlayBinding struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The unique identifier of this OverlayBinding, a UIDP under the repo
@@ -172,12 +173,13 @@ type OverlayBinding struct {
 	// The selector picking which tags on the repo this binding applies to.
 	// See TagSelector for the supported kinds and precedence rules.
 	TagSelector *TagSelector `protobuf:"bytes,5,opt,name=tag_selector,json=tagSelector,proto3" json:"tag_selector,omitempty"`
-	// AllRepos marks a binding that applies to every repo in the
-	// organization — current and future — instead of a single repo. Such a
-	// binding's UID is a UIDP under the organization (root group) and
-	// `repo` is empty; the tag selector still scopes which tags are
-	// customized on each repo. Immutable, like the repo reference:
-	// changing a binding's scope is delete plus create.
+	// AllRepos marks a binding that applies to every repo under its
+	// parent group — the whole organization, or a folder's subtree —
+	// current and future, instead of a single repo. Such a binding's UID
+	// is a UIDP under that group and `repo` is empty; the tag selector
+	// still scopes which tags are customized on each repo. Immutable,
+	// like the repo reference: changing a binding's scope is delete plus
+	// create.
 	AllRepos      bool `protobuf:"varint,6,opt,name=all_repos,json=allRepos,proto3" json:"all_repos,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -267,16 +269,18 @@ func (x *OverlayBinding) GetAllRepos() bool {
 // CreateOverlayBindingRequest.tag_selector) guarantees their overlays'
 // configs never set the same field to different values.
 //
-// When the organization has all-repos bindings (see
-// CreateOverlayBindingRequest.all_repos), their three kind layers apply
-// BELOW the repo's own: all-repos ALL, VARIANT, EXACT compose first, then
-// the repo-scoped layers on top — a repo-scoped binding always wins
-// scalar conflicts against an all-repos binding, so all-repos bindings
-// act as organization-wide defaults that each repo's own bindings can
-// override. Packages still accumulate across all six layers. Scope
-// layers never co-match each other: the bind-time compatibility check
-// runs among all-repos bindings of the organization and among the repo's
-// own bindings, never across the two scopes.
+// When a repo's ancestor groups have all-repos bindings (see
+// CreateOverlayBindingRequest.all_repos), each scope's three kind
+// layers apply BELOW the repo's own, ordered by depth: the
+// organization's all-repos ALL, VARIANT, EXACT compose first, then each
+// enclosing folder's layers shallowest to deepest, then the repo-scoped
+// layers on top — a deeper scope wins scalar conflicts against a
+// shallower one and a repo-scoped binding wins against any all-repos
+// binding, so all-repos bindings act as organization- or folder-wide
+// defaults that narrower scopes can override. Packages still accumulate
+// across every layer. Scope layers never co-match each other: the
+// bind-time compatibility check runs among the all-repos bindings of
+// one group and among the repo's own bindings, never across scopes.
 type TagSelector struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Kind is the matching mode.
@@ -356,8 +360,9 @@ func (x *TagSelector) GetVariantType() TagSelector_VariantType {
 type CreateOverlayBindingRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The UIDP of the repo to attach to — or, when all_repos is set, the
-	// UIDP of the organization (root group) whose repos the binding
-	// applies to.
+	// UIDP of the group whose repos the binding applies to: the
+	// organization's root group for an org-wide binding, or a folder at
+	// any depth to scope the binding to that folder's subtree.
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
 	// References the overlay to attach: its UIDP, or its name resolved
 	// within the repo's organization.
@@ -383,20 +388,26 @@ type CreateOverlayBindingRequest struct {
 	// paths are mutually exclusive until the legacy value is migrated to
 	// an ALL binding.
 	TagSelector *TagSelector `protobuf:"bytes,4,opt,name=tag_selector,json=tagSelector,proto3" json:"tag_selector,omitempty"`
-	// AllRepos, when true, attaches the overlay to every repo in the
-	// organization named by `parent` — including repos created after the
-	// binding exists — instead of a single repo. `parent` must then be the
-	// organization's root group UIDP; a non-root parent fails
-	// InvalidArgument. The tag selector still scopes which tags are
-	// customized on each repo. At create time an all-repos binding is
-	// checked against the organization's other all-repos bindings only —
-	// at most one all-repos binding per (organization, overlay) pair
-	// (AlreadyExists), and co-matching selectors must reference overlays
-	// whose configs merge commutatively (FailedPrecondition) — never
-	// against individual repos' bindings: the two scopes compose in
-	// separate precedence layers at rebuild time (see TagSelector). Repos
-	// whose legacy custom_overlay is set keep the legacy behavior and skip
-	// all-repos bindings at rebuild time.
+	// AllRepos, when true, attaches the overlay to every repo under the
+	// group named by `parent` — including repos created after the binding
+	// exists — instead of a single repo. `parent` must then be a group
+	// UIDP: the organization's root group (the binding covers the whole
+	// org) or a folder at any depth (the binding covers the folder's
+	// subtree). A parent that is not a live group — a repo UIDP, a
+	// deleted folder, a typo — fails InvalidArgument: the API confirms
+	// the group against the IAM store before creating. The caller's
+	// authorization on parent is settled by the request's iam_scope
+	// authorization.
+	// The tag selector still scopes which tags are customized on each
+	// repo. At create time an all-repos binding is checked against the
+	// other all-repos bindings of the SAME group only — at most one
+	// all-repos binding per (group, overlay) pair (AlreadyExists), and
+	// co-matching selectors must reference overlays whose configs merge
+	// commutatively (FailedPrecondition) — never against individual
+	// repos' bindings or other scopes' all-repos bindings: scopes compose
+	// in depth-ordered precedence layers at rebuild time (see
+	// TagSelector). Repos whose legacy custom_overlay is set keep the
+	// legacy behavior and skip all-repos bindings at rebuild time.
 	AllRepos      bool `protobuf:"varint,5,opt,name=all_repos,json=allRepos,proto3" json:"all_repos,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

@@ -153,10 +153,14 @@ func (x *GetOverlayRequest) GetUid() string {
 	return ""
 }
 
-// CreateOverlayRequest is the request message for creating an Overlay under a group.
+// CreateOverlayRequest is the request message for creating an Overlay
+// under an organization.
 type CreateOverlayRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The group UIDP under which the Overlay is created.
+	// The organization's root group UIDP under which the Overlay is
+	// created. Overlays are organization-level resources — one definition
+	// referencable from every binding scope — so a folder or repo parent
+	// fails InvalidArgument; bindings, not overlays, carry the scope.
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
 	// The Overlay to create.
 	Overlay       *Overlay `protobuf:"bytes,2,opt,name=overlay,proto3" json:"overlay,omitempty"`

@@ -197,9 +197,13 @@ message GetOverlayRequest {
   ];
 }
 
-// CreateOverlayRequest is the request message for creating an Overlay under a group.
+// CreateOverlayRequest is the request message for creating an Overlay
+// under an organization.
 message CreateOverlayRequest {
-  // The group UIDP under which the Overlay is created.
+  // The organization's root group UIDP under which the Overlay is
+  // created. Overlays are organization-level resources — one definition
+  // referencable from every binding scope — so a folder or repo parent
+  // fails InvalidArgument; bindings, not overlays, carry the scope.
   string parent = 1 [
     (google.api.field_behavior) = REQUIRED,
     (chainguard.annotations.iam_scope) = true
