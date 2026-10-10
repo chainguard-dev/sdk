@@ -33,6 +33,10 @@ enum Capability {
   CAP_IAM_GROUPS_UPDATE = 102 [(name) = "groups.update", (bit) = 2];
   CAP_IAM_GROUPS_LIST   = 103 [(name) = "groups.list", (bit) = 3];
   CAP_IAM_GROUPS_DELETE = 104 [(name) = "groups.delete", (bit) = 4];
+  // Renames an unverified organization that has a plan kind, and nothing
+  // else: no other field, no folder, no verified organization, whose name
+  // is its domain. groups.update covers renames everywhere else.
+  CAP_IAM_GROUPS_RENAME = 105 [(name) = "groups.rename", (bit) = 247];
 
   CAP_IAM_GROUP_INVITES_CREATE = 201 [(name) = "group_invites.create", (bit) = 5];
   CAP_IAM_GROUP_INVITES_LIST   = 203 [(name) = "group_invites.list", (bit) = 6];
@@ -602,5 +606,5 @@ enum Capability {
   ];
 
   reserved 1;
-  // next bit: 247
+  // next bit: 248
 }

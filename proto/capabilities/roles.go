@@ -154,6 +154,10 @@ var (
 		Capability_CAP_IAM_GROUPS_CREATE,
 		Capability_CAP_IAM_GROUPS_DELETE,
 		Capability_CAP_IAM_GROUPS_UPDATE,
+		// Owners rename through groups.update. They also hold rename so that
+		// OwnerCaps stays a superset of limited_owner, which binding or
+		// inviting someone to a role requires.
+		Capability_CAP_IAM_GROUPS_RENAME,
 
 		Capability_CAP_IAM_IDENTITY_CREATE,
 		Capability_CAP_IAM_IDENTITY_DELETE,

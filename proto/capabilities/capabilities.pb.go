@@ -26,12 +26,16 @@ const (
 type Capability int32
 
 const (
-	Capability_UNKNOWN                      Capability = 0
-	Capability_CAP_INTERNAL                 Capability = 2
-	Capability_CAP_IAM_GROUPS_CREATE        Capability = 101
-	Capability_CAP_IAM_GROUPS_UPDATE        Capability = 102
-	Capability_CAP_IAM_GROUPS_LIST          Capability = 103
-	Capability_CAP_IAM_GROUPS_DELETE        Capability = 104
+	Capability_UNKNOWN               Capability = 0
+	Capability_CAP_INTERNAL          Capability = 2
+	Capability_CAP_IAM_GROUPS_CREATE Capability = 101
+	Capability_CAP_IAM_GROUPS_UPDATE Capability = 102
+	Capability_CAP_IAM_GROUPS_LIST   Capability = 103
+	Capability_CAP_IAM_GROUPS_DELETE Capability = 104
+	// Renames an unverified organization that has a plan kind, and nothing
+	// else: no other field, no folder, no verified organization, whose name
+	// is its domain. groups.update covers renames everywhere else.
+	Capability_CAP_IAM_GROUPS_RENAME        Capability = 105
 	Capability_CAP_IAM_GROUP_INVITES_CREATE Capability = 201
 	Capability_CAP_IAM_GROUP_INVITES_LIST   Capability = 203
 	Capability_CAP_IAM_GROUP_INVITES_DELETE Capability = 204
@@ -494,6 +498,7 @@ var (
 		102:   "CAP_IAM_GROUPS_UPDATE",
 		103:   "CAP_IAM_GROUPS_LIST",
 		104:   "CAP_IAM_GROUPS_DELETE",
+		105:   "CAP_IAM_GROUPS_RENAME",
 		201:   "CAP_IAM_GROUP_INVITES_CREATE",
 		203:   "CAP_IAM_GROUP_INVITES_LIST",
 		204:   "CAP_IAM_GROUP_INVITES_DELETE",
@@ -738,6 +743,7 @@ var (
 		"CAP_IAM_GROUPS_UPDATE":                              102,
 		"CAP_IAM_GROUPS_LIST":                                103,
 		"CAP_IAM_GROUPS_DELETE":                              104,
+		"CAP_IAM_GROUPS_RENAME":                              105,
 		"CAP_IAM_GROUP_INVITES_CREATE":                       201,
 		"CAP_IAM_GROUP_INVITES_LIST":                         203,
 		"CAP_IAM_GROUP_INVITES_DELETE":                       204,
@@ -1057,7 +1063,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x86\x85\x01\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xbc\x85\x01\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1065,7 +1071,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x15CAP_IAM_GROUPS_CREATE\x10e\x1a\x18\xa8ˑM\x01\x9a\xaf\xa8\xd2\x05\rgroups.create\x123\n" +
 	"\x15CAP_IAM_GROUPS_UPDATE\x10f\x1a\x18\xa8ˑM\x02\x9a\xaf\xa8\xd2\x05\rgroups.update\x12/\n" +
 	"\x13CAP_IAM_GROUPS_LIST\x10g\x1a\x16\xa8ˑM\x03\x9a\xaf\xa8\xd2\x05\vgroups.list\x123\n" +
-	"\x15CAP_IAM_GROUPS_DELETE\x10h\x1a\x18\xa8ˑM\x04\x9a\xaf\xa8\xd2\x05\rgroups.delete\x12B\n" +
+	"\x15CAP_IAM_GROUPS_DELETE\x10h\x1a\x18\xa8ˑM\x04\x9a\xaf\xa8\xd2\x05\rgroups.delete\x124\n" +
+	"\x15CAP_IAM_GROUPS_RENAME\x10i\x1a\x19\xa8ˑM\xf7\x01\x9a\xaf\xa8\xd2\x05\rgroups.rename\x12B\n" +
 	"\x1cCAP_IAM_GROUP_INVITES_CREATE\x10\xc9\x01\x1a\x1f\xa8ˑM\x05\x9a\xaf\xa8\xd2\x05\x14group_invites.create\x12>\n" +
 	"\x1aCAP_IAM_GROUP_INVITES_LIST\x10\xcb\x01\x1a\x1d\xa8ˑM\x06\x9a\xaf\xa8\xd2\x05\x12group_invites.list\x12B\n" +
 	"\x1cCAP_IAM_GROUP_INVITES_DELETE\x10\xcc\x01\x1a\x1f\xa8ˑM\a\x9a\xaf\xa8\xd2\x05\x14group_invites.delete\x122\n" +
