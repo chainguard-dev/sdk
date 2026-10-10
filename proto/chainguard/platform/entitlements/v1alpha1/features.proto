@@ -111,6 +111,39 @@ service Features {
       }
     };
   }
+
+  // EnableSandbox gives the organization its plan's sandbox Checks and
+  // Workspaces: an entitlement for each feature that does not expire and
+  // carries the plan's limits, including a compute budget in vCPU-hours that
+  // resets at the start of each calendar month (UTC).
+  //
+  // The caller must hold CAP_TERMS_ACCEPT on the organization
+  // (PERMISSION_DENIED otherwise), and parent must be an organization, a root
+  // group (INVALID_ARGUMENT otherwise). It fails with FAILED_PRECONDITION
+  // when the organization has not accepted the required terms of service,
+  // has not linked a GitHub organization through the Chainguard GitHub App at
+  // the organization itself, or is on a plan that includes no sandbox
+  // allowance (an Enterprise organization's sandbox entitlements come from
+  // Chainguard).
+  //
+  // For each feature, a live entitlement written by a self-serve trial is
+  // replaced with the plan's entitlement, and any other live entitlement is
+  // kept as it is, so a retry is safe. An organization whose entitlement to a
+  // feature was deleted, and that holds no live one, is refused with
+  // FAILED_PRECONDITION and nothing is written for any feature.
+  //
+  // It returns the organization's live entitlement for each feature.
+  rpc EnableSandbox(EnableSandboxRequest) returns (EnableSandboxResponse) {
+    option (google.api.http) = {
+      post: "/entitlements/v1alpha1/features/{parent=**}:enableSandbox"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_TERMS_ACCEPT]
+      }
+    };
+  }
 }
 
 // FeatureSource is the system of record for a FEATURE entitlement. A write
@@ -315,6 +348,20 @@ message StartTrialRequest {
 
 message StartTrialResponse {
   // feature_entitlements are the organization's trial entitlements, one per
+  // feature.
+  repeated FeatureEntitlement feature_entitlements = 1;
+}
+
+message EnableSandboxRequest {
+  // parent is the UIDP of the organization.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+message EnableSandboxResponse {
+  // feature_entitlements are the organization's live entitlements, one per
   // feature.
   repeated FeatureEntitlement feature_entitlements = 1;
 }

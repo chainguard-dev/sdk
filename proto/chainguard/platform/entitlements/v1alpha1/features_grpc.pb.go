@@ -27,6 +27,7 @@ const (
 	Features_SetFeatureEntitlement_FullMethodName    = "/chainguard.platform.entitlements.v1alpha1.Features/SetFeatureEntitlement"
 	Features_DeleteFeatureEntitlement_FullMethodName = "/chainguard.platform.entitlements.v1alpha1.Features/DeleteFeatureEntitlement"
 	Features_StartTrial_FullMethodName               = "/chainguard.platform.entitlements.v1alpha1.Features/StartTrial"
+	Features_EnableSandbox_FullMethodName            = "/chainguard.platform.entitlements.v1alpha1.Features/EnableSandbox"
 )
 
 // FeaturesClient is the client API for Features service.
@@ -76,6 +77,28 @@ type FeaturesClient interface {
 	// finishes it and returns the trial with its original expiry. A retry after
 	// the trial completed returns it as stored, even once it has expired.
 	StartTrial(ctx context.Context, in *StartTrialRequest, opts ...grpc.CallOption) (*StartTrialResponse, error)
+	// EnableSandbox gives the organization its plan's sandbox Checks and
+	// Workspaces: an entitlement for each feature that does not expire and
+	// carries the plan's limits, including a compute budget in vCPU-hours that
+	// resets at the start of each calendar month (UTC).
+	//
+	// The caller must hold CAP_TERMS_ACCEPT on the organization
+	// (PERMISSION_DENIED otherwise), and parent must be an organization, a root
+	// group (INVALID_ARGUMENT otherwise). It fails with FAILED_PRECONDITION
+	// when the organization has not accepted the required terms of service,
+	// has not linked a GitHub organization through the Chainguard GitHub App at
+	// the organization itself, or is on a plan that includes no sandbox
+	// allowance (an Enterprise organization's sandbox entitlements come from
+	// Chainguard).
+	//
+	// For each feature, a live entitlement written by a self-serve trial is
+	// replaced with the plan's entitlement, and any other live entitlement is
+	// kept as it is, so a retry is safe. An organization whose entitlement to a
+	// feature was deleted, and that holds no live one, is refused with
+	// FAILED_PRECONDITION and nothing is written for any feature.
+	//
+	// It returns the organization's live entitlement for each feature.
+	EnableSandbox(ctx context.Context, in *EnableSandboxRequest, opts ...grpc.CallOption) (*EnableSandboxResponse, error)
 }
 
 type featuresClient struct {
@@ -120,6 +143,16 @@ func (c *featuresClient) StartTrial(ctx context.Context, in *StartTrialRequest, 
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(StartTrialResponse)
 	err := c.cc.Invoke(ctx, Features_StartTrial_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *featuresClient) EnableSandbox(ctx context.Context, in *EnableSandboxRequest, opts ...grpc.CallOption) (*EnableSandboxResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(EnableSandboxResponse)
+	err := c.cc.Invoke(ctx, Features_EnableSandbox_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -173,6 +206,28 @@ type FeaturesServer interface {
 	// finishes it and returns the trial with its original expiry. A retry after
 	// the trial completed returns it as stored, even once it has expired.
 	StartTrial(context.Context, *StartTrialRequest) (*StartTrialResponse, error)
+	// EnableSandbox gives the organization its plan's sandbox Checks and
+	// Workspaces: an entitlement for each feature that does not expire and
+	// carries the plan's limits, including a compute budget in vCPU-hours that
+	// resets at the start of each calendar month (UTC).
+	//
+	// The caller must hold CAP_TERMS_ACCEPT on the organization
+	// (PERMISSION_DENIED otherwise), and parent must be an organization, a root
+	// group (INVALID_ARGUMENT otherwise). It fails with FAILED_PRECONDITION
+	// when the organization has not accepted the required terms of service,
+	// has not linked a GitHub organization through the Chainguard GitHub App at
+	// the organization itself, or is on a plan that includes no sandbox
+	// allowance (an Enterprise organization's sandbox entitlements come from
+	// Chainguard).
+	//
+	// For each feature, a live entitlement written by a self-serve trial is
+	// replaced with the plan's entitlement, and any other live entitlement is
+	// kept as it is, so a retry is safe. An organization whose entitlement to a
+	// feature was deleted, and that holds no live one, is refused with
+	// FAILED_PRECONDITION and nothing is written for any feature.
+	//
+	// It returns the organization's live entitlement for each feature.
+	EnableSandbox(context.Context, *EnableSandboxRequest) (*EnableSandboxResponse, error)
 	mustEmbedUnimplementedFeaturesServer()
 }
 
@@ -194,6 +249,9 @@ func (UnimplementedFeaturesServer) DeleteFeatureEntitlement(context.Context, *De
 }
 func (UnimplementedFeaturesServer) StartTrial(context.Context, *StartTrialRequest) (*StartTrialResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method StartTrial not implemented")
+}
+func (UnimplementedFeaturesServer) EnableSandbox(context.Context, *EnableSandboxRequest) (*EnableSandboxResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method EnableSandbox not implemented")
 }
 func (UnimplementedFeaturesServer) mustEmbedUnimplementedFeaturesServer() {}
 func (UnimplementedFeaturesServer) testEmbeddedByValue()                  {}
@@ -288,6 +346,24 @@ func _Features_StartTrial_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Features_EnableSandbox_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EnableSandboxRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FeaturesServer).EnableSandbox(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Features_EnableSandbox_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FeaturesServer).EnableSandbox(ctx, req.(*EnableSandboxRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Features_ServiceDesc is the grpc.ServiceDesc for Features service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -310,6 +386,10 @@ var Features_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "StartTrial",
 			Handler:    _Features_StartTrial_Handler,
+		},
+		{
+			MethodName: "EnableSandbox",
+			Handler:    _Features_EnableSandbox_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
