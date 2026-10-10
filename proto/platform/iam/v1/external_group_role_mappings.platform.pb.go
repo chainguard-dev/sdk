@@ -43,9 +43,17 @@ type ExternalGroupRoleMapping struct {
 	// sub-org or folder without a schema change.
 	Scope string `protobuf:"bytes,5,opt,name=scope,proto3" json:"scope,omitempty"`
 	// When this mapping was created.
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// privileged_role reports whether role_uidp names a privileged role: the
+	// built-in owner or support role. SCIM provisioning never creates persistent
+	// role bindings from such a mapping, so its members hold the role only
+	// through capabilities granted at sign-in, which expire with the session.
+	// Output only: derived from the role on every read; a value supplied on
+	// Create is ignored. It reads false if that lookup fails, so false is not
+	// proof the role is unprivileged.
+	PrivilegedRole bool `protobuf:"varint,7,opt,name=privileged_role,json=privilegedRole,proto3" json:"privileged_role,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ExternalGroupRoleMapping) Reset() {
@@ -118,6 +126,13 @@ func (x *ExternalGroupRoleMapping) GetCreatedAt() *timestamppb.Timestamp {
 		return x.CreatedAt
 	}
 	return nil
+}
+
+func (x *ExternalGroupRoleMapping) GetPrivilegedRole() bool {
+	if x != nil {
+		return x.PrivilegedRole
+	}
+	return false
 }
 
 type ExternalGroupRoleMappingList struct {
@@ -473,7 +488,7 @@ var File_external_group_role_mappings_platform_proto protoreflect.FileDescriptor
 
 const file_external_group_role_mappings_platform_proto_rawDesc = "" +
 	"\n" +
-	"+external_group_role_mappings.platform.proto\x12\x17chainguard.platform.iam\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a&platform/common/v1/uidp.platform.proto\"\xfa\x01\n" +
+	"+external_group_role_mappings.platform.proto\x12\x17chainguard.platform.iam\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a&platform/common/v1/uidp.platform.proto\"\xa3\x02\n" +
 	"\x18ExternalGroupRoleMapping\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x124\n" +
 	"\x16identity_provider_uidp\x18\x02 \x01(\tR\x14identityProviderUidp\x12*\n" +
@@ -481,7 +496,8 @@ const file_external_group_role_mappings_platform_proto_rawDesc = "" +
 	"\trole_uidp\x18\x04 \x01(\tR\broleUidp\x12\x14\n" +
 	"\x05scope\x18\x05 \x01(\tR\x05scope\x129\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"g\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12'\n" +
+	"\x0fprivileged_role\x18\a \x01(\bR\x0eprivilegedRole\"g\n" +
 	"\x1cExternalGroupRoleMappingList\x12G\n" +
 	"\x05items\x18\x01 \x03(\v21.chainguard.platform.iam.ExternalGroupRoleMappingR\x05items\"\x92\x01\n" +
 	"\x1eExternalGroupRoleMappingFilter\x12:\n" +

@@ -179,6 +179,14 @@ message ExternalGroupRoleMapping {
 
   // When the mapping was created.
   google.protobuf.Timestamp create_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether role_uid names a privileged role: the built-in owner or support
+  // role. SCIM provisioning never creates persistent role bindings from such a
+  // mapping, so its members hold the role only through capabilities granted at
+  // sign-in, which expire with the session. Derived from the role on every
+  // read; a value supplied on create is ignored. It reads false if that lookup
+  // fails, so false is not proof the role is unprivileged.
+  bool privileged_role = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // CreateExternalGroupRoleMappingRequest is the request message for CreateExternalGroupRoleMapping.
