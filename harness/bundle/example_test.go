@@ -56,8 +56,8 @@ func ExampleWriter_Write() {
 	fmt.Println(m.TreeSHA256)
 
 	// Output:
-	// harness-source-v1 folder 3 77
-	// 9ce04431168e90a1a01f1281360022033f7510b5aa6b259400441d12ad8e6e56
+	// harness-source-v1alpha1 folder 3 77
+	// 8535f518bde5831908c614a2e60a6de5dd74cebc0c0eead54f8d745ae55f6813
 }
 
 // Intake walks a source tree and keeps what the format can carry, warning about

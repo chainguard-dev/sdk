@@ -20,7 +20,7 @@ import (
 const (
 	// Format is the value of a manifest's format field, and the name of this
 	// bundle format.
-	Format = "harness-source-v1"
+	Format = "harness-source-v1alpha1"
 
 	// ManifestPath is the reserved path of the manifest, the bundle's first
 	// entry. A source tree that contains this path is rejected.
@@ -28,8 +28,9 @@ const (
 
 	// treeHashDomain is the first field of the tree hash input, pinning the
 	// record layout documented in the package doc. Changing the layout means
-	// changing this tag so v1 hashes cannot collide with the new scheme's.
-	treeHashDomain = "harness-source-v1-tree"
+	// changing this tag so v1alpha1 hashes cannot collide with the new
+	// scheme's.
+	treeHashDomain = "harness-source-v1alpha1-tree"
 
 	// maxManifestBytes bounds the manifest entry before it is read, so a bundle
 	// cannot hand the JSON decoder an arbitrarily large first entry. The

@@ -34,8 +34,8 @@ type Writer struct {
 	Limits Limits
 }
 
-// Write packs entries into a harness-source-v1 bundle on dst and returns the
-// manifest it wrote.
+// Write packs entries into a harness-source-v1alpha1 bundle on dst and returns
+// the manifest it wrote.
 //
 // The caller supplies Kind, Commit, Dirty, IncludeIgnored and Client; Write
 // computes Format, Files, Bytes and TreeSHA256 from the entries so the manifest

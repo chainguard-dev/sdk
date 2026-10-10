@@ -216,13 +216,13 @@ func TestValidateRejects(t *testing.T) {
 	}, {
 		name: "manifest with an unknown field",
 		build: func(t testing.TB) []byte {
-			return rawTar(t, entries(raw(manifestHeader(), `{"format":"harness-source-v1","kind":"folder","dirty":false,"files":0,"bytes":0,"tree_sha256":"`+zeroHash+`","client":"chainctl v0.1.2","repo_url":"https://github.com/acme/widgets"}`)))
+			return rawTar(t, entries(raw(manifestHeader(), `{"format":"harness-source-v1alpha1","kind":"folder","dirty":false,"files":0,"bytes":0,"tree_sha256":"`+zeroHash+`","client":"chainctl v0.1.2","repo_url":"https://github.com/acme/widgets"}`)))
 		},
 		want: bundle.ReasonInvalidManifest,
 	}, {
 		name: "manifest that is not JSON",
 		build: func(t testing.TB) []byte {
-			return rawTar(t, entries(raw(manifestHeader(), "harness-source-v1\n")))
+			return rawTar(t, entries(raw(manifestHeader(), "harness-source-v1alpha1\n")))
 		},
 		want: bundle.ReasonInvalidManifest,
 	}, {
@@ -686,7 +686,7 @@ func writeManifest(t testing.TB, tw *tar.Writer, m *bundle.Manifest) {
 func specTreeHash(records ...[4]string) string {
 	h := sha256.New()
 	field := func(s string) { fmt.Fprintf(h, "%d:%s\n", len(s), s) }
-	field("harness-source-v1-tree")
+	field("harness-source-v1alpha1-tree")
 	for _, r := range records {
 		for _, f := range r {
 			field(f)

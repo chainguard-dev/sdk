@@ -41,7 +41,7 @@ const (
 	// goldenTreeSHA256 pins tree_sha256 over goldenEntries. Both ends and any
 	// reimplementation depend on this value byte for byte, so a change to the
 	// record layout must show up here and be a coordinated one.
-	goldenTreeSHA256 = "42c8725595c50bb82c6cc918ccef4891903989c161195cc01371f500e4d238e1"
+	goldenTreeSHA256 = "70b4c0dc22fe05aabae56dad13242cfb737a67e49a65db7cea5293b0033c32b8"
 
 	// goldenTarSHA256 pins the decompressed tar a pack of goldenEntries and
 	// goldenManifest produces. The tar layer is what the format makes
@@ -51,7 +51,7 @@ const (
 	// version, so a golden over it would pin the dependency rather than the
 	// format. This value is a given toolchain's; archive/tar is free to frame
 	// the same tree differently in a later Go.
-	goldenTarSHA256 = "580fa3ca403b996ee02d674863115a9021c58a245fb6f08fb941034c0230bcc8"
+	goldenTarSHA256 = "8e54b1a219e1fec8ba85ac89ebb787741a337369c2041005299eaacbd19dbbd8"
 )
 
 func goldenManifest() bundle.Manifest {

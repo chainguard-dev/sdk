@@ -3,7 +3,7 @@ Copyright 2026 Chainguard, Inc.
 SPDX-License-Identifier: Apache-2.0
 */
 
-// Package bundle implements harness-source-v1, the single artifact a
+// Package bundle implements harness-source-v1alpha1, the single artifact a
 // "chainctl harness scan" submission becomes whatever source kind it was built
 // from: a zstd-compressed tar of normalized entries with a manifest first.
 //
@@ -93,7 +93,7 @@ SPDX-License-Identifier: Apache-2.0
 //
 //	tree_sha256 = lowercase hex of SHA-256 over
 //
-//	    field("harness-source-v1-tree") || record(e₁) || record(e₂) || …
+//	    field("harness-source-v1alpha1-tree") || record(e₁) || record(e₂) || …
 //
 //	over every entry of the bundle except the manifest, in the one order the
 //	format allows them in the tar — ascending by path, comparing paths as
