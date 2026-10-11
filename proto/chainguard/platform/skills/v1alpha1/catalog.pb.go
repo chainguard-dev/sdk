@@ -54,9 +54,8 @@ type Skill struct {
 	CreateTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
 	// update_time is when the skill was last updated.
 	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
-	// hardened is true when the skill's promoted version was modified by the
-	// harden pipeline (harden.modified). Backs the "Hardened" chip on the catalog
-	// directory page.
+	// hardened is true when any of the skill's versions passed evaluation. Backs
+	// the "Hardened" chip on the catalog directory page.
 	Hardened bool `protobuf:"varint,9,opt,name=hardened,proto3" json:"hardened,omitempty"`
 	// stars is the accumulated count of stars (favorites) for the skill.
 	Stars int64 `protobuf:"varint,10,opt,name=stars,proto3" json:"stars,omitempty"`
@@ -71,9 +70,12 @@ type Skill struct {
 	SourceRepoUrl string `protobuf:"bytes,13,opt,name=source_repo_url,json=sourceRepoUrl,proto3" json:"source_repo_url,omitempty"`
 	// source_path is the skill's folder within source_repo_url, e.g.
 	// "skills/academy-guide"; empty when the skill is the whole repository.
-	SourcePath    string `protobuf:"bytes,14,opt,name=source_path,json=sourcePath,proto3" json:"source_path,omitempty"` // next id: 15
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	SourcePath string `protobuf:"bytes,14,opt,name=source_path,json=sourcePath,proto3" json:"source_path,omitempty"`
+	// source_browse_url links to the skill's folder upstream at its tracked
+	// branch; it equals source_repo_url for a whole-repository skill.
+	SourceBrowseUrl string `protobuf:"bytes,15,opt,name=source_browse_url,json=sourceBrowseUrl,proto3" json:"source_browse_url,omitempty"` // next id: 16
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *Skill) Reset() {
@@ -200,6 +202,13 @@ func (x *Skill) GetSourceRepoUrl() string {
 func (x *Skill) GetSourcePath() string {
 	if x != nil {
 		return x.SourcePath
+	}
+	return ""
+}
+
+func (x *Skill) GetSourceBrowseUrl() string {
+	if x != nil {
+		return x.SourceBrowseUrl
 	}
 	return ""
 }
@@ -445,9 +454,8 @@ type UpdateSkillRequest struct {
 	// allow_missing, per AIP-134 create-or-update: when true, create the row if it
 	// does not exist; when false (default), a missing row is NotFound.
 	AllowMissing bool `protobuf:"varint,9,opt,name=allow_missing,json=allowMissing,proto3" json:"allow_missing,omitempty"`
-	// hardened marks the promoted version as harden-pipeline-modified
-	// (harden.modified); the writer sets it at promote time and it surfaces as the
-	// catalog "Hardened" chip.
+	// hardened is true when any of the skill's versions passed evaluation; it
+	// surfaces as the catalog "Hardened" chip.
 	Hardened bool `protobuf:"varint,10,opt,name=hardened,proto3" json:"hardened,omitempty"`
 	// source is the organization that published the skill (e.g. "anthropics"). The
 	// publish-time writer sets it; a re-publish should carry it so it is not
@@ -467,9 +475,12 @@ type UpdateSkillRequest struct {
 	SourceRepoUrl string `protobuf:"bytes,14,opt,name=source_repo_url,json=sourceRepoUrl,proto3" json:"source_repo_url,omitempty"`
 	// source_path is the skill's folder within source_repo_url; empty for a
 	// whole-repository skill. Overwritten on every write, like source_repo_url.
-	SourcePath    string `protobuf:"bytes,15,opt,name=source_path,json=sourcePath,proto3" json:"source_path,omitempty"` // next id: 16
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	SourcePath string `protobuf:"bytes,15,opt,name=source_path,json=sourcePath,proto3" json:"source_path,omitempty"`
+	// source_browse_url is the browsable link to the skill's folder upstream.
+	// Overwritten on every write, like source_repo_url.
+	SourceBrowseUrl string `protobuf:"bytes,16,opt,name=source_browse_url,json=sourceBrowseUrl,proto3" json:"source_browse_url,omitempty"` // next id: 17
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *UpdateSkillRequest) Reset() {
@@ -596,6 +607,13 @@ func (x *UpdateSkillRequest) GetSourceRepoUrl() string {
 func (x *UpdateSkillRequest) GetSourcePath() string {
 	if x != nil {
 		return x.SourcePath
+	}
+	return ""
+}
+
+func (x *UpdateSkillRequest) GetSourceBrowseUrl() string {
+	if x != nil {
+		return x.SourceBrowseUrl
 	}
 	return ""
 }
@@ -1263,7 +1281,7 @@ var File_chainguard_platform_skills_v1alpha1_catalog_proto protoreflect.FileDesc
 
 const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	"\n" +
-	"1chainguard/platform/skills/v1alpha1/catalog.proto\x12#chainguard.platform.skills.v1alpha1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xa4\x04\n" +
+	"1chainguard/platform/skills/v1alpha1/catalog.proto\x12#chainguard.platform.skills.v1alpha1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xd6\x04\n" +
 	"\x05Skill\x12\x1a\n" +
 	"\x02id\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x18\n" +
@@ -1283,7 +1301,8 @@ const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	"\x06source\x18\f \x01(\tB\x04\xe2A\x01\x03R\x06source\x12,\n" +
 	"\x0fsource_repo_url\x18\r \x01(\tB\x04\xe2A\x01\x03R\rsourceRepoUrl\x12%\n" +
 	"\vsource_path\x18\x0e \x01(\tB\x04\xe2A\x01\x03R\n" +
-	"sourcePath\"]\n" +
+	"sourcePath\x120\n" +
+	"\x11source_browse_url\x18\x0f \x01(\tB\x04\xe2A\x01\x03R\x0fsourceBrowseUrl\"]\n" +
 	"\x15ListSkillFilesRequest\x12'\n" +
 	"\tparent_id\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12\x1b\n" +
@@ -1297,7 +1316,7 @@ const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	"\x04path\x18\x03 \x01(\tB\x04\xe2A\x01\x02R\x04path\"9\n" +
 	"\tSkillFile\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\x12\x18\n" +
-	"\acontent\x18\x02 \x01(\fR\acontent\"\x8c\x04\n" +
+	"\acontent\x18\x02 \x01(\fR\acontent\"\xbe\x04\n" +
 	"\x12UpdateSkillRequest\x12!\n" +
 	"\trepo_uidp\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\brepoUidp\x12'\n" +
 	"\tparent_id\x18\x02 \x01(\tB\n" +
@@ -1315,7 +1334,8 @@ const file_chainguard_platform_skills_v1alpha1_catalog_proto_rawDesc = "" +
 	"\tdownloads\x18\r \x01(\x03B\x04\xe2A\x01\x01R\tdownloads\x12,\n" +
 	"\x0fsource_repo_url\x18\x0e \x01(\tB\x04\xe2A\x01\x01R\rsourceRepoUrl\x12%\n" +
 	"\vsource_path\x18\x0f \x01(\tB\x04\xe2A\x01\x01R\n" +
-	"sourcePathJ\x04\b\b\x10\t\"`\n" +
+	"sourcePath\x120\n" +
+	"\x11source_browse_url\x18\x10 \x01(\tB\x04\xe2A\x01\x01R\x0fsourceBrowseUrlJ\x04\b\b\x10\t\"`\n" +
 	"\x12DeleteSkillRequest\x12!\n" +
 	"\trepo_uidp\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\brepoUidp\x12'\n" +
 	"\tparent_id\x18\x02 \x01(\tB\n" +

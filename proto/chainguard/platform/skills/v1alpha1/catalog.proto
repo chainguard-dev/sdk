@@ -211,9 +211,8 @@ message Skill {
   google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
   // update_time is when the skill was last updated.
   google.protobuf.Timestamp update_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // hardened is true when the skill's promoted version was modified by the
-  // harden pipeline (harden.modified). Backs the "Hardened" chip on the catalog
-  // directory page.
+  // hardened is true when any of the skill's versions passed evaluation. Backs
+  // the "Hardened" chip on the catalog directory page.
   bool hardened = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   // stars is the accumulated count of stars (favorites) for the skill.
   int64 stars = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -229,7 +228,10 @@ message Skill {
   // source_path is the skill's folder within source_repo_url, e.g.
   // "skills/academy-guide"; empty when the skill is the whole repository.
   string source_path = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // next id: 15
+  // source_browse_url links to the skill's folder upstream at its tracked
+  // branch; it equals source_repo_url for a whole-repository skill.
+  string source_browse_url = 15 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // next id: 16
 }
 
 message ListSkillFilesRequest {
@@ -294,9 +296,8 @@ message UpdateSkillRequest {
   // allow_missing, per AIP-134 create-or-update: when true, create the row if it
   // does not exist; when false (default), a missing row is NotFound.
   bool allow_missing = 9 [(google.api.field_behavior) = OPTIONAL];
-  // hardened marks the promoted version as harden-pipeline-modified
-  // (harden.modified); the writer sets it at promote time and it surfaces as the
-  // catalog "Hardened" chip.
+  // hardened is true when any of the skill's versions passed evaluation; it
+  // surfaces as the catalog "Hardened" chip.
   bool hardened = 10 [(google.api.field_behavior) = OPTIONAL];
   // source is the organization that published the skill (e.g. "anthropics"). The
   // publish-time writer sets it; a re-publish should carry it so it is not
@@ -317,7 +318,10 @@ message UpdateSkillRequest {
   // source_path is the skill's folder within source_repo_url; empty for a
   // whole-repository skill. Overwritten on every write, like source_repo_url.
   string source_path = 15 [(google.api.field_behavior) = OPTIONAL];
-  // next id: 16
+  // source_browse_url is the browsable link to the skill's folder upstream.
+  // Overwritten on every write, like source_repo_url.
+  string source_browse_url = 16 [(google.api.field_behavior) = OPTIONAL];
+  // next id: 17
 }
 
 message DeleteSkillRequest {
