@@ -124,7 +124,9 @@ type LinkGitHubOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// group is the Chainguard group UIDP to link the organization to.
 	Group string `protobuf:"bytes,1,opt,name=group,proto3" json:"group,omitempty"`
-	// organization is the GitHub organization login to link.
+	// organization is the GitHub account login to link: an organization, or the
+	// caller's own user. When empty, the GitHub user who authorized code is
+	// linked.
 	Organization string `protobuf:"bytes,2,opt,name=organization,proto3" json:"organization,omitempty"`
 	// code is the GitHub OAuth authorization code from the client's localhost flow.
 	Code string `protobuf:"bytes,3,opt,name=code,proto3" json:"code,omitempty"`
@@ -220,8 +222,11 @@ type LinkGitHubOrganizationResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// installation_id is the GitHub App installation that was linked.
 	InstallationId int64 `protobuf:"varint,1,opt,name=installation_id,json=installationId,proto3" json:"installation_id,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// organization is the login of the GitHub account that was linked, as
+	// GitHub reports it.
+	Organization  string `protobuf:"bytes,2,opt,name=organization,proto3" json:"organization,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *LinkGitHubOrganizationResponse) Reset() {
@@ -259,6 +264,13 @@ func (x *LinkGitHubOrganizationResponse) GetInstallationId() int64 {
 		return x.InstallationId
 	}
 	return 0
+}
+
+func (x *LinkGitHubOrganizationResponse) GetOrganization() string {
+	if x != nil {
+		return x.Organization
+	}
+	return ""
 }
 
 type ListGitHubOrganizationsRequest struct {
@@ -643,17 +655,18 @@ const file_chainguard_platform_guardener_v1alpha1_github_associations_proto_rawD
 	"\x17BeginGitHubOAuthRequest\"M\n" +
 	"\x18BeginGitHubOAuthResponse\x12\x1b\n" +
 	"\tclient_id\x18\x01 \x01(\tR\bclientId\x12\x14\n" +
-	"\x05state\x18\x02 \x01(\tR\x05state\"\xf5\x01\n" +
+	"\x05state\x18\x02 \x01(\tR\x05state\"\xef\x01\n" +
 	"\x1dLinkGitHubOrganizationRequest\x12 \n" +
 	"\x05group\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x05group\x12(\n" +
-	"\forganization\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\forganization\x12\x18\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x05group\x12\"\n" +
+	"\forganization\x18\x02 \x01(\tR\forganization\x12\x18\n" +
 	"\x04code\x18\x03 \x01(\tB\x04\xe2A\x01\x02R\x04code\x12'\n" +
 	"\fredirect_uri\x18\x04 \x01(\tB\x04\xe2A\x01\x02R\vredirectUri\x12)\n" +
 	"\rcode_verifier\x18\x05 \x01(\tB\x04\xe2A\x01\x02R\fcodeVerifier\x12\x1a\n" +
-	"\x05state\x18\x06 \x01(\tB\x04\xe2A\x01\x02R\x05state\"I\n" +
+	"\x05state\x18\x06 \x01(\tB\x04\xe2A\x01\x02R\x05state\"m\n" +
 	"\x1eLinkGitHubOrganizationResponse\x12'\n" +
-	"\x0finstallation_id\x18\x01 \x01(\x03R\x0einstallationId\"B\n" +
+	"\x0finstallation_id\x18\x01 \x01(\x03R\x0einstallationId\x12\"\n" +
+	"\forganization\x18\x02 \x01(\tR\forganization\"B\n" +
 	"\x1eListGitHubOrganizationsRequest\x12 \n" +
 	"\x05group\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x05group\"\x89\x01\n" +

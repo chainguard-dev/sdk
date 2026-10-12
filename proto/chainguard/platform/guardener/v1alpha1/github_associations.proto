@@ -126,8 +126,10 @@ message LinkGitHubOrganizationRequest {
     (chainguard.annotations.iam_scope) = true
   ];
 
-  // organization is the GitHub organization login to link.
-  string organization = 2 [(google.api.field_behavior) = REQUIRED];
+  // organization is the GitHub account login to link: an organization, or the
+  // caller's own user. When empty, the GitHub user who authorized code is
+  // linked.
+  string organization = 2;
 
   // code is the GitHub OAuth authorization code from the client's localhost flow.
   string code = 3 [(google.api.field_behavior) = REQUIRED];
@@ -151,6 +153,10 @@ message LinkGitHubOrganizationRequest {
 message LinkGitHubOrganizationResponse {
   // installation_id is the GitHub App installation that was linked.
   int64 installation_id = 1;
+
+  // organization is the login of the GitHub account that was linked, as
+  // GitHub reports it.
+  string organization = 2;
 }
 
 message ListGitHubOrganizationsRequest {
