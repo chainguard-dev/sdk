@@ -580,8 +580,10 @@ var (
 	// sandbox.identity.use (SandboxIdentityUserCaps): sandbox.user is usually
 	// bound at the organization root, and use is checked at a shared
 	// identity's groups, so carrying it here would admit every sandbox user to
-	// every shared identity.
+	// every shared identity. It carries iam.groups.list so a user can resolve
+	// group names to IDs when addressing their instance.
 	SandboxUserCaps = SortCaps([]Capability{
+		Capability_CAP_IAM_GROUPS_LIST,
 		Capability_CAP_SANDBOX_RUN_CREATE,
 		Capability_CAP_SANDBOX_RUN_LIST,
 		Capability_CAP_SANDBOX_RUN_CANCEL,
