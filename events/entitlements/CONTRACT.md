@@ -173,10 +173,11 @@ subscriber seeing a value it doesn't know is an expected, live case.
 
 Delivery is **best-effort and unordered** today. The event is published on a
 detached, bounded-retry send after the write commits; a process exit before the
-send, or a sink that stays unavailable past the retries, drops that event with no
-replay. The durable record of every change is the per-domain `entitlement_change_log`
-in MySQL, written in the same transaction as the change — the event stream is a
-derivative of it, not the source of truth. Restoring an at-least-once guarantee via a
+send, a sink that stays unavailable past the retries, or a publisher already
+saturated by a stalled sink drops that event with no replay. The durable record of
+every change is the per-domain `entitlement_change_log` in MySQL, written in the same
+transaction as the change — the event stream is a derivative of it, not the source of
+truth. Restoring an at-least-once guarantee via a
 transactional outbox (publish from the log) is tracked in CUS-1264.
 
 Therefore:
