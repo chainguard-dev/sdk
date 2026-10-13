@@ -593,14 +593,45 @@ message CVERemediation {
   // version. Read the per-CVE detail for the answer on any single CVE.
   CVERemediationDecision decision = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // 6 is reserved for a version-level fix target. Naming one means naming an
-  // upgrade for a customer to take, and the design requires every fix target to
-  // be checked against the malware block list at read time through the
-  // fail-closed checker -- a rollforward target is an upstream version, so it
-  // can be on that list. Until that check exists, this message carries the
-  // state without the target: FIX_AVAILABLE says a fix exists, and the per-CVE
-  // read is where a target is reported per CVE.
-  reserved 6;
+  // The upstream release to move this version to in order to clear its
+  // outstanding CVEs, e.g. "3.9.2".
+  //
+  // Outstanding means every CVE counted by cve_count except the ones a
+  // reviewer ruled out of scope. An EXCLUDED CVE is not asking to be cleared
+  // and commonly records no upstream fix at all, so requiring one would
+  // withhold a real target on the strength of a finding we have already said
+  // does not apply. The per-CVE read says which were ruled out.
+  //
+  // Populated only alongside status FIX_AVAILABLE. On any other rung naming a
+  // target would overstate what the upgrade achieves: REVIEWING covers a
+  // version with one CVE that has no fix beside another that does, so no
+  // release clears it, and COMPLETE and WONT_REMEDIATE have nothing to move
+  // to.
+  //
+  // The greatest of the upstream_fix_version values those CVEs record, ordered
+  // by the ecosystem's own version semantics. Greatest rather than nearest,
+  // because the target has to clear all of them at once -- a release that
+  // carries the first CVE's fix but predates the second's leaves the version
+  // vulnerable while reading as resolved.
+  //
+  // Always strictly newer than the version asked about. A recorded fix is not
+  // guaranteed to be ahead of it, so one at or below the pinned version names
+  // nothing here: moving there is not an upgrade, and it would not clear the
+  // CVEs.
+  //
+  // Empty wherever that cannot be established, which is not rare and never
+  // means "no fix exists": an outstanding CVE records no upstream fix, the
+  // greatest recorded fix is not above the version asked about, the ecosystem
+  // has no implemented version ordering, a recorded version does not parse, or
+  // the target did not clear the malware gate below. Read
+  // upstream_fix_version on the per-CVE detail for what is known per CVE.
+  //
+  // Checked against the malware block list at read time, fail-closed. A target
+  // here is an upstream release, so it can carry malware or sit on the
+  // retroactive block list -- unlike remediated_version on the per-CVE detail,
+  // which is always a Chainguard build. A check that errors withholds it too:
+  // a gate that cannot be consulted must not read as clearance to upgrade.
+  string fix_version = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // InputMetadata describes the uploaded input. The content is deliberately not
@@ -1452,6 +1483,23 @@ message RequestedLibraryVersionCVE {
   // Empty where upstream recorded no fix, which covers a CVE upstream has not
   // fixed and one whose advisory names no version.
   string upstream_fix_version = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether remediated_version is served by the inventory projection -- that
+  // is, whether a customer can pull it today.
+  //
+  // It qualifies remediated_version and nothing else: false with an empty
+  // remediated_version says only that there is no Chainguard remediation to
+  // publish, not that anything is missing.
+  //
+  // The two differ because they answer different questions. A pointer says a
+  // fix version was chosen; this says the index will hand it over. They
+  // disagree while the inventory walk lags a fresh build, a window that closes
+  // on the next pass -- so false here is ordinarily "not yet", not "never".
+  // Only this field supports telling a customer the CVE is remediated for
+  // them, and the aggregate's remediated_count is sourced from it so the two
+  // reads cannot disagree about one version.
+  bool remediated_version_published = 9
+      [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // RequestGroupState selects drafts or submitted groups when listing.
@@ -1578,10 +1626,11 @@ enum CVERemediationStatus {
   // A fix exists that the caller can move to now, and Chainguard has not
   // remediated the pinned version.
   //
-  // No target is named at this level: CVERemediation aggregates a version's
-  // CVEs and carries no version field, so there is nothing here a caller could
-  // mistake for somewhere to go. The per-CVE read names the target, in
-  // RequestedLibraryVersionCVE.upstream_fix_version.
+  // The one rung that names a target: CVERemediation.fix_version carries the
+  // release that clears every CVE the message counts, where one can be
+  // established. An empty fix_version beside this status is ordinary rather
+  // than a contradiction -- read
+  // RequestedLibraryVersionCVE.upstream_fix_version for what is known per CVE.
   //
   // Distinct from REVIEWING, which says remediation has not started and would
   // hide an upgrade available today, and from COMPLETE, which claims a build

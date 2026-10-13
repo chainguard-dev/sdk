@@ -284,10 +284,11 @@ const (
 	// A fix exists that the caller can move to now, and Chainguard has not
 	// remediated the pinned version.
 	//
-	// No target is named at this level: CVERemediation aggregates a version's
-	// CVEs and carries no version field, so there is nothing here a caller could
-	// mistake for somewhere to go. The per-CVE read names the target, in
-	// RequestedLibraryVersionCVE.upstream_fix_version.
+	// The one rung that names a target: CVERemediation.fix_version carries the
+	// release that clears every CVE the message counts, where one can be
+	// established. An empty fix_version beside this status is ordinary rather
+	// than a contradiction -- read
+	// RequestedLibraryVersionCVE.upstream_fix_version for what is known per CVE.
 	//
 	// Distinct from REVIEWING, which says remediation has not started and would
 	// hide an upgrade available today, and from COMPLETE, which claims a build
@@ -1422,7 +1423,46 @@ type CVERemediation struct {
 	// version, so a version whose CVEs were decided differently collapses to one
 	// value. NOT_AFFECTED is reported only when it holds for every CVE on the
 	// version. Read the per-CVE detail for the answer on any single CVE.
-	Decision      CVERemediationDecision `protobuf:"varint,5,opt,name=decision,proto3,enum=chainguard.platform.libraries.v2beta1.CVERemediationDecision" json:"decision,omitempty"`
+	Decision CVERemediationDecision `protobuf:"varint,5,opt,name=decision,proto3,enum=chainguard.platform.libraries.v2beta1.CVERemediationDecision" json:"decision,omitempty"`
+	// The upstream release to move this version to in order to clear its
+	// outstanding CVEs, e.g. "3.9.2".
+	//
+	// Outstanding means every CVE counted by cve_count except the ones a
+	// reviewer ruled out of scope. An EXCLUDED CVE is not asking to be cleared
+	// and commonly records no upstream fix at all, so requiring one would
+	// withhold a real target on the strength of a finding we have already said
+	// does not apply. The per-CVE read says which were ruled out.
+	//
+	// Populated only alongside status FIX_AVAILABLE. On any other rung naming a
+	// target would overstate what the upgrade achieves: REVIEWING covers a
+	// version with one CVE that has no fix beside another that does, so no
+	// release clears it, and COMPLETE and WONT_REMEDIATE have nothing to move
+	// to.
+	//
+	// The greatest of the upstream_fix_version values those CVEs record, ordered
+	// by the ecosystem's own version semantics. Greatest rather than nearest,
+	// because the target has to clear all of them at once -- a release that
+	// carries the first CVE's fix but predates the second's leaves the version
+	// vulnerable while reading as resolved.
+	//
+	// Always strictly newer than the version asked about. A recorded fix is not
+	// guaranteed to be ahead of it, so one at or below the pinned version names
+	// nothing here: moving there is not an upgrade, and it would not clear the
+	// CVEs.
+	//
+	// Empty wherever that cannot be established, which is not rare and never
+	// means "no fix exists": an outstanding CVE records no upstream fix, the
+	// greatest recorded fix is not above the version asked about, the ecosystem
+	// has no implemented version ordering, a recorded version does not parse, or
+	// the target did not clear the malware gate below. Read
+	// upstream_fix_version on the per-CVE detail for what is known per CVE.
+	//
+	// Checked against the malware block list at read time, fail-closed. A target
+	// here is an upstream release, so it can carry malware or sit on the
+	// retroactive block list -- unlike remediated_version on the per-CVE detail,
+	// which is always a Chainguard build. A check that errors withholds it too:
+	// a gate that cannot be consulted must not read as clearance to upgrade.
+	FixVersion    string `protobuf:"bytes,6,opt,name=fix_version,json=fixVersion,proto3" json:"fix_version,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1483,6 +1523,13 @@ func (x *CVERemediation) GetDecision() CVERemediationDecision {
 		return x.Decision
 	}
 	return CVERemediationDecision_CVE_REMEDIATION_DECISION_UNSPECIFIED
+}
+
+func (x *CVERemediation) GetFixVersion() string {
+	if x != nil {
+		return x.FixVersion
+	}
+	return ""
 }
 
 // InputMetadata describes the uploaded input. The content is deliberately not
@@ -4108,8 +4155,23 @@ type RequestedLibraryVersionCVE struct {
 	// Empty where upstream recorded no fix, which covers a CVE upstream has not
 	// fixed and one whose advisory names no version.
 	UpstreamFixVersion string `protobuf:"bytes,8,opt,name=upstream_fix_version,json=upstreamFixVersion,proto3" json:"upstream_fix_version,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Whether remediated_version is served by the inventory projection -- that
+	// is, whether a customer can pull it today.
+	//
+	// It qualifies remediated_version and nothing else: false with an empty
+	// remediated_version says only that there is no Chainguard remediation to
+	// publish, not that anything is missing.
+	//
+	// The two differ because they answer different questions. A pointer says a
+	// fix version was chosen; this says the index will hand it over. They
+	// disagree while the inventory walk lags a fresh build, a window that closes
+	// on the next pass -- so false here is ordinarily "not yet", not "never".
+	// Only this field supports telling a customer the CVE is remediated for
+	// them, and the aggregate's remediated_count is sourced from it so the two
+	// reads cannot disagree about one version.
+	RemediatedVersionPublished bool `protobuf:"varint,9,opt,name=remediated_version_published,json=remediatedVersionPublished,proto3" json:"remediated_version_published,omitempty"`
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
 }
 
 func (x *RequestedLibraryVersionCVE) Reset() {
@@ -4198,6 +4260,13 @@ func (x *RequestedLibraryVersionCVE) GetUpstreamFixVersion() string {
 	return ""
 }
 
+func (x *RequestedLibraryVersionCVE) GetRemediatedVersionPublished() bool {
+	if x != nil {
+		return x.RemediatedVersionPublished
+	}
+	return false
+}
+
 var File_chainguard_platform_libraries_v2beta1_request_groups_proto protoreflect.FileDescriptor
 
 const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = "" +
@@ -4244,12 +4313,14 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	")libraries.chainguard.dev/RequestGroupItem\x12*requestGroups/{request_group}/items/{item}*\x11requestGroupItems2\x10requestGroupItem\"e\n" +
 	"\aUpgrade\x12-\n" +
 	"\x0fclosest_version\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x0eclosestVersion\x12+\n" +
-	"\x0elatest_version\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\rlatestVersion\"\xac\x02\n" +
+	"\x0elatest_version\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\rlatestVersion\"\xcd\x02\n" +
 	"\x0eCVERemediation\x12Y\n" +
 	"\x06status\x18\x01 \x01(\x0e2;.chainguard.platform.libraries.v2beta1.CVERemediationStatusB\x04\xe2A\x01\x03R\x06status\x12/\n" +
 	"\x10remediated_count\x18\x02 \x01(\x05B\x04\xe2A\x01\x03R\x0fremediatedCount\x12!\n" +
 	"\tcve_count\x18\x03 \x01(\x05B\x04\xe2A\x01\x03R\bcveCount\x12_\n" +
-	"\bdecision\x18\x05 \x01(\x0e2=.chainguard.platform.libraries.v2beta1.CVERemediationDecisionB\x04\xe2A\x01\x03R\bdecisionJ\x04\b\x04\x10\x05J\x04\b\x06\x10\a\"\xd1\x01\n" +
+	"\bdecision\x18\x05 \x01(\x0e2=.chainguard.platform.libraries.v2beta1.CVERemediationDecisionB\x04\xe2A\x01\x03R\bdecision\x12%\n" +
+	"\vfix_version\x18\x06 \x01(\tB\x04\xe2A\x01\x03R\n" +
+	"fixVersionJ\x04\b\x04\x10\x05\"\xd1\x01\n" +
 	"\rInputMetadata\x12 \n" +
 	"\bfilename\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\bfilename\x12P\n" +
 	"\x06format\x18\x02 \x01(\x0e22.chainguard.platform.libraries.v2beta1.InputFormatB\x04\xe2A\x01\x03R\x06format\x12'\n" +
@@ -4476,7 +4547,7 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"totalCount\x88\x01\x01\x12\x18\n" +
 	"\askipped\x18\x04 \x01(\x05R\askipped\x12)\n" +
 	"\x10cross_referenced\x18\x05 \x01(\bR\x0fcrossReferencedB\x0e\n" +
-	"\f_total_count\"\xa1\x04\n" +
+	"\f_total_count\"\xe9\x04\n" +
 	"\x1aRequestedLibraryVersionCVE\x12\x1b\n" +
 	"\x06cve_id\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x05cveId\x12T\n" +
 	"\bseverity\x18\x02 \x01(\x0e22.chainguard.platform.libraries.v2beta1.CVESeverityB\x04\xe2A\x01\x03R\bseverity\x12\x16\n" +
@@ -4487,7 +4558,8 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"\n" +
 	"provenance\x18\a \x01(\x0e24.chainguard.platform.libraries.v2beta1.CVEProvenanceB\x04\xe2A\x01\x03R\n" +
 	"provenance\x126\n" +
-	"\x14upstream_fix_version\x18\b \x01(\tB\x04\xe2A\x01\x03R\x12upstreamFixVersion*\x97\x01\n" +
+	"\x14upstream_fix_version\x18\b \x01(\tB\x04\xe2A\x01\x03R\x12upstreamFixVersion\x12F\n" +
+	"\x1cremediated_version_published\x18\t \x01(\bB\x04\xe2A\x01\x03R\x1aremediatedVersionPublished*\x97\x01\n" +
 	"\x11RequestGroupState\x12#\n" +
 	"\x1fREQUEST_GROUP_STATE_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19REQUEST_GROUP_STATE_DRAFT\x10\x01\x12!\n" +
