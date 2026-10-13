@@ -22,8 +22,10 @@ import (
 
 	"github.com/chainguard-dev/clog"
 
+	"chainguard.dev/sdk/auth"
 	oidc "chainguard.dev/sdk/proto/platform/oidc/v1"
 	"golang.org/x/oauth2"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -118,6 +120,7 @@ type options struct {
 	identityProvider string
 	delegated        bool
 	task             string
+	conn             *grpc.ClientConn
 }
 
 var _ Exchanger = (*impl)(nil)
@@ -248,6 +251,19 @@ func backoffWithJitter() time.Duration {
 	return retryBackoff + rand.N(retryBackoff) //nolint:gosec // G404: retry-backoff jitter does not require cryptographic randomness
 }
 
+// clients returns the issuer clients for one attempt, and the call options
+// that carry token on each RPC. With WithClientConn the clients share the
+// caller's connection and Close does not close it; otherwise each call dials
+// the issuer and Close ends the connection.
+func (o options) clients(ctx context.Context, token string) (oidc.Clients, []grpc.CallOption, error) {
+	bearer := fmt.Sprintf("Bearer %s", token)
+	if o.conn != nil {
+		return oidc.NewClientsFromConnection(o.conn), []grpc.CallOption{grpc.PerRPCCredentials(auth.NewFromToken(ctx, bearer, false))}, nil
+	}
+	c, err := oidcNewClients(ctx, o.issuer, bearer, oidc.WithUserAgent(o.userAgent))
+	return c, nil, err
+}
+
 // Exchange implements Exchanger
 func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOption) (TokenPair, error) {
 	o := i.opts
@@ -265,7 +281,7 @@ func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOpti
 			}
 		}
 
-		c, err := oidcNewClients(ctx, o.issuer, fmt.Sprintf("Bearer %s", token), oidc.WithUserAgent(o.userAgent))
+		c, callOpts, err := o.clients(ctx, token)
 		if err != nil {
 			if retryable(err) {
 				lastErr = err
@@ -283,7 +299,7 @@ func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOpti
 			IdentityProvider: o.identityProvider,
 			Delegated:        o.delegated,
 			Task:             o.task,
-		})
+		}, callOpts...)
 		c.Close()
 		if err != nil {
 			if retryable(err) {
@@ -319,7 +335,7 @@ func (i *impl) Refresh(ctx context.Context, token string, opts ...ExchangerOptio
 			}
 		}
 
-		c, err := oidcNewClients(ctx, o.issuer, fmt.Sprintf("Bearer %s", token), oidc.WithUserAgent(o.userAgent))
+		c, callOpts, err := o.clients(ctx, token)
 		if err != nil {
 			if refreshRetryable(err) {
 				lastErr = err
@@ -334,7 +350,7 @@ func (i *impl) Refresh(ctx context.Context, token string, opts ...ExchangerOptio
 			Scope:  o.firstScope, //nolint:staticcheck // Populating for backward compatibility
 			Scopes: o.scope,
 			Cap:    o.capabilities,
-		})
+		}, callOpts...)
 		c.Close()
 		if err != nil {
 			if refreshRetryable(err) {
@@ -394,6 +410,19 @@ func WithIdentity(uid string) ExchangerOption {
 func WithHTTP1Downgrade() ExchangerOption {
 	return func(i *options) {
 		i.http1Downgrade = true
+	}
+}
+
+// WithClientConn makes Exchange and Refresh send their RPCs over conn, which
+// must target the issuer, instead of dialing the issuer on each call. A
+// long-lived process that exchanges often uses this to pay for connection
+// setup once. The caller owns conn and closes it.
+//
+// WithUserAgent has no effect with this option: set the user agent when you
+// dial conn. HTTP1DowngradeExchanger does not use conn.
+func WithClientConn(conn *grpc.ClientConn) ExchangerOption {
+	return func(i *options) {
+		i.conn = conn
 	}
 }
 

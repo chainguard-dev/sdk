@@ -10,6 +10,8 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"math/rand/v2"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -22,8 +24,13 @@ import (
 	"chainguard.dev/sdk/proto/platform/oidc/v1/test"
 	"github.com/google/go-cmp/cmp"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/connectivity"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"google.golang.org/grpc/test/bufconn"
 	"google.golang.org/protobuf/testing/protocmp"
 )
 
@@ -1389,5 +1396,109 @@ func TestDelegationAudience(t *testing.T) {
 		if got := IsDelegationAudience(issuer, tt.aud); got != tt.want {
 			t.Errorf("IsDelegationAudience(%q): got = %v, want = %v", tt.aud, got, tt.want)
 		}
+	}
+}
+
+// connFakeSTS answers both RPCs and records the Authorization header of each.
+type connFakeSTS struct {
+	oidc.UnimplementedSecurityTokenServiceServer
+	mu    sync.Mutex
+	auths []string
+}
+
+func (f *connFakeSTS) record(ctx context.Context) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.auths = append(f.auths, strings.Join(md.Get("authorization"), ","))
+}
+
+func (f *connFakeSTS) Exchange(ctx context.Context, _ *oidc.ExchangeRequest) (*oidc.RawToken, error) {
+	f.record(ctx)
+	return &oidc.RawToken{Token: "access", RefreshToken: "refresh"}, nil
+}
+
+func (f *connFakeSTS) ExchangeRefreshToken(ctx context.Context, _ *oidc.ExchangeRefreshTokenRequest) (*oidc.TokenPair, error) {
+	f.record(ctx)
+	return &oidc.TokenPair{
+		Token:        &oidc.RawToken{Token: "access"},
+		RefreshToken: &oidc.RawToken{Token: "refresh"},
+	}, nil
+}
+
+// countingListener counts the transport connections the server accepts.
+type countingListener struct {
+	*bufconn.Listener
+	accepts atomic.Int32
+}
+
+func (l *countingListener) Accept() (net.Conn, error) {
+	c, err := l.Listener.Accept()
+	if err == nil {
+		l.accepts.Add(1)
+	}
+	return c, err
+}
+
+// TestWithClientConn checks that every call reuses the caller's connection,
+// that each RPC carries its own call's token, and that the exchanger leaves
+// the connection open.
+func TestWithClientConn(t *testing.T) {
+	tests := map[string]func(ctx context.Context, e Exchanger, token string) error{
+		"exchange": func(ctx context.Context, e Exchanger, token string) error {
+			_, err := e.Exchange(ctx, token)
+			return err
+		},
+		"refresh": func(ctx context.Context, e Exchanger, token string) error {
+			_, _, err := e.Refresh(ctx, token)
+			return err
+		},
+	}
+
+	for name, call := range tests {
+		t.Run(name, func(t *testing.T) {
+			// A dial through oidcNewClients would mean the option was ignored.
+			t.Cleanup(func() { oidcNewClients = oidc.NewClients })
+			oidcNewClients = func(context.Context, string, string, ...oidc.ClientOption) (oidc.Clients, error) {
+				t.Fatal("oidcNewClients called with WithClientConn set")
+				return nil, nil
+			}
+
+			lis := &countingListener{Listener: bufconn.Listen(1024 * 1024)}
+			fake := &connFakeSTS{}
+			srv := grpc.NewServer()
+			oidc.RegisterSecurityTokenServiceServer(srv, fake)
+			go srv.Serve(lis) //nolint:errcheck // Serve returns when Stop runs in Cleanup.
+			t.Cleanup(srv.Stop)
+
+			conn, err := grpc.NewClient("passthrough:///bufnet",
+				grpc.WithContextDialer(func(context.Context, string) (net.Conn, error) { return lis.Dial() }),
+				grpc.WithTransportCredentials(insecure.NewCredentials()))
+			if err != nil {
+				t.Fatalf("grpc.NewClient() = %v", err)
+			}
+			t.Cleanup(func() { conn.Close() })
+
+			e := New("https://issuer.example", "aud", WithClientConn(conn))
+			tokens := []string{fmt.Sprintf("tok-%d", rand.N(1<<30)), fmt.Sprintf("tok-%d", rand.N(1<<30))}
+			for _, tok := range tokens {
+				if err := call(t.Context(), e, tok); err != nil {
+					t.Fatalf("call(%q) = %v", tok, err)
+				}
+			}
+
+			if got := lis.accepts.Load(); got != 1 {
+				t.Errorf("accepted connections: got = %d, want = 1", got)
+			}
+			if got := conn.GetState(); got == connectivity.Shutdown {
+				t.Errorf("conn state: got = %v, want open", got)
+			}
+			want := []string{"Bearer " + tokens[0], "Bearer " + tokens[1]}
+			fake.mu.Lock()
+			defer fake.mu.Unlock()
+			if diff := cmp.Diff(want, fake.auths); diff != "" {
+				t.Errorf("authorization headers (-want, +got):\n%s", diff)
+			}
+		})
 	}
 }
