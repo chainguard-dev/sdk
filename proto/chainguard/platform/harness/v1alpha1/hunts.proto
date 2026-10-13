@@ -1,0 +1,513 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.harness.v1alpha1;
+
+import "annotations/auth.proto";
+import "annotations/mcp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package =
+    "chainguard.dev/sdk/proto/chainguard/platform/harness/v1alpha1";
+option java_multiple_files = true;
+option java_outer_classname = "HuntsProto";
+option java_package = "com.chainguard.platform.harness.v1alpha1";
+
+// Hunts is the customer-facing intake for `chainctl harness hunt`: a customer
+// submits a source bundle, an AI agent running in an isolated microVM hunts it
+// for vulnerabilities, and the customer tracks that hunt.
+//
+// Source bytes never travel on this API. CreateHunt records the hunt and hands
+// back a short-lived signed URL for one object; the client seals the bundle
+// under the organization's harness key (GetOrgPublicKey) and uploads the
+// ciphertext directly to storage, then calls CompleteUpload. The server never
+// holds plaintext and never holds the key that opens it.
+//
+// A hunt runs for hours, so GetHunt is a point-in-time query rather than a
+// waiting mode: there is no long-running operation to poll and no server-side
+// wait.
+service Hunts {
+  // GetOrgPublicKey returns the public half of the organization's harness key,
+  // "harness-org-<uidp>" from the harness keyring. The client wraps the fresh
+  // per-upload key it seals the bundle with under it; the private half never
+  // leaves Cloud KMS and only the harness fetch service may call it.
+  //
+  // The harness serves this itself rather than reusing
+  // ArgosDocuments.GetOrgPublicKey: that RPC answers from the Argos keyring, so
+  // a submitter sealing against it would put customer source under an Argos key
+  // — outside the harness's break-glass boundary and its US-only residency.
+  rpc GetOrgPublicKey(GetOrgPublicKeyRequest) returns (OrgPublicKey) {
+    option (google.api.http) = {
+      get: "/harness/v1alpha1/orgs/{parent_id=**}/publicKey"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_HARNESS_HUNTS_CREATE]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description:
+        "Get the public key an organization's harness hunt bundles must be "
+        "sealed under. Returns a public key only."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // CreateHunt records a hunt under the organization and returns it together
+  // with a signed URL to upload the sealed bundle to. The hunt starts at
+  // HUNT_STATUS_PENDING_UPLOAD and reaches HUNT_STATUS_RECEIVED only once
+  // CompleteUpload has verified the stored object.
+  //
+  // The submit is idempotent: the hunt's name is derived from the organization,
+  // the submitting identity and bundle_sha256, so resubmitting an identical
+  // bundle returns the existing hunt with a fresh upload URL rather than
+  // starting a second run. An explicit retried_hunt instead derives the name
+  // from the named failed hunt, which is the only way to run the same bundle
+  // twice.
+  rpc CreateHunt(CreateHuntRequest) returns (CreateHuntResponse) {
+    option (google.api.http) = {
+      post: "/harness/v1alpha1/hunts/{parent_id=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_HARNESS_HUNTS_CREATE]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description:
+        "Record a harness hunt of a source bundle under an organization and "
+        "get a signed URL to upload the sealed bundle to. Does not submit any "
+        "source itself."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // CompleteUpload closes a hunt's upload. The server compares the stored
+  // object's size and CRC32C with the values declared at CreateHunt and passed
+  // here; on a match the hunt moves to HUNT_STATUS_RECEIVED and the pipeline
+  // picks it up, and on a mismatch the hunt is rejected. This proves the
+  // ciphertext arrived intact; it says nothing about the plaintext, which only
+  // the pipeline can check.
+  rpc CompleteUpload(CompleteUploadRequest) returns (Hunt) {
+    option (google.api.http) = {
+      post: "/harness/v1alpha1/hunts/{id=**}:completeUpload"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_HARNESS_HUNTS_CREATE]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description:
+        "Close the upload of a harness hunt, checking the stored object's size "
+        "and checksum against what was declared."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // GetHunt returns one hunt's metadata. It backs `chainctl harness status`.
+  rpc GetHunt(GetHuntRequest) returns (Hunt) {
+    option (google.api.http) = {get: "/harness/v1alpha1/hunts/{id=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_HARNESS_HUNTS_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description:
+        "Get a harness hunt's status, rejection reason and manifest counts by "
+        "its id."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // ListHunts lists an organization's hunts, newest first, one bounded page at
+  // a time.
+  rpc ListHunts(ListHuntsRequest) returns (ListHuntsResponse) {
+    option (google.api.http) = {get: "/harness/v1alpha1/hunts"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_HARNESS_HUNTS_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description:
+        "List an organization's harness hunts, newest first, one bounded page "
+        "at a time."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+}
+
+// Hunt is one submitted source bundle and its progress. It is metadata only:
+// the bundle's contents, the findings, and the storage identifier the pipeline
+// knows the submission by are all reached elsewhere. That identifier is kept
+// off this message deliberately — it is the one value that, placed beside an
+// organization, would create a second record of which customer a submission
+// belongs to.
+message Hunt {
+  // id is the hunt's UIDP, a child of the submitting organization.
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // name is the hunt's deterministic name, "hunt/{group-uidp}/{hash}", derived
+  // from the organization, the submitting identity and bundle_sha256. Two
+  // CreateHunt calls with the same three produce the same name and so the same
+  // hunt.
+  string name = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // status is where the hunt is in its lifecycle.
+  HuntStatus status = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // rejection_reason says why the submission was refused, and is set only when
+  // status is HUNT_STATUS_REJECTED.
+  RejectionReason rejection_reason = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // envelope_size is the size in bytes of the sealed object, as declared at
+  // CreateHunt and verified against storage at CompleteUpload.
+  int64 envelope_size = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // bundle_size is the declared size in bytes of the plaintext bundle. The
+  // front end records it as a claim; the pipeline is what checks it.
+  int64 bundle_size = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // bundle_sha256 is the declared sha256 of the plaintext bundle, as
+  // "sha256:<64-hex>", and the content dimension of name. Recorded as a claim
+  // and checked by the pipeline over the decrypted bytes.
+  string bundle_sha256 = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // file_count is the number of regular files the bundle's manifest declares.
+  // Zero until the pipeline has opened the bundle.
+  int64 file_count = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // content_bytes is the total content size of those files. Zero until the
+  // pipeline has opened the bundle.
+  int64 content_bytes = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // create_time is when the hunt was recorded.
+  google.protobuf.Timestamp create_time = 10 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // update_time is when the hunt last changed status.
+  google.protobuf.Timestamp update_time = 11 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // report is where the hunt's report has got to. It is absent until the hunt
+  // renders one, which is why it is a message rather than a field on status:
+  // HUNT_STATUS_COMPLETE says the hunt finished, not that its report can be
+  // read.
+  ReportStatus report = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // failure_reason says why an accepted hunt did not finish, and is set only
+  // when status is HUNT_STATUS_FAILED.
+  FailureReason failure_reason = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // dropped_entry_count is the number of candidate source entries omitted
+  // during packaging because the bundle format could not represent them.
+  // Zero until the pipeline has opened the bundle.
+  int64 dropped_entry_count = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // next id: 15
+}
+
+// ReportStatus is how far a finished hunt's report has got toward its
+// customer. It is a status and two timestamps and says nothing about the
+// findings, so reading a hunt still returns metadata only.
+message ReportStatus {
+  // state is where the report is between rendering and release.
+  State state = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // release_time is when the report was released, and is set only in
+  // STATE_RELEASED.
+  google.protobuf.Timestamp release_time = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // expire_time is when the released report stops being retrievable. There is
+  // no republication after it passes.
+  google.protobuf.Timestamp expire_time = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // State is where a rendered report is between the pipeline and its customer.
+  enum State {
+    // Not set.
+    STATE_UNSPECIFIED = 0;
+    // A report exists but a Chainguard reviewer has not released it yet. A
+    // review is a human read and can take days.
+    STATE_PENDING_REVIEW = 1;
+    // The report is released and can be fetched until expire_time.
+    STATE_RELEASED = 2;
+  }
+
+  // next id: 4
+}
+
+// HuntUpload is where and how to put the sealed bundle. It is returned only by
+// CreateHunt and is never stored on the hunt.
+message HuntUpload {
+  // url is a signed URL that accepts exactly one object: the signature pins the
+  // object's name and size and refuses to overwrite, so it cannot be redirected
+  // at another object or reused for a second upload.
+  string url = 1;
+
+  // headers are the request headers the signature covers. Every one must be
+  // sent verbatim or storage rejects the upload.
+  map<string, string> headers = 2;
+
+  // expire_time is when url stops working. It is short; a client that cannot
+  // finish in time calls CreateHunt again for a fresh one.
+  google.protobuf.Timestamp expire_time = 3;
+}
+
+// GetOrgPublicKeyRequest names the organization whose harness key to
+// return.
+message GetOrgPublicKeyRequest {
+  // parent_id is the UIDP of the organization whose public key is requested,
+  // and the IAM scope.
+  string parent_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// OrgPublicKey is the public half of an organization's harness key.
+message OrgPublicKey {
+  // pem is the PEM-encoded SubjectPublicKeyInfo of the org's RSA-OAEP-3072
+  // harness key. Wrap the fresh per-upload AES-256 key under it and carry the
+  // wrapped key in the envelope alongside the ciphertext.
+  string pem = 1;
+
+  // algorithm names the RSA-OAEP algorithm to wrap with (for example
+  // "RSA_DECRYPT_OAEP_3072_SHA256"), spelled as the Cloud KMS
+  // CryptoKeyVersionAlgorithm enum does so clients need not guess.
+  string algorithm = 2;
+
+  // key_version is the integer Cloud KMS CryptoKeyVersion pem belongs to. The
+  // client echoes it in the envelope so a reader running after a rotation knows
+  // which version's private half to decrypt against.
+  string key_version = 3;
+}
+
+// CreateHuntRequest declares what the client is about to upload.
+message CreateHuntRequest {
+  // parent_id is the UIDP of the organization to record the hunt under. It is
+  // authorized against the caller and is never derived from identity.
+  string parent_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // envelope_size is the exact size in bytes of the sealed object the client
+  // will upload. The envelope's framing is fixed, so the client knows it before
+  // it starts sealing; it is what pins the signed URL's content length.
+  int64 envelope_size = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // bundle_size is the size in bytes of the plaintext bundle.
+  int64 bundle_size = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // bundle_sha256 is the sha256 of the plaintext bundle, as
+  // "sha256:<64-hex>". It is the content dimension of the hunt's name, so it is
+  // what makes a resubmit of an identical bundle idempotent. The server cannot
+  // verify it — it never sees the plaintext — and records it as a claim for the
+  // pipeline to check after decryption.
+  string bundle_sha256 = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // report_public_key is the DER SubjectPublicKeyInfo of the client's fresh
+  // per-hunt RSA-OAEP-3072 key, the one the finished report is sealed to. The
+  // private half stays on the client, so Chainguard cannot read the report it
+  // delivers.
+  //
+  // It is validated before the hunt is recorded: DER parsing must succeed,
+  // the key must be RSA with a 3072-bit modulus, and RSA-OAEP-SHA256 encryption
+  // must accept its modulus and exponent. Failure is INVALID_ARGUMENT naming
+  // the check, with no hunt recorded and no upload URL minted. Omit it for a
+  // hunt whose report is delivered to Chainguard-held slots only; it is then
+  // never settable, since a resubmit keeps the existing hunt's key.
+  bytes report_public_key = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // retried_hunt is the full name of a failed hunt to retry, the
+  // "hunt/{group-uidp}/{hash}" string returned as Hunt.name — not its UIDP. It
+  // must belong to this caller and match parent_id and bundle_sha256. The named
+  // hunt is preserved and a new hunt tracks the retry, so repeating the same
+  // retried_hunt returns that same retry hunt rather than starting a second
+  // run. To retry again, name the newly failed hunt; one failed hunt has
+  // exactly one successor.
+  //
+  // Empty retains ordinary content-addressed submission, which cannot reach a
+  // failed hunt on its own: an identical bundle derives the same name and
+  // returns the failed hunt with created false. Only a hunt in
+  // HUNT_STATUS_FAILED can be retried.
+  string retried_hunt = 6 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// CreateHuntResponse is the recorded hunt and where to upload its bundle.
+message CreateHuntResponse {
+  // hunt is the recorded hunt, at HUNT_STATUS_PENDING_UPLOAD.
+  Hunt hunt = 1;
+
+  // upload is where to put the sealed bundle.
+  HuntUpload upload = 2;
+
+  // created reports whether this call recorded the hunt. CreateHunt is
+  // insert-if-absent on the hunt's name, so a resubmit returns the existing
+  // hunt with created false — which is how a client knows not to treat the
+  // returned hunt as its own and overwrite the report key it saved for the
+  // first submission. It says the hunt's age and nothing about its contents.
+  bool created = 3;
+}
+
+// CompleteUploadRequest closes a hunt's upload.
+message CompleteUploadRequest {
+  // parent_id is the UIDP of the organization the hunt belongs to; it is the
+  // IAM scope, and id must fall within its subtree.
+  string parent_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // id is the hunt's UIDP, as returned by CreateHunt.
+  string id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // envelope_crc32c is the CRC32C the client computed over the sealed bytes as
+  // it wrote them. The checksum cannot be known before the stream ends — the
+  // client seals while it uploads and the ciphertext is randomized — so it
+  // arrives here rather than at CreateHunt, and the server compares it with the
+  // value storage computed for the stored object.
+  int64 envelope_crc32c = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// GetHuntRequest names one hunt to read.
+message GetHuntRequest {
+  // parent_id is the UIDP of the organization the hunt belongs to; it is the
+  // IAM scope, and id must fall within its subtree.
+  string parent_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // id is the hunt's UIDP.
+  string id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListHuntsRequest names the organization whose hunts to list, and narrows
+// and pages the result.
+message ListHuntsRequest {
+  // parent_id is the UIDP of the organization whose hunts to list, and the IAM
+  // scope. One organization is required; there is no cross-org listing.
+  string parent_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // status optionally narrows results to one lifecycle status.
+  HuntStatus status = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // page_size is the maximum number of hunts to return per page. It is bounded
+  // server-side: omitting it applies a default and any value is capped, so a
+  // list is always paginated.
+  int32 page_size = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // page_token is a token from a previous response's next_page_token. Omit to
+  // start from the first page.
+  string page_token = 4 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListHuntsResponse is one page of hunts.
+message ListHuntsResponse {
+  // items are the hunts on this page, newest first.
+  repeated Hunt items = 1;
+
+  // next_page_token is the token for the next page, empty when there are no
+  // more.
+  string next_page_token = 2;
+}
+
+// HuntStatus is where a hunt is in its lifecycle. A hunt ends at
+// HUNT_STATUS_COMPLETE, HUNT_STATUS_FAILED or HUNT_STATUS_REJECTED.
+// Failed hunts carry a failure_reason; rejected hunts carry a rejection_reason.
+enum HuntStatus {
+  // Not set.
+  HUNT_STATUS_UNSPECIFIED = 0;
+  // The hunt is recorded and the signed URL is live, but no bundle has
+  // arrived. A hunt left here is reclaimed.
+  HUNT_STATUS_PENDING_UPLOAD = 1;
+  // The sealed bundle is stored and its size and checksum matched.
+  HUNT_STATUS_RECEIVED = 2;
+  // The pipeline opened the bundle and it passed validation.
+  HUNT_STATUS_ACCEPTED = 3;
+  // The hunt is executing. It covers every phase and lasts hours.
+  HUNT_STATUS_RUNNING = 4;
+  // Terminal: the hunt finished. Report release is tracked by Hunt.report.
+  HUNT_STATUS_COMPLETE = 5;
+  // Terminal: the hunt was accepted but did not finish; see failure_reason.
+  HUNT_STATUS_FAILED = 6;
+  // Terminal: the submission was refused; see rejection_reason.
+  HUNT_STATUS_REJECTED = 7;
+}
+
+// FailureReason identifies why an accepted hunt did not finish. Values never
+// carry a path, excerpt or other content from the submitted source.
+enum FailureReason {
+  // Not set: the hunt has not failed, or it failed for a reason that has no
+  // value yet.
+  FAILURE_REASON_UNSPECIFIED = 0;
+  // The research phase ended without a lab contract or its repository pair.
+  FAILURE_REASON_CONTRACT_NOT_PRODUCED = 1;
+  // The research phase produced a lab contract that failed schema validation.
+  FAILURE_REASON_CONTRACT_INVALID = 2;
+}
+
+// RejectionReason says why a submission was refused. Every value is a stable
+// identifier: a reason never carries a path, an excerpt or any other content
+// taken from the submitted source.
+enum RejectionReason {
+  // Not set; the hunt was not rejected.
+  REJECTION_REASON_UNSPECIFIED = 0;
+  // The bundle exceeds the size the intake accepts.
+  REJECTION_REASON_BUNDLE_TOO_LARGE = 1;
+  // An entry's path is absolute, escapes the bundle root, or is otherwise
+  // unusable.
+  REJECTION_REASON_PATH_INVALID = 2;
+  // An entry is neither a file, a directory nor a symlink.
+  REJECTION_REASON_ENTRY_TYPE_FORBIDDEN = 3;
+  // The bundle decompresses to more than its permitted ratio.
+  REJECTION_REASON_RATIO_EXCEEDED = 4;
+  // The decrypted bundle does not hash to the declared bundle_sha256, or its
+  // tree hash disagrees with its manifest.
+  REJECTION_REASON_BUNDLE_DIGEST_MISMATCH = 5;
+  // The manifest disagrees with the entries it describes.
+  REJECTION_REASON_MANIFEST_MISMATCH = 6;
+  // The bundle is not in a format this intake understands.
+  REJECTION_REASON_FORMAT_UNSUPPORTED = 7;
+  // The stored object's size or CRC32C did not match what CompleteUpload
+  // declared.
+  REJECTION_REASON_UPLOAD_MISMATCH = 8;
+  // The bundle declares no source entries. There is no source to hunt through,
+  // so the validator refuses it rather than accepting an empty submission.
+  REJECTION_REASON_BUNDLE_EMPTY = 9;
+}

@@ -256,6 +256,11 @@ var (
 		// others via sandbox.user; they also see and manage every user's
 		// develop sessions in the group.
 		SandboxAdminCaps,
+		// Owners can submit their own source for a harness hunt and read the
+		// org's hunts. Like SkillsPublishCaps, HarnessHuntCaps can be granted
+		// independently to a service principal or non-owner via role-bindings,
+		// which is how a CI identity submits hunts.
+		HarnessHuntCaps,
 	)
 
 	RegistryRepoAdminCaps = SortCaps(RegistryEditorCaps)
@@ -658,6 +663,19 @@ var (
 	// submit its capabilities and interests for approval.
 	ArgosMitigationPartnerCapabilityRequesterCaps = SortCaps([]Capability{
 		Capability_CAP_ARGOS_PARTNER_CAPABILITY_REQUEST,
+	})
+
+	// HarnessHuntCaps is the capability set for `chainctl harness hunt`:
+	// submitting a source bundle to be hunted and reading the org's hunts. It
+	// is customer-facing and included in OwnerCaps.
+	//
+	// It carries neither the submitted source nor the findings. The bundle is
+	// sealed client-side under the org's public key, which only the fetch
+	// service can unwrap, so a holder of these caps can start a hunt and watch
+	// its status and nothing more.
+	HarnessHuntCaps = SortCaps([]Capability{
+		Capability_CAP_HARNESS_HUNTS_CREATE,
+		Capability_CAP_HARNESS_HUNTS_LIST,
 	})
 )
 

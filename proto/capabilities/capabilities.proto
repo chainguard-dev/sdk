@@ -605,6 +605,24 @@ enum Capability {
     (bit) = 245
   ];
 
+  // Baddie Hunter harness hunts (the Hunts intake API,
+  // chainguard.platform.harness.v1alpha1): submitting source bundles to be
+  // hunted and reading the hunts' metadata. Customer-facing — an org's members
+  // hunt their own source in their own organization — and held by Owners.
+  // hunts.create also authorizes Hunts.GetOrgPublicKey, the harness-keyring
+  // key a submitter seals the bundle under.
+  //
+  // Neither reaches the submitted source or the hunt's findings: the bundle is
+  // sealed to a key this API cannot use, and these grant hunt metadata only.
+  CAP_HARNESS_HUNTS_CREATE = 3401 [
+    (name) = "harness.hunts.create",
+    (bit) = 248
+  ];
+  CAP_HARNESS_HUNTS_LIST = 3402 [
+    (name) = "harness.hunts.list",
+    (bit) = 249
+  ];
+
   reserved 1;
-  // next bit: 248
+  // next bit: 250
 }
