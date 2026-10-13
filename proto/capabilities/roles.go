@@ -586,7 +586,8 @@ var (
 	// bound at the organization root, and use is checked at a shared
 	// identity's groups, so carrying it here would admit every sandbox user to
 	// every shared identity. It carries iam.groups.list so a user can resolve
-	// group names to IDs when addressing their instance.
+	// group names to IDs when addressing their instance, and apk.list, which
+	// reads the group's APK repository indexes and signing keys.
 	SandboxUserCaps = SortCaps([]Capability{
 		Capability_CAP_IAM_GROUPS_LIST,
 		Capability_CAP_SANDBOX_RUN_CREATE,
@@ -594,6 +595,7 @@ var (
 		Capability_CAP_SANDBOX_RUN_CANCEL,
 		Capability_CAP_SANDBOX_SESSION_CREATE,
 		Capability_CAP_SANDBOX_IDENTITY_CREATE,
+		Capability_CAP_APK_LIST,
 	})
 
 	// SandboxIdentityUserCaps is sandbox.identity.use: consenting a shared
