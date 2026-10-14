@@ -52,7 +52,7 @@ const (
 	KindFiles  Kind = "files"
 )
 
-// KindSource is reserved. "chainctl harness hunt" does not yet take a
+// KindSource is reserved. "chainctl harness scan" does not yet take a
 // repository as a source, so no writer emits it and validation rejects it; the
 // name is spoken for so that taking the work up later adds a kind rather than
 // moving the format onto a name an old bundle already used for something else.

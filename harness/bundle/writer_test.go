@@ -416,7 +416,7 @@ func TestNormalizeIsIntakesSeam(t *testing.T) {
 // so without this nothing shows they survive a round trip where they are meant
 // to. include_ignored especially: it is the only thing telling a consumer that
 // a bundle holding .env was a deliberate opt-in rather than the same checkout
-// packed normally, so silently losing it downgrades a hunt's description
+// packed normally, so silently losing it downgrades a scan's description
 // without failing anything.
 func TestGitKindFieldsSurviveARoundTrip(t *testing.T) {
 	m := goldenManifest()
