@@ -650,8 +650,9 @@ type HardenOperationResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// hardened_ref is the published hardened skill artifact ref — a per-user path,
 	// skills.cgr.dev/<group>/users/<actor>/<skill_name>@<digest>, so two users
-	// hardening the same input never collide on one digest. The job's identity (job_id,
-	// group, skill_name) is on Operation.metadata, present on success and failure.
+	// hardening the same input never collide on one digest. The job's identity
+	// (job_id, group, skill_name) is on Operation.metadata, present on success
+	// and failure.
 	HardenedRef string `protobuf:"bytes,1,opt,name=hardened_ref,json=hardenedRef,proto3" json:"hardened_ref,omitempty"`
 	// hardened is true when the skill passed the post-hardening scan and
 	// hardened_ref is its hardened rewrite. When false, the scan rejected the
