@@ -4,7 +4,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 // Package bundle implements harness-source-v1alpha1, the single artifact a
-// "chainctl harness scan" submission becomes whatever source kind it was built
+// "chainctl harness hunt" submission becomes whatever source kind it was built
 // from: a zstd-compressed tar of normalized entries with a manifest first.
 //
 // chainctl packs a bundle with [Writer] and the pipeline streams it back
