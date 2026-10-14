@@ -69,6 +69,13 @@ type PullEvent struct {
 	// Type determines whether the object being fetched is a manifest or blob.
 	Type string `json:"type"`
 
+	// Size holds the size in bytes of the manifest or blob a successful GET
+	// fetched. It is the object's size, not the bytes transferred: blob
+	// content is served from storage after a redirect, and a range request
+	// still records the whole blob. Zero, and omitted, for HEAD requests and
+	// errors.
+	Size int64 `json:"size,omitempty"`
+
 	// When holds when the pull occurred.
 	When civil.DateTime `json:"when"`
 
