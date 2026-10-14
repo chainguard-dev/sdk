@@ -37,8 +37,8 @@ const HardenNamePrefix = "harden/"
 //
 // Two users hardening the same bundle run separate jobs AND land separate
 // outputs: each user's hardened artifact is published under a per-user path,
-// skills.cgr.dev/<group>/<user>/<skill_name>@sha256:<hardened-digest>, so the two
-// never overwrite or race the same digest. The user-less
+// skills.cgr.dev/<group>/users/<actor>/<skill_name>@sha256:<hardened-digest>,
+// so the two never overwrite or race the same digest. The user-less
 // skills.cgr.dev/<group>/<skill_name> path is reserved for promotion (blessing a
 // hardened skill to the org level). userID being a dimension of both this id and
 // the output path is what keeps that per-user isolation intact.

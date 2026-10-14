@@ -154,7 +154,7 @@ message HardenFailure {
 // below — the host is a server constant, never caller input, so a caller can
 // never point the harden pipeline at an arbitrary registry. On success the
 // hardened result is published to a per-user path,
-// skills.cgr.dev/<group>/<user>/<skill_name> (the user-less
+// skills.cgr.dev/<group>/users/<actor>/<skill_name> (the user-less
 // skills.cgr.dev/<group>/<skill_name> path is reserved for promotion).
 //
 // Every source normalizes to an uploads.cgr.dev artifact before harden: customer
@@ -167,7 +167,7 @@ message HardenSkillRequest {
   // group is the target group (org UIDP) the skill is hardened into. It is
   // authorized against the caller (the IAM scope for CAP_SKILLS_HARDEN_WRITE),
   // never derived from identity. The hardened skill lands under a per-user path,
-  // skills.cgr.dev/<group>/<user>/<skill_name>; the user-less
+  // skills.cgr.dev/<group>/users/<actor>/<skill_name>; the user-less
   // skills.cgr.dev/<group>/<skill_name> path is reserved for promotion.
   string group = 1 [
     (google.api.field_behavior) = REQUIRED,
@@ -281,8 +281,8 @@ message HardenOperationMetadata {
 // hardened set to false.
 message HardenOperationResponse {
   // hardened_ref is the published hardened skill artifact ref — a per-user path,
-  // skills.cgr.dev/<group>/<user>/<skill_name>@<digest>, so two users hardening
-  // the same input never collide on one digest. The job's identity (job_id,
+  // skills.cgr.dev/<group>/users/<actor>/<skill_name>@<digest>, so two users
+  // hardening the same input never collide on one digest. The job's identity (job_id,
   // group, skill_name) is on Operation.metadata, present on success and failure.
   string hardened_ref = 1;
   // hardened is true when the skill passed the post-hardening scan and

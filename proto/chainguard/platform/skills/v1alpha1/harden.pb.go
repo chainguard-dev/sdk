@@ -271,7 +271,7 @@ func (x *HardenFailure) GetRuleId() string {
 // below — the host is a server constant, never caller input, so a caller can
 // never point the harden pipeline at an arbitrary registry. On success the
 // hardened result is published to a per-user path,
-// skills.cgr.dev/<group>/<user>/<skill_name> (the user-less
+// skills.cgr.dev/<group>/users/<actor>/<skill_name> (the user-less
 // skills.cgr.dev/<group>/<skill_name> path is reserved for promotion).
 //
 // Every source normalizes to an uploads.cgr.dev artifact before harden: customer
@@ -285,7 +285,7 @@ type HardenSkillRequest struct {
 	// group is the target group (org UIDP) the skill is hardened into. It is
 	// authorized against the caller (the IAM scope for CAP_SKILLS_HARDEN_WRITE),
 	// never derived from identity. The hardened skill lands under a per-user path,
-	// skills.cgr.dev/<group>/<user>/<skill_name>; the user-less
+	// skills.cgr.dev/<group>/users/<actor>/<skill_name>; the user-less
 	// skills.cgr.dev/<group>/<skill_name> path is reserved for promotion.
 	Group string `protobuf:"bytes,1,opt,name=group,proto3" json:"group,omitempty"`
 	// skill_name is the skill's catalog name (from --name or SKILL.md
@@ -649,8 +649,8 @@ func (x *HardenOperationMetadata) GetFailure() *HardenFailure {
 type HardenOperationResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// hardened_ref is the published hardened skill artifact ref — a per-user path,
-	// skills.cgr.dev/<group>/<user>/<skill_name>@<digest>, so two users hardening
-	// the same input never collide on one digest. The job's identity (job_id,
+	// skills.cgr.dev/<group>/users/<actor>/<skill_name>@<digest>, so two users
+	// hardening the same input never collide on one digest. The job's identity (job_id,
 	// group, skill_name) is on Operation.metadata, present on success and failure.
 	HardenedRef string `protobuf:"bytes,1,opt,name=hardened_ref,json=hardenedRef,proto3" json:"hardened_ref,omitempty"`
 	// hardened is true when the skill passed the post-hardening scan and
