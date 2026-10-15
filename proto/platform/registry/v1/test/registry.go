@@ -75,10 +75,8 @@ type MockRegistryClient struct {
 	OnUpdateRepo                []RepoOnUpdate
 	OnListTagHistory            []TagHistoryOnList
 	OnGetImageConfig            []ImageConfigOnGet
-	OnGetSbom                   []SbomOnGet
 	OnGetVulnReport             []VulnReportOnGet
 	OnListManifestMetadata      []ManifestMetadataOnList
-	OnGetRawSbom                []RawSbomOnGet
 	OnGetPackageVersionMetadata []PackageVersionMetadataOnGet
 	OnListBuildReports          []BuildReportsOnList
 	OnGetBuildStatus            []BuildStatusOnGet
@@ -159,12 +157,6 @@ type ImageConfigOnGet struct {
 	Error error
 }
 
-type SbomOnGet struct {
-	Given *registry.SbomRequest //nolint:staticcheck
-	Get   *tenant.Sbom2
-	Error error
-}
-
 type VulnReportOnGet struct {
 	Given *registry.VulnReportRequest
 	Get   *tenant.VulnReport
@@ -174,12 +166,6 @@ type VulnReportOnGet struct {
 type ManifestMetadataOnList struct {
 	Given *registry.ManifestMetadataFilter
 	List  *registry.ManifestMetadataList
-	Error error
-}
-
-type RawSbomOnGet struct {
-	Given *registry.RawSbomRequest //nolint:staticcheck
-	Get   *registry.RawSbom        //nolint:staticcheck
 	Error error
 }
 
@@ -372,16 +358,6 @@ func (m MockRegistryClient) GetImageConfig(_ context.Context, given *registry.Im
 	return nil, fmt.Errorf("mock not found for %v", given)
 }
 
-//nolint:staticcheck
-func (m MockRegistryClient) GetSbom(_ context.Context, given *registry.SbomRequest, _ ...grpc.CallOption) (*tenant.Sbom2, error) { //nolint: revive
-	for _, o := range m.OnGetSbom {
-		if cmp.Equal(o.Given, given, protocmp.Transform()) {
-			return o.Get, o.Error
-		}
-	}
-	return nil, fmt.Errorf("mock not found for %v", given)
-}
-
 func (m MockRegistryClient) GetVulnReport(_ context.Context, given *registry.VulnReportRequest, _ ...grpc.CallOption) (*tenant.VulnReport, error) { //nolint: revive
 	for _, o := range m.OnGetVulnReport {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
@@ -395,16 +371,6 @@ func (m MockRegistryClient) ListManifestMetadata(_ context.Context, given *regis
 	for _, o := range m.OnListManifestMetadata {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.List, o.Error
-		}
-	}
-	return nil, fmt.Errorf("mock not found for %v", given)
-}
-
-//nolint:staticcheck
-func (m MockRegistryClient) GetRawSbom(_ context.Context, given *registry.RawSbomRequest, _ ...grpc.CallOption) (*registry.RawSbom, error) { //nolint: revive
-	for _, o := range m.OnGetRawSbom {
-		if cmp.Equal(o.Given, given, protocmp.Transform()) {
-			return o.Get, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)
