@@ -641,6 +641,9 @@ enum Capability {
     (bit) = 249
   ];
 
+  // Reading an organization's plan and effective product limits.
+  CAP_ENTITLEMENTS_GET = 3203 [(name) = "entitlements.get", (bit) = 252];
+
   reserved 1;
-  // next bit: 252
+  // next bit: 253
 }

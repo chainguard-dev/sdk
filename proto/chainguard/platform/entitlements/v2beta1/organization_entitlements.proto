@@ -1,0 +1,206 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+package chainguard.platform.entitlements.v2beta1;
+
+import "annotations/auth.proto";
+import "annotations/mcp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+// protolint:disable:next MAX_LINE_LENGTH
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/entitlements/v2beta1";
+option java_multiple_files = true;
+option java_outer_classname = "OrganizationEntitlementsProto";
+option java_package = "com.chainguard.platform.entitlements.v2beta1";
+
+// EntitlementsService reports organization plans, grants and enforced limits.
+service EntitlementsService {
+  // GetOrganizationEntitlements reports the organization's plan and supported
+  // products' limits. It does not report prices or billed usage.
+  // protolint:disable:next MAX_LINE_LENGTH
+  rpc GetOrganizationEntitlements(GetOrganizationEntitlementsRequest) returns (OrganizationEntitlements) {
+    // protolint:disable:next MAX_LINE_LENGTH
+    option (google.api.http) = {get: "/entitlements/v2beta1/organizationEntitlements"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ENTITLEMENTS_GET]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description:
+        "Get an organization's plan, image entitlements and platform "
+        "limits, including current usage and quota status."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+}
+
+// GetOrganizationEntitlementsRequest selects an organization's report.
+message GetOrganizationEntitlementsRequest {
+  // A root organization UIDP. Folders are not accepted.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+  // Products to report. Empty selects all supported products: IMAGES and
+  // PLATFORM. Other products return UNIMPLEMENTED until their reads are served.
+  repeated Product products = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// OrganizationEntitlements is an organization's plan and effective limits.
+message OrganizationEntitlements {
+  // The plan derived from the root organization's kind.
+  Plan plan = 1;
+  // Entitlement state and limits for each requested product.
+  repeated ProductEntitlement products = 2;
+  // Products with a failed or timed-out usage read.
+  // Their affected usage is unset.
+  repeated Product unavailable_products = 3;
+}
+
+// Plan identifies the organization's commercial plan, independently of grants.
+message Plan {
+  // Stable plan identifier, such as starter, team-v1 or enterprise.
+  string id = 1;
+  // Customer-facing plan name.
+  string display_name = 2;
+  // Where to compare upgrades. Empty when no upgrade is offered.
+  string upgrade_url = 3;
+}
+
+// ProductEntitlement describes access and enforced limits for one product.
+message ProductEntitlement {
+  // The product.
+  Product product = 1;
+  // Effective entitlement state.
+  State state = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // When the product's access expires, if applicable.
+  google.protobuf.Timestamp expire_time = 3;
+  // Included capabilities or whole-catalog image tiers.
+  // No grant sources or IDs.
+  repeated string grants = 4;
+  // Limits enforced for the organization.
+  repeated Limit limits = 5;
+
+  // State describes whether the organization has access to a product.
+  enum State {
+    // Unspecified state.
+    STATE_UNSPECIFIED = 0;
+    // Access is active.
+    STATE_ACTIVE = 1;
+    // Access is a trial.
+    STATE_TRIAL = 2;
+    // The trial is in its grace period.
+    STATE_GRACE = 3;
+    // No live grant includes the product.
+    STATE_NOT_INCLUDED = 4;
+  }
+}
+
+// (-- api-linter: core::0123::resource-annotation=disabled
+//     aip.dev/not-precedent: Limits are embedded values. --)
+// Limit is an enforced allowance and its current usage, where measurable.
+message Limit {
+  // Stable snake_case name shared with plan-refusal ErrorInfo metadata.
+  string name = 1;
+  // Customer-facing label.
+  string display_name = 2;
+  // The quantity's accounting kind.
+  Kind kind = 3;
+  // Maximum quantity: -1 is unlimited and 0 is not included. Omitted for
+  // STATUS_ONLY limits.
+  optional int64 max = 4;
+  // Current usage. Unset when unmeasured, unavailable or STATUS_ONLY.
+  optional int64 used = 5;
+  // When usage was read. Unset when usage is unset.
+  // (-- api-linter: core::0140::prepositions=disabled
+  //     aip.dev/not-precedent: as_of names the usage snapshot. --)
+  // (-- api-linter: core::0142::time-field-names=disabled
+  //     aip.dev/not-precedent: as_of names the usage snapshot. --)
+  google.protobuf.Timestamp as_of = 6;
+  // Quota status. REACHED takes precedence over NEAR.
+  Status status = 7;
+  // Whether numeric allowance and usage may be disclosed.
+  Visibility visibility = 8;
+  // Duration of a rolling window, for WINDOW limits.
+  google.protobuf.Duration window = 9;
+  // Earliest time consumed capacity returns in the rolling window.
+  google.protobuf.Timestamp refill_time = 10;
+  // Beginning of the accounting period, for PERIOD limits.
+  // (-- api-linter: core::0142::time-field-names=disabled
+  //     aip.dev/not-precedent: period_start names the period boundary. --)
+  google.protobuf.Timestamp period_start = 11;
+
+  // Kind determines the unit and accounting period.
+  enum Kind {
+    // Unspecified kind.
+    KIND_UNSPECIFIED = 0;
+    // Point-in-time count.
+    KIND_COUNT = 1;
+    // Events in a rolling window.
+    KIND_WINDOW = 2;
+    // Stored bytes.
+    KIND_BYTES = 3;
+    // Consumption within an accounting period.
+    KIND_PERIOD = 4;
+  }
+  // Status distinguishes unmeasured usage from failed usage reads.
+  // (-- api-linter: core::0216::synonyms=disabled
+  //     aip.dev/not-precedent: Quota status is not a lifecycle state. --)
+  enum Status {
+    // Unspecified status.
+    STATUS_UNSPECIFIED = 0;
+    // Below the warning threshold, or unlimited.
+    STATUS_OK = 1;
+    // At or above 80 percent of the allowance.
+    STATUS_NEAR = 2;
+    // Usage has reached or exceeded the allowance.
+    STATUS_REACHED = 3;
+    // The allowance is zero.
+    STATUS_NOT_INCLUDED = 4;
+    // Usage is not measured at organization scope.
+    STATUS_NOT_MEASURED = 5;
+    // The usage read failed or timed out.
+    STATUS_UNKNOWN = 6;
+  }
+  // Visibility controls whether allowance and usage figures may be exposed.
+  enum Visibility {
+    // Unspecified visibility.
+    VISIBILITY_UNSPECIFIED = 0;
+    // Numeric allowance and measurable usage are visible.
+    VISIBILITY_FULL = 1;
+    // Only status is visible.
+    VISIBILITY_STATUS_ONLY = 2;
+  }
+}
+
+// Product identifies a product whose entitlements can be reported.
+enum Product {
+  // No product selected.
+  PRODUCT_UNSPECIFIED = 0;
+  // Container images.
+  PRODUCT_IMAGES = 1;
+  // Helm charts.
+  PRODUCT_HELM_CHARTS = 2;
+  // Language libraries.
+  PRODUCT_LIBRARIES = 3;
+  // OS packages.
+  PRODUCT_PACKAGES = 4;
+  // Agent skills.
+  PRODUCT_SKILLS = 5;
+  // Actions.
+  PRODUCT_ACTIONS = 6;
+  // Checks compute.
+  PRODUCT_SANDBOX_CHECKS = 7;
+  // Workspaces compute.
+  PRODUCT_SANDBOX_WORKSPACES = 8;
+  // Organization-wide platform capabilities.
+  PRODUCT_PLATFORM = 9;
+}

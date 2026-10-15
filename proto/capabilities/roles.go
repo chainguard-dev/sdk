@@ -15,6 +15,7 @@ var (
 	// ConsoleViewerCaps are read-only API capabilities that do not affect state,
 	// and cannot pull artifacts from registries.
 	ConsoleViewerCaps = SortCaps([]Capability{
+		Capability_CAP_ENTITLEMENTS_GET,
 		Capability_CAP_EVENTS_SUBSCRIPTION_LIST,
 
 		Capability_CAP_IAM_ACCOUNT_ASSOCIATIONS_LIST,

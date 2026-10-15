@@ -15,6 +15,7 @@ import (
 
 	delegate "chainguard.dev/go-grpc-kit/pkg/options"
 	advisory "chainguard.dev/sdk/proto/chainguard/platform/advisory/v2beta1"
+	entitlements "chainguard.dev/sdk/proto/chainguard/platform/entitlements/v2beta1"
 	iamv2 "chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1"
 	libraries "chainguard.dev/sdk/proto/chainguard/platform/libraries/v2beta1"
 	registry "chainguard.dev/sdk/proto/chainguard/platform/registry/v2beta1"
@@ -26,6 +27,7 @@ import (
 // Clients provides access to v2beta1 API clients.
 type Clients interface {
 	Advisory() advisory.Clients
+	Entitlements() entitlements.Clients
 	IAM() iamv2.Clients
 	Libraries() libraries.Clients
 	Registry() registry.Clients
@@ -35,13 +37,14 @@ type Clients interface {
 }
 
 type clients struct {
-	advisory  advisory.Clients
-	iam       iamv2.Clients
-	libraries libraries.Clients
-	registry  registry.Clients
-	versions  versions.Clients
-	vuln      vuln.Clients
-	conn      *grpc.ClientConn
+	advisory     advisory.Clients
+	entitlements entitlements.Clients
+	iam          iamv2.Clients
+	libraries    libraries.Clients
+	registry     registry.Clients
+	versions     versions.Clients
+	vuln         vuln.Clients
+	conn         *grpc.ClientConn
 }
 
 // NewClients creates a v2beta1 API gRPC client. The caller is responsible for closing the connection.
@@ -72,18 +75,23 @@ func NewClients(ctx context.Context, apiURL, userAgent string, cred credentials.
 	}
 
 	return &clients{
-		advisory:  advisory.NewClientsFromConnection(conn),
-		iam:       iamv2.NewClientsFromConnection(conn),
-		libraries: libraries.NewClientsFromConnection(conn),
-		registry:  registry.NewClientsFromConnection(conn),
-		versions:  versions.NewClientsFromConnection(conn),
-		vuln:      vuln.NewClientsFromConnection(conn),
-		conn:      conn,
+		advisory:     advisory.NewClientsFromConnection(conn),
+		entitlements: entitlements.NewClientsFromConnection(conn),
+		iam:          iamv2.NewClientsFromConnection(conn),
+		libraries:    libraries.NewClientsFromConnection(conn),
+		registry:     registry.NewClientsFromConnection(conn),
+		versions:     versions.NewClientsFromConnection(conn),
+		vuln:         vuln.NewClientsFromConnection(conn),
+		conn:         conn,
 	}, nil
 }
 
 func (c *clients) Advisory() advisory.Clients {
 	return c.advisory
+}
+
+func (c *clients) Entitlements() entitlements.Clients {
+	return c.entitlements
 }
 
 func (c *clients) IAM() iamv2.Clients {
