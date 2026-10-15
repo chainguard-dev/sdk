@@ -1338,12 +1338,19 @@ func (x *RequestGroupItem) GetUpdateTime() *timestamppb.Timestamp {
 // — because lexical ordering places 2.10 below 2.9 and would suggest a downgrade.
 // Neither ecosystem guarantees semver, so no claim is made that an upgrade is
 // compatible; only that it is newer and built.
+//
+// Only final releases are offered: never a pre-release, and never a
+// Chainguard remediated release, which is offered as the exact version
+// requested rather than as a version to move to. A Java version keeps the
+// variant the request names, such as "-jre" or ".jre8". For a Python request
+// that names a platform, only versions with a wheel for it are offered.
 type Upgrade struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The smallest built version above the requested one: the minimal move.
+	// The lowest version that qualifies: the minimal move.
 	ClosestVersion string `protobuf:"bytes,1,opt,name=closest_version,json=closestVersion,proto3" json:"closest_version,omitempty"`
-	// The highest built version. Equal to closest_version when only one newer
-	// version is built.
+	// The highest qualifying version found. Equal to closest_version when only
+	// one version qualifies; for a Python request that names a platform, also
+	// when none of the newest versions checked has a matching wheel.
 	LatestVersion string `protobuf:"bytes,2,opt,name=latest_version,json=latestVersion,proto3" json:"latest_version,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -3389,7 +3396,8 @@ type RequestedLibraryVersion struct {
 	// Reason accompanying availability, written by Chainguard. It is never an
 	// internal note.
 	AvailabilityReason string `protobuf:"bytes,3,opt,name=availability_reason,json=availabilityReason,proto3" json:"availability_reason,omitempty"`
-	// A newer built version to move to, when one exists.
+	// A newer built version to move to, when one exists and this version is
+	// requestable.
 	Upgrade *Upgrade `protobuf:"bytes,4,opt,name=upgrade,proto3" json:"upgrade,omitempty"`
 	// CVE-remediation status of this version.
 	CveRemediation *CVERemediation `protobuf:"bytes,5,opt,name=cve_remediation,json=cveRemediation,proto3" json:"cve_remediation,omitempty"`

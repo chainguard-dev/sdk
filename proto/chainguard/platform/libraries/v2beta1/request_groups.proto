@@ -545,12 +545,19 @@ message RequestGroupItem {
 // — because lexical ordering places 2.10 below 2.9 and would suggest a downgrade.
 // Neither ecosystem guarantees semver, so no claim is made that an upgrade is
 // compatible; only that it is newer and built.
+//
+// Only final releases are offered: never a pre-release, and never a
+// Chainguard remediated release, which is offered as the exact version
+// requested rather than as a version to move to. A Java version keeps the
+// variant the request names, such as "-jre" or ".jre8". For a Python request
+// that names a platform, only versions with a wheel for it are offered.
 message Upgrade {
-  // The smallest built version above the requested one: the minimal move.
+  // The lowest version that qualifies: the minimal move.
   string closest_version = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The highest built version. Equal to closest_version when only one newer
-  // version is built.
+  // The highest qualifying version found. Equal to closest_version when only
+  // one version qualifies; for a Python request that names a platform, also
+  // when none of the newest versions checked has a matching wheel.
   string latest_version = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
@@ -1231,7 +1238,8 @@ message RequestedLibraryVersion {
   // internal note.
   string availability_reason = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // A newer built version to move to, when one exists.
+  // A newer built version to move to, when one exists and this version is
+  // requestable.
   Upgrade upgrade = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // CVE-remediation status of this version.
