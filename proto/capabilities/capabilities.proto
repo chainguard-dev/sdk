@@ -287,6 +287,15 @@ enum Capability {
   CAP_REGISTRY_OVERLAYS_LIST = 1688 [(name) = "registry.overlays.list", (bit) = 207];
   CAP_REGISTRY_OVERLAYS_EDIT = 1689 [(name) = "registry.overlays.edit", (bit) = 208];
 
+  // Registry Charts
+  // For adding a catalog Helm chart to an organization through AddChart,
+  // which creates only the chart's folder, chart repo and selected image
+  // repos. It grants no repo.create or groups.create, every source still
+  // needs the organization's entitlement, and entitling the selected images
+  // on per-image and Starter plans also requires
+  // registry.entitlements.images.add.
+  CAP_REGISTRY_CHARTS_ADD = 1690 [(name) = "registry.charts.add", (bit) = 251];
+
   // Sigstore-aas
 
   CAP_SIGSTORE_CREATE   = 1701 [(name) = "sigstore.create", (bit) = 42, deprecated = true];
@@ -633,5 +642,5 @@ enum Capability {
   ];
 
   reserved 1;
-  // next bit: 251
+  // next bit: 252
 }

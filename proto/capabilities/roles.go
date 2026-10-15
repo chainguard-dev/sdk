@@ -186,6 +186,10 @@ var (
 		Capability_CAP_REGISTRY_ENTITLEMENTS_IMAGES_ADD,
 		Capability_CAP_REGISTRY_ENTITLEMENTS_IMAGES_REMOVE,
 		Capability_CAP_REGISTRY_ENTITLEMENTS_IMAGES_SWAP,
+		// Owners can already add charts through repo.create and
+		// groups.create. They also hold charts.add so that OwnerCaps stays a
+		// superset of limited_owner.
+		Capability_CAP_REGISTRY_CHARTS_ADD,
 
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_CREATE,
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_DELETE,
