@@ -6,10 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 package uploads
 
 import (
-	"bufio"
 	"bytes"
-	"crypto/aes"
-	"crypto/cipher"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
@@ -19,8 +16,9 @@ import (
 	"hash"
 	"hash/crc32"
 	"io"
-	"math"
 	"strconv"
+
+	"chainguard.dev/sdk/internal/aeadstream"
 )
 
 // StreamChunkSize is the plaintext chunk size SealStream seals under a
@@ -41,12 +39,11 @@ const (
 	streamVersion = 2
 
 	// noncePrefixSize is the per-stream random prefix length, in bytes.
-	// The remaining 5 bytes of the 12-byte GCM nonce are the chunk index
-	// and the final-chunk flag. The prefix is not what makes nonces
-	// unique: a fresh DEK per stream already does that. It is carried so
-	// that a DEK shared across streams would collide on a 56-bit
-	// birthday bound rather than repeat with certainty. See doc.go.
-	noncePrefixSize = 7
+	// The prefix is not what makes nonces unique: a fresh DEK per stream
+	// already does that. It is carried so that a DEK shared across streams
+	// would collide on a 56-bit birthday bound rather than repeat with
+	// certainty. See doc.go.
+	noncePrefixSize = aeadstream.NoncePrefixSize
 
 	// The wrapped length is explicit because the reader's unwrap callback
 	// can use a KMS key whose modulus is unavailable to this package.
@@ -55,35 +52,15 @@ const (
 	// Integer fields are big-endian.
 	streamHeaderFixedSize = len(streamMagic) + 1 + noncePrefixSize + 4 + 8 + 2
 
-	// maxStreamChunkSize bounds the chunk size OpenStream honors from the
-	// header. The header is attacker-supplied until a chunk authenticates,
-	// so an unbounded value would let a hostile stream name a multi-
-	// gigabyte frame. This bounds the frame only; the reader's buffer
-	// tracks the bytes that actually arrive (see chunkBufGrowth).
-	maxStreamChunkSize = 16 << 20
-
-	// chunkBufGrowth is the reader's first ciphertext buffer allocation,
-	// doubling from there until a chunk is fully read. Sizing the buffer
-	// from the declared chunk size instead would let a tiny stream
-	// cost 32 MiB, because nothing in the header authenticates until a
-	// chunk opens under it.
-	chunkBufGrowth = 64 << 10
-
 	// maxWrappedKeySize bounds the wrapped DEK, so an absurdly large RSA
 	// key cannot turn into an absurdly large header. 2048 bytes is an
 	// RSA-16384 modulus, well above any key Chainguard KMS issues.
 	maxWrappedKeySize = 2048
 )
 
-var (
-	// errStreamClosed is returned by writes that arrive after Close has
-	// sealed the final chunk; accepting them would silently drop data.
-	errStreamClosed = errors.New("write on a closed stream")
-
-	// crc32cTable is the Castagnoli polynomial, the CRC32C variant Google
-	// Cloud Storage uses for object checksums.
-	crc32cTable = crc32.MakeTable(crc32.Castagnoli)
-)
+// crc32cTable is the Castagnoli polynomial, the CRC32C variant Google
+// Cloud Storage uses for object checksums.
+var crc32cTable = crc32.MakeTable(crc32.Castagnoli)
 
 // CRC32CWriter passes bytes through to an underlying writer while
 // accumulating their CRC32C (Castagnoli) checksum. It exists so a caller
@@ -127,52 +104,6 @@ func (c *CRC32CWriter) Write(p []byte) (int, error) {
 
 // Sum32 returns the CRC32C of everything written so far.
 func (c *CRC32CWriter) Sum32() uint32 { return c.h.Sum32() }
-
-// streamCipher is the per-stream AEAD state shared by the writer and the
-// reader: the DEK-derived AEAD, the header bound into every chunk as
-// additional data, and the nonce whose leading noncePrefixSize bytes are
-// the fixed per-stream prefix.
-type streamCipher struct {
-	aead      cipher.AEAD
-	aad       []byte
-	chunkSize int
-	nonce     []byte
-}
-
-// newStreamCipher binds dek, header and noncePrefix into the STREAM
-// state both directions share.
-func newStreamCipher(dek, header, noncePrefix []byte, chunkSize int) (*streamCipher, error) {
-	block, err := aes.NewCipher(dek)
-	if err != nil {
-		return nil, fmt.Errorf("aes cipher: %w", err)
-	}
-	aead, err := cipher.NewGCM(block)
-	if err != nil {
-		return nil, fmt.Errorf("aes-gcm: %w", err)
-	}
-	sc := &streamCipher{
-		aead:      aead,
-		aad:       header,
-		chunkSize: chunkSize,
-		nonce:     make([]byte, gcmIVSize),
-	}
-	copy(sc.nonce, noncePrefix)
-	return sc, nil
-}
-
-// nonceFor returns the STREAM nonce for a chunk: the per-stream prefix,
-// the big-endian chunk index, and a trailing flag that is 1 only on the
-// final chunk. Index and flag are what make a chunk unmovable — a
-// reordered chunk authenticates under the wrong index, and a truncated
-// stream leaves a chunk sealed with flag 0 where the reader demands 1.
-func (s *streamCipher) nonceFor(index uint32, final bool) []byte {
-	binary.BigEndian.PutUint32(s.nonce[noncePrefixSize:], index)
-	s.nonce[gcmIVSize-1] = 0
-	if final {
-		s.nonce[gcmIVSize-1] = 1
-	}
-	return s.nonce
-}
 
 // SealStream returns a writer that encrypts everything written to it
 // into w as a stream envelope: a binary header followed by AES-GCM
@@ -240,95 +171,14 @@ func SealStream(w io.Writer, orgPub *rsa.PublicKey, algorithm, keyVersion string
 	header = binary.BigEndian.AppendUint16(header, uint16(wrappedLen))
 	header = append(header, wrapped...)
 
-	sc, err := newStreamCipher(dek, header, noncePrefix, StreamChunkSize)
+	sw, err := aeadstream.NewWriter(w, dek, header, noncePrefix, StreamChunkSize)
 	if err != nil {
 		return nil, err
 	}
 	if _, err := w.Write(header); err != nil {
 		return nil, fmt.Errorf("write stream header: %w", err)
 	}
-	return &streamWriter{
-		w:   w,
-		sc:  sc,
-		buf: make([]byte, 0, StreamChunkSize),
-		ct:  make([]byte, 0, StreamChunkSize+sc.aead.Overhead()),
-	}, nil
-}
-
-// streamWriter seals successive plaintext chunks into the underlying
-// writer. A full buffer is held back rather than flushed, because
-// whether a chunk is final is only known once more bytes arrive or Close
-// is called.
-type streamWriter struct {
-	w      io.Writer
-	sc     *streamCipher
-	buf    []byte
-	ct     []byte
-	index  uint32
-	closed bool
-	err    error
-}
-
-var _ io.WriteCloser = (*streamWriter)(nil)
-
-func (s *streamWriter) Write(p []byte) (int, error) {
-	if s.err != nil {
-		return 0, s.err
-	}
-	if s.closed {
-		return 0, errStreamClosed
-	}
-	written := 0
-	for len(p) > 0 {
-		n := min(s.sc.chunkSize-len(s.buf), len(p))
-		s.buf = append(s.buf, p[:n]...)
-		p = p[n:]
-		written += n
-		if len(s.buf) == s.sc.chunkSize && len(p) > 0 {
-			if err := s.seal(false); err != nil {
-				s.err = err
-				return written, err
-			}
-		}
-	}
-	return written, nil
-}
-
-// Close seals the buffered remainder as the final chunk. An empty stream
-// still emits one final chunk, which is what lets the reader tell an
-// empty payload from a stream truncated to its header.
-func (s *streamWriter) Close() error {
-	if s.err != nil {
-		return s.err
-	}
-	if s.closed {
-		return nil
-	}
-	s.closed = true
-	if err := s.seal(true); err != nil {
-		s.err = err
-		return err
-	}
-	return nil
-}
-
-func (s *streamWriter) seal(final bool) error {
-	// The 4-byte nonce index caps a stream at 2^32 chunks. Refusing a
-	// further non-final chunk is what stops the index wrapping onto a
-	// nonce this stream has already used; the last index is still a legal
-	// home for the final chunk.
-	if !final && s.index == math.MaxUint32 {
-		return fmt.Errorf("stream exceeds the maximum of %d chunks", uint64(math.MaxUint32)+1)
-	}
-	s.ct = s.sc.aead.Seal(s.ct[:0], s.sc.nonceFor(s.index, final), s.buf, s.sc.aad)
-	if _, err := s.w.Write(s.ct); err != nil {
-		return fmt.Errorf("write chunk %d: %w", s.index, err)
-	}
-	s.buf = s.buf[:0]
-	if !final {
-		s.index++
-	}
-	return nil
+	return sw, nil
 }
 
 // OpenStream parses the header and calls unwrapAESKey with the stored key
@@ -364,8 +214,10 @@ func OpenStream(r io.Reader, unwrapAESKey func(keyVersion string, wrappedKey []b
 	}
 	prefixAt := len(streamMagic) + 1
 	chunkSize := binary.BigEndian.Uint32(fixed[prefixAt+noncePrefixSize:])
-	if chunkSize == 0 || chunkSize > maxStreamChunkSize {
-		return nil, fmt.Errorf("stream header declares chunk size %d, want 1..%d", chunkSize, maxStreamChunkSize)
+	// aeadstream bounds the chunk size too, but checking it here refuses a
+	// hostile header before unwrapAESKey reaches KMS on its behalf.
+	if chunkSize == 0 || chunkSize > aeadstream.MaxChunkSize {
+		return nil, fmt.Errorf("stream header declares chunk size %d, want 1..%d", chunkSize, aeadstream.MaxChunkSize)
 	}
 	keyVersionAt := prefixAt + noncePrefixSize + 4
 	keyVersion := binary.BigEndian.Uint64(fixed[keyVersionAt:])
@@ -392,111 +244,5 @@ func OpenStream(r io.Reader, unwrapAESKey func(keyVersion string, wrappedKey []b
 	if l := len(dek); l != aesKeySize {
 		return nil, fmt.Errorf("unwrapped dek has wrong length: got %d, want %d", l, aesKeySize)
 	}
-	sc, err := newStreamCipher(dek, header, noncePrefix, int(chunkSize))
-	if err != nil {
-		return nil, err
-	}
-	return &streamReader{
-		br:    bufio.NewReader(r),
-		sc:    sc,
-		frame: int(chunkSize) + sc.aead.Overhead(),
-	}, nil
-}
-
-// streamReader authenticates one chunk at a time. The bufio.Reader is
-// there for Peek: a full-length chunk is the final one exactly when no
-// bytes follow it, and that has to be known before choosing the nonce.
-//
-// ct and pt start empty and grow with the chunks that arrive, so the
-// declared chunk size bounds them without preallocating them.
-type streamReader struct {
-	br    *bufio.Reader
-	sc    *streamCipher
-	frame int
-	ct    []byte
-	pt    []byte
-	plain []byte
-	index uint32
-	done  bool
-	err   error
-}
-
-var _ io.Reader = (*streamReader)(nil)
-
-func (s *streamReader) Read(p []byte) (int, error) {
-	for len(s.plain) == 0 {
-		if s.err != nil {
-			return 0, s.err
-		}
-		if s.done {
-			return 0, io.EOF
-		}
-		if err := s.nextChunk(); err != nil {
-			s.err = err
-			return 0, err
-		}
-	}
-	n := copy(p, s.plain)
-	s.plain = s.plain[n:]
-	return n, nil
-}
-
-// readFrame preserves the underlying error, including EOF alongside bytes.
-// io.ReadFull would turn a clean short frame's EOF into ErrUnexpectedEOF,
-// making it indistinguishable from a truncated transport.
-func (s *streamReader) readFrame() (int, error) {
-	n := 0
-	for n < s.frame {
-		if n == len(s.ct) {
-			s.ct = append(s.ct, make([]byte, min(s.frame-n, max(len(s.ct), chunkBufGrowth)))...)
-		}
-		read, err := s.br.Read(s.ct[n:])
-		n += read
-		if err != nil {
-			return n, err
-		}
-	}
-	return n, nil
-}
-
-func (s *streamReader) nextChunk() error {
-	final := false
-	n, err := s.readFrame()
-	switch {
-	case err == nil:
-		// A full-length chunk is the final one only if nothing follows it.
-		if _, perr := s.br.Peek(1); perr != nil {
-			if !errors.Is(perr, io.EOF) {
-				return fmt.Errorf("read chunk %d: %w", s.index, perr)
-			}
-			final = true
-		}
-	case errors.Is(err, io.EOF):
-		if n == 0 {
-			return fmt.Errorf("stream ended before chunk %d: %w", s.index, io.ErrUnexpectedEOF)
-		}
-		final = true
-	default:
-		return fmt.Errorf("read chunk %d: %w", s.index, err)
-	}
-
-	plain, err := s.sc.aead.Open(s.pt[:0], s.sc.nonceFor(s.index, final), s.ct[:n], s.sc.aad)
-	if err != nil {
-		return fmt.Errorf("authenticate chunk %d: %w", s.index, err)
-	}
-	// Keep whatever Open allocated as the next chunk's scratch; s.plain is
-	// always drained before nextChunk runs again.
-	s.pt, s.plain = plain, plain
-	if final {
-		s.done = true
-		return nil
-	}
-	// Mirrors the writer's cap. Nothing in the header reaches this
-	// counter, so a hostile stream can only arrive here the long way,
-	// one authenticated chunk at a time.
-	if s.index == math.MaxUint32 {
-		return fmt.Errorf("stream exceeds the maximum of %d chunks", uint64(math.MaxUint32)+1)
-	}
-	s.index++
-	return nil
+	return aeadstream.NewReader(r, dek, header, noncePrefix, int(chunkSize))
 }
