@@ -39,10 +39,13 @@ service Features {
 
   // SetFeatureEntitlement creates the organization's entitlement for a
   // feature, or replaces the configuration and expiry of the live one. It is
-  // an internal (support) operation: the source is INTERNAL or CONSOLE_ADMIN.
+  // an internal operation: the source is INTERNAL or CONSOLE_ADMIN.
   // A write whose source ranks above the live entitlement's supersedes it; a
   // write that ranks below it (for example over a SALESFORCE entitlement)
   // fails with FAILED_PRECONDITION and changes nothing.
+  //
+  // The annotation admits the organization's owners; the server decides what
+  // each caller may write and refuses the rest with PERMISSION_DENIED.
   rpc SetFeatureEntitlement(SetFeatureEntitlementRequest)
       returns (FeatureEntitlement) {
     option (google.api.http) = {
@@ -51,10 +54,7 @@ service Features {
     };
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [
-          CAP_ENTITLEMENTS_FEATURES_MANAGE,
-          CAP_INTERNAL
-        ]
+        capabilities: [CAP_IAM_GROUPS_UPDATE]
       }
     };
   }

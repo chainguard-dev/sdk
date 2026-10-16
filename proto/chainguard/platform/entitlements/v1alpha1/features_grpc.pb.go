@@ -45,10 +45,13 @@ type FeaturesClient interface {
 	ListFeatureEntitlements(ctx context.Context, in *ListFeatureEntitlementsRequest, opts ...grpc.CallOption) (*ListFeatureEntitlementsResponse, error)
 	// SetFeatureEntitlement creates the organization's entitlement for a
 	// feature, or replaces the configuration and expiry of the live one. It is
-	// an internal (support) operation: the source is INTERNAL or CONSOLE_ADMIN.
+	// an internal operation: the source is INTERNAL or CONSOLE_ADMIN.
 	// A write whose source ranks above the live entitlement's supersedes it; a
 	// write that ranks below it (for example over a SALESFORCE entitlement)
 	// fails with FAILED_PRECONDITION and changes nothing.
+	//
+	// The annotation admits the organization's owners; the server decides what
+	// each caller may write and refuses the rest with PERMISSION_DENIED.
 	SetFeatureEntitlement(ctx context.Context, in *SetFeatureEntitlementRequest, opts ...grpc.CallOption) (*FeatureEntitlement, error)
 	// DeleteFeatureEntitlement deletes the organization's live entitlement for
 	// a feature, whatever its source. It fails with NOT_FOUND when there is no
@@ -175,10 +178,13 @@ type FeaturesServer interface {
 	ListFeatureEntitlements(context.Context, *ListFeatureEntitlementsRequest) (*ListFeatureEntitlementsResponse, error)
 	// SetFeatureEntitlement creates the organization's entitlement for a
 	// feature, or replaces the configuration and expiry of the live one. It is
-	// an internal (support) operation: the source is INTERNAL or CONSOLE_ADMIN.
+	// an internal operation: the source is INTERNAL or CONSOLE_ADMIN.
 	// A write whose source ranks above the live entitlement's supersedes it; a
 	// write that ranks below it (for example over a SALESFORCE entitlement)
 	// fails with FAILED_PRECONDITION and changes nothing.
+	//
+	// The annotation admits the organization's owners; the server decides what
+	// each caller may write and refuses the rest with PERMISSION_DENIED.
 	SetFeatureEntitlement(context.Context, *SetFeatureEntitlementRequest) (*FeatureEntitlement, error)
 	// DeleteFeatureEntitlement deletes the organization's live entitlement for
 	// a feature, whatever its source. It fails with NOT_FOUND when there is no

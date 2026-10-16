@@ -1074,12 +1074,12 @@ const file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDesc = ""
 	"\x17FEATURE_SOURCE_CUSTOMER\x10\x01\x12\x1b\n" +
 	"\x17FEATURE_SOURCE_INTERNAL\x10\x02\x12 \n" +
 	"\x1cFEATURE_SOURCE_CONSOLE_ADMIN\x10\x03\x12\x1d\n" +
-	"\x19FEATURE_SOURCE_SALESFORCE\x10\x042\xf7\b\n" +
+	"\x19FEATURE_SOURCE_SALESFORCE\x10\x042\xf5\b\n" +
 	"\bFeatures\x12\xf1\x01\n" +
 	"\x17ListFeatureEntitlements\x12I.chainguard.platform.entitlements.v1alpha1.ListFeatureEntitlementsRequest\x1aJ.chainguard.platform.entitlements.v1alpha1.ListFeatureEntitlementsResponse\"?\x82\xd3\xe4\x93\x02-\x12+/entitlements/v1alpha1/features/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\x81\x19\x12\xe8\x01\n" +
-	"\x15SetFeatureEntitlement\x12G.chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest\x1a=.chainguard.platform.entitlements.v1alpha1.FeatureEntitlement\"G\x82\xd3\xe4\x93\x024:\x01*\"//entitlements/v1alpha1/features/{parent=**}:set\x8a\xaf\xa8\xd2\x05\a\x12\x05\n" +
-	"\x03\x82\x19\x02\x12\xca\x01\n" +
+	"\x02\x81\x19\x12\xe6\x01\n" +
+	"\x15SetFeatureEntitlement\x12G.chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest\x1a=.chainguard.platform.entitlements.v1alpha1.FeatureEntitlement\"E\x82\xd3\xe4\x93\x024:\x01*\"//entitlements/v1alpha1/features/{parent=**}:set\x8a\xaf\xa8\xd2\x05\x05\x12\x03\n" +
+	"\x01f\x12\xca\x01\n" +
 	"\x18DeleteFeatureEntitlement\x12J.chainguard.platform.entitlements.v1alpha1.DeleteFeatureEntitlementRequest\x1a\x16.google.protobuf.Empty\"J\x82\xd3\xe4\x93\x027:\x01*\"2/entitlements/v1alpha1/features/{parent=**}:delete\x8a\xaf\xa8\xd2\x05\a\x12\x05\n" +
 	"\x03\x82\x19\x02\x12\xd7\x01\n" +
 	"\n" +
