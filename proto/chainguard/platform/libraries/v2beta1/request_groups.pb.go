@@ -4191,8 +4191,27 @@ type RequestedLibraryVersionCVE struct {
 	// them, and the aggregate's remediated_count is sourced from it so the two
 	// reads cannot disagree about one version.
 	RemediatedVersionPublished bool `protobuf:"varint,9,opt,name=remediated_version_published,json=remediatedVersionPublished,proto3" json:"remediated_version_published,omitempty"`
-	unknownFields              protoimpl.UnknownFields
-	sizeCache                  protoimpl.SizeCache
+	// The version Chainguard's advisory names as fixing this CVE for the version
+	// asked about, e.g. "3.9.2" or "3.9.0+cgr.1": the lowest one at or above it,
+	// a cut of the pinned version first.
+	//
+	// Chainguard's determination, where upstream_fix_version is upstream's. The
+	// two can disagree, and both are reported as recorded rather than reconciled.
+	// This one is the answer on a CVE upstream has no fix for, or has not looked
+	// at.
+	//
+	// Not a claim that Chainguard built it: it may name an upstream release.
+	// remediated_version is the only field that names a Chainguard remediation.
+	//
+	// Not checked against the malware block list, so treat it as the advisory's
+	// statement of where the fix is and not as a vetted upgrade target.
+	//
+	// Empty where no Chainguard advisory governs the CVE, or where it names no
+	// fix at or above the version asked about. It never means no fix exists:
+	// upstream_fix_version may still name one.
+	AdvisoryFixVersion string `protobuf:"bytes,10,opt,name=advisory_fix_version,json=advisoryFixVersion,proto3" json:"advisory_fix_version,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *RequestedLibraryVersionCVE) Reset() {
@@ -4286,6 +4305,13 @@ func (x *RequestedLibraryVersionCVE) GetRemediatedVersionPublished() bool {
 		return x.RemediatedVersionPublished
 	}
 	return false
+}
+
+func (x *RequestedLibraryVersionCVE) GetAdvisoryFixVersion() string {
+	if x != nil {
+		return x.AdvisoryFixVersion
+	}
+	return ""
 }
 
 var File_chainguard_platform_libraries_v2beta1_request_groups_proto protoreflect.FileDescriptor
@@ -4568,7 +4594,7 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"totalCount\x88\x01\x01\x12\x18\n" +
 	"\askipped\x18\x04 \x01(\x05R\askipped\x12)\n" +
 	"\x10cross_referenced\x18\x05 \x01(\bR\x0fcrossReferencedB\x0e\n" +
-	"\f_total_count\"\xe9\x04\n" +
+	"\f_total_count\"\xa1\x05\n" +
 	"\x1aRequestedLibraryVersionCVE\x12\x1b\n" +
 	"\x06cve_id\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x05cveId\x12T\n" +
 	"\bseverity\x18\x02 \x01(\x0e22.chainguard.platform.libraries.v2beta1.CVESeverityB\x04\xe2A\x01\x03R\bseverity\x12\x16\n" +
@@ -4580,7 +4606,9 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"provenance\x18\a \x01(\x0e24.chainguard.platform.libraries.v2beta1.CVEProvenanceB\x04\xe2A\x01\x03R\n" +
 	"provenance\x126\n" +
 	"\x14upstream_fix_version\x18\b \x01(\tB\x04\xe2A\x01\x03R\x12upstreamFixVersion\x12F\n" +
-	"\x1cremediated_version_published\x18\t \x01(\bB\x04\xe2A\x01\x03R\x1aremediatedVersionPublished*\x97\x01\n" +
+	"\x1cremediated_version_published\x18\t \x01(\bB\x04\xe2A\x01\x03R\x1aremediatedVersionPublished\x126\n" +
+	"\x14advisory_fix_version\x18\n" +
+	" \x01(\tB\x04\xe2A\x01\x03R\x12advisoryFixVersion*\x97\x01\n" +
 	"\x11RequestGroupState\x12#\n" +
 	"\x1fREQUEST_GROUP_STATE_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19REQUEST_GROUP_STATE_DRAFT\x10\x01\x12!\n" +

@@ -1521,6 +1521,27 @@ message RequestedLibraryVersionCVE {
   // reads cannot disagree about one version.
   bool remediated_version_published = 9
       [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The version Chainguard's advisory names as fixing this CVE for the version
+  // asked about, e.g. "3.9.2" or "3.9.0+cgr.1": the lowest one at or above it,
+  // a cut of the pinned version first.
+  //
+  // Chainguard's determination, where upstream_fix_version is upstream's. The
+  // two can disagree, and both are reported as recorded rather than reconciled.
+  // This one is the answer on a CVE upstream has no fix for, or has not looked
+  // at.
+  //
+  // Not a claim that Chainguard built it: it may name an upstream release.
+  // remediated_version is the only field that names a Chainguard remediation.
+  //
+  // Not checked against the malware block list, so treat it as the advisory's
+  // statement of where the fix is and not as a vetted upgrade target.
+  //
+  // Empty where no Chainguard advisory governs the CVE, or where it names no
+  // fix at or above the version asked about. It never means no fix exists:
+  // upstream_fix_version may still name one.
+  string advisory_fix_version = 10
+      [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // RequestGroupState selects drafts or submitted groups when listing.
