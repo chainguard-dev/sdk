@@ -54,6 +54,12 @@ type config struct {
 	// SkipBrowser avoids opening a browser window for login, just print out the url
 	SkipBrowser bool
 
+	// URLOpener, when non-nil, is used to open the login URL instead of the
+	// platform default browser. It is only consulted for the interactive login
+	// flow and only when SkipBrowser is false. Callers can use this to open the
+	// URL with a custom command (e.g. a specific browser profile).
+	URLOpener func(url string) error
+
 	// HeadlessCode is the code to use for headless login
 	HeadlessCode string
 
@@ -220,6 +226,15 @@ func WithCreateRefreshToken() Option {
 func WithSkipBrowser() Option {
 	return func(c *config) {
 		c.SkipBrowser = true
+	}
+}
+
+// WithURLOpener sets a custom function used to open the login URL during the
+// interactive flow instead of the platform default browser. It is ignored when
+// SkipBrowser is set. A nil fn leaves the default browser behavior in place.
+func WithURLOpener(fn func(url string) error) Option {
+	return func(c *config) {
+		c.URLOpener = fn
 	}
 }
 

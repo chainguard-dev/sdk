@@ -167,7 +167,11 @@ func Login(ctx context.Context, opts ...Option) (token string, refreshToken stri
 		fmt.Fprintf(conf.MessageWriter, "Please open a browser to %s\n", u) //nolint:gosec // G705: writing to HTTP response in local auth server
 	} else {
 		fmt.Fprintf(conf.MessageWriter, "Opening browser to %s\n", u) //nolint:gosec // G705: writing to HTTP response in local auth server
-		err = browser.OpenURL(u)
+		openURL := browser.OpenURL
+		if conf.URLOpener != nil {
+			openURL = conf.URLOpener
+		}
+		err = openURL(u)
 		if err != nil {
 			return "", "", &Error{Details: openBrowserError, Err: err}
 		}

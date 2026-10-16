@@ -7,7 +7,10 @@ package login
 
 import (
 	"errors"
+	"io"
+	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -91,6 +94,98 @@ func TestErrorAs(t *testing.T) {
 		})
 	}
 }
+
+// deliverToken simulates the browser completing the OIDC flow: it parses the
+// callback (redirect) URL out of the oauth URL that Login built and hits it with
+// a token, which unblocks Login's local token server.
+func deliverToken(t *testing.T, oauthURL, token string) {
+	t.Helper()
+	u, err := url.Parse(oauthURL)
+	if err != nil {
+		t.Errorf("parsing oauth URL %q: %v", oauthURL, err)
+		return
+	}
+	cb, err := url.Parse(u.Query().Get("redirect"))
+	if err != nil {
+		t.Errorf("parsing callback URL: %v", err)
+		return
+	}
+	q := cb.Query()
+	q.Set("token", token)
+	cb.RawQuery = q.Encode()
+
+	resp, err := http.Get(cb.String()) //nolint:gosec // local test callback server
+	if err != nil {
+		t.Errorf("delivering token to callback: %v", err)
+		return
+	}
+	_ = resp.Body.Close()
+}
+
+func TestLoginURLOpener(t *testing.T) {
+	t.Run("url opener is used instead of the default browser", func(t *testing.T) {
+		var opened string
+		opener := func(u string) error {
+			opened = u
+			// Drive the flow to completion so Login returns.
+			deliverToken(t, u, "opener-token")
+			return nil
+		}
+
+		token, _, err := Login(t.Context(),
+			WithIssuer("https://issuer.chaintest.net"),
+			WithClientID("test-client"),
+			WithMessageWriter(io.Discard),
+			WithURLOpener(opener),
+		)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if token != "opener-token" {
+			t.Errorf("token: got = %q, want = %q", token, "opener-token")
+		}
+		if !strings.HasPrefix(opened, "https://issuer.chaintest.net/oauth?") {
+			t.Errorf("opener received unexpected URL: %q", opened)
+		}
+	})
+
+	t.Run("skip browser takes precedence over url opener", func(t *testing.T) {
+		openerCalled := false
+		opener := func(string) error {
+			openerCalled = true
+			return nil
+		}
+
+		// SkipBrowser prints the URL to the message writer instead of opening a
+		// browser; deliver the token from there so Login can return.
+		token, _, err := Login(t.Context(),
+			WithIssuer("https://issuer.chaintest.net"),
+			WithClientID("test-client"),
+			WithSkipBrowser(),
+			WithURLOpener(opener),
+			WithMessageWriter(writerFunc(func(p []byte) (int, error) {
+				if i := strings.Index(string(p), "http"); i >= 0 {
+					deliverToken(t, strings.TrimSpace(string(p)[i:]), "skip-token")
+				}
+				return len(p), nil
+			})),
+		)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if token != "skip-token" {
+			t.Errorf("token: got = %q, want = %q", token, "skip-token")
+		}
+		if openerCalled {
+			t.Error("url opener must not be called when SkipBrowser is set")
+		}
+	})
+}
+
+// writerFunc adapts a function to io.Writer.
+type writerFunc func(p []byte) (int, error)
+
+func (f writerFunc) Write(p []byte) (int, error) { return f(p) }
 
 func TestBuildHeadlessURL(t *testing.T) {
 	// Set up a test server for organization verification
