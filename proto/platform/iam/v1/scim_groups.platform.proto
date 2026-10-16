@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+package chainguard.platform.iam;
+
+import "annotations/auth.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "chainguard.dev/sdk/proto/platform/iam/v1";
+
+// ScimGroups reads the SCIM-provisioned groups of an identity provider. The
+// records are written by the IdP's SCIM connector, so this surface is
+// read-only. A group's external_id is the key an ExternalGroupRoleMapping
+// matches on, so a caller assigning a role to a listed group passes that field
+// as the mapping's external_group_id.
+service ScimGroups {
+  // List returns the SCIM-provisioned groups of an identity provider. This v1
+  // surface is unpaginated: it returns at most 1000 groups in a single
+  // response. `total_count` reports the full number matching the filter, so a
+  // caller can tell the result was clamped (total_count > len(items)) and
+  // should narrow the request with external_id or display_name.
+  rpc List(ScimGroupFilter) returns (ScimGroupList) {
+    option (google.api.http) = {get: "/iam/v1/scimGroups"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_SCIM_GROUPS_LIST]
+      }
+    };
+  }
+}
+
+// ScimGroup is a SCIM-provisioned group of an identity provider. Every field is
+// server-owned. Membership is summarized by member_count; the member list is
+// not exposed.
+message ScimGroup {
+  // id is the UIDP of the SCIM group record.
+  string id = 1;
+
+  // identity_provider_uidp is the UIDP of the identity provider that
+  // provisioned this group.
+  string identity_provider_uidp = 2;
+
+  // external_id is the group's correlation key. It is the value an
+  // ExternalGroupRoleMapping matches on, byte for byte and case-sensitively.
+  // When the identity provider sends no externalId (Okta does not), the key is
+  // the group's display name at the time it was first pushed, and
+  // external_id_derived is true; a later rename changes display_name but never
+  // this key.
+  string external_id = 3;
+
+  // display_name is the SCIM displayName attribute: the group's current name.
+  string display_name = 4;
+
+  // external_id_derived is true when external_id was taken from display_name
+  // because the identity provider supplied no externalId.
+  bool external_id_derived = 5;
+
+  // member_count is the number of members the identity provider has pushed to
+  // the group. It counts provisioned users, including users who have not yet
+  // signed in and users the identity provider has since deactivated, so it can
+  // exceed the number of people who currently hold the roles mapped to the
+  // group.
+  int64 member_count = 6;
+
+  // needs_full_sync is true while role changes for this group are still being
+  // applied: a mapping was added or removed, or the group's membership changed
+  // more than a single request could apply. A background process clears it,
+  // normally within about five minutes. While it is true, members may not yet
+  // hold the roles mapped to the group.
+  bool needs_full_sync = 7;
+
+  // created_at is when the SCIM group record was created.
+  google.protobuf.Timestamp created_at = 8;
+
+  // updated_at is when the SCIM group record was last updated.
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message ScimGroupList {
+  repeated ScimGroup items = 1;
+
+  // total_count is the number of groups matching the filter. It may exceed
+  // len(items) when the result was clamped to the v1 cap (1000); treat
+  // total_count > len(items) as "narrow the filter".
+  int64 total_count = 2;
+}
+
+// ScimGroupFilter scopes a list to a single identity provider. SCIM resources
+// scope to a flat identity_provider_uidp, not the group hierarchy, so
+// identity_provider_uidp is required.
+message ScimGroupFilter {
+  // identity_provider_uidp restricts results to a single identity provider. It
+  // is required and carries the authorization scope: the caller must hold
+  // CAP_IAM_SCIM_GROUPS_LIST at this identity provider (or an ancestor).
+  string identity_provider_uidp = 1 [(chainguard.annotations.iam_scope) = true];
+
+  // external_id matches the group's correlation key exactly (byte for byte).
+  string external_id = 2;
+
+  // display_name matches the group's current display name, ignoring case and
+  // accents (the database collation). Use external_id for a byte-exact match.
+  string display_name = 3;
+}

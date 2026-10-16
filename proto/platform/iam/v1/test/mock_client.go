@@ -23,6 +23,7 @@ type MockIAMClient struct {
 	GroupAccountAssociationsClient  MockGroupAccountAssociationsClient
 	ExternalGroupRoleMappingsClient MockExternalGroupRoleMappingsClient
 	ScimUsersClient                 MockScimUsersClient
+	ScimGroupsClient                MockScimGroupsClient
 	TermsClient                     MockTermsClient
 	SubscriptionsClient             MockSubscriptionsClient
 }
@@ -67,6 +68,10 @@ func (m MockIAMClient) ExternalGroupRoleMappings() iam.ExternalGroupRoleMappings
 
 func (m MockIAMClient) ScimUsers() iam.ScimUsersClient {
 	return &m.ScimUsersClient
+}
+
+func (m MockIAMClient) ScimGroups() iam.ScimGroupsClient {
+	return &m.ScimGroupsClient
 }
 
 func (m MockIAMClient) Terms() iam.TermsClient {

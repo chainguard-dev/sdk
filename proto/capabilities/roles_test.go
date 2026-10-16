@@ -121,6 +121,35 @@ func TestTelemetryContainersListFollowsGuardenerScanList(t *testing.T) {
 	}
 }
 
+// TestScimCaps pins that SCIM administration, the list of provisioned users and
+// the list of provisioned groups are held together and only by owner: whoever
+// can see a group is whoever can map roles to it.
+func TestScimCaps(t *testing.T) {
+	scimCaps := []Capability{
+		Capability_CAP_IAM_SCIM_MANAGE,
+		Capability_CAP_IAM_SCIM_USERS_LIST,
+		Capability_CAP_IAM_SCIM_GROUPS_LIST,
+	}
+	for _, tt := range []struct {
+		name string
+		caps []Capability
+		want bool
+	}{
+		{name: "OwnerCaps", caps: OwnerCaps, want: true},
+		{name: "EditorCaps", caps: EditorCaps, want: false},
+		{name: "ViewerCaps", caps: ViewerCaps, want: false},
+		{name: "ConsoleViewerCaps", caps: ConsoleViewerCaps, want: false},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			for _, c := range scimCaps {
+				if got := slices.Contains(tt.caps, c); got != tt.want {
+					t.Errorf("%s holds %v: got = %v, want = %v", tt.name, c, got, tt.want)
+				}
+			}
+		})
+	}
+}
+
 func TestSortCaps(t *testing.T) {
 	tests := []struct {
 		name      string

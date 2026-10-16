@@ -172,6 +172,10 @@ var (
 		// for now, alongside scim.manage. It can move to a viewer-oriented role
 		// later if a read-only need emerges.
 		Capability_CAP_IAM_SCIM_USERS_LIST,
+		// Listing the groups an IdP's SCIM connector has pushed follows users:
+		// owner-only, alongside scim.manage, since whoever can see the groups is
+		// whoever can map roles to them.
+		Capability_CAP_IAM_SCIM_GROUPS_LIST,
 
 		Capability_CAP_IAM_ROLE_BINDINGS_CREATE,
 		Capability_CAP_IAM_ROLE_BINDINGS_DELETE,

@@ -100,6 +100,10 @@ enum Capability {
   CAP_IAM_IDENTITY_PROVIDERS_DELETE = 1304 [(name) = "identity_providers.delete", (bit) = 55];
   CAP_IAM_SCIM_MANAGE = 1305 [(name) = "identity_providers.scim.manage", (bit) = 191];
   CAP_IAM_SCIM_USERS_LIST = 1306 [(name) = "identity_providers.scim.users.list", (bit) = 225];
+  CAP_IAM_SCIM_GROUPS_LIST = 1307 [
+    (name) = "identity_providers.scim.groups.list",
+    (bit) = 253
+  ];
 
   // Events
 
@@ -645,5 +649,5 @@ enum Capability {
   CAP_ENTITLEMENTS_GET = 3203 [(name) = "entitlements.get", (bit) = 252];
 
   reserved 1;
-  // next bit: 253
+  // next bit: 254
 }
