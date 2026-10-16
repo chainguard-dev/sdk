@@ -26,6 +26,7 @@ type Clients interface {
 	RoleBindingsService() RoleBindingsServiceClient
 	ExternalGroupRoleMappingsService() ExternalGroupRoleMappingsServiceClient
 	ScimUsersService() ScimUsersServiceClient
+	ScimGroupsService() ScimGroupsServiceClient
 	TermsService() TermsServiceClient
 
 	// Iterator methods for pagination - ExternalGroupRoleMappings
@@ -35,6 +36,10 @@ type Clients interface {
 	// Iterator methods for pagination - ScimUsers
 	ListScimUsersIter(ctx context.Context, req *ListScimUsersRequest) iter.Seq2[*ScimUser, error]
 	ListScimUsersAll(ctx context.Context, req *ListScimUsersRequest) ([]*ScimUser, error)
+
+	// Iterator methods for pagination - ScimGroups
+	ListScimGroupsIter(ctx context.Context, req *ListScimGroupsRequest) iter.Seq2[*ScimGroup, error]
+	ListScimGroupsAll(ctx context.Context, req *ListScimGroupsRequest) ([]*ScimGroup, error)
 
 	// Iterator methods for pagination - GroupInvites
 	ListGroupInvitesIter(ctx context.Context, req *ListGroupInvitesRequest) iter.Seq2[*GroupInvite, error]
@@ -83,6 +88,7 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 		roleBindingsService:              NewRoleBindingsServiceClient(conn),
 		externalGroupRoleMappingsService: NewExternalGroupRoleMappingsServiceClient(conn),
 		scimUsersService:                 NewScimUsersServiceClient(conn),
+		scimGroupsService:                NewScimGroupsServiceClient(conn),
 		termsService:                     NewTermsServiceClient(conn),
 		// conn is not set, this client struct does not own closing it
 	}
@@ -98,6 +104,7 @@ type clients struct {
 	roleBindingsService              RoleBindingsServiceClient
 	externalGroupRoleMappingsService ExternalGroupRoleMappingsServiceClient
 	scimUsersService                 ScimUsersServiceClient
+	scimGroupsService                ScimGroupsServiceClient
 	termsService                     TermsServiceClient
 
 	conn *grpc.ClientConn
@@ -139,6 +146,10 @@ func (c *clients) ExternalGroupRoleMappingsService() ExternalGroupRoleMappingsSe
 
 func (c *clients) ScimUsersService() ScimUsersServiceClient {
 	return c.scimUsersService
+}
+
+func (c *clients) ScimGroupsService() ScimGroupsServiceClient {
+	return c.scimGroupsService
 }
 
 func (c *clients) TermsService() TermsServiceClient {
@@ -319,4 +330,21 @@ func (c *clients) ListTermsAcceptancesIter(ctx context.Context, req *ListTermsAc
 // ListTermsAcceptancesAll fetches all terms acceptances matching the request by automatically handling pagination.
 func (c *clients) ListTermsAcceptancesAll(ctx context.Context, req *ListTermsAcceptancesRequest) ([]*TermsAcceptance, error) {
 	return v2iter.All(c.ListTermsAcceptancesIter(ctx, req))
+}
+
+// ListScimGroupsIter returns an iterator over SCIM groups matching the request.
+func (c *clients) ListScimGroupsIter(ctx context.Context, req *ListScimGroupsRequest) iter.Seq2[*ScimGroup, error] {
+	return v2iter.Paginate(ctx, req, "scim_groups", func(ctx context.Context, r *ListScimGroupsRequest) ([]*ScimGroup, string, error) {
+		resp, err := c.ScimGroupsService().ListScimGroups(ctx, r)
+		if err != nil {
+			return nil, "", err
+		}
+		return resp.GetScimGroups(), resp.GetNextPageToken(), nil
+	})
+}
+
+// ListScimGroupsAll fetches all SCIM groups matching the request by automatically handling pagination.
+// For large result sets, consider using ListScimGroupsIter directly to process items incrementally.
+func (c *clients) ListScimGroupsAll(ctx context.Context, req *ListScimGroupsRequest) ([]*ScimGroup, error) {
+	return v2iter.All(c.ListScimGroupsIter(ctx, req))
 }
