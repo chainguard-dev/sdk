@@ -667,6 +667,72 @@ func (CVEProvenance) EnumDescriptor() ([]byte, []int) {
 	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{7}
 }
 
+// FixTargetCheck is the malware gate's verdict on one upgrade target, read when
+// the response is built rather than when the CVE was recorded: a release can
+// land on the block list after its fix was named, and the verdict follows it.
+//
+// A target the gate did not clear is still reported, next to this verdict.
+// Leaving the version out would read as "no fix exists", which is the one
+// answer that stops a customer looking further.
+type FixTargetCheck int32
+
+const (
+	// No target to check: the version field beside this one is empty.
+	FixTargetCheck_FIX_TARGET_CHECK_UNSPECIFIED FixTargetCheck = 0
+	// The gate cleared the release. It may be recommended as an upgrade.
+	FixTargetCheck_FIX_TARGET_CHECK_CLEARED FixTargetCheck = 1
+	// The release is on the malware block list or was found to carry malware.
+	// A fix exists at this version, and it must not be installed.
+	FixTargetCheck_FIX_TARGET_CHECK_BLOCKED FixTargetCheck = 2
+	// The gate could not clear the release: it has not been scanned yet, the
+	// gate could not be reached in time, or the ecosystem is outside its
+	// coverage. Not a finding against the release, and not a clearance.
+	FixTargetCheck_FIX_TARGET_CHECK_UNVERIFIED FixTargetCheck = 3
+)
+
+// Enum value maps for FixTargetCheck.
+var (
+	FixTargetCheck_name = map[int32]string{
+		0: "FIX_TARGET_CHECK_UNSPECIFIED",
+		1: "FIX_TARGET_CHECK_CLEARED",
+		2: "FIX_TARGET_CHECK_BLOCKED",
+		3: "FIX_TARGET_CHECK_UNVERIFIED",
+	}
+	FixTargetCheck_value = map[string]int32{
+		"FIX_TARGET_CHECK_UNSPECIFIED": 0,
+		"FIX_TARGET_CHECK_CLEARED":     1,
+		"FIX_TARGET_CHECK_BLOCKED":     2,
+		"FIX_TARGET_CHECK_UNVERIFIED":  3,
+	}
+)
+
+func (x FixTargetCheck) Enum() *FixTargetCheck {
+	p := new(FixTargetCheck)
+	*p = x
+	return p
+}
+
+func (x FixTargetCheck) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (FixTargetCheck) Descriptor() protoreflect.EnumDescriptor {
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[8].Descriptor()
+}
+
+func (FixTargetCheck) Type() protoreflect.EnumType {
+	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[8]
+}
+
+func (x FixTargetCheck) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use FixTargetCheck.Descriptor instead.
+func (FixTargetCheck) EnumDescriptor() ([]byte, []int) {
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{8}
+}
+
 // InputFormat is how a submitted input is parsed.
 //
 // Every accepted format is already pinned, so parsing happens in-process. Formats
@@ -718,11 +784,11 @@ func (x InputFormat) String() string {
 }
 
 func (InputFormat) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[8].Descriptor()
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[9].Descriptor()
 }
 
 func (InputFormat) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[8]
+	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[9]
 }
 
 func (x InputFormat) Number() protoreflect.EnumNumber {
@@ -731,7 +797,7 @@ func (x InputFormat) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use InputFormat.Descriptor instead.
 func (InputFormat) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{8}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{9}
 }
 
 // RequestSource records how a group came to exist.
@@ -783,11 +849,11 @@ func (x RequestSource) String() string {
 }
 
 func (RequestSource) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[9].Descriptor()
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[10].Descriptor()
 }
 
 func (RequestSource) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[9]
+	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[10]
 }
 
 func (x RequestSource) Number() protoreflect.EnumNumber {
@@ -796,7 +862,7 @@ func (x RequestSource) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use RequestSource.Descriptor instead.
 func (RequestSource) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{9}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{10}
 }
 
 // RequestedLibraryBuildStatus is the build ladder across a library's requested versions.
@@ -857,11 +923,11 @@ func (x RequestedLibraryBuildStatus) String() string {
 }
 
 func (RequestedLibraryBuildStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[10].Descriptor()
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[11].Descriptor()
 }
 
 func (RequestedLibraryBuildStatus) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[10]
+	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[11]
 }
 
 func (x RequestedLibraryBuildStatus) Number() protoreflect.EnumNumber {
@@ -870,7 +936,7 @@ func (x RequestedLibraryBuildStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use RequestedLibraryBuildStatus.Descriptor instead.
 func (RequestedLibraryBuildStatus) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{10}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{11}
 }
 
 // RequestedLibraryCVEStatus is the remediation ladder across a library's versions.
@@ -961,11 +1027,11 @@ func (x RequestedLibraryCVEStatus) String() string {
 }
 
 func (RequestedLibraryCVEStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[11].Descriptor()
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[12].Descriptor()
 }
 
 func (RequestedLibraryCVEStatus) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[11]
+	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[12]
 }
 
 func (x RequestedLibraryCVEStatus) Number() protoreflect.EnumNumber {
@@ -974,7 +1040,7 @@ func (x RequestedLibraryCVEStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use RequestedLibraryCVEStatus.Descriptor instead.
 func (RequestedLibraryCVEStatus) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{11}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{12}
 }
 
 // RequestGroup is one organization's request for a set of library versions.
@@ -4175,6 +4241,9 @@ type RequestedLibraryVersionCVE struct {
 	//
 	// Empty where upstream recorded no fix, which covers a CVE upstream has not
 	// fixed and one whose advisory names no version.
+	//
+	// Reported whatever the malware gate says about it. Read upstream_fix_check
+	// before recommending it as an upgrade.
 	UpstreamFixVersion string `protobuf:"bytes,8,opt,name=upstream_fix_version,json=upstreamFixVersion,proto3" json:"upstream_fix_version,omitempty"`
 	// Whether remediated_version is served by the inventory projection -- that
 	// is, whether a customer can pull it today.
@@ -4203,15 +4272,21 @@ type RequestedLibraryVersionCVE struct {
 	// Not a claim that Chainguard built it: it may name an upstream release.
 	// remediated_version is the only field that names a Chainguard remediation.
 	//
-	// Not checked against the malware block list, so treat it as the advisory's
-	// statement of where the fix is and not as a vetted upgrade target.
+	// Reported whatever the malware gate says about it. Read advisory_fix_check
+	// before recommending it as an upgrade.
 	//
 	// Empty where no Chainguard advisory governs the CVE, or where it names no
 	// fix at or above the version asked about. It never means no fix exists:
 	// upstream_fix_version may still name one.
 	AdvisoryFixVersion string `protobuf:"bytes,10,opt,name=advisory_fix_version,json=advisoryFixVersion,proto3" json:"advisory_fix_version,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// What the malware gate says about upstream_fix_version, checked when this
+	// response was built. UNSPECIFIED exactly when upstream_fix_version is empty.
+	UpstreamFixCheck FixTargetCheck `protobuf:"varint,11,opt,name=upstream_fix_check,json=upstreamFixCheck,proto3,enum=chainguard.platform.libraries.v2beta1.FixTargetCheck" json:"upstream_fix_check,omitempty"`
+	// What the malware gate says about advisory_fix_version, checked when this
+	// response was built. UNSPECIFIED exactly when advisory_fix_version is empty.
+	AdvisoryFixCheck FixTargetCheck `protobuf:"varint,12,opt,name=advisory_fix_check,json=advisoryFixCheck,proto3,enum=chainguard.platform.libraries.v2beta1.FixTargetCheck" json:"advisory_fix_check,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *RequestedLibraryVersionCVE) Reset() {
@@ -4312,6 +4387,20 @@ func (x *RequestedLibraryVersionCVE) GetAdvisoryFixVersion() string {
 		return x.AdvisoryFixVersion
 	}
 	return ""
+}
+
+func (x *RequestedLibraryVersionCVE) GetUpstreamFixCheck() FixTargetCheck {
+	if x != nil {
+		return x.UpstreamFixCheck
+	}
+	return FixTargetCheck_FIX_TARGET_CHECK_UNSPECIFIED
+}
+
+func (x *RequestedLibraryVersionCVE) GetAdvisoryFixCheck() FixTargetCheck {
+	if x != nil {
+		return x.AdvisoryFixCheck
+	}
+	return FixTargetCheck_FIX_TARGET_CHECK_UNSPECIFIED
 }
 
 var File_chainguard_platform_libraries_v2beta1_request_groups_proto protoreflect.FileDescriptor
@@ -4594,7 +4683,7 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"totalCount\x88\x01\x01\x12\x18\n" +
 	"\askipped\x18\x04 \x01(\x05R\askipped\x12)\n" +
 	"\x10cross_referenced\x18\x05 \x01(\bR\x0fcrossReferencedB\x0e\n" +
-	"\f_total_count\"\xa1\x05\n" +
+	"\f_total_count\"\xf7\x06\n" +
 	"\x1aRequestedLibraryVersionCVE\x12\x1b\n" +
 	"\x06cve_id\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x05cveId\x12T\n" +
 	"\bseverity\x18\x02 \x01(\x0e22.chainguard.platform.libraries.v2beta1.CVESeverityB\x04\xe2A\x01\x03R\bseverity\x12\x16\n" +
@@ -4608,7 +4697,9 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"\x14upstream_fix_version\x18\b \x01(\tB\x04\xe2A\x01\x03R\x12upstreamFixVersion\x12F\n" +
 	"\x1cremediated_version_published\x18\t \x01(\bB\x04\xe2A\x01\x03R\x1aremediatedVersionPublished\x126\n" +
 	"\x14advisory_fix_version\x18\n" +
-	" \x01(\tB\x04\xe2A\x01\x03R\x12advisoryFixVersion*\x97\x01\n" +
+	" \x01(\tB\x04\xe2A\x01\x03R\x12advisoryFixVersion\x12i\n" +
+	"\x12upstream_fix_check\x18\v \x01(\x0e25.chainguard.platform.libraries.v2beta1.FixTargetCheckB\x04\xe2A\x01\x03R\x10upstreamFixCheck\x12i\n" +
+	"\x12advisory_fix_check\x18\f \x01(\x0e25.chainguard.platform.libraries.v2beta1.FixTargetCheckB\x04\xe2A\x01\x03R\x10advisoryFixCheck*\x97\x01\n" +
 	"\x11RequestGroupState\x12#\n" +
 	"\x1fREQUEST_GROUP_STATE_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19REQUEST_GROUP_STATE_DRAFT\x10\x01\x12!\n" +
@@ -4666,7 +4757,12 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"\rCVEProvenance\x12\x1e\n" +
 	"\x1aCVE_PROVENANCE_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17CVE_PROVENANCE_ADVISORY\x10\x01\x12\x1b\n" +
-	"\x17CVE_PROVENANCE_UPSTREAM\x10\x02*\xa7\x01\n" +
+	"\x17CVE_PROVENANCE_UPSTREAM\x10\x02*\x8f\x01\n" +
+	"\x0eFixTargetCheck\x12 \n" +
+	"\x1cFIX_TARGET_CHECK_UNSPECIFIED\x10\x00\x12\x1c\n" +
+	"\x18FIX_TARGET_CHECK_CLEARED\x10\x01\x12\x1c\n" +
+	"\x18FIX_TARGET_CHECK_BLOCKED\x10\x02\x12\x1f\n" +
+	"\x1bFIX_TARGET_CHECK_UNVERIFIED\x10\x03*\xa7\x01\n" +
 	"\vInputFormat\x12\x1c\n" +
 	"\x18INPUT_FORMAT_UNSPECIFIED\x10\x00\x12!\n" +
 	"\x1dINPUT_FORMAT_REQUIREMENTS_TXT\x10\x01\x12\x1c\n" +
@@ -4759,7 +4855,7 @@ func file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP
 	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescData
 }
 
-var file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes = make([]protoimpl.EnumInfo, 12)
+var file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes = make([]protoimpl.EnumInfo, 13)
 var file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
 var file_chainguard_platform_libraries_v2beta1_request_groups_proto_goTypes = []any{
 	(RequestGroupState)(0),                          // 0: chainguard.platform.libraries.v2beta1.RequestGroupState
@@ -4770,141 +4866,144 @@ var file_chainguard_platform_libraries_v2beta1_request_groups_proto_goTypes = []
 	(CVEStatus)(0),                                  // 5: chainguard.platform.libraries.v2beta1.CVEStatus
 	(CVESeverity)(0),                                // 6: chainguard.platform.libraries.v2beta1.CVESeverity
 	(CVEProvenance)(0),                              // 7: chainguard.platform.libraries.v2beta1.CVEProvenance
-	(InputFormat)(0),                                // 8: chainguard.platform.libraries.v2beta1.InputFormat
-	(RequestSource)(0),                              // 9: chainguard.platform.libraries.v2beta1.RequestSource
-	(RequestedLibraryBuildStatus)(0),                // 10: chainguard.platform.libraries.v2beta1.RequestedLibraryBuildStatus
-	(RequestedLibraryCVEStatus)(0),                  // 11: chainguard.platform.libraries.v2beta1.RequestedLibraryCVEStatus
-	(*RequestGroup)(nil),                            // 12: chainguard.platform.libraries.v2beta1.RequestGroup
-	(*RequestGroupItem)(nil),                        // 13: chainguard.platform.libraries.v2beta1.RequestGroupItem
-	(*Upgrade)(nil),                                 // 14: chainguard.platform.libraries.v2beta1.Upgrade
-	(*CVERemediation)(nil),                          // 15: chainguard.platform.libraries.v2beta1.CVERemediation
-	(*InputMetadata)(nil),                           // 16: chainguard.platform.libraries.v2beta1.InputMetadata
-	(*AvailabilitySummary)(nil),                     // 17: chainguard.platform.libraries.v2beta1.AvailabilitySummary
-	(*CVERemediationSummary)(nil),                   // 18: chainguard.platform.libraries.v2beta1.CVERemediationSummary
-	(*CreateRequestGroupRequest)(nil),               // 19: chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest
-	(*ListRequestGroupsRequest)(nil),                // 20: chainguard.platform.libraries.v2beta1.ListRequestGroupsRequest
-	(*ListRequestGroupsResponse)(nil),               // 21: chainguard.platform.libraries.v2beta1.ListRequestGroupsResponse
-	(*GetRequestGroupRequest)(nil),                  // 22: chainguard.platform.libraries.v2beta1.GetRequestGroupRequest
-	(*ListRequestGroupItemsRequest)(nil),            // 23: chainguard.platform.libraries.v2beta1.ListRequestGroupItemsRequest
-	(*ListRequestGroupItemsResponse)(nil),           // 24: chainguard.platform.libraries.v2beta1.ListRequestGroupItemsResponse
-	(*SubmitRequestGroupRequest)(nil),               // 25: chainguard.platform.libraries.v2beta1.SubmitRequestGroupRequest
-	(*UpdateRequestGroupRequest)(nil),               // 26: chainguard.platform.libraries.v2beta1.UpdateRequestGroupRequest
-	(*RemoveItemsRequest)(nil),                      // 27: chainguard.platform.libraries.v2beta1.RemoveItemsRequest
-	(*RemoveItemsResponse)(nil),                     // 28: chainguard.platform.libraries.v2beta1.RemoveItemsResponse
-	(*RestoreItemsRequest)(nil),                     // 29: chainguard.platform.libraries.v2beta1.RestoreItemsRequest
-	(*RestoreItemsResponse)(nil),                    // 30: chainguard.platform.libraries.v2beta1.RestoreItemsResponse
-	(*DeleteRequestGroupRequest)(nil),               // 31: chainguard.platform.libraries.v2beta1.DeleteRequestGroupRequest
-	(*DeleteSubmittedRequestGroupRequest)(nil),      // 32: chainguard.platform.libraries.v2beta1.DeleteSubmittedRequestGroupRequest
-	(*RefreshCoverageRequest)(nil),                  // 33: chainguard.platform.libraries.v2beta1.RefreshCoverageRequest
-	(*RequestedLibrary)(nil),                        // 34: chainguard.platform.libraries.v2beta1.RequestedLibrary
-	(*RequestGroupRef)(nil),                         // 35: chainguard.platform.libraries.v2beta1.RequestGroupRef
-	(*RequestedLibraryVersion)(nil),                 // 36: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion
-	(*ListRequestedLibrariesRequest)(nil),           // 37: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest
-	(*ListRequestedLibrariesResponse)(nil),          // 38: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesResponse
-	(*ListRequestedLibraryVersionsRequest)(nil),     // 39: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest
-	(*ListRequestedLibraryVersionsResponse)(nil),    // 40: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsResponse
-	(*ListRequestedLibraryVersionCvesRequest)(nil),  // 41: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesRequest
-	(*ListRequestedLibraryVersionCvesResponse)(nil), // 42: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesResponse
-	(*RequestedLibraryVersionCVE)(nil),              // 43: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE
-	nil,                                             // 44: chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest.EcosystemContextEntry
-	(Ecosystem)(0),                                  // 45: chainguard.platform.libraries.v2beta1.Ecosystem
-	(*timestamppb.Timestamp)(nil),                   // 46: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),                   // 47: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),                           // 48: google.protobuf.Empty
+	(FixTargetCheck)(0),                             // 8: chainguard.platform.libraries.v2beta1.FixTargetCheck
+	(InputFormat)(0),                                // 9: chainguard.platform.libraries.v2beta1.InputFormat
+	(RequestSource)(0),                              // 10: chainguard.platform.libraries.v2beta1.RequestSource
+	(RequestedLibraryBuildStatus)(0),                // 11: chainguard.platform.libraries.v2beta1.RequestedLibraryBuildStatus
+	(RequestedLibraryCVEStatus)(0),                  // 12: chainguard.platform.libraries.v2beta1.RequestedLibraryCVEStatus
+	(*RequestGroup)(nil),                            // 13: chainguard.platform.libraries.v2beta1.RequestGroup
+	(*RequestGroupItem)(nil),                        // 14: chainguard.platform.libraries.v2beta1.RequestGroupItem
+	(*Upgrade)(nil),                                 // 15: chainguard.platform.libraries.v2beta1.Upgrade
+	(*CVERemediation)(nil),                          // 16: chainguard.platform.libraries.v2beta1.CVERemediation
+	(*InputMetadata)(nil),                           // 17: chainguard.platform.libraries.v2beta1.InputMetadata
+	(*AvailabilitySummary)(nil),                     // 18: chainguard.platform.libraries.v2beta1.AvailabilitySummary
+	(*CVERemediationSummary)(nil),                   // 19: chainguard.platform.libraries.v2beta1.CVERemediationSummary
+	(*CreateRequestGroupRequest)(nil),               // 20: chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest
+	(*ListRequestGroupsRequest)(nil),                // 21: chainguard.platform.libraries.v2beta1.ListRequestGroupsRequest
+	(*ListRequestGroupsResponse)(nil),               // 22: chainguard.platform.libraries.v2beta1.ListRequestGroupsResponse
+	(*GetRequestGroupRequest)(nil),                  // 23: chainguard.platform.libraries.v2beta1.GetRequestGroupRequest
+	(*ListRequestGroupItemsRequest)(nil),            // 24: chainguard.platform.libraries.v2beta1.ListRequestGroupItemsRequest
+	(*ListRequestGroupItemsResponse)(nil),           // 25: chainguard.platform.libraries.v2beta1.ListRequestGroupItemsResponse
+	(*SubmitRequestGroupRequest)(nil),               // 26: chainguard.platform.libraries.v2beta1.SubmitRequestGroupRequest
+	(*UpdateRequestGroupRequest)(nil),               // 27: chainguard.platform.libraries.v2beta1.UpdateRequestGroupRequest
+	(*RemoveItemsRequest)(nil),                      // 28: chainguard.platform.libraries.v2beta1.RemoveItemsRequest
+	(*RemoveItemsResponse)(nil),                     // 29: chainguard.platform.libraries.v2beta1.RemoveItemsResponse
+	(*RestoreItemsRequest)(nil),                     // 30: chainguard.platform.libraries.v2beta1.RestoreItemsRequest
+	(*RestoreItemsResponse)(nil),                    // 31: chainguard.platform.libraries.v2beta1.RestoreItemsResponse
+	(*DeleteRequestGroupRequest)(nil),               // 32: chainguard.platform.libraries.v2beta1.DeleteRequestGroupRequest
+	(*DeleteSubmittedRequestGroupRequest)(nil),      // 33: chainguard.platform.libraries.v2beta1.DeleteSubmittedRequestGroupRequest
+	(*RefreshCoverageRequest)(nil),                  // 34: chainguard.platform.libraries.v2beta1.RefreshCoverageRequest
+	(*RequestedLibrary)(nil),                        // 35: chainguard.platform.libraries.v2beta1.RequestedLibrary
+	(*RequestGroupRef)(nil),                         // 36: chainguard.platform.libraries.v2beta1.RequestGroupRef
+	(*RequestedLibraryVersion)(nil),                 // 37: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion
+	(*ListRequestedLibrariesRequest)(nil),           // 38: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest
+	(*ListRequestedLibrariesResponse)(nil),          // 39: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesResponse
+	(*ListRequestedLibraryVersionsRequest)(nil),     // 40: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest
+	(*ListRequestedLibraryVersionsResponse)(nil),    // 41: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsResponse
+	(*ListRequestedLibraryVersionCvesRequest)(nil),  // 42: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesRequest
+	(*ListRequestedLibraryVersionCvesResponse)(nil), // 43: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesResponse
+	(*RequestedLibraryVersionCVE)(nil),              // 44: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE
+	nil,                                             // 45: chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest.EcosystemContextEntry
+	(Ecosystem)(0),                                  // 46: chainguard.platform.libraries.v2beta1.Ecosystem
+	(*timestamppb.Timestamp)(nil),                   // 47: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),                   // 48: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),                           // 49: google.protobuf.Empty
 }
 var file_chainguard_platform_libraries_v2beta1_request_groups_proto_depIdxs = []int32{
 	1,  // 0: chainguard.platform.libraries.v2beta1.RequestGroup.status:type_name -> chainguard.platform.libraries.v2beta1.RequestGroupStatus
-	45, // 1: chainguard.platform.libraries.v2beta1.RequestGroup.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
-	9,  // 2: chainguard.platform.libraries.v2beta1.RequestGroup.source:type_name -> chainguard.platform.libraries.v2beta1.RequestSource
-	46, // 3: chainguard.platform.libraries.v2beta1.RequestGroup.submit_time:type_name -> google.protobuf.Timestamp
-	46, // 4: chainguard.platform.libraries.v2beta1.RequestGroup.create_time:type_name -> google.protobuf.Timestamp
-	46, // 5: chainguard.platform.libraries.v2beta1.RequestGroup.update_time:type_name -> google.protobuf.Timestamp
-	46, // 6: chainguard.platform.libraries.v2beta1.RequestGroup.items_update_time:type_name -> google.protobuf.Timestamp
-	16, // 7: chainguard.platform.libraries.v2beta1.RequestGroup.input:type_name -> chainguard.platform.libraries.v2beta1.InputMetadata
-	17, // 8: chainguard.platform.libraries.v2beta1.RequestGroup.availability_summary:type_name -> chainguard.platform.libraries.v2beta1.AvailabilitySummary
-	18, // 9: chainguard.platform.libraries.v2beta1.RequestGroup.cve_remediation_summary:type_name -> chainguard.platform.libraries.v2beta1.CVERemediationSummary
-	45, // 10: chainguard.platform.libraries.v2beta1.RequestGroupItem.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
+	46, // 1: chainguard.platform.libraries.v2beta1.RequestGroup.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
+	10, // 2: chainguard.platform.libraries.v2beta1.RequestGroup.source:type_name -> chainguard.platform.libraries.v2beta1.RequestSource
+	47, // 3: chainguard.platform.libraries.v2beta1.RequestGroup.submit_time:type_name -> google.protobuf.Timestamp
+	47, // 4: chainguard.platform.libraries.v2beta1.RequestGroup.create_time:type_name -> google.protobuf.Timestamp
+	47, // 5: chainguard.platform.libraries.v2beta1.RequestGroup.update_time:type_name -> google.protobuf.Timestamp
+	47, // 6: chainguard.platform.libraries.v2beta1.RequestGroup.items_update_time:type_name -> google.protobuf.Timestamp
+	17, // 7: chainguard.platform.libraries.v2beta1.RequestGroup.input:type_name -> chainguard.platform.libraries.v2beta1.InputMetadata
+	18, // 8: chainguard.platform.libraries.v2beta1.RequestGroup.availability_summary:type_name -> chainguard.platform.libraries.v2beta1.AvailabilitySummary
+	19, // 9: chainguard.platform.libraries.v2beta1.RequestGroup.cve_remediation_summary:type_name -> chainguard.platform.libraries.v2beta1.CVERemediationSummary
+	46, // 10: chainguard.platform.libraries.v2beta1.RequestGroupItem.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
 	2,  // 11: chainguard.platform.libraries.v2beta1.RequestGroupItem.availability:type_name -> chainguard.platform.libraries.v2beta1.Availability
-	14, // 12: chainguard.platform.libraries.v2beta1.RequestGroupItem.upgrade:type_name -> chainguard.platform.libraries.v2beta1.Upgrade
-	15, // 13: chainguard.platform.libraries.v2beta1.RequestGroupItem.cve_remediation:type_name -> chainguard.platform.libraries.v2beta1.CVERemediation
-	46, // 14: chainguard.platform.libraries.v2beta1.RequestGroupItem.update_time:type_name -> google.protobuf.Timestamp
+	15, // 12: chainguard.platform.libraries.v2beta1.RequestGroupItem.upgrade:type_name -> chainguard.platform.libraries.v2beta1.Upgrade
+	16, // 13: chainguard.platform.libraries.v2beta1.RequestGroupItem.cve_remediation:type_name -> chainguard.platform.libraries.v2beta1.CVERemediation
+	47, // 14: chainguard.platform.libraries.v2beta1.RequestGroupItem.update_time:type_name -> google.protobuf.Timestamp
 	3,  // 15: chainguard.platform.libraries.v2beta1.CVERemediation.status:type_name -> chainguard.platform.libraries.v2beta1.CVERemediationStatus
 	4,  // 16: chainguard.platform.libraries.v2beta1.CVERemediation.decision:type_name -> chainguard.platform.libraries.v2beta1.CVERemediationDecision
-	8,  // 17: chainguard.platform.libraries.v2beta1.InputMetadata.format:type_name -> chainguard.platform.libraries.v2beta1.InputFormat
-	8,  // 18: chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest.format:type_name -> chainguard.platform.libraries.v2beta1.InputFormat
-	44, // 19: chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest.ecosystem_context:type_name -> chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest.EcosystemContextEntry
+	9,  // 17: chainguard.platform.libraries.v2beta1.InputMetadata.format:type_name -> chainguard.platform.libraries.v2beta1.InputFormat
+	9,  // 18: chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest.format:type_name -> chainguard.platform.libraries.v2beta1.InputFormat
+	45, // 19: chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest.ecosystem_context:type_name -> chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest.EcosystemContextEntry
 	0,  // 20: chainguard.platform.libraries.v2beta1.ListRequestGroupsRequest.state:type_name -> chainguard.platform.libraries.v2beta1.RequestGroupState
 	1,  // 21: chainguard.platform.libraries.v2beta1.ListRequestGroupsRequest.status:type_name -> chainguard.platform.libraries.v2beta1.RequestGroupStatus
-	45, // 22: chainguard.platform.libraries.v2beta1.ListRequestGroupsRequest.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
-	9,  // 23: chainguard.platform.libraries.v2beta1.ListRequestGroupsRequest.source:type_name -> chainguard.platform.libraries.v2beta1.RequestSource
-	12, // 24: chainguard.platform.libraries.v2beta1.ListRequestGroupsResponse.request_groups:type_name -> chainguard.platform.libraries.v2beta1.RequestGroup
+	46, // 22: chainguard.platform.libraries.v2beta1.ListRequestGroupsRequest.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
+	10, // 23: chainguard.platform.libraries.v2beta1.ListRequestGroupsRequest.source:type_name -> chainguard.platform.libraries.v2beta1.RequestSource
+	13, // 24: chainguard.platform.libraries.v2beta1.ListRequestGroupsResponse.request_groups:type_name -> chainguard.platform.libraries.v2beta1.RequestGroup
 	2,  // 25: chainguard.platform.libraries.v2beta1.ListRequestGroupItemsRequest.availability:type_name -> chainguard.platform.libraries.v2beta1.Availability
 	3,  // 26: chainguard.platform.libraries.v2beta1.ListRequestGroupItemsRequest.cve_remediation_status:type_name -> chainguard.platform.libraries.v2beta1.CVERemediationStatus
-	46, // 27: chainguard.platform.libraries.v2beta1.ListRequestGroupItemsRequest.min_update_time:type_name -> google.protobuf.Timestamp
-	13, // 28: chainguard.platform.libraries.v2beta1.ListRequestGroupItemsResponse.request_group_items:type_name -> chainguard.platform.libraries.v2beta1.RequestGroupItem
-	12, // 29: chainguard.platform.libraries.v2beta1.UpdateRequestGroupRequest.request_group:type_name -> chainguard.platform.libraries.v2beta1.RequestGroup
-	47, // 30: chainguard.platform.libraries.v2beta1.UpdateRequestGroupRequest.update_mask:type_name -> google.protobuf.FieldMask
-	17, // 31: chainguard.platform.libraries.v2beta1.RemoveItemsResponse.availability_summary:type_name -> chainguard.platform.libraries.v2beta1.AvailabilitySummary
-	17, // 32: chainguard.platform.libraries.v2beta1.RestoreItemsResponse.availability_summary:type_name -> chainguard.platform.libraries.v2beta1.AvailabilitySummary
-	45, // 33: chainguard.platform.libraries.v2beta1.RequestedLibrary.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
-	10, // 34: chainguard.platform.libraries.v2beta1.RequestedLibrary.build_status:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryBuildStatus
-	11, // 35: chainguard.platform.libraries.v2beta1.RequestedLibrary.cve_status:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryCVEStatus
-	9,  // 36: chainguard.platform.libraries.v2beta1.RequestedLibrary.sources:type_name -> chainguard.platform.libraries.v2beta1.RequestSource
-	35, // 37: chainguard.platform.libraries.v2beta1.RequestedLibrary.contributing_groups:type_name -> chainguard.platform.libraries.v2beta1.RequestGroupRef
-	46, // 38: chainguard.platform.libraries.v2beta1.RequestedLibrary.last_request_time:type_name -> google.protobuf.Timestamp
+	47, // 27: chainguard.platform.libraries.v2beta1.ListRequestGroupItemsRequest.min_update_time:type_name -> google.protobuf.Timestamp
+	14, // 28: chainguard.platform.libraries.v2beta1.ListRequestGroupItemsResponse.request_group_items:type_name -> chainguard.platform.libraries.v2beta1.RequestGroupItem
+	13, // 29: chainguard.platform.libraries.v2beta1.UpdateRequestGroupRequest.request_group:type_name -> chainguard.platform.libraries.v2beta1.RequestGroup
+	48, // 30: chainguard.platform.libraries.v2beta1.UpdateRequestGroupRequest.update_mask:type_name -> google.protobuf.FieldMask
+	18, // 31: chainguard.platform.libraries.v2beta1.RemoveItemsResponse.availability_summary:type_name -> chainguard.platform.libraries.v2beta1.AvailabilitySummary
+	18, // 32: chainguard.platform.libraries.v2beta1.RestoreItemsResponse.availability_summary:type_name -> chainguard.platform.libraries.v2beta1.AvailabilitySummary
+	46, // 33: chainguard.platform.libraries.v2beta1.RequestedLibrary.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
+	11, // 34: chainguard.platform.libraries.v2beta1.RequestedLibrary.build_status:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryBuildStatus
+	12, // 35: chainguard.platform.libraries.v2beta1.RequestedLibrary.cve_status:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryCVEStatus
+	10, // 36: chainguard.platform.libraries.v2beta1.RequestedLibrary.sources:type_name -> chainguard.platform.libraries.v2beta1.RequestSource
+	36, // 37: chainguard.platform.libraries.v2beta1.RequestedLibrary.contributing_groups:type_name -> chainguard.platform.libraries.v2beta1.RequestGroupRef
+	47, // 38: chainguard.platform.libraries.v2beta1.RequestedLibrary.last_request_time:type_name -> google.protobuf.Timestamp
 	2,  // 39: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.availability:type_name -> chainguard.platform.libraries.v2beta1.Availability
-	14, // 40: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.upgrade:type_name -> chainguard.platform.libraries.v2beta1.Upgrade
-	15, // 41: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.cve_remediation:type_name -> chainguard.platform.libraries.v2beta1.CVERemediation
-	9,  // 42: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.sources:type_name -> chainguard.platform.libraries.v2beta1.RequestSource
-	35, // 43: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.contributing_groups:type_name -> chainguard.platform.libraries.v2beta1.RequestGroupRef
-	46, // 44: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.last_request_time:type_name -> google.protobuf.Timestamp
-	45, // 45: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
-	10, // 46: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest.build_status:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryBuildStatus
-	11, // 47: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest.cve_status:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryCVEStatus
-	34, // 48: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesResponse.requested_libraries:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibrary
-	45, // 49: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
+	15, // 40: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.upgrade:type_name -> chainguard.platform.libraries.v2beta1.Upgrade
+	16, // 41: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.cve_remediation:type_name -> chainguard.platform.libraries.v2beta1.CVERemediation
+	10, // 42: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.sources:type_name -> chainguard.platform.libraries.v2beta1.RequestSource
+	36, // 43: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.contributing_groups:type_name -> chainguard.platform.libraries.v2beta1.RequestGroupRef
+	47, // 44: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.last_request_time:type_name -> google.protobuf.Timestamp
+	46, // 45: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
+	11, // 46: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest.build_status:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryBuildStatus
+	12, // 47: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest.cve_status:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryCVEStatus
+	35, // 48: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesResponse.requested_libraries:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibrary
+	46, // 49: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
 	2,  // 50: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest.availability:type_name -> chainguard.platform.libraries.v2beta1.Availability
 	3,  // 51: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest.cve_remediation_status:type_name -> chainguard.platform.libraries.v2beta1.CVERemediationStatus
-	36, // 52: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsResponse.requested_library_versions:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryVersion
-	45, // 53: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesRequest.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
-	43, // 54: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesResponse.cves:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE
+	37, // 52: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsResponse.requested_library_versions:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryVersion
+	46, // 53: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesRequest.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
+	44, // 54: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesResponse.cves:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE
 	6,  // 55: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE.severity:type_name -> chainguard.platform.libraries.v2beta1.CVESeverity
 	5,  // 56: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE.status:type_name -> chainguard.platform.libraries.v2beta1.CVEStatus
 	4,  // 57: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE.decision:type_name -> chainguard.platform.libraries.v2beta1.CVERemediationDecision
 	7,  // 58: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE.provenance:type_name -> chainguard.platform.libraries.v2beta1.CVEProvenance
-	19, // 59: chainguard.platform.libraries.v2beta1.RequestGroupsService.CreateRequestGroup:input_type -> chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest
-	20, // 60: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestGroups:input_type -> chainguard.platform.libraries.v2beta1.ListRequestGroupsRequest
-	22, // 61: chainguard.platform.libraries.v2beta1.RequestGroupsService.GetRequestGroup:input_type -> chainguard.platform.libraries.v2beta1.GetRequestGroupRequest
-	23, // 62: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestGroupItems:input_type -> chainguard.platform.libraries.v2beta1.ListRequestGroupItemsRequest
-	25, // 63: chainguard.platform.libraries.v2beta1.RequestGroupsService.SubmitRequestGroup:input_type -> chainguard.platform.libraries.v2beta1.SubmitRequestGroupRequest
-	26, // 64: chainguard.platform.libraries.v2beta1.RequestGroupsService.UpdateRequestGroup:input_type -> chainguard.platform.libraries.v2beta1.UpdateRequestGroupRequest
-	27, // 65: chainguard.platform.libraries.v2beta1.RequestGroupsService.RemoveItems:input_type -> chainguard.platform.libraries.v2beta1.RemoveItemsRequest
-	29, // 66: chainguard.platform.libraries.v2beta1.RequestGroupsService.RestoreItems:input_type -> chainguard.platform.libraries.v2beta1.RestoreItemsRequest
-	31, // 67: chainguard.platform.libraries.v2beta1.RequestGroupsService.DeleteRequestGroup:input_type -> chainguard.platform.libraries.v2beta1.DeleteRequestGroupRequest
-	32, // 68: chainguard.platform.libraries.v2beta1.RequestGroupsService.DeleteSubmittedRequestGroup:input_type -> chainguard.platform.libraries.v2beta1.DeleteSubmittedRequestGroupRequest
-	33, // 69: chainguard.platform.libraries.v2beta1.RequestGroupsService.RefreshCoverage:input_type -> chainguard.platform.libraries.v2beta1.RefreshCoverageRequest
-	37, // 70: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraries:input_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest
-	39, // 71: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraryVersions:input_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest
-	41, // 72: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraryVersionCves:input_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesRequest
-	12, // 73: chainguard.platform.libraries.v2beta1.RequestGroupsService.CreateRequestGroup:output_type -> chainguard.platform.libraries.v2beta1.RequestGroup
-	21, // 74: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestGroups:output_type -> chainguard.platform.libraries.v2beta1.ListRequestGroupsResponse
-	12, // 75: chainguard.platform.libraries.v2beta1.RequestGroupsService.GetRequestGroup:output_type -> chainguard.platform.libraries.v2beta1.RequestGroup
-	24, // 76: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestGroupItems:output_type -> chainguard.platform.libraries.v2beta1.ListRequestGroupItemsResponse
-	12, // 77: chainguard.platform.libraries.v2beta1.RequestGroupsService.SubmitRequestGroup:output_type -> chainguard.platform.libraries.v2beta1.RequestGroup
-	12, // 78: chainguard.platform.libraries.v2beta1.RequestGroupsService.UpdateRequestGroup:output_type -> chainguard.platform.libraries.v2beta1.RequestGroup
-	28, // 79: chainguard.platform.libraries.v2beta1.RequestGroupsService.RemoveItems:output_type -> chainguard.platform.libraries.v2beta1.RemoveItemsResponse
-	30, // 80: chainguard.platform.libraries.v2beta1.RequestGroupsService.RestoreItems:output_type -> chainguard.platform.libraries.v2beta1.RestoreItemsResponse
-	48, // 81: chainguard.platform.libraries.v2beta1.RequestGroupsService.DeleteRequestGroup:output_type -> google.protobuf.Empty
-	48, // 82: chainguard.platform.libraries.v2beta1.RequestGroupsService.DeleteSubmittedRequestGroup:output_type -> google.protobuf.Empty
-	12, // 83: chainguard.platform.libraries.v2beta1.RequestGroupsService.RefreshCoverage:output_type -> chainguard.platform.libraries.v2beta1.RequestGroup
-	38, // 84: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraries:output_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibrariesResponse
-	40, // 85: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraryVersions:output_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsResponse
-	42, // 86: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraryVersionCves:output_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesResponse
-	73, // [73:87] is the sub-list for method output_type
-	59, // [59:73] is the sub-list for method input_type
-	59, // [59:59] is the sub-list for extension type_name
-	59, // [59:59] is the sub-list for extension extendee
-	0,  // [0:59] is the sub-list for field type_name
+	8,  // 59: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE.upstream_fix_check:type_name -> chainguard.platform.libraries.v2beta1.FixTargetCheck
+	8,  // 60: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE.advisory_fix_check:type_name -> chainguard.platform.libraries.v2beta1.FixTargetCheck
+	20, // 61: chainguard.platform.libraries.v2beta1.RequestGroupsService.CreateRequestGroup:input_type -> chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest
+	21, // 62: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestGroups:input_type -> chainguard.platform.libraries.v2beta1.ListRequestGroupsRequest
+	23, // 63: chainguard.platform.libraries.v2beta1.RequestGroupsService.GetRequestGroup:input_type -> chainguard.platform.libraries.v2beta1.GetRequestGroupRequest
+	24, // 64: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestGroupItems:input_type -> chainguard.platform.libraries.v2beta1.ListRequestGroupItemsRequest
+	26, // 65: chainguard.platform.libraries.v2beta1.RequestGroupsService.SubmitRequestGroup:input_type -> chainguard.platform.libraries.v2beta1.SubmitRequestGroupRequest
+	27, // 66: chainguard.platform.libraries.v2beta1.RequestGroupsService.UpdateRequestGroup:input_type -> chainguard.platform.libraries.v2beta1.UpdateRequestGroupRequest
+	28, // 67: chainguard.platform.libraries.v2beta1.RequestGroupsService.RemoveItems:input_type -> chainguard.platform.libraries.v2beta1.RemoveItemsRequest
+	30, // 68: chainguard.platform.libraries.v2beta1.RequestGroupsService.RestoreItems:input_type -> chainguard.platform.libraries.v2beta1.RestoreItemsRequest
+	32, // 69: chainguard.platform.libraries.v2beta1.RequestGroupsService.DeleteRequestGroup:input_type -> chainguard.platform.libraries.v2beta1.DeleteRequestGroupRequest
+	33, // 70: chainguard.platform.libraries.v2beta1.RequestGroupsService.DeleteSubmittedRequestGroup:input_type -> chainguard.platform.libraries.v2beta1.DeleteSubmittedRequestGroupRequest
+	34, // 71: chainguard.platform.libraries.v2beta1.RequestGroupsService.RefreshCoverage:input_type -> chainguard.platform.libraries.v2beta1.RefreshCoverageRequest
+	38, // 72: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraries:input_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest
+	40, // 73: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraryVersions:input_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest
+	42, // 74: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraryVersionCves:input_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesRequest
+	13, // 75: chainguard.platform.libraries.v2beta1.RequestGroupsService.CreateRequestGroup:output_type -> chainguard.platform.libraries.v2beta1.RequestGroup
+	22, // 76: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestGroups:output_type -> chainguard.platform.libraries.v2beta1.ListRequestGroupsResponse
+	13, // 77: chainguard.platform.libraries.v2beta1.RequestGroupsService.GetRequestGroup:output_type -> chainguard.platform.libraries.v2beta1.RequestGroup
+	25, // 78: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestGroupItems:output_type -> chainguard.platform.libraries.v2beta1.ListRequestGroupItemsResponse
+	13, // 79: chainguard.platform.libraries.v2beta1.RequestGroupsService.SubmitRequestGroup:output_type -> chainguard.platform.libraries.v2beta1.RequestGroup
+	13, // 80: chainguard.platform.libraries.v2beta1.RequestGroupsService.UpdateRequestGroup:output_type -> chainguard.platform.libraries.v2beta1.RequestGroup
+	29, // 81: chainguard.platform.libraries.v2beta1.RequestGroupsService.RemoveItems:output_type -> chainguard.platform.libraries.v2beta1.RemoveItemsResponse
+	31, // 82: chainguard.platform.libraries.v2beta1.RequestGroupsService.RestoreItems:output_type -> chainguard.platform.libraries.v2beta1.RestoreItemsResponse
+	49, // 83: chainguard.platform.libraries.v2beta1.RequestGroupsService.DeleteRequestGroup:output_type -> google.protobuf.Empty
+	49, // 84: chainguard.platform.libraries.v2beta1.RequestGroupsService.DeleteSubmittedRequestGroup:output_type -> google.protobuf.Empty
+	13, // 85: chainguard.platform.libraries.v2beta1.RequestGroupsService.RefreshCoverage:output_type -> chainguard.platform.libraries.v2beta1.RequestGroup
+	39, // 86: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraries:output_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibrariesResponse
+	41, // 87: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraryVersions:output_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsResponse
+	43, // 88: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraryVersionCves:output_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesResponse
+	75, // [75:89] is the sub-list for method output_type
+	61, // [61:75] is the sub-list for method input_type
+	61, // [61:61] is the sub-list for extension type_name
+	61, // [61:61] is the sub-list for extension extendee
+	0,  // [0:61] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_libraries_v2beta1_request_groups_proto_init() }
@@ -4925,7 +5024,7 @@ func file_chainguard_platform_libraries_v2beta1_request_groups_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc), len(file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc)),
-			NumEnums:      12,
+			NumEnums:      13,
 			NumMessages:   33,
 			NumExtensions: 0,
 			NumServices:   1,

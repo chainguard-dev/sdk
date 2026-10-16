@@ -1503,6 +1503,9 @@ message RequestedLibraryVersionCVE {
   //
   // Empty where upstream recorded no fix, which covers a CVE upstream has not
   // fixed and one whose advisory names no version.
+  //
+  // Reported whatever the malware gate says about it. Read upstream_fix_check
+  // before recommending it as an upgrade.
   string upstream_fix_version = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Whether remediated_version is served by the inventory projection -- that
@@ -1534,13 +1537,23 @@ message RequestedLibraryVersionCVE {
   // Not a claim that Chainguard built it: it may name an upstream release.
   // remediated_version is the only field that names a Chainguard remediation.
   //
-  // Not checked against the malware block list, so treat it as the advisory's
-  // statement of where the fix is and not as a vetted upgrade target.
+  // Reported whatever the malware gate says about it. Read advisory_fix_check
+  // before recommending it as an upgrade.
   //
   // Empty where no Chainguard advisory governs the CVE, or where it names no
   // fix at or above the version asked about. It never means no fix exists:
   // upstream_fix_version may still name one.
   string advisory_fix_version = 10
+      [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // What the malware gate says about upstream_fix_version, checked when this
+  // response was built. UNSPECIFIED exactly when upstream_fix_version is empty.
+  FixTargetCheck upstream_fix_check = 11
+      [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // What the malware gate says about advisory_fix_version, checked when this
+  // response was built. UNSPECIFIED exactly when advisory_fix_version is empty.
+  FixTargetCheck advisory_fix_check = 12
       [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
@@ -1826,6 +1839,30 @@ enum CVEProvenance {
 
   // This version is affected by this CVE. An untriaged detection.
   CVE_PROVENANCE_UPSTREAM = 2;
+}
+
+// FixTargetCheck is the malware gate's verdict on one upgrade target, read when
+// the response is built rather than when the CVE was recorded: a release can
+// land on the block list after its fix was named, and the verdict follows it.
+//
+// A target the gate did not clear is still reported, next to this verdict.
+// Leaving the version out would read as "no fix exists", which is the one
+// answer that stops a customer looking further.
+enum FixTargetCheck {
+  // No target to check: the version field beside this one is empty.
+  FIX_TARGET_CHECK_UNSPECIFIED = 0;
+
+  // The gate cleared the release. It may be recommended as an upgrade.
+  FIX_TARGET_CHECK_CLEARED = 1;
+
+  // The release is on the malware block list or was found to carry malware.
+  // A fix exists at this version, and it must not be installed.
+  FIX_TARGET_CHECK_BLOCKED = 2;
+
+  // The gate could not clear the release: it has not been scanned yet, the
+  // gate could not be reached in time, or the ecosystem is outside its
+  // coverage. Not a finding against the release, and not a clearance.
+  FIX_TARGET_CHECK_UNVERIFIED = 3;
 }
 
 // InputFormat is how a submitted input is parsed.
