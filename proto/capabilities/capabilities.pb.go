@@ -448,6 +448,9 @@ const (
 	// Reading the dependency graph. Internal only: reads are fenced to groups the
 	// caller holds a capability in, which no customer does for these actions.
 	Capability_CAP_ACTIONS_DEPENDENCIES_LIST Capability = 2711
+	// Cross-organization sandbox limit snapshots, held by the public API's
+	// internal reader at the sandbox tenancy group.
+	Capability_CAP_SANDBOX_LIMITS_GET Capability = 3015
 	// Sandbox: the ACID sandbox Runs control plane (the WorkflowRuns API,
 	// ai-cicd/sandbox). Customer-grantable — an org's members run, watch, and
 	// cancel workflow runs in the org's own instance — via the sandbox.user
@@ -752,6 +755,7 @@ var (
 		2700:  "CAP_ACTIONS_LIST",
 		2710:  "CAP_ACTIONS_DEPENDENCIES_UPDATE",
 		2711:  "CAP_ACTIONS_DEPENDENCIES_LIST",
+		3015:  "CAP_SANDBOX_LIMITS_GET",
 		3001:  "CAP_SANDBOX_RUN_CREATE",
 		3002:  "CAP_SANDBOX_RUN_LIST",
 		3003:  "CAP_SANDBOX_RUN_CANCEL",
@@ -1003,6 +1007,7 @@ var (
 		"CAP_ACTIONS_LIST":                                   2700,
 		"CAP_ACTIONS_DEPENDENCIES_UPDATE":                    2710,
 		"CAP_ACTIONS_DEPENDENCIES_LIST":                      2711,
+		"CAP_SANDBOX_LIMITS_GET":                             3015,
 		"CAP_SANDBOX_RUN_CREATE":                             3001,
 		"CAP_SANDBOX_RUN_LIST":                               3002,
 		"CAP_SANDBOX_RUN_CANCEL":                             3003,
@@ -1102,7 +1107,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*ň\x01\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x88\x89\x01\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1357,7 +1362,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x13CAP_REX_CLASS_SERVE\x10\x95\x15\x1a!\xa8ˑM\xbe\x01\x9a\xaf\xa8\xd2\x05\x0frex.class.serve\xa0\xaf\xa8\xd2\x05\x01\x12/\n" +
 	"\x10CAP_ACTIONS_LIST\x10\x8c\x15\x1a\x18\xa8ˑM\xa4\x01\x9a\xaf\xa8\xd2\x05\factions.list\x12S\n" +
 	"\x1fCAP_ACTIONS_DEPENDENCIES_UPDATE\x10\x96\x15\x1a-\xa8ˑM\xdf\x01\x9a\xaf\xa8\xd2\x05\x1bactions.dependencies.update\xa0\xaf\xa8\xd2\x05\x01\x12O\n" +
-	"\x1dCAP_ACTIONS_DEPENDENCIES_LIST\x10\x97\x15\x1a+\xa8ˑM\xe0\x01\x9a\xaf\xa8\xd2\x05\x19actions.dependencies.list\xa0\xaf\xa8\xd2\x05\x01\x12;\n" +
+	"\x1dCAP_ACTIONS_DEPENDENCIES_LIST\x10\x97\x15\x1a+\xa8ˑM\xe0\x01\x9a\xaf\xa8\xd2\x05\x19actions.dependencies.list\xa0\xaf\xa8\xd2\x05\x01\x12A\n" +
+	"\x16CAP_SANDBOX_LIMITS_GET\x10\xc7\x17\x1a$\xa8ˑM\xfe\x01\x9a\xaf\xa8\xd2\x05\x12sandbox.limits.get\xa0\xaf\xa8\xd2\x05\x01\x12;\n" +
 	"\x16CAP_SANDBOX_RUN_CREATE\x10\xb9\x17\x1a\x1e\xa8ˑM\xe2\x01\x9a\xaf\xa8\xd2\x05\x12sandbox.run.create\x127\n" +
 	"\x14CAP_SANDBOX_RUN_LIST\x10\xba\x17\x1a\x1c\xa8ˑM\xe3\x01\x9a\xaf\xa8\xd2\x05\x10sandbox.run.list\x12;\n" +
 	"\x16CAP_SANDBOX_RUN_CANCEL\x10\xbb\x17\x1a\x1e\xa8ˑM\xe4\x01\x9a\xaf\xa8\xd2\x05\x12sandbox.run.cancel\x12W\n" +

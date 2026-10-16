@@ -545,6 +545,13 @@ enum Capability {
   // caller holds a capability in, which no customer does for these actions.
   CAP_ACTIONS_DEPENDENCIES_LIST = 2711 [(name) = "actions.dependencies.list", (bit) = 224, (internal_only) = true];
 
+  // Cross-organization sandbox limit snapshots, held by the public API's
+  // internal reader at the sandbox tenancy group.
+  CAP_SANDBOX_LIMITS_GET = 3015 [
+    (name) = "sandbox.limits.get",
+    (bit) = 254,
+    (internal_only) = true
+  ];
   // Sandbox: the ACID sandbox Runs control plane (the WorkflowRuns API,
   // ai-cicd/sandbox). Customer-grantable — an org's members run, watch, and
   // cancel workflow runs in the org's own instance — via the sandbox.user
@@ -649,5 +656,5 @@ enum Capability {
   CAP_ENTITLEMENTS_GET = 3203 [(name) = "entitlements.get", (bit) = 252];
 
   reserved 1;
-  // next bit: 254
+  // next bit: 255
 }
