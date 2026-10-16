@@ -17,11 +17,10 @@ service Charts {
       post: "/registry/v1/repos/{parent_id=**}:addChart"
       body: "*"
     };
-    option (chainguard.annotations.iam) = {
-      enabled: {
-        capabilities: [CAP_REPO_CREATE, CAP_IAM_GROUPS_CREATE]
-      }
-    };
+    // AddChart authorizes charts-add OR (repo-create AND group-create) at
+    // the requested destination and establishes its scope in the handler.
+    // Adding a chart that entitles images also requires image-add.
+    option (chainguard.annotations.iam) = { enabled: {} };
     option (chainguard.annotations.events) = {
       type: "dev.chainguard.api.platform.registry.chart.added.v1"
       extensions: ["group"]

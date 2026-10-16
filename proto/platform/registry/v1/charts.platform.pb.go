@@ -439,10 +439,9 @@ const file_charts_platform_proto_rawDesc = "" +
 	"\fChartCatalog\x12\x1d\n" +
 	"\x19CHART_CATALOG_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17CHART_CATALOG_COMMUNITY\x10\x01\x12\x1c\n" +
-	"\x18CHART_CATALOG_IAMGUARDED\x10\x022\x9c\x03\n" +
-	"\x06Charts\x12\xf2\x01\n" +
-	"\bAddChart\x12-.chainguard.platform.registry.AddChartRequest\x1a..chainguard.platform.registry.AddChartResponse\"\x86\x01\x82\xd3\xe4\x93\x02/:\x01*\"*/registry/v1/repos/{parent_id=**}:addChart\x8a\xaf\xa8\xd2\x05\a\x12\x05\n" +
-	"\x03\xc3\fe\xc2\xf0\x8e\xfc\v>\n" +
+	"\x18CHART_CATALOG_IAMGUARDED\x10\x022\x97\x03\n" +
+	"\x06Charts\x12\xed\x01\n" +
+	"\bAddChart\x12-.chainguard.platform.registry.AddChartRequest\x1a..chainguard.platform.registry.AddChartResponse\"\x81\x01\x82\xd3\xe4\x93\x02/:\x01*\"*/registry/v1/repos/{parent_id=**}:addChart\x8a\xaf\xa8\xd2\x05\x02\x12\x00\xc2\xf0\x8e\xfc\v>\n" +
 	"3dev.chainguard.api.platform.registry.chart.added.v1\x12\x05group\x18\x01\x12\x9c\x01\n" +
 	"\tFindChart\x12..chainguard.platform.registry.FindChartRequest\x1a/.chainguard.platform.registry.FindChartResponse\".\x82\xd3\xe4\x93\x02\x1a\x12\x18/registry/v1/charts:find\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\xc5\f\x10\x01B/Z-chainguard.dev/sdk/proto/platform/registry/v1b\x06proto3"
