@@ -1214,7 +1214,10 @@ type RequestGroupItem struct {
 	// requestable.
 	Upgrade *Upgrade `protobuf:"bytes,8,opt,name=upgrade,proto3" json:"upgrade,omitempty"`
 	// CVE-remediation status of this version. Populated only when the group is
-	// opted in.
+	// opted in and the item is buildable. An item whose availability is
+	// WONT_BUILD or NOT_FOUND_UPSTREAM is never remediated, because Chainguard
+	// remediates by shipping a build, so it carries no value here even in an
+	// opted-in group. Read availability for the reason.
 	CveRemediation *CVERemediation `protobuf:"bytes,9,opt,name=cve_remediation,json=cveRemediation,proto3" json:"cve_remediation,omitempty"`
 	// Whether the customer removed this item from the draft.
 	Removed bool `protobuf:"varint,10,opt,name=removed,proto3" json:"removed,omitempty"`
@@ -3181,8 +3184,8 @@ type RequestedLibrary struct {
 	Ecosystem Ecosystem `protobuf:"varint,2,opt,name=ecosystem,proto3,enum=chainguard.platform.libraries.v2beta1.Ecosystem" json:"ecosystem,omitempty"`
 	// Build status across the library's requested versions.
 	BuildStatus RequestedLibraryBuildStatus `protobuf:"varint,3,opt,name=build_status,json=buildStatus,proto3,enum=chainguard.platform.libraries.v2beta1.RequestedLibraryBuildStatus" json:"build_status,omitempty"`
-	// CVE-remediation status for this library, aggregated across the versions
-	// whose request groups opted into CVE remediation.
+	// CVE-remediation status for this library, aggregated across the buildable
+	// versions whose request groups opted into CVE remediation.
 	//
 	// That scope is narrower than the library's requested versions, and the
 	// difference matters. Opt-in is a property of a request group, so an
@@ -3192,8 +3195,15 @@ type RequestedLibrary struct {
 	// rung below is a claim about the versions in scope, not about every version
 	// the organization pins.
 	//
-	// UNSPECIFIED where no contributing group opted in, which reads as "not
-	// computed" -- there is no scan to report, and any rung would claim one.
+	// A version that build_status counts as not buildable is outside the scope
+	// too. Chainguard remediates by shipping a build, so a version it will not
+	// build is never remediated, and it does not hold the status at REVIEWING.
+	//
+	// UNSPECIFIED where no version is in scope, which reads as "not computed" --
+	// there is no scan to report, and any rung would claim one. That is the case
+	// where no contributing group opted in, and also where every opted-in
+	// version is not buildable. Tell the two apart by build_status: WONT_BUILD
+	// means the second.
 	CveStatus RequestedLibraryCVEStatus `protobuf:"varint,4,opt,name=cve_status,json=cveStatus,proto3,enum=chainguard.platform.libraries.v2beta1.RequestedLibraryCVEStatus" json:"cve_status,omitempty"`
 	// How many distinct versions of this library the organization has requested.
 	RequestedVersionCount int32 `protobuf:"varint,5,opt,name=requested_version_count,json=requestedVersionCount,proto3" json:"requested_version_count,omitempty"`
@@ -3399,7 +3409,10 @@ type RequestedLibraryVersion struct {
 	// A newer built version to move to, when one exists and this version is
 	// requestable.
 	Upgrade *Upgrade `protobuf:"bytes,4,opt,name=upgrade,proto3" json:"upgrade,omitempty"`
-	// CVE-remediation status of this version.
+	// CVE-remediation status of this version. Absent when no contributing group
+	// opted in, and when availability is WONT_BUILD or NOT_FOUND_UPSTREAM:
+	// Chainguard remediates by shipping a build, so a version it will not build
+	// is never remediated.
 	CveRemediation *CVERemediation `protobuf:"bytes,5,opt,name=cve_remediation,json=cveRemediation,proto3" json:"cve_remediation,omitempty"`
 	// How the requests for this version arrived, deduplicated.
 	Sources []RequestSource `protobuf:"varint,6,rep,packed,name=sources,proto3,enum=chainguard.platform.libraries.v2beta1.RequestSource" json:"sources,omitempty"`
