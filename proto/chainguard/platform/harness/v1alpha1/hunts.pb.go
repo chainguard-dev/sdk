@@ -1188,7 +1188,7 @@ var File_chainguard_platform_harness_v1alpha1_hunts_proto protoreflect.FileDescr
 
 const file_chainguard_platform_harness_v1alpha1_hunts_proto_rawDesc = "" +
 	"\n" +
-	"0chainguard/platform/harness/v1alpha1/hunts.proto\x12$chainguard.platform.harness.v1alpha1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xab\x06\n" +
+	"0chainguard/platform/harness/v1alpha1/hunts.proto\x12$chainguard.platform.harness.v1alpha1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xab\x06\n" +
 	"\x04Hunt\x12\x14\n" +
 	"\x02id\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x02id\x12\x18\n" +
 	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x04name\x12N\n" +
@@ -1291,15 +1291,16 @@ const file_chainguard_platform_harness_v1alpha1_hunts_proto_rawDesc = "" +
 	"\"REJECTION_REASON_MANIFEST_MISMATCH\x10\x06\x12'\n" +
 	"#REJECTION_REASON_FORMAT_UNSUPPORTED\x10\a\x12$\n" +
 	" REJECTION_REASON_UPLOAD_MISMATCH\x10\b\x12!\n" +
-	"\x1dREJECTION_REASON_BUNDLE_EMPTY\x10\t2\x80\f\n" +
+	"\x1dREJECTION_REASON_BUNDLE_EMPTY\x10\t2\xbc\f\n" +
 	"\x05Hunts\x12\xc3\x02\n" +
 	"\x0fGetOrgPublicKey\x12<.chainguard.platform.harness.v1alpha1.GetOrgPublicKeyRequest\x1a2.chainguard.platform.harness.v1alpha1.OrgPublicKey\"\xbd\x01\x82\xd3\xe4\x93\x021\x12//harness/v1alpha1/orgs/{parent_id=**}/publicKey\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xc9\x1a\x9a\xaf\xa8\xd2\x05t\n" +
-	"jGet the public key an organization's harness hunt bundles must be sealed under. Returns a public key only.\x18\x01 \x00(\x010\x00\x12\xe5\x02\n" +
+	"jGet the public key an organization's harness hunt bundles must be sealed under. Returns a public key only.\x18\x01 \x00(\x010\x00\x12\xa1\x03\n" +
 	"\n" +
-	"CreateHunt\x127.chainguard.platform.harness.v1alpha1.CreateHuntRequest\x1a8.chainguard.platform.harness.v1alpha1.CreateHuntResponse\"\xe3\x01\x82\xd3\xe4\x93\x02+:\x01*\"&/harness/v1alpha1/hunts/{parent_id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"CreateHunt\x127.chainguard.platform.harness.v1alpha1.CreateHuntRequest\x1a8.chainguard.platform.harness.v1alpha1.CreateHuntResponse\"\x9f\x02\x82\xd3\xe4\x93\x02+:\x01*\"&/harness/v1alpha1/hunts/{parent_id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xc9\x1a\x9a\xaf\xa8\xd2\x05\x9f\x01\n" +
-	"\x96\x01Record a harness hunt of a source bundle under an organization and get a signed URL to upload the sealed bundle to. Does not submit any source itself. \x00(\x010\x00\x12\xbc\x02\n" +
+	"\x96\x01Record a harness hunt of a source bundle under an organization and get a signed URL to upload the sealed bundle to. Does not submit any source itself. \x00(\x010\x00\xc2\xf0\x8e\xfc\v6\n" +
+	"+dev.chainguard.api.harness.hunts.created.v1\x12\x05group\x18\x01\x12\xbc\x02\n" +
 	"\x0eCompleteUpload\x12;.chainguard.platform.harness.v1alpha1.CompleteUploadRequest\x1a*.chainguard.platform.harness.v1alpha1.Hunt\"\xc0\x01\x82\xd3\xe4\x93\x023:\x01*\"./harness/v1alpha1/hunts/{id=**}:completeUpload\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xc9\x1a\x9a\xaf\xa8\xd2\x05u\n" +
 	"mClose the upload of a harness hunt, checking the stored object's size and checksum against what was declared. \x00(\x010\x00\x12\xfd\x01\n" +
