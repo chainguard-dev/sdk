@@ -74,6 +74,11 @@ message ScimGroup {
 
   // updated_at is when the SCIM group record was last updated.
   google.protobuf.Timestamp updated_at = 9;
+
+  // active_member_count is the number of active members the identity provider
+  // has pushed to the group. It includes people who have not signed in yet and
+  // excludes users the identity provider has deactivated.
+  int64 active_member_count = 10;
 }
 
 message ScimGroupList {

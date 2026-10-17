@@ -61,9 +61,13 @@ type ScimGroup struct {
 	// created_at is when the SCIM group record was created.
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	// updated_at is when the SCIM group record was last updated.
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	// active_member_count is the number of active members the identity provider
+	// has pushed to the group. It includes people who have not signed in yet and
+	// excludes users the identity provider has deactivated.
+	ActiveMemberCount int64 `protobuf:"varint,10,opt,name=active_member_count,json=activeMemberCount,proto3" json:"active_member_count,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ScimGroup) Reset() {
@@ -157,6 +161,13 @@ func (x *ScimGroup) GetUpdatedAt() *timestamppb.Timestamp {
 		return x.UpdatedAt
 	}
 	return nil
+}
+
+func (x *ScimGroup) GetActiveMemberCount() int64 {
+	if x != nil {
+		return x.ActiveMemberCount
+	}
+	return 0
 }
 
 type ScimGroupList struct {
@@ -287,7 +298,7 @@ var File_scim_groups_platform_proto protoreflect.FileDescriptor
 
 const file_scim_groups_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x1ascim_groups.platform.proto\x12\x17chainguard.platform.iam\x1a\x16annotations/auth.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x86\x03\n" +
+	"\x1ascim_groups.platform.proto\x12\x17chainguard.platform.iam\x1a\x16annotations/auth.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb6\x03\n" +
 	"\tScimGroup\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x124\n" +
 	"\x16identity_provider_uidp\x18\x02 \x01(\tR\x14identityProviderUidp\x12\x1f\n" +
@@ -300,7 +311,9 @@ const file_scim_groups_platform_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"j\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12.\n" +
+	"\x13active_member_count\x18\n" +
+	" \x01(\x03R\x11activeMemberCount\"j\n" +
 	"\rScimGroupList\x128\n" +
 	"\x05items\x18\x01 \x03(\v2\".chainguard.platform.iam.ScimGroupR\x05items\x12\x1f\n" +
 	"\vtotal_count\x18\x02 \x01(\x03R\n" +

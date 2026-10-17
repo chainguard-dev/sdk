@@ -85,7 +85,8 @@ message ScimGroup {
   bool external_id_derived = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Number of members the identity provider has pushed to the group. It counts
-  // provisioned users, including users who have not yet signed in.
+  // provisioned users, including users who have not yet signed in and users the
+  // identity provider has since deactivated.
   int64 member_count = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // True while role changes for this group are still being applied: a mapping
@@ -102,6 +103,11 @@ message ScimGroup {
   // When the SCIM group record was last updated.
   // protolint:disable:next MAX_LINE_LENGTH
   google.protobuf.Timestamp update_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Number of active members the identity provider has pushed to the group. It
+  // includes people who have not signed in yet and excludes users the identity
+  // provider has deactivated.
+  int64 active_member_count = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ListScimGroupsRequest is the request message for ListScimGroups.

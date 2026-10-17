@@ -49,7 +49,8 @@ type ScimGroup struct {
 	// provider supplied no externalId.
 	ExternalIdDerived bool `protobuf:"varint,5,opt,name=external_id_derived,json=externalIdDerived,proto3" json:"external_id_derived,omitempty"`
 	// Number of members the identity provider has pushed to the group. It counts
-	// provisioned users, including users who have not yet signed in.
+	// provisioned users, including users who have not yet signed in and users the
+	// identity provider has since deactivated.
 	MemberCount int64 `protobuf:"varint,6,opt,name=member_count,json=memberCount,proto3" json:"member_count,omitempty"`
 	// True while role changes for this group are still being applied: a mapping
 	// was added or removed, or the group's membership changed more than a single
@@ -62,9 +63,13 @@ type ScimGroup struct {
 	CreateTime *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
 	// When the SCIM group record was last updated.
 	// protolint:disable:next MAX_LINE_LENGTH
-	UpdateTime    *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+	// Number of active members the identity provider has pushed to the group. It
+	// includes people who have not signed in yet and excludes users the identity
+	// provider has deactivated.
+	ActiveMemberCount int64 `protobuf:"varint,10,opt,name=active_member_count,json=activeMemberCount,proto3" json:"active_member_count,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ScimGroup) Reset() {
@@ -158,6 +163,13 @@ func (x *ScimGroup) GetUpdateTime() *timestamppb.Timestamp {
 		return x.UpdateTime
 	}
 	return nil
+}
+
+func (x *ScimGroup) GetActiveMemberCount() int64 {
+	if x != nil {
+		return x.ActiveMemberCount
+	}
+	return 0
 }
 
 // ListScimGroupsRequest is the request message for ListScimGroups.
@@ -350,7 +362,7 @@ var File_chainguard_platform_iam_v2beta1_scim_groups_proto protoreflect.FileDesc
 
 const file_chainguard_platform_iam_v2beta1_scim_groups_proto_rawDesc = "" +
 	"\n" +
-	"1chainguard/platform/iam/v2beta1/scim_groups.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb9\x04\n" +
+	"1chainguard/platform/iam/v2beta1/scim_groups.proto\x12\x1fchainguard.platform.iam.v2beta1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xef\x04\n" +
 	"\tScimGroup\x12\x16\n" +
 	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x128\n" +
 	"\x15identity_provider_uid\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x13identityProviderUid\x12%\n" +
@@ -363,7 +375,9 @@ const file_chainguard_platform_iam_v2beta1_scim_groups_proto_rawDesc = "" +
 	"\vcreate_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
 	"createTime\x12A\n" +
 	"\vupdate_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
-	"updateTime:w\xeaAt\n" +
+	"updateTime\x124\n" +
+	"\x13active_member_count\x18\n" +
+	" \x01(\x03B\x04\xe2A\x01\x03R\x11activeMemberCount:w\xeaAt\n" +
 	"\x1ciam.chainguard.dev/ScimGroup\x12=identityProviders/{identity_provider}/scimGroups/{scim_group}*\n" +
 	"scimGroups2\tscimGroup\"\x8e\x02\n" +
 	"\x15ListScimGroupsRequest\x12\"\n" +
