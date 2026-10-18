@@ -83,12 +83,12 @@ type IdentityProvidersServiceClient interface {
 	// existing enabled state.
 	RevokeScimToken(ctx context.Context, in *RevokeScimTokenRequest, opts ...grpc.CallOption) (*RevokeScimTokenResponse, error)
 	// SetScimEnabled explicitly starts or pauses SCIM provisioning. Enabling
-	// fails with FAILED_PRECONDITION for an organization with fewer than two
-	// manually assigned owner-tier role bindings, so SCIM can never take over
-	// an organization's only owner. Enabling does not require a live token: an
-	// expired or revoked credential simply rejects every provisioning request
-	// until a new one is issued. Token generation, regeneration, and revocation
-	// never change this switch.
+	// fails with FAILED_PRECONDITION for an organization that has no owner who
+	// can sign in and whose owner role binding is assigned directly (not managed
+	// by SCIM), so SCIM can never take over an organization's only owner.
+	// Enabling does not require a live token: an expired or revoked credential
+	// simply rejects every provisioning request until a new one is issued. Token
+	// generation, regeneration, and revocation never change this switch.
 	SetScimEnabled(ctx context.Context, in *SetScimEnabledRequest, opts ...grpc.CallOption) (*SetScimEnabledResponse, error)
 }
 
@@ -239,12 +239,12 @@ type IdentityProvidersServiceServer interface {
 	// existing enabled state.
 	RevokeScimToken(context.Context, *RevokeScimTokenRequest) (*RevokeScimTokenResponse, error)
 	// SetScimEnabled explicitly starts or pauses SCIM provisioning. Enabling
-	// fails with FAILED_PRECONDITION for an organization with fewer than two
-	// manually assigned owner-tier role bindings, so SCIM can never take over
-	// an organization's only owner. Enabling does not require a live token: an
-	// expired or revoked credential simply rejects every provisioning request
-	// until a new one is issued. Token generation, regeneration, and revocation
-	// never change this switch.
+	// fails with FAILED_PRECONDITION for an organization that has no owner who
+	// can sign in and whose owner role binding is assigned directly (not managed
+	// by SCIM), so SCIM can never take over an organization's only owner.
+	// Enabling does not require a live token: an expired or revoked credential
+	// simply rejects every provisioning request until a new one is issued. Token
+	// generation, regeneration, and revocation never change this switch.
 	SetScimEnabled(context.Context, *SetScimEnabledRequest) (*SetScimEnabledResponse, error)
 	mustEmbedUnimplementedIdentityProvidersServiceServer()
 }

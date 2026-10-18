@@ -256,12 +256,12 @@ service IdentityProvidersService {
   }
 
   // SetScimEnabled explicitly starts or pauses SCIM provisioning. Enabling
-  // fails with FAILED_PRECONDITION for an organization with fewer than two
-  // manually assigned owner-tier role bindings, so SCIM can never take over
-  // an organization's only owner. Enabling does not require a live token: an
-  // expired or revoked credential simply rejects every provisioning request
-  // until a new one is issued. Token generation, regeneration, and revocation
-  // never change this switch.
+  // fails with FAILED_PRECONDITION for an organization that has no owner who
+  // can sign in and whose owner role binding is assigned directly (not managed
+  // by SCIM), so SCIM can never take over an organization's only owner.
+  // Enabling does not require a live token: an expired or revoked credential
+  // simply rejects every provisioning request until a new one is issued. Token
+  // generation, regeneration, and revocation never change this switch.
   rpc SetScimEnabled(SetScimEnabledRequest) returns (SetScimEnabledResponse) {
     option (google.api.http) = {
       post: "/iam/v2beta1/identityProviders/{identity_provider_uid=**}:setScimEnabled"
@@ -282,7 +282,11 @@ service IdentityProvidersService {
     };
     option (chainguard.annotations.mcp) = {
       hidden: true
-      description: "Explicitly start or pause SCIM provisioning for an identity provider. Enabling requires at least two manually assigned owner-tier role bindings to prevent SCIM from taking over the only owner."
+      description:
+        "Explicitly start or pause SCIM provisioning for an "
+        "identity provider. Enabling requires at least one owner "
+        "who can sign in and whose owner role is assigned "
+        "directly, so SCIM cannot take over the only owner."
     };
   }
 }

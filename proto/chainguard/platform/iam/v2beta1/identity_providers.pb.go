@@ -1744,7 +1744,7 @@ const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = ""
 	"\x16SetScimEnabledResponse\x122\n" +
 	"\x15identity_provider_uid\x18\x01 \x01(\tR\x13identityProviderUid\x12\x18\n" +
 	"\aenabled\x18\x02 \x01(\bR\aenabled\x12\x12\n" +
-	"\x04etag\x18\x03 \x01(\tR\x04etag2\xf4\x1d\n" +
+	"\x04etag\x18\x03 \x01(\tR\x04etag2\x82\x1e\n" +
 	"\x18IdentityProvidersService\x12\xc1\x02\n" +
 	"\x15ListIdentityProviders\x12=.chainguard.platform.iam.v2beta1.ListIdentityProvidersRequest\x1a>.chainguard.platform.iam.v2beta1.ListIdentityProvidersResponse\"\xa8\x01\x82\xd3\xe4\x93\x02 \x12\x1e/iam/v2beta1/identityProviders\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\x97\n" +
@@ -1786,12 +1786,12 @@ const file_chainguard_platform_iam_v2beta1_identity_providers_proto_rawDesc = ""
 	"\x97\n" +
 	"\x9a\xaf\xa8\xd2\x05\xa3\x01\n" +
 	"\x9e\x01Immediately invalidate the current and overlap SCIM bearer tokens for an identity provider, stopping inbound provisioning without changing the enabled switch.\x10\x01\xc2\xf0\x8e\xfc\vJ\n" +
-	"?dev.chainguard.api.iam.identity_providers.scim_token.revoked.v1\x12\x05group\x18\x01\x12\x83\x04\n" +
-	"\x0eSetScimEnabled\x126.chainguard.platform.iam.v2beta1.SetScimEnabledRequest\x1a7.chainguard.platform.iam.v2beta1.SetScimEnabledResponse\"\xff\x02\x82\xd3\xe4\x93\x02M:\x01*\"H/iam/v2beta1/identityProviders/{identity_provider_uid=**}:setScimEnabled\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"?dev.chainguard.api.iam.identity_providers.scim_token.revoked.v1\x12\x05group\x18\x01\x12\x91\x04\n" +
+	"\x0eSetScimEnabled\x126.chainguard.platform.iam.v2beta1.SetScimEnabledRequest\x1a7.chainguard.platform.iam.v2beta1.SetScimEnabledResponse\"\x8d\x03\x82\xd3\xe4\x93\x02M:\x01*\"H/iam/v2beta1/identityProviders/{identity_provider_uid=**}:setScimEnabled\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x04\x99\n" +
 	"\x97\n" +
-	"\x9a\xaf\xa8\xd2\x05\xc5\x01\n" +
-	"\xc0\x01Explicitly start or pause SCIM provisioning for an identity provider. Enabling requires at least two manually assigned owner-tier role bindings to prevent SCIM from taking over the only owner.\x10\x01\xc2\xf0\x8e\xfc\vL\n" +
+	"\x9a\xaf\xa8\xd2\x05\xd3\x01\n" +
+	"\xce\x01Explicitly start or pause SCIM provisioning for an identity provider. Enabling requires at least one owner who can sign in and whose owner role is assigned directly, so SCIM cannot take over the only owner.\x10\x01\xc2\xf0\x8e\xfc\vL\n" +
 	"Adev.chainguard.api.iam.identity_providers.scim_enabled.updated.v1\x12\x05group\x18\x01By\n" +
 	"#com.chainguard.platform.iam.v2beta1B\x16IdentityProvidersProtoP\x01Z8chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1b\x06proto3"
 
