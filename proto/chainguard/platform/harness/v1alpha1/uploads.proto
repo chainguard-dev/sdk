@@ -1,0 +1,358 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.harness.v1alpha1;
+
+import "annotations/auth.proto";
+import "annotations/events.proto";
+import "annotations/mcp.proto";
+import "chainguard/platform/harness/v1alpha1/hunts.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package =
+    "chainguard.dev/sdk/proto/chainguard/platform/harness/v1alpha1";
+option java_multiple_files = true;
+option java_outer_classname = "UploadsProto";
+option java_package = "com.chainguard.platform.harness.v1alpha1";
+
+// Uploads is the customer-facing intake for `chainctl harness upload`: a
+// customer submits one repository's source as a sealed bundle, and an operator
+// later starts a hunt over one or more of those uploads. Uploading starts
+// nothing, and each hunt expects fresh uploads.
+//
+// Source bytes never travel on this API. CreateUpload records the upload and
+// hands back a short-lived signed URL for one object; the client seals the
+// bundle under the organization's harness key (GetOrgPublicKey) and uploads the
+// ciphertext directly to storage, then calls CompleteUpload. The server never
+// holds plaintext and never holds the key that opens it.
+service Uploads {
+  // GetOrgPublicKey returns the public half of the organization's harness key,
+  // "harness-org-<uidp>" from the harness keyring. The client wraps the fresh
+  // per-upload key it seals the bundle with under it; the private half never
+  // leaves Cloud KMS and only the harness fetch service may call it.
+  //
+  // The harness serves this itself rather than reusing
+  // ArgosDocuments.GetOrgPublicKey: that RPC answers from the Argos keyring, so
+  // a submitter sealing against it would put customer source under an Argos key
+  // — outside the harness's break-glass boundary and its US-only residency.
+  rpc GetOrgPublicKey(GetOrgPublicKeyRequest) returns (OrgPublicKey) {
+    option (google.api.http) = {
+      get: "/harness/v1alpha1/orgs/{parent_id=**}/publicKey"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_HARNESS_HUNTS_CREATE]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description:
+        "Get the public key an organization's harness upload bundles must be "
+        "sealed under. Returns a public key only."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // CreateUpload records an upload under the organization and returns it
+  // together with a signed URL to upload the sealed bundle to. The upload
+  // starts at UPLOAD_STATUS_PENDING and reaches UPLOAD_STATUS_READY only once
+  // CompleteUpload has verified the stored object.
+  //
+  // Every call records a new upload, even for an identical bundle.
+  rpc CreateUpload(CreateUploadRequest) returns (CreateUploadResponse) {
+    option (google.api.http) = {
+      post: "/harness/v1alpha1/uploads/{parent_id=**}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_HARNESS_HUNTS_CREATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.harness.uploads.created.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description:
+        "Record a harness upload of a source bundle under an organization and "
+        "get a signed URL to upload the sealed bundle to. Does not submit any "
+        "source itself and starts no hunt."
+      read_only: false
+      destructive: false
+      idempotent: false
+      open_world: false
+    };
+  }
+
+  // CompleteUpload closes an upload. The server compares the stored object's
+  // size and CRC32C with the values declared at CreateUpload and passed here;
+  // on a match the upload moves to UPLOAD_STATUS_READY, and on a mismatch it is
+  // rejected. This proves the ciphertext arrived intact; it says nothing about
+  // the plaintext, which only a hunt can check.
+  rpc CompleteUpload(CompleteUploadRequest) returns (Upload) {
+    option (google.api.http) = {
+      post: "/harness/v1alpha1/uploads/{id=**}:completeUpload"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_HARNESS_HUNTS_CREATE]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description:
+        "Close a harness upload, checking the stored object's size and "
+        "checksum against what was declared."
+      read_only: false
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // GetUpload returns one upload's metadata.
+  rpc GetUpload(GetUploadRequest) returns (Upload) {
+    option (google.api.http) = {get: "/harness/v1alpha1/uploads/{id=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_HARNESS_HUNTS_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description:
+        "Get a harness upload's status, rejection reason and manifest counts "
+        "by its id."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
+  // ListUploads lists an organization's uploads, newest first, one bounded page
+  // at a time.
+  rpc ListUploads(ListUploadsRequest) returns (ListUploadsResponse) {
+    option (google.api.http) = {get: "/harness/v1alpha1/uploads"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_HARNESS_HUNTS_LIST]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description:
+        "List an organization's harness uploads, newest first, one bounded "
+        "page at a time."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+}
+
+// Upload is one repository's sealed source bundle and whether it arrived
+// intact. It is metadata only: the bundle's contents, and the storage
+// identifier the pipeline knows the upload by, are reached elsewhere. That
+// identifier is kept off this message deliberately — it is the one value that,
+// placed beside an organization, would create a second record of which
+// customer an upload belongs to.
+message Upload {
+  // id is the upload's UIDP, a child of the submitting organization.
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // status is where the upload is in its lifecycle.
+  UploadStatus status = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // rejection_reason says why the upload was refused, and is set only when
+  // status is UPLOAD_STATUS_REJECTED.
+  UploadRejectionReason rejection_reason = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // envelope_size is the size in bytes of the sealed object, as declared at
+  // CreateUpload and verified against storage at CompleteUpload.
+  int64 envelope_size = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // bundle_size is the declared size in bytes of the plaintext bundle. The
+  // front end records it as a claim; a hunt is what checks it.
+  int64 bundle_size = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // bundle_sha256 is the declared sha256 of the plaintext bundle, as
+  // "sha256:<64-hex>". Recorded as a claim and checked by a hunt over the
+  // decrypted bytes.
+  string bundle_sha256 = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // file_count is the number of regular files the bundle's manifest declares.
+  // Zero until a hunt has opened the bundle.
+  int64 file_count = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // content_bytes is the total content size of those files. Zero until a hunt
+  // has opened the bundle.
+  int64 content_bytes = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // dropped_entry_count is the number of candidate source entries omitted
+  // during packaging because the bundle format could not represent them.
+  // Zero until a hunt has opened the bundle.
+  int64 dropped_entry_count = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // create_time is when the upload was recorded.
+  google.protobuf.Timestamp create_time = 10 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // update_time is when the upload last changed status.
+  google.protobuf.Timestamp update_time = 11 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // next id: 12
+}
+
+// UploadUrl is where and how to put the sealed bundle. It is returned only by
+// CreateUpload and is never stored on the upload.
+message UploadUrl {
+  // url is a signed URL that accepts exactly one object: the signature pins the
+  // object's name and size and refuses to overwrite, so it cannot be redirected
+  // at another object or reused for a second upload.
+  string url = 1;
+
+  // headers are the request headers the signature covers. Every one must be
+  // sent verbatim or storage rejects the upload.
+  map<string, string> headers = 2;
+
+  // expire_time is when url stops working. It is short; a client that cannot
+  // finish in time calls CreateUpload again for a fresh one.
+  google.protobuf.Timestamp expire_time = 3;
+}
+
+// CreateUploadRequest declares what the client is about to upload.
+message CreateUploadRequest {
+  // parent_id is the UIDP of the organization to record the upload under. It
+  // is authorized against the caller and is never derived from identity.
+  string parent_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // envelope_size is the exact size in bytes of the sealed object the client
+  // will upload. The envelope's framing is fixed, so the client knows it before
+  // it starts sealing; it is what pins the signed URL's content length.
+  int64 envelope_size = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // bundle_size is the size in bytes of the plaintext bundle.
+  int64 bundle_size = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // bundle_sha256 is the sha256 of the plaintext bundle, as
+  // "sha256:<64-hex>". The server cannot verify it — it never sees the
+  // plaintext — and records it as a claim for a hunt to check after
+  // decryption.
+  string bundle_sha256 = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+// CreateUploadResponse is the recorded upload and where to put its bundle.
+message CreateUploadResponse {
+  // upload is the recorded upload.
+  Upload upload = 1;
+
+  // upload_url is where to put the sealed bundle.
+  UploadUrl upload_url = 2;
+}
+
+// GetUploadRequest names one upload to read.
+message GetUploadRequest {
+  // parent_id is the UIDP of the organization the upload belongs to; it is the
+  // IAM scope, and id must fall within its subtree.
+  string parent_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // id is the upload's UIDP.
+  string id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListUploadsRequest names the organization whose uploads to list, and narrows
+// and pages the result.
+message ListUploadsRequest {
+  // parent_id is the UIDP of the organization whose uploads to list, and the
+  // IAM scope. One organization is required; there is no cross-org listing.
+  string parent_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // status optionally narrows results to one lifecycle status.
+  UploadStatus status = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // page_size is the maximum number of uploads to return per page. It is
+  // bounded server-side: omitting it applies a default and any value is
+  // capped, so a list is always paginated.
+  int32 page_size = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // page_token is a token from a previous response's next_page_token. Omit to
+  // start from the first page.
+  string page_token = 4 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListUploadsResponse is one page of uploads.
+message ListUploadsResponse {
+  // items are the uploads on this page, newest first.
+  repeated Upload items = 1;
+
+  // next_page_token is the token for the next page, empty when there are no
+  // more.
+  string next_page_token = 2;
+}
+
+// UploadStatus is where an upload is in its lifecycle. An upload ends at
+// UPLOAD_STATUS_READY or UPLOAD_STATUS_REJECTED.
+enum UploadStatus {
+  // Not set.
+  UPLOAD_STATUS_UNSPECIFIED = 0;
+  // The upload is recorded and the signed URL is live, but no bundle has
+  // arrived. An upload left here is reclaimed.
+  UPLOAD_STATUS_PENDING = 1;
+  // The sealed bundle is stored and its size and checksum matched. A hunt can
+  // now be started over it.
+  UPLOAD_STATUS_READY = 2;
+  // The upload was refused; see rejection_reason.
+  UPLOAD_STATUS_REJECTED = 3;
+}
+
+// UploadRejectionReason says why an upload was refused. Every value is a
+// stable identifier: a reason never carries a path, an excerpt or any other
+// content taken from the submitted source.
+enum UploadRejectionReason {
+  // Not set; the upload was not rejected.
+  UPLOAD_REJECTION_REASON_UNSPECIFIED = 0;
+  // The bundle exceeds the size the intake accepts.
+  UPLOAD_REJECTION_REASON_BUNDLE_TOO_LARGE = 1;
+  // An entry's path is absolute, escapes the bundle root, or is otherwise
+  // unusable.
+  UPLOAD_REJECTION_REASON_PATH_INVALID = 2;
+  // An entry is neither a file, a directory nor a symlink.
+  UPLOAD_REJECTION_REASON_ENTRY_TYPE_FORBIDDEN = 3;
+  // The bundle decompresses to more than its permitted ratio.
+  UPLOAD_REJECTION_REASON_RATIO_EXCEEDED = 4;
+  // The decrypted bundle does not hash to the declared bundle_sha256, or its
+  // tree hash disagrees with its manifest.
+  UPLOAD_REJECTION_REASON_BUNDLE_DIGEST_MISMATCH = 5;
+  // The manifest disagrees with the entries it describes.
+  UPLOAD_REJECTION_REASON_MANIFEST_MISMATCH = 6;
+  // The bundle is not in a format this intake understands.
+  UPLOAD_REJECTION_REASON_FORMAT_UNSUPPORTED = 7;
+  // The stored object's size or CRC32C did not match what CompleteUpload
+  // declared.
+  UPLOAD_REJECTION_REASON_UPLOAD_MISMATCH = 8;
+  // The bundle declares no source entries. There is no source to hunt through,
+  // so the validator refuses it rather than accepting an empty submission.
+  UPLOAD_REJECTION_REASON_BUNDLE_EMPTY = 9;
+}

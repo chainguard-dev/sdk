@@ -925,19 +925,22 @@ func (x *CreateHuntResponse) GetCreated() bool {
 	return false
 }
 
-// CompleteUploadRequest closes a hunt's upload.
+// CompleteUploadRequest closes an upload. Hunts.CompleteUpload and
+// Uploads.CompleteUpload share it; id names a hunt or an upload respectively.
 type CompleteUploadRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// parent_id is the UIDP of the organization the hunt belongs to; it is the
-	// IAM scope, and id must fall within its subtree.
+	// parent_id is the UIDP of the organization the hunt or upload belongs to; it
+	// is the IAM scope, and id must fall within its subtree.
 	ParentId string `protobuf:"bytes,1,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
-	// id is the hunt's UIDP, as returned by CreateHunt.
+	// id is the UIDP of what is being closed: CreateHuntResponse.hunt.id for
+	// Hunts.CompleteUpload, CreateUploadResponse.upload.id for
+	// Uploads.CompleteUpload.
 	Id string `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
 	// envelope_crc32c is the CRC32C the client computed over the sealed bytes as
 	// it wrote them. The checksum cannot be known before the stream ends — the
 	// client seals while it uploads and the ciphertext is randomized — so it
-	// arrives here rather than at CreateHunt, and the server compares it with the
-	// value storage computed for the stored object.
+	// arrives here rather than at CreateHunt or CreateUpload, and the server
+	// compares it with the value storage computed for the stored object.
 	EnvelopeCrc32C int64 `protobuf:"varint,3,opt,name=envelope_crc32c,json=envelopeCrc32c,proto3" json:"envelope_crc32c,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache

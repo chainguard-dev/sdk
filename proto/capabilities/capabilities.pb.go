@@ -509,7 +509,9 @@ const (
 	// hunted and reading the hunts' metadata. Customer-facing — an org's members
 	// hunt their own source in their own organization — and held by Owners.
 	// hunts.create also authorizes Hunts.GetOrgPublicKey, the harness-keyring
-	// key a submitter seals the bundle under.
+	// key a submitter seals the bundle under. The same pair gates the Uploads
+	// API (create for GetOrgPublicKey, CreateUpload and CompleteUpload; list
+	// for GetUpload and ListUploads).
 	//
 	// Neither reaches the submitted source or the hunt's findings: the bundle is
 	// sealed to a key this API cannot use, and these grant hunt metadata only.
