@@ -53,9 +53,6 @@ type UploadsClient interface {
 	// ArgosDocuments.GetOrgPublicKey: that RPC answers from the Argos keyring, so
 	// a submitter sealing against it would put customer source under an Argos key
 	// — outside the harness's break-glass boundary and its US-only residency.
-	//
-	// Hunts.GetOrgPublicKey declares the same HTTP route under hunts.create, so
-	// only one of the two gateways may serve it.
 	GetOrgPublicKey(ctx context.Context, in *GetOrgPublicKeyRequest, opts ...grpc.CallOption) (*OrgPublicKey, error)
 	// CreateUpload records an upload under the organization and returns it
 	// together with a signed URL to upload the sealed bundle to. The upload
@@ -159,9 +156,6 @@ type UploadsServer interface {
 	// ArgosDocuments.GetOrgPublicKey: that RPC answers from the Argos keyring, so
 	// a submitter sealing against it would put customer source under an Argos key
 	// — outside the harness's break-glass boundary and its US-only residency.
-	//
-	// Hunts.GetOrgPublicKey declares the same HTTP route under hunts.create, so
-	// only one of the two gateways may serve it.
 	GetOrgPublicKey(context.Context, *GetOrgPublicKeyRequest) (*OrgPublicKey, error)
 	// CreateUpload records an upload under the organization and returns it
 	// together with a signed URL to upload the sealed bundle to. The upload

@@ -790,20 +790,20 @@ const file_chainguard_platform_harness_v1alpha1_uploads_proto_rawDesc = "" +
 	"$UPLOAD_REJECTION_REASON_BUNDLE_EMPTY\x10\t2\xe9\f\n" +
 	"\aUploads\x12\xc5\x02\n" +
 	"\x0fGetOrgPublicKey\x12<.chainguard.platform.harness.v1alpha1.GetOrgPublicKeyRequest\x1a2.chainguard.platform.harness.v1alpha1.OrgPublicKey\"\xbf\x01\x82\xd3\xe4\x93\x021\x12//harness/v1alpha1/orgs/{parent_id=**}/publicKey\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xcb\x1a\x9a\xaf\xa8\xd2\x05v\n" +
+	"\x02\xc9\x1a\x9a\xaf\xa8\xd2\x05v\n" +
 	"lGet the public key an organization's harness upload bundles must be sealed under. Returns a public key only.\x18\x01 \x00(\x010\x00\x12\xbe\x03\n" +
 	"\fCreateUpload\x129.chainguard.platform.harness.v1alpha1.CreateUploadRequest\x1a:.chainguard.platform.harness.v1alpha1.CreateUploadResponse\"\xb6\x02\x82\xd3\xe4\x93\x02-:\x01*\"(/harness/v1alpha1/uploads/{parent_id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xcb\x1a\x9a\xaf\xa8\xd2\x05\xb2\x01\n" +
+	"\x02\xc9\x1a\x9a\xaf\xa8\xd2\x05\xb2\x01\n" +
 	"\xab\x01Record a harness upload of a source bundle under an organization and get a signed URL to upload the sealed bundle to. Does not submit any source itself and starts no hunt. \x000\x00\xc2\xf0\x8e\xfc\v8\n" +
 	"-dev.chainguard.api.harness.uploads.created.v1\x12\x05group\x18\x01\x12\xb4\x02\n" +
 	"\x0eCompleteUpload\x12;.chainguard.platform.harness.v1alpha1.CompleteUploadRequest\x1a,.chainguard.platform.harness.v1alpha1.Upload\"\xb6\x01\x82\xd3\xe4\x93\x025:\x01*\"0/harness/v1alpha1/uploads/{id=**}:completeUpload\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xcb\x1a\x9a\xaf\xa8\xd2\x05i\n" +
+	"\x02\xc9\x1a\x9a\xaf\xa8\xd2\x05i\n" +
 	"aClose a harness upload, checking the stored object's size and checksum against what was declared. \x00(\x010\x00\x12\x87\x02\n" +
 	"\tGetUpload\x126.chainguard.platform.harness.v1alpha1.GetUploadRequest\x1a,.chainguard.platform.harness.v1alpha1.Upload\"\x93\x01\x82\xd3\xe4\x93\x02#\x12!/harness/v1alpha1/uploads/{id=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xcc\x1a\x9a\xaf\xa8\xd2\x05X\n" +
+	"\x02\xca\x1a\x9a\xaf\xa8\xd2\x05X\n" +
 	"NGet a harness upload's status, rejection reason and manifest counts by its id.\x18\x01 \x00(\x010\x00\x12\x93\x02\n" +
 	"\vListUploads\x128.chainguard.platform.harness.v1alpha1.ListUploadsRequest\x1a9.chainguard.platform.harness.v1alpha1.ListUploadsResponse\"\x8e\x01\x82\xd3\xe4\x93\x02\x1b\x12\x19/harness/v1alpha1/uploads\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xcc\x1a\x9a\xaf\xa8\xd2\x05[\n" +
+	"\x02\xca\x1a\x9a\xaf\xa8\xd2\x05[\n" +
 	"QList an organization's harness uploads, newest first, one bounded page at a time.\x18\x01 \x00(\x010\x00By\n" +
 	"(com.chainguard.platform.harness.v1alpha1B\fUploadsProtoP\x01Z=chainguard.dev/sdk/proto/chainguard/platform/harness/v1alpha1b\x06proto3"
 

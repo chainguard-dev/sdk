@@ -270,9 +270,6 @@ var (
 		// independently to a service principal or non-owner via role-bindings,
 		// which is how a CI identity submits hunts.
 		HarnessHuntCaps,
-		// Owners can upload their own source for the harness and read the
-		// org's uploads; grantable independently like HarnessHuntCaps.
-		HarnessUploadCaps,
 	)
 
 	RegistryRepoAdminCaps = SortCaps(RegistryEditorCaps)
@@ -690,17 +687,6 @@ var (
 	HarnessHuntCaps = SortCaps([]Capability{
 		Capability_CAP_HARNESS_HUNTS_CREATE,
 		Capability_CAP_HARNESS_HUNTS_LIST,
-	})
-
-	// HarnessUploadCaps is the capability set for `chainctl harness upload`:
-	// sealing and uploading a source bundle and reading the org's uploads. It
-	// is customer-facing and included in OwnerCaps.
-	//
-	// Like HarnessHuntCaps it carries neither the submitted source nor any
-	// findings, and uploading starts no hunt.
-	HarnessUploadCaps = SortCaps([]Capability{
-		Capability_CAP_HARNESS_UPLOADS_CREATE,
-		Capability_CAP_HARNESS_UPLOADS_LIST,
 	})
 )
 
