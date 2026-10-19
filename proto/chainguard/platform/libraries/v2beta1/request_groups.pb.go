@@ -667,9 +667,11 @@ func (CVEProvenance) EnumDescriptor() ([]byte, []int) {
 	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{7}
 }
 
-// FixTargetCheck is the malware gate's verdict on one upgrade target, read when
+// FixTargetCheck says whether one upgrade target may be recommended, read when
 // the response is built rather than when the CVE was recorded: a release can
 // land on the block list after its fix was named, and the verdict follows it.
+// It is the malware gate's answer, except that for a cgr cut on the advisory's
+// target only a malware or block-list finding counts against it.
 //
 // A target the gate did not clear is still reported, next to this verdict.
 // Leaving the version out would read as "no fix exists", which is the one
@@ -679,7 +681,10 @@ type FixTargetCheck int32
 const (
 	// No target to check: the version field beside this one is empty.
 	FixTargetCheck_FIX_TARGET_CHECK_UNSPECIFIED FixTargetCheck = 0
-	// The gate cleared the release. It may be recommended as an upgrade.
+	// The release may be recommended as an upgrade: the gate cleared it, or it is
+	// a cgr cut a Chainguard advisory named and the gate holds no malware or
+	// block-list finding against it. Other controls keep malware out of
+	// Chainguard builds, so a cut sentinel has not scanned yet reads CLEARED.
 	FixTargetCheck_FIX_TARGET_CHECK_CLEARED FixTargetCheck = 1
 	// The release is on the malware block list or was found to carry malware.
 	// A fix exists at this version, and it must not be installed.
@@ -4279,11 +4284,18 @@ type RequestedLibraryVersionCVE struct {
 	// fix at or above the version asked about. It never means no fix exists:
 	// upstream_fix_version may still name one.
 	AdvisoryFixVersion string `protobuf:"bytes,10,opt,name=advisory_fix_version,json=advisoryFixVersion,proto3" json:"advisory_fix_version,omitempty"`
-	// What the malware gate says about upstream_fix_version, checked when this
-	// response was built. UNSPECIFIED exactly when upstream_fix_version is empty.
+	// Whether upstream_fix_version may be recommended, from the malware gate,
+	// checked when this response was built. Always the gate's answer: the
+	// version is upstream's string, so its form is never taken as proof that
+	// Chainguard built it. UNSPECIFIED exactly when upstream_fix_version is
+	// empty.
 	UpstreamFixCheck FixTargetCheck `protobuf:"varint,11,opt,name=upstream_fix_check,json=upstreamFixCheck,proto3,enum=chainguard.platform.libraries.v2beta1.FixTargetCheck" json:"upstream_fix_check,omitempty"`
-	// What the malware gate says about advisory_fix_version, checked when this
-	// response was built. UNSPECIFIED exactly when advisory_fix_version is empty.
+	// Whether advisory_fix_version may be recommended, checked when this
+	// response was built. For a cgr cut, which a Chainguard advisory named and so
+	// is a Chainguard build, only a finding counts: BLOCKED on a malware or
+	// block-list finding, CLEARED otherwise, including before sentinel has
+	// scanned it. Any other version gets the malware gate's answer. UNSPECIFIED
+	// exactly when advisory_fix_version is empty.
 	AdvisoryFixCheck FixTargetCheck `protobuf:"varint,12,opt,name=advisory_fix_check,json=advisoryFixCheck,proto3,enum=chainguard.platform.libraries.v2beta1.FixTargetCheck" json:"advisory_fix_check,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
