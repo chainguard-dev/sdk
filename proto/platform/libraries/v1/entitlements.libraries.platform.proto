@@ -81,12 +81,10 @@ message Entitlement {
   Policy policy = 3;
   // source indicates how this entitlement was provisioned.
   Source source = 4;
-  // cooldown_days is the number of days an upstream package version must have
-  // been published before it is served. 0 means no cooldown is enforced; a
-  // positive value sets the cooldown to that many days. Negative values are
-  // rejected. Must be <= 3650. The system default (when no entitlement
-  // specifies a value) is 7 days.
-  int32 cooldown_days = 5;
+  // Field 5 was cooldown_days. The cooldown window lives on the Libraries
+  // policy bound to the (org, ecosystem) pair, never on the entitlement.
+  reserved 5;
+  reserved "cooldown_days";
 }
 
 message EntitlementList {
@@ -153,12 +151,10 @@ message CreateEntitlementRequest {
   Policy policy = 3;
   // source indicates how this entitlement is being provisioned.
   Source source = 4;
-  // cooldown_days is the number of days an upstream package version must have
-  // been published before it is served. 0 means no cooldown is enforced; a
-  // positive value sets the cooldown to that many days. Negative values are
-  // rejected. Must be <= 3650. The system default (when no entitlement
-  // specifies a value) is 7 days.
-  int32 cooldown_days = 5;
+  // Field 5 was cooldown_days. The cooldown window lives on the Libraries
+  // policy bound to the (org, ecosystem) pair, never on the entitlement.
+  reserved 5;
+  reserved "cooldown_days";
 }
 
 message EntitlementFilter {

@@ -243,13 +243,7 @@ type Entitlement struct {
 	// policy is the libraries policy for this entitlement.
 	Policy Policy `protobuf:"varint,3,opt,name=policy,proto3,enum=chainguard.platform.libraries.Policy" json:"policy,omitempty"`
 	// source indicates how this entitlement was provisioned.
-	Source Source `protobuf:"varint,4,opt,name=source,proto3,enum=chainguard.platform.libraries.Source" json:"source,omitempty"`
-	// cooldown_days is the number of days an upstream package version must have
-	// been published before it is served. 0 means no cooldown is enforced; a
-	// positive value sets the cooldown to that many days. Negative values are
-	// rejected. Must be <= 3650. The system default (when no entitlement
-	// specifies a value) is 7 days.
-	CooldownDays  int32 `protobuf:"varint,5,opt,name=cooldown_days,json=cooldownDays,proto3" json:"cooldown_days,omitempty"`
+	Source        Source `protobuf:"varint,4,opt,name=source,proto3,enum=chainguard.platform.libraries.Source" json:"source,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -312,13 +306,6 @@ func (x *Entitlement) GetSource() Source {
 	return Source_SOURCE_UNKNOWN
 }
 
-func (x *Entitlement) GetCooldownDays() int32 {
-	if x != nil {
-		return x.CooldownDays
-	}
-	return 0
-}
-
 type EntitlementList struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Items         []*Entitlement         `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
@@ -372,13 +359,7 @@ type CreateEntitlementRequest struct {
 	// policy is the libraries policy for this entitlement.
 	Policy Policy `protobuf:"varint,3,opt,name=policy,proto3,enum=chainguard.platform.libraries.Policy" json:"policy,omitempty"`
 	// source indicates how this entitlement is being provisioned.
-	Source Source `protobuf:"varint,4,opt,name=source,proto3,enum=chainguard.platform.libraries.Source" json:"source,omitempty"`
-	// cooldown_days is the number of days an upstream package version must have
-	// been published before it is served. 0 means no cooldown is enforced; a
-	// positive value sets the cooldown to that many days. Negative values are
-	// rejected. Must be <= 3650. The system default (when no entitlement
-	// specifies a value) is 7 days.
-	CooldownDays  int32 `protobuf:"varint,5,opt,name=cooldown_days,json=cooldownDays,proto3" json:"cooldown_days,omitempty"`
+	Source        Source `protobuf:"varint,4,opt,name=source,proto3,enum=chainguard.platform.libraries.Source" json:"source,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -439,13 +420,6 @@ func (x *CreateEntitlementRequest) GetSource() Source {
 		return x.Source
 	}
 	return Source_SOURCE_UNKNOWN
-}
-
-func (x *CreateEntitlementRequest) GetCooldownDays() int32 {
-	if x != nil {
-		return x.CooldownDays
-	}
-	return 0
 }
 
 type EntitlementFilter struct {
@@ -551,21 +525,19 @@ var File_entitlements_libraries_platform_proto protoreflect.FileDescriptor
 
 const file_entitlements_libraries_platform_proto_rawDesc = "" +
 	"\n" +
-	"%entitlements.libraries.platform.proto\x12\x1dchainguard.platform.libraries\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x90\x02\n" +
+	"%entitlements.libraries.platform.proto\x12\x1dchainguard.platform.libraries\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x80\x02\n" +
 	"\vEntitlement\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12F\n" +
 	"\tecosystem\x18\x02 \x01(\x0e2(.chainguard.platform.libraries.EcosystemR\tecosystem\x12=\n" +
 	"\x06policy\x18\x03 \x01(\x0e2%.chainguard.platform.libraries.PolicyR\x06policy\x12=\n" +
-	"\x06source\x18\x04 \x01(\x0e2%.chainguard.platform.libraries.SourceR\x06source\x12#\n" +
-	"\rcooldown_days\x18\x05 \x01(\x05R\fcooldownDays\"S\n" +
+	"\x06source\x18\x04 \x01(\x0e2%.chainguard.platform.libraries.SourceR\x06sourceJ\x04\b\x05\x10\x06R\rcooldown_days\"S\n" +
 	"\x0fEntitlementList\x12@\n" +
-	"\x05items\x18\x01 \x03(\v2*.chainguard.platform.libraries.EntitlementR\x05items\"\xaa\x02\n" +
+	"\x05items\x18\x01 \x03(\v2*.chainguard.platform.libraries.EntitlementR\x05items\"\x9a\x02\n" +
 	"\x18CreateEntitlementRequest\x12#\n" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12F\n" +
 	"\tecosystem\x18\x02 \x01(\x0e2(.chainguard.platform.libraries.EcosystemR\tecosystem\x12=\n" +
 	"\x06policy\x18\x03 \x01(\x0e2%.chainguard.platform.libraries.PolicyR\x06policy\x12=\n" +
-	"\x06source\x18\x04 \x01(\x0e2%.chainguard.platform.libraries.SourceR\x06source\x12#\n" +
-	"\rcooldown_days\x18\x05 \x01(\x05R\fcooldownDays\"z\n" +
+	"\x06source\x18\x04 \x01(\x0e2%.chainguard.platform.libraries.SourceR\x06sourceJ\x04\b\x05\x10\x06R\rcooldown_days\"z\n" +
 	"\x11EntitlementFilter\x12\x1b\n" +
 	"\tparent_id\x18\x01 \x01(\tR\bparentId\x12H\n" +
 	"\n" +
