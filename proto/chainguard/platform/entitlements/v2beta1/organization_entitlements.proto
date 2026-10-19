@@ -95,8 +95,10 @@ message ProductEntitlement {
     STATE_UNSPECIFIED = 0;
     // Access is active.
     STATE_ACTIVE = 1;
-    reserved 2, 3;
-    reserved "STATE_TRIAL", "STATE_GRACE";
+    // Access is a trial.
+    STATE_TRIAL = 2;
+    // The trial is in its grace period.
+    STATE_GRACE = 3;
     // No live grant includes the product.
     STATE_NOT_INCLUDED = 4;
   }

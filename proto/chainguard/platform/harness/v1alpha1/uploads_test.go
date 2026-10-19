@@ -17,10 +17,10 @@ import (
 	"chainguard.dev/sdk/proto/capabilities"
 )
 
-// Uploads is gated on its own capabilities, not the hunt ones.
+// Uploads reuses the hunt capabilities rather than taking new bits.
 func TestUploadsCapabilities(t *testing.T) {
 	sd := File_chainguard_platform_harness_v1alpha1_uploads_proto.Services().ByName("Uploads")
-	create, list := capabilities.Capability_CAP_HARNESS_UPLOADS_CREATE, capabilities.Capability_CAP_HARNESS_UPLOADS_LIST
+	create, list := capabilities.Capability_CAP_HARNESS_HUNTS_CREATE, capabilities.Capability_CAP_HARNESS_HUNTS_LIST
 	for method, want := range map[protoreflect.Name]capabilities.Capability{
 		"GetOrgPublicKey": create,
 		"CreateUpload":    create,

@@ -633,29 +633,15 @@ message CVERemediation {
   // means "no fix exists": an outstanding CVE records no upstream fix, the
   // greatest recorded fix is not above the version asked about, the ecosystem
   // has no implemented version ordering, a recorded version does not parse, or
-  // the target did not clear the malware gate below. A target the gate blocked
-  // is in blocked_fix_version instead. Read upstream_fix_version on the
-  // per-CVE detail for what is known per CVE.
+  // the target did not clear the malware gate below. Read
+  // upstream_fix_version on the per-CVE detail for what is known per CVE.
   //
-  // Checked against the malware block list at read time, fail-closed: a
-  // non-empty value has passed the gate and may be recommended. A target here
-  // is an upstream release, so it can carry malware or sit on the retroactive
-  // block list -- unlike remediated_version on the per-CVE detail, which is
-  // always a Chainguard build. A check that errors withholds it too: a gate
-  // that cannot be consulted must not read as clearance to upgrade.
+  // Checked against the malware block list at read time, fail-closed. A target
+  // here is an upstream release, so it can carry malware or sit on the
+  // retroactive block list -- unlike remediated_version on the per-CVE detail,
+  // which is always a Chainguard build. A check that errors withholds it too:
+  // a gate that cannot be consulted must not read as clearance to upgrade.
   string fix_version = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // The target fix_version would have named, when the malware gate blocked it:
-  // the release is on the block list or carries malware. A fix exists at that
-  // version, and it must not be installed. Reported so that a blocked fix does
-  // not read as no fix, and kept out of fix_version so that a client reading
-  // only fix_version never recommends it.
-  //
-  // At most one of fix_version and blocked_fix_version is set, and only
-  // alongside status FIX_AVAILABLE. Both are empty when the gate could not
-  // answer (not scanned yet, unreachable, out of time): an unvetted target is
-  // withheld on this rung, and the per-CVE detail still names it.
-  string blocked_fix_version = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // InputMetadata describes the uploaded input. The content is deliberately not
