@@ -329,7 +329,9 @@ message LibraryPolicyBlockEventFilter {
   string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
   // Only events for this ecosystem (UNKNOWN = all).
   Ecosystem ecosystem = 2;
-  // Match against the PURL name component (exact, case-insensitive).
+  // Match against the full package name, including any namespace or scope
+  // (exact, case-insensitive): "@nx/web" for npm, "group/artifact" or
+  // "group:artifact" for Maven.
   string package_name = 3;
   // Only events in this mode. Defaults to ENFORCED when unspecified.
   LibraryPolicyBindingMode mode = 4;

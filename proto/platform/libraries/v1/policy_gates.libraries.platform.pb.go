@@ -1186,7 +1186,9 @@ type LibraryPolicyBlockEventFilter struct {
 	ParentId string `protobuf:"bytes,1,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
 	// Only events for this ecosystem (UNKNOWN = all).
 	Ecosystem Ecosystem `protobuf:"varint,2,opt,name=ecosystem,proto3,enum=chainguard.platform.libraries.Ecosystem" json:"ecosystem,omitempty"`
-	// Match against the PURL name component (exact, case-insensitive).
+	// Match against the full package name, including any namespace or scope
+	// (exact, case-insensitive): "@nx/web" for npm, "group/artifact" or
+	// "group:artifact" for Maven.
 	PackageName string `protobuf:"bytes,3,opt,name=package_name,json=packageName,proto3" json:"package_name,omitempty"`
 	// Only events in this mode. Defaults to ENFORCED when unspecified.
 	Mode LibraryPolicyBindingMode `protobuf:"varint,4,opt,name=mode,proto3,enum=chainguard.platform.libraries.LibraryPolicyBindingMode" json:"mode,omitempty"`
