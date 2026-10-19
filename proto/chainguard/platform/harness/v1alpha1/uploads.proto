@@ -39,13 +39,16 @@ service Uploads {
   // ArgosDocuments.GetOrgPublicKey: that RPC answers from the Argos keyring, so
   // a submitter sealing against it would put customer source under an Argos key
   // — outside the harness's break-glass boundary and its US-only residency.
+  //
+  // Hunts.GetOrgPublicKey declares the same HTTP route under hunts.create, so
+  // only one of the two gateways may serve it.
   rpc GetOrgPublicKey(GetOrgPublicKeyRequest) returns (OrgPublicKey) {
     option (google.api.http) = {
       get: "/harness/v1alpha1/orgs/{parent_id=**}/publicKey"
     };
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [CAP_HARNESS_HUNTS_CREATE]
+        capabilities: [CAP_HARNESS_UPLOADS_CREATE]
       }
     };
     option (chainguard.annotations.mcp) = {
@@ -72,7 +75,7 @@ service Uploads {
     };
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [CAP_HARNESS_HUNTS_CREATE]
+        capabilities: [CAP_HARNESS_UPLOADS_CREATE]
       }
     };
     option (chainguard.annotations.events) = {
@@ -104,7 +107,7 @@ service Uploads {
     };
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [CAP_HARNESS_HUNTS_CREATE]
+        capabilities: [CAP_HARNESS_UPLOADS_CREATE]
       }
     };
     option (chainguard.annotations.mcp) = {
@@ -123,7 +126,7 @@ service Uploads {
     option (google.api.http) = {get: "/harness/v1alpha1/uploads/{id=**}"};
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [CAP_HARNESS_HUNTS_LIST]
+        capabilities: [CAP_HARNESS_UPLOADS_LIST]
       }
     };
     option (chainguard.annotations.mcp) = {
@@ -143,7 +146,7 @@ service Uploads {
     option (google.api.http) = {get: "/harness/v1alpha1/uploads"};
     option (chainguard.annotations.iam) = {
       enabled: {
-        capabilities: [CAP_HARNESS_HUNTS_LIST]
+        capabilities: [CAP_HARNESS_UPLOADS_LIST]
       }
     };
     option (chainguard.annotations.mcp) = {
