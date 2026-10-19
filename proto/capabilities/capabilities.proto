@@ -546,7 +546,7 @@ enum Capability {
   CAP_ACTIONS_DEPENDENCIES_LIST = 2711 [(name) = "actions.dependencies.list", (bit) = 224, (internal_only) = true];
 
   // Cross-organization sandbox limit snapshots, held by the public API's
-  // internal reader at the sandbox tenancy group.
+  // internal reader at the configured authorization root.
   CAP_SANDBOX_LIMITS_GET = 3015 [
     (name) = "sandbox.limits.get",
     (bit) = 254,

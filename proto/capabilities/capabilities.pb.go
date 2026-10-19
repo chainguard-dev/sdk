@@ -449,7 +449,7 @@ const (
 	// caller holds a capability in, which no customer does for these actions.
 	Capability_CAP_ACTIONS_DEPENDENCIES_LIST Capability = 2711
 	// Cross-organization sandbox limit snapshots, held by the public API's
-	// internal reader at the sandbox tenancy group.
+	// internal reader at the configured authorization root.
 	Capability_CAP_SANDBOX_LIMITS_GET Capability = 3015
 	// Sandbox: the ACID sandbox Runs control plane (the WorkflowRuns API,
 	// ai-cicd/sandbox). Customer-grantable — an org's members run, watch, and
