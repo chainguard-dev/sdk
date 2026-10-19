@@ -29,6 +29,26 @@ func TestLibrariesRubyPullCaps(t *testing.T) {
 	}
 }
 
+// Owners hold the upload caps, and the upload bundle carries no hunt caps:
+// uploading must not let a holder start or read hunts.
+func TestHarnessUploadCaps(t *testing.T) {
+	want := SortCaps([]Capability{
+		Capability_CAP_HARNESS_UPLOADS_CREATE,
+		Capability_CAP_HARNESS_UPLOADS_LIST,
+	})
+	if diff := cmp.Diff(want, HarnessUploadCaps); diff != "" {
+		t.Errorf("HarnessUploadCaps (-want, +got): %s", diff)
+	}
+	for _, c := range want {
+		if !slices.Contains(OwnerCaps, c) {
+			t.Errorf("OwnerCaps must include %v", c)
+		}
+		if slices.Contains(ViewerCaps, c) || slices.Contains(EditorCaps, c) {
+			t.Errorf("only Owners may hold %v", c)
+		}
+	}
+}
+
 // TestSkillsPublishCaps pins the bundle's membership so a regression that
 // drops CAP_TERMS_LIST (which chainctl pre-flight needs to read acceptance
 // state) won't silently leave skills publishers unable to push.

@@ -639,9 +639,7 @@ enum Capability {
   // hunted and reading the hunts' metadata. Customer-facing — an org's members
   // hunt their own source in their own organization — and held by Owners.
   // hunts.create also authorizes Hunts.GetOrgPublicKey, the harness-keyring
-  // key a submitter seals the bundle under. The same pair gates the Uploads
-  // API (create for GetOrgPublicKey, CreateUpload and CompleteUpload; list
-  // for GetUpload and ListUploads).
+  // key a submitter seals the bundle under.
   //
   // Neither reaches the submitted source or the hunt's findings: the bundle is
   // sealed to a key this API cannot use, and these grant hunt metadata only.
@@ -654,9 +652,27 @@ enum Capability {
     (bit) = 249
   ];
 
+  // Baddie Hunter harness uploads (the Uploads intake API,
+  // chainguard.platform.harness.v1alpha1): submitting one repository's sealed
+  // source bundle and reading the org's uploads. Customer-facing and held by
+  // Owners. uploads.create also authorizes Uploads.GetOrgPublicKey, the
+  // harness-keyring key a submitter seals the bundle under. Uploading starts
+  // no hunt.
+  //
+  // Neither reaches the submitted source: the bundle is sealed to a key this
+  // API cannot use, and these grant upload metadata only.
+  CAP_HARNESS_UPLOADS_CREATE = 3403 [
+    (name) = "harness.uploads.create",
+    (bit) = 255
+  ];
+  CAP_HARNESS_UPLOADS_LIST = 3404 [
+    (name) = "harness.uploads.list",
+    (bit) = 256
+  ];
+
   // Reading an organization's plan and effective product limits.
   CAP_ENTITLEMENTS_GET = 3203 [(name) = "entitlements.get", (bit) = 252];
 
   reserved 1;
-  // next bit: 255
+  // next bit: 257
 }
