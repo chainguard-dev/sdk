@@ -854,7 +854,8 @@ type CustomOverlay struct {
 	// syncer bakes each entry into the image as a GUARDED_TRUSTSTORE_<n>
 	// variable, in list order. The most specific binding that sets this
 	// list replaces broader ones; an empty list is unset. Requires
-	// guarded_entrypoint in the same overlay config.
+	// guarded_entrypoint in the same overlay config. Not yet supported:
+	// the API rejects a non-empty list until its validation ships.
 	Truststores   []*CustomOverlay_Truststore `protobuf:"bytes,9,rep,name=truststores,proto3" json:"truststores,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

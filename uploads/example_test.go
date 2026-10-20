@@ -95,3 +95,35 @@ func ExampleSealStream() {
 	// true
 	// hello argos
 }
+
+// ExampleSealedSize demonstrates sizing a stream envelope before sealing
+// it, for a destination that must be told the length up front.
+func ExampleSealedSize() {
+	priv, err := rsa.GenerateKey(rand.Reader, 3072)
+	if err != nil {
+		panic(err)
+	}
+	payload := "hello world"
+
+	size, err := uploads.SealedSize(&priv.PublicKey, int64(len(payload)))
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(size)
+
+	var sealed bytes.Buffer
+	sw, err := uploads.SealStream(&sealed, &priv.PublicKey, uploads.EncryptionAlgorithm, "1")
+	if err != nil {
+		panic(err)
+	}
+	if _, err := io.WriteString(sw, payload); err != nil {
+		panic(err)
+	}
+	if err := sw.Close(); err != nil {
+		panic(err)
+	}
+	fmt.Println(int64(sealed.Len()) == size)
+	// Output:
+	// 437
+	// true
+}
