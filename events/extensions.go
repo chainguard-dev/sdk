@@ -42,6 +42,12 @@ const (
 	// (e.g., "apk.cgr.dev/{uidp}/{arch}/{pkg}-{version}.apk") for APK events.
 	APKURLKey = "apkurl"
 
+	// APKClassKey is the CloudEvents extension name holding the package class
+	// of an APK push (e.g. "base" or "source"), so a trigger can exclude a
+	// class without parsing the body. It is absent when the row carries no
+	// class.
+	APKClassKey = "apkclass"
+
 	// BodyTypeKey is the CloudEvents extension name holding the fully-qualified
 	// proto message name of the Occurrence body (e.g. "chainguard.platform.iam.v2beta1.Group").
 	// Subscribers use it to resolve the body into a concrete proto.Message via

@@ -61,6 +61,12 @@ type PushEvent struct {
 	// UserAgent holds the user-agent of the client who pushed.
 	UserAgent string `json:"user_agent"`
 
+	// Class holds the package class of the pushed row (for example "base"
+	// or "source"), the value the registry stamps on rows of the shared
+	// source repos. Empty when the row carries none. The same value is the
+	// event's apkclass extension (events.APKClassKey).
+	Class string `json:"class,omitempty"`
+
 	Error *Error `json:"error,omitempty"`
 }
 
