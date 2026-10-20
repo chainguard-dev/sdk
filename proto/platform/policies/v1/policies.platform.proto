@@ -372,7 +372,7 @@ message PolicyFilter {
   string page_token = 3;
 
   // Order results by field. Format: "field [asc|desc]"
-  // Default: "id asc"
+  // Default: "name asc"
   // Note: Changing order_by between pages invalidates the page token.
   string order_by = 4 [(google.api.field_behavior) = OPTIONAL];
 

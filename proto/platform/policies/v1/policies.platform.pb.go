@@ -720,7 +720,7 @@ type PolicyFilter struct {
 	// Page token from a previous List response for pagination.
 	PageToken string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// Order results by field. Format: "field [asc|desc]"
-	// Default: "id asc"
+	// Default: "name asc"
 	// Note: Changing order_by between pages invalidates the page token.
 	OrderBy string `protobuf:"bytes,4,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
 	// Number of results to skip before returning.
