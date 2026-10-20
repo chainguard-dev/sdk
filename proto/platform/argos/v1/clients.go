@@ -14,6 +14,7 @@ type Clients interface {
 	ArgosOSV() ArgosOSVClient
 	ArgosVEX() ArgosVEXClient
 	ArgosVulns() ArgosVulnsClient
+	ArgosPartners() ArgosPartnersClient
 
 	Close() error
 }
@@ -24,6 +25,7 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 		argosOSV:       NewArgosOSVClient(conn),
 		argosVEX:       NewArgosVEXClient(conn),
 		argosVulns:     NewArgosVulnsClient(conn),
+		argosPartners:  NewArgosPartnersClient(conn),
 		// conn is not set, this client struct does not own closing it.
 	}
 }
@@ -33,6 +35,7 @@ type clients struct {
 	argosOSV       ArgosOSVClient
 	argosVEX       ArgosVEXClient
 	argosVulns     ArgosVulnsClient
+	argosPartners  ArgosPartnersClient
 
 	conn *grpc.ClientConn
 }
@@ -51,6 +54,10 @@ func (c *clients) ArgosVEX() ArgosVEXClient {
 
 func (c *clients) ArgosVulns() ArgosVulnsClient {
 	return c.argosVulns
+}
+
+func (c *clients) ArgosPartners() ArgosPartnersClient {
+	return c.argosPartners
 }
 
 func (c *clients) Close() error {

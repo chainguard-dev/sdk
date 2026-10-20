@@ -1,0 +1,162 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.argos;
+
+import "annotations/auth.proto";
+import "google/api/annotations.proto";
+
+option go_package = "chainguard.dev/sdk/proto/platform/argos/v1";
+
+// ArgosPartners lets a mitigation partner declare the mitigation methods it
+// can apply and the packages it is interested in. Requested capabilities
+// await Chainguard review before they widen what the partner can see;
+// interests need no review. See
+// docs/argos/mitigation-partner-api-capability-mapping.md.
+service ArgosPartners {
+  // GetCapabilities returns the partner's capabilities by review state and
+  // its interests.
+  rpc GetCapabilities(GetPartnerCapabilitiesRequest) returns (
+      PartnerCapabilities
+  ) {
+    option (google.api.http) = {
+      get: "/argos/v1/partners/{partner_id}/capabilities"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ARGOS_MITIGATION_PARTNER]
+      }
+    };
+  }
+
+  // UpdateCapabilities overwrites the partner's requested capabilities and
+  // interests. A requested capability keeps an approved state, moves
+  // rejected back to pending, and is otherwise pending; one not requested is
+  // removed without approval (but audited). Interests are replaced outright.
+  rpc UpdateCapabilities(UpdatePartnerCapabilitiesRequest) returns (
+      UpdatePartnerCapabilitiesResponse
+  ) {
+    option (google.api.http) = {
+      put: "/argos/v1/partners/{partner_id}/capabilities"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_ARGOS_MITIGATION_PARTNER,
+          CAP_ARGOS_PARTNER_CAPABILITY_REQUEST
+        ]
+      }
+    };
+  }
+
+  // DeleteCapabilities removes the named capabilities and interests from the
+  // partner, ignoring names it does not hold, and returns what remains. No
+  // approval is required.
+  rpc DeleteCapabilities(DeletePartnerCapabilitiesRequest) returns (
+      PartnerCapabilities
+  ) {
+    option (google.api.http) = {
+      delete: "/argos/v1/partners/{partner_id}/capabilities"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_ARGOS_MITIGATION_PARTNER,
+          CAP_ARGOS_PARTNER_CAPABILITY_REQUEST
+        ]
+      }
+    };
+  }
+
+  // ListMitigationMethods returns the live mitigation-method catalogue, keyed
+  // by display name. There is no per-organisation filtering: every method a
+  // partner could request is visible so they can build a capabilities.md.
+  rpc ListMitigationMethods(ListMitigationMethodsRequest) returns (
+      ListMitigationMethodsResponse
+  ) {
+    option (google.api.http) = {
+      get: "/argos/v1/mitigation-methods"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ARGOS_PARTNER_CAPABILITY_REQUEST]
+        unscoped: true
+      }
+    };
+  }
+}
+
+message GetPartnerCapabilitiesRequest {
+  // partner_id is the UIDP of the partner organization.
+  string partner_id = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message UpdatePartnerCapabilitiesRequest {
+  // partner_id is the UIDP of the partner organization.
+  string partner_id = 1 [(chainguard.annotations.iam_scope) = true];
+  // capabilities is the full set of mitigation method display names the
+  // partner now requests. Any name that is not a live method is reported
+  // back as unrecognized.
+  repeated string capabilities = 2;
+  // interests is the full set of PURLs the partner is interested in. Empty
+  // or unset means the partner is interested in every PURL.
+  repeated string interests = 3;
+}
+
+message RequestedCapabilities {
+  // pending is every requested capability now awaiting review, sorted.
+  repeated string pending_capabilities = 1;
+  // unrecognized is every requested name that is not a live method, sorted.
+  repeated string unrecognized_capabilities = 2;
+}
+
+message UpdatePartnerCapabilitiesResponse {
+  RequestedCapabilities capabilities = 1;
+}
+
+message DeletePartnerCapabilitiesRequest {
+  // partner_id is the UIDP of the partner organization.
+  string partner_id = 1 [(chainguard.annotations.iam_scope) = true];
+  // capabilities names method display names to remove.
+  repeated string capabilities = 2;
+  // interests names PURLs to remove.
+  repeated string interests = 3;
+}
+
+message PartnerCapabilityState {
+  // pending is every capability awaiting review, sorted.
+  repeated string pending_capabilities = 1;
+  // approved is every approved capability, sorted.
+  repeated string approved_capabilities = 2;
+  // rejected is every rejected capability, sorted.
+  repeated string rejected_capabilities = 3;
+  // rejection_reasons maps a rejected capability's display name to the
+  // reason it was rejected, so the partner can see why.
+  map<string, string> rejection_reasons = 4;
+}
+
+message PartnerCapabilities {
+  PartnerCapabilityState capabilities = 1;
+  // interests is the partner's current set of PURLs of interest, sorted.
+  // Empty means the partner is interested in every PURL.
+  repeated string interests = 2;
+}
+
+message ListMitigationMethodsRequest {
+}
+
+message MitigationMethod {
+  string title = 1;
+  string description = 2;
+  // cwes are sorted.
+  repeated string cwes = 3;
+}
+
+message ListMitigationMethodsResponse {
+  // mitigation_methods is keyed by display name.
+  map<string, MitigationMethod> mitigation_methods = 1;
+}
