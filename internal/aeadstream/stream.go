@@ -25,15 +25,6 @@ const (
 	// index and the final-chunk flag.
 	NoncePrefixSize = 7
 
-	// ChunkOverhead is the bytes each sealed chunk adds to its plaintext:
-	// the AES-GCM tag.
-	ChunkOverhead = 16
-
-	// MaxChunks is the most chunks one stream holds, set by the 4-byte
-	// chunk index in the nonce. The last index is a legal home for the
-	// final chunk.
-	MaxChunks = math.MaxUint32 + 1
-
 	// MaxChunkSize bounds the chunk size NewReader honors. A format reads
 	// its chunk size from a header that is unauthenticated until a chunk
 	// opens under it, so an unbounded value would let a hostile stream
@@ -203,8 +194,8 @@ func (s *streamWriter) seal(final bool) error {
 	// further non-final chunk is what stops the index wrapping onto a
 	// nonce this stream has already used; the last index is still a legal
 	// home for the final chunk.
-	if !final && s.index == MaxChunks-1 {
-		return fmt.Errorf("stream exceeds the maximum of %d chunks", uint64(MaxChunks))
+	if !final && s.index == math.MaxUint32 {
+		return fmt.Errorf("stream exceeds the maximum of %d chunks", uint64(math.MaxUint32)+1)
 	}
 	s.ct = s.sc.aead.Seal(s.ct[:0], s.sc.nonceFor(s.index, final), s.buf, s.sc.aad)
 	if _, err := s.w.Write(s.ct); err != nil {
@@ -332,8 +323,8 @@ func (s *streamReader) nextChunk() error {
 	// arrive here the long way, one authenticated chunk at a time. It is
 	// checked before the plaintext is staged, or a Read after the error
 	// would still return this chunk.
-	if !final && s.index == MaxChunks-1 {
-		return fmt.Errorf("stream exceeds the maximum of %d chunks", uint64(MaxChunks))
+	if !final && s.index == math.MaxUint32 {
+		return fmt.Errorf("stream exceeds the maximum of %d chunks", uint64(math.MaxUint32)+1)
 	}
 	// Keep whatever Open allocated as the next chunk's scratch; s.plain is
 	// always drained before nextChunk runs again.
