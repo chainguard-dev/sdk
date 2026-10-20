@@ -105,6 +105,24 @@ enum Capability {
     (bit) = 253
   ];
 
+  // Auth policies: an organization's sign-in controls (today, sso_only).
+  // update can shut members who do not sign in through the organization's
+  // identity provider out of it, so it is owner-only; list (which also
+  // authorizes Get) sits with the other IAM read capabilities. Numbered in a
+  // fresh block, update/list in the 2/3 slots the IAM resources above use;
+  // the create/delete slots are reserved below.
+  CAP_IAM_AUTH_POLICIES_UPDATE = 3502 [
+    (name) = "auth_policies.update",
+    (bit) = 257
+  ];
+  CAP_IAM_AUTH_POLICIES_LIST = 3503 [
+    (name) = "auth_policies.list",
+    (bit) = 258
+  ];
+  // auth_policies.{create,delete}: every organization has exactly one policy,
+  // which is never created or deleted.
+  reserved 3501, 3504;
+
   // Events
 
   CAP_EVENTS_SUBSCRIPTION_CREATE = 1501 [(name) = "subscriptions.create", (bit) = 36];
@@ -674,5 +692,5 @@ enum Capability {
   CAP_ENTITLEMENTS_GET = 3203 [(name) = "entitlements.get", (bit) = 252];
 
   reserved 1;
-  // next bit: 257
+  // next bit: 259
 }

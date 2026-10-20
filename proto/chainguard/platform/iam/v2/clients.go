@@ -25,6 +25,7 @@ type Clients interface {
 	RolesService() RolesServiceClient
 	RoleBindingsService() RoleBindingsServiceClient
 	ExternalGroupRoleMappingsService() ExternalGroupRoleMappingsServiceClient
+	AuthPoliciesService() AuthPoliciesServiceClient
 	TermsService() TermsServiceClient
 
 	// Iterator methods for pagination - ExternalGroupRoleMappings
@@ -77,6 +78,7 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 		rolesService:                     NewRolesServiceClient(conn),
 		roleBindingsService:              NewRoleBindingsServiceClient(conn),
 		externalGroupRoleMappingsService: NewExternalGroupRoleMappingsServiceClient(conn),
+		authPoliciesService:              NewAuthPoliciesServiceClient(conn),
 		termsService:                     NewTermsServiceClient(conn),
 		// conn is not set, this client struct does not own closing it
 	}
@@ -91,6 +93,7 @@ type clients struct {
 	rolesService                     RolesServiceClient
 	roleBindingsService              RoleBindingsServiceClient
 	externalGroupRoleMappingsService ExternalGroupRoleMappingsServiceClient
+	authPoliciesService              AuthPoliciesServiceClient
 	termsService                     TermsServiceClient
 
 	conn *grpc.ClientConn
@@ -128,6 +131,10 @@ func (c *clients) RoleBindingsService() RoleBindingsServiceClient {
 
 func (c *clients) ExternalGroupRoleMappingsService() ExternalGroupRoleMappingsServiceClient {
 	return c.externalGroupRoleMappingsService
+}
+
+func (c *clients) AuthPoliciesService() AuthPoliciesServiceClient {
+	return c.authPoliciesService
 }
 
 func (c *clients) TermsService() TermsServiceClient {

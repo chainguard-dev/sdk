@@ -99,10 +99,18 @@ const (
 	Capability_CAP_IAM_SCIM_MANAGE               Capability = 1305
 	Capability_CAP_IAM_SCIM_USERS_LIST           Capability = 1306
 	Capability_CAP_IAM_SCIM_GROUPS_LIST          Capability = 1307
-	Capability_CAP_EVENTS_SUBSCRIPTION_CREATE    Capability = 1501
-	Capability_CAP_EVENTS_SUBSCRIPTION_UPDATE    Capability = 1502
-	Capability_CAP_EVENTS_SUBSCRIPTION_LIST      Capability = 1503
-	Capability_CAP_EVENTS_SUBSCRIPTION_DELETE    Capability = 1504
+	// Auth policies: an organization's sign-in controls (today, sso_only).
+	// update can shut members who do not sign in through the organization's
+	// identity provider out of it, so it is owner-only; list (which also
+	// authorizes Get) sits with the other IAM read capabilities. Numbered in a
+	// fresh block, update/list in the 2/3 slots the IAM resources above use;
+	// the create/delete slots are reserved below.
+	Capability_CAP_IAM_AUTH_POLICIES_UPDATE   Capability = 3502
+	Capability_CAP_IAM_AUTH_POLICIES_LIST     Capability = 3503
+	Capability_CAP_EVENTS_SUBSCRIPTION_CREATE Capability = 1501
+	Capability_CAP_EVENTS_SUBSCRIPTION_UPDATE Capability = 1502
+	Capability_CAP_EVENTS_SUBSCRIPTION_LIST   Capability = 1503
+	Capability_CAP_EVENTS_SUBSCRIPTION_DELETE Capability = 1504
 	// repo.blobs.get is a capability required to pull container images.
 	// We explicitly define this to distinguish roles that allow browsing/viewing
 	// metadata associated with images vs pulling the image itself.
@@ -586,6 +594,8 @@ var (
 		1305:  "CAP_IAM_SCIM_MANAGE",
 		1306:  "CAP_IAM_SCIM_USERS_LIST",
 		1307:  "CAP_IAM_SCIM_GROUPS_LIST",
+		3502:  "CAP_IAM_AUTH_POLICIES_UPDATE",
+		3503:  "CAP_IAM_AUTH_POLICIES_LIST",
 		1501:  "CAP_EVENTS_SUBSCRIPTION_CREATE",
 		1502:  "CAP_EVENTS_SUBSCRIPTION_UPDATE",
 		1503:  "CAP_EVENTS_SUBSCRIPTION_LIST",
@@ -840,6 +850,8 @@ var (
 		"CAP_IAM_SCIM_MANAGE":                                1305,
 		"CAP_IAM_SCIM_USERS_LIST":                            1306,
 		"CAP_IAM_SCIM_GROUPS_LIST":                           1307,
+		"CAP_IAM_AUTH_POLICIES_UPDATE":                       3502,
+		"CAP_IAM_AUTH_POLICIES_LIST":                         3503,
 		"CAP_EVENTS_SUBSCRIPTION_CREATE":                     1501,
 		"CAP_EVENTS_SUBSCRIPTION_UPDATE":                     1502,
 		"CAP_EVENTS_SUBSCRIPTION_LIST":                       1503,
@@ -1122,7 +1134,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x8e\x8a\x01\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xa4\x8b\x01\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1189,7 +1201,9 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x17CAP_IAM_SCIM_USERS_LIST\x10\x9a\n" +
 	"\x1a.\xa8ˑM\xe1\x01\x9a\xaf\xa8\xd2\x05\"identity_providers.scim.users.list\x12N\n" +
 	"\x18CAP_IAM_SCIM_GROUPS_LIST\x10\x9b\n" +
-	"\x1a/\xa8ˑM\xfd\x01\x9a\xaf\xa8\xd2\x05#identity_providers.scim.groups.list\x12D\n" +
+	"\x1a/\xa8ˑM\xfd\x01\x9a\xaf\xa8\xd2\x05#identity_providers.scim.groups.list\x12C\n" +
+	"\x1cCAP_IAM_AUTH_POLICIES_UPDATE\x10\xae\x1b\x1a \xa8ˑM\x81\x02\x9a\xaf\xa8\xd2\x05\x14auth_policies.update\x12?\n" +
+	"\x1aCAP_IAM_AUTH_POLICIES_LIST\x10\xaf\x1b\x1a\x1e\xa8ˑM\x82\x02\x9a\xaf\xa8\xd2\x05\x12auth_policies.list\x12D\n" +
 	"\x1eCAP_EVENTS_SUBSCRIPTION_CREATE\x10\xdd\v\x1a\x1f\xa8ˑM$\x9a\xaf\xa8\xd2\x05\x14subscriptions.create\x12D\n" +
 	"\x1eCAP_EVENTS_SUBSCRIPTION_UPDATE\x10\xde\v\x1a\x1f\xa8ˑM%\x9a\xaf\xa8\xd2\x05\x14subscriptions.update\x12@\n" +
 	"\x1cCAP_EVENTS_SUBSCRIPTION_LIST\x10\xdf\v\x1a\x1d\xa8ˑM&\x9a\xaf\xa8\xd2\x05\x12subscriptions.list\x12D\n" +
@@ -1396,7 +1410,7 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x16CAP_HARNESS_HUNTS_LIST\x10\xca\x1a\x1a\x1e\xa8ˑM\xf9\x01\x9a\xaf\xa8\xd2\x05\x12harness.hunts.list\x12C\n" +
 	"\x1aCAP_HARNESS_UPLOADS_CREATE\x10\xcb\x1a\x1a\"\xa8ˑM\xff\x01\x9a\xaf\xa8\xd2\x05\x16harness.uploads.create\x12?\n" +
 	"\x18CAP_HARNESS_UPLOADS_LIST\x10\xcc\x1a\x1a \xa8ˑM\x80\x02\x9a\xaf\xa8\xd2\x05\x14harness.uploads.list\x127\n" +
-	"\x14CAP_ENTITLEMENTS_GET\x10\x83\x19\x1a\x1c\xa8ˑM\xfc\x01\x9a\xaf\xa8\xd2\x05\x10entitlements.get\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x06\b\xd1\x0e\x10\xd1\x0e\"\x04\b\x01\x10\x01:8\n" +
+	"\x14CAP_ENTITLEMENTS_GET\x10\x83\x19\x1a\x1c\xa8ˑM\xfc\x01\x9a\xaf\xa8\xd2\x05\x10entitlements.get\"\x06\b\xad\x1b\x10\xad\x1b\"\x06\b\xb0\x1b\x10\xb0\x1b\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x06\b\xd1\x0e\x10\xd1\x0e\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +
 	"\x03bit\x12!.google.protobuf.EnumValueOptions\x18\xb5\x99\xd2\t \x01(\rR\x03bit:I\n" +
 	"\rinternal_only\x12!.google.protobuf.EnumValueOptions\x18\xf4\x85\xa5Z \x01(\bR\finternalOnlyB'Z%chainguard.dev/sdk/proto/capabilitiesb\x06proto3"

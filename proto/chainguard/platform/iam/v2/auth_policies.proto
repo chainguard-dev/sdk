@@ -1,0 +1,139 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.iam.v2;
+
+import "annotations/auth.proto";
+import "annotations/events.proto";
+import "annotations/mcp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/field_mask.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/iam/v2";
+option java_multiple_files = true;
+option java_outer_classname = "AuthPoliciesProto";
+option java_package = "com.chainguard.platform.iam.v2";
+
+// AuthPoliciesService manages an organization's authentication policy: the
+// controls that decide which sign-in methods its members may use. Every
+// organization has exactly one policy, addressed by the organization's UIDP.
+// It is never created or deleted, only read and updated.
+service AuthPoliciesService {
+  // GetAuthPolicy returns the authentication policy of an organization. An
+  // organization that has never configured one gets a policy with every
+  // control unset, which leaves sign-in unrestricted.
+  rpc GetAuthPolicy(GetAuthPolicyRequest) returns (AuthPolicy) {
+    option (google.api.http) = {get: "/iam/v2/authPolicies/{uid=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_AUTH_POLICIES_LIST]
+      }
+    };
+  }
+
+  // UpdateAuthPolicy changes an organization's authentication policy. Turning
+  // sso_only on shuts every member who does not sign in through the
+  // organization's own identity provider out of it, so this is held by
+  // organization owners only and every change is published as an event.
+  rpc UpdateAuthPolicy(UpdateAuthPolicyRequest) returns (AuthPolicy) {
+    option (google.api.http) = {
+      patch: "/iam/v2/authPolicies/{auth_policy.uid=**}"
+      body: "auth_policy"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_AUTH_POLICIES_UPDATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.auth_policies.updated.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    // Never an MCP tool: flipping sso_only can lock an organization's
+    // members out, and that decision belongs to a person acting through
+    // chainctl or the Console. The backend builds its MCP surface from
+    // v2beta1 descriptors only, so no RPC in this v2-only service is a tool
+    // today; hidden guards the day v2 joins that surface.
+    option (chainguard.annotations.mcp) = {hidden: true};
+  }
+}
+
+// AuthPolicy is an organization's authentication policy. There is one per
+// organization; it has no identity of its own and is addressed by the
+// organization's UIDP.
+message AuthPolicy {
+  option (google.api.resource) = {
+    type: "iam.chainguard.dev/AuthPolicy"
+    pattern: "groups/{group}/authPolicy"
+    singular: "authPolicy"
+    plural: "authPolicies"
+  };
+
+  // UIDP of the root organization this policy belongs to. Only root
+  // organizations carry a policy; it governs sign-in for every group beneath
+  // them. The value MUST be a root organization's UIDP: the UIDP of a group
+  // below the root is rejected with INVALID_ARGUMENT and is never resolved to
+  // its root, so authorization is always checked against the organization the
+  // policy governs and an owner of a sub-group alone cannot read or write it.
+  //
+  // This is the policy's address, not a server-assigned id: UpdateAuthPolicy
+  // takes it from the request body (and the HTTP path), so it is REQUIRED on
+  // input rather than OUTPUT_ONLY. Clients that build requests from the field
+  // annotations (AIP-203) would otherwise drop it and have nothing to address.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // sso_only, when true, makes the organization's own identity provider the
+  // only way to sign in to it: sessions established through any other method
+  // (social sign-in, for example) are refused for this organization. Unset or
+  // false leaves sign-in unrestricted, which is the behaviour of an
+  // organization that has never configured a policy.
+  //
+  // The field is presence-tracked so that "never configured" and "explicitly
+  // off" stay distinguishable, and so that an Update whose mask is implied
+  // from the populated fields can carry an explicit false. Readers must use
+  // the SsoOnly pointer field directly, never the generated GetSsoOnly()
+  // accessor: the accessor returns false for nil and erases that distinction.
+  optional bool sso_only = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// GetAuthPolicyRequest is the request message for GetAuthPolicy.
+message GetAuthPolicyRequest {
+  // UIDP of the root organization whose policy to retrieve. MUST be a root
+  // organization's UIDP: a sub-group UIDP is rejected with INVALID_ARGUMENT
+  // and is never resolved to its root.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// UpdateAuthPolicyRequest is the request message for UpdateAuthPolicy.
+message UpdateAuthPolicyRequest {
+  // The policy to apply. uid names the root organization it belongs to and
+  // follows the AuthPolicy.uid rule: a sub-group UIDP is INVALID_ARGUMENT.
+  AuthPolicy auth_policy = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The list of fields to update. If not provided, an implied
+  // field mask is used equivalent to all fields that are populated
+  // (have non-default values). sso_only is the only field that can be
+  // named. "*" is not supported: elsewhere a wildcard is a full replacement
+  // that clears whatever the body leaves unset, and on a one-field sign-in
+  // control that is a silent clear, so it is rejected with INVALID_ARGUMENT
+  // and the caller names sso_only instead. uid may also be named, as a
+  // client that echoes a Get response back does; it is never written.
+  google.protobuf.FieldMask update_mask = 2 [
+    // Optional per AIP-134: omitted, the mask is implied as described above.
+    (google.api.field_behavior) = OPTIONAL
+  ];
+}

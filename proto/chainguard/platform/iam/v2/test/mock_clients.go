@@ -24,6 +24,7 @@ type MockClients struct {
 	RolesServiceClient                     MockRolesServiceClient
 	RoleBindingsServiceClient              MockRoleBindingsServiceClient
 	ExternalGroupRoleMappingsServiceClient MockExternalGroupRoleMappingsServiceClient
+	AuthPoliciesServiceClient              MockAuthPoliciesServiceClient
 	TermsServiceClient                     MockTermsServiceClient
 }
 
@@ -84,6 +85,11 @@ func (m *MockClients) ListExternalGroupRoleMappingsAll(ctx context.Context, req 
 // ListExternalGroupRoleMappingsIter implements [v2.Clients].
 func (m *MockClients) ListExternalGroupRoleMappingsIter(ctx context.Context, req *iam.ListExternalGroupRoleMappingsRequest) iter.Seq2[*iam.ExternalGroupRoleMapping, error] {
 	return test.MockIter(m.ListExternalGroupRoleMappingsAll(ctx, req))
+}
+
+// AuthPoliciesService implements [v2.Clients].
+func (m *MockClients) AuthPoliciesService() iam.AuthPoliciesServiceClient {
+	return &m.AuthPoliciesServiceClient
 }
 
 // TermsService implements [v2.Clients].

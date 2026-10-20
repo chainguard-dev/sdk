@@ -25,6 +25,9 @@ var (
 		Capability_CAP_IAM_ROLES_LIST,
 		Capability_CAP_IAM_IDENTITY_LIST,
 		Capability_CAP_IAM_IDENTITY_PROVIDERS_LIST,
+		// Reading an organization's sign-in policy reveals only whether SSO is
+		// enforced, so it follows identity_providers.list into every role.
+		Capability_CAP_IAM_AUTH_POLICIES_LIST,
 
 		Capability_CAP_REPO_LIST,
 		Capability_CAP_MANIFEST_LIST,
@@ -167,6 +170,10 @@ var (
 		Capability_CAP_IAM_IDENTITY_PROVIDERS_CREATE,
 		Capability_CAP_IAM_IDENTITY_PROVIDERS_DELETE,
 		Capability_CAP_IAM_IDENTITY_PROVIDERS_UPDATE,
+		// auth_policies.update turns sso_only on or off for the organization.
+		// It travels with identity_providers.update: both decide how members
+		// sign in, and both are owner-only.
+		Capability_CAP_IAM_AUTH_POLICIES_UPDATE,
 		Capability_CAP_IAM_SCIM_MANAGE,
 		// SCIM is admin-adjacent: listing an IdP's provisioned users is owner-only
 		// for now, alongside scim.manage. It can move to a viewer-oriented role

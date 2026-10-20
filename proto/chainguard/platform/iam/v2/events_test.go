@@ -40,8 +40,9 @@ func TestScimLifecycleCapabilityBundle(t *testing.T) {
 	}
 }
 
-// getEventAttributes extracts EventAttributes from a proto method descriptor.
-func getEventAttributes(t *testing.T, sd protoreflect.ServiceDescriptor, methodName string) *cgannotations.EventAttributes {
+// methodOptions returns the options of a method on a service descriptor,
+// failing the test when the method or its options are missing.
+func methodOptions(t *testing.T, sd protoreflect.ServiceDescriptor, methodName string) *descriptorpb.MethodOptions {
 	t.Helper()
 	md := sd.Methods().ByName(protoreflect.Name(methodName))
 	if md == nil {
@@ -51,7 +52,13 @@ func getEventAttributes(t *testing.T, sd protoreflect.ServiceDescriptor, methodN
 	if !ok || opts == nil {
 		t.Fatalf("method %s has no options", methodName)
 	}
-	ext, ok := proto.GetExtension(opts, cgannotations.E_Events).(*cgannotations.EventAttributes)
+	return opts
+}
+
+// getEventAttributes extracts EventAttributes from a proto method descriptor.
+func getEventAttributes(t *testing.T, sd protoreflect.ServiceDescriptor, methodName string) *cgannotations.EventAttributes {
+	t.Helper()
+	ext, ok := proto.GetExtension(methodOptions(t, sd, methodName), cgannotations.E_Events).(*cgannotations.EventAttributes)
 	if !ok || ext == nil {
 		t.Fatalf("method %s is missing chainguard.annotations.events", methodName)
 	}

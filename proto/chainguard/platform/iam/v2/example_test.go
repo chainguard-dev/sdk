@@ -312,3 +312,36 @@ func ExampleClients_ListRoleBindingsAll() {
 		fmt.Println(roleBinding.GetUid())
 	}
 }
+
+func ExampleClients_AuthPoliciesService() {
+	conn, err := grpc.NewClient("api.chainguard.dev:443",
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	clients := v2.NewClientsFromConnection(conn)
+	defer clients.Close()
+
+	ctx := context.Background()
+
+	// Read an organization's authentication policy. sso_only is
+	// presence-tracked: read the pointer, not GetSsoOnly(), to tell an
+	// organization that has never configured a policy apart from one that
+	// turned SSO-only off.
+	policy, err := clients.AuthPoliciesService().GetAuthPolicy(ctx, &v2.GetAuthPolicyRequest{
+		Uid: "example-org-uid",
+	})
+	if err != nil {
+		panic(err)
+	}
+	switch {
+	case policy.SsoOnly == nil:
+		fmt.Println("no policy configured")
+	case *policy.SsoOnly:
+		fmt.Println("SSO-only sign-in enforced")
+	default:
+		fmt.Println("SSO-only sign-in off")
+	}
+}

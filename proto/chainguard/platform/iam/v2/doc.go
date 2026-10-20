@@ -10,7 +10,8 @@ Package v2 provides Go clients for the Chainguard IAM v2 API.
 
 This package contains generated protobuf types and gRPC clients for managing
 Chainguard IAM resources including groups, identities, roles, role bindings,
-account associations, group invites, and identity providers. It provides a
+account associations, group invites, identity providers, and authentication
+policies. It provides a
 unified Clients interface for accessing all IAM services with built-in
 pagination support.
 
@@ -24,6 +25,7 @@ pagination support.
   - GroupInvites: Manage group invitations with role assignment and email notification
   - IdentityProviders: Manage external OIDC identity providers for SSO authentication
   - ExternalGroupRoleMappings: Map external IdP groups to Chainguard roles for SSO federation
+  - AuthPolicies: Read and update an organization's authentication policy (SSO-only sign-in)
   - Terms: Manage legal document acceptance for organizations
   - Pagination: Iterator-based and slice-based pagination helpers
 
@@ -82,6 +84,10 @@ ExternalGroupRoleMappingsService provides operations for managing external group
   - GetExternalGroupRoleMapping: Retrieve a single mapping by UID
   - DeleteExternalGroupRoleMapping: Delete a mapping (hard delete for unique constraint)
   - ListExternalGroupRoleMappings: List mappings with filtering and pagination
+
+AuthPoliciesService manages an organization's authentication policy:
+  - GetAuthPolicy: Retrieve an organization's policy by the organization's UIDP
+  - UpdateAuthPolicy: Turn SSO-only sign-in on or off for an organization
 
 TermsService manages legal document acceptance for organizations:
   - AcceptTerms: Record acceptance of legal documents for an organization
@@ -145,3 +151,4 @@ package v2
 //go:generate protoc -I ../../../.. -I ../../../../.. --go_out=../../../.. --go_opt=paths=source_relative --go-grpc_out=../../../.. --go-grpc_opt=paths=source_relative --grpc-gateway_out=../../../.. --grpc-gateway_opt logtostderr=true --grpc-gateway_opt paths=source_relative --grpc-gateway_opt generate_unbound_methods=true --grpc-gateway_opt omit_package_doc=true --openapiv2_out=. --openapiv2_opt use_allof_for_refs=true,preserve_rpc_order=true,openapi_naming_strategy=fqn,enable_rpc_deprecation=true chainguard/platform/iam/v2/identity_providers.proto
 //go:generate protoc -I ../../../.. -I ../../../../.. --go_out=../../../.. --go_opt=paths=source_relative --go-grpc_out=../../../.. --go-grpc_opt=paths=source_relative --grpc-gateway_out=../../../.. --grpc-gateway_opt logtostderr=true --grpc-gateway_opt paths=source_relative --grpc-gateway_opt generate_unbound_methods=true --grpc-gateway_opt omit_package_doc=true --openapiv2_out=. --openapiv2_opt use_allof_for_refs=true,preserve_rpc_order=true,openapi_naming_strategy=fqn,enable_rpc_deprecation=true chainguard/platform/iam/v2/external_group_role_mappings.proto
 //go:generate protoc -I ../../../.. -I ../../../../.. --go_out=../../../.. --go_opt=paths=source_relative --go-grpc_out=../../../.. --go-grpc_opt=paths=source_relative --grpc-gateway_out=../../../.. --grpc-gateway_opt logtostderr=true --grpc-gateway_opt paths=source_relative --grpc-gateway_opt generate_unbound_methods=true --grpc-gateway_opt omit_package_doc=true --openapiv2_out=. --openapiv2_opt use_allof_for_refs=true,preserve_rpc_order=true,openapi_naming_strategy=fqn,enable_rpc_deprecation=true chainguard/platform/iam/v2/terms.proto
+//go:generate protoc -I ../../../.. -I ../../../../.. --go_out=../../../.. --go_opt=paths=source_relative --go-grpc_out=../../../.. --go-grpc_opt=paths=source_relative --grpc-gateway_out=../../../.. --grpc-gateway_opt logtostderr=true --grpc-gateway_opt paths=source_relative --grpc-gateway_opt generate_unbound_methods=true --grpc-gateway_opt omit_package_doc=true --openapiv2_out=. --openapiv2_opt use_allof_for_refs=true,preserve_rpc_order=true,openapi_naming_strategy=fqn,enable_rpc_deprecation=true chainguard/platform/iam/v2/auth_policies.proto
