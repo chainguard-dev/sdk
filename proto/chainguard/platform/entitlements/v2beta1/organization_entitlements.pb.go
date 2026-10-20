@@ -117,10 +117,6 @@ const (
 	ProductEntitlement_STATE_UNSPECIFIED ProductEntitlement_State = 0
 	// Access is active.
 	ProductEntitlement_STATE_ACTIVE ProductEntitlement_State = 1
-	// Access is a trial.
-	ProductEntitlement_STATE_TRIAL ProductEntitlement_State = 2
-	// The trial is in its grace period.
-	ProductEntitlement_STATE_GRACE ProductEntitlement_State = 3
 	// No live grant includes the product.
 	ProductEntitlement_STATE_NOT_INCLUDED ProductEntitlement_State = 4
 )
@@ -130,15 +126,11 @@ var (
 	ProductEntitlement_State_name = map[int32]string{
 		0: "STATE_UNSPECIFIED",
 		1: "STATE_ACTIVE",
-		2: "STATE_TRIAL",
-		3: "STATE_GRACE",
 		4: "STATE_NOT_INCLUDED",
 	}
 	ProductEntitlement_State_value = map[string]int32{
 		"STATE_UNSPECIFIED":  0,
 		"STATE_ACTIVE":       1,
-		"STATE_TRIAL":        2,
-		"STATE_GRACE":        3,
 		"STATE_NOT_INCLUDED": 4,
 	}
 )
@@ -788,20 +780,18 @@ const file_chainguard_platform_entitlements_v2beta1_organization_entitlements_pr
 	"\x02id\x18\x01 \x01(\tR\x02id\x12!\n" +
 	"\fdisplay_name\x18\x02 \x01(\tR\vdisplayName\x12\x1f\n" +
 	"\vupgrade_url\x18\x03 \x01(\tR\n" +
-	"upgradeUrl\"\xcb\x03\n" +
+	"upgradeUrl\"\xcf\x03\n" +
 	"\x12ProductEntitlement\x12K\n" +
 	"\aproduct\x18\x01 \x01(\x0e21.chainguard.platform.entitlements.v2beta1.ProductR\aproduct\x12^\n" +
 	"\x05state\x18\x02 \x01(\x0e2B.chainguard.platform.entitlements.v2beta1.ProductEntitlement.StateB\x04\xe2A\x01\x03R\x05state\x12;\n" +
 	"\vexpire_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"expireTime\x12\x16\n" +
 	"\x06grants\x18\x04 \x03(\tR\x06grants\x12G\n" +
-	"\x06limits\x18\x05 \x03(\v2/.chainguard.platform.entitlements.v2beta1.LimitR\x06limits\"j\n" +
+	"\x06limits\x18\x05 \x03(\v2/.chainguard.platform.entitlements.v2beta1.LimitR\x06limits\"n\n" +
 	"\x05State\x12\x15\n" +
 	"\x11STATE_UNSPECIFIED\x10\x00\x12\x10\n" +
-	"\fSTATE_ACTIVE\x10\x01\x12\x0f\n" +
-	"\vSTATE_TRIAL\x10\x02\x12\x0f\n" +
-	"\vSTATE_GRACE\x10\x03\x12\x16\n" +
-	"\x12STATE_NOT_INCLUDED\x10\x04\"\xad\a\n" +
+	"\fSTATE_ACTIVE\x10\x01\x12\x16\n" +
+	"\x12STATE_NOT_INCLUDED\x10\x04\"\x04\b\x02\x10\x02\"\x04\b\x03\x10\x03*\vSTATE_TRIAL*\vSTATE_GRACE\"\xad\a\n" +
 	"\x05Limit\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12!\n" +
 	"\fdisplay_name\x18\x02 \x01(\tR\vdisplayName\x12H\n" +

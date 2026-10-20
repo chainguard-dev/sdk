@@ -678,6 +678,46 @@ message CustomOverlay {
   // image by the syncer as GUARDED_FAIL_MODE=closed|open, emitted only
   // when FAIL_MODE_OPEN; a closed repo's image is unchanged.
   FailMode fail_mode = 8;
+
+  // Java truststores the wrapper writes before the app starts. The
+  // syncer bakes each entry into the image as a GUARDED_TRUSTSTORE_<n>
+  // variable, in list order. The most specific binding that sets this
+  // list replaces broader ones; an empty list is unset. Requires
+  // guarded_entrypoint in the same overlay config.
+  repeated Truststore truststores = 9;
+
+  // Truststore is one Java truststore the wrapper writes. The JVM reads
+  // one store, so at most one entry may use FORMAT_JKS.
+  message Truststore {
+    // PEM files, or directories of PEM files, whose certificates the store
+    // trusts. At least one is required. Each is an absolute path, without
+    // ',' or '='.
+    repeated string sources = 1;
+
+    // Absolute path of the store file. Required. Must not contain
+    // whitespace, quotes, ',' or '=', because the wrapper puts it in
+    // JAVA_TOOL_OPTIONS.
+    string output = 2;
+
+    // Whether the store starts from the image's own certificates. Defaults
+    // to true.
+    optional bool system = 3;
+
+    // Name of the environment variable that holds the store's password.
+    // The variable can hold a cg+ secret reference. Unset uses the JDK's
+    // default password. The password itself is never written here.
+    string password_env = 4;
+
+    // Format of the store file.
+    enum Format {
+      // Treated as FORMAT_JKS.
+      FORMAT_UNSPECIFIED = 0;
+      // Java KeyStore.
+      FORMAT_JKS = 1;
+    }
+    // Format of the store file. Defaults to FORMAT_JKS.
+    Format format = 5;
+  }
 }
 
 message ImageContents {

@@ -1535,17 +1535,30 @@ type CVERemediation struct {
 	// means "no fix exists": an outstanding CVE records no upstream fix, the
 	// greatest recorded fix is not above the version asked about, the ecosystem
 	// has no implemented version ordering, a recorded version does not parse, or
-	// the target did not clear the malware gate below. Read
-	// upstream_fix_version on the per-CVE detail for what is known per CVE.
+	// the target did not clear the malware gate below. A target the gate blocked
+	// is in blocked_fix_version instead. Read upstream_fix_version on the
+	// per-CVE detail for what is known per CVE.
 	//
-	// Checked against the malware block list at read time, fail-closed. A target
-	// here is an upstream release, so it can carry malware or sit on the
-	// retroactive block list -- unlike remediated_version on the per-CVE detail,
-	// which is always a Chainguard build. A check that errors withholds it too:
-	// a gate that cannot be consulted must not read as clearance to upgrade.
-	FixVersion    string `protobuf:"bytes,6,opt,name=fix_version,json=fixVersion,proto3" json:"fix_version,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Checked against the malware block list at read time, fail-closed: a
+	// non-empty value has passed the gate and may be recommended. A target here
+	// is an upstream release, so it can carry malware or sit on the retroactive
+	// block list -- unlike remediated_version on the per-CVE detail, which is
+	// always a Chainguard build. A check that errors withholds it too: a gate
+	// that cannot be consulted must not read as clearance to upgrade.
+	FixVersion string `protobuf:"bytes,6,opt,name=fix_version,json=fixVersion,proto3" json:"fix_version,omitempty"`
+	// The target fix_version would have named, when the malware gate blocked it:
+	// the release is on the block list or carries malware. A fix exists at that
+	// version, and it must not be installed. Reported so that a blocked fix does
+	// not read as no fix, and kept out of fix_version so that a client reading
+	// only fix_version never recommends it.
+	//
+	// At most one of fix_version and blocked_fix_version is set, and only
+	// alongside status FIX_AVAILABLE. Both are empty when the gate could not
+	// answer (not scanned yet, unreachable, out of time): an unvetted target is
+	// withheld on this rung, and the per-CVE detail still names it.
+	BlockedFixVersion string `protobuf:"bytes,7,opt,name=blocked_fix_version,json=blockedFixVersion,proto3" json:"blocked_fix_version,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *CVERemediation) Reset() {
@@ -1609,6 +1622,13 @@ func (x *CVERemediation) GetDecision() CVERemediationDecision {
 func (x *CVERemediation) GetFixVersion() string {
 	if x != nil {
 		return x.FixVersion
+	}
+	return ""
+}
+
+func (x *CVERemediation) GetBlockedFixVersion() string {
+	if x != nil {
+		return x.BlockedFixVersion
 	}
 	return ""
 }
@@ -4461,14 +4481,15 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	")libraries.chainguard.dev/RequestGroupItem\x12*requestGroups/{request_group}/items/{item}*\x11requestGroupItems2\x10requestGroupItem\"e\n" +
 	"\aUpgrade\x12-\n" +
 	"\x0fclosest_version\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x0eclosestVersion\x12+\n" +
-	"\x0elatest_version\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\rlatestVersion\"\xcd\x02\n" +
+	"\x0elatest_version\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\rlatestVersion\"\x83\x03\n" +
 	"\x0eCVERemediation\x12Y\n" +
 	"\x06status\x18\x01 \x01(\x0e2;.chainguard.platform.libraries.v2beta1.CVERemediationStatusB\x04\xe2A\x01\x03R\x06status\x12/\n" +
 	"\x10remediated_count\x18\x02 \x01(\x05B\x04\xe2A\x01\x03R\x0fremediatedCount\x12!\n" +
 	"\tcve_count\x18\x03 \x01(\x05B\x04\xe2A\x01\x03R\bcveCount\x12_\n" +
 	"\bdecision\x18\x05 \x01(\x0e2=.chainguard.platform.libraries.v2beta1.CVERemediationDecisionB\x04\xe2A\x01\x03R\bdecision\x12%\n" +
 	"\vfix_version\x18\x06 \x01(\tB\x04\xe2A\x01\x03R\n" +
-	"fixVersionJ\x04\b\x04\x10\x05\"\xd1\x01\n" +
+	"fixVersion\x124\n" +
+	"\x13blocked_fix_version\x18\a \x01(\tB\x04\xe2A\x01\x03R\x11blockedFixVersionJ\x04\b\x04\x10\x05\"\xd1\x01\n" +
 	"\rInputMetadata\x12 \n" +
 	"\bfilename\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\bfilename\x12P\n" +
 	"\x06format\x18\x02 \x01(\x0e22.chainguard.platform.libraries.v2beta1.InputFormatB\x04\xe2A\x01\x03R\x06format\x12'\n" +
