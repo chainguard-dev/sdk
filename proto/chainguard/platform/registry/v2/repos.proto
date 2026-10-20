@@ -475,8 +475,7 @@ message CustomOverlay {
   // syncer bakes each entry into the image as a GUARDED_TRUSTSTORE_<n>
   // variable, in list order. The most specific binding that sets this
   // list replaces broader ones; an empty list is unset. Requires
-  // guarded_entrypoint in the same overlay config. Not yet supported:
-  // the API rejects a non-empty list until its validation ships.
+  // guarded_entrypoint in the same overlay config.
   repeated Truststore truststores = 10 [(google.api.field_behavior) = OPTIONAL];
 
   // Truststore is one Java truststore the wrapper writes. The JVM reads

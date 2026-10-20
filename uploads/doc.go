@@ -18,9 +18,7 @@ SPDX-License-Identifier: Apache-2.0
 // STREAM construction: each chunk's nonce derives from its index and a
 // final-chunk flag, so a truncated, reordered or spliced stream fails
 // to open rather than decrypting to a plausible prefix. NewCRC32CWriter
-// gives a caller the ciphertext's CRC32C without buffering it, and
-// SealedSize gives the stream's exact length before sealing starts, for
-// a destination that must be told the length up front.
+// gives a caller the ciphertext's CRC32C without buffering it.
 //
 // Both Open functions accept an unwrap callback so an org's RSA private key
 // can stay in KMS. OpenStream passes the stored CryptoKeyVersion to that
