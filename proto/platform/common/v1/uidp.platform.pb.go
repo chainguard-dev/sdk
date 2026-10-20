@@ -29,7 +29,7 @@ type UIDPFilter struct {
 	DescendantsOf string `protobuf:"bytes,2,opt,name=descendants_of,json=descendantsOf,proto3" json:"descendants_of,omitempty"`
 	// children_of are groups reachable by directly proceeding from parent to children.
 	ChildrenOf string `protobuf:"bytes,3,opt,name=children_of,json=childrenOf,proto3" json:"children_of,omitempty"`
-	// in_root resticts responses to root level resources (organizations, user identities)
+	// in_root restricts responses to root level resources.
 	InRoot bool `protobuf:"varint,4,opt,name=in_root,json=inRoot,proto3" json:"in_root,omitempty"`
 	// ids are a list of exact UIDPs of records.
 	Ids           []string `protobuf:"bytes,5,rep,name=ids,proto3" json:"ids,omitempty"`
