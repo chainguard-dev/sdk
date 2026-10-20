@@ -107,6 +107,10 @@ enum Tier {
   TIER_CHAINGUARD = 1;
   // Upstream artifacts mirrored or proxied from the public registry.
   TIER_UPSTREAM = 2;
+  // Chainguard-remediated versions of upstream releases.
+  TIER_REMEDIATED = 3;
+  // Artifacts of the Argos ecosystems.
+  TIER_ARGOS = 4;
 }
 
 // ZapResolutionCacheRequest selects the scope of a zap, from widest to

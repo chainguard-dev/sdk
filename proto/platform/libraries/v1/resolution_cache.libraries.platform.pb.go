@@ -34,6 +34,10 @@ const (
 	Tier_TIER_CHAINGUARD Tier = 1
 	// Upstream artifacts mirrored or proxied from the public registry.
 	Tier_TIER_UPSTREAM Tier = 2
+	// Chainguard-remediated versions of upstream releases.
+	Tier_TIER_REMEDIATED Tier = 3
+	// Artifacts of the Argos ecosystems.
+	Tier_TIER_ARGOS Tier = 4
 )
 
 // Enum value maps for Tier.
@@ -42,11 +46,15 @@ var (
 		0: "TIER_UNSPECIFIED",
 		1: "TIER_CHAINGUARD",
 		2: "TIER_UPSTREAM",
+		3: "TIER_REMEDIATED",
+		4: "TIER_ARGOS",
 	}
 	Tier_value = map[string]int32{
 		"TIER_UNSPECIFIED": 0,
 		"TIER_CHAINGUARD":  1,
 		"TIER_UPSTREAM":    2,
+		"TIER_REMEDIATED":  3,
+		"TIER_ARGOS":       4,
 	}
 )
 
@@ -1021,11 +1029,14 @@ const file_resolution_cache_libraries_platform_proto_rawDesc = "" +
 	"\vtotal_count\x18\x02 \x01(\x03R\n" +
 	"totalCount\x12\x1f\n" +
 	"\vnext_cursor\x18\x03 \x01(\tR\n" +
-	"nextCursor*D\n" +
+	"nextCursor*i\n" +
 	"\x04Tier\x12\x14\n" +
 	"\x10TIER_UNSPECIFIED\x10\x00\x12\x13\n" +
 	"\x0fTIER_CHAINGUARD\x10\x01\x12\x11\n" +
-	"\rTIER_UPSTREAM\x10\x022\xfb\b\n" +
+	"\rTIER_UPSTREAM\x10\x02\x12\x13\n" +
+	"\x0fTIER_REMEDIATED\x10\x03\x12\x0e\n" +
+	"\n" +
+	"TIER_ARGOS\x10\x042\xfb\b\n" +
 	"\x0fResolutionCache\x12\xa7\x02\n" +
 	"\x03Zap\x128.chainguard.platform.libraries.ZapResolutionCacheRequest\x1a8.chainguard.platform.libraries.ZapResolutionCacheSummary\"\xab\x01\x92A\x1a\n" +
 	"\x18LibrariesResolutionCache\x82\xd3\xe4\x93\x025:\x01*\"0/libraries/v1/resolutioncache/{parent_id=**}:zap\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
