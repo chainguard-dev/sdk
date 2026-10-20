@@ -181,6 +181,39 @@ func SealStream(w io.Writer, orgPub *rsa.PublicKey, algorithm, keyVersion string
 	return sw, nil
 }
 
+// SealedSize returns the exact length in bytes of the stream envelope
+// SealStream writes when n plaintext bytes are sealed under orgPub.
+//
+// It returns an error rather than a size for a nil key, a negative n, a
+// modulus too wide for the stream header, or a plaintext that needs more
+// than 2^32 chunks; SealStream, or the writer it returns, refuses the last
+// two. It does not otherwise validate orgPub, so a key SealStream rejects
+// for other reasons still gets a size.
+func SealedSize(orgPub *rsa.PublicKey, n int64) (int64, error) {
+	if orgPub == nil || orgPub.N == nil {
+		return 0, errors.New("nil public key")
+	}
+	if n < 0 {
+		return 0, fmt.Errorf("plaintext size %d is negative", n)
+	}
+	// An RSA-OAEP ciphertext is always one modulus wide.
+	wrappedLen := orgPub.Size()
+	if wrappedLen > maxWrappedKeySize {
+		return 0, fmt.Errorf("wrapped dek would be %d bytes, max %d", wrappedLen, maxWrappedKeySize)
+	}
+	chunks := n / StreamChunkSize
+	// Count a partial last chunk, and the final chunk Close emits even
+	// for an empty stream.
+	if n%StreamChunkSize != 0 || chunks == 0 {
+		chunks++
+	}
+	if chunks > aeadstream.MaxChunks {
+		return 0, fmt.Errorf("plaintext of %d bytes needs %d chunks, max %d", n, chunks, uint64(aeadstream.MaxChunks))
+	}
+	// The chunk cap bounds n at 2^52, so the sum cannot overflow.
+	return int64(streamHeaderFixedSize+wrappedLen) + n + chunks*aeadstream.ChunkOverhead, nil
+}
+
 // OpenStream parses the header and calls unwrapAESKey with the stored key
 // version and RSA-OAEP-SHA256-wrapped DEK. As with OpenEnvelope, the callback
 // can use KMS without exposing the RSA private key to this package.
