@@ -32,6 +32,9 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PoliciesClient interface {
 	CreatePolicy(ctx context.Context, in *CreatePolicyRequest, opts ...grpc.CallOption) (*Policy, error)
+	// UpdatePolicy replaces a custom policy. An empty name or expression keeps
+	// the stored value. An empty description or parameter_schemas clears it.
+	// supported_resource_type cannot be changed; empty keeps the stored value.
 	UpdatePolicy(ctx context.Context, in *Policy, opts ...grpc.CallOption) (*Policy, error)
 	ListPolicies(ctx context.Context, in *PolicyFilter, opts ...grpc.CallOption) (*PolicyList, error)
 	DeletePolicy(ctx context.Context, in *DeletePolicyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -101,6 +104,9 @@ func (c *policiesClient) ValidatePolicy(ctx context.Context, in *ValidatePolicyR
 // for forward compatibility.
 type PoliciesServer interface {
 	CreatePolicy(context.Context, *CreatePolicyRequest) (*Policy, error)
+	// UpdatePolicy replaces a custom policy. An empty name or expression keeps
+	// the stored value. An empty description or parameter_schemas clears it.
+	// supported_resource_type cannot be changed; empty keeps the stored value.
 	UpdatePolicy(context.Context, *Policy) (*Policy, error)
 	ListPolicies(context.Context, *PolicyFilter) (*PolicyList, error)
 	DeletePolicy(context.Context, *DeletePolicyRequest) (*emptypb.Empty, error)

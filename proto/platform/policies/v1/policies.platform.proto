@@ -30,6 +30,9 @@ service Policies {
     };
   }
 
+  // UpdatePolicy replaces a custom policy. An empty name or expression keeps
+  // the stored value. An empty description or parameter_schemas clears it.
+  // supported_resource_type cannot be changed; empty keeps the stored value.
   rpc UpdatePolicy(Policy) returns (Policy) {
     option (google.api.http) = {
       put: "/policies/v1/policies/{id=**}"
@@ -338,10 +341,9 @@ message Policy {
   // When the policy was last updated.
   google.protobuf.Timestamp updated_at = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // The configurable parameter schemas declared by this policy. System
-  // policies declare these; customers configure values on the bindings that
-  // activate the policy.
-  repeated ParameterSchema parameter_schemas = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // The configurable parameter schemas declared by this policy. Customers
+  // configure values on the bindings that activate the policy.
+  repeated ParameterSchema parameter_schemas = 9;
 }
 
 message PolicyList {

@@ -527,9 +527,8 @@ type Policy struct {
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	// When the policy was last updated.
 	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	// The configurable parameter schemas declared by this policy. System
-	// policies declare these; customers configure values on the bindings that
-	// activate the policy.
+	// The configurable parameter schemas declared by this policy. Customers
+	// configure values on the bindings that activate the policy.
 	ParameterSchemas []*ParameterSchema `protobuf:"bytes,9,rep,name=parameter_schemas,json=parameterSchemas,proto3" json:"parameter_schemas,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
@@ -2224,7 +2223,7 @@ const file_policies_platform_proto_rawDesc = "" +
 	"deprecated\x18\t \x01(\bR\n" +
 	"deprecated\x12H\n" +
 	"\x06format\x18\n" +
-	" \x01(\x0e20.chainguard.platform.policies.v1.ParameterFormatR\x06format\"\xad\x04\n" +
+	" \x01(\x0e20.chainguard.platform.policies.v1.ParameterFormatR\x06format\"\xa7\x04\n" +
 	"\x06Policy\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -2240,8 +2239,8 @@ const file_policies_platform_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\tcreatedAt\x12?\n" +
 	"\n" +
-	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\tupdatedAt\x12c\n" +
-	"\x11parameter_schemas\x18\t \x03(\v20.chainguard.platform.policies.v1.ParameterSchemaB\x04\xe2A\x01\x03R\x10parameterSchemas\"\xae\x01\n" +
+	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\tupdatedAt\x12]\n" +
+	"\x11parameter_schemas\x18\t \x03(\v20.chainguard.platform.policies.v1.ParameterSchemaR\x10parameterSchemas\"\xae\x01\n" +
 	"\n" +
 	"PolicyList\x12=\n" +
 	"\x05items\x18\x01 \x03(\v2'.chainguard.platform.policies.v1.PolicyR\x05items\x12&\n" +
