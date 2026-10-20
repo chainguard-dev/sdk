@@ -322,7 +322,9 @@ type noLocation struct{ rt http.RoundTripper }
 
 func (t noLocation) RoundTrip(req *http.Request) (*http.Response, error) {
 	resp, err := t.rt.RoundTrip(req)
-	if err == nil && resp.StatusCode >= http.StatusMultipleChoices && resp.StatusCode < http.StatusBadRequest {
+	// A nil response is the wrapped transport's contract violation, which
+	// http.Client reports as an error once it reaches it.
+	if err == nil && resp != nil && resp.StatusCode >= http.StatusMultipleChoices && resp.StatusCode < http.StatusBadRequest {
 		resp.Header.Del("Location")
 	}
 	return resp, err

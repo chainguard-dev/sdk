@@ -380,6 +380,11 @@ func TestUploadFailures(t *testing.T) {
 		http:       func(*harness) *http.Client { return &http.Client{} },
 		wantErr:    "certificate",
 		wantCreate: true,
+	}, {
+		name:       "transport returns neither a response nor an error",
+		http:       func(*harness) *http.Client { return &http.Client{Transport: nilTransport{}} },
+		wantErr:    "returned a nil *Response with a nil error",
+		wantCreate: true,
 	}} {
 		t.Run(tc.name, func(t *testing.T) {
 			h := newHarness(t)
@@ -580,6 +585,12 @@ func TestUploadLeavesTheCallersClientAlone(t *testing.T) {
 		t.Error("CheckRedirect: got a function, want nil")
 	}
 }
+
+// nilTransport breaks the RoundTripper contract by returning neither a
+// response nor an error.
+type nilTransport struct{}
+
+func (nilTransport) RoundTrip(*http.Request) (*http.Response, error) { return nil, nil }
 
 // failingTransport fails every request as a dropped connection does.
 type failingTransport struct{}
