@@ -32,11 +32,32 @@ const (
 // (-- api-linter: core::0133::request-resource-field=disabled
 //
 //	aip.dev/not-precedent: the server builds the session from parent. --)
+//
+// (-- api-linter: core::0133::request-unknown-fields=disabled
+//
+//	aip.dev/not-precedent: the session is not a resource; the request names
+//	what it buys. --)
 type CreateCheckoutSessionRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The organization to upgrade. Must be a Starter organization with no
-	// subscription in progress.
-	Parent        string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	// The organization buying. Must have no purchase of the same plan in
+	// progress or live.
+	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	// What to buy: "team-v1", the Team plan (the default when empty), or
+	// "secure-compute-v1", prepaid Workspaces and Checks compute, which starts
+	// paid usage at once and draws it from a balance charged at checkout.
+	// "enterprise" and "starter" are refused: moving to Enterprise or back to
+	// Starter is not self-serve.
+	PlanId string `protobuf:"bytes,2,opt,name=plan_id,json=planId,proto3" json:"plan_id,omitempty"`
+	// For compute, the prepaid balance to buy, in US cents: whole dollars from
+	// $25 to $5,000. Zero buys $100. Tax is added where it applies, and unused
+	// balance expires a year after purchase. Ignored for an organization whose
+	// compute usage Chainguard bills monthly.
+	TopUpAmountCents int64 `protobuf:"varint,3,opt,name=top_up_amount_cents,json=topUpAmountCents,proto3" json:"top_up_amount_cents,omitempty"`
+	// For compute, stop new work when the prepaid balance is spent, instead of
+	// the default: charging the card again whenever the balance falls below
+	// 20% of the amount bought, to refill it. The checkout page states which.
+	// Refused until stopping work is available.
+	StopWhenSpent bool `protobuf:"varint,4,opt,name=stop_when_spent,json=stopWhenSpent,proto3" json:"stop_when_spent,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -78,13 +99,39 @@ func (x *CreateCheckoutSessionRequest) GetParent() string {
 	return ""
 }
 
+func (x *CreateCheckoutSessionRequest) GetPlanId() string {
+	if x != nil {
+		return x.PlanId
+	}
+	return ""
+}
+
+func (x *CreateCheckoutSessionRequest) GetTopUpAmountCents() int64 {
+	if x != nil {
+		return x.TopUpAmountCents
+	}
+	return 0
+}
+
+func (x *CreateCheckoutSessionRequest) GetStopWhenSpent() bool {
+	if x != nil {
+		return x.StopWhenSpent
+	}
+	return false
+}
+
 // CheckoutSession is a hosted checkout page.
 type CheckoutSession struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The URL of the hosted checkout page. Send the user's browser there.
 	Url string `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
 	// When the page stops accepting payment details.
-	ExpireTime    *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
+	ExpireTime *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
+	// What the card will be charged, now and later, as the page states it.
+	// Empty for a plan whose terms the page states on its own. An organization
+	// Chainguard approved for monthly billing is told its usage is charged
+	// monthly instead of buying a balance.
+	Terms         string `protobuf:"bytes,3,opt,name=terms,proto3" json:"terms,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -133,6 +180,265 @@ func (x *CheckoutSession) GetExpireTime() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *CheckoutSession) GetTerms() string {
+	if x != nil {
+		return x.Terms
+	}
+	return ""
+}
+
+// TopUpRequest is the request message for TopUp.
+type TopUpRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The organization whose compute balance to add to.
+	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	// How much to add, in US cents: whole dollars from $25 to $5,000.
+	AmountCents int64 `protobuf:"varint,2,opt,name=amount_cents,json=amountCents,proto3" json:"amount_cents,omitempty"`
+	// A UUID naming the purchase, so a retry with the same value charges once.
+	// Reusing it with another amount is refused.
+	// (-- api-linter: core::0155::request-id-format=disabled
+	//     aip.dev/not-precedent: google/api/field_info.proto is not vendored;
+	//     the server refuses a request_id that is not a UUID. --)
+	RequestId string `protobuf:"bytes,3,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	// Check that the organization can top up, without charging anything. It
+	// fails as the call would, for example with FAILED_PRECONDITION
+	// NO_COMPUTE_BALANCE when the organization has not bought compute yet and
+	// must start with CreateCheckoutSession, and reports a request_id whose
+	// top-up was already charged as repeated.
+	ValidateOnly  bool `protobuf:"varint,4,opt,name=validate_only,json=validateOnly,proto3" json:"validate_only,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TopUpRequest) Reset() {
+	*x = TopUpRequest{}
+	mi := &file_chainguard_platform_billing_v2beta1_billing_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TopUpRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TopUpRequest) ProtoMessage() {}
+
+func (x *TopUpRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_billing_v2beta1_billing_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TopUpRequest.ProtoReflect.Descriptor instead.
+func (*TopUpRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_billing_v2beta1_billing_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *TopUpRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
+func (x *TopUpRequest) GetAmountCents() int64 {
+	if x != nil {
+		return x.AmountCents
+	}
+	return 0
+}
+
+func (x *TopUpRequest) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *TopUpRequest) GetValidateOnly() bool {
+	if x != nil {
+		return x.ValidateOnly
+	}
+	return false
+}
+
+// TopUpResponse is the response message for TopUp.
+type TopUpResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The amount whose charge was started, before tax. The balance grows once
+	// the charge succeeds.
+	AmountCents int64 `protobuf:"varint,1,opt,name=amount_cents,json=amountCents,proto3" json:"amount_cents,omitempty"`
+	// The request_id was used for a top-up of this amount whose charge
+	// succeeded already, so nothing more was charged.
+	Repeated bool `protobuf:"varint,2,opt,name=repeated,proto3" json:"repeated,omitempty"`
+	// What the card will be charged, for the client to show before it asks
+	// for confirmation. Set by validate_only.
+	Terms         string `protobuf:"bytes,3,opt,name=terms,proto3" json:"terms,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TopUpResponse) Reset() {
+	*x = TopUpResponse{}
+	mi := &file_chainguard_platform_billing_v2beta1_billing_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TopUpResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TopUpResponse) ProtoMessage() {}
+
+func (x *TopUpResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_billing_v2beta1_billing_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TopUpResponse.ProtoReflect.Descriptor instead.
+func (*TopUpResponse) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_billing_v2beta1_billing_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *TopUpResponse) GetAmountCents() int64 {
+	if x != nil {
+		return x.AmountCents
+	}
+	return 0
+}
+
+func (x *TopUpResponse) GetRepeated() bool {
+	if x != nil {
+		return x.Repeated
+	}
+	return false
+}
+
+func (x *TopUpResponse) GetTerms() string {
+	if x != nil {
+		return x.Terms
+	}
+	return ""
+}
+
+// CreateCardSessionRequest is the request message for CreateCardSession.
+// (-- api-linter: core::0133::request-resource-field=disabled
+//
+//	aip.dev/not-precedent: the server builds the session from parent. --)
+type CreateCardSessionRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The organization to save a card for.
+	Parent        string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateCardSessionRequest) Reset() {
+	*x = CreateCardSessionRequest{}
+	mi := &file_chainguard_platform_billing_v2beta1_billing_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateCardSessionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateCardSessionRequest) ProtoMessage() {}
+
+func (x *CreateCardSessionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_billing_v2beta1_billing_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateCardSessionRequest.ProtoReflect.Descriptor instead.
+func (*CreateCardSessionRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_billing_v2beta1_billing_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *CreateCardSessionRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
+// CardSession is a hosted page for saving a card.
+type CardSession struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The URL of the hosted page. Send the user's browser there.
+	Url string `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
+	// When the page stops accepting a card.
+	ExpireTime    *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CardSession) Reset() {
+	*x = CardSession{}
+	mi := &file_chainguard_platform_billing_v2beta1_billing_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CardSession) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CardSession) ProtoMessage() {}
+
+func (x *CardSession) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_billing_v2beta1_billing_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CardSession.ProtoReflect.Descriptor instead.
+func (*CardSession) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_billing_v2beta1_billing_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *CardSession) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+func (x *CardSession) GetExpireTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpireTime
+	}
+	return nil
+}
+
 // CreatePortalSessionRequest is the request message for CreatePortalSession.
 // (-- api-linter: core::0133::request-resource-field=disabled
 //
@@ -148,7 +454,7 @@ type CreatePortalSessionRequest struct {
 
 func (x *CreatePortalSessionRequest) Reset() {
 	*x = CreatePortalSessionRequest{}
-	mi := &file_chainguard_platform_billing_v2beta1_billing_proto_msgTypes[2]
+	mi := &file_chainguard_platform_billing_v2beta1_billing_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -160,7 +466,7 @@ func (x *CreatePortalSessionRequest) String() string {
 func (*CreatePortalSessionRequest) ProtoMessage() {}
 
 func (x *CreatePortalSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_billing_v2beta1_billing_proto_msgTypes[2]
+	mi := &file_chainguard_platform_billing_v2beta1_billing_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -173,7 +479,7 @@ func (x *CreatePortalSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreatePortalSessionRequest.ProtoReflect.Descriptor instead.
 func (*CreatePortalSessionRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_billing_v2beta1_billing_proto_rawDescGZIP(), []int{2}
+	return file_chainguard_platform_billing_v2beta1_billing_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CreatePortalSessionRequest) GetParent() string {
@@ -194,7 +500,7 @@ type PortalSession struct {
 
 func (x *PortalSession) Reset() {
 	*x = PortalSession{}
-	mi := &file_chainguard_platform_billing_v2beta1_billing_proto_msgTypes[3]
+	mi := &file_chainguard_platform_billing_v2beta1_billing_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -206,7 +512,7 @@ func (x *PortalSession) String() string {
 func (*PortalSession) ProtoMessage() {}
 
 func (x *PortalSession) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_billing_v2beta1_billing_proto_msgTypes[3]
+	mi := &file_chainguard_platform_billing_v2beta1_billing_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -219,7 +525,7 @@ func (x *PortalSession) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PortalSession.ProtoReflect.Descriptor instead.
 func (*PortalSession) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_billing_v2beta1_billing_proto_rawDescGZIP(), []int{3}
+	return file_chainguard_platform_billing_v2beta1_billing_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *PortalSession) GetUrl() string {
@@ -233,11 +539,33 @@ var File_chainguard_platform_billing_v2beta1_billing_proto protoreflect.FileDesc
 
 const file_chainguard_platform_billing_v2beta1_billing_proto_rawDesc = "" +
 	"\n" +
-	"1chainguard/platform/billing/v2beta1/billing.proto\x12#chainguard.platform.billing.v2beta1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"B\n" +
+	"1chainguard/platform/billing/v2beta1/billing.proto\x12#chainguard.platform.billing.v2beta1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc4\x01\n" +
 	"\x1cCreateCheckoutSessionRequest\x12\"\n" +
 	"\x06parent\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\"l\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12\x1d\n" +
+	"\aplan_id\x18\x02 \x01(\tB\x04\xe2A\x01\x01R\x06planId\x123\n" +
+	"\x13top_up_amount_cents\x18\x03 \x01(\x03B\x04\xe2A\x01\x01R\x10topUpAmountCents\x12,\n" +
+	"\x0fstop_when_spent\x18\x04 \x01(\bB\x04\xe2A\x01\x01R\rstopWhenSpent\"\x88\x01\n" +
 	"\x0fCheckoutSession\x12\x16\n" +
+	"\x03url\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03url\x12A\n" +
+	"\vexpire_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
+	"expireTime\x12\x1a\n" +
+	"\x05terms\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\x05terms\"\xab\x01\n" +
+	"\fTopUpRequest\x12\"\n" +
+	"\x06parent\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12'\n" +
+	"\famount_cents\x18\x02 \x01(\x03B\x04\xe2A\x01\x02R\vamountCents\x12#\n" +
+	"\n" +
+	"request_id\x18\x03 \x01(\tB\x04\xe2A\x01\x02R\trequestId\x12)\n" +
+	"\rvalidate_only\x18\x04 \x01(\bB\x04\xe2A\x01\x01R\fvalidateOnly\"v\n" +
+	"\rTopUpResponse\x12'\n" +
+	"\famount_cents\x18\x01 \x01(\x03B\x04\xe2A\x01\x03R\vamountCents\x12 \n" +
+	"\brepeated\x18\x02 \x01(\bB\x04\xe2A\x01\x03R\brepeated\x12\x1a\n" +
+	"\x05terms\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\x05terms\">\n" +
+	"\x18CreateCardSessionRequest\x12\"\n" +
+	"\x06parent\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\"h\n" +
+	"\vCardSession\x12\x16\n" +
 	"\x03url\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03url\x12A\n" +
 	"\vexpire_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
 	"expireTime\"@\n" +
@@ -245,11 +573,18 @@ const file_chainguard_platform_billing_v2beta1_billing_proto_rawDesc = "" +
 	"\x06parent\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\"'\n" +
 	"\rPortalSession\x12\x16\n" +
-	"\x03url\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03url2\xb5\x05\n" +
-	"\x0eBillingService\x12\xcc\x02\n" +
-	"\x15CreateCheckoutSession\x12A.chainguard.platform.billing.v2beta1.CreateCheckoutSessionRequest\x1a4.chainguard.platform.billing.v2beta1.CheckoutSession\"\xb9\x01\x82\xd3\xe4\x93\x02&:\x01*\"!/billing/v2beta1/checkoutSessions\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xe5\x19\x9a\xaf\xa8\xd2\x05{\n" +
-	"sStart a checkout to upgrade a Starter organization to the paid Team plan. Returns the URL of a hosted payment page.\x10\x01 \x000\x01\x12\xd3\x02\n" +
+	"\x03url\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03url2\x98\n" +
+	"\n" +
+	"\x0eBillingService\x12\xd9\x02\n" +
+	"\x15CreateCheckoutSession\x12A.chainguard.platform.billing.v2beta1.CreateCheckoutSessionRequest\x1a4.chainguard.platform.billing.v2beta1.CheckoutSession\"\xc6\x01\x82\xd3\xe4\x93\x02&:\x01*\"!/billing/v2beta1/checkoutSessions\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xe5\x19\x9a\xaf\xa8\xd2\x05\x87\x01\n" +
+	"\x7fStart a checkout to buy the paid Team plan, or prepaid Workspaces and Checks compute. Returns the URL of a hosted payment page.\x10\x01 \x000\x01\x12\xfb\x01\n" +
+	"\x05TopUp\x121.chainguard.platform.billing.v2beta1.TopUpRequest\x1a2.chainguard.platform.billing.v2beta1.TopUpResponse\"\x8a\x01\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/billing/v2beta1/topUps\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xe5\x19\x9a\xaf\xa8\xd2\x05V\n" +
+	"NCharge the organization's card for more prepaid Workspaces and Checks compute.\x10\x01 \x000\x01\x12\xd5\x02\n" +
+	"\x11CreateCardSession\x12=.chainguard.platform.billing.v2beta1.CreateCardSessionRequest\x1a0.chainguard.platform.billing.v2beta1.CardSession\"\xce\x01\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/billing/v2beta1/cardSessions\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xe5\x19\x9a\xaf\xa8\xd2\x05\x93\x01\n" +
+	"\x8a\x01Open the hosted page where an organization owner saves the card the organization pays with, without buying anything. Returns the page URL.\x10\x01 \x000\x01\x12\xd3\x02\n" +
 	"\x13CreatePortalSession\x12?.chainguard.platform.billing.v2beta1.CreatePortalSessionRequest\x1a2.chainguard.platform.billing.v2beta1.PortalSession\"\xc6\x01\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/billing/v2beta1/portalSessions\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xe5\x19\x9a\xaf\xa8\xd2\x05\x89\x01\n" +
 	"\x80\x01Open the hosted page where an organization owner updates the card used to pay for the organization's plan. Returns the page URL.\x10\x01 \x000\x01Bw\n" +
@@ -267,25 +602,34 @@ func file_chainguard_platform_billing_v2beta1_billing_proto_rawDescGZIP() []byte
 	return file_chainguard_platform_billing_v2beta1_billing_proto_rawDescData
 }
 
-var file_chainguard_platform_billing_v2beta1_billing_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_chainguard_platform_billing_v2beta1_billing_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_chainguard_platform_billing_v2beta1_billing_proto_goTypes = []any{
 	(*CreateCheckoutSessionRequest)(nil), // 0: chainguard.platform.billing.v2beta1.CreateCheckoutSessionRequest
 	(*CheckoutSession)(nil),              // 1: chainguard.platform.billing.v2beta1.CheckoutSession
-	(*CreatePortalSessionRequest)(nil),   // 2: chainguard.platform.billing.v2beta1.CreatePortalSessionRequest
-	(*PortalSession)(nil),                // 3: chainguard.platform.billing.v2beta1.PortalSession
-	(*timestamppb.Timestamp)(nil),        // 4: google.protobuf.Timestamp
+	(*TopUpRequest)(nil),                 // 2: chainguard.platform.billing.v2beta1.TopUpRequest
+	(*TopUpResponse)(nil),                // 3: chainguard.platform.billing.v2beta1.TopUpResponse
+	(*CreateCardSessionRequest)(nil),     // 4: chainguard.platform.billing.v2beta1.CreateCardSessionRequest
+	(*CardSession)(nil),                  // 5: chainguard.platform.billing.v2beta1.CardSession
+	(*CreatePortalSessionRequest)(nil),   // 6: chainguard.platform.billing.v2beta1.CreatePortalSessionRequest
+	(*PortalSession)(nil),                // 7: chainguard.platform.billing.v2beta1.PortalSession
+	(*timestamppb.Timestamp)(nil),        // 8: google.protobuf.Timestamp
 }
 var file_chainguard_platform_billing_v2beta1_billing_proto_depIdxs = []int32{
-	4, // 0: chainguard.platform.billing.v2beta1.CheckoutSession.expire_time:type_name -> google.protobuf.Timestamp
-	0, // 1: chainguard.platform.billing.v2beta1.BillingService.CreateCheckoutSession:input_type -> chainguard.platform.billing.v2beta1.CreateCheckoutSessionRequest
-	2, // 2: chainguard.platform.billing.v2beta1.BillingService.CreatePortalSession:input_type -> chainguard.platform.billing.v2beta1.CreatePortalSessionRequest
-	1, // 3: chainguard.platform.billing.v2beta1.BillingService.CreateCheckoutSession:output_type -> chainguard.platform.billing.v2beta1.CheckoutSession
-	3, // 4: chainguard.platform.billing.v2beta1.BillingService.CreatePortalSession:output_type -> chainguard.platform.billing.v2beta1.PortalSession
-	3, // [3:5] is the sub-list for method output_type
-	1, // [1:3] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	8, // 0: chainguard.platform.billing.v2beta1.CheckoutSession.expire_time:type_name -> google.protobuf.Timestamp
+	8, // 1: chainguard.platform.billing.v2beta1.CardSession.expire_time:type_name -> google.protobuf.Timestamp
+	0, // 2: chainguard.platform.billing.v2beta1.BillingService.CreateCheckoutSession:input_type -> chainguard.platform.billing.v2beta1.CreateCheckoutSessionRequest
+	2, // 3: chainguard.platform.billing.v2beta1.BillingService.TopUp:input_type -> chainguard.platform.billing.v2beta1.TopUpRequest
+	4, // 4: chainguard.platform.billing.v2beta1.BillingService.CreateCardSession:input_type -> chainguard.platform.billing.v2beta1.CreateCardSessionRequest
+	6, // 5: chainguard.platform.billing.v2beta1.BillingService.CreatePortalSession:input_type -> chainguard.platform.billing.v2beta1.CreatePortalSessionRequest
+	1, // 6: chainguard.platform.billing.v2beta1.BillingService.CreateCheckoutSession:output_type -> chainguard.platform.billing.v2beta1.CheckoutSession
+	3, // 7: chainguard.platform.billing.v2beta1.BillingService.TopUp:output_type -> chainguard.platform.billing.v2beta1.TopUpResponse
+	5, // 8: chainguard.platform.billing.v2beta1.BillingService.CreateCardSession:output_type -> chainguard.platform.billing.v2beta1.CardSession
+	7, // 9: chainguard.platform.billing.v2beta1.BillingService.CreatePortalSession:output_type -> chainguard.platform.billing.v2beta1.PortalSession
+	6, // [6:10] is the sub-list for method output_type
+	2, // [2:6] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_billing_v2beta1_billing_proto_init() }
@@ -299,7 +643,7 @@ func file_chainguard_platform_billing_v2beta1_billing_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_billing_v2beta1_billing_proto_rawDesc), len(file_chainguard_platform_billing_v2beta1_billing_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

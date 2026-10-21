@@ -21,10 +21,11 @@ option java_package = "com.chainguard.platform.billing.v2beta1";
 // organization. Payment pages are hosted by the payment provider; no card data
 // passes through this API.
 service BillingService {
-  // CreateCheckoutSession opens a hosted checkout page where an owner of a
-  // Starter organization enters a card to upgrade the organization to the
-  // Team plan. The organization is upgraded once the first invoice is paid,
-  // not when this call returns.
+  // CreateCheckoutSession opens a hosted checkout page where an owner enters a
+  // card to buy the Team plan, for a Starter organization, or Workspaces and
+  // Checks compute, for a Starter, Team or Enterprise organization that has
+  // Workspaces and Checks enabled. The purchase completes once the first
+  // invoice is paid, not when this call returns.
   // (-- api-linter: core::0133::http-body=disabled
   //     aip.dev/not-precedent: the session is built entirely by the server
   //     from the organization, so the request carries no resource. --)
@@ -38,9 +39,9 @@ service BillingService {
       enabled: {capabilities: [CAP_BILLING_MANAGE]}
     };
     option (chainguard.annotations.mcp) = {
-      description: "Start a checkout to upgrade a Starter organization to "
-                   "the paid Team plan. Returns the URL of a hosted payment "
-                   "page."
+      description: "Start a checkout to buy the paid Team plan, or prepaid "
+                   "Workspaces and Checks compute. Returns the URL of a "
+                   "hosted payment page."
       read_only: false
       destructive: false
       idempotent: false
@@ -50,8 +51,66 @@ service BillingService {
     };
   }
 
-  // CreatePortalSession opens a hosted page where an owner of a Team
-  // organization updates the card the organization pays with.
+  // TopUp starts a charge to the card on file for more prepaid Workspaces and
+  // Checks compute. The balance grows once the charge succeeds; usage that
+  // ran past a spent balance is paid from it first. The first purchase is a
+  // CreateCheckoutSession for "secure-compute-v1" instead.
+  // (-- api-linter: core::0136::http-uri-suffix=disabled
+  //     aip.dev/not-precedent: a top-up is a purchase, not a resource. --)
+  rpc TopUp(TopUpRequest) returns (TopUpResponse) {
+    option (google.api.http) = {
+      post: "/billing/v2beta1/topUps"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {capabilities: [CAP_BILLING_MANAGE]}
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Charge the organization's card for more prepaid "
+                   "Workspaces and Checks compute."
+      read_only: false
+      destructive: false
+      idempotent: false
+      open_world: true
+      // Withheld from the MCP tool surface: it charges a card.
+      hidden: true
+    };
+  }
+
+  // CreateCardSession opens a hosted page where an owner saves a card for
+  // the organization without buying anything. It becomes the card the
+  // organization's plan and compute are charged to, replacing any earlier
+  // one. Nothing is charged when it is saved. Until self-serve purchases are
+  // enabled for the organization, it is refused with FAILED_PRECONDITION
+  // CHECKOUT_NOT_ENABLED.
+  // (-- api-linter: core::0133::http-body=disabled
+  //     aip.dev/not-precedent: the session is built entirely by the server
+  //     from the organization, so the request carries no resource. --)
+  rpc CreateCardSession(CreateCardSessionRequest) returns (CardSession) {
+    option (google.api.http) = {
+      post: "/billing/v2beta1/cardSessions"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {capabilities: [CAP_BILLING_MANAGE]}
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Open the hosted page where an organization owner saves "
+                   "the card the organization pays with, without buying "
+                   "anything. Returns the page URL."
+      read_only: false
+      destructive: false
+      idempotent: false
+      open_world: true
+      // Withheld from the MCP tool surface: the URL lets the visitor set the
+      // organization's payment card.
+      hidden: true
+    };
+  }
+
+  // CreatePortalSession opens a hosted page where an owner of an
+  // organization that bought Team or compute updates the card the
+  // organization pays with.
   // (-- api-linter: core::0133::http-body=disabled
   //     aip.dev/not-precedent: the session is built entirely by the server
   //     from the organization, so the request carries no resource. --)
@@ -83,13 +142,35 @@ service BillingService {
 // CreateCheckoutSession.
 // (-- api-linter: core::0133::request-resource-field=disabled
 //     aip.dev/not-precedent: the server builds the session from parent. --)
+// (-- api-linter: core::0133::request-unknown-fields=disabled
+//     aip.dev/not-precedent: the session is not a resource; the request names
+//     what it buys. --)
 message CreateCheckoutSessionRequest {
-  // The organization to upgrade. Must be a Starter organization with no
-  // subscription in progress.
+  // The organization buying. Must have no purchase of the same plan in
+  // progress or live.
   string parent = 1 [
     (google.api.field_behavior) = REQUIRED,
     (chainguard.annotations.iam_scope) = true
   ];
+
+  // What to buy: "team-v1", the Team plan (the default when empty), or
+  // "secure-compute-v1", prepaid Workspaces and Checks compute, which starts
+  // paid usage at once and draws it from a balance charged at checkout.
+  // "enterprise" and "starter" are refused: moving to Enterprise or back to
+  // Starter is not self-serve.
+  string plan_id = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // For compute, the prepaid balance to buy, in US cents: whole dollars from
+  // $25 to $5,000. Zero buys $100. Tax is added where it applies, and unused
+  // balance expires a year after purchase. Ignored for an organization whose
+  // compute usage Chainguard bills monthly.
+  int64 top_up_amount_cents = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // For compute, stop new work when the prepaid balance is spent, instead of
+  // the default: charging the card again whenever the balance falls below
+  // 20% of the amount bought, to refill it. The checkout page states which.
+  // Refused until stopping work is available.
+  bool stop_when_spent = 4 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // CheckoutSession is a hosted checkout page.
@@ -98,6 +179,74 @@ message CheckoutSession {
   string url = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // When the page stops accepting payment details.
+  google.protobuf.Timestamp expire_time = 2
+      [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // What the card will be charged, now and later, as the page states it.
+  // Empty for a plan whose terms the page states on its own. An organization
+  // Chainguard approved for monthly billing is told its usage is charged
+  // monthly instead of buying a balance.
+  string terms = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// TopUpRequest is the request message for TopUp.
+message TopUpRequest {
+  // The organization whose compute balance to add to.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // How much to add, in US cents: whole dollars from $25 to $5,000.
+  int64 amount_cents = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // A UUID naming the purchase, so a retry with the same value charges once.
+  // Reusing it with another amount is refused.
+  // (-- api-linter: core::0155::request-id-format=disabled
+  //     aip.dev/not-precedent: google/api/field_info.proto is not vendored;
+  //     the server refuses a request_id that is not a UUID. --)
+  string request_id = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Check that the organization can top up, without charging anything. It
+  // fails as the call would, for example with FAILED_PRECONDITION
+  // NO_COMPUTE_BALANCE when the organization has not bought compute yet and
+  // must start with CreateCheckoutSession, and reports a request_id whose
+  // top-up was already charged as repeated.
+  bool validate_only = 4 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// TopUpResponse is the response message for TopUp.
+message TopUpResponse {
+  // The amount whose charge was started, before tax. The balance grows once
+  // the charge succeeds.
+  int64 amount_cents = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The request_id was used for a top-up of this amount whose charge
+  // succeeded already, so nothing more was charged.
+  bool repeated = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // What the card will be charged, for the client to show before it asks
+  // for confirmation. Set by validate_only.
+  string terms = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// CreateCardSessionRequest is the request message for CreateCardSession.
+// (-- api-linter: core::0133::request-resource-field=disabled
+//     aip.dev/not-precedent: the server builds the session from parent. --)
+message CreateCardSessionRequest {
+  // The organization to save a card for.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+// CardSession is a hosted page for saving a card.
+message CardSession {
+  // The URL of the hosted page. Send the user's browser there.
+  string url = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // When the page stops accepting a card.
   google.protobuf.Timestamp expire_time = 2
       [(google.api.field_behavior) = OUTPUT_ONLY];
 }

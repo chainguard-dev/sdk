@@ -23,6 +23,8 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	BillingService_CreateCheckoutSession_FullMethodName = "/chainguard.platform.billing.v2beta1.BillingService/CreateCheckoutSession"
+	BillingService_TopUp_FullMethodName                 = "/chainguard.platform.billing.v2beta1.BillingService/TopUp"
+	BillingService_CreateCardSession_FullMethodName     = "/chainguard.platform.billing.v2beta1.BillingService/CreateCardSession"
 	BillingService_CreatePortalSession_FullMethodName   = "/chainguard.platform.billing.v2beta1.BillingService/CreatePortalSession"
 )
 
@@ -34,16 +36,35 @@ const (
 // organization. Payment pages are hosted by the payment provider; no card data
 // passes through this API.
 type BillingServiceClient interface {
-	// CreateCheckoutSession opens a hosted checkout page where an owner of a
-	// Starter organization enters a card to upgrade the organization to the
-	// Team plan. The organization is upgraded once the first invoice is paid,
-	// not when this call returns.
+	// CreateCheckoutSession opens a hosted checkout page where an owner enters a
+	// card to buy the Team plan, for a Starter organization, or Workspaces and
+	// Checks compute, for a Starter, Team or Enterprise organization that has
+	// Workspaces and Checks enabled. The purchase completes once the first
+	// invoice is paid, not when this call returns.
 	// (-- api-linter: core::0133::http-body=disabled
 	//     aip.dev/not-precedent: the session is built entirely by the server
 	//     from the organization, so the request carries no resource. --)
 	CreateCheckoutSession(ctx context.Context, in *CreateCheckoutSessionRequest, opts ...grpc.CallOption) (*CheckoutSession, error)
-	// CreatePortalSession opens a hosted page where an owner of a Team
-	// organization updates the card the organization pays with.
+	// TopUp starts a charge to the card on file for more prepaid Workspaces and
+	// Checks compute. The balance grows once the charge succeeds; usage that
+	// ran past a spent balance is paid from it first. The first purchase is a
+	// CreateCheckoutSession for "secure-compute-v1" instead.
+	// (-- api-linter: core::0136::http-uri-suffix=disabled
+	//     aip.dev/not-precedent: a top-up is a purchase, not a resource. --)
+	TopUp(ctx context.Context, in *TopUpRequest, opts ...grpc.CallOption) (*TopUpResponse, error)
+	// CreateCardSession opens a hosted page where an owner saves a card for
+	// the organization without buying anything. It becomes the card the
+	// organization's plan and compute are charged to, replacing any earlier
+	// one. Nothing is charged when it is saved. Until self-serve purchases are
+	// enabled for the organization, it is refused with FAILED_PRECONDITION
+	// CHECKOUT_NOT_ENABLED.
+	// (-- api-linter: core::0133::http-body=disabled
+	//     aip.dev/not-precedent: the session is built entirely by the server
+	//     from the organization, so the request carries no resource. --)
+	CreateCardSession(ctx context.Context, in *CreateCardSessionRequest, opts ...grpc.CallOption) (*CardSession, error)
+	// CreatePortalSession opens a hosted page where an owner of an
+	// organization that bought Team or compute updates the card the
+	// organization pays with.
 	// (-- api-linter: core::0133::http-body=disabled
 	//     aip.dev/not-precedent: the session is built entirely by the server
 	//     from the organization, so the request carries no resource. --)
@@ -68,6 +89,26 @@ func (c *billingServiceClient) CreateCheckoutSession(ctx context.Context, in *Cr
 	return out, nil
 }
 
+func (c *billingServiceClient) TopUp(ctx context.Context, in *TopUpRequest, opts ...grpc.CallOption) (*TopUpResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TopUpResponse)
+	err := c.cc.Invoke(ctx, BillingService_TopUp_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *billingServiceClient) CreateCardSession(ctx context.Context, in *CreateCardSessionRequest, opts ...grpc.CallOption) (*CardSession, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CardSession)
+	err := c.cc.Invoke(ctx, BillingService_CreateCardSession_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *billingServiceClient) CreatePortalSession(ctx context.Context, in *CreatePortalSessionRequest, opts ...grpc.CallOption) (*PortalSession, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PortalSession)
@@ -86,16 +127,35 @@ func (c *billingServiceClient) CreatePortalSession(ctx context.Context, in *Crea
 // organization. Payment pages are hosted by the payment provider; no card data
 // passes through this API.
 type BillingServiceServer interface {
-	// CreateCheckoutSession opens a hosted checkout page where an owner of a
-	// Starter organization enters a card to upgrade the organization to the
-	// Team plan. The organization is upgraded once the first invoice is paid,
-	// not when this call returns.
+	// CreateCheckoutSession opens a hosted checkout page where an owner enters a
+	// card to buy the Team plan, for a Starter organization, or Workspaces and
+	// Checks compute, for a Starter, Team or Enterprise organization that has
+	// Workspaces and Checks enabled. The purchase completes once the first
+	// invoice is paid, not when this call returns.
 	// (-- api-linter: core::0133::http-body=disabled
 	//     aip.dev/not-precedent: the session is built entirely by the server
 	//     from the organization, so the request carries no resource. --)
 	CreateCheckoutSession(context.Context, *CreateCheckoutSessionRequest) (*CheckoutSession, error)
-	// CreatePortalSession opens a hosted page where an owner of a Team
-	// organization updates the card the organization pays with.
+	// TopUp starts a charge to the card on file for more prepaid Workspaces and
+	// Checks compute. The balance grows once the charge succeeds; usage that
+	// ran past a spent balance is paid from it first. The first purchase is a
+	// CreateCheckoutSession for "secure-compute-v1" instead.
+	// (-- api-linter: core::0136::http-uri-suffix=disabled
+	//     aip.dev/not-precedent: a top-up is a purchase, not a resource. --)
+	TopUp(context.Context, *TopUpRequest) (*TopUpResponse, error)
+	// CreateCardSession opens a hosted page where an owner saves a card for
+	// the organization without buying anything. It becomes the card the
+	// organization's plan and compute are charged to, replacing any earlier
+	// one. Nothing is charged when it is saved. Until self-serve purchases are
+	// enabled for the organization, it is refused with FAILED_PRECONDITION
+	// CHECKOUT_NOT_ENABLED.
+	// (-- api-linter: core::0133::http-body=disabled
+	//     aip.dev/not-precedent: the session is built entirely by the server
+	//     from the organization, so the request carries no resource. --)
+	CreateCardSession(context.Context, *CreateCardSessionRequest) (*CardSession, error)
+	// CreatePortalSession opens a hosted page where an owner of an
+	// organization that bought Team or compute updates the card the
+	// organization pays with.
 	// (-- api-linter: core::0133::http-body=disabled
 	//     aip.dev/not-precedent: the session is built entirely by the server
 	//     from the organization, so the request carries no resource. --)
@@ -112,6 +172,12 @@ type UnimplementedBillingServiceServer struct{}
 
 func (UnimplementedBillingServiceServer) CreateCheckoutSession(context.Context, *CreateCheckoutSessionRequest) (*CheckoutSession, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateCheckoutSession not implemented")
+}
+func (UnimplementedBillingServiceServer) TopUp(context.Context, *TopUpRequest) (*TopUpResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method TopUp not implemented")
+}
+func (UnimplementedBillingServiceServer) CreateCardSession(context.Context, *CreateCardSessionRequest) (*CardSession, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateCardSession not implemented")
 }
 func (UnimplementedBillingServiceServer) CreatePortalSession(context.Context, *CreatePortalSessionRequest) (*PortalSession, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreatePortalSession not implemented")
@@ -155,6 +221,42 @@ func _BillingService_CreateCheckoutSession_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BillingService_TopUp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TopUpRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BillingServiceServer).TopUp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BillingService_TopUp_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BillingServiceServer).TopUp(ctx, req.(*TopUpRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BillingService_CreateCardSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateCardSessionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BillingServiceServer).CreateCardSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BillingService_CreateCardSession_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BillingServiceServer).CreateCardSession(ctx, req.(*CreateCardSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _BillingService_CreatePortalSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreatePortalSessionRequest)
 	if err := dec(in); err != nil {
@@ -183,6 +285,14 @@ var BillingService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateCheckoutSession",
 			Handler:    _BillingService_CreateCheckoutSession_Handler,
+		},
+		{
+			MethodName: "TopUp",
+			Handler:    _BillingService_TopUp_Handler,
+		},
+		{
+			MethodName: "CreateCardSession",
+			Handler:    _BillingService_CreateCardSession_Handler,
 		},
 		{
 			MethodName: "CreatePortalSession",

@@ -15,6 +15,7 @@ import (
 
 	delegate "chainguard.dev/go-grpc-kit/pkg/options"
 	advisory "chainguard.dev/sdk/proto/chainguard/platform/advisory/v2beta1"
+	billing "chainguard.dev/sdk/proto/chainguard/platform/billing/v2beta1"
 	entitlements "chainguard.dev/sdk/proto/chainguard/platform/entitlements/v2beta1"
 	iamv2 "chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1"
 	libraries "chainguard.dev/sdk/proto/chainguard/platform/libraries/v2beta1"
@@ -27,6 +28,7 @@ import (
 // Clients provides access to v2beta1 API clients.
 type Clients interface {
 	Advisory() advisory.Clients
+	Billing() billing.Clients
 	Entitlements() entitlements.Clients
 	IAM() iamv2.Clients
 	Libraries() libraries.Clients
@@ -38,6 +40,7 @@ type Clients interface {
 
 type clients struct {
 	advisory     advisory.Clients
+	billing      billing.Clients
 	entitlements entitlements.Clients
 	iam          iamv2.Clients
 	libraries    libraries.Clients
@@ -76,6 +79,7 @@ func NewClients(ctx context.Context, apiURL, userAgent string, cred credentials.
 
 	return &clients{
 		advisory:     advisory.NewClientsFromConnection(conn),
+		billing:      billing.NewClientsFromConnection(conn),
 		entitlements: entitlements.NewClientsFromConnection(conn),
 		iam:          iamv2.NewClientsFromConnection(conn),
 		libraries:    libraries.NewClientsFromConnection(conn),
@@ -88,6 +92,10 @@ func NewClients(ctx context.Context, apiURL, userAgent string, cred credentials.
 
 func (c *clients) Advisory() advisory.Clients {
 	return c.advisory
+}
+
+func (c *clients) Billing() billing.Clients {
+	return c.billing
 }
 
 func (c *clients) Entitlements() entitlements.Clients {

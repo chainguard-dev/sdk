@@ -40,7 +40,23 @@ var _ billing.BillingServiceClient = (*MockBillingServiceClient)(nil)
 // returns the first match's canned result.
 type MockBillingServiceClient struct {
 	OnCreateCheckoutSession []CheckoutSessionCall
+	OnTopUp                 []TopUpCall
+	OnCreateCardSession     []CardSessionCall
 	OnCreatePortalSession   []PortalSessionCall
+}
+
+// CardSessionCall is a canned CreateCardSession result.
+type CardSessionCall struct {
+	Given    *billing.CreateCardSessionRequest
+	Response *billing.CardSession
+	Error    error
+}
+
+// TopUpCall is a canned TopUp result.
+type TopUpCall struct {
+	Given    *billing.TopUpRequest
+	Response *billing.TopUpResponse
+	Error    error
 }
 
 // CheckoutSessionCall is a canned CreateCheckoutSession result.
@@ -66,8 +82,26 @@ func (m MockBillingServiceClient) CreateCheckoutSession(_ context.Context, in *b
 	return nil, fmt.Errorf("mock not found for %v", in)
 }
 
+func (m MockBillingServiceClient) CreateCardSession(_ context.Context, in *billing.CreateCardSessionRequest, _ ...grpc.CallOption) (*billing.CardSession, error) {
+	for _, c := range m.OnCreateCardSession {
+		if cmp.Equal(in, c.Given, protocmp.Transform()) {
+			return c.Response, c.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", in)
+}
+
 func (m MockBillingServiceClient) CreatePortalSession(_ context.Context, in *billing.CreatePortalSessionRequest, _ ...grpc.CallOption) (*billing.PortalSession, error) {
 	for _, c := range m.OnCreatePortalSession {
+		if cmp.Equal(in, c.Given, protocmp.Transform()) {
+			return c.Response, c.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", in)
+}
+
+func (m MockBillingServiceClient) TopUp(_ context.Context, in *billing.TopUpRequest, _ ...grpc.CallOption) (*billing.TopUpResponse, error) {
+	for _, c := range m.OnTopUp {
 		if cmp.Equal(in, c.Given, protocmp.Transform()) {
 			return c.Response, c.Error
 		}
