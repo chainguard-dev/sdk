@@ -24,6 +24,9 @@ func TestFeatureDocuments(t *testing.T) {
 	if got := FeatureDocuments("sandbox_workspaces"); len(got) != 2 || got[0] != "secure-platform-terms.v1" || got[1] != "msla.v1" {
 		t.Errorf("sandbox_workspaces: got %v", got)
 	}
+	if got := FeatureDocuments("sso_enforcement"); len(got) != 0 {
+		t.Errorf("sso_enforcement: got %v, want no documents", got)
+	}
 	if got := FeatureDocuments("unknown"); got != nil {
 		t.Errorf("unknown feature: got %v, want nil", got)
 	}

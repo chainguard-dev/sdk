@@ -98,7 +98,8 @@ type FeatureEntitlement struct {
 	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	// parent is the UIDP of the entitled organization.
 	Parent string `protobuf:"bytes,2,opt,name=parent,proto3" json:"parent,omitempty"`
-	// feature is the feature key: "sandbox_checks" or "sandbox_workspaces".
+	// feature is the feature key: "sandbox_checks", "sandbox_workspaces" or
+	// "sso_enforcement".
 	Feature string `protobuf:"bytes,3,opt,name=feature,proto3" json:"feature,omitempty"`
 	// source is the entitlement's system of record.
 	Source FeatureSource `protobuf:"varint,4,opt,name=source,proto3,enum=chainguard.platform.entitlements.v1alpha1.FeatureSource" json:"source,omitempty"`
@@ -109,6 +110,7 @@ type FeatureEntitlement struct {
 	//
 	//	*FeatureEntitlement_SandboxChecks
 	//	*FeatureEntitlement_SandboxWorkspaces
+	//	*FeatureEntitlement_SsoEnforcement
 	Config isFeatureEntitlement_Config `protobuf_oneof:"config"`
 	// expire_time is when the entitlement ends. Unset means it does not expire.
 	ExpireTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
@@ -210,6 +212,15 @@ func (x *FeatureEntitlement) GetSandboxWorkspaces() *SandboxWorkspacesConfig {
 	return nil
 }
 
+func (x *FeatureEntitlement) GetSsoEnforcement() *SsoEnforcementConfig {
+	if x != nil {
+		if x, ok := x.Config.(*FeatureEntitlement_SsoEnforcement); ok {
+			return x.SsoEnforcement
+		}
+	}
+	return nil
+}
+
 func (x *FeatureEntitlement) GetExpireTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.ExpireTime
@@ -259,9 +270,16 @@ type FeatureEntitlement_SandboxWorkspaces struct {
 	SandboxWorkspaces *SandboxWorkspacesConfig `protobuf:"bytes,6,opt,name=sandbox_workspaces,json=sandboxWorkspaces,proto3,oneof"`
 }
 
+type FeatureEntitlement_SsoEnforcement struct {
+	// "sso_enforcement", which has no limits.
+	SsoEnforcement *SsoEnforcementConfig `protobuf:"bytes,12,opt,name=sso_enforcement,json=ssoEnforcement,proto3,oneof"`
+}
+
 func (*FeatureEntitlement_SandboxChecks) isFeatureEntitlement_Config() {}
 
 func (*FeatureEntitlement_SandboxWorkspaces) isFeatureEntitlement_Config() {}
+
+func (*FeatureEntitlement_SsoEnforcement) isFeatureEntitlement_Config() {}
 
 // SandboxChecksConfig holds an organization's limits for sandbox Checks. An
 // unset field means no per-organization limit; the sandbox's own ceilings
@@ -487,6 +505,48 @@ func (x *ResourceClassLimit) GetDiskMib() int64 {
 	return 0
 }
 
+// SsoEnforcementConfig is the configuration of "sso_enforcement": an
+// organization's entitlement to have its sso_only authentication policy
+// (iam.v2.AuthPolicy) enforced at sign-in. The entitlement is the presence of
+// a live, unexpired row; there is nothing to configure. Without it the policy
+// can be stored but not enabled, and an enabled policy stops being enforced
+// when the entitlement is deleted or expires, without being changed.
+type SsoEnforcementConfig struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SsoEnforcementConfig) Reset() {
+	*x = SsoEnforcementConfig{}
+	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SsoEnforcementConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SsoEnforcementConfig) ProtoMessage() {}
+
+func (x *SsoEnforcementConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SsoEnforcementConfig.ProtoReflect.Descriptor instead.
+func (*SsoEnforcementConfig) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDescGZIP(), []int{4}
+}
+
 type ListFeatureEntitlementsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// parent is the UIDP of the organization.
@@ -501,7 +561,7 @@ type ListFeatureEntitlementsRequest struct {
 
 func (x *ListFeatureEntitlementsRequest) Reset() {
 	*x = ListFeatureEntitlementsRequest{}
-	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[4]
+	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -513,7 +573,7 @@ func (x *ListFeatureEntitlementsRequest) String() string {
 func (*ListFeatureEntitlementsRequest) ProtoMessage() {}
 
 func (x *ListFeatureEntitlementsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[4]
+	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -526,7 +586,7 @@ func (x *ListFeatureEntitlementsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListFeatureEntitlementsRequest.ProtoReflect.Descriptor instead.
 func (*ListFeatureEntitlementsRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDescGZIP(), []int{4}
+	return file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ListFeatureEntitlementsRequest) GetParent() string {
@@ -554,7 +614,7 @@ type ListFeatureEntitlementsResponse struct {
 
 func (x *ListFeatureEntitlementsResponse) Reset() {
 	*x = ListFeatureEntitlementsResponse{}
-	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[5]
+	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -566,7 +626,7 @@ func (x *ListFeatureEntitlementsResponse) String() string {
 func (*ListFeatureEntitlementsResponse) ProtoMessage() {}
 
 func (x *ListFeatureEntitlementsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[5]
+	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -579,7 +639,7 @@ func (x *ListFeatureEntitlementsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListFeatureEntitlementsResponse.ProtoReflect.Descriptor instead.
 func (*ListFeatureEntitlementsResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDescGZIP(), []int{5}
+	return file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ListFeatureEntitlementsResponse) GetFeatureEntitlements() []*FeatureEntitlement {
@@ -593,7 +653,8 @@ type SetFeatureEntitlementRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// parent is the UIDP of the organization.
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
-	// feature is the feature key: "sandbox_checks" or "sandbox_workspaces".
+	// feature is the feature key: "sandbox_checks", "sandbox_workspaces" or
+	// "sso_enforcement".
 	Feature string `protobuf:"bytes,2,opt,name=feature,proto3" json:"feature,omitempty"`
 	// source is INTERNAL (backfill, automation) or CONSOLE_ADMIN (support).
 	Source FeatureSource `protobuf:"varint,3,opt,name=source,proto3,enum=chainguard.platform.entitlements.v1alpha1.FeatureSource" json:"source,omitempty"`
@@ -604,6 +665,7 @@ type SetFeatureEntitlementRequest struct {
 	//
 	//	*SetFeatureEntitlementRequest_SandboxChecks
 	//	*SetFeatureEntitlementRequest_SandboxWorkspaces
+	//	*SetFeatureEntitlementRequest_SsoEnforcement
 	Config isSetFeatureEntitlementRequest_Config `protobuf_oneof:"config"`
 	// expire_time is when the entitlement ends. Unset makes it non-expiring.
 	ExpireTime *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
@@ -618,7 +680,7 @@ type SetFeatureEntitlementRequest struct {
 
 func (x *SetFeatureEntitlementRequest) Reset() {
 	*x = SetFeatureEntitlementRequest{}
-	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[6]
+	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -630,7 +692,7 @@ func (x *SetFeatureEntitlementRequest) String() string {
 func (*SetFeatureEntitlementRequest) ProtoMessage() {}
 
 func (x *SetFeatureEntitlementRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[6]
+	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -643,7 +705,7 @@ func (x *SetFeatureEntitlementRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetFeatureEntitlementRequest.ProtoReflect.Descriptor instead.
 func (*SetFeatureEntitlementRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDescGZIP(), []int{6}
+	return file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *SetFeatureEntitlementRequest) GetParent() string {
@@ -692,6 +754,15 @@ func (x *SetFeatureEntitlementRequest) GetSandboxWorkspaces() *SandboxWorkspaces
 	return nil
 }
 
+func (x *SetFeatureEntitlementRequest) GetSsoEnforcement() *SsoEnforcementConfig {
+	if x != nil {
+		if x, ok := x.Config.(*SetFeatureEntitlementRequest_SsoEnforcement); ok {
+			return x.SsoEnforcement
+		}
+	}
+	return nil
+}
+
 func (x *SetFeatureEntitlementRequest) GetExpireTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.ExpireTime
@@ -727,15 +798,23 @@ type SetFeatureEntitlementRequest_SandboxWorkspaces struct {
 	SandboxWorkspaces *SandboxWorkspacesConfig `protobuf:"bytes,5,opt,name=sandbox_workspaces,json=sandboxWorkspaces,proto3,oneof"`
 }
 
+type SetFeatureEntitlementRequest_SsoEnforcement struct {
+	// "sso_enforcement", which has no limits.
+	SsoEnforcement *SsoEnforcementConfig `protobuf:"bytes,9,opt,name=sso_enforcement,json=ssoEnforcement,proto3,oneof"`
+}
+
 func (*SetFeatureEntitlementRequest_SandboxChecks) isSetFeatureEntitlementRequest_Config() {}
 
 func (*SetFeatureEntitlementRequest_SandboxWorkspaces) isSetFeatureEntitlementRequest_Config() {}
+
+func (*SetFeatureEntitlementRequest_SsoEnforcement) isSetFeatureEntitlementRequest_Config() {}
 
 type DeleteFeatureEntitlementRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// parent is the UIDP of the organization.
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
-	// feature is the feature key: "sandbox_checks" or "sandbox_workspaces".
+	// feature is the feature key: "sandbox_checks", "sandbox_workspaces" or
+	// "sso_enforcement".
 	Feature string `protobuf:"bytes,2,opt,name=feature,proto3" json:"feature,omitempty"`
 	// source is the surface making the change, recorded with it for audit:
 	// INTERNAL or CONSOLE_ADMIN. It does not select the entitlement; the live
@@ -749,7 +828,7 @@ type DeleteFeatureEntitlementRequest struct {
 
 func (x *DeleteFeatureEntitlementRequest) Reset() {
 	*x = DeleteFeatureEntitlementRequest{}
-	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[7]
+	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -761,7 +840,7 @@ func (x *DeleteFeatureEntitlementRequest) String() string {
 func (*DeleteFeatureEntitlementRequest) ProtoMessage() {}
 
 func (x *DeleteFeatureEntitlementRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[7]
+	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -774,7 +853,7 @@ func (x *DeleteFeatureEntitlementRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteFeatureEntitlementRequest.ProtoReflect.Descriptor instead.
 func (*DeleteFeatureEntitlementRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDescGZIP(), []int{7}
+	return file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *DeleteFeatureEntitlementRequest) GetParent() string {
@@ -815,7 +894,7 @@ type EnableSandboxRequest struct {
 
 func (x *EnableSandboxRequest) Reset() {
 	*x = EnableSandboxRequest{}
-	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[8]
+	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -827,7 +906,7 @@ func (x *EnableSandboxRequest) String() string {
 func (*EnableSandboxRequest) ProtoMessage() {}
 
 func (x *EnableSandboxRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[8]
+	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -840,7 +919,7 @@ func (x *EnableSandboxRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnableSandboxRequest.ProtoReflect.Descriptor instead.
 func (*EnableSandboxRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDescGZIP(), []int{8}
+	return file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *EnableSandboxRequest) GetParent() string {
@@ -861,7 +940,7 @@ type EnableSandboxResponse struct {
 
 func (x *EnableSandboxResponse) Reset() {
 	*x = EnableSandboxResponse{}
-	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[9]
+	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -873,7 +952,7 @@ func (x *EnableSandboxResponse) String() string {
 func (*EnableSandboxResponse) ProtoMessage() {}
 
 func (x *EnableSandboxResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[9]
+	mi := &file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -886,7 +965,7 @@ func (x *EnableSandboxResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnableSandboxResponse.ProtoReflect.Descriptor instead.
 func (*EnableSandboxResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDescGZIP(), []int{9}
+	return file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *EnableSandboxResponse) GetFeatureEntitlements() []*FeatureEntitlement {
@@ -900,14 +979,15 @@ var File_chainguard_platform_entitlements_v1alpha1_features_proto protoreflect.F
 
 const file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDesc = "" +
 	"\n" +
-	"8chainguard/platform/entitlements/v1alpha1/features.proto\x12)chainguard.platform.entitlements.v1alpha1\x1a\x16annotations/auth.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe1\x05\n" +
+	"8chainguard/platform/entitlements/v1alpha1/features.proto\x12)chainguard.platform.entitlements.v1alpha1\x1a\x16annotations/auth.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xcd\x06\n" +
 	"\x12FeatureEntitlement\x12\x16\n" +
 	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12\x1c\n" +
 	"\x06parent\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x06parent\x12\x1e\n" +
 	"\afeature\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\afeature\x12V\n" +
 	"\x06source\x18\x04 \x01(\x0e28.chainguard.platform.entitlements.v1alpha1.FeatureSourceB\x04\xe2A\x01\x03R\x06source\x12g\n" +
 	"\x0esandbox_checks\x18\x05 \x01(\v2>.chainguard.platform.entitlements.v1alpha1.SandboxChecksConfigH\x00R\rsandboxChecks\x12s\n" +
-	"\x12sandbox_workspaces\x18\x06 \x01(\v2B.chainguard.platform.entitlements.v1alpha1.SandboxWorkspacesConfigH\x00R\x11sandboxWorkspaces\x12A\n" +
+	"\x12sandbox_workspaces\x18\x06 \x01(\v2B.chainguard.platform.entitlements.v1alpha1.SandboxWorkspacesConfigH\x00R\x11sandboxWorkspaces\x12j\n" +
+	"\x0fsso_enforcement\x18\f \x01(\v2?.chainguard.platform.entitlements.v1alpha1.SsoEnforcementConfigH\x00R\x0essoEnforcement\x12A\n" +
 	"\vexpire_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
 	"expireTime\x12A\n" +
 	"\vcreate_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
@@ -942,20 +1022,22 @@ const file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDesc = ""
 	"\n" +
 	"memory_mib\x18\x02 \x01(\x03B\x04\xe2A\x01\x02R\tmemoryMib\x12$\n" +
 	"\bdisk_mib\x18\x03 \x01(\x03B\x04\xe2A\x01\x01H\x00R\adiskMib\x88\x01\x01B\v\n" +
-	"\t_disk_mib\"s\n" +
+	"\t_disk_mib\"\x16\n" +
+	"\x14SsoEnforcementConfig\"s\n" +
 	"\x1eListFeatureEntitlementsRequest\x12\"\n" +
 	"\x06parent\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12-\n" +
 	"\x0finclude_deleted\x18\x02 \x01(\bB\x04\xe2A\x01\x01R\x0eincludeDeleted\"\x93\x01\n" +
 	"\x1fListFeatureEntitlementsResponse\x12p\n" +
-	"\x14feature_entitlements\x18\x01 \x03(\v2=.chainguard.platform.entitlements.v1alpha1.FeatureEntitlementR\x13featureEntitlements\"\xdf\x04\n" +
+	"\x14feature_entitlements\x18\x01 \x03(\v2=.chainguard.platform.entitlements.v1alpha1.FeatureEntitlementR\x13featureEntitlements\"\xcb\x05\n" +
 	"\x1cSetFeatureEntitlementRequest\x12\"\n" +
 	"\x06parent\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12\x1e\n" +
 	"\afeature\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\afeature\x12V\n" +
 	"\x06source\x18\x03 \x01(\x0e28.chainguard.platform.entitlements.v1alpha1.FeatureSourceB\x04\xe2A\x01\x02R\x06source\x12g\n" +
 	"\x0esandbox_checks\x18\x04 \x01(\v2>.chainguard.platform.entitlements.v1alpha1.SandboxChecksConfigH\x00R\rsandboxChecks\x12s\n" +
-	"\x12sandbox_workspaces\x18\x05 \x01(\v2B.chainguard.platform.entitlements.v1alpha1.SandboxWorkspacesConfigH\x00R\x11sandboxWorkspaces\x12A\n" +
+	"\x12sandbox_workspaces\x18\x05 \x01(\v2B.chainguard.platform.entitlements.v1alpha1.SandboxWorkspacesConfigH\x00R\x11sandboxWorkspaces\x12j\n" +
+	"\x0fsso_enforcement\x18\t \x01(\v2?.chainguard.platform.entitlements.v1alpha1.SsoEnforcementConfigH\x00R\x0essoEnforcement\x12A\n" +
 	"\vexpire_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x01R\n" +
 	"expireTime\x12?\n" +
 	"\x16expected_version_token\x18\a \x01(\tB\x04\xe2A\x01\x01H\x01R\x14expectedVersionToken\x88\x01\x01\x12\x1c\n" +
@@ -1003,52 +1085,55 @@ func file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDescGZIP()
 }
 
 var file_chainguard_platform_entitlements_v1alpha1_features_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_chainguard_platform_entitlements_v1alpha1_features_proto_goTypes = []any{
 	(FeatureSource)(0),                      // 0: chainguard.platform.entitlements.v1alpha1.FeatureSource
 	(*FeatureEntitlement)(nil),              // 1: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement
 	(*SandboxChecksConfig)(nil),             // 2: chainguard.platform.entitlements.v1alpha1.SandboxChecksConfig
 	(*SandboxWorkspacesConfig)(nil),         // 3: chainguard.platform.entitlements.v1alpha1.SandboxWorkspacesConfig
 	(*ResourceClassLimit)(nil),              // 4: chainguard.platform.entitlements.v1alpha1.ResourceClassLimit
-	(*ListFeatureEntitlementsRequest)(nil),  // 5: chainguard.platform.entitlements.v1alpha1.ListFeatureEntitlementsRequest
-	(*ListFeatureEntitlementsResponse)(nil), // 6: chainguard.platform.entitlements.v1alpha1.ListFeatureEntitlementsResponse
-	(*SetFeatureEntitlementRequest)(nil),    // 7: chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest
-	(*DeleteFeatureEntitlementRequest)(nil), // 8: chainguard.platform.entitlements.v1alpha1.DeleteFeatureEntitlementRequest
-	(*EnableSandboxRequest)(nil),            // 9: chainguard.platform.entitlements.v1alpha1.EnableSandboxRequest
-	(*EnableSandboxResponse)(nil),           // 10: chainguard.platform.entitlements.v1alpha1.EnableSandboxResponse
-	(*timestamppb.Timestamp)(nil),           // 11: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),                   // 12: google.protobuf.Empty
+	(*SsoEnforcementConfig)(nil),            // 5: chainguard.platform.entitlements.v1alpha1.SsoEnforcementConfig
+	(*ListFeatureEntitlementsRequest)(nil),  // 6: chainguard.platform.entitlements.v1alpha1.ListFeatureEntitlementsRequest
+	(*ListFeatureEntitlementsResponse)(nil), // 7: chainguard.platform.entitlements.v1alpha1.ListFeatureEntitlementsResponse
+	(*SetFeatureEntitlementRequest)(nil),    // 8: chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest
+	(*DeleteFeatureEntitlementRequest)(nil), // 9: chainguard.platform.entitlements.v1alpha1.DeleteFeatureEntitlementRequest
+	(*EnableSandboxRequest)(nil),            // 10: chainguard.platform.entitlements.v1alpha1.EnableSandboxRequest
+	(*EnableSandboxResponse)(nil),           // 11: chainguard.platform.entitlements.v1alpha1.EnableSandboxResponse
+	(*timestamppb.Timestamp)(nil),           // 12: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),                   // 13: google.protobuf.Empty
 }
 var file_chainguard_platform_entitlements_v1alpha1_features_proto_depIdxs = []int32{
 	0,  // 0: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.source:type_name -> chainguard.platform.entitlements.v1alpha1.FeatureSource
 	2,  // 1: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.sandbox_checks:type_name -> chainguard.platform.entitlements.v1alpha1.SandboxChecksConfig
 	3,  // 2: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.sandbox_workspaces:type_name -> chainguard.platform.entitlements.v1alpha1.SandboxWorkspacesConfig
-	11, // 3: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.expire_time:type_name -> google.protobuf.Timestamp
-	11, // 4: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.create_time:type_name -> google.protobuf.Timestamp
-	11, // 5: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.update_time:type_name -> google.protobuf.Timestamp
-	11, // 6: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.delete_time:type_name -> google.protobuf.Timestamp
-	4,  // 7: chainguard.platform.entitlements.v1alpha1.SandboxChecksConfig.max_resource_class:type_name -> chainguard.platform.entitlements.v1alpha1.ResourceClassLimit
-	4,  // 8: chainguard.platform.entitlements.v1alpha1.SandboxWorkspacesConfig.max_resource_class:type_name -> chainguard.platform.entitlements.v1alpha1.ResourceClassLimit
-	1,  // 9: chainguard.platform.entitlements.v1alpha1.ListFeatureEntitlementsResponse.feature_entitlements:type_name -> chainguard.platform.entitlements.v1alpha1.FeatureEntitlement
-	0,  // 10: chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest.source:type_name -> chainguard.platform.entitlements.v1alpha1.FeatureSource
-	2,  // 11: chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest.sandbox_checks:type_name -> chainguard.platform.entitlements.v1alpha1.SandboxChecksConfig
-	3,  // 12: chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest.sandbox_workspaces:type_name -> chainguard.platform.entitlements.v1alpha1.SandboxWorkspacesConfig
-	11, // 13: chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest.expire_time:type_name -> google.protobuf.Timestamp
-	0,  // 14: chainguard.platform.entitlements.v1alpha1.DeleteFeatureEntitlementRequest.source:type_name -> chainguard.platform.entitlements.v1alpha1.FeatureSource
-	1,  // 15: chainguard.platform.entitlements.v1alpha1.EnableSandboxResponse.feature_entitlements:type_name -> chainguard.platform.entitlements.v1alpha1.FeatureEntitlement
-	5,  // 16: chainguard.platform.entitlements.v1alpha1.Features.ListFeatureEntitlements:input_type -> chainguard.platform.entitlements.v1alpha1.ListFeatureEntitlementsRequest
-	7,  // 17: chainguard.platform.entitlements.v1alpha1.Features.SetFeatureEntitlement:input_type -> chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest
-	8,  // 18: chainguard.platform.entitlements.v1alpha1.Features.DeleteFeatureEntitlement:input_type -> chainguard.platform.entitlements.v1alpha1.DeleteFeatureEntitlementRequest
-	9,  // 19: chainguard.platform.entitlements.v1alpha1.Features.EnableSandbox:input_type -> chainguard.platform.entitlements.v1alpha1.EnableSandboxRequest
-	6,  // 20: chainguard.platform.entitlements.v1alpha1.Features.ListFeatureEntitlements:output_type -> chainguard.platform.entitlements.v1alpha1.ListFeatureEntitlementsResponse
-	1,  // 21: chainguard.platform.entitlements.v1alpha1.Features.SetFeatureEntitlement:output_type -> chainguard.platform.entitlements.v1alpha1.FeatureEntitlement
-	12, // 22: chainguard.platform.entitlements.v1alpha1.Features.DeleteFeatureEntitlement:output_type -> google.protobuf.Empty
-	10, // 23: chainguard.platform.entitlements.v1alpha1.Features.EnableSandbox:output_type -> chainguard.platform.entitlements.v1alpha1.EnableSandboxResponse
-	20, // [20:24] is the sub-list for method output_type
-	16, // [16:20] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	5,  // 3: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.sso_enforcement:type_name -> chainguard.platform.entitlements.v1alpha1.SsoEnforcementConfig
+	12, // 4: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.expire_time:type_name -> google.protobuf.Timestamp
+	12, // 5: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.create_time:type_name -> google.protobuf.Timestamp
+	12, // 6: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.update_time:type_name -> google.protobuf.Timestamp
+	12, // 7: chainguard.platform.entitlements.v1alpha1.FeatureEntitlement.delete_time:type_name -> google.protobuf.Timestamp
+	4,  // 8: chainguard.platform.entitlements.v1alpha1.SandboxChecksConfig.max_resource_class:type_name -> chainguard.platform.entitlements.v1alpha1.ResourceClassLimit
+	4,  // 9: chainguard.platform.entitlements.v1alpha1.SandboxWorkspacesConfig.max_resource_class:type_name -> chainguard.platform.entitlements.v1alpha1.ResourceClassLimit
+	1,  // 10: chainguard.platform.entitlements.v1alpha1.ListFeatureEntitlementsResponse.feature_entitlements:type_name -> chainguard.platform.entitlements.v1alpha1.FeatureEntitlement
+	0,  // 11: chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest.source:type_name -> chainguard.platform.entitlements.v1alpha1.FeatureSource
+	2,  // 12: chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest.sandbox_checks:type_name -> chainguard.platform.entitlements.v1alpha1.SandboxChecksConfig
+	3,  // 13: chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest.sandbox_workspaces:type_name -> chainguard.platform.entitlements.v1alpha1.SandboxWorkspacesConfig
+	5,  // 14: chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest.sso_enforcement:type_name -> chainguard.platform.entitlements.v1alpha1.SsoEnforcementConfig
+	12, // 15: chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest.expire_time:type_name -> google.protobuf.Timestamp
+	0,  // 16: chainguard.platform.entitlements.v1alpha1.DeleteFeatureEntitlementRequest.source:type_name -> chainguard.platform.entitlements.v1alpha1.FeatureSource
+	1,  // 17: chainguard.platform.entitlements.v1alpha1.EnableSandboxResponse.feature_entitlements:type_name -> chainguard.platform.entitlements.v1alpha1.FeatureEntitlement
+	6,  // 18: chainguard.platform.entitlements.v1alpha1.Features.ListFeatureEntitlements:input_type -> chainguard.platform.entitlements.v1alpha1.ListFeatureEntitlementsRequest
+	8,  // 19: chainguard.platform.entitlements.v1alpha1.Features.SetFeatureEntitlement:input_type -> chainguard.platform.entitlements.v1alpha1.SetFeatureEntitlementRequest
+	9,  // 20: chainguard.platform.entitlements.v1alpha1.Features.DeleteFeatureEntitlement:input_type -> chainguard.platform.entitlements.v1alpha1.DeleteFeatureEntitlementRequest
+	10, // 21: chainguard.platform.entitlements.v1alpha1.Features.EnableSandbox:input_type -> chainguard.platform.entitlements.v1alpha1.EnableSandboxRequest
+	7,  // 22: chainguard.platform.entitlements.v1alpha1.Features.ListFeatureEntitlements:output_type -> chainguard.platform.entitlements.v1alpha1.ListFeatureEntitlementsResponse
+	1,  // 23: chainguard.platform.entitlements.v1alpha1.Features.SetFeatureEntitlement:output_type -> chainguard.platform.entitlements.v1alpha1.FeatureEntitlement
+	13, // 24: chainguard.platform.entitlements.v1alpha1.Features.DeleteFeatureEntitlement:output_type -> google.protobuf.Empty
+	11, // 25: chainguard.platform.entitlements.v1alpha1.Features.EnableSandbox:output_type -> chainguard.platform.entitlements.v1alpha1.EnableSandboxResponse
+	22, // [22:26] is the sub-list for method output_type
+	18, // [18:22] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_entitlements_v1alpha1_features_proto_init() }
@@ -1059,13 +1144,15 @@ func file_chainguard_platform_entitlements_v1alpha1_features_proto_init() {
 	file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[0].OneofWrappers = []any{
 		(*FeatureEntitlement_SandboxChecks)(nil),
 		(*FeatureEntitlement_SandboxWorkspaces)(nil),
+		(*FeatureEntitlement_SsoEnforcement)(nil),
 	}
 	file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[2].OneofWrappers = []any{}
 	file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[3].OneofWrappers = []any{}
-	file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[6].OneofWrappers = []any{
+	file_chainguard_platform_entitlements_v1alpha1_features_proto_msgTypes[7].OneofWrappers = []any{
 		(*SetFeatureEntitlementRequest_SandboxChecks)(nil),
 		(*SetFeatureEntitlementRequest_SandboxWorkspaces)(nil),
+		(*SetFeatureEntitlementRequest_SsoEnforcement)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -1073,7 +1160,7 @@ func file_chainguard_platform_entitlements_v1alpha1_features_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDesc), len(file_chainguard_platform_entitlements_v1alpha1_features_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   10,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

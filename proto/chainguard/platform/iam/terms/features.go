@@ -17,11 +17,15 @@ var featureDocuments = map[string][]string{
 	// Workspaces is a Secured Platform Offering under the Secured Platform
 	// Terms, and a Technology Preview as the MSLA defines one.
 	"sandbox_workspaces": {"secure-platform-terms.v1", "msla.v1"},
+	// SSO enforcement is a rollout gate on a security control the
+	// organization configures itself, not a product offering: it requires no
+	// document.
+	"sso_enforcement": {},
 }
 
 // FeatureDocuments returns the IDs of the documents an organization must
 // accept to use the entitlement feature with key feature ("sandbox_checks",
-// "sandbox_workspaces"), or nil when it requires none.
+// "sandbox_workspaces", "sso_enforcement"), or nil when it requires none.
 func FeatureDocuments(feature string) []string {
 	return slices.Clone(featureDocuments[feature])
 }

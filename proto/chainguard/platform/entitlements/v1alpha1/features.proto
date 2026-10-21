@@ -137,7 +137,8 @@ message FeatureEntitlement {
   // parent is the UIDP of the entitled organization.
   string parent = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // feature is the feature key: "sandbox_checks" or "sandbox_workspaces".
+  // feature is the feature key: "sandbox_checks", "sandbox_workspaces" or
+  // "sso_enforcement".
   string feature = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // source is the entitlement's system of record.
@@ -150,6 +151,8 @@ message FeatureEntitlement {
     SandboxChecksConfig sandbox_checks = 5;
     // Limits for "sandbox_workspaces".
     SandboxWorkspacesConfig sandbox_workspaces = 6;
+    // "sso_enforcement", which has no limits.
+    SsoEnforcementConfig sso_enforcement = 12;
   }
 
   // expire_time is when the entitlement ends. Unset means it does not expire.
@@ -230,6 +233,15 @@ message ResourceClassLimit {
   optional int64 disk_mib = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// SsoEnforcementConfig is the configuration of "sso_enforcement": an
+// organization's entitlement to have its sso_only authentication policy
+// (iam.v2.AuthPolicy) enforced at sign-in. The entitlement is the presence of
+// a live, unexpired row; there is nothing to configure. Without it the policy
+// can be stored but not enabled, and an enabled policy stops being enforced
+// when the entitlement is deleted or expires, without being changed.
+message SsoEnforcementConfig {
+}
+
 message ListFeatureEntitlementsRequest {
   // parent is the UIDP of the organization.
   string parent = 1 [
@@ -256,7 +268,8 @@ message SetFeatureEntitlementRequest {
     (chainguard.annotations.iam_scope) = true
   ];
 
-  // feature is the feature key: "sandbox_checks" or "sandbox_workspaces".
+  // feature is the feature key: "sandbox_checks", "sandbox_workspaces" or
+  // "sso_enforcement".
   string feature = 2 [(google.api.field_behavior) = REQUIRED];
 
   // source is INTERNAL (backfill, automation) or CONSOLE_ADMIN (support).
@@ -269,6 +282,8 @@ message SetFeatureEntitlementRequest {
     SandboxChecksConfig sandbox_checks = 4;
     // Limits for "sandbox_workspaces".
     SandboxWorkspacesConfig sandbox_workspaces = 5;
+    // "sso_enforcement", which has no limits.
+    SsoEnforcementConfig sso_enforcement = 9;
   }
 
   // expire_time is when the entitlement ends. Unset makes it non-expiring.
@@ -293,7 +308,8 @@ message DeleteFeatureEntitlementRequest {
     (chainguard.annotations.iam_scope) = true
   ];
 
-  // feature is the feature key: "sandbox_checks" or "sandbox_workspaces".
+  // feature is the feature key: "sandbox_checks", "sandbox_workspaces" or
+  // "sso_enforcement".
   string feature = 2 [(google.api.field_behavior) = REQUIRED];
 
   // source is the surface making the change, recorded with it for audit:
