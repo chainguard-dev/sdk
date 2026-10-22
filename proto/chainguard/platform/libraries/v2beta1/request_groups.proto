@@ -1284,6 +1284,21 @@ message RequestedLibraryVersion {
 
   // When this version was most recently requested.
   google.protobuf.Timestamp last_request_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // When this version's answer last changed. A re-check that reaches the same
+  // answer does not move it, and neither does a move to a pending availability.
+  // It can move with no visible change: the answer that follows a refresh is
+  // recorded even when it repeats the earlier one, and so is a move between two
+  // answers that report the same availability.
+  //
+  // This is last_request_time while the version is pending, and where no change
+  // has been recorded: every version whose answer has not changed since
+  // Chainguard began recording changes.
+  //
+  // buf format keeps a field and its options on one line, which is longer than
+  // the line limit here. Disabled for this line only.
+  // protolint:disable:next MAX_LINE_LENGTH
+  google.protobuf.Timestamp availability_change_time = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ListRequestedLibrariesRequest lists an organization's requested libraries.
