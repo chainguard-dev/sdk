@@ -55,9 +55,23 @@ type AuthPolicy struct {
 	// from the populated fields can carry an explicit false. Readers must use
 	// the SsoOnly pointer field directly, never the generated GetSsoOnly()
 	// accessor: the accessor returns false for nil and erases that distinction.
-	SsoOnly       *bool `protobuf:"varint,2,opt,name=sso_only,json=ssoOnly,proto3,oneof" json:"sso_only,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	SsoOnly *bool `protobuf:"varint,2,opt,name=sso_only,json=ssoOnly,proto3,oneof" json:"sso_only,omitempty"`
+	// Fields from 40 report the organization's readiness to enforce the
+	// policy: facts about the organization that decide whether sso_only can be
+	// turned on and whether, once on, it takes effect. They are never written.
+	//
+	// enforcement_entitled reports whether the organization is enabled for SSO
+	// enforcement. While the feature is in early access Chainguard enables it
+	// per organization: UpdateAuthPolicy refuses to turn sso_only on for an
+	// organization that is not, with FAILED_PRECONDITION and the violation type
+	// SSO_ENFORCEMENT_NOT_ENTITLED, and an sso_only that is already on is stored
+	// but not enforced at sign-in until the organization is enabled again.
+	// Turning sso_only off never needs it. Unset when it could not be
+	// determined for this response; a client treats unset as unknown, not as
+	// false.
+	EnforcementEntitled *bool `protobuf:"varint,40,opt,name=enforcement_entitled,json=enforcementEntitled,proto3,oneof" json:"enforcement_entitled,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *AuthPolicy) Reset() {
@@ -100,6 +114,13 @@ func (x *AuthPolicy) GetUid() string {
 func (x *AuthPolicy) GetSsoOnly() bool {
 	if x != nil && x.SsoOnly != nil {
 		return *x.SsoOnly
+	}
+	return false
+}
+
+func (x *AuthPolicy) GetEnforcementEntitled() bool {
+	if x != nil && x.EnforcementEntitled != nil {
+		return *x.EnforcementEntitled
 	}
 	return false
 }
@@ -219,15 +240,17 @@ var File_chainguard_platform_iam_v2_auth_policies_proto protoreflect.FileDescrip
 
 const file_chainguard_platform_iam_v2_auth_policies_proto_rawDesc = "" +
 	"\n" +
-	".chainguard/platform/iam/v2/auth_policies.proto\x12\x1achainguard.platform.iam.v2\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a google/protobuf/field_mask.proto\"\xb6\x01\n" +
+	".chainguard/platform/iam/v2/auth_policies.proto\x12\x1achainguard.platform.iam.v2\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a google/protobuf/field_mask.proto\"\x8d\x02\n" +
 	"\n" +
 	"AuthPolicy\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12$\n" +
-	"\bsso_only\x18\x02 \x01(\bB\x04\xe2A\x01\x01H\x00R\assoOnly\x88\x01\x01:W\xeaAT\n" +
+	"\bsso_only\x18\x02 \x01(\bB\x04\xe2A\x01\x01H\x00R\assoOnly\x88\x01\x01\x12<\n" +
+	"\x14enforcement_entitled\x18( \x01(\bB\x04\xe2A\x01\x03H\x01R\x13enforcementEntitled\x88\x01\x01:W\xeaAT\n" +
 	"\x1diam.chainguard.dev/AuthPolicy\x12\x19groups/{group}/authPolicy*\fauthPolicies2\n" +
 	"authPolicyB\v\n" +
-	"\t_sso_only\"4\n" +
+	"\t_sso_onlyB\x17\n" +
+	"\x15_enforcement_entitled\"4\n" +
 	"\x14GetAuthPolicyRequest\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\"\xb1\x01\n" +

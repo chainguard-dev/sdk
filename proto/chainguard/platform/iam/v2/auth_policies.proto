@@ -102,6 +102,24 @@ message AuthPolicy {
   // the SsoOnly pointer field directly, never the generated GetSsoOnly()
   // accessor: the accessor returns false for nil and erases that distinction.
   optional bool sso_only = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Fields from 40 report the organization's readiness to enforce the
+  // policy: facts about the organization that decide whether sso_only can be
+  // turned on and whether, once on, it takes effect. They are never written.
+  //
+  // enforcement_entitled reports whether the organization is enabled for SSO
+  // enforcement. While the feature is in early access Chainguard enables it
+  // per organization: UpdateAuthPolicy refuses to turn sso_only on for an
+  // organization that is not, with FAILED_PRECONDITION and the violation type
+  // SSO_ENFORCEMENT_NOT_ENTITLED, and an sso_only that is already on is stored
+  // but not enforced at sign-in until the organization is enabled again.
+  // Turning sso_only off never needs it. Unset when it could not be
+  // determined for this response; a client treats unset as unknown, not as
+  // false.
+  optional bool enforcement_entitled = 40 [
+    // Reported, never written: UpdateAuthPolicy ignores it.
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
 }
 
 // GetAuthPolicyRequest is the request message for GetAuthPolicy.
