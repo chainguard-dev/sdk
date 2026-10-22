@@ -22,10 +22,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ArgosPartners_GetCapabilities_FullMethodName       = "/chainguard.platform.argos.ArgosPartners/GetCapabilities"
-	ArgosPartners_UpdateCapabilities_FullMethodName    = "/chainguard.platform.argos.ArgosPartners/UpdateCapabilities"
-	ArgosPartners_DeleteCapabilities_FullMethodName    = "/chainguard.platform.argos.ArgosPartners/DeleteCapabilities"
-	ArgosPartners_ListMitigationMethods_FullMethodName = "/chainguard.platform.argos.ArgosPartners/ListMitigationMethods"
+	ArgosPartners_GetCapabilities_FullMethodName         = "/chainguard.platform.argos.ArgosPartners/GetCapabilities"
+	ArgosPartners_UpdateCapabilities_FullMethodName      = "/chainguard.platform.argos.ArgosPartners/UpdateCapabilities"
+	ArgosPartners_DeleteCapabilities_FullMethodName      = "/chainguard.platform.argos.ArgosPartners/DeleteCapabilities"
+	ArgosPartners_ListMitigationMethods_FullMethodName   = "/chainguard.platform.argos.ArgosPartners/ListMitigationMethods"
+	ArgosPartners_ListPartnerReviews_FullMethodName      = "/chainguard.platform.argos.ArgosPartners/ListPartnerReviews"
+	ArgosPartners_DecidePartnerCapability_FullMethodName = "/chainguard.platform.argos.ArgosPartners/DecidePartnerCapability"
 )
 
 // ArgosPartnersClient is the client API for ArgosPartners service.
@@ -54,6 +56,13 @@ type ArgosPartnersClient interface {
 	// by display name. There is no per-organisation filtering: every method a
 	// partner could request is visible so they can build a capabilities.md.
 	ListMitigationMethods(ctx context.Context, in *ListMitigationMethodsRequest, opts ...grpc.CallOption) (*ListMitigationMethodsResponse, error)
+	// ListPartnerReviews returns, for Chainguard staff review, each partner's
+	// capabilities by review state and the mitigation-method catalogue. With
+	// partner_id set it returns that partner only.
+	ListPartnerReviews(ctx context.Context, in *ListPartnerReviewsRequest, opts ...grpc.CallOption) (*ListPartnerReviewsResponse, error)
+	// DecidePartnerCapability approves, rejects or revokes one of a partner's
+	// capabilities, provided its state is still expected_state.
+	DecidePartnerCapability(ctx context.Context, in *DecidePartnerCapabilityRequest, opts ...grpc.CallOption) (*DecidePartnerCapabilityResponse, error)
 }
 
 type argosPartnersClient struct {
@@ -104,6 +113,26 @@ func (c *argosPartnersClient) ListMitigationMethods(ctx context.Context, in *Lis
 	return out, nil
 }
 
+func (c *argosPartnersClient) ListPartnerReviews(ctx context.Context, in *ListPartnerReviewsRequest, opts ...grpc.CallOption) (*ListPartnerReviewsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListPartnerReviewsResponse)
+	err := c.cc.Invoke(ctx, ArgosPartners_ListPartnerReviews_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *argosPartnersClient) DecidePartnerCapability(ctx context.Context, in *DecidePartnerCapabilityRequest, opts ...grpc.CallOption) (*DecidePartnerCapabilityResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DecidePartnerCapabilityResponse)
+	err := c.cc.Invoke(ctx, ArgosPartners_DecidePartnerCapability_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ArgosPartnersServer is the server API for ArgosPartners service.
 // All implementations must embed UnimplementedArgosPartnersServer
 // for forward compatibility.
@@ -130,6 +159,13 @@ type ArgosPartnersServer interface {
 	// by display name. There is no per-organisation filtering: every method a
 	// partner could request is visible so they can build a capabilities.md.
 	ListMitigationMethods(context.Context, *ListMitigationMethodsRequest) (*ListMitigationMethodsResponse, error)
+	// ListPartnerReviews returns, for Chainguard staff review, each partner's
+	// capabilities by review state and the mitigation-method catalogue. With
+	// partner_id set it returns that partner only.
+	ListPartnerReviews(context.Context, *ListPartnerReviewsRequest) (*ListPartnerReviewsResponse, error)
+	// DecidePartnerCapability approves, rejects or revokes one of a partner's
+	// capabilities, provided its state is still expected_state.
+	DecidePartnerCapability(context.Context, *DecidePartnerCapabilityRequest) (*DecidePartnerCapabilityResponse, error)
 	mustEmbedUnimplementedArgosPartnersServer()
 }
 
@@ -151,6 +187,12 @@ func (UnimplementedArgosPartnersServer) DeleteCapabilities(context.Context, *Del
 }
 func (UnimplementedArgosPartnersServer) ListMitigationMethods(context.Context, *ListMitigationMethodsRequest) (*ListMitigationMethodsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListMitigationMethods not implemented")
+}
+func (UnimplementedArgosPartnersServer) ListPartnerReviews(context.Context, *ListPartnerReviewsRequest) (*ListPartnerReviewsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListPartnerReviews not implemented")
+}
+func (UnimplementedArgosPartnersServer) DecidePartnerCapability(context.Context, *DecidePartnerCapabilityRequest) (*DecidePartnerCapabilityResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DecidePartnerCapability not implemented")
 }
 func (UnimplementedArgosPartnersServer) mustEmbedUnimplementedArgosPartnersServer() {}
 func (UnimplementedArgosPartnersServer) testEmbeddedByValue()                       {}
@@ -245,6 +287,42 @@ func _ArgosPartners_ListMitigationMethods_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ArgosPartners_ListPartnerReviews_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListPartnerReviewsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArgosPartnersServer).ListPartnerReviews(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ArgosPartners_ListPartnerReviews_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArgosPartnersServer).ListPartnerReviews(ctx, req.(*ListPartnerReviewsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArgosPartners_DecidePartnerCapability_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DecidePartnerCapabilityRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArgosPartnersServer).DecidePartnerCapability(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ArgosPartners_DecidePartnerCapability_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArgosPartnersServer).DecidePartnerCapability(ctx, req.(*DecidePartnerCapabilityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ArgosPartners_ServiceDesc is the grpc.ServiceDesc for ArgosPartners service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -267,6 +345,14 @@ var ArgosPartners_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListMitigationMethods",
 			Handler:    _ArgosPartners_ListMitigationMethods_Handler,
+		},
+		{
+			MethodName: "ListPartnerReviews",
+			Handler:    _ArgosPartners_ListPartnerReviews_Handler,
+		},
+		{
+			MethodName: "DecidePartnerCapability",
+			Handler:    _ArgosPartners_DecidePartnerCapability_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

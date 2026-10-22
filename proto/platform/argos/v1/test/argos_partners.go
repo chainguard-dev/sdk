@@ -25,6 +25,9 @@ type MockArgosPartnersClient struct {
 	OnUpdateCapabilities    []ArgosPartnersOnUpdateCapabilities
 	OnDeleteCapabilities    []ArgosPartnersOnDeleteCapabilities
 	OnListMitigationMethods []ArgosPartnersOnListMitigationMethods
+
+	OnListPartnerReviews      []ArgosPartnersOnListPartnerReviews
+	OnDecidePartnerCapability []ArgosPartnersOnDecidePartnerCapability
 }
 
 type ArgosPartnersOnGetCapabilities struct {
@@ -48,6 +51,18 @@ type ArgosPartnersOnDeleteCapabilities struct {
 type ArgosPartnersOnListMitigationMethods struct {
 	Given    *argos.ListMitigationMethodsRequest
 	Response *argos.ListMitigationMethodsResponse
+	Error    error
+}
+
+type ArgosPartnersOnListPartnerReviews struct {
+	Given    *argos.ListPartnerReviewsRequest
+	Response *argos.ListPartnerReviewsResponse
+	Error    error
+}
+
+type ArgosPartnersOnDecidePartnerCapability struct {
+	Given    *argos.DecidePartnerCapabilityRequest
+	Response *argos.DecidePartnerCapabilityResponse
 	Error    error
 }
 
@@ -80,6 +95,24 @@ func (m MockArgosPartnersClient) DeleteCapabilities(_ context.Context, given *ar
 
 func (m MockArgosPartnersClient) ListMitigationMethods(_ context.Context, given *argos.ListMitigationMethodsRequest, _ ...grpc.CallOption) (*argos.ListMitigationMethodsResponse, error) {
 	for _, o := range m.OnListMitigationMethods {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockArgosPartnersClient) ListPartnerReviews(_ context.Context, given *argos.ListPartnerReviewsRequest, _ ...grpc.CallOption) (*argos.ListPartnerReviewsResponse, error) {
+	for _, o := range m.OnListPartnerReviews {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockArgosPartnersClient) DecidePartnerCapability(_ context.Context, given *argos.DecidePartnerCapabilityRequest, _ ...grpc.CallOption) (*argos.DecidePartnerCapabilityResponse, error) {
+	for _, o := range m.OnDecidePartnerCapability {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Response, o.Error
 		}

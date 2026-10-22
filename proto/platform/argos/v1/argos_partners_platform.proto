@@ -88,6 +88,37 @@ service ArgosPartners {
       }
     };
   }
+
+  // The two staff methods below carry no google.api.http option and this
+  // file's gateway is generated without generate_unbound_methods, so they
+  // have no REST route and only gRPC callers reach them.
+
+  // ListPartnerReviews returns, for Chainguard staff review, each partner's
+  // capabilities by review state and the mitigation-method catalogue. With
+  // partner_id set it returns that partner only.
+  rpc ListPartnerReviews(ListPartnerReviewsRequest) returns (
+      ListPartnerReviewsResponse
+  ) {
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ARGOS_PARTNER_CAPABILITY_APPROVE, CAP_INTERNAL]
+        unscoped: true
+      }
+    };
+  }
+
+  // DecidePartnerCapability approves, rejects or revokes one of a partner's
+  // capabilities, provided its state is still expected_state.
+  rpc DecidePartnerCapability(DecidePartnerCapabilityRequest) returns (
+      DecidePartnerCapabilityResponse
+  ) {
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ARGOS_PARTNER_CAPABILITY_APPROVE, CAP_INTERNAL]
+        unscoped: true
+      }
+    };
+  }
 }
 
 message GetPartnerCapabilitiesRequest {
@@ -159,4 +190,39 @@ message MitigationMethod {
 message ListMitigationMethodsResponse {
   // mitigation_methods is keyed by display name.
   map<string, MitigationMethod> mitigation_methods = 1;
+}
+
+message ListPartnerReviewsRequest {
+  // partner_id, when set, is one partner's pseudonym (not an organization
+  // UIDP).
+  string partner_id = 1 [debug_redact = true];
+}
+
+message ListPartnerReviewsResponse {
+  repeated PartnerReview partners = 1;
+  // mitigation_methods is keyed by display name.
+  map<string, MitigationMethod> mitigation_methods = 2;
+}
+
+message PartnerReview {
+  // partner_id is the partner's pseudonym (not an organization UIDP).
+  string partner_id = 1 [debug_redact = true];
+  PartnerCapabilityState capabilities = 2;
+}
+
+message DecidePartnerCapabilityRequest {
+  // partner_id is the partner's pseudonym (not an organization UIDP).
+  string partner_id = 1 [debug_redact = true];
+  // method is the mitigation method's display name.
+  string method = 2;
+  // action is APPROVE, REJECT or REVOKE.
+  string action = 3;
+  // expected_state is PENDING, APPROVED or REJECTED, as last listed.
+  // Required.
+  string expected_state = 4;
+  // rejection_reason is shown to the partner; required for REJECT and REVOKE.
+  string rejection_reason = 5 [debug_redact = true];
+}
+
+message DecidePartnerCapabilityResponse {
 }
