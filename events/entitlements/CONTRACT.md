@@ -188,6 +188,9 @@ Therefore:
 - Consumers **must be idempotent** — an event may also arrive more than once.
 - Consumers **must not** apply `WRITE` as a positional delta off `Before`; on any
   `WRITE` (or on doubt) **re-fetch** authoritative state via `GetEffectiveEntitlements`.
+- A `WRITE` in the `LIBRARY` domain also follows a change to the grant's serving
+  tiers, which the snapshot does not carry: its `Before` and `After` differ only
+  in `version_token` and `updated_at`.
 - No cross-event ordering is guaranteed; do not assume a `DELETE` follows its `WRITE`.
 
 The event carries no dedup key of its own; a consumer that needs strict dedup can
