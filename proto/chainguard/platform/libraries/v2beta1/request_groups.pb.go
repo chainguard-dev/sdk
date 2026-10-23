@@ -3515,16 +3515,14 @@ type RequestedLibraryVersion struct {
 	// When this version was most recently requested.
 	LastRequestTime *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=last_request_time,json=lastRequestTime,proto3" json:"last_request_time,omitempty"`
 	// When this version's answer last changed. A re-check that reaches the same
-	// answer does not move it. It can move with no visible change: the answer
-	// that follows a forced refresh is recorded even when it repeats the earlier
-	// one, and so is a move between two answers that report the same
-	// availability.
+	// answer does not move it, and neither does a move to a pending availability.
+	// It can move with no visible change: the answer that follows a refresh is
+	// recorded even when it repeats the earlier one, and so is a move between two
+	// answers that report the same availability.
 	//
-	// This is last_request_time while the version is pending, while it holds an
-	// answer Chainguard retries automatically, such as CAN_BE_REQUESTED or
-	// BUILD_FAILED, and where no change has been recorded: every version whose
-	// answer has not changed since Chainguard began recording changes. BLOCKED
-	// and WONT_BUILD are checked again too, but keep the time they were reached.
+	// This is last_request_time while the version is pending, and where no change
+	// has been recorded: every version whose answer has not changed since
+	// Chainguard began recording changes.
 	//
 	// buf format keeps a field and its options on one line, which is longer than
 	// the line limit here. Disabled for this line only.
