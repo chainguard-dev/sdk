@@ -519,6 +519,17 @@ var (
 		Capability_CAP_INTERNAL,
 	})
 
+	// LibrariesRebuilderCVERemediationsViewerCaps is the list-only counterpart to
+	// the CVE_REMEDIATIONS_LIST capability bundled in LibrariesRebuilderAdminCaps:
+	// an automated reader that only needs to list cve-remediations (e.g. a
+	// selector service) should not also inherit admin's UPDATE capability or its
+	// request-groups escape hatches. Binding such a reader to admin would be a
+	// privilege grant, not a convenience.
+	LibrariesRebuilderCVERemediationsViewerCaps = SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_LIST,
+		Capability_CAP_INTERNAL,
+	})
+
 	// LibrariesRebuilderSourceResolverCaps is for the source-coordinate reconciler's
 	// identity (the source-resolver-reconciler service): it reads build and source data
 	// (builds.read) and writes resolved source coordinates back
