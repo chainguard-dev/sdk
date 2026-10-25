@@ -122,6 +122,13 @@ enum Ecosystem {
   // Athena tier for Ruby, paired with RUBY (mirrors RUBY_SECURE = 12 in the
   // datastore Ecosystem enum). Not eligible for self-serve provisioning.
   RUBY_ATHENA = 12;
+  // Rust (Cargo) crates ecosystem (mirrors RUST = 13 in the datastore
+  // Ecosystem enum). Registering this value does not activate serving.
+  RUST = 13;
+  // Reserved to pair RUST (mirrors RUST_SECURE = 14 in the datastore Ecosystem
+  // enum). No Athena tier is planned for Rust; registering this value
+  // activates nothing and it is not eligible for self-serve provisioning.
+  RUST_ATHENA = 14;
 }
 
 // Policy controls which package sources are available for an entitlement.
