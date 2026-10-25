@@ -10,7 +10,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"strings"
+	"runtime"
 	"testing"
 	"time"
 
@@ -56,12 +56,20 @@ func testRefreshToken(t *testing.T, issuer, audience, subject string, issuedAt t
 	return code
 }
 
-func TestSave(t *testing.T) {
-	t.Setenv("HOME", t.TempDir())
-	cacheDir, err := os.UserCacheDir()
-	if err != nil {
-		t.Fatal(err)
+// perOS picks the audience directory name the cache uses on this platform:
+// Windows forbids ":" in a path component, so audienceDir replaces it there
+// and keeps it elsewhere for compatibility with existing caches. The names are
+// spelled out rather than computed with audienceDir so a change to the on-disk
+// layout fails here.
+func perOS(unix, windows string) string {
+	if runtime.GOOS == "windows" {
+		return windows
 	}
+	return unix
+}
+
+func TestSave(t *testing.T) {
+	base := isolateCache(t)
 
 	tests := []struct {
 		name     string
@@ -73,23 +81,23 @@ func TestSave(t *testing.T) {
 		name:     "sans audience",
 		kind:     KindAccess,
 		audience: "", // Intentionally blank.
-		wantPath: filepath.Join(cacheDir, parentDir, string(KindAccess)),
+		wantPath: filepath.Join(base, string(KindAccess)),
 	}, {
 		name:     "with audience (sans replacement)",
 		kind:     KindAccess,
 		audience: "audience",
-		wantPath: filepath.Join(cacheDir, parentDir, "audience", string(KindAccess)),
+		wantPath: filepath.Join(base, "audience", string(KindAccess)),
 	}, {
 		name:     "with audience (with replacement)",
 		kind:     KindRefresh,
 		audience: "https://audience.unit.test",
-		wantPath: filepath.Join(cacheDir, parentDir, "https:--audience.unit.test", string(KindRefresh)),
+		wantPath: filepath.Join(base, perOS("https:--audience.unit.test", "https---audience.unit.test"), string(KindRefresh)),
 	}, {
 		name:     "with alias",
 		kind:     KindAccess,
 		audience: "audience",
 		opts:     []Option{WithAlias("alias")},
-		wantPath: filepath.Join(cacheDir, parentDir, "audience", "alias", string(KindAccess)),
+		wantPath: filepath.Join(base, "audience", "alias", string(KindAccess)),
 	}}
 
 	for _, test := range tests {
@@ -119,16 +127,13 @@ func TestSave(t *testing.T) {
 }
 
 func TestLoad(t *testing.T) {
-	t.Setenv("HOME", t.TempDir())
-	cacheDir, err := os.UserCacheDir()
-	if err != nil {
-		t.Fatal(err)
-	}
+	base := isolateCache(t)
 
 	tests := []struct {
 		name     string
 		kind     Kind
 		audience string
+		dir      string
 		alias    string
 	}{{
 		name:     "sans audience",
@@ -138,14 +143,17 @@ func TestLoad(t *testing.T) {
 		name:     "with audience (sans replacement)",
 		kind:     KindAccess,
 		audience: "audience",
+		dir:      "audience",
 	}, {
 		name:     "with audience (with replacement)",
 		kind:     KindRefresh,
 		audience: "https://audience.unit.test",
+		dir:      perOS("https:--audience.unit.test", "https---audience.unit.test"),
 	}, {
 		name:     "with alias",
 		kind:     KindAccess,
 		audience: "audience",
+		dir:      "audience",
 		alias:    "alias",
 	}}
 
@@ -153,8 +161,7 @@ func TestLoad(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			// Manually save a token
 			tokenContents := []byte("mytoken")
-			mutatedAud := strings.ReplaceAll(test.audience, "/", "-")
-			path := filepath.Join(cacheDir, parentDir, mutatedAud, test.alias)
+			path := filepath.Join(base, test.dir, test.alias)
 			if err := os.MkdirAll(path, 0777); err != nil {
 				t.Fatalf("Unexpected error creating temp dir: %v", err)
 			}
@@ -176,11 +183,7 @@ func TestLoad(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	t.Setenv("HOME", t.TempDir())
-	cacheDir, err := os.UserCacheDir()
-	if err != nil {
-		t.Fatal(err)
-	}
+	base := isolateCache(t)
 
 	tests := []struct {
 		name     string
@@ -220,7 +223,7 @@ func TestDelete(t *testing.T) {
 			// Manually save a token if it should exist
 			if test.exists {
 				tokenContents := []byte("mytoken")
-				path := filepath.Join(cacheDir, parentDir, test.audience, test.alias)
+				path := filepath.Join(base, test.audience, test.alias)
 				if err := os.MkdirAll(path, 0777); err != nil {
 					t.Fatalf("Unexpected error creating temp dir: %v", err)
 				}
@@ -243,7 +246,7 @@ func TestListAudiences(t *testing.T) {
 	now := time.Now()
 
 	t.Run("no cache dir yet", func(t *testing.T) {
-		t.Setenv("HOME", t.TempDir())
+		isolateCache(t)
 		got, err := ListAudiences()
 		if err != nil {
 			t.Fatalf("ListAudiences() = %v", err)
@@ -254,7 +257,7 @@ func TestListAudiences(t *testing.T) {
 	})
 
 	t.Run("recovers real audiences from token claims", func(t *testing.T) {
-		t.Setenv("HOME", t.TempDir())
+		isolateCache(t)
 
 		// Audiences include "/" which is lossily munged in the on-disk
 		// directory name; ListAudiences must recover the original from the
@@ -287,7 +290,7 @@ func TestListAudiences(t *testing.T) {
 	})
 
 	t.Run("skips unparseable token files", func(t *testing.T) {
-		t.Setenv("HOME", t.TempDir())
+		isolateCache(t)
 
 		tok := testToken(t, "good.aud", "subject", now, time.Hour)
 		if err := Save([]byte(tok), KindAccess, "good.aud"); err != nil {
@@ -365,12 +368,7 @@ func TestDeleteAll(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			// Make sure parent cache directory exists
-			t.Setenv("HOME", t.TempDir())
-			cacheDir, err := os.UserCacheDir()
-			if err != nil {
-				t.Fatal(err)
-			}
-			cacheDir = filepath.Join(cacheDir, parentDir)
+			cacheDir := isolateCache(t)
 
 			if err := os.MkdirAll(cacheDir, os.ModePerm); err != nil {
 				t.Fatalf("failed to create parent dir %s: %s", cacheDir, err.Error())
@@ -386,12 +384,12 @@ func TestDeleteAll(t *testing.T) {
 			for _, aud := range test.audsWithTokens {
 				for _, kind := range AllKinds {
 					tok := filepath.Join(cacheDir, aud, string(kind))
-					if _, err := os.Create(tok); err != nil {
+					if err := os.WriteFile(tok, nil, tokenFilePerm); err != nil {
 						t.Fatalf("failed to create fake token %s: %s", tok, err.Error())
 					}
 					if test.alias != "" {
 						tok := filepath.Join(cacheDir, aud, test.alias, string(kind))
-						if _, err := os.Create(tok); err != nil {
+						if err := os.WriteFile(tok, nil, tokenFilePerm); err != nil {
 							t.Fatalf("failed to create fake token %s: %s", tok, err.Error())
 						}
 					}
@@ -403,17 +401,17 @@ func TestDeleteAll(t *testing.T) {
 				if err := os.MkdirAll(filepath.Dir(p), os.ModePerm); err != nil {
 					t.Fatalf("failed to create dir %s: %s", filepath.Dir(p), err.Error())
 				}
-				if _, err := os.Create(p); err != nil {
+				if err := os.WriteFile(p, nil, tokenFilePerm); err != nil {
 					t.Fatalf("failed to create extra file %s: %s", p, err.Error())
 				}
 			}
 
 			// Then burn it to the ground.
-			err = DeleteAll()
+			err := DeleteAll()
 
 			// Sift through the ashes.
 			if (err != nil) != test.wantErr {
-				t.Errorf("DeleteAll() error return mismatch, want=%t, got=%v", test.wantErr, err)
+				t.Errorf("DeleteAll(): got = %v, want error = %t", err, test.wantErr)
 			}
 			files, err := os.ReadDir(cacheDir)
 			if err != nil {
@@ -423,14 +421,14 @@ func TestDeleteAll(t *testing.T) {
 			// TODO: make this more robust and count subfiles within dirs in `files`
 			// This will currently fail to catch situation where one dir has >1 extra file
 			if len(files) != len(test.extraFiles) {
-				t.Errorf("Remaining files mismatch, want=%d, got=%d", len(test.extraFiles), len(files))
+				t.Errorf("remaining files: got = %d, want = %d", len(files), len(test.extraFiles))
 			}
 		})
 	}
 }
 
 func TestSaveLoadToken(t *testing.T) {
-	t.Setenv("HOME", t.TempDir())
+	isolateCache(t)
 
 	tests := []struct {
 		description string
@@ -468,7 +466,7 @@ func TestSaveLoadToken(t *testing.T) {
 }
 
 func TestRemainingLife(t *testing.T) {
-	t.Setenv("HOME", t.TempDir())
+	isolateCache(t)
 
 	now := time.Unix(0, 0)
 	timeUntil = func(t time.Time) time.Duration {
@@ -578,12 +576,7 @@ func TestRemainingLife(t *testing.T) {
 }
 
 func TestPath(t *testing.T) {
-	t.Setenv("HOME", t.TempDir())
-
-	cacheDir, err := os.UserCacheDir()
-	if err != nil {
-		t.Fatal(err)
-	}
+	base := isolateCache(t)
 
 	tests := map[string]struct {
 		kind         Kind
@@ -593,17 +586,17 @@ func TestPath(t *testing.T) {
 		"no audience": {
 			audience:     "",
 			kind:         KindAccess,
-			expectedPath: filepath.Join(cacheDir, parentDir, string(KindAccess)),
+			expectedPath: filepath.Join(base, string(KindAccess)),
 		},
 		"audience sans replacement": {
 			audience:     "console.example.com",
 			kind:         KindAccess,
-			expectedPath: filepath.Join(cacheDir, parentDir, "console.example.com", string(KindAccess)),
+			expectedPath: filepath.Join(base, "console.example.com", string(KindAccess)),
 		},
 		"audience with replacement": {
 			audience:     "https://console.example.com",
 			kind:         KindRefresh,
-			expectedPath: filepath.Join(cacheDir, parentDir, "https:--console.example.com", string(KindRefresh)),
+			expectedPath: filepath.Join(base, perOS("https:--console.example.com", "https---console.example.com"), string(KindRefresh)),
 		},
 	}
 

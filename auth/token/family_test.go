@@ -429,7 +429,7 @@ func TestAdoption(t *testing.T) {
 				savePerAudience(t, tok, aud)
 			}
 			// cg zendesk's files share the cache and must survive.
-			zdDir := filepath.Join(base, "https:--unit.zendesk.com")
+			zdDir := filepath.Join(base, audienceDir("https://unit.zendesk.com"))
 			if err := os.MkdirAll(zdDir, 0o700); err != nil {
 				t.Fatal(err)
 			}
