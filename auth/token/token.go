@@ -6,6 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 package token //nolint:revive // redefines-builtin-id: collides with go/token, but renaming would break API
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -34,7 +35,9 @@ var (
 )
 
 type token struct {
-	alias string
+	alias   string
+	issuer  string
+	primary string
 }
 
 type Option func(*token)
@@ -48,6 +51,28 @@ func WithAlias(a string) Option {
 	}
 }
 
+// WithIssuer scopes a refresh token to the issuer that minted it. For
+// KindRefresh, Load and RemainingLife then return only a token from that
+// issuer, resolved through the family store (see SaveFamily), and Save and
+// Delete act on that issuer's families. A caller that passes no issuer sees
+// only the per-audience file, exactly as it would without the family store,
+// and never a family. Other kinds ignore the option, and so do aliased
+// tokens, which never belong to a family.
+func WithIssuer(iss string) Option {
+	return func(token *token) {
+		token.issuer = auth.NormalizeIssuer(iss)
+	}
+}
+
+// WithPrimaryAudience names the audience a login was requested for. SaveFamily
+// always writes that audience's per-audience copy, even over a live token from
+// another issuer, which it keeps in every other audience it covers.
+func WithPrimaryAudience(aud string) Option {
+	return func(token *token) {
+		token.primary = aud
+	}
+}
+
 func newToken(opts ...Option) token {
 	t := token{}
 	for _, o := range opts {
@@ -56,9 +81,14 @@ func newToken(opts ...Option) token {
 	return t
 }
 
-// Save saves the given token to cache/audience
+// Save saves the given token to cache/audience. A KindRefresh token saved
+// WithIssuer is stored as a family covering audience alone, the same as
+// SaveFamily with that one audience.
 func Save(token []byte, kind Kind, audience string, opts ...Option) error {
 	t := newToken(opts...)
+	if t.usesFamilies(kind) {
+		return t.saveFamily(string(token), []string{audience})
+	}
 	return t.save(token, kind, audience)
 }
 
@@ -78,6 +108,9 @@ func (t token) save(token []byte, kind Kind, audience string) error {
 // or an error if it doesn't.
 func Load(kind Kind, audience string, opts ...Option) ([]byte, error) {
 	t := newToken(opts...)
+	if t.usesFamilies(kind) {
+		return t.loadSelected(audience)
+	}
 	return t.load(kind, audience)
 }
 
@@ -96,9 +129,19 @@ func (t token) load(kind Kind, audience string) ([]byte, error) {
 
 // Delete removes the token for the given audience, if it exists.
 // No error is returned if the token doesn't exist.
+//
+// For KindRefresh it also removes audience from the coverage of every family
+// (of the given issuer only, when WithIssuer is passed), deleting a family
+// left covering nothing.
 func Delete(kind Kind, audience string, opts ...Option) error {
 	t := newToken(opts...)
-	return t.delete(kind, audience)
+	if err := t.delete(kind, audience); err != nil {
+		return err
+	}
+	if kind == KindRefresh && t.alias == "" {
+		return t.uncover(audience)
+	}
+	return nil
 }
 
 func (t token) delete(kind Kind, audience string) error {
@@ -119,11 +162,23 @@ func (t token) delete(kind Kind, audience string) error {
 	return removeStagingFiles(path)
 }
 
-// DeleteAll removes all Chainguard tokens and empty audience directories.
+// DeleteAll removes all Chainguard tokens and empty audience directories,
+// including every refresh-token family. The store's lock file holds no token
+// and is left in place.
 func DeleteAll() error {
 	base, err := cacheFilePath("")
 	if err != nil {
 		return fmt.Errorf("error locating Chainguard token dir: %w", err)
+	}
+	families := filepath.Join(base, familiesDir)
+
+	// Taken so a refresh in flight cannot write its successor back after the
+	// family file is removed. Removing never presents a token, so a lock that
+	// cannot be had does not stop the clear.
+	if _, err := os.Stat(families); err == nil {
+		if unlock, err := lockStore(context.Background()); err == nil {
+			defer unlock()
+		}
 	}
 
 	// Token directory is expected to be structured as group of audience-specific
@@ -153,7 +208,7 @@ func DeleteAll() error {
 		case d.IsDir():
 			// Keep track of directories we'll want to delete, if they end up empty.
 			dirs = append(dirs, path)
-		case slices.Contains(AllKinds, Kind(d.Name())), isTempFile(d.Name()):
+		case slices.Contains(AllKinds, Kind(d.Name())), isTempFile(d.Name()), filepath.Dir(path) == families:
 			// Remove recognized token files, and any staging file an atomic
 			// write left behind: it holds token bytes, and a process killed
 			// between the write and the rename does not get to clean up after
@@ -249,6 +304,14 @@ func Path(kind Kind, audience string, opts ...Option) (string, error) {
 }
 
 func (t token) path(kind Kind, audience string) (string, error) {
+	// NB: empty elements in Join are ignored, so we don't need to
+	// check the existence of t.alias here.
+	fp := filepath.Join(audienceDir(audience), t.alias, string(kind))
+	return cacheFilePath(fp)
+}
+
+// audienceDir is the name of audience's directory under the cache root.
+func audienceDir(audience string) string {
 	a := strings.ReplaceAll(audience, "/", "-")
 	// Windows does not allow : as a valid character for directory names.
 	// For backwards compatibility, keep : in directory names for non-Windows systems.
@@ -256,10 +319,7 @@ func (t token) path(kind Kind, audience string) (string, error) {
 	if runtime.GOOS == "windows" {
 		a = strings.ReplaceAll(a, ":", "-")
 	}
-	// NB: empty elements in Join are ignored, so we don't need to
-	// check the existence of t.alias here.
-	fp := filepath.Join(a, t.alias, string(kind))
-	return cacheFilePath(fp)
+	return a
 }
 
 // RemainingLife returns the amount of time remaining before the token for
@@ -270,7 +330,13 @@ func RemainingLife(kind Kind, audience string, less time.Duration, opts ...Optio
 }
 
 func (t token) remainingLife(kind Kind, audience string, less time.Duration) time.Duration {
-	tok, err := t.load(kind, audience)
+	var tok []byte
+	var err error
+	if t.usesFamilies(kind) {
+		tok, err = t.loadSelected(audience)
+	} else {
+		tok, err = t.load(kind, audience)
+	}
 	if err != nil {
 		// Not a big deal, life is zero.
 		return 0
