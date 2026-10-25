@@ -68,7 +68,7 @@ func (t token) save(token []byte, kind Kind, audience string) error {
 		return err
 	}
 
-	if err := os.WriteFile(path, token, 0600); err != nil {
+	if err := writeFileAtomic(path, token); err != nil {
 		return fmt.Errorf("writing token file: %w", err)
 	}
 	return nil
@@ -110,7 +110,13 @@ func (t token) delete(kind Kind, audience string) error {
 	if err != nil && !errors.Is(err, fs.ErrNotExist) {
 		return fmt.Errorf("failed to remove token (%s): %w", path, err)
 	}
-	return nil
+	// Remove any staging file an atomic write left behind for this kind. It
+	// holds token bytes, and a process killed between the write and the
+	// rename does not clean up after itself, so a logout that skipped it
+	// would report success while the credential stayed on disk. DeleteAll
+	// sweeps these too; this covers the per-audience paths that reach here
+	// instead -- auth logout, auth delete-account, ClearPlatformTokens.
+	return removeStagingFiles(path)
 }
 
 // DeleteAll removes all Chainguard tokens and empty audience directories.
@@ -147,8 +153,12 @@ func DeleteAll() error {
 		case d.IsDir():
 			// Keep track of directories we'll want to delete, if they end up empty.
 			dirs = append(dirs, path)
-		case slices.Contains(AllKinds, Kind(d.Name())):
-			// Remove recognized token files.
+		case slices.Contains(AllKinds, Kind(d.Name())), isTempFile(d.Name()):
+			// Remove recognized token files, and any staging file an atomic
+			// write left behind: it holds token bytes, and a process killed
+			// between the write and the rename does not get to clean up after
+			// itself. A clear that left one behind would leave a credential on
+			// disk that the walk below then reports as an empty directory.
 			if err := os.Remove(path); err != nil { //nolint:gosec // G122: walking user's own token directory
 				return fmt.Errorf("removing file %s: %w", path, err)
 			}
@@ -273,7 +283,11 @@ func (t token) remainingLife(kind Kind, audience string, less time.Duration) tim
 		expiry, err = auth.ExtractExpiry(string(tok))
 	}
 	if err != nil {
-		fmt.Printf("failed to extract expiry: %v\n", err)
+		// Never stdout: the Docker credential helper's Get writes its JSON
+		// response there, and reaches this through useRefreshToken, so a
+		// token that fails to parse would corrupt the helper's output rather
+		// than simply reporting zero life.
+		fmt.Fprintf(os.Stderr, "failed to extract expiry: %v\n", err)
 		// Not a big deal, life is zero.
 		return 0
 	}
