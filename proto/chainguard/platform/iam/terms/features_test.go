@@ -27,6 +27,9 @@ func TestFeatureDocuments(t *testing.T) {
 	if got := FeatureDocuments("sso_enforcement"); len(got) != 0 {
 		t.Errorf("sso_enforcement: got %v, want no documents", got)
 	}
+	if got := FeatureDocuments("skills"); len(got) != 2 || got[0] != "agent-skills-tos.v1" || got[1] != "sfdpa.v1" {
+		t.Errorf("skills: got %v", got)
+	}
 	if got := FeatureDocuments("unknown"); got != nil {
 		t.Errorf("unknown feature: got %v, want nil", got)
 	}

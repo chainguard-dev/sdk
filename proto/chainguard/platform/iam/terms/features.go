@@ -21,11 +21,15 @@ var featureDocuments = map[string][]string{
 	// organization configures itself, not a product offering: it requires no
 	// document.
 	"sso_enforcement": {},
+	// Skills: the registry refuses skills and uploads pushes from an
+	// organization that has not accepted both.
+	"skills": {"agent-skills-tos.v1", "sfdpa.v1"},
 }
 
 // FeatureDocuments returns the IDs of the documents an organization must
 // accept to use the entitlement feature with key feature ("sandbox_checks",
-// "sandbox_workspaces", "sso_enforcement"), or nil when it requires none.
+// "sandbox_workspaces", "sso_enforcement", "skills"), or nil when it requires
+// none.
 func FeatureDocuments(feature string) []string {
 	return slices.Clone(featureDocuments[feature])
 }
