@@ -55,6 +55,16 @@ const (
 	// OperationRemoveResource unbinds one or more resources from an entitlement
 	// (resource grain).
 	OperationRemoveResource Operation = "REMOVE_RESOURCE"
+	// OperationModifyResource is a resource that stays bound under an
+	// entitlement but whose tier or image-group fields changed (resource
+	// grain) — emitted only by a wholesale reconcile (SetResources), the only
+	// writer of those fields on this stream. Writers still on the legacy
+	// registry path change the same fields with no event, so a change can
+	// occur without a MODIFY_RESOURCE until they cut over. See CONTRACT.md §5
+	// for why this is a separate operation rather than an
+	// ADD_RESOURCE/REMOVE_RESOURCE pair, and for the cases where Resources
+	// and ResourcesBefore can be equal on the wire despite a real change.
+	OperationModifyResource Operation = "MODIFY_RESOURCE"
 )
 
 // ChangeEvent is the events.Occurrence body for ChangedEventType.
@@ -64,10 +74,16 @@ const (
 // switch on Operation and read only the fields listed for that grain:
 //
 //   - WRITE:           After is set; Before is set iff the write updated an
-//     existing entitlement (Before nil ⇒ the write created it). Resources empty.
-//   - DELETE:          Before is set; After is nil. Resources empty.
-//   - ADD_RESOURCE:    Resources holds the rows actually bound. Before/After nil.
-//   - REMOVE_RESOURCE: Resources holds the rows actually removed. Before/After nil.
+//     existing entitlement (Before nil ⇒ the write created it). Resources and
+//     ResourcesBefore empty.
+//   - DELETE:          Before is set; After is nil. Resources and
+//     ResourcesBefore empty.
+//   - ADD_RESOURCE:    Resources holds the rows actually bound. Before/After
+//     and ResourcesBefore nil.
+//   - REMOVE_RESOURCE: Resources holds the rows actually removed. Before/After
+//     and ResourcesBefore nil.
+//   - MODIFY_RESOURCE: Resources holds each resource's post-change state,
+//     ResourcesBefore its pre-change state, index-paired. Before/After nil.
 //
 // Before and After hold the changed entitlement as JSON, interpreted per
 // Domain (each entitlement domain has its own public entitlement shape). They
@@ -119,10 +135,18 @@ type ChangeEvent struct {
 	// resource operations.
 	After json.RawMessage `json:"after,omitempty"`
 
-	// Resources are the resource rows that changed, set only for ADD_RESOURCE
-	// and REMOVE_RESOURCE. It reflects the rows that actually changed (absorbed
-	// duplicate adds and already-absent removes are excluded).
+	// Resources are the resource rows that changed. For ADD_RESOURCE and
+	// REMOVE_RESOURCE it reflects the rows that actually changed (absorbed
+	// duplicate adds and already-absent removes are excluded). For
+	// MODIFY_RESOURCE it holds each resource's post-change state, index-paired
+	// with ResourcesBefore.
 	Resources []ResourceChange `json:"resources,omitempty"`
+
+	// ResourcesBefore holds each resource's pre-change state, set only for
+	// MODIFY_RESOURCE and index-paired with Resources. nil for every other
+	// operation — REMOVE_RESOURCE's Resources already is the pre-removal
+	// state, so a separate before/after pair would be redundant for it.
+	ResourcesBefore []ResourceChange `json:"resources_before,omitempty"`
 }
 
 var (
@@ -178,10 +202,38 @@ type ResourceChange struct {
 	// Resource is the resource's own name — e.g. the repository name for
 	// IMAGE. It is the resource's identity within the entitlement, and lets a
 	// REMOVE_RESOURCE consumer act on the change without a lookup against a row
-	// that may already be gone by the time it processes the event.
+	// that may already be gone by the time it processes the event. Exception:
+	// when NameUnresolved is true, this carries an identifier, not a name —
+	// check that field rather than assuming.
 	Resource string `json:"resource,omitempty"`
 
 	// Tier is the catalog tier of the resource (e.g. "APPLICATION", "BASE"),
 	// when applicable to the domain.
 	Tier string `json:"tier,omitempty"`
+
+	// ImageGroup is the billed image group this resource belongs to, when
+	// applicable (IMAGE domain, set by SetResources). nil means the resource
+	// does not belong to one — presence is the membership signal, not a
+	// separate boolean that could disagree with the name/id.
+	ImageGroup *ImageGroup `json:"image_group,omitempty"`
+
+	// NameUnresolved is true in the one case where Resource is not actually
+	// the resource's name: a REMOVE_RESOURCE whose underlying source record
+	// was hard-deleted (not the usual soft-delete) by the time the removal
+	// was logged, leaving no name to recover. Resource then carries that
+	// record's own identifier instead. False (the default, omitted on the
+	// wire) for every other event; a consumer that otherwise always treats
+	// Resource as a name should check this field rather than assume.
+	NameUnresolved bool `json:"name_unresolved,omitempty"`
+}
+
+// ImageGroup identifies a billed image group (a commercial bundle) a
+// resource belongs to.
+type ImageGroup struct {
+	// Name is the image group's display name. There is deliberately no
+	// external identifier for the group here: the registry's read RPCs do
+	// return one (external_image_group_id), but this event keeps it off the
+	// wire, so the type has no place for it (same reasoning as
+	// Entitlement.external_id on Before/After — see CONTRACT.md §2 and §8).
+	Name string `json:"name,omitempty"`
 }

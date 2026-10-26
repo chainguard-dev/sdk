@@ -72,6 +72,21 @@ func TestChangeEvent_JSONRoundTrip(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "modify-resource (resources + resources_before, index-paired)",
+			ev: entitlements.ChangeEvent{
+				Domain:          "IMAGE",
+				OrgUIDP:         "abcd1234/ef567890",
+				EntitlementUIDP: "abcd1234/ef567890/aabbccdd",
+				Operation:       entitlements.OperationModifyResource,
+				ResourcesBefore: []entitlements.ResourceChange{
+					{Resource: "repo-nginx", Tier: "APPLICATION"},
+				},
+				Resources: []entitlements.ResourceChange{
+					{Resource: "repo-nginx", Tier: "APPLICATION", ImageGroup: &entitlements.ImageGroup{Name: "base-bundle"}},
+				},
+			},
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			b1, err := json.Marshal(tc.ev)
@@ -96,19 +111,20 @@ func TestChangeEvent_JSONRoundTrip(t *testing.T) {
 	}
 }
 
-// The TestChangeEvent_GoldenJSONKeys_* pair pins the exact wire keys of a
+// The TestChangeEvent_GoldenJSONKeys_* trio pins the exact wire keys of a
 // ChangeEvent (and its nested ResourceChange). A struct-tag rename — e.g.
 // org_uidp→orgUidp or resource→resourceName — changes the marshaled key and fails here.
 // The round-trip test can't catch that because it renames the encode and decode
 // side together, so a renamed tag still round-trips cleanly. json.Marshal emits
 // struct fields in declaration order deterministically, so a literal-string
-// compare of the whole document is a stable assertion on the key set. Two
+// compare of the whole document is a stable assertion on the key set. Three
 // fixtures are needed because no single event can legally populate every field:
 // the grain rules (TestChangeEvent_GrainInvariants) forbid Before/After and
-// Resources on the same event, so the WRITE fixture pins the entitlement-grain
-// keys and the ADD_RESOURCE fixture pins the resource-grain keys. Each fixture
-// is a well-formed event of its grain, safe to feed through any validation the
-// grain rules grow into.
+// Resources/ResourcesBefore on the same event, so the WRITE fixture pins the
+// entitlement-grain keys, the ADD_RESOURCE fixture pins the resource-grain
+// keys, and the MODIFY_RESOURCE fixture pins resources_before and the nested
+// ImageGroup. Each fixture is a well-formed event of its grain, safe to feed
+// through any validation the grain rules grow into.
 
 // TestChangeEvent_GoldenJSONKeys_Write pins the entitlement-grain keys: domain,
 // org_uidp, entitlement_uidp, operation, source, actor, change_reason, before,
@@ -161,23 +177,76 @@ func TestChangeEvent_GoldenJSONKeys_AddResource(t *testing.T) {
 	}
 }
 
-// TestResourceChange_GoldenJSONKeys pins the nested ResourceChange keys on their
-// own so a tag rename there is caught even if ResourceChange is ever emitted
-// outside a ChangeEvent.
-func TestResourceChange_GoldenJSONKeys(t *testing.T) {
-	rc := entitlements.ResourceChange{
-		Resource: "repo-nginx",
-		Tier:     "APPLICATION",
+// TestChangeEvent_GoldenJSONKeys_ModifyResource pins the MODIFY_RESOURCE-only
+// keys: resources_before (index-paired with resources) and the nested
+// ImageGroup on a ResourceChange.
+func TestChangeEvent_GoldenJSONKeys_ModifyResource(t *testing.T) {
+	ev := entitlements.ChangeEvent{
+		Domain:          "IMAGE",
+		OrgUIDP:         "abcd1234/ef567890",
+		EntitlementUIDP: "abcd1234/ef567890/aabbccdd",
+		Operation:       entitlements.OperationModifyResource,
+		ResourcesBefore: []entitlements.ResourceChange{
+			{Resource: "repo-nginx", Tier: "APPLICATION"},
+		},
+		Resources: []entitlements.ResourceChange{
+			{Resource: "repo-nginx", Tier: "APPLICATION", ImageGroup: &entitlements.ImageGroup{Name: "base-bundle"}},
+		},
 	}
 
-	const want = `{"resource":"repo-nginx","tier":"APPLICATION"}`
+	const want = `{"domain":"IMAGE","org_uidp":"abcd1234/ef567890","entitlement_uidp":"abcd1234/ef567890/aabbccdd","operation":"MODIFY_RESOURCE","resources":[{"resource":"repo-nginx","tier":"APPLICATION","image_group":{"name":"base-bundle"}}],"resources_before":[{"resource":"repo-nginx","tier":"APPLICATION"}]}`
 
-	got, err := json.Marshal(rc)
+	got, err := json.Marshal(ev)
 	if err != nil {
 		t.Fatalf("marshal: %v", err)
 	}
 	if string(got) != want {
-		t.Errorf("ResourceChange JSON keys drifted:\n got=%s\nwant=%s", got, want)
+		t.Errorf("ChangeEvent JSON keys drifted:\n got=%s\nwant=%s", got, want)
+	}
+}
+
+// TestResourceChange_GoldenJSONKeys pins the nested ResourceChange keys on their
+// own so a tag rename there is caught even if ResourceChange is ever emitted
+// outside a ChangeEvent. Three cases: a bare resource, one with ImageGroup
+// (the only field that is itself a nested message), and one with
+// NameUnresolved (the only other non-default case).
+func TestResourceChange_GoldenJSONKeys(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		rc   entitlements.ResourceChange
+		want string
+	}{
+		{
+			name: "without ImageGroup",
+			rc:   entitlements.ResourceChange{Resource: "repo-nginx", Tier: "APPLICATION"},
+			want: `{"resource":"repo-nginx","tier":"APPLICATION"}`,
+		},
+		{
+			name: "with ImageGroup",
+			rc: entitlements.ResourceChange{
+				Resource: "repo-nginx", Tier: "APPLICATION",
+				ImageGroup: &entitlements.ImageGroup{Name: "base-bundle"},
+			},
+			want: `{"resource":"repo-nginx","tier":"APPLICATION","image_group":{"name":"base-bundle"}}`,
+		},
+		{
+			name: "with NameUnresolved",
+			rc: entitlements.ResourceChange{
+				Resource: "f7f1f86da230656069378cd0cfffd41e1758fa63/c6154c4f87cddfa3", Tier: "BASE",
+				NameUnresolved: true,
+			},
+			want: `{"resource":"f7f1f86da230656069378cd0cfffd41e1758fa63/c6154c4f87cddfa3","tier":"BASE","name_unresolved":true}`,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := json.Marshal(tc.rc)
+			if err != nil {
+				t.Fatalf("marshal: %v", err)
+			}
+			if string(got) != tc.want {
+				t.Errorf("ResourceChange JSON keys drifted:\n got=%s\nwant=%s", got, tc.want)
+			}
+		})
 	}
 }
 
@@ -189,6 +258,7 @@ func TestOperationValues(t *testing.T) {
 		entitlements.OperationDelete:         "DELETE",
 		entitlements.OperationAddResource:    "ADD_RESOURCE",
 		entitlements.OperationRemoveResource: "REMOVE_RESOURCE",
+		entitlements.OperationModifyResource: "MODIFY_RESOURCE",
 	} {
 		if string(op) != want {
 			t.Errorf("operation token = %q, want %q", op, want)
@@ -263,13 +333,16 @@ func TestChangeEvent_GrainInvariants(t *testing.T) {
 	before := json.RawMessage(`{"max_quota":5}`)
 	after := json.RawMessage(`{"max_quota":10}`)
 	res := []entitlements.ResourceChange{{Resource: "repo-nginx", Tier: "APPLICATION"}}
+	resBefore := []entitlements.ResourceChange{{Resource: "repo-nginx", Tier: "BASE"}}
 	const entUIDP = "abcd1234/ef567890/aabbccdd"
 
 	// grainViolation returns "" iff ev populates exactly the fields its Operation
 	// grain permits; otherwise the first violation. An unknown operation is itself
 	// a violation — the total-switch guard. EntitlementUIDP (like Domain, OrgUIDP,
 	// and Operation) is grain-unrestricted and must be non-empty for every
-	// operation.
+	// operation. ResourcesBefore is grain-restricted like Before/After: nil for
+	// every operation except MODIFY_RESOURCE, where it must be non-empty and
+	// index-paired (same length) with Resources.
 	grainViolation := func(ev entitlements.ChangeEvent) string {
 		if ev.EntitlementUIDP == "" {
 			return "EntitlementUIDP must be set for every operation"
@@ -281,6 +354,8 @@ func TestChangeEvent_GrainInvariants(t *testing.T) {
 				return "WRITE: After must be set"
 			case len(ev.Resources) != 0:
 				return "WRITE: Resources must be empty"
+			case ev.ResourcesBefore != nil:
+				return "WRITE: ResourcesBefore must be nil"
 			}
 		case entitlements.OperationDelete:
 			switch {
@@ -290,6 +365,8 @@ func TestChangeEvent_GrainInvariants(t *testing.T) {
 				return "DELETE: After must be nil"
 			case len(ev.Resources) != 0:
 				return "DELETE: Resources must be empty"
+			case ev.ResourcesBefore != nil:
+				return "DELETE: ResourcesBefore must be nil"
 			}
 		case entitlements.OperationAddResource, entitlements.OperationRemoveResource:
 			switch {
@@ -297,6 +374,17 @@ func TestChangeEvent_GrainInvariants(t *testing.T) {
 				return "resource op: Before and After must be nil"
 			case len(ev.Resources) == 0:
 				return "resource op: Resources must be non-empty"
+			case ev.ResourcesBefore != nil:
+				return "resource op: ResourcesBefore must be nil"
+			}
+		case entitlements.OperationModifyResource:
+			switch {
+			case ev.Before != nil || ev.After != nil:
+				return "MODIFY_RESOURCE: Before and After must be nil"
+			case len(ev.Resources) == 0:
+				return "MODIFY_RESOURCE: Resources must be non-empty"
+			case len(ev.ResourcesBefore) != len(ev.Resources):
+				return "MODIFY_RESOURCE: ResourcesBefore must be index-paired with Resources"
 			}
 		default:
 			return "unknown operation: " + string(ev.Operation)
@@ -317,6 +405,7 @@ func TestChangeEvent_GrainInvariants(t *testing.T) {
 			{"delete", entitlements.ChangeEvent{EntitlementUIDP: entUIDP, Operation: entitlements.OperationDelete, Before: before}},
 			{"add-resource", entitlements.ChangeEvent{EntitlementUIDP: entUIDP, Operation: entitlements.OperationAddResource, Resources: res}},
 			{"remove-resource", entitlements.ChangeEvent{EntitlementUIDP: entUIDP, Operation: entitlements.OperationRemoveResource, Resources: res}},
+			{"modify-resource", entitlements.ChangeEvent{EntitlementUIDP: entUIDP, Operation: entitlements.OperationModifyResource, ResourcesBefore: resBefore, Resources: res}},
 		} {
 			t.Run(tc.name, func(t *testing.T) {
 				if v := grainViolation(tc.ev); v != "" {
@@ -336,12 +425,19 @@ func TestChangeEvent_GrainInvariants(t *testing.T) {
 		}{
 			{"WRITE without After", entitlements.ChangeEvent{EntitlementUIDP: entUIDP, Operation: entitlements.OperationWrite}},
 			{"WRITE with Resources", entitlements.ChangeEvent{EntitlementUIDP: entUIDP, Operation: entitlements.OperationWrite, After: after, Resources: res}},
+			{"WRITE with ResourcesBefore", entitlements.ChangeEvent{EntitlementUIDP: entUIDP, Operation: entitlements.OperationWrite, After: after, ResourcesBefore: resBefore}},
 			{"DELETE with After", entitlements.ChangeEvent{EntitlementUIDP: entUIDP, Operation: entitlements.OperationDelete, Before: before, After: after}},
 			{"DELETE without Before", entitlements.ChangeEvent{EntitlementUIDP: entUIDP, Operation: entitlements.OperationDelete}},
+			{"DELETE with ResourcesBefore", entitlements.ChangeEvent{EntitlementUIDP: entUIDP, Operation: entitlements.OperationDelete, Before: before, ResourcesBefore: resBefore}},
 			{"resource op with Before", entitlements.ChangeEvent{EntitlementUIDP: entUIDP, Operation: entitlements.OperationAddResource, Before: before, Resources: res}},
 			{"resource op without Resources", entitlements.ChangeEvent{EntitlementUIDP: entUIDP, Operation: entitlements.OperationRemoveResource}},
+			{"resource op with ResourcesBefore", entitlements.ChangeEvent{EntitlementUIDP: entUIDP, Operation: entitlements.OperationAddResource, Resources: res, ResourcesBefore: resBefore}},
 			{"unknown operation", entitlements.ChangeEvent{EntitlementUIDP: entUIDP, Operation: entitlements.Operation("FRICASSEE"), After: after}},
 			{"missing EntitlementUIDP", entitlements.ChangeEvent{Operation: entitlements.OperationWrite, After: after}},
+			{"MODIFY_RESOURCE with Before", entitlements.ChangeEvent{EntitlementUIDP: entUIDP, Operation: entitlements.OperationModifyResource, Before: before, Resources: res, ResourcesBefore: resBefore}},
+			{"MODIFY_RESOURCE without Resources", entitlements.ChangeEvent{EntitlementUIDP: entUIDP, Operation: entitlements.OperationModifyResource, ResourcesBefore: resBefore}},
+			{"MODIFY_RESOURCE without ResourcesBefore", entitlements.ChangeEvent{EntitlementUIDP: entUIDP, Operation: entitlements.OperationModifyResource, Resources: res}},
+			{"MODIFY_RESOURCE with mismatched ResourcesBefore length", entitlements.ChangeEvent{EntitlementUIDP: entUIDP, Operation: entitlements.OperationModifyResource, Resources: res, ResourcesBefore: append(resBefore, entitlements.ResourceChange{Resource: "extra"})}},
 		} {
 			t.Run(tc.name, func(t *testing.T) {
 				if grainViolation(tc.ev) == "" {
