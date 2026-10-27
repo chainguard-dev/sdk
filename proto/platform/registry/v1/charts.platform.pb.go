@@ -197,14 +197,19 @@ type AddChartRequest struct {
 	// If true, return what would change but don't create anything.
 	DryRun bool `protobuf:"varint,3,opt,name=dry_run,json=dryRun,proto3" json:"dry_run,omitempty"`
 	// The tag of the source chart to inspect for image dependencies. Defaults to
-	// the newest tag in the source repo when empty.
+	// the newest non-FIPS tag in the source repo when empty, or the newest FIPS
+	// tag when fips is set. Mutually exclusive with fips.
 	Tag string `protobuf:"bytes,4,opt,name=tag,proto3" json:"tag,omitempty"`
 	// Catalog repo names of the chart's images to provision (e.g. "nginx"; see
 	// ChartImage.repo_name). Must be a subset of the images in the chart's
 	// metadata; unknown names are rejected with INVALID_ARGUMENT. Images the
 	// chart requires are always provisioned regardless of this list — the list
 	// selects which optional images to include. Empty means all images.
-	Images        []string `protobuf:"bytes,5,rep,name=images,proto3" json:"images,omitempty"`
+	Images []string `protobuf:"bytes,5,rep,name=images,proto3" json:"images,omitempty"`
+	// If true, default to the newest FIPS tag in the source repo instead of the
+	// newest non-FIPS tag. Mutually exclusive with tag; setting both is rejected
+	// with INVALID_ARGUMENT.
+	Fips          bool `protobuf:"varint,6,opt,name=fips,proto3" json:"fips,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -272,6 +277,13 @@ func (x *AddChartRequest) GetImages() []string {
 		return x.Images
 	}
 	return nil
+}
+
+func (x *AddChartRequest) GetFips() bool {
+	if x != nil {
+		return x.Fips
+	}
+	return false
 }
 
 // AddChartResponse contains the result of an AddChart operation.
@@ -421,13 +433,14 @@ const file_charts_platform_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"M\n" +
 	"\x11FindChartResponse\x12$\n" +
 	"\x0esource_repo_id\x18\x01 \x01(\tR\fsourceRepoId\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"\x9f\x01\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\xb3\x01\n" +
 	"\x0fAddChartRequest\x12#\n" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12$\n" +
 	"\x0esource_repo_id\x18\x02 \x01(\tR\fsourceRepoId\x12\x17\n" +
 	"\adry_run\x18\x03 \x01(\bR\x06dryRun\x12\x10\n" +
 	"\x03tag\x18\x04 \x01(\tR\x03tag\x12\x16\n" +
-	"\x06images\x18\x05 \x03(\tR\x06images\"V\n" +
+	"\x06images\x18\x05 \x03(\tR\x06images\x12\x12\n" +
+	"\x04fips\x18\x06 \x01(\bR\x04fips\"V\n" +
 	"\x10AddChartResponse\x12B\n" +
 	"\x05repos\x18\x01 \x03(\v2,.chainguard.platform.registry.AddChartResultR\x05repos\"\xca\x01\n" +
 	"\x0eAddChartResult\x12\x12\n" +

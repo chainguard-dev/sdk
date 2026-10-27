@@ -85,7 +85,8 @@ message AddChartRequest {
   // If true, return what would change but don't create anything.
   bool dry_run = 3;
   // The tag of the source chart to inspect for image dependencies. Defaults to
-  // the newest tag in the source repo when empty.
+  // the newest non-FIPS tag in the source repo when empty, or the newest FIPS
+  // tag when fips is set. Mutually exclusive with fips.
   string tag = 4;
   // Catalog repo names of the chart's images to provision (e.g. "nginx"; see
   // ChartImage.repo_name). Must be a subset of the images in the chart's
@@ -93,6 +94,10 @@ message AddChartRequest {
   // chart requires are always provisioned regardless of this list — the list
   // selects which optional images to include. Empty means all images.
   repeated string images = 5;
+  // If true, default to the newest FIPS tag in the source repo instead of the
+  // newest non-FIPS tag. Mutually exclusive with tag; setting both is rejected
+  // with INVALID_ARGUMENT.
+  bool fips = 6;
 }
 
 // AddChartResponse contains the result of an AddChart operation.
