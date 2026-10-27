@@ -173,18 +173,18 @@ func (e ChangeEvent) CloudEventsExtension(key string) (string, bool) {
 }
 
 // CloudEventsRedact implements chainguard.dev/sdk/events/Redactable.CloudEventsRedact.
-// This event is delivered to a customer audience (the entitlement is the
-// customer's own product), so it drops the internal attribution the change was
-// made with: Actor and ChangeReason can carry internal identities and free-text
-// notes for changes made on the customer's behalf. Source is kept — it is not
-// sensitive — as is the entitlement state in Before/After, which is the
-// customer's own data.
+// This event can be delivered to a customer audience (the deployment sets the
+// audience, and the entitlement is the customer's own product), so it drops
+// the internal attribution the change was made with: Actor and ChangeReason can
+// carry internal identities and free-text notes for changes made on the
+// customer's behalf. Source is kept — it is not sensitive — as is the
+// entitlement state in Before/After, which is the customer's own data.
 //
 // This redacts only the top-level Actor and ChangeReason. It deliberately does NOT
 // parse the Before/After snapshot JSON — doing so would couple this SDK to the
 // snapshot's wire field names. Callers are responsible for ensuring those snapshots
 // carry no nested attribution before marshaling them onto the event; otherwise
-// internal attribution reaches the customer audience inside Before/After.
+// internal attribution can reach a customer audience inside Before/After.
 func (e ChangeEvent) CloudEventsRedact() any {
 	e.Actor = ""
 	e.ChangeReason = ""

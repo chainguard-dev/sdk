@@ -10,9 +10,9 @@ the Go types in `entitlements.go` are its encoding.
 
 One event type serves every entitlement domain. The change timestamp lives on the
 CloudEvent **envelope** (`time`), never in the body. The event is emitted **only on
-a committed change**, to a **customer** audience — it is the raw mutation stream a
-consumer can subscribe to for its own entitlements. It carries the change itself,
-not a rendered notification payload.
+a committed change**. It is the raw mutation stream a consumer can subscribe to for
+its own entitlements, and the deployment sets its audience (§8). It carries the
+change itself, not a rendered notification payload.
 
 A change that rolls back, and a write that resolves to a no-op, emit nothing.
 
@@ -305,7 +305,10 @@ use the CloudEvent envelope `id`.
 
 ## 8. Audience & redaction
 
-Emitted to a **customer** audience: the entitlement is the consumer's own product.
+The deployment sets the `audience` extension: **`internal`** (the default) reaches
+internal subscribers only; **`customer`** also reaches customer delivery such as
+webhooks. The payload is shaped for a customer either way, because the entitlement
+is the consumer's own product.
 `Actor` and `ChangeReason` are **redacted (blanked)** on the wire, because they can
 carry internal identities and free-text notes for changes made on the consumer's
 behalf. The `Before` / `After` snapshots are emitted (the consumer's own entitlement
