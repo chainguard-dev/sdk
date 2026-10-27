@@ -25,6 +25,16 @@ func authPoliciesService(t *testing.T) protoreflect.ServiceDescriptor {
 	return sd
 }
 
+// TestAuthPolicyEventIsAsync pins that the policy's events are delivered off
+// the request path (events.AsyncEventable): the sso_only toggle's audit event
+// must not hold the response behind the event sink. A compile-time assertion
+// only proves the method exists; this pins its value.
+func TestAuthPolicyEventIsAsync(t *testing.T) {
+	if !(&AuthPolicy{}).CloudEventsAsync() {
+		t.Error("AuthPolicy.CloudEventsAsync() = false, want true")
+	}
+}
+
 // TestAuthPoliciesCapabilities pins the authorization split: reading a policy
 // needs only the list capability every role carries, while changing one needs
 // the owner-only update capability.

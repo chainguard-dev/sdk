@@ -5,12 +5,43 @@ SPDX-License-Identifier: Apache-2.0
 
 package events
 
+import "time"
+
 // Occurrence is the CloudEvent payload for events.
 type Occurrence struct {
 	Actor *Actor `json:"actor,omitempty"`
 
 	// Body is the resource that was created.
 	Body any `json:"body,omitempty"`
+
+	// Change describes the change an update event records, beyond the state
+	// Body shows: the resource before it and the client that asked for it.
+	// Present only on events whose producer recorded it; absent, the event
+	// says nothing about the previous state.
+	Change *Change `json:"change,omitempty"`
+}
+
+// Change is the audit detail of a mutation event: what the resource looked
+// like before, when the change was made and through which kind of client.
+// Body remains the resource after the change.
+type Change struct {
+	// Previous is the resource before the change, or the part of it the
+	// producer tracks, in the same encoding as Body (protojson for proto
+	// resources). Absent when the change created the resource.
+	Previous any `json:"previous,omitempty"`
+
+	// At is when the change was made, as the producer's clock had it.
+	At time.Time `json:"at"`
+
+	// Client is the kind of client that requested the change, classified from
+	// its user agent: "chainctl", "console", "terraform", "http" (another
+	// HTTP client, such as curl or a browser outside the Console), "grpc"
+	// (another gRPC client) or "unknown".
+	Client string `json:"client,omitempty"`
+
+	// ClientVersion is the client's version when its user agent carries one,
+	// else "unknown".
+	ClientVersion string `json:"client_version,omitempty"`
 }
 
 // Actor is the event payload form of which identity was responsible for the
@@ -69,7 +100,10 @@ type Eventable interface {
 // AsyncEventable opts an Eventable response into asynchronous delivery after
 // the event has been fully constructed and redacted. Use this only when waiting
 // for the event sink would make delivery of the primary response materially
-// less safe, such as a reveal-once credential response.
+// less safe, such as a reveal-once credential response, or for a rare
+// administrative change whose audit event must not hold its response (an
+// organization's authentication policy). Delivery is best-effort either way:
+// the publisher counts and logs a failed delivery, it never fails the response.
 type AsyncEventable interface {
 	CloudEventsAsync() bool
 }

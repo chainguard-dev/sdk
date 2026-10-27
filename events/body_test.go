@@ -10,6 +10,7 @@ import (
 	"errors"
 	"strings"
 	"testing"
+	"time"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/google/go-cmp/cmp"
@@ -212,6 +213,78 @@ func TestDecode_PreservesActor(t *testing.T) {
 	if diff := cmp.Diff(wantBody, occ.Body, protocmp.Transform()); diff != "" {
 		t.Errorf("body mismatch (-want +got):\n%s", diff)
 	}
+}
+
+// TestDecode_PreservesChange is the decode round trip of an update event's
+// change: the previous state (protojson on the wire, as the body is) comes
+// back as raw JSON for the subscriber to unmarshal into the body's type, and
+// the change time and client come back as sent. An event without a change,
+// or a change without a previous state (a create), decodes to none.
+func TestDecode_PreservesChange(t *testing.T) {
+	body := &iamv2.Group{Uid: "abc123", Name: "after"}
+	previous := &iamv2.Group{Uid: "abc123", Name: "before"}
+	prevJSON, err := protojson.Marshal(previous)
+	if err != nil {
+		t.Fatalf("protojson.Marshal: %v", err)
+	}
+	at := time.Date(2026, 10, 26, 12, 0, 0, 0, time.UTC)
+	withChange := func(t *testing.T, change *events.Change) cloudevents.Event {
+		t.Helper()
+		event := buildEvent(t, body, nil, true)
+		bodyJSON, err := protojson.Marshal(body)
+		if err != nil {
+			t.Fatalf("protojson.Marshal: %v", err)
+		}
+		if err := event.SetData(cloudevents.ApplicationJSON, &events.Occurrence{Body: json.RawMessage(bodyJSON), Change: change}); err != nil {
+			t.Fatalf("event.SetData: %v", err)
+		}
+		return event
+	}
+
+	t.Run("previous, time and client round-trip", func(t *testing.T) {
+		occ, err := events.Decode(withChange(t, &events.Change{Previous: json.RawMessage(prevJSON), At: at, Client: "chainctl", ClientVersion: "0.9.1"}))
+		if err != nil {
+			t.Fatalf("Decode: %v", err)
+		}
+		if occ.Change == nil {
+			t.Fatal("Decode dropped the change")
+		}
+		if !occ.Change.At.Equal(at) || occ.Change.Client != "chainctl" || occ.Change.ClientVersion != "0.9.1" {
+			t.Errorf("change = %+v, want at %v by chainctl 0.9.1", occ.Change, at)
+		}
+		raw, ok := occ.Change.Previous.(json.RawMessage)
+		if !ok {
+			t.Fatalf("change.previous is %T, want json.RawMessage", occ.Change.Previous)
+		}
+		var gotPrevious iamv2.Group
+		if err := protojson.Unmarshal(raw, &gotPrevious); err != nil {
+			t.Fatalf("change.previous is not protojson: %v", err)
+		}
+		if diff := cmp.Diff(previous, &gotPrevious, protocmp.Transform()); diff != "" {
+			t.Errorf("previous mismatch (-want +got):\n%s", diff)
+		}
+		if diff := cmp.Diff(body, occ.Body, protocmp.Transform()); diff != "" {
+			t.Errorf("body mismatch (-want +got):\n%s", diff)
+		}
+	})
+	t.Run("a create has no previous state", func(t *testing.T) {
+		occ, err := events.Decode(withChange(t, &events.Change{At: at, Client: "console"}))
+		if err != nil {
+			t.Fatalf("Decode: %v", err)
+		}
+		if occ.Change == nil || occ.Change.Previous != nil || occ.Change.Client != "console" {
+			t.Errorf("change = %+v, want a change by console with no previous state", occ.Change)
+		}
+	})
+	t.Run("an event without a change decodes to none", func(t *testing.T) {
+		occ, err := events.Decode(buildEvent(t, body, nil, true))
+		if err != nil {
+			t.Fatalf("Decode: %v", err)
+		}
+		if occ.Change != nil {
+			t.Errorf("change = %+v, want none", occ.Change)
+		}
+	})
 }
 
 // TestEmptyBody verifies that all four helpers reject an envelope whose body

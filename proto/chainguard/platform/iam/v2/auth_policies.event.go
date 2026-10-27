@@ -8,9 +8,17 @@ package v2
 import "chainguard.dev/sdk/events"
 
 var (
-	_ events.Eventable  = (*AuthPolicy)(nil)
-	_ events.Extendable = (*AuthPolicy)(nil)
+	_ events.Eventable      = (*AuthPolicy)(nil)
+	_ events.Extendable     = (*AuthPolicy)(nil)
+	_ events.AsyncEventable = (*AuthPolicy)(nil)
 )
+
+// CloudEventsAsync implements chainguard.dev/sdk/events/AsyncEventable: the
+// auth_policies.updated audit event is delivered off the request path. An
+// sso_only toggle is a rare administrative change whose response must not
+// wait on the event sink; delivery stays best-effort, counted and logged on
+// failure by the publishing interceptor.
+func (x *AuthPolicy) CloudEventsAsync() bool { return true }
 
 // CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension
 func (x *AuthPolicy) CloudEventsExtension(key string) (string, bool) {

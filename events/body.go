@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -70,9 +71,13 @@ func BodyAs[T proto.Message](event cloudevents.Event) (T, error) {
 	return typed, nil
 }
 
-// Decode returns the full Occurrence (Actor + Body) from event.Data. The
-// returned Occurrence.Body is a concrete proto.Message resolved the same way
-// as Body.
+// Decode returns the full Occurrence (Actor, Body and Change) from
+// event.Data. The returned Occurrence.Body is a concrete proto.Message
+// resolved the same way as Body. Change is carried as sent, except that its
+// Previous, which the producer encoded like the body, is returned as a
+// json.RawMessage for the subscriber to unmarshal (protojson for a proto
+// resource) into the type it expects; it is nil when the change recorded no
+// previous state.
 func Decode(event cloudevents.Event) (*Occurrence, error) {
 	env, err := parseEnvelope(event)
 	if err != nil {
@@ -82,7 +87,7 @@ func Decode(event cloudevents.Event) (*Occurrence, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Occurrence{Actor: env.Actor, Body: msg}, nil
+	return &Occurrence{Actor: env.Actor, Body: msg, Change: env.Change.occurrence()}, nil
 }
 
 func decodeTyped(event cloudevents.Event, env *envelope) (proto.Message, error) {
@@ -113,9 +118,33 @@ func bodyTypeName(event cloudevents.Event) (string, error) {
 	return name, nil
 }
 
+// envelope is the wire shape of an Occurrence as a subscriber reads it: the
+// body and the change's previous state are kept raw, since their type is the
+// event's bodytype, not the envelope's.
 type envelope struct {
-	Actor *Actor          `json:"actor,omitempty"`
-	Body  json.RawMessage `json:"body"`
+	Actor  *Actor          `json:"actor,omitempty"`
+	Body   json.RawMessage `json:"body"`
+	Change *changeEnvelope `json:"change,omitempty"`
+}
+
+type changeEnvelope struct {
+	Previous      json.RawMessage `json:"previous,omitempty"`
+	At            time.Time       `json:"at"`
+	Client        string          `json:"client,omitempty"`
+	ClientVersion string          `json:"client_version,omitempty"`
+}
+
+// occurrence is the Change a decoded Occurrence carries for c: nil for no
+// change, and a nil Previous for a change with no previous state.
+func (c *changeEnvelope) occurrence() *Change {
+	if c == nil {
+		return nil
+	}
+	change := &Change{At: c.At, Client: c.Client, ClientVersion: c.ClientVersion}
+	if len(c.Previous) > 0 {
+		change.Previous = c.Previous
+	}
+	return change
 }
 
 func parseEnvelope(event cloudevents.Event) (*envelope, error) {
