@@ -561,9 +561,10 @@ var (
 	})
 
 	// LibrariesMalwareStatusWriterCaps is for the backfiller identities that
-	// stamp per-version scan results on serve-v2's upstream rows. It must stay
-	// off every customer-grantable role: whoever holds it can mark an unscanned
-	// upstream version as scanned and clean.
+	// stamp per-version scan results on serve-v2's upstream rows. serve-v2
+	// requires it alongside the ecosystem push capabilities on that route. It must
+	// stay off every customer-grantable role: whoever holds it can mark an
+	// unscanned upstream version as scanned and clean.
 	// CAP_INTERNAL is required because malware_status.update is (internal_only).
 	LibrariesMalwareStatusWriterCaps = SortCaps([]Capability{
 		Capability_CAP_LIBRARIES_MALWARE_STATUS_UPDATE,
