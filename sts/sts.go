@@ -122,6 +122,7 @@ type options struct {
 	identityProvider string
 	delegated        bool
 	task             string
+	rotation         bool
 	conn             *grpc.ClientConn
 }
 
@@ -308,14 +309,15 @@ func (i *impl) Exchange(ctx context.Context, token string, opts ...ExchangerOpti
 		}
 
 		resp, err := c.STS().Exchange(ctx, &oidc.ExchangeRequest{
-			Aud:              o.audiences,
-			Scope:            o.firstScope, //nolint:staticcheck // Populating for backward compatibility
-			Scopes:           o.scope,
-			Identity:         o.identity,
-			Cap:              o.capabilities,
-			IdentityProvider: o.identityProvider,
-			Delegated:        o.delegated,
-			Task:             o.task,
+			Aud:                  o.audiences,
+			Scope:                o.firstScope, //nolint:staticcheck // Populating for backward compatibility
+			Scopes:               o.scope,
+			Identity:             o.identity,
+			Cap:                  o.capabilities,
+			IdentityProvider:     o.identityProvider,
+			Delegated:            o.delegated,
+			Task:                 o.task,
+			RefreshTokenRotation: o.rotation,
 		}, callOpts...)
 		c.Close()
 		if err != nil {
@@ -470,6 +472,20 @@ func WithDelegation() ExchangerOption {
 func WithTask(task string) ExchangerOption {
 	return func(i *options) {
 		i.task = task
+	}
+}
+
+// WithRefreshTokenRotation declares, on the exchange that creates a refresh
+// token, that the caller handles refresh-token rotation, so the issuer may
+// rotate that token's family on every refresh. Pass it only if every process
+// that refreshes the family stores one refresh token per family under a lock
+// they share, persists the successor each refresh returns, and discards a
+// token the issuer refuses as superseded: token.Refresh with an ExchangeFunc
+// that maps AsSupersededRefreshToken does all three. A rotated family whose
+// superseded token is presented again is revoked, logging the user out.
+func WithRefreshTokenRotation() ExchangerOption {
+	return func(i *options) {
+		i.rotation = true
 	}
 }
 
@@ -693,6 +709,9 @@ func (i *HTTP1DowngradeExchanger) Exchange(ctx context.Context, token string, op
 	}
 	if o.task != "" {
 		form.Set("task", o.task)
+	}
+	if o.rotation {
+		form.Set("refresh_token_rotation", "true")
 	}
 	out := new(oidc.RawToken)
 	if err := i.retryHTTP1(ctx, token, "/sts/exchange", form, out, o.userAgent, retryable); err != nil {

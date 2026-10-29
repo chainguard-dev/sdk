@@ -149,7 +149,8 @@ func Refresh(ctx context.Context, audience string, exchange ExchangeFunc, opts .
 // removed from every other family of that issuer, so each audience resolves
 // to exactly one token, and tok is written to each one's per-audience file
 // unless that file holds a live token from another issuer and the audience is
-// not the one named by WithPrimaryAudience.
+// not the one named by WithPrimaryAudience. With WithRotationCapable, each of
+// those per-audience files is deleted instead of written.
 //
 // The family is recorded under the issuer the caller names, which is where
 // the token is presented, not under the token's iss claim: an issuer reached
@@ -209,12 +210,23 @@ func (t token) saveFamily(tok string, audiences []string) error {
 	// compared by iss claim, since the family's issuer may be another name
 	// for the same one. The audience named by WithPrimaryAudience is written
 	// regardless: the user logged in to replace the session there.
+	//
+	// A rotation-capable family gets no copies (see WithRotationCapable). The
+	// copies it would have overwritten are deleted rather than left: one
+	// holding an earlier login's token would be adopted by the next locked
+	// call and take its audience back from this family.
 	for _, aud := range auds {
 		path, err := t.path(KindRefresh, aud)
 		if err != nil {
 			return err
 		}
 		if aud != t.primary && heldByOtherIssuer(path, claims.Issuer) {
+			continue
+		}
+		if t.rotationCapable {
+			if err := removeOrTruncate(path); err != nil {
+				return fmt.Errorf("removing refresh token %s: %w", path, err)
+			}
 			continue
 		}
 		if err := writeFileAtomic(path, []byte(tok)); err != nil {
@@ -478,21 +490,29 @@ func writeFamily(f *family) error {
 	return writeFileAtomic(path, b)
 }
 
-// removeFamily deletes a family file. Windows refuses to remove a file
-// another process has open, which a lock-free reader may briefly have, so the
-// fallback truncates it in place, which that share mode permits: an empty
-// family file parses as no family at all.
+// removeOrTruncate deletes the file at path, or empties it when it cannot be
+// deleted. Windows refuses to remove a file another process has open, which a
+// lock-free reader may briefly have, but that share mode permits truncating
+// it. An empty family file parses as no family, and an empty refresh token
+// file as no token.
+func removeOrTruncate(path string) error {
+	err := os.Remove(path)
+	if err == nil || errors.Is(err, fs.ErrNotExist) {
+		return nil
+	}
+	if terr := os.Truncate(path, 0); terr != nil {
+		return errors.Join(err, terr)
+	}
+	return nil
+}
+
 func removeFamily(name string) error {
 	path, err := cacheFilePath(filepath.Join(familiesDir, name))
 	if err != nil {
 		return err
 	}
-	err = os.Remove(path)
-	if err == nil || errors.Is(err, fs.ErrNotExist) {
-		return nil
-	}
-	if terr := os.Truncate(path, 0); terr != nil {
-		return fmt.Errorf("removing family %s: %w", path, errors.Join(err, terr))
+	if err := removeOrTruncate(path); err != nil {
+		return fmt.Errorf("removing family %s: %w", path, err)
 	}
 	return nil
 }
@@ -814,8 +834,7 @@ func persist(ctx context.Context, name, presented, successor string) error {
 }
 
 // removeCopiesOf deletes every per-audience copy of tok, which the caller has
-// just superseded. A copy that cannot be removed is truncated, as
-// removeFamily does: once its family is discarded, a copy left intact would be
+// just superseded. Once its family is discarded, a copy left intact would be
 // adopted as a new family by the next locked call, and its superseded token
 // presented again.
 func removeCopiesOf(tok string) error {
@@ -828,12 +847,8 @@ func removeCopiesOf(tok string) error {
 		if cp.token != tok {
 			continue
 		}
-		err := os.Remove(cp.path)
-		if err == nil || errors.Is(err, fs.ErrNotExist) {
-			continue
-		}
-		if terr := os.Truncate(cp.path, 0); terr != nil {
-			errs = append(errs, fmt.Errorf("removing superseded refresh token %s: %w", cp.path, errors.Join(err, terr)))
+		if err := removeOrTruncate(cp.path); err != nil {
+			errs = append(errs, fmt.Errorf("removing superseded refresh token %s: %w", cp.path, err))
 		}
 	}
 	return errors.Join(errs...)

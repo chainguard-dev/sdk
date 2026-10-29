@@ -35,9 +35,10 @@ var (
 )
 
 type token struct {
-	alias   string
-	issuer  string
-	primary string
+	alias           string
+	issuer          string
+	primary         string
+	rotationCapable bool
 }
 
 type Option func(*token)
@@ -65,11 +66,25 @@ func WithIssuer(iss string) Option {
 }
 
 // WithPrimaryAudience names the audience a login was requested for. SaveFamily
-// always writes that audience's per-audience copy, even over a live token from
+// always replaces that audience's per-audience copy, even a live token from
 // another issuer, which it keeps in every other audience it covers.
 func WithPrimaryAudience(aud string) Option {
 	return func(token *token) {
 		token.primary = aud
+	}
+}
+
+// WithRotationCapable tells SaveFamily that the token comes from an exchange
+// that declared refresh-token rotation (sts.WithRefreshTokenRotation), so the
+// issuer rotates its family. SaveFamily then writes no per-audience copies of
+// it and deletes the copies it would have overwritten.
+//
+// An issuer-less reader refreshes a copy outside the store lock. Once the
+// family rotates, a copy holds a superseded token, and presenting it revokes
+// the family. Without a copy, that reader logs in on its own instead.
+func WithRotationCapable() Option {
+	return func(token *token) {
+		token.rotationCapable = true
 	}
 }
 

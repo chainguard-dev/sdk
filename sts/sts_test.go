@@ -1372,6 +1372,58 @@ func TestHTTP1DowngradeDelegationGatewayContract(t *testing.T) {
 	}
 }
 
+// TestExchangeRefreshTokenRotation checks that WithRefreshTokenRotation
+// reaches the gRPC ExchangeRequest, and that an exchange without it leaves
+// the field unset, so a caller that never declared rotation is not rotated.
+func TestExchangeRefreshTokenRotation(t *testing.T) {
+	for _, declared := range []bool{false, true} {
+		t.Run(fmt.Sprintf("declared=%v", declared), func(t *testing.T) {
+			t.Cleanup(func() { oidcNewClients = oidc.NewClients })
+			oidcNewClients = func(_ context.Context, _ string, _ string, _ ...oidc.ClientOption) (oidc.Clients, error) {
+				return test.MockOIDCClient{
+					STSClient: test.MockSTSClient{
+						OnExchange: []test.STSOnExchange{{
+							Given:     &oidc.ExchangeRequest{Aud: []string{"aud"}, RefreshTokenRotation: declared},
+							Exchanged: &oidc.RawToken{Token: "access", RefreshToken: "refresh"},
+						}},
+					},
+				}, nil
+			}
+
+			var opts []ExchangerOption
+			if declared {
+				opts = append(opts, WithRefreshTokenRotation())
+			}
+			got, err := ExchangePair(t.Context(), "issuer", "aud", "id-token", opts...)
+			if err != nil {
+				t.Fatalf("ExchangePair() = %v", err)
+			}
+			if diff := cmp.Diff(TokenPair{AccessToken: "access", RefreshToken: "refresh"}, got); diff != "" {
+				t.Errorf("token (-want, +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+// TestHTTP1DowngradeRefreshTokenRotationGatewayContract checks the same field
+// reaches the server through the HTTP/1 form encoding.
+func TestHTTP1DowngradeRefreshTokenRotationGatewayContract(t *testing.T) {
+	fake, srv := newGatewaySTSServer(t)
+
+	exch := NewHTTP1DowngradeExchanger(srv.URL, "aud", WithRefreshTokenRotation())
+	if _, err := exch.Exchange(t.Context(), "id-token"); err != nil {
+		t.Fatalf("Exchange() = %v", err)
+	}
+
+	want := &oidc.ExchangeRequest{Aud: []string{"aud"}, RefreshTokenRotation: true}
+	fake.mu.Lock()
+	got := fake.exchangeReq
+	fake.mu.Unlock()
+	if diff := cmp.Diff(want, got, protocmp.Transform()); diff != "" {
+		t.Errorf("server-side ExchangeRequest (-want +got):\n%s", diff)
+	}
+}
+
 func TestDelegationAudience(t *testing.T) {
 	const issuer = "https://issuer.example"
 	if got, want := DelegationAudience(issuer+"/", "sessions"), issuer+"/delegation/sessions"; got != want {

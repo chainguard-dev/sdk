@@ -355,6 +355,77 @@ func TestSaveFamily(t *testing.T) {
 		}
 	})
 
+	// A rotation-capable family is refreshed only through the store, under its
+	// lock. The copies a login would have overwritten are deleted, so the next
+	// locked call cannot adopt an earlier login's copy back over the family.
+	t.Run("a rotation-capable family writes no per-audience copies", func(t *testing.T) {
+		isolateCache(t)
+		old := familyToken(t, login(issuerA, "alice", audAPI, audReg))
+		foreign := familyToken(t, login(issuerB, "alice", audReg, audAPK))
+		savePerAudience(t, old, audAPI)
+		savePerAudience(t, foreign, audReg)
+		savePerAudience(t, foreign, audAPK)
+		fresh := familyToken(t, login(issuerA, "bob", audAPI, audReg, audAPK))
+		if err := SaveFamily([]byte(fresh), []string{audAPI, audReg, audAPK}, WithIssuer(issuerA), WithPrimaryAudience(audAPK), WithRotationCapable()); err != nil {
+			t.Fatalf("SaveFamily() = %v", err)
+		}
+		if diff := diffFamilies(t, familyView{fresh: {audAPI, audReg, audAPK}}); diff != "" {
+			t.Errorf("families (-want +got):\n%s", diff)
+		}
+		for _, aud := range []string{audAPI, audAPK} {
+			if perAudienceExists(t, aud) {
+				t.Errorf("per-audience copy for %s exists, want it deleted", aud)
+			}
+		}
+		if got, err := loadString(t, audReg); err != nil || got != foreign {
+			t.Errorf("Load(%s) without issuer = %q, %v; want issuer B's session kept", audReg, got, err)
+		}
+		// Adoption must not bring the deleted copy back over the family.
+		if err := Refresh(t.Context(), audAPI, declining, WithIssuer(issuerA)); err != nil {
+			t.Fatalf("Refresh() = %v", err)
+		}
+		if diff := diffFamilies(t, familyView{fresh: {audAPI, audReg, audAPK}}); diff != "" {
+			t.Errorf("families after adoption (-want +got):\n%s", diff)
+		}
+		if got, err := loadString(t, audAPI, WithIssuer(issuerA)); err != nil || got != fresh {
+			t.Errorf("Load(%s, issuer A) = %q, %v; want the family's token", audAPI, got, err)
+		}
+	})
+
+	// A copy Windows will not delete, because a lock-free reader has it open,
+	// is emptied instead. The login succeeds and adoption finds nothing to take
+	// the audience back with.
+	t.Run("a rotation-capable family empties a copy it cannot delete", func(t *testing.T) {
+		if runtime.GOOS == "windows" {
+			t.Skip("a read-only directory mode does not block removal on Windows")
+		}
+		if os.Geteuid() == 0 {
+			t.Skip("running as root ignores the read-only mode this test depends on")
+		}
+		base := isolateCache(t)
+		old := familyToken(t, login(issuerA, "alice", audAPI))
+		savePerAudience(t, old, audAPI)
+		dir := filepath.Join(base, audienceDir(audAPI))
+		if err := os.Chmod(dir, 0o500); err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() { _ = os.Chmod(dir, 0o700) })
+
+		fresh := familyToken(t, login(issuerA, "bob", audAPI))
+		if err := SaveFamily([]byte(fresh), []string{audAPI}, WithIssuer(issuerA), WithRotationCapable()); err != nil {
+			t.Fatalf("SaveFamily() = %v", err)
+		}
+		if err := os.Chmod(dir, 0o700); err != nil {
+			t.Fatal(err)
+		}
+		if err := Refresh(t.Context(), audAPI, declining, WithIssuer(issuerA)); err != nil {
+			t.Fatalf("Refresh() = %v", err)
+		}
+		if diff := diffFamilies(t, familyView{fresh: {audAPI}}); diff != "" {
+			t.Errorf("families after adoption (-want +got):\n%s", diff)
+		}
+	})
+
 	t.Run("rejects a token that is not a Chainguard refresh token", func(t *testing.T) {
 		isolateCache(t)
 		if err := SaveFamily([]byte("opaque-"+rand.Text()), []string{audAPI}, WithIssuer(issuerA)); err == nil {
