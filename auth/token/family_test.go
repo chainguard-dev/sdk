@@ -11,6 +11,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -978,5 +979,96 @@ func TestDeleteAll_RemovesFamilies(t *testing.T) {
 	}
 	if diff := cmp.Diff([]string{lockFileName}, left); diff != "" {
 		t.Errorf("files left (-want +got):\n%s", diff)
+	}
+}
+
+// TestRefresh_DiscardsSupersededToken is the client floor for the issuer's
+// grace-window refusal. A caller that cannot re-authenticate -- a credential
+// helper, a --refresh-only service -- has nowhere to go when the exchange is
+// refused, and nothing else on a rejection path deletes a stored refresh
+// token. If the refused token survived, its next presentation would land
+// outside the issuer's grace window, which is replay, and the issuer would
+// revoke the whole family.
+func TestRefresh_DiscardsSupersededToken(t *testing.T) {
+	isolateCache(t)
+
+	session := login(issuerA, "alice", audAPI, audReg)
+	presented := familyToken(t, session)
+	mustSaveFamily(t, presented, issuerA, audAPI, audReg)
+
+	refused := fmt.Errorf("%w: rpc error: code = Unauthenticated", ErrPresentedTokenSuperseded)
+	err := Refresh(t.Context(), audAPI, func(context.Context, string) (string, error) {
+		return "", refused
+	}, WithIssuer(issuerA))
+	if !errors.Is(err, ErrPresentedTokenSuperseded) {
+		t.Fatalf("Refresh() = %v, want it to wrap ErrPresentedTokenSuperseded", err)
+	}
+
+	// Both audiences, not just the one refreshed: the family covered both, and
+	// one surviving copy is a token that gets adopted and presented again.
+	for _, aud := range []string{audAPI, audReg} {
+		if tok, err := loadString(t, aud, WithIssuer(issuerA)); !errors.Is(err, fs.ErrNotExist) {
+			t.Errorf("Load(%s) = %q, %v; want the refused token gone", aud, tok, err)
+		}
+		if perAudienceExists(t, aud) {
+			t.Errorf("per-audience copy for %s survived the refusal", aud)
+		}
+	}
+
+	// The point of the discard: nothing is left to present on the next run.
+	var presentedAgain []string
+	err = Refresh(t.Context(), audReg, func(_ context.Context, tok string) (string, error) {
+		presentedAgain = append(presentedAgain, tok)
+		return "", nil
+	}, WithIssuer(issuerA))
+	if !errors.Is(err, fs.ErrNotExist) || len(presentedAgain) != 0 {
+		t.Errorf("second Refresh() = %v, presenting %q; want fs.ErrNotExist and nothing presented", err, presentedAgain)
+	}
+}
+
+// TestRefresh_KeepsTokenOnOtherErrors is the inverse leg, and the one that
+// stops the discard from being written against the status code. Every rejected
+// token comes back UNAUTHENTICATED, and a scoped exchange that resolves to no
+// capabilities comes back NotFound while the presented token is still the live
+// head. Discarding on anything but the superseded reason destroys a working
+// session (CUS-839).
+func TestRefresh_KeepsTokenOnOtherErrors(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		err  error
+	}{
+		{"scoped NotFound, parent still live", errors.New("rpc error: code = NotFound desc = no capabilities")},
+		{"transient", errors.New("rpc error: code = Unavailable desc = connection refused")},
+		{"rejected but not superseded", errors.New("rpc error: code = Unauthenticated desc = suspended")},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			isolateCache(t)
+			session := login(issuerA, "alice", audAPI, audReg)
+			presented := familyToken(t, session)
+			mustSaveFamily(t, presented, issuerA, audAPI, audReg)
+
+			err := Refresh(t.Context(), audAPI, func(context.Context, string) (string, error) {
+				return "", tc.err
+			}, WithIssuer(issuerA))
+			if !errors.Is(err, tc.err) {
+				t.Fatalf("Refresh() = %v, want the exchange's own error", err)
+			}
+
+			// Still there, and still the token a later refresh presents.
+			got, err := loadString(t, audAPI, WithIssuer(issuerA))
+			if err != nil || got != presented {
+				t.Fatalf("Load(%s) = %q, %v; want the token kept", audAPI, got, err)
+			}
+			var presentedAgain string
+			if err := Refresh(t.Context(), audReg, func(_ context.Context, tok string) (string, error) {
+				presentedAgain = tok
+				return "", nil
+			}, WithIssuer(issuerA)); err != nil {
+				t.Fatalf("second Refresh() = %v, want nil", err)
+			}
+			if presentedAgain != presented {
+				t.Errorf("second Refresh presented %q, want the kept token %q", presentedAgain, presented)
+			}
+		})
 	}
 }

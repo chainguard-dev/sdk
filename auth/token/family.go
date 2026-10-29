@@ -61,6 +61,18 @@ var (
 	// a new login.
 	ErrSuccessorNotStored = errors.New("token: the rotated refresh token could not be stored")
 
+	// ErrPresentedTokenSuperseded is what an ExchangeFunc returns, or wraps, to
+	// report that the issuer refused the presented token because it has already
+	// been superseded. Refresh then discards the family, which is the whole
+	// point of the signal: the token is dead and nothing revives it, so keeping
+	// it only buys a presentation after the issuer's grace window, which is
+	// replay and revokes the family.
+	//
+	// Recognizing the refusal is the caller's job rather than this package's.
+	// It arrives as a detail of whatever protocol the exchange speaks, and this
+	// package deliberately knows nothing about that.
+	ErrPresentedTokenSuperseded = errors.New("token: the presented refresh token was superseded")
+
 	errNoIssuer = errors.New("token: refresh-token families require WithIssuer")
 	errAlias    = errors.New("token: refresh-token families do not support WithAlias")
 )
@@ -83,6 +95,12 @@ type ExchangeFunc func(ctx context.Context, refreshToken string) (successor stri
 // exchange, an error wrapping fs.ErrNotExist when no token covers audience, or
 // ErrSuccessorNotStored after a successful exchange whose result could not be
 // written.
+//
+// The one exchange error it acts on is ErrPresentedTokenSuperseded: the family
+// and the per-audience copies of its token are discarded before the error is
+// returned, so the refused token is never presented again. The error still
+// wraps what exchange returned, so a caller can re-authenticate on it as
+// before; what it can no longer do is retry with the same token.
 func Refresh(ctx context.Context, audience string, exchange ExchangeFunc, opts ...Option) error {
 	t := newToken(opts...)
 	if err := t.familyCheck(); err != nil {
@@ -106,6 +124,17 @@ func Refresh(ctx context.Context, audience string, exchange ExchangeFunc, opts .
 	presented := f.Token
 	successor, err := exchange(ctx, presented)
 	if err != nil {
+		if errors.Is(err, ErrPresentedTokenSuperseded) {
+			// Discard here rather than leaving it to whoever handles the
+			// error. A caller with no terminal cannot re-authenticate, and
+			// re-authenticating is not the same as discarding: nothing else on
+			// a rejection path deletes a stored refresh token, so the token
+			// would survive to be presented again on the next run, after the
+			// grace window, as replay. The copies go with it for the reason
+			// persist gives -- a copy whose family is gone is adopted as a new
+			// family and presented again.
+			return errors.Join(err, removeFamily(f.name), removeCopiesOf(presented))
+		}
 		return err
 	}
 	successor = strings.TrimSpace(successor)

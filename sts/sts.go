@@ -25,12 +25,14 @@ import (
 	"chainguard.dev/sdk/auth"
 	oidc "chainguard.dev/sdk/proto/platform/oidc/v1"
 	"golang.org/x/oauth2"
+	spb "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type TokenPair struct {
@@ -234,6 +236,21 @@ func codeFromGatewayStatusBody(body []byte) codes.Code {
 		return codes.OK
 	}
 	return codes.Code(n) //nolint:gosec // G115: n range-checked to [1,16] above
+}
+
+// detailsFromGatewayStatusBody recovers the google.rpc.Status details
+// grpc-gateway serialized into an error body, so a caller inspecting
+// st.Details() sees what it would on the native gRPC path. Returns nothing for
+// a body that is not a gateway status, which leaves the caller the plain coded
+// error it had before.
+func detailsFromGatewayStatusBody(body []byte) []*anypb.Any {
+	var sp spb.Status
+	// DiscardUnknown: the gateway may add fields, and an unknown one is not a
+	// reason to drop the details that did parse.
+	if err := (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(body, &sp); err != nil {
+		return nil
+	}
+	return sp.GetDetails()
 }
 
 // backoffWithJitter returns retryBackoff with uniform jitter in
@@ -621,7 +638,19 @@ func (i *HTTP1DowngradeExchanger) doHTTP1(ctx context.Context,
 			code = gatewayStatusCode(resp.StatusCode)
 		}
 		if code != codes.Unknown {
-			return status.Error(code, detail)
+			st := status.New(code, detail)
+			// Carry the gateway's typed details across too. Without them a
+			// caller that keys on one -- AsSupersededRefreshToken on
+			// google.rpc.ErrorInfo, for one -- silently takes its "no such
+			// detail" branch on this transport alone, and for the superseded
+			// refresh token that means keeping a token whose next
+			// presentation is replay.
+			if details := detailsFromGatewayStatusBody(b); len(details) > 0 {
+				sp := st.Proto()
+				sp.Details = details
+				st = status.FromProto(sp)
+			}
+			return st.Err()
 		}
 		return errors.New(detail)
 	}
