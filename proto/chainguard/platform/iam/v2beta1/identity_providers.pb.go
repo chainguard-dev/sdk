@@ -1404,11 +1404,12 @@ type IdentityProvider_OIDC struct {
 	// IdP group-based role mapping; when empty, group extraction is skipped.
 	GroupsClaim string `protobuf:"bytes,5,opt,name=groups_claim,json=groupsClaim,proto3" json:"groups_claim,omitempty"`
 	// Selects how OIDC logins are matched to SCIM-provisioned users. Unset
-	// selects CORRELATION_RULE_SUB_EQUALS_EXTERNAL_ID. Immutable after the
-	// identity provider is created: changing the rule that maps token claims
-	// to identities would re-open attacker-controllable-claim attacks; a
-	// different rule requires creating a new identity provider. Updates that
-	// restate the current rule (or leave it unset) are a no-op — a
+	// selects CORRELATION_RULE_SUB_EQUALS_EXTERNAL_ID. Choose it before
+	// provisioning users: an update cannot change it, because changing the
+	// rule that maps token claims to identities would re-open
+	// attacker-controllable-claim attacks. To change it later, contact
+	// Chainguard support. Updates that restate the current rule (or leave it
+	// unset) are a no-op — a
 	// read-modify-write client may echo the field back safely, including over
 	// HTTP PATCH, where the update mask is derived from the request-body keys.
 	// Updates that change it are rejected.

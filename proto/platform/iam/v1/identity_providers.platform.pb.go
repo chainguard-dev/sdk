@@ -1180,9 +1180,9 @@ type IdentityProvider_OIDC struct {
 	// Required for IdP group-based role mapping.
 	GroupsClaim string `protobuf:"bytes,5,opt,name=groups_claim,json=groupsClaim,proto3" json:"groups_claim,omitempty"`
 	// Selects how OIDC logins are matched to SCIM-provisioned users. Unset
-	// selects CORRELATION_RULE_SUB_EQUALS_EXTERNAL_ID. Immutable after the
-	// identity provider is created (enforced server-side): a different rule
-	// requires creating a new identity provider. Updates that restate the
+	// selects CORRELATION_RULE_SUB_EQUALS_EXTERNAL_ID. Choose it before
+	// provisioning users: an update cannot change it (enforced server-side),
+	// and a later change requires Chainguard support. Updates that restate the
 	// current rule (or leave it unset) are a no-op — a read-modify-write client
 	// may echo the field back safely; updates that change it are rejected.
 	CorrelationRule IdentityProvider_OIDC_CorrelationRule `protobuf:"varint,6,opt,name=correlation_rule,json=correlationRule,proto3,enum=chainguard.platform.iam.IdentityProvider_OIDC_CorrelationRule" json:"correlation_rule,omitempty"`

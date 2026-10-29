@@ -259,9 +259,9 @@ message IdentityProvider {
     }
 
     // Selects how OIDC logins are matched to SCIM-provisioned users. Unset
-    // selects CORRELATION_RULE_SUB_EQUALS_EXTERNAL_ID. Immutable after the
-    // identity provider is created (enforced server-side): a different rule
-    // requires creating a new identity provider. Updates that restate the
+    // selects CORRELATION_RULE_SUB_EQUALS_EXTERNAL_ID. Choose it before
+    // provisioning users: an update cannot change it (enforced server-side),
+    // and a later change requires Chainguard support. Updates that restate the
     // current rule (or leave it unset) are a no-op — a read-modify-write client
     // may echo the field back safely; updates that change it are rejected.
     CorrelationRule correlation_rule = 6;
