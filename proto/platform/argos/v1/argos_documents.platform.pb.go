@@ -671,7 +671,9 @@ type ArgosDocumentFilter struct {
 	// Empty means no filter; an unmatched value returns nothing.
 	CgpId string `protobuf:"bytes,12,opt,name=cgp_id,json=cgpId,proto3" json:"cgp_id,omitempty"`
 	// include_finding_counts sets finding_counts on each returned document.
-	// Ignored unless page_size is between 1 and 200.
+	// It needs an explicit page_size between 1 and 200: an unset page_size
+	// lists unpaged, so the flag is ignored and finding_counts stays unset,
+	// with no error.
 	IncludeFindingCounts bool `protobuf:"varint,13,opt,name=include_finding_counts,json=includeFindingCounts,proto3" json:"include_finding_counts,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache

@@ -270,7 +270,9 @@ message ArgosDocumentFilter {
   string cgp_id = 12;
 
   // include_finding_counts sets finding_counts on each returned document.
-  // Ignored unless page_size is between 1 and 200.
+  // It needs an explicit page_size between 1 and 200: an unset page_size
+  // lists unpaged, so the flag is ignored and finding_counts stays unset,
+  // with no error.
   bool include_finding_counts = 13 [(google.api.field_behavior) = OPTIONAL];
 }
 
