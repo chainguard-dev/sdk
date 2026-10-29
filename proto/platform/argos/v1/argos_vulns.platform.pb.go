@@ -101,28 +101,15 @@ type ListOrgVulnsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// parent is the UIDP of the organization (root group) to scope the query to.
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
-	// package is replaced by ecosystem and package_name; the server never
-	// applied it.
-	//
-	// Deprecated: Marked as deprecated in argos_vulns.platform.proto.
+	// package is an optional exact ecosystem/name filter (v1: exact match).
 	Package string `protobuf:"bytes,2,opt,name=package,proto3" json:"package,omitempty"`
-	// version keeps records whose affected range for package_name contains it,
-	// or that were fixed at it. It requires package_name, and total_count is
-	// unset when it is given.
+	// version is an optional version filter.
 	Version   string `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`
 	PageToken string `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	PageSize  int32  `protobuf:"varint,5,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	// updated_since restricts results to CGP IDs bound to documents last updated
 	// at or after the given time.
-	UpdatedSince *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_since,json=updatedSince,proto3" json:"updated_since,omitempty"`
-	// has_chainguard_fix keeps records with (true) or without (false) a
-	// Chainguard fix.
-	HasChainguardFix *bool `protobuf:"varint,7,opt,name=has_chainguard_fix,json=hasChainguardFix,proto3,oneof" json:"has_chainguard_fix,omitempty"`
-	// ecosystem keeps records with an affected package in this ecosystem,
-	// compared ignoring case.
-	Ecosystem string `protobuf:"bytes,8,opt,name=ecosystem,proto3" json:"ecosystem,omitempty"`
-	// package_name keeps records with an affected package of exactly this name.
-	PackageName   string `protobuf:"bytes,9,opt,name=package_name,json=packageName,proto3" json:"package_name,omitempty"`
+	UpdatedSince  *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_since,json=updatedSince,proto3" json:"updated_since,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -164,7 +151,6 @@ func (x *ListOrgVulnsRequest) GetParent() string {
 	return ""
 }
 
-// Deprecated: Marked as deprecated in argos_vulns.platform.proto.
 func (x *ListOrgVulnsRequest) GetPackage() string {
 	if x != nil {
 		return x.Package
@@ -198,27 +184,6 @@ func (x *ListOrgVulnsRequest) GetUpdatedSince() *timestamppb.Timestamp {
 		return x.UpdatedSince
 	}
 	return nil
-}
-
-func (x *ListOrgVulnsRequest) GetHasChainguardFix() bool {
-	if x != nil && x.HasChainguardFix != nil {
-		return *x.HasChainguardFix
-	}
-	return false
-}
-
-func (x *ListOrgVulnsRequest) GetEcosystem() string {
-	if x != nil {
-		return x.Ecosystem
-	}
-	return ""
-}
-
-func (x *ListOrgVulnsRequest) GetPackageName() string {
-	if x != nil {
-		return x.PackageName
-	}
-	return ""
 }
 
 type VulnList struct {
@@ -295,19 +260,15 @@ const file_argos_vulns_platform_proto_rawDesc = "" +
 	"\acgp_ids\x18\x02 \x03(\tR\x06cgpIds\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\x03 \x01(\tR\tpageToken\x12\x1b\n" +
-	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\"\xf5\x02\n" +
+	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\"\xe6\x01\n" +
 	"\x13ListOrgVulnsRequest\x12\x1e\n" +
-	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12\x1c\n" +
-	"\apackage\x18\x02 \x01(\tB\x02\x18\x01R\apackage\x12\x18\n" +
+	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12\x18\n" +
+	"\apackage\x18\x02 \x01(\tR\apackage\x12\x18\n" +
 	"\aversion\x18\x03 \x01(\tR\aversion\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\x04 \x01(\tR\tpageToken\x12\x1b\n" +
 	"\tpage_size\x18\x05 \x01(\x05R\bpageSize\x12?\n" +
-	"\rupdated_since\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\fupdatedSince\x121\n" +
-	"\x12has_chainguard_fix\x18\a \x01(\bH\x00R\x10hasChainguardFix\x88\x01\x01\x12\x1c\n" +
-	"\tecosystem\x18\b \x01(\tR\tecosystem\x12!\n" +
-	"\fpackage_name\x18\t \x01(\tR\vpackageNameB\x15\n" +
-	"\x13_has_chainguard_fix\"\xa4\x01\n" +
+	"\rupdated_since\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\fupdatedSince\"\xa4\x01\n" +
 	"\bVulnList\x12:\n" +
 	"\x05vulns\x18\x01 \x03(\v2$.chainguard.platform.argos.OSVRecordR\x05vulns\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12$\n" +
@@ -362,7 +323,6 @@ func file_argos_vulns_platform_proto_init() {
 		return
 	}
 	file_argos_osv_platform_proto_init()
-	file_argos_vulns_platform_proto_msgTypes[1].OneofWrappers = []any{}
 	file_argos_vulns_platform_proto_msgTypes[2].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
