@@ -57,15 +57,26 @@ message BatchGetVulnsRequest {
 message ListOrgVulnsRequest {
   // parent is the UIDP of the organization (root group) to scope the query to.
   string parent = 1 [(chainguard.annotations.iam_scope) = true];
-  // package is an optional exact ecosystem/name filter (v1: exact match).
-  string package = 2;
-  // version is an optional version filter.
+  // package is replaced by ecosystem and package_name; the server never
+  // applied it.
+  string package = 2 [deprecated = true];
+  // version keeps records whose affected range for package_name contains it,
+  // or that were fixed at it. It requires package_name, and total_count is
+  // unset when it is given.
   string version = 3;
   string page_token = 4;
   int32 page_size = 5;
   // updated_since restricts results to CGP IDs bound to documents last updated
   // at or after the given time.
   google.protobuf.Timestamp updated_since = 6;
+  // has_chainguard_fix keeps records with (true) or without (false) a
+  // Chainguard fix.
+  optional bool has_chainguard_fix = 7;
+  // ecosystem keeps records with an affected package in this ecosystem,
+  // compared ignoring case.
+  string ecosystem = 8;
+  // package_name keeps records with an affected package of exactly this name.
+  string package_name = 9;
 }
 
 message VulnList {
