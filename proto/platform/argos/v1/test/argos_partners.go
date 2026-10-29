@@ -26,6 +26,12 @@ type MockArgosPartnersClient struct {
 	OnDeleteCapabilities    []ArgosPartnersOnDeleteCapabilities
 	OnListMitigationMethods []ArgosPartnersOnListMitigationMethods
 
+	OnCreateMitigation   []ArgosPartnersOnCreateMitigation
+	OnGetMitigation      []ArgosPartnersOnGetMitigation
+	OnListMitigations    []ArgosPartnersOnListMitigations
+	OnUpdateMitigation   []ArgosPartnersOnUpdateMitigation
+	OnWithdrawMitigation []ArgosPartnersOnWithdrawMitigation
+
 	OnListPartnerReviews      []ArgosPartnersOnListPartnerReviews
 	OnDecidePartnerCapability []ArgosPartnersOnDecidePartnerCapability
 }
@@ -51,6 +57,36 @@ type ArgosPartnersOnDeleteCapabilities struct {
 type ArgosPartnersOnListMitigationMethods struct {
 	Given    *argos.ListMitigationMethodsRequest
 	Response *argos.ListMitigationMethodsResponse
+	Error    error
+}
+
+type ArgosPartnersOnCreateMitigation struct {
+	Given    *argos.CreateMitigationRequest
+	Response *argos.Mitigation
+	Error    error
+}
+
+type ArgosPartnersOnGetMitigation struct {
+	Given    *argos.GetMitigationRequest
+	Response *argos.Mitigation
+	Error    error
+}
+
+type ArgosPartnersOnListMitigations struct {
+	Given    *argos.ListMitigationsRequest
+	Response *argos.ListMitigationsResponse
+	Error    error
+}
+
+type ArgosPartnersOnUpdateMitigation struct {
+	Given    *argos.UpdateMitigationRequest
+	Response *argos.Mitigation
+	Error    error
+}
+
+type ArgosPartnersOnWithdrawMitigation struct {
+	Given    *argos.WithdrawMitigationRequest
+	Response *argos.WithdrawMitigationResponse
 	Error    error
 }
 
@@ -113,6 +149,51 @@ func (m MockArgosPartnersClient) ListPartnerReviews(_ context.Context, given *ar
 
 func (m MockArgosPartnersClient) DecidePartnerCapability(_ context.Context, given *argos.DecidePartnerCapabilityRequest, _ ...grpc.CallOption) (*argos.DecidePartnerCapabilityResponse, error) {
 	for _, o := range m.OnDecidePartnerCapability {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockArgosPartnersClient) CreateMitigation(_ context.Context, given *argos.CreateMitigationRequest, _ ...grpc.CallOption) (*argos.Mitigation, error) {
+	for _, o := range m.OnCreateMitigation {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockArgosPartnersClient) GetMitigation(_ context.Context, given *argos.GetMitigationRequest, _ ...grpc.CallOption) (*argos.Mitigation, error) {
+	for _, o := range m.OnGetMitigation {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockArgosPartnersClient) ListMitigations(_ context.Context, given *argos.ListMitigationsRequest, _ ...grpc.CallOption) (*argos.ListMitigationsResponse, error) {
+	for _, o := range m.OnListMitigations {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockArgosPartnersClient) UpdateMitigation(_ context.Context, given *argos.UpdateMitigationRequest, _ ...grpc.CallOption) (*argos.Mitigation, error) {
+	for _, o := range m.OnUpdateMitigation {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockArgosPartnersClient) WithdrawMitigation(_ context.Context, given *argos.WithdrawMitigationRequest, _ ...grpc.CallOption) (*argos.WithdrawMitigationResponse, error) {
+	for _, o := range m.OnWithdrawMitigation {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Response, o.Error
 		}

@@ -491,6 +491,11 @@ enum Capability {
     (bit) = 233,
     (internal_only) = true
   ];
+  // report lets a partner submit, edit and withdraw its mitigation reports.
+  CAP_ARGOS_MITIGATION_REPORT = 2620 [
+    (name) = "argos.partner.mitigation.report",
+    (bit) = 260
+  ];
 
   // Libraries Policy Gates — customer-facing policies and bindings that
   // configure the cooldown and malware gates applied to upstream package pulls,
@@ -693,5 +698,5 @@ enum Capability {
   CAP_ENTITLEMENTS_GET = 3203 [(name) = "entitlements.get", (bit) = 252];
 
   reserved 1;
-  // next bit: 260
+  // next bit: 261
 }

@@ -703,6 +703,12 @@ var (
 		Capability_CAP_ARGOS_PARTNER_CAPABILITY_REQUEST,
 	})
 
+	// ArgosMitigationReporterCaps lets a mitigation partner submit, edit and
+	// withdraw its mitigation reports.
+	ArgosMitigationReporterCaps = SortCaps([]Capability{
+		Capability_CAP_ARGOS_MITIGATION_REPORT,
+	})
+
 	// HarnessHuntCaps is the capability set for `chainctl harness hunt`:
 	// submitting a source bundle to be hunted and reading the org's hunts. It
 	// is customer-facing and included in OwnerCaps.

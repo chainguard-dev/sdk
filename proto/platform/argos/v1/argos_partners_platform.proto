@@ -7,6 +7,7 @@ package chainguard.platform.argos;
 
 import "annotations/auth.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "chainguard.dev/sdk/proto/platform/argos/v1";
 
@@ -85,6 +86,87 @@ service ArgosPartners {
       enabled: {
         capabilities: [CAP_ARGOS_PARTNER_CAPABILITY_REQUEST]
         unscoped: true
+      }
+    };
+  }
+
+  // CreateMitigation reports how the partner handled a vulnerability. The
+  // partner must hold an approved capability for method, and method must map
+  // to one of the vulnerability's CWEs. A vulnerability the partner cannot
+  // see is NOT_FOUND.
+  rpc CreateMitigation(CreateMitigationRequest) returns (Mitigation) {
+    option (google.api.http) = {
+      post: "/argos/v1/partners/{partner_id}/mitigations"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_ARGOS_MITIGATION_PARTNER,
+          CAP_ARGOS_MITIGATION_REPORT
+        ]
+      }
+    };
+  }
+
+  // GetMitigation returns one of the partner's mitigations, withdrawn or not.
+  rpc GetMitigation(GetMitigationRequest) returns (Mitigation) {
+    option (google.api.http) = {
+      get: "/argos/v1/partners/{partner_id}/mitigations/{id}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ARGOS_MITIGATION_PARTNER]
+      }
+    };
+  }
+
+  // ListMitigations returns the partner's live mitigations, optionally for
+  // one vulnerability.
+  rpc ListMitigations(ListMitigationsRequest) returns (
+      ListMitigationsResponse
+  ) {
+    option (google.api.http) = {
+      get: "/argos/v1/partners/{partner_id}/mitigations"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ARGOS_MITIGATION_PARTNER]
+      }
+    };
+  }
+
+  // UpdateMitigation replaces a live mitigation's cwe_id, status and details
+  // under the same checks as CreateMitigation.
+  rpc UpdateMitigation(UpdateMitigationRequest) returns (Mitigation) {
+    option (google.api.http) = {
+      put: "/argos/v1/partners/{partner_id}/mitigations/{id}"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_ARGOS_MITIGATION_PARTNER,
+          CAP_ARGOS_MITIGATION_REPORT
+        ]
+      }
+    };
+  }
+
+  // WithdrawMitigation withdraws a live mitigation. It needs no approved
+  // capability for the method, so a partner can always pull a report.
+  rpc WithdrawMitigation(WithdrawMitigationRequest) returns (
+      WithdrawMitigationResponse
+  ) {
+    option (google.api.http) = {
+      delete: "/argos/v1/partners/{partner_id}/mitigations/{id}"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_ARGOS_MITIGATION_PARTNER,
+          CAP_ARGOS_MITIGATION_REPORT
+        ]
       }
     };
   }
@@ -225,4 +307,79 @@ message DecidePartnerCapabilityRequest {
 }
 
 message DecidePartnerCapabilityResponse {
+}
+
+enum MitigationStatus {
+  MITIGATION_STATUS_UNSPECIFIED = 0;
+  // DECLINED: the partner chose not to act.
+  MITIGATION_STATUS_DECLINED = 1;
+  MITIGATION_STATUS_MITIGATED = 2;
+  // FAILED: the partner tried and could not.
+  MITIGATION_STATUS_FAILED = 3;
+}
+
+message Mitigation {
+  string id = 1;
+  string vuln_id = 2;
+  // method is the mitigation method's display name.
+  string method = 3;
+  // cwe_id is empty or of the form CWE-79.
+  string cwe_id = 4;
+  MitigationStatus status = 5;
+  string details = 6;
+  google.protobuf.Timestamp create_time = 7;
+  google.protobuf.Timestamp update_time = 8;
+  bool withdrawn = 9;
+}
+
+message CreateMitigationRequest {
+  // partner_id is the UIDP of the partner organization.
+  string partner_id = 1 [(chainguard.annotations.iam_scope) = true];
+  string vuln_id = 2;
+  // method is the mitigation method's display name.
+  string method = 3;
+  // cwe_id is optional. When set it must be on both the vulnerability and
+  // the method.
+  string cwe_id = 4;
+  MitigationStatus status = 5;
+  string details = 6;
+}
+
+message GetMitigationRequest {
+  // partner_id is the UIDP of the partner organization.
+  string partner_id = 1 [(chainguard.annotations.iam_scope) = true];
+  string id = 2;
+}
+
+message ListMitigationsRequest {
+  // partner_id is the UIDP of the partner organization.
+  string partner_id = 1 [(chainguard.annotations.iam_scope) = true];
+  // vuln_id empty lists every vulnerability's mitigations.
+  string vuln_id = 2;
+  string page_token = 3;
+  int32 page_size = 4;
+}
+
+message ListMitigationsResponse {
+  repeated Mitigation mitigations = 1;
+  // next_page_token is empty on the last page.
+  string next_page_token = 2;
+}
+
+message UpdateMitigationRequest {
+  // partner_id is the UIDP of the partner organization.
+  string partner_id = 1 [(chainguard.annotations.iam_scope) = true];
+  string id = 2;
+  string cwe_id = 3;
+  MitigationStatus status = 4;
+  string details = 5;
+}
+
+message WithdrawMitigationRequest {
+  // partner_id is the UIDP of the partner organization.
+  string partner_id = 1 [(chainguard.annotations.iam_scope) = true];
+  string id = 2;
+}
+
+message WithdrawMitigationResponse {
 }

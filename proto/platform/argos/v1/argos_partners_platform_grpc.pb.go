@@ -26,6 +26,11 @@ const (
 	ArgosPartners_UpdateCapabilities_FullMethodName      = "/chainguard.platform.argos.ArgosPartners/UpdateCapabilities"
 	ArgosPartners_DeleteCapabilities_FullMethodName      = "/chainguard.platform.argos.ArgosPartners/DeleteCapabilities"
 	ArgosPartners_ListMitigationMethods_FullMethodName   = "/chainguard.platform.argos.ArgosPartners/ListMitigationMethods"
+	ArgosPartners_CreateMitigation_FullMethodName        = "/chainguard.platform.argos.ArgosPartners/CreateMitigation"
+	ArgosPartners_GetMitigation_FullMethodName           = "/chainguard.platform.argos.ArgosPartners/GetMitigation"
+	ArgosPartners_ListMitigations_FullMethodName         = "/chainguard.platform.argos.ArgosPartners/ListMitigations"
+	ArgosPartners_UpdateMitigation_FullMethodName        = "/chainguard.platform.argos.ArgosPartners/UpdateMitigation"
+	ArgosPartners_WithdrawMitigation_FullMethodName      = "/chainguard.platform.argos.ArgosPartners/WithdrawMitigation"
 	ArgosPartners_ListPartnerReviews_FullMethodName      = "/chainguard.platform.argos.ArgosPartners/ListPartnerReviews"
 	ArgosPartners_DecidePartnerCapability_FullMethodName = "/chainguard.platform.argos.ArgosPartners/DecidePartnerCapability"
 )
@@ -56,6 +61,22 @@ type ArgosPartnersClient interface {
 	// by display name. There is no per-organisation filtering: every method a
 	// partner could request is visible so they can build a capabilities.md.
 	ListMitigationMethods(ctx context.Context, in *ListMitigationMethodsRequest, opts ...grpc.CallOption) (*ListMitigationMethodsResponse, error)
+	// CreateMitigation reports how the partner handled a vulnerability. The
+	// partner must hold an approved capability for method, and method must map
+	// to one of the vulnerability's CWEs. A vulnerability the partner cannot
+	// see is NOT_FOUND.
+	CreateMitigation(ctx context.Context, in *CreateMitigationRequest, opts ...grpc.CallOption) (*Mitigation, error)
+	// GetMitigation returns one of the partner's mitigations, withdrawn or not.
+	GetMitigation(ctx context.Context, in *GetMitigationRequest, opts ...grpc.CallOption) (*Mitigation, error)
+	// ListMitigations returns the partner's live mitigations, optionally for
+	// one vulnerability.
+	ListMitigations(ctx context.Context, in *ListMitigationsRequest, opts ...grpc.CallOption) (*ListMitigationsResponse, error)
+	// UpdateMitigation replaces a live mitigation's cwe_id, status and details
+	// under the same checks as CreateMitigation.
+	UpdateMitigation(ctx context.Context, in *UpdateMitigationRequest, opts ...grpc.CallOption) (*Mitigation, error)
+	// WithdrawMitigation withdraws a live mitigation. It needs no approved
+	// capability for the method, so a partner can always pull a report.
+	WithdrawMitigation(ctx context.Context, in *WithdrawMitigationRequest, opts ...grpc.CallOption) (*WithdrawMitigationResponse, error)
 	// ListPartnerReviews returns, for Chainguard staff review, each partner's
 	// capabilities by review state and the mitigation-method catalogue. With
 	// partner_id set it returns that partner only.
@@ -113,6 +134,56 @@ func (c *argosPartnersClient) ListMitigationMethods(ctx context.Context, in *Lis
 	return out, nil
 }
 
+func (c *argosPartnersClient) CreateMitigation(ctx context.Context, in *CreateMitigationRequest, opts ...grpc.CallOption) (*Mitigation, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Mitigation)
+	err := c.cc.Invoke(ctx, ArgosPartners_CreateMitigation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *argosPartnersClient) GetMitigation(ctx context.Context, in *GetMitigationRequest, opts ...grpc.CallOption) (*Mitigation, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Mitigation)
+	err := c.cc.Invoke(ctx, ArgosPartners_GetMitigation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *argosPartnersClient) ListMitigations(ctx context.Context, in *ListMitigationsRequest, opts ...grpc.CallOption) (*ListMitigationsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListMitigationsResponse)
+	err := c.cc.Invoke(ctx, ArgosPartners_ListMitigations_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *argosPartnersClient) UpdateMitigation(ctx context.Context, in *UpdateMitigationRequest, opts ...grpc.CallOption) (*Mitigation, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Mitigation)
+	err := c.cc.Invoke(ctx, ArgosPartners_UpdateMitigation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *argosPartnersClient) WithdrawMitigation(ctx context.Context, in *WithdrawMitigationRequest, opts ...grpc.CallOption) (*WithdrawMitigationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WithdrawMitigationResponse)
+	err := c.cc.Invoke(ctx, ArgosPartners_WithdrawMitigation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *argosPartnersClient) ListPartnerReviews(ctx context.Context, in *ListPartnerReviewsRequest, opts ...grpc.CallOption) (*ListPartnerReviewsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListPartnerReviewsResponse)
@@ -159,6 +230,22 @@ type ArgosPartnersServer interface {
 	// by display name. There is no per-organisation filtering: every method a
 	// partner could request is visible so they can build a capabilities.md.
 	ListMitigationMethods(context.Context, *ListMitigationMethodsRequest) (*ListMitigationMethodsResponse, error)
+	// CreateMitigation reports how the partner handled a vulnerability. The
+	// partner must hold an approved capability for method, and method must map
+	// to one of the vulnerability's CWEs. A vulnerability the partner cannot
+	// see is NOT_FOUND.
+	CreateMitigation(context.Context, *CreateMitigationRequest) (*Mitigation, error)
+	// GetMitigation returns one of the partner's mitigations, withdrawn or not.
+	GetMitigation(context.Context, *GetMitigationRequest) (*Mitigation, error)
+	// ListMitigations returns the partner's live mitigations, optionally for
+	// one vulnerability.
+	ListMitigations(context.Context, *ListMitigationsRequest) (*ListMitigationsResponse, error)
+	// UpdateMitigation replaces a live mitigation's cwe_id, status and details
+	// under the same checks as CreateMitigation.
+	UpdateMitigation(context.Context, *UpdateMitigationRequest) (*Mitigation, error)
+	// WithdrawMitigation withdraws a live mitigation. It needs no approved
+	// capability for the method, so a partner can always pull a report.
+	WithdrawMitigation(context.Context, *WithdrawMitigationRequest) (*WithdrawMitigationResponse, error)
 	// ListPartnerReviews returns, for Chainguard staff review, each partner's
 	// capabilities by review state and the mitigation-method catalogue. With
 	// partner_id set it returns that partner only.
@@ -187,6 +274,21 @@ func (UnimplementedArgosPartnersServer) DeleteCapabilities(context.Context, *Del
 }
 func (UnimplementedArgosPartnersServer) ListMitigationMethods(context.Context, *ListMitigationMethodsRequest) (*ListMitigationMethodsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListMitigationMethods not implemented")
+}
+func (UnimplementedArgosPartnersServer) CreateMitigation(context.Context, *CreateMitigationRequest) (*Mitigation, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateMitigation not implemented")
+}
+func (UnimplementedArgosPartnersServer) GetMitigation(context.Context, *GetMitigationRequest) (*Mitigation, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetMitigation not implemented")
+}
+func (UnimplementedArgosPartnersServer) ListMitigations(context.Context, *ListMitigationsRequest) (*ListMitigationsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListMitigations not implemented")
+}
+func (UnimplementedArgosPartnersServer) UpdateMitigation(context.Context, *UpdateMitigationRequest) (*Mitigation, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateMitigation not implemented")
+}
+func (UnimplementedArgosPartnersServer) WithdrawMitigation(context.Context, *WithdrawMitigationRequest) (*WithdrawMitigationResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method WithdrawMitigation not implemented")
 }
 func (UnimplementedArgosPartnersServer) ListPartnerReviews(context.Context, *ListPartnerReviewsRequest) (*ListPartnerReviewsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListPartnerReviews not implemented")
@@ -287,6 +389,96 @@ func _ArgosPartners_ListMitigationMethods_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ArgosPartners_CreateMitigation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateMitigationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArgosPartnersServer).CreateMitigation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ArgosPartners_CreateMitigation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArgosPartnersServer).CreateMitigation(ctx, req.(*CreateMitigationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArgosPartners_GetMitigation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMitigationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArgosPartnersServer).GetMitigation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ArgosPartners_GetMitigation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArgosPartnersServer).GetMitigation(ctx, req.(*GetMitigationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArgosPartners_ListMitigations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListMitigationsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArgosPartnersServer).ListMitigations(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ArgosPartners_ListMitigations_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArgosPartnersServer).ListMitigations(ctx, req.(*ListMitigationsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArgosPartners_UpdateMitigation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateMitigationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArgosPartnersServer).UpdateMitigation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ArgosPartners_UpdateMitigation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArgosPartnersServer).UpdateMitigation(ctx, req.(*UpdateMitigationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArgosPartners_WithdrawMitigation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WithdrawMitigationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArgosPartnersServer).WithdrawMitigation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ArgosPartners_WithdrawMitigation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArgosPartnersServer).WithdrawMitigation(ctx, req.(*WithdrawMitigationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ArgosPartners_ListPartnerReviews_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListPartnerReviewsRequest)
 	if err := dec(in); err != nil {
@@ -345,6 +537,26 @@ var ArgosPartners_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListMitigationMethods",
 			Handler:    _ArgosPartners_ListMitigationMethods_Handler,
+		},
+		{
+			MethodName: "CreateMitigation",
+			Handler:    _ArgosPartners_CreateMitigation_Handler,
+		},
+		{
+			MethodName: "GetMitigation",
+			Handler:    _ArgosPartners_GetMitigation_Handler,
+		},
+		{
+			MethodName: "ListMitigations",
+			Handler:    _ArgosPartners_ListMitigations_Handler,
+		},
+		{
+			MethodName: "UpdateMitigation",
+			Handler:    _ArgosPartners_UpdateMitigation_Handler,
+		},
+		{
+			MethodName: "WithdrawMitigation",
+			Handler:    _ArgosPartners_WithdrawMitigation_Handler,
 		},
 		{
 			MethodName: "ListPartnerReviews",

@@ -14,6 +14,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -25,6 +26,60 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+type MitigationStatus int32
+
+const (
+	MitigationStatus_MITIGATION_STATUS_UNSPECIFIED MitigationStatus = 0
+	// DECLINED: the partner chose not to act.
+	MitigationStatus_MITIGATION_STATUS_DECLINED  MitigationStatus = 1
+	MitigationStatus_MITIGATION_STATUS_MITIGATED MitigationStatus = 2
+	// FAILED: the partner tried and could not.
+	MitigationStatus_MITIGATION_STATUS_FAILED MitigationStatus = 3
+)
+
+// Enum value maps for MitigationStatus.
+var (
+	MitigationStatus_name = map[int32]string{
+		0: "MITIGATION_STATUS_UNSPECIFIED",
+		1: "MITIGATION_STATUS_DECLINED",
+		2: "MITIGATION_STATUS_MITIGATED",
+		3: "MITIGATION_STATUS_FAILED",
+	}
+	MitigationStatus_value = map[string]int32{
+		"MITIGATION_STATUS_UNSPECIFIED": 0,
+		"MITIGATION_STATUS_DECLINED":    1,
+		"MITIGATION_STATUS_MITIGATED":   2,
+		"MITIGATION_STATUS_FAILED":      3,
+	}
+)
+
+func (x MitigationStatus) Enum() *MitigationStatus {
+	p := new(MitigationStatus)
+	*p = x
+	return p
+}
+
+func (x MitigationStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (MitigationStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_argos_partners_platform_proto_enumTypes[0].Descriptor()
+}
+
+func (MitigationStatus) Type() protoreflect.EnumType {
+	return &file_argos_partners_platform_proto_enumTypes[0]
+}
+
+func (x MitigationStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use MitigationStatus.Descriptor instead.
+func (MitigationStatus) EnumDescriptor() ([]byte, []int) {
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{0}
+}
 
 type GetPartnerCapabilitiesRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -837,11 +892,551 @@ func (*DecidePartnerCapabilityResponse) Descriptor() ([]byte, []int) {
 	return file_argos_partners_platform_proto_rawDescGZIP(), []int{14}
 }
 
+type Mitigation struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Id     string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	VulnId string                 `protobuf:"bytes,2,opt,name=vuln_id,json=vulnId,proto3" json:"vuln_id,omitempty"`
+	// method is the mitigation method's display name.
+	Method string `protobuf:"bytes,3,opt,name=method,proto3" json:"method,omitempty"`
+	// cwe_id is empty or of the form CWE-79.
+	CweId         string                 `protobuf:"bytes,4,opt,name=cwe_id,json=cweId,proto3" json:"cwe_id,omitempty"`
+	Status        MitigationStatus       `protobuf:"varint,5,opt,name=status,proto3,enum=chainguard.platform.argos.MitigationStatus" json:"status,omitempty"`
+	Details       string                 `protobuf:"bytes,6,opt,name=details,proto3" json:"details,omitempty"`
+	CreateTime    *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	UpdateTime    *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+	Withdrawn     bool                   `protobuf:"varint,9,opt,name=withdrawn,proto3" json:"withdrawn,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Mitigation) Reset() {
+	*x = Mitigation{}
+	mi := &file_argos_partners_platform_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Mitigation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Mitigation) ProtoMessage() {}
+
+func (x *Mitigation) ProtoReflect() protoreflect.Message {
+	mi := &file_argos_partners_platform_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Mitigation.ProtoReflect.Descriptor instead.
+func (*Mitigation) Descriptor() ([]byte, []int) {
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *Mitigation) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Mitigation) GetVulnId() string {
+	if x != nil {
+		return x.VulnId
+	}
+	return ""
+}
+
+func (x *Mitigation) GetMethod() string {
+	if x != nil {
+		return x.Method
+	}
+	return ""
+}
+
+func (x *Mitigation) GetCweId() string {
+	if x != nil {
+		return x.CweId
+	}
+	return ""
+}
+
+func (x *Mitigation) GetStatus() MitigationStatus {
+	if x != nil {
+		return x.Status
+	}
+	return MitigationStatus_MITIGATION_STATUS_UNSPECIFIED
+}
+
+func (x *Mitigation) GetDetails() string {
+	if x != nil {
+		return x.Details
+	}
+	return ""
+}
+
+func (x *Mitigation) GetCreateTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreateTime
+	}
+	return nil
+}
+
+func (x *Mitigation) GetUpdateTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdateTime
+	}
+	return nil
+}
+
+func (x *Mitigation) GetWithdrawn() bool {
+	if x != nil {
+		return x.Withdrawn
+	}
+	return false
+}
+
+type CreateMitigationRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// partner_id is the UIDP of the partner organization.
+	PartnerId string `protobuf:"bytes,1,opt,name=partner_id,json=partnerId,proto3" json:"partner_id,omitempty"`
+	VulnId    string `protobuf:"bytes,2,opt,name=vuln_id,json=vulnId,proto3" json:"vuln_id,omitempty"`
+	// method is the mitigation method's display name.
+	Method string `protobuf:"bytes,3,opt,name=method,proto3" json:"method,omitempty"`
+	// cwe_id is optional. When set it must be on both the vulnerability and
+	// the method.
+	CweId         string           `protobuf:"bytes,4,opt,name=cwe_id,json=cweId,proto3" json:"cwe_id,omitempty"`
+	Status        MitigationStatus `protobuf:"varint,5,opt,name=status,proto3,enum=chainguard.platform.argos.MitigationStatus" json:"status,omitempty"`
+	Details       string           `protobuf:"bytes,6,opt,name=details,proto3" json:"details,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateMitigationRequest) Reset() {
+	*x = CreateMitigationRequest{}
+	mi := &file_argos_partners_platform_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateMitigationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateMitigationRequest) ProtoMessage() {}
+
+func (x *CreateMitigationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_argos_partners_platform_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateMitigationRequest.ProtoReflect.Descriptor instead.
+func (*CreateMitigationRequest) Descriptor() ([]byte, []int) {
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *CreateMitigationRequest) GetPartnerId() string {
+	if x != nil {
+		return x.PartnerId
+	}
+	return ""
+}
+
+func (x *CreateMitigationRequest) GetVulnId() string {
+	if x != nil {
+		return x.VulnId
+	}
+	return ""
+}
+
+func (x *CreateMitigationRequest) GetMethod() string {
+	if x != nil {
+		return x.Method
+	}
+	return ""
+}
+
+func (x *CreateMitigationRequest) GetCweId() string {
+	if x != nil {
+		return x.CweId
+	}
+	return ""
+}
+
+func (x *CreateMitigationRequest) GetStatus() MitigationStatus {
+	if x != nil {
+		return x.Status
+	}
+	return MitigationStatus_MITIGATION_STATUS_UNSPECIFIED
+}
+
+func (x *CreateMitigationRequest) GetDetails() string {
+	if x != nil {
+		return x.Details
+	}
+	return ""
+}
+
+type GetMitigationRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// partner_id is the UIDP of the partner organization.
+	PartnerId     string `protobuf:"bytes,1,opt,name=partner_id,json=partnerId,proto3" json:"partner_id,omitempty"`
+	Id            string `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMitigationRequest) Reset() {
+	*x = GetMitigationRequest{}
+	mi := &file_argos_partners_platform_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMitigationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMitigationRequest) ProtoMessage() {}
+
+func (x *GetMitigationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_argos_partners_platform_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMitigationRequest.ProtoReflect.Descriptor instead.
+func (*GetMitigationRequest) Descriptor() ([]byte, []int) {
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *GetMitigationRequest) GetPartnerId() string {
+	if x != nil {
+		return x.PartnerId
+	}
+	return ""
+}
+
+func (x *GetMitigationRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type ListMitigationsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// partner_id is the UIDP of the partner organization.
+	PartnerId string `protobuf:"bytes,1,opt,name=partner_id,json=partnerId,proto3" json:"partner_id,omitempty"`
+	// vuln_id empty lists every vulnerability's mitigations.
+	VulnId        string `protobuf:"bytes,2,opt,name=vuln_id,json=vulnId,proto3" json:"vuln_id,omitempty"`
+	PageToken     string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	PageSize      int32  `protobuf:"varint,4,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListMitigationsRequest) Reset() {
+	*x = ListMitigationsRequest{}
+	mi := &file_argos_partners_platform_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListMitigationsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListMitigationsRequest) ProtoMessage() {}
+
+func (x *ListMitigationsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_argos_partners_platform_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListMitigationsRequest.ProtoReflect.Descriptor instead.
+func (*ListMitigationsRequest) Descriptor() ([]byte, []int) {
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ListMitigationsRequest) GetPartnerId() string {
+	if x != nil {
+		return x.PartnerId
+	}
+	return ""
+}
+
+func (x *ListMitigationsRequest) GetVulnId() string {
+	if x != nil {
+		return x.VulnId
+	}
+	return ""
+}
+
+func (x *ListMitigationsRequest) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+func (x *ListMitigationsRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+type ListMitigationsResponse struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Mitigations []*Mitigation          `protobuf:"bytes,1,rep,name=mitigations,proto3" json:"mitigations,omitempty"`
+	// next_page_token is empty on the last page.
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListMitigationsResponse) Reset() {
+	*x = ListMitigationsResponse{}
+	mi := &file_argos_partners_platform_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListMitigationsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListMitigationsResponse) ProtoMessage() {}
+
+func (x *ListMitigationsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_argos_partners_platform_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListMitigationsResponse.ProtoReflect.Descriptor instead.
+func (*ListMitigationsResponse) Descriptor() ([]byte, []int) {
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *ListMitigationsResponse) GetMitigations() []*Mitigation {
+	if x != nil {
+		return x.Mitigations
+	}
+	return nil
+}
+
+func (x *ListMitigationsResponse) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
+}
+
+type UpdateMitigationRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// partner_id is the UIDP of the partner organization.
+	PartnerId     string           `protobuf:"bytes,1,opt,name=partner_id,json=partnerId,proto3" json:"partner_id,omitempty"`
+	Id            string           `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	CweId         string           `protobuf:"bytes,3,opt,name=cwe_id,json=cweId,proto3" json:"cwe_id,omitempty"`
+	Status        MitigationStatus `protobuf:"varint,4,opt,name=status,proto3,enum=chainguard.platform.argos.MitigationStatus" json:"status,omitempty"`
+	Details       string           `protobuf:"bytes,5,opt,name=details,proto3" json:"details,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateMitigationRequest) Reset() {
+	*x = UpdateMitigationRequest{}
+	mi := &file_argos_partners_platform_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateMitigationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateMitigationRequest) ProtoMessage() {}
+
+func (x *UpdateMitigationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_argos_partners_platform_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateMitigationRequest.ProtoReflect.Descriptor instead.
+func (*UpdateMitigationRequest) Descriptor() ([]byte, []int) {
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *UpdateMitigationRequest) GetPartnerId() string {
+	if x != nil {
+		return x.PartnerId
+	}
+	return ""
+}
+
+func (x *UpdateMitigationRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdateMitigationRequest) GetCweId() string {
+	if x != nil {
+		return x.CweId
+	}
+	return ""
+}
+
+func (x *UpdateMitigationRequest) GetStatus() MitigationStatus {
+	if x != nil {
+		return x.Status
+	}
+	return MitigationStatus_MITIGATION_STATUS_UNSPECIFIED
+}
+
+func (x *UpdateMitigationRequest) GetDetails() string {
+	if x != nil {
+		return x.Details
+	}
+	return ""
+}
+
+type WithdrawMitigationRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// partner_id is the UIDP of the partner organization.
+	PartnerId     string `protobuf:"bytes,1,opt,name=partner_id,json=partnerId,proto3" json:"partner_id,omitempty"`
+	Id            string `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WithdrawMitigationRequest) Reset() {
+	*x = WithdrawMitigationRequest{}
+	mi := &file_argos_partners_platform_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WithdrawMitigationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WithdrawMitigationRequest) ProtoMessage() {}
+
+func (x *WithdrawMitigationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_argos_partners_platform_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WithdrawMitigationRequest.ProtoReflect.Descriptor instead.
+func (*WithdrawMitigationRequest) Descriptor() ([]byte, []int) {
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *WithdrawMitigationRequest) GetPartnerId() string {
+	if x != nil {
+		return x.PartnerId
+	}
+	return ""
+}
+
+func (x *WithdrawMitigationRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type WithdrawMitigationResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WithdrawMitigationResponse) Reset() {
+	*x = WithdrawMitigationResponse{}
+	mi := &file_argos_partners_platform_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WithdrawMitigationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WithdrawMitigationResponse) ProtoMessage() {}
+
+func (x *WithdrawMitigationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_argos_partners_platform_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WithdrawMitigationResponse.ProtoReflect.Descriptor instead.
+func (*WithdrawMitigationResponse) Descriptor() ([]byte, []int) {
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{22}
+}
+
 var File_argos_partners_platform_proto protoreflect.FileDescriptor
 
 const file_argos_partners_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x1dargos_partners_platform.proto\x12\x19chainguard.platform.argos\x1a\x16annotations/auth.proto\x1a\x1cgoogle/api/annotations.proto\"F\n" +
+	"\x1dargos_partners_platform.proto\x12\x19chainguard.platform.argos\x1a\x16annotations/auth.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"F\n" +
 	"\x1dGetPartnerCapabilitiesRequest\x12%\n" +
 	"\n" +
 	"partner_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\tpartnerId\"\x8b\x01\n" +
@@ -901,7 +1496,59 @@ const file_argos_partners_platform_proto_rawDesc = "" +
 	"\x06action\x18\x03 \x01(\tR\x06action\x12%\n" +
 	"\x0eexpected_state\x18\x04 \x01(\tR\rexpectedState\x12.\n" +
 	"\x10rejection_reason\x18\x05 \x01(\tB\x03\x80\x01\x01R\x0frejectionReason\"!\n" +
-	"\x1fDecidePartnerCapabilityResponse2\xed\b\n" +
+	"\x1fDecidePartnerCapabilityResponse\"\xdb\x02\n" +
+	"\n" +
+	"Mitigation\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
+	"\avuln_id\x18\x02 \x01(\tR\x06vulnId\x12\x16\n" +
+	"\x06method\x18\x03 \x01(\tR\x06method\x12\x15\n" +
+	"\x06cwe_id\x18\x04 \x01(\tR\x05cweId\x12C\n" +
+	"\x06status\x18\x05 \x01(\x0e2+.chainguard.platform.argos.MitigationStatusR\x06status\x12\x18\n" +
+	"\adetails\x18\x06 \x01(\tR\adetails\x12;\n" +
+	"\vcreate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"createTime\x12;\n" +
+	"\vupdate_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"updateTime\x12\x1c\n" +
+	"\twithdrawn\x18\t \x01(\bR\twithdrawn\"\xe7\x01\n" +
+	"\x17CreateMitigationRequest\x12%\n" +
+	"\n" +
+	"partner_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\tpartnerId\x12\x17\n" +
+	"\avuln_id\x18\x02 \x01(\tR\x06vulnId\x12\x16\n" +
+	"\x06method\x18\x03 \x01(\tR\x06method\x12\x15\n" +
+	"\x06cwe_id\x18\x04 \x01(\tR\x05cweId\x12C\n" +
+	"\x06status\x18\x05 \x01(\x0e2+.chainguard.platform.argos.MitigationStatusR\x06status\x12\x18\n" +
+	"\adetails\x18\x06 \x01(\tR\adetails\"M\n" +
+	"\x14GetMitigationRequest\x12%\n" +
+	"\n" +
+	"partner_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\tpartnerId\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\"\x94\x01\n" +
+	"\x16ListMitigationsRequest\x12%\n" +
+	"\n" +
+	"partner_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\tpartnerId\x12\x17\n" +
+	"\avuln_id\x18\x02 \x01(\tR\x06vulnId\x12\x1d\n" +
+	"\n" +
+	"page_token\x18\x03 \x01(\tR\tpageToken\x12\x1b\n" +
+	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\"\x8a\x01\n" +
+	"\x17ListMitigationsResponse\x12G\n" +
+	"\vmitigations\x18\x01 \x03(\v2%.chainguard.platform.argos.MitigationR\vmitigations\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xc6\x01\n" +
+	"\x17UpdateMitigationRequest\x12%\n" +
+	"\n" +
+	"partner_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\tpartnerId\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\x12\x15\n" +
+	"\x06cwe_id\x18\x03 \x01(\tR\x05cweId\x12C\n" +
+	"\x06status\x18\x04 \x01(\x0e2+.chainguard.platform.argos.MitigationStatusR\x06status\x12\x18\n" +
+	"\adetails\x18\x05 \x01(\tR\adetails\"R\n" +
+	"\x19WithdrawMitigationRequest\x12%\n" +
+	"\n" +
+	"partner_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\tpartnerId\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\"\x1c\n" +
+	"\x1aWithdrawMitigationResponse*\x94\x01\n" +
+	"\x10MitigationStatus\x12!\n" +
+	"\x1dMITIGATION_STATUS_UNSPECIFIED\x10\x00\x12\x1e\n" +
+	"\x1aMITIGATION_STATUS_DECLINED\x10\x01\x12\x1f\n" +
+	"\x1bMITIGATION_STATUS_MITIGATED\x10\x02\x12\x1c\n" +
+	"\x18MITIGATION_STATUS_FAILED\x10\x032\x96\x10\n" +
 	"\rArgosPartners\x12\xbd\x01\n" +
 	"\x0fGetCapabilities\x128.chainguard.platform.argos.GetPartnerCapabilitiesRequest\x1a..chainguard.platform.argos.PartnerCapabilities\"@\x82\xd3\xe4\x93\x02.\x12,/argos/v1/partners/{partner_id}/capabilities\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xb9\x14\x12\xd6\x01\n" +
@@ -910,7 +1557,17 @@ const file_argos_partners_platform_proto_rawDesc = "" +
 	"\x12DeleteCapabilities\x12;.chainguard.platform.argos.DeletePartnerCapabilitiesRequest\x1a..chainguard.platform.argos.PartnerCapabilities\"E\x82\xd3\xe4\x93\x021:\x01**,/argos/v1/partners/{partner_id}/capabilities\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x04\xb9\x14\xba\x14\x12\xbe\x01\n" +
 	"\x15ListMitigationMethods\x127.chainguard.platform.argos.ListMitigationMethodsRequest\x1a8.chainguard.platform.argos.ListMitigationMethodsResponse\"2\x82\xd3\xe4\x93\x02\x1e\x12\x1c/argos/v1/mitigation-methods\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x02\xba\x14\x10\x01\x12\x92\x01\n" +
+	"\x02\xba\x14\x10\x01\x12\xb3\x01\n" +
+	"\x10CreateMitigation\x122.chainguard.platform.argos.CreateMitigationRequest\x1a%.chainguard.platform.argos.Mitigation\"D\x82\xd3\xe4\x93\x020:\x01*\"+/argos/v1/partners/{partner_id}/mitigations\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x04\xb9\x14\xbc\x14\x12\xad\x01\n" +
+	"\rGetMitigation\x12/.chainguard.platform.argos.GetMitigationRequest\x1a%.chainguard.platform.argos.Mitigation\"D\x82\xd3\xe4\x93\x022\x120/argos/v1/partners/{partner_id}/mitigations/{id}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xb9\x14\x12\xb9\x01\n" +
+	"\x0fListMitigations\x121.chainguard.platform.argos.ListMitigationsRequest\x1a2.chainguard.platform.argos.ListMitigationsResponse\"?\x82\xd3\xe4\x93\x02-\x12+/argos/v1/partners/{partner_id}/mitigations\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xb9\x14\x12\xb8\x01\n" +
+	"\x10UpdateMitigation\x122.chainguard.platform.argos.UpdateMitigationRequest\x1a%.chainguard.platform.argos.Mitigation\"I\x82\xd3\xe4\x93\x025:\x01*\x1a0/argos/v1/partners/{partner_id}/mitigations/{id}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x04\xb9\x14\xbc\x14\x12\xc9\x01\n" +
+	"\x12WithdrawMitigation\x124.chainguard.platform.argos.WithdrawMitigationRequest\x1a5.chainguard.platform.argos.WithdrawMitigationResponse\"F\x82\xd3\xe4\x93\x022*0/argos/v1/partners/{partner_id}/mitigations/{id}\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x04\xb9\x14\xbc\x14\x12\x92\x01\n" +
 	"\x12ListPartnerReviews\x124.chainguard.platform.argos.ListPartnerReviewsRequest\x1a5.chainguard.platform.argos.ListPartnerReviewsResponse\"\x0f\x8a\xaf\xa8\xd2\x05\t\x12\a\n" +
 	"\x03\xbb\x14\x02\x10\x01\x12\xa1\x01\n" +
 	"\x17DecidePartnerCapability\x129.chainguard.platform.argos.DecidePartnerCapabilityRequest\x1a:.chainguard.platform.argos.DecidePartnerCapabilityResponse\"\x0f\x8a\xaf\xa8\xd2\x05\t\x12\a\n" +
@@ -928,54 +1585,81 @@ func file_argos_partners_platform_proto_rawDescGZIP() []byte {
 	return file_argos_partners_platform_proto_rawDescData
 }
 
-var file_argos_partners_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_argos_partners_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_argos_partners_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_argos_partners_platform_proto_goTypes = []any{
-	(*GetPartnerCapabilitiesRequest)(nil),     // 0: chainguard.platform.argos.GetPartnerCapabilitiesRequest
-	(*UpdatePartnerCapabilitiesRequest)(nil),  // 1: chainguard.platform.argos.UpdatePartnerCapabilitiesRequest
-	(*RequestedCapabilities)(nil),             // 2: chainguard.platform.argos.RequestedCapabilities
-	(*UpdatePartnerCapabilitiesResponse)(nil), // 3: chainguard.platform.argos.UpdatePartnerCapabilitiesResponse
-	(*DeletePartnerCapabilitiesRequest)(nil),  // 4: chainguard.platform.argos.DeletePartnerCapabilitiesRequest
-	(*PartnerCapabilityState)(nil),            // 5: chainguard.platform.argos.PartnerCapabilityState
-	(*PartnerCapabilities)(nil),               // 6: chainguard.platform.argos.PartnerCapabilities
-	(*ListMitigationMethodsRequest)(nil),      // 7: chainguard.platform.argos.ListMitigationMethodsRequest
-	(*MitigationMethod)(nil),                  // 8: chainguard.platform.argos.MitigationMethod
-	(*ListMitigationMethodsResponse)(nil),     // 9: chainguard.platform.argos.ListMitigationMethodsResponse
-	(*ListPartnerReviewsRequest)(nil),         // 10: chainguard.platform.argos.ListPartnerReviewsRequest
-	(*ListPartnerReviewsResponse)(nil),        // 11: chainguard.platform.argos.ListPartnerReviewsResponse
-	(*PartnerReview)(nil),                     // 12: chainguard.platform.argos.PartnerReview
-	(*DecidePartnerCapabilityRequest)(nil),    // 13: chainguard.platform.argos.DecidePartnerCapabilityRequest
-	(*DecidePartnerCapabilityResponse)(nil),   // 14: chainguard.platform.argos.DecidePartnerCapabilityResponse
-	nil,                                       // 15: chainguard.platform.argos.PartnerCapabilityState.RejectionReasonsEntry
-	nil,                                       // 16: chainguard.platform.argos.ListMitigationMethodsResponse.MitigationMethodsEntry
-	nil,                                       // 17: chainguard.platform.argos.ListPartnerReviewsResponse.MitigationMethodsEntry
+	(MitigationStatus)(0),                     // 0: chainguard.platform.argos.MitigationStatus
+	(*GetPartnerCapabilitiesRequest)(nil),     // 1: chainguard.platform.argos.GetPartnerCapabilitiesRequest
+	(*UpdatePartnerCapabilitiesRequest)(nil),  // 2: chainguard.platform.argos.UpdatePartnerCapabilitiesRequest
+	(*RequestedCapabilities)(nil),             // 3: chainguard.platform.argos.RequestedCapabilities
+	(*UpdatePartnerCapabilitiesResponse)(nil), // 4: chainguard.platform.argos.UpdatePartnerCapabilitiesResponse
+	(*DeletePartnerCapabilitiesRequest)(nil),  // 5: chainguard.platform.argos.DeletePartnerCapabilitiesRequest
+	(*PartnerCapabilityState)(nil),            // 6: chainguard.platform.argos.PartnerCapabilityState
+	(*PartnerCapabilities)(nil),               // 7: chainguard.platform.argos.PartnerCapabilities
+	(*ListMitigationMethodsRequest)(nil),      // 8: chainguard.platform.argos.ListMitigationMethodsRequest
+	(*MitigationMethod)(nil),                  // 9: chainguard.platform.argos.MitigationMethod
+	(*ListMitigationMethodsResponse)(nil),     // 10: chainguard.platform.argos.ListMitigationMethodsResponse
+	(*ListPartnerReviewsRequest)(nil),         // 11: chainguard.platform.argos.ListPartnerReviewsRequest
+	(*ListPartnerReviewsResponse)(nil),        // 12: chainguard.platform.argos.ListPartnerReviewsResponse
+	(*PartnerReview)(nil),                     // 13: chainguard.platform.argos.PartnerReview
+	(*DecidePartnerCapabilityRequest)(nil),    // 14: chainguard.platform.argos.DecidePartnerCapabilityRequest
+	(*DecidePartnerCapabilityResponse)(nil),   // 15: chainguard.platform.argos.DecidePartnerCapabilityResponse
+	(*Mitigation)(nil),                        // 16: chainguard.platform.argos.Mitigation
+	(*CreateMitigationRequest)(nil),           // 17: chainguard.platform.argos.CreateMitigationRequest
+	(*GetMitigationRequest)(nil),              // 18: chainguard.platform.argos.GetMitigationRequest
+	(*ListMitigationsRequest)(nil),            // 19: chainguard.platform.argos.ListMitigationsRequest
+	(*ListMitigationsResponse)(nil),           // 20: chainguard.platform.argos.ListMitigationsResponse
+	(*UpdateMitigationRequest)(nil),           // 21: chainguard.platform.argos.UpdateMitigationRequest
+	(*WithdrawMitigationRequest)(nil),         // 22: chainguard.platform.argos.WithdrawMitigationRequest
+	(*WithdrawMitigationResponse)(nil),        // 23: chainguard.platform.argos.WithdrawMitigationResponse
+	nil,                                       // 24: chainguard.platform.argos.PartnerCapabilityState.RejectionReasonsEntry
+	nil,                                       // 25: chainguard.platform.argos.ListMitigationMethodsResponse.MitigationMethodsEntry
+	nil,                                       // 26: chainguard.platform.argos.ListPartnerReviewsResponse.MitigationMethodsEntry
+	(*timestamppb.Timestamp)(nil),             // 27: google.protobuf.Timestamp
 }
 var file_argos_partners_platform_proto_depIdxs = []int32{
-	2,  // 0: chainguard.platform.argos.UpdatePartnerCapabilitiesResponse.capabilities:type_name -> chainguard.platform.argos.RequestedCapabilities
-	15, // 1: chainguard.platform.argos.PartnerCapabilityState.rejection_reasons:type_name -> chainguard.platform.argos.PartnerCapabilityState.RejectionReasonsEntry
-	5,  // 2: chainguard.platform.argos.PartnerCapabilities.capabilities:type_name -> chainguard.platform.argos.PartnerCapabilityState
-	16, // 3: chainguard.platform.argos.ListMitigationMethodsResponse.mitigation_methods:type_name -> chainguard.platform.argos.ListMitigationMethodsResponse.MitigationMethodsEntry
-	12, // 4: chainguard.platform.argos.ListPartnerReviewsResponse.partners:type_name -> chainguard.platform.argos.PartnerReview
-	17, // 5: chainguard.platform.argos.ListPartnerReviewsResponse.mitigation_methods:type_name -> chainguard.platform.argos.ListPartnerReviewsResponse.MitigationMethodsEntry
-	5,  // 6: chainguard.platform.argos.PartnerReview.capabilities:type_name -> chainguard.platform.argos.PartnerCapabilityState
-	8,  // 7: chainguard.platform.argos.ListMitigationMethodsResponse.MitigationMethodsEntry.value:type_name -> chainguard.platform.argos.MitigationMethod
-	8,  // 8: chainguard.platform.argos.ListPartnerReviewsResponse.MitigationMethodsEntry.value:type_name -> chainguard.platform.argos.MitigationMethod
-	0,  // 9: chainguard.platform.argos.ArgosPartners.GetCapabilities:input_type -> chainguard.platform.argos.GetPartnerCapabilitiesRequest
-	1,  // 10: chainguard.platform.argos.ArgosPartners.UpdateCapabilities:input_type -> chainguard.platform.argos.UpdatePartnerCapabilitiesRequest
-	4,  // 11: chainguard.platform.argos.ArgosPartners.DeleteCapabilities:input_type -> chainguard.platform.argos.DeletePartnerCapabilitiesRequest
-	7,  // 12: chainguard.platform.argos.ArgosPartners.ListMitigationMethods:input_type -> chainguard.platform.argos.ListMitigationMethodsRequest
-	10, // 13: chainguard.platform.argos.ArgosPartners.ListPartnerReviews:input_type -> chainguard.platform.argos.ListPartnerReviewsRequest
-	13, // 14: chainguard.platform.argos.ArgosPartners.DecidePartnerCapability:input_type -> chainguard.platform.argos.DecidePartnerCapabilityRequest
-	6,  // 15: chainguard.platform.argos.ArgosPartners.GetCapabilities:output_type -> chainguard.platform.argos.PartnerCapabilities
-	3,  // 16: chainguard.platform.argos.ArgosPartners.UpdateCapabilities:output_type -> chainguard.platform.argos.UpdatePartnerCapabilitiesResponse
-	6,  // 17: chainguard.platform.argos.ArgosPartners.DeleteCapabilities:output_type -> chainguard.platform.argos.PartnerCapabilities
-	9,  // 18: chainguard.platform.argos.ArgosPartners.ListMitigationMethods:output_type -> chainguard.platform.argos.ListMitigationMethodsResponse
-	11, // 19: chainguard.platform.argos.ArgosPartners.ListPartnerReviews:output_type -> chainguard.platform.argos.ListPartnerReviewsResponse
-	14, // 20: chainguard.platform.argos.ArgosPartners.DecidePartnerCapability:output_type -> chainguard.platform.argos.DecidePartnerCapabilityResponse
-	15, // [15:21] is the sub-list for method output_type
-	9,  // [9:15] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	3,  // 0: chainguard.platform.argos.UpdatePartnerCapabilitiesResponse.capabilities:type_name -> chainguard.platform.argos.RequestedCapabilities
+	24, // 1: chainguard.platform.argos.PartnerCapabilityState.rejection_reasons:type_name -> chainguard.platform.argos.PartnerCapabilityState.RejectionReasonsEntry
+	6,  // 2: chainguard.platform.argos.PartnerCapabilities.capabilities:type_name -> chainguard.platform.argos.PartnerCapabilityState
+	25, // 3: chainguard.platform.argos.ListMitigationMethodsResponse.mitigation_methods:type_name -> chainguard.platform.argos.ListMitigationMethodsResponse.MitigationMethodsEntry
+	13, // 4: chainguard.platform.argos.ListPartnerReviewsResponse.partners:type_name -> chainguard.platform.argos.PartnerReview
+	26, // 5: chainguard.platform.argos.ListPartnerReviewsResponse.mitigation_methods:type_name -> chainguard.platform.argos.ListPartnerReviewsResponse.MitigationMethodsEntry
+	6,  // 6: chainguard.platform.argos.PartnerReview.capabilities:type_name -> chainguard.platform.argos.PartnerCapabilityState
+	0,  // 7: chainguard.platform.argos.Mitigation.status:type_name -> chainguard.platform.argos.MitigationStatus
+	27, // 8: chainguard.platform.argos.Mitigation.create_time:type_name -> google.protobuf.Timestamp
+	27, // 9: chainguard.platform.argos.Mitigation.update_time:type_name -> google.protobuf.Timestamp
+	0,  // 10: chainguard.platform.argos.CreateMitigationRequest.status:type_name -> chainguard.platform.argos.MitigationStatus
+	16, // 11: chainguard.platform.argos.ListMitigationsResponse.mitigations:type_name -> chainguard.platform.argos.Mitigation
+	0,  // 12: chainguard.platform.argos.UpdateMitigationRequest.status:type_name -> chainguard.platform.argos.MitigationStatus
+	9,  // 13: chainguard.platform.argos.ListMitigationMethodsResponse.MitigationMethodsEntry.value:type_name -> chainguard.platform.argos.MitigationMethod
+	9,  // 14: chainguard.platform.argos.ListPartnerReviewsResponse.MitigationMethodsEntry.value:type_name -> chainguard.platform.argos.MitigationMethod
+	1,  // 15: chainguard.platform.argos.ArgosPartners.GetCapabilities:input_type -> chainguard.platform.argos.GetPartnerCapabilitiesRequest
+	2,  // 16: chainguard.platform.argos.ArgosPartners.UpdateCapabilities:input_type -> chainguard.platform.argos.UpdatePartnerCapabilitiesRequest
+	5,  // 17: chainguard.platform.argos.ArgosPartners.DeleteCapabilities:input_type -> chainguard.platform.argos.DeletePartnerCapabilitiesRequest
+	8,  // 18: chainguard.platform.argos.ArgosPartners.ListMitigationMethods:input_type -> chainguard.platform.argos.ListMitigationMethodsRequest
+	17, // 19: chainguard.platform.argos.ArgosPartners.CreateMitigation:input_type -> chainguard.platform.argos.CreateMitigationRequest
+	18, // 20: chainguard.platform.argos.ArgosPartners.GetMitigation:input_type -> chainguard.platform.argos.GetMitigationRequest
+	19, // 21: chainguard.platform.argos.ArgosPartners.ListMitigations:input_type -> chainguard.platform.argos.ListMitigationsRequest
+	21, // 22: chainguard.platform.argos.ArgosPartners.UpdateMitigation:input_type -> chainguard.platform.argos.UpdateMitigationRequest
+	22, // 23: chainguard.platform.argos.ArgosPartners.WithdrawMitigation:input_type -> chainguard.platform.argos.WithdrawMitigationRequest
+	11, // 24: chainguard.platform.argos.ArgosPartners.ListPartnerReviews:input_type -> chainguard.platform.argos.ListPartnerReviewsRequest
+	14, // 25: chainguard.platform.argos.ArgosPartners.DecidePartnerCapability:input_type -> chainguard.platform.argos.DecidePartnerCapabilityRequest
+	7,  // 26: chainguard.platform.argos.ArgosPartners.GetCapabilities:output_type -> chainguard.platform.argos.PartnerCapabilities
+	4,  // 27: chainguard.platform.argos.ArgosPartners.UpdateCapabilities:output_type -> chainguard.platform.argos.UpdatePartnerCapabilitiesResponse
+	7,  // 28: chainguard.platform.argos.ArgosPartners.DeleteCapabilities:output_type -> chainguard.platform.argos.PartnerCapabilities
+	10, // 29: chainguard.platform.argos.ArgosPartners.ListMitigationMethods:output_type -> chainguard.platform.argos.ListMitigationMethodsResponse
+	16, // 30: chainguard.platform.argos.ArgosPartners.CreateMitigation:output_type -> chainguard.platform.argos.Mitigation
+	16, // 31: chainguard.platform.argos.ArgosPartners.GetMitigation:output_type -> chainguard.platform.argos.Mitigation
+	20, // 32: chainguard.platform.argos.ArgosPartners.ListMitigations:output_type -> chainguard.platform.argos.ListMitigationsResponse
+	16, // 33: chainguard.platform.argos.ArgosPartners.UpdateMitigation:output_type -> chainguard.platform.argos.Mitigation
+	23, // 34: chainguard.platform.argos.ArgosPartners.WithdrawMitigation:output_type -> chainguard.platform.argos.WithdrawMitigationResponse
+	12, // 35: chainguard.platform.argos.ArgosPartners.ListPartnerReviews:output_type -> chainguard.platform.argos.ListPartnerReviewsResponse
+	15, // 36: chainguard.platform.argos.ArgosPartners.DecidePartnerCapability:output_type -> chainguard.platform.argos.DecidePartnerCapabilityResponse
+	26, // [26:37] is the sub-list for method output_type
+	15, // [15:26] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_argos_partners_platform_proto_init() }
@@ -988,13 +1672,14 @@ func file_argos_partners_platform_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_argos_partners_platform_proto_rawDesc), len(file_argos_partners_platform_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   18,
+			NumEnums:      1,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_argos_partners_platform_proto_goTypes,
 		DependencyIndexes: file_argos_partners_platform_proto_depIdxs,
+		EnumInfos:         file_argos_partners_platform_proto_enumTypes,
 		MessageInfos:      file_argos_partners_platform_proto_msgTypes,
 	}.Build()
 	File_argos_partners_platform_proto = out.File
