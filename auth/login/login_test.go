@@ -280,3 +280,79 @@ func TestBuildHeadlessURL(t *testing.T) {
 		})
 	}
 }
+
+func TestAuthenticate_RefreshTokenRotation(t *testing.T) {
+	for _, tt := range []struct {
+		name     string
+		declare  bool
+		confirm  bool
+		wantSent bool
+		want     bool
+	}{{
+		name:     "declared and confirmed",
+		declare:  true,
+		confirm:  true,
+		wantSent: true,
+		want:     true,
+	}, {
+		name:     "declared to an issuer that does not confirm",
+		declare:  true,
+		wantSent: true,
+	}, {
+		name: "undeclared",
+	}, {
+		name:    "confirmation the login did not ask for",
+		confirm: true,
+	}} {
+		t.Run(tt.name, func(t *testing.T) {
+			var sent string
+			opener := func(oauthURL string) error {
+				u, err := url.Parse(oauthURL)
+				if err != nil {
+					t.Errorf("parsing oauth URL %q: %v", oauthURL, err)
+					return nil
+				}
+				sent = u.Query().Get("refresh_token_rotation")
+				cb, err := url.Parse(u.Query().Get("redirect"))
+				if err != nil {
+					t.Errorf("parsing callback URL: %v", err)
+					return nil
+				}
+				q := cb.Query()
+				q.Set("token", "access-token")
+				q.Set("refresh_token", "refresh-token")
+				if tt.confirm {
+					q.Set("refresh_token_rotation", "true")
+				}
+				cb.RawQuery = q.Encode()
+				resp, err := http.Get(cb.String()) //nolint:gosec // local test callback server
+				if err != nil {
+					t.Errorf("delivering token to callback: %v", err)
+					return nil
+				}
+				return resp.Body.Close()
+			}
+			opts := []Option{
+				WithIssuer("https://issuer.chaintest.net"),
+				WithClientID("test-client"),
+				WithCreateRefreshToken(),
+				WithMessageWriter(io.Discard),
+				WithURLOpener(opener),
+			}
+			if tt.declare {
+				opts = append(opts, WithRefreshTokenRotation())
+			}
+			got, err := Authenticate(t.Context(), opts...)
+			if err != nil {
+				t.Fatalf("Authenticate: %v", err)
+			}
+			if gotSent := sent == "true"; gotSent != tt.wantSent {
+				t.Errorf("refresh_token_rotation sent: got = %v, want = %v", gotSent, tt.wantSent)
+			}
+			want := &Result{Token: "access-token", RefreshToken: "refresh-token", RefreshTokenRotation: tt.want}
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Errorf("Authenticate (-want, +got):\n%s", diff)
+			}
+		})
+	}
+}

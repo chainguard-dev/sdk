@@ -77,6 +77,11 @@ type config struct {
 	// `signup` (vs the implicit `login` default) when a flow is
 	// expected to register a new user. Empty means "don't set."
 	ScreenHint string
+
+	// RefreshTokenRotation declares that the caller handles refresh-token
+	// rotation, as ExchangeRequest.refresh_token_rotation does on an STS
+	// exchange.
+	RefreshTokenRotation bool
 }
 
 const defaultIssuer = `https://issuer.enforce.dev`
@@ -264,5 +269,21 @@ func WithMessageWriter(w io.Writer) Option {
 func WithScreenHint(hint string) Option {
 	return func(c *config) {
 		c.ScreenHint = hint
+	}
+}
+
+// WithRefreshTokenRotation declares on the interactive login that the caller
+// handles refresh-token rotation: it stores one refresh token per family under
+// a lock shared by its processes, persists the successor every refresh
+// returns, and discards a token the issuer refuses as
+// REFRESH_TOKEN_SUPERSEDED. Set it only if the caller does all three, since a
+// rotated family whose superseded token is presented again is revoked.
+//
+// An issuer that honors the declaration reports it in
+// Result.RefreshTokenRotation. One that does not ignores it, and the family is
+// never rotated. The headless flow does not carry it.
+func WithRefreshTokenRotation() Option {
+	return func(c *config) {
+		c.RefreshTokenRotation = true
 	}
 }

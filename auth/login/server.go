@@ -24,8 +24,9 @@ type server struct {
 
 	token chan string
 
-	refreshToken string
-	err          error
+	refreshToken         string
+	refreshTokenRotation bool
+	err                  error
 
 	l net.Listener
 }
@@ -86,6 +87,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		s.refreshToken = r.URL.Query().Get("refresh_token")
+		s.refreshTokenRotation = s.refreshToken != "" && r.URL.Query().Get("refresh_token_rotation") == "true"
 		s.token <- token
 		// We redirect to `/` to print a "successful auth" message and strip
 		// the token out of the URI
@@ -130,6 +132,12 @@ func (s *server) Token() (string, error) {
 // RefreshToken is called after Token(), so we don't need any blocking here.
 func (s *server) RefreshToken() string {
 	return s.refreshToken
+}
+
+// RefreshTokenRotation reports whether the issuer confirmed the refresh token
+// rotates. Like RefreshToken, it is called after Token().
+func (s *server) RefreshTokenRotation() bool {
+	return s.refreshTokenRotation
 }
 
 func (s *server) Close() error {

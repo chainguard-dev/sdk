@@ -106,16 +106,46 @@ func BuildHeadlessURL(opts ...Option) (u string, err error) {
 	return fmt.Sprintf("%s/oauth?%s", conf.Issuer, params.Encode()), nil
 }
 
+// Result is what an interactive login returns.
+type Result struct {
+	// Token is the Chainguard access token.
+	Token string
+
+	// RefreshToken is empty unless the login asked for one
+	// (WithCreateRefreshToken) and the issuer issued it.
+	RefreshToken string
+
+	// RefreshTokenRotation reports that the issuer confirmed RefreshToken
+	// heads a rotation-capable family. It is never true unless the login
+	// declared rotation (WithRefreshTokenRotation). A false value after a
+	// declaration means the family is never rotated, as from an issuer that
+	// predates the declaration.
+	RefreshTokenRotation bool
+}
+
+// Login runs the interactive browser login and returns its access and
+// refresh tokens. Use Authenticate to learn whether the refresh token
+// rotates.
 func Login(ctx context.Context, opts ...Option) (token string, refreshToken string, err error) {
+	res, err := Authenticate(ctx, opts...)
+	if err != nil {
+		return "", "", err
+	}
+	return res.Token, res.RefreshToken, nil
+}
+
+// Authenticate runs the interactive browser login, as Login does, and
+// reports whether the issuer confirmed the refresh token rotates.
+func Authenticate(ctx context.Context, opts ...Option) (*Result, error) {
 	conf, err := newConfigFromOptions(opts...)
 	if err != nil {
-		return "", "", &Error{Details: invalidConfigurationError, Err: err}
+		return nil, &Error{Details: invalidConfigurationError, Err: err}
 	}
 
 	// Start new token server on a random available localhost port
 	s, err := newServer(ctx)
 	if err != nil {
-		return "", "", &Error{Details: localServerError, Err: err}
+		return nil, &Error{Details: localServerError, Err: err}
 	}
 	defer s.Close()
 
@@ -150,6 +180,9 @@ func Login(ctx context.Context, opts ...Option) (token string, refreshToken stri
 	if conf.CreateRefreshToken {
 		params.Set("create_refresh_token", "true")
 	}
+	if conf.RefreshTokenRotation {
+		params.Set("refresh_token_rotation", "true")
+	}
 	if conf.ScreenHint != "" {
 		// Forwarded by the issuer to Auth0's /authorize via the
 		// AllowedPassthroughInitParams allowlist; lets callers default
@@ -171,15 +204,19 @@ func Login(ctx context.Context, opts ...Option) (token string, refreshToken stri
 		if conf.URLOpener != nil {
 			openURL = conf.URLOpener
 		}
-		err = openURL(u)
-		if err != nil {
-			return "", "", &Error{Details: openBrowserError, Err: err}
+		if err := openURL(u); err != nil {
+			return nil, &Error{Details: openBrowserError, Err: err}
 		}
 	}
-	token, err = s.Token()
+	token, err := s.Token()
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
-	refreshToken = s.RefreshToken()
-	return token, refreshToken, nil
+	return &Result{
+		Token:        token,
+		RefreshToken: s.RefreshToken(),
+		// An issuer confirms only a declared login, but a confirmation the
+		// caller did not ask for is not trusted.
+		RefreshTokenRotation: conf.RefreshTokenRotation && s.RefreshTokenRotation(),
+	}, nil
 }
