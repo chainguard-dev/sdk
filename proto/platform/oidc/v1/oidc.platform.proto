@@ -113,6 +113,16 @@ message ExchangeRequest {
   // for attribution. It is never used for authorization. At most 128 bytes
   // of letters, digits, and `. _ : / @ -`. Only honored with `delegated`.
   string task = 10;
+
+  // refresh_token_rotation declares that the client handles refresh-token
+  // rotation: it stores one refresh token per family under a lock shared by
+  // its processes, persists the successor every refresh returns, and
+  // discards a token the issuer refuses as REFRESH_TOKEN_SUPERSEDED. The
+  // issuer rotates a refresh-token family only if the exchange that created
+  // it set this; a family created without it is echoed back unchanged on
+  // every refresh. A client must not set it unless it does all three, since
+  // a rotated family whose superseded token is presented again is revoked.
+  bool refresh_token_rotation = 11;
 }
 
 message RawToken {

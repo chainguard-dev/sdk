@@ -154,9 +154,18 @@ type ExchangeRequest struct {
 	// is minted for (e.g. a session id), recorded as the token's `task` claim
 	// for attribution. It is never used for authorization. At most 128 bytes
 	// of letters, digits, and `. _ : / @ -`. Only honored with `delegated`.
-	Task          string `protobuf:"bytes,10,opt,name=task,proto3" json:"task,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Task string `protobuf:"bytes,10,opt,name=task,proto3" json:"task,omitempty"`
+	// refresh_token_rotation declares that the client handles refresh-token
+	// rotation: it stores one refresh token per family under a lock shared by
+	// its processes, persists the successor every refresh returns, and
+	// discards a token the issuer refuses as REFRESH_TOKEN_SUPERSEDED. The
+	// issuer rotates a refresh-token family only if the exchange that created
+	// it set this; a family created without it is echoed back unchanged on
+	// every refresh. A client must not set it unless it does all three, since
+	// a rotated family whose superseded token is presented again is revoked.
+	RefreshTokenRotation bool `protobuf:"varint,11,opt,name=refresh_token_rotation,json=refreshTokenRotation,proto3" json:"refresh_token_rotation,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ExchangeRequest) Reset() {
@@ -244,6 +253,13 @@ func (x *ExchangeRequest) GetTask() string {
 		return x.Task
 	}
 	return ""
+}
+
+func (x *ExchangeRequest) GetRefreshTokenRotation() bool {
+	if x != nil {
+		return x.RefreshTokenRotation
+	}
+	return false
 }
 
 type RawToken struct {
@@ -371,7 +387,7 @@ const file_oidc_platform_proto_rawDesc = "" +
 	"\x05scope\x18\x02 \x01(\tB\x02\x18\x01R\x05scope\x129\n" +
 	"\x03cap\x18\x03 \x03(\tB'\xfaA$\n" +
 	"\"chainguard.capabilities/CapabilityR\x03cap\x12\x16\n" +
-	"\x06scopes\x18\x04 \x03(\tR\x06scopes\"\xb8\x02\n" +
+	"\x06scopes\x18\x04 \x03(\tR\x06scopes\"\xee\x02\n" +
 	"\x0fExchangeRequest\x12\x10\n" +
 	"\x03aud\x18\x01 \x03(\tR\x03aud\x12\x18\n" +
 	"\x05scope\x18\x02 \x01(\tB\x02\x18\x01R\x05scope\x12\x1a\n" +
@@ -382,7 +398,8 @@ const file_oidc_platform_proto_rawDesc = "" +
 	"\x06scopes\x18\b \x03(\tR\x06scopes\x12\x1c\n" +
 	"\tdelegated\x18\t \x01(\bR\tdelegated\x12\x12\n" +
 	"\x04task\x18\n" +
-	" \x01(\tR\x04taskJ\x04\b\x03\x10\x04J\x04\b\x06\x10\aR\aclusterR\x16include_upstream_token\"y\n" +
+	" \x01(\tR\x04task\x124\n" +
+	"\x16refresh_token_rotation\x18\v \x01(\bR\x14refreshTokenRotationJ\x04\b\x03\x10\x04J\x04\b\x06\x10\aR\aclusterR\x16include_upstream_token\"y\n" +
 	"\bRawToken\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\x12#\n" +
 	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\x122\n" +
