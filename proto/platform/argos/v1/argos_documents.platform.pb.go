@@ -139,7 +139,7 @@ func (x ArgosDocumentFileBinding_Status) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ArgosDocumentFileBinding_Status.Descriptor instead.
 func (ArgosDocumentFileBinding_Status) EnumDescriptor() ([]byte, []int) {
-	return file_argos_documents_platform_proto_rawDescGZIP(), []int{1, 0}
+	return file_argos_documents_platform_proto_rawDescGZIP(), []int{2, 0}
 }
 
 // ArgosDocument is an organization-scoped record describing a
@@ -168,7 +168,12 @@ type ArgosDocument struct {
 	// The platform derives the manifest from the submission itself; bindings
 	// are empty until that derivation has run (and stay empty for uploads
 	// that are not zip archives of markdown files).
-	Bindings      []*ArgosDocumentFileBinding `protobuf:"bytes,7,rep,name=bindings,proto3" json:"bindings,omitempty"`
+	Bindings []*ArgosDocumentFileBinding `protobuf:"bytes,7,rep,name=bindings,proto3" json:"bindings,omitempty"`
+	// finding_counts summarizes the document's cgp_ids: how many have a
+	// Chainguard fix and how many were already known. Set only on List, when
+	// ArgosDocumentFilter.include_finding_counts asks for it and the page is
+	// bounded; unset otherwise, or when the counts couldn't be read.
+	FindingCounts *ArgosDocumentFindingCounts `protobuf:"bytes,8,opt,name=finding_counts,json=findingCounts,proto3" json:"finding_counts,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -252,6 +257,71 @@ func (x *ArgosDocument) GetBindings() []*ArgosDocumentFileBinding {
 	return nil
 }
 
+func (x *ArgosDocument) GetFindingCounts() *ArgosDocumentFindingCounts {
+	if x != nil {
+		return x.FindingCounts
+	}
+	return nil
+}
+
+// ArgosDocumentFindingCounts summarizes the CGP identifiers a document
+// resolved to. The total is the length of the document's cgp_ids, including
+// identifiers with no served record, which count in neither field.
+type ArgosDocumentFindingCounts struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// patched counts identifiers whose record has a Chainguard fix.
+	Patched int32 `protobuf:"varint,1,opt,name=patched,proto3" json:"patched,omitempty"`
+	// already_known counts identifiers whose record was published before the
+	// document was created.
+	AlreadyKnown  int32 `protobuf:"varint,2,opt,name=already_known,json=alreadyKnown,proto3" json:"already_known,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ArgosDocumentFindingCounts) Reset() {
+	*x = ArgosDocumentFindingCounts{}
+	mi := &file_argos_documents_platform_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ArgosDocumentFindingCounts) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArgosDocumentFindingCounts) ProtoMessage() {}
+
+func (x *ArgosDocumentFindingCounts) ProtoReflect() protoreflect.Message {
+	mi := &file_argos_documents_platform_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArgosDocumentFindingCounts.ProtoReflect.Descriptor instead.
+func (*ArgosDocumentFindingCounts) Descriptor() ([]byte, []int) {
+	return file_argos_documents_platform_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ArgosDocumentFindingCounts) GetPatched() int32 {
+	if x != nil {
+		return x.Patched
+	}
+	return 0
+}
+
+func (x *ArgosDocumentFindingCounts) GetAlreadyKnown() int32 {
+	if x != nil {
+		return x.AlreadyKnown
+	}
+	return 0
+}
+
 // ArgosDocumentFileBinding is one archive file joined to its per-file
 // analysis outcome. Deliberately filename-keyed: the platform-internal
 // content digest is NOT exposed here, since an unsalted digest of
@@ -279,7 +349,7 @@ type ArgosDocumentFileBinding struct {
 
 func (x *ArgosDocumentFileBinding) Reset() {
 	*x = ArgosDocumentFileBinding{}
-	mi := &file_argos_documents_platform_proto_msgTypes[1]
+	mi := &file_argos_documents_platform_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -291,7 +361,7 @@ func (x *ArgosDocumentFileBinding) String() string {
 func (*ArgosDocumentFileBinding) ProtoMessage() {}
 
 func (x *ArgosDocumentFileBinding) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_documents_platform_proto_msgTypes[1]
+	mi := &file_argos_documents_platform_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -304,7 +374,7 @@ func (x *ArgosDocumentFileBinding) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArgosDocumentFileBinding.ProtoReflect.Descriptor instead.
 func (*ArgosDocumentFileBinding) Descriptor() ([]byte, []int) {
-	return file_argos_documents_platform_proto_rawDescGZIP(), []int{1}
+	return file_argos_documents_platform_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ArgosDocumentFileBinding) GetFilename() string {
@@ -354,7 +424,7 @@ type CreateArgosDocumentRequest struct {
 
 func (x *CreateArgosDocumentRequest) Reset() {
 	*x = CreateArgosDocumentRequest{}
-	mi := &file_argos_documents_platform_proto_msgTypes[2]
+	mi := &file_argos_documents_platform_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -366,7 +436,7 @@ func (x *CreateArgosDocumentRequest) String() string {
 func (*CreateArgosDocumentRequest) ProtoMessage() {}
 
 func (x *CreateArgosDocumentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_documents_platform_proto_msgTypes[2]
+	mi := &file_argos_documents_platform_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -379,7 +449,7 @@ func (x *CreateArgosDocumentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateArgosDocumentRequest.ProtoReflect.Descriptor instead.
 func (*CreateArgosDocumentRequest) Descriptor() ([]byte, []int) {
-	return file_argos_documents_platform_proto_rawDescGZIP(), []int{2}
+	return file_argos_documents_platform_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *CreateArgosDocumentRequest) GetParentId() string {
@@ -413,7 +483,7 @@ type GetArgosOrgPublicKeyRequest struct {
 
 func (x *GetArgosOrgPublicKeyRequest) Reset() {
 	*x = GetArgosOrgPublicKeyRequest{}
-	mi := &file_argos_documents_platform_proto_msgTypes[3]
+	mi := &file_argos_documents_platform_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -425,7 +495,7 @@ func (x *GetArgosOrgPublicKeyRequest) String() string {
 func (*GetArgosOrgPublicKeyRequest) ProtoMessage() {}
 
 func (x *GetArgosOrgPublicKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_documents_platform_proto_msgTypes[3]
+	mi := &file_argos_documents_platform_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -438,7 +508,7 @@ func (x *GetArgosOrgPublicKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetArgosOrgPublicKeyRequest.ProtoReflect.Descriptor instead.
 func (*GetArgosOrgPublicKeyRequest) Descriptor() ([]byte, []int) {
-	return file_argos_documents_platform_proto_rawDescGZIP(), []int{3}
+	return file_argos_documents_platform_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GetArgosOrgPublicKeyRequest) GetParentId() string {
@@ -472,7 +542,7 @@ type ArgosOrgPublicKey struct {
 
 func (x *ArgosOrgPublicKey) Reset() {
 	*x = ArgosOrgPublicKey{}
-	mi := &file_argos_documents_platform_proto_msgTypes[4]
+	mi := &file_argos_documents_platform_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -484,7 +554,7 @@ func (x *ArgosOrgPublicKey) String() string {
 func (*ArgosOrgPublicKey) ProtoMessage() {}
 
 func (x *ArgosOrgPublicKey) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_documents_platform_proto_msgTypes[4]
+	mi := &file_argos_documents_platform_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -497,7 +567,7 @@ func (x *ArgosOrgPublicKey) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArgosOrgPublicKey.ProtoReflect.Descriptor instead.
 func (*ArgosOrgPublicKey) Descriptor() ([]byte, []int) {
-	return file_argos_documents_platform_proto_rawDescGZIP(), []int{4}
+	return file_argos_documents_platform_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ArgosOrgPublicKey) GetPem() string {
@@ -531,7 +601,7 @@ type DeleteArgosDocumentRequest struct {
 
 func (x *DeleteArgosDocumentRequest) Reset() {
 	*x = DeleteArgosDocumentRequest{}
-	mi := &file_argos_documents_platform_proto_msgTypes[5]
+	mi := &file_argos_documents_platform_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -543,7 +613,7 @@ func (x *DeleteArgosDocumentRequest) String() string {
 func (*DeleteArgosDocumentRequest) ProtoMessage() {}
 
 func (x *DeleteArgosDocumentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_documents_platform_proto_msgTypes[5]
+	mi := &file_argos_documents_platform_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -556,7 +626,7 @@ func (x *DeleteArgosDocumentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteArgosDocumentRequest.ProtoReflect.Descriptor instead.
 func (*DeleteArgosDocumentRequest) Descriptor() ([]byte, []int) {
-	return file_argos_documents_platform_proto_rawDescGZIP(), []int{5}
+	return file_argos_documents_platform_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *DeleteArgosDocumentRequest) GetId() string {
@@ -596,14 +666,20 @@ type ArgosDocumentFilter struct {
 	// Exact match on the document filename.
 	Filename string `protobuf:"bytes,10,opt,name=filename,proto3" json:"filename,omitempty"`
 	// updated_since returns documents last updated at or after the given time.
-	UpdatedSince  *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=updated_since,json=updatedSince,proto3" json:"updated_since,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	UpdatedSince *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=updated_since,json=updatedSince,proto3" json:"updated_since,omitempty"`
+	// cgp_id returns documents whose analysis resolved to this CGP identifier.
+	// Empty means no filter; an unmatched value returns nothing.
+	CgpId string `protobuf:"bytes,12,opt,name=cgp_id,json=cgpId,proto3" json:"cgp_id,omitempty"`
+	// include_finding_counts sets finding_counts on each returned document.
+	// Ignored unless page_size is between 1 and 200.
+	IncludeFindingCounts bool `protobuf:"varint,13,opt,name=include_finding_counts,json=includeFindingCounts,proto3" json:"include_finding_counts,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ArgosDocumentFilter) Reset() {
 	*x = ArgosDocumentFilter{}
-	mi := &file_argos_documents_platform_proto_msgTypes[6]
+	mi := &file_argos_documents_platform_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -615,7 +691,7 @@ func (x *ArgosDocumentFilter) String() string {
 func (*ArgosDocumentFilter) ProtoMessage() {}
 
 func (x *ArgosDocumentFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_documents_platform_proto_msgTypes[6]
+	mi := &file_argos_documents_platform_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -628,7 +704,7 @@ func (x *ArgosDocumentFilter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArgosDocumentFilter.ProtoReflect.Descriptor instead.
 func (*ArgosDocumentFilter) Descriptor() ([]byte, []int) {
-	return file_argos_documents_platform_proto_rawDescGZIP(), []int{6}
+	return file_argos_documents_platform_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ArgosDocumentFilter) GetId() string {
@@ -708,6 +784,20 @@ func (x *ArgosDocumentFilter) GetUpdatedSince() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *ArgosDocumentFilter) GetCgpId() string {
+	if x != nil {
+		return x.CgpId
+	}
+	return ""
+}
+
+func (x *ArgosDocumentFilter) GetIncludeFindingCounts() bool {
+	if x != nil {
+		return x.IncludeFindingCounts
+	}
+	return false
+}
+
 type ArgosDocumentList struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Documents matching the filter criteria.
@@ -726,7 +816,7 @@ type ArgosDocumentList struct {
 
 func (x *ArgosDocumentList) Reset() {
 	*x = ArgosDocumentList{}
-	mi := &file_argos_documents_platform_proto_msgTypes[7]
+	mi := &file_argos_documents_platform_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -738,7 +828,7 @@ func (x *ArgosDocumentList) String() string {
 func (*ArgosDocumentList) ProtoMessage() {}
 
 func (x *ArgosDocumentList) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_documents_platform_proto_msgTypes[7]
+	mi := &file_argos_documents_platform_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -751,7 +841,7 @@ func (x *ArgosDocumentList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArgosDocumentList.ProtoReflect.Descriptor instead.
 func (*ArgosDocumentList) Descriptor() ([]byte, []int) {
-	return file_argos_documents_platform_proto_rawDescGZIP(), []int{7}
+	return file_argos_documents_platform_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ArgosDocumentList) GetItems() []*ArgosDocument {
@@ -786,7 +876,7 @@ var File_argos_documents_platform_proto protoreflect.FileDescriptor
 
 const file_argos_documents_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x1eargos_documents.platform.proto\x12\x19chainguard.platform.argos\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a&platform/common/v1/uidp.platform.proto\"\xee\x03\n" +
+	"\x1eargos_documents.platform.proto\x12\x19chainguard.platform.argos\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a&platform/common/v1/uidp.platform.proto\"\xd2\x04\n" +
 	"\rArgosDocument\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12G\n" +
 	"\x06status\x18\x02 \x01(\x0e2/.chainguard.platform.argos.ArgosDocument.StatusR\x06status\x129\n" +
@@ -796,13 +886,17 @@ const file_argos_documents_platform_proto_rawDesc = "" +
 	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x1a\n" +
 	"\bfilename\x18\x05 \x01(\tR\bfilename\x12\x1d\n" +
 	"\acgp_ids\x18\x06 \x03(\tB\x04\xe2A\x01\x03R\x06cgpIds\x12U\n" +
-	"\bbindings\x18\a \x03(\v23.chainguard.platform.argos.ArgosDocumentFileBindingB\x04\xe2A\x01\x03R\bbindings\"t\n" +
+	"\bbindings\x18\a \x03(\v23.chainguard.platform.argos.ArgosDocumentFileBindingB\x04\xe2A\x01\x03R\bbindings\x12b\n" +
+	"\x0efinding_counts\x18\b \x01(\v25.chainguard.platform.argos.ArgosDocumentFindingCountsB\x04\xe2A\x01\x03R\rfindingCounts\"t\n" +
 	"\x06Status\x12\x16\n" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x12\n" +
 	"\x0eSTATUS_PENDING\x10\x01\x12\x10\n" +
 	"\fSTATUS_READY\x10\x02\x12\x11\n" +
 	"\rSTATUS_FAILED\x10\x03\x12\x19\n" +
-	"\x15STATUS_FALSE_POSITIVE\x10\x04\"\xd1\x02\n" +
+	"\x15STATUS_FALSE_POSITIVE\x10\x04\"[\n" +
+	"\x1aArgosDocumentFindingCounts\x12\x18\n" +
+	"\apatched\x18\x01 \x01(\x05R\apatched\x12#\n" +
+	"\ralready_known\x18\x02 \x01(\x05R\falreadyKnown\"\xd1\x02\n" +
 	"\x18ArgosDocumentFileBinding\x12\x1a\n" +
 	"\bfilename\x18\x01 \x01(\tR\bfilename\x12R\n" +
 	"\x06status\x18\x03 \x01(\x0e2:.chainguard.platform.argos.ArgosDocumentFileBinding.StatusR\x06status\x12\x17\n" +
@@ -825,7 +919,7 @@ const file_argos_documents_platform_proto_rawDesc = "" +
 	"\vkey_version\x18\x03 \x01(\tR\n" +
 	"keyVersion\"4\n" +
 	"\x1aDeleteArgosDocumentRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"\x8e\x04\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"\xe1\x04\n" +
 	"\x13ArgosDocumentFilter\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12:\n" +
 	"\x04uidp\x18\x02 \x01(\v2&.chainguard.platform.common.UIDPFilterR\x04uidp\x12G\n" +
@@ -839,7 +933,9 @@ const file_argos_documents_platform_proto_rawDesc = "" +
 	"\x04skip\x18\t \x01(\x05B\x04\xe2A\x01\x01R\x04skip\x12\x1a\n" +
 	"\bfilename\x18\n" +
 	" \x01(\tR\bfilename\x12?\n" +
-	"\rupdated_since\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\fupdatedSince\"\xcb\x01\n" +
+	"\rupdated_since\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\fupdatedSince\x12\x15\n" +
+	"\x06cgp_id\x18\f \x01(\tR\x05cgpId\x12:\n" +
+	"\x16include_finding_counts\x18\r \x01(\bB\x04\xe2A\x01\x01R\x14includeFindingCounts\"\xcb\x01\n" +
 	"\x11ArgosDocumentList\x12>\n" +
 	"\x05items\x18\x01 \x03(\v2(.chainguard.platform.argos.ArgosDocumentR\x05items\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12$\n" +
@@ -872,48 +968,50 @@ func file_argos_documents_platform_proto_rawDescGZIP() []byte {
 }
 
 var file_argos_documents_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_argos_documents_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_argos_documents_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_argos_documents_platform_proto_goTypes = []any{
 	(ArgosDocument_Status)(0),            // 0: chainguard.platform.argos.ArgosDocument.Status
 	(ArgosDocumentFileBinding_Status)(0), // 1: chainguard.platform.argos.ArgosDocumentFileBinding.Status
 	(*ArgosDocument)(nil),                // 2: chainguard.platform.argos.ArgosDocument
-	(*ArgosDocumentFileBinding)(nil),     // 3: chainguard.platform.argos.ArgosDocumentFileBinding
-	(*CreateArgosDocumentRequest)(nil),   // 4: chainguard.platform.argos.CreateArgosDocumentRequest
-	(*GetArgosOrgPublicKeyRequest)(nil),  // 5: chainguard.platform.argos.GetArgosOrgPublicKeyRequest
-	(*ArgosOrgPublicKey)(nil),            // 6: chainguard.platform.argos.ArgosOrgPublicKey
-	(*DeleteArgosDocumentRequest)(nil),   // 7: chainguard.platform.argos.DeleteArgosDocumentRequest
-	(*ArgosDocumentFilter)(nil),          // 8: chainguard.platform.argos.ArgosDocumentFilter
-	(*ArgosDocumentList)(nil),            // 9: chainguard.platform.argos.ArgosDocumentList
-	(*timestamppb.Timestamp)(nil),        // 10: google.protobuf.Timestamp
-	(*v1.UIDPFilter)(nil),                // 11: chainguard.platform.common.UIDPFilter
-	(*emptypb.Empty)(nil),                // 12: google.protobuf.Empty
+	(*ArgosDocumentFindingCounts)(nil),   // 3: chainguard.platform.argos.ArgosDocumentFindingCounts
+	(*ArgosDocumentFileBinding)(nil),     // 4: chainguard.platform.argos.ArgosDocumentFileBinding
+	(*CreateArgosDocumentRequest)(nil),   // 5: chainguard.platform.argos.CreateArgosDocumentRequest
+	(*GetArgosOrgPublicKeyRequest)(nil),  // 6: chainguard.platform.argos.GetArgosOrgPublicKeyRequest
+	(*ArgosOrgPublicKey)(nil),            // 7: chainguard.platform.argos.ArgosOrgPublicKey
+	(*DeleteArgosDocumentRequest)(nil),   // 8: chainguard.platform.argos.DeleteArgosDocumentRequest
+	(*ArgosDocumentFilter)(nil),          // 9: chainguard.platform.argos.ArgosDocumentFilter
+	(*ArgosDocumentList)(nil),            // 10: chainguard.platform.argos.ArgosDocumentList
+	(*timestamppb.Timestamp)(nil),        // 11: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),                // 12: chainguard.platform.common.UIDPFilter
+	(*emptypb.Empty)(nil),                // 13: google.protobuf.Empty
 }
 var file_argos_documents_platform_proto_depIdxs = []int32{
 	0,  // 0: chainguard.platform.argos.ArgosDocument.status:type_name -> chainguard.platform.argos.ArgosDocument.Status
-	10, // 1: chainguard.platform.argos.ArgosDocument.created_at:type_name -> google.protobuf.Timestamp
-	10, // 2: chainguard.platform.argos.ArgosDocument.updated_at:type_name -> google.protobuf.Timestamp
-	3,  // 3: chainguard.platform.argos.ArgosDocument.bindings:type_name -> chainguard.platform.argos.ArgosDocumentFileBinding
-	1,  // 4: chainguard.platform.argos.ArgosDocumentFileBinding.status:type_name -> chainguard.platform.argos.ArgosDocumentFileBinding.Status
-	10, // 5: chainguard.platform.argos.ArgosDocumentFileBinding.processing_started_at:type_name -> google.protobuf.Timestamp
-	11, // 6: chainguard.platform.argos.ArgosDocumentFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	0,  // 7: chainguard.platform.argos.ArgosDocumentFilter.status:type_name -> chainguard.platform.argos.ArgosDocument.Status
-	10, // 8: chainguard.platform.argos.ArgosDocumentFilter.created_since:type_name -> google.protobuf.Timestamp
-	10, // 9: chainguard.platform.argos.ArgosDocumentFilter.created_before:type_name -> google.protobuf.Timestamp
-	10, // 10: chainguard.platform.argos.ArgosDocumentFilter.updated_since:type_name -> google.protobuf.Timestamp
-	2,  // 11: chainguard.platform.argos.ArgosDocumentList.items:type_name -> chainguard.platform.argos.ArgosDocument
-	4,  // 12: chainguard.platform.argos.ArgosDocuments.Create:input_type -> chainguard.platform.argos.CreateArgosDocumentRequest
-	8,  // 13: chainguard.platform.argos.ArgosDocuments.List:input_type -> chainguard.platform.argos.ArgosDocumentFilter
-	7,  // 14: chainguard.platform.argos.ArgosDocuments.Delete:input_type -> chainguard.platform.argos.DeleteArgosDocumentRequest
-	5,  // 15: chainguard.platform.argos.ArgosDocuments.GetOrgPublicKey:input_type -> chainguard.platform.argos.GetArgosOrgPublicKeyRequest
-	2,  // 16: chainguard.platform.argos.ArgosDocuments.Create:output_type -> chainguard.platform.argos.ArgosDocument
-	9,  // 17: chainguard.platform.argos.ArgosDocuments.List:output_type -> chainguard.platform.argos.ArgosDocumentList
-	12, // 18: chainguard.platform.argos.ArgosDocuments.Delete:output_type -> google.protobuf.Empty
-	6,  // 19: chainguard.platform.argos.ArgosDocuments.GetOrgPublicKey:output_type -> chainguard.platform.argos.ArgosOrgPublicKey
-	16, // [16:20] is the sub-list for method output_type
-	12, // [12:16] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	11, // 1: chainguard.platform.argos.ArgosDocument.created_at:type_name -> google.protobuf.Timestamp
+	11, // 2: chainguard.platform.argos.ArgosDocument.updated_at:type_name -> google.protobuf.Timestamp
+	4,  // 3: chainguard.platform.argos.ArgosDocument.bindings:type_name -> chainguard.platform.argos.ArgosDocumentFileBinding
+	3,  // 4: chainguard.platform.argos.ArgosDocument.finding_counts:type_name -> chainguard.platform.argos.ArgosDocumentFindingCounts
+	1,  // 5: chainguard.platform.argos.ArgosDocumentFileBinding.status:type_name -> chainguard.platform.argos.ArgosDocumentFileBinding.Status
+	11, // 6: chainguard.platform.argos.ArgosDocumentFileBinding.processing_started_at:type_name -> google.protobuf.Timestamp
+	12, // 7: chainguard.platform.argos.ArgosDocumentFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	0,  // 8: chainguard.platform.argos.ArgosDocumentFilter.status:type_name -> chainguard.platform.argos.ArgosDocument.Status
+	11, // 9: chainguard.platform.argos.ArgosDocumentFilter.created_since:type_name -> google.protobuf.Timestamp
+	11, // 10: chainguard.platform.argos.ArgosDocumentFilter.created_before:type_name -> google.protobuf.Timestamp
+	11, // 11: chainguard.platform.argos.ArgosDocumentFilter.updated_since:type_name -> google.protobuf.Timestamp
+	2,  // 12: chainguard.platform.argos.ArgosDocumentList.items:type_name -> chainguard.platform.argos.ArgosDocument
+	5,  // 13: chainguard.platform.argos.ArgosDocuments.Create:input_type -> chainguard.platform.argos.CreateArgosDocumentRequest
+	9,  // 14: chainguard.platform.argos.ArgosDocuments.List:input_type -> chainguard.platform.argos.ArgosDocumentFilter
+	8,  // 15: chainguard.platform.argos.ArgosDocuments.Delete:input_type -> chainguard.platform.argos.DeleteArgosDocumentRequest
+	6,  // 16: chainguard.platform.argos.ArgosDocuments.GetOrgPublicKey:input_type -> chainguard.platform.argos.GetArgosOrgPublicKeyRequest
+	2,  // 17: chainguard.platform.argos.ArgosDocuments.Create:output_type -> chainguard.platform.argos.ArgosDocument
+	10, // 18: chainguard.platform.argos.ArgosDocuments.List:output_type -> chainguard.platform.argos.ArgosDocumentList
+	13, // 19: chainguard.platform.argos.ArgosDocuments.Delete:output_type -> google.protobuf.Empty
+	7,  // 20: chainguard.platform.argos.ArgosDocuments.GetOrgPublicKey:output_type -> chainguard.platform.argos.ArgosOrgPublicKey
+	17, // [17:21] is the sub-list for method output_type
+	13, // [13:17] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_argos_documents_platform_proto_init() }
@@ -921,14 +1019,14 @@ func file_argos_documents_platform_proto_init() {
 	if File_argos_documents_platform_proto != nil {
 		return
 	}
-	file_argos_documents_platform_proto_msgTypes[7].OneofWrappers = []any{}
+	file_argos_documents_platform_proto_msgTypes[8].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_argos_documents_platform_proto_rawDesc), len(file_argos_documents_platform_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

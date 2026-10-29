@@ -107,6 +107,12 @@ message ArgosDocument {
   // that are not zip archives of markdown files).
   repeated ArgosDocumentFileBinding bindings = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
+  // finding_counts summarizes the document's cgp_ids: how many have a
+  // Chainguard fix and how many were already known. Set only on List, when
+  // ArgosDocumentFilter.include_finding_counts asks for it and the page is
+  // bounded; unset otherwise, or when the counts couldn't be read.
+  ArgosDocumentFindingCounts finding_counts = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
   enum Status {
     STATUS_UNSPECIFIED = 0;
     // Payload received; pending downstream processing.
@@ -118,6 +124,18 @@ message ArgosDocument {
     // Processing determined the finding is not a true positive.
     STATUS_FALSE_POSITIVE = 4;
   }
+}
+
+// ArgosDocumentFindingCounts summarizes the CGP identifiers a document
+// resolved to. The total is the length of the document's cgp_ids, including
+// identifiers with no served record, which count in neither field.
+message ArgosDocumentFindingCounts {
+  // patched counts identifiers whose record has a Chainguard fix.
+  int32 patched = 1;
+
+  // already_known counts identifiers whose record was published before the
+  // document was created.
+  int32 already_known = 2;
 }
 
 // ArgosDocumentFileBinding is one archive file joined to its per-file
@@ -244,6 +262,14 @@ message ArgosDocumentFilter {
 
   // updated_since returns documents last updated at or after the given time.
   google.protobuf.Timestamp updated_since = 11;
+
+  // cgp_id returns documents whose analysis resolved to this CGP identifier.
+  // Empty means no filter; an unmatched value returns nothing.
+  string cgp_id = 12;
+
+  // include_finding_counts sets finding_counts on each returned document.
+  // Ignored unless page_size is between 1 and 200.
+  bool include_finding_counts = 13 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message ArgosDocumentList {
