@@ -260,6 +260,53 @@ message Embargo {
   }
 }
 
+// Disclosure is where a record stands in Chainguard's coordinated disclosure:
+// whether it can be disclosed yet, through which channel, and when.
+//
+// It is identical for every recipient of the record: no field here varies by
+// caller. A record with no recorded disclosure is NOT_ELIGIBLE. Fields that
+// have not been set are absent.
+message Disclosure {
+  // Status is the disclosure state of the record. Values serialize as bare
+  // words, such as "DISCLOSED".
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    // NOT_ELIGIBLE: the record cannot be disclosed yet.
+    NOT_ELIGIBLE = 1;
+    // ELIGIBLE: the record can be disclosed through the channel in type.
+    ELIGIBLE = 2;
+    // SELECTED: a target date has been set.
+    SELECTED = 3;
+    // DISCLOSED: the disclosure has happened.
+    DISCLOSED = 4;
+  }
+
+  // Type is the disclosure channel.
+  enum Type {
+    TYPE_UNSPECIFIED = 0;
+    // AKRITES: disclosed through Akrites, while upstream is still vulnerable.
+    AKRITES = 1;
+    // CHAINGUARD: disclosed on chainguard-dev/athena, once fixed upstream.
+    CHAINGUARD = 2;
+  }
+
+  // status is where the record stands.
+  Status status = 1 [json_name = "status"];
+
+  // type is the disclosure channel, set from ELIGIBLE onward.
+  Type type = 2 [json_name = "type"];
+
+  // target_date is the planned disclosure date, set at SELECTED.
+  google.protobuf.Timestamp target_date = 3 [json_name = "target_date"];
+
+  // disclosed_at is when the disclosure happened, set at DISCLOSED.
+  google.protobuf.Timestamp disclosed_at = 4 [json_name = "disclosed_at"];
+
+  // credited_vuln_id is a CVE or GHSA issued after the disclosure that
+  // credits it, set only at DISCLOSED.
+  string credited_vuln_id = 5 [json_name = "credited_vuln_id"];
+}
+
 // TopLevelDatabaseSpecific is the Chainguard-defined content for the OSV-spec
 // top-level database_specific field: a JSON object holding additional
 // information about the vulnerability as defined by the database from which
@@ -272,6 +319,9 @@ message TopLevelDatabaseSpecific {
   // embargo is the embargo period on this record, absent when no period has
   // been established.
   Embargo embargo = 2 [json_name = "embargo"];
+
+  // disclosure is the record's coordinated-disclosure state.
+  Disclosure disclosure = 3 [json_name = "disclosure"];
 }
 
 // Reference is one OSV-spec references[] entry: a typed, record-level URL
