@@ -14,7 +14,6 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	reflect "reflect"
 	sync "sync"
@@ -57,25 +56,6 @@ type AuthPolicy struct {
 	// the SsoOnly pointer field directly, never the generated GetSsoOnly()
 	// accessor: the accessor returns false for nil and erases that distinction.
 	SsoOnly *bool `protobuf:"varint,2,opt,name=sso_only,json=ssoOnly,proto3,oneof" json:"sso_only,omitempty"`
-	// session_duration is how long a sign-in to the organization lasts: the
-	// most time a refresh-token session may run from its login before the
-	// member must sign in again. A session whose client rotates its refresh
-	// tokens (chainctl, MCP clients) stays valid while it is used, up to this
-	// length; any other session lasts at most 20 hours. When a session covers
-	// several organizations the shortest length wins.
-	//
-	// Unset means Chainguard's default. A value is from 1 hour to 90 days, in
-	// whole seconds; anything else is rejected with INVALID_ARGUMENT, zero
-	// included. Naming the field in update_mask with no value clears it back
-	// to the default. A shorter length applies at its next refresh to an
-	// existing session that stays valid while it is used; any other existing
-	// session keeps the expiry it was issued with, at most 20 hours. A read
-	// can return zero, which only Chainguard sets: the organization's members
-	// get no refresh tokens at all. See
-	// docs/customer-platform/2026-10-29-sliding-refresh-lifetime.md in
-	// chainguard-dev/mono.
-	// protolint:disable:next MAX_LINE_LENGTH
-	SessionDuration *durationpb.Duration `protobuf:"bytes,3,opt,name=session_duration,json=sessionDuration,proto3" json:"session_duration,omitempty"`
 	// Fields from 40 report the organization's readiness to enforce the
 	// policy: facts about the organization that decide whether sso_only can be
 	// turned on and whether, once on, it takes effect. They are never written.
@@ -136,13 +116,6 @@ func (x *AuthPolicy) GetSsoOnly() bool {
 		return *x.SsoOnly
 	}
 	return false
-}
-
-func (x *AuthPolicy) GetSessionDuration() *durationpb.Duration {
-	if x != nil {
-		return x.SessionDuration
-	}
-	return nil
 }
 
 func (x *AuthPolicy) GetEnforcementEntitled() bool {
@@ -208,13 +181,12 @@ type UpdateAuthPolicyRequest struct {
 	AuthPolicy *AuthPolicy `protobuf:"bytes,1,opt,name=auth_policy,json=authPolicy,proto3" json:"auth_policy,omitempty"`
 	// The list of fields to update. If not provided, an implied
 	// field mask is used equivalent to all fields that are populated
-	// (have non-default values). sso_only and session_duration are the fields
-	// that can be named. "*" is not supported: elsewhere a wildcard is a full
-	// replacement that clears whatever the body leaves unset, and on a sign-in
+	// (have non-default values). sso_only is the only field that can be
+	// named. "*" is not supported: elsewhere a wildcard is a full replacement
+	// that clears whatever the body leaves unset, and on a one-field sign-in
 	// control that is a silent clear, so it is rejected with INVALID_ARGUMENT
-	// and the caller names the fields instead. uid and the readiness fields
-	// may also be named, as a client that echoes a Get response back does;
-	// they are never written.
+	// and the caller names sso_only instead. uid may also be named, as a
+	// client that echoes a Get response back does; it is never written.
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -268,13 +240,12 @@ var File_chainguard_platform_iam_v2_auth_policies_proto protoreflect.FileDescrip
 
 const file_chainguard_platform_iam_v2_auth_policies_proto_rawDesc = "" +
 	"\n" +
-	".chainguard/platform/iam/v2/auth_policies.proto\x12\x1achainguard.platform.iam.v2\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\"\xd9\x02\n" +
+	".chainguard/platform/iam/v2/auth_policies.proto\x12\x1achainguard.platform.iam.v2\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a google/protobuf/field_mask.proto\"\x8d\x02\n" +
 	"\n" +
 	"AuthPolicy\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12$\n" +
-	"\bsso_only\x18\x02 \x01(\bB\x04\xe2A\x01\x01H\x00R\assoOnly\x88\x01\x01\x12J\n" +
-	"\x10session_duration\x18\x03 \x01(\v2\x19.google.protobuf.DurationB\x04\xe2A\x01\x01R\x0fsessionDuration\x12<\n" +
+	"\bsso_only\x18\x02 \x01(\bB\x04\xe2A\x01\x01H\x00R\assoOnly\x88\x01\x01\x12<\n" +
 	"\x14enforcement_entitled\x18( \x01(\bB\x04\xe2A\x01\x03H\x01R\x13enforcementEntitled\x88\x01\x01:W\xeaAT\n" +
 	"\x1diam.chainguard.dev/AuthPolicy\x12\x19groups/{group}/authPolicy*\fauthPolicies2\n" +
 	"authPolicyB\v\n" +
@@ -314,22 +285,20 @@ var file_chainguard_platform_iam_v2_auth_policies_proto_goTypes = []any{
 	(*AuthPolicy)(nil),              // 0: chainguard.platform.iam.v2.AuthPolicy
 	(*GetAuthPolicyRequest)(nil),    // 1: chainguard.platform.iam.v2.GetAuthPolicyRequest
 	(*UpdateAuthPolicyRequest)(nil), // 2: chainguard.platform.iam.v2.UpdateAuthPolicyRequest
-	(*durationpb.Duration)(nil),     // 3: google.protobuf.Duration
-	(*fieldmaskpb.FieldMask)(nil),   // 4: google.protobuf.FieldMask
+	(*fieldmaskpb.FieldMask)(nil),   // 3: google.protobuf.FieldMask
 }
 var file_chainguard_platform_iam_v2_auth_policies_proto_depIdxs = []int32{
-	3, // 0: chainguard.platform.iam.v2.AuthPolicy.session_duration:type_name -> google.protobuf.Duration
-	0, // 1: chainguard.platform.iam.v2.UpdateAuthPolicyRequest.auth_policy:type_name -> chainguard.platform.iam.v2.AuthPolicy
-	4, // 2: chainguard.platform.iam.v2.UpdateAuthPolicyRequest.update_mask:type_name -> google.protobuf.FieldMask
-	1, // 3: chainguard.platform.iam.v2.AuthPoliciesService.GetAuthPolicy:input_type -> chainguard.platform.iam.v2.GetAuthPolicyRequest
-	2, // 4: chainguard.platform.iam.v2.AuthPoliciesService.UpdateAuthPolicy:input_type -> chainguard.platform.iam.v2.UpdateAuthPolicyRequest
-	0, // 5: chainguard.platform.iam.v2.AuthPoliciesService.GetAuthPolicy:output_type -> chainguard.platform.iam.v2.AuthPolicy
-	0, // 6: chainguard.platform.iam.v2.AuthPoliciesService.UpdateAuthPolicy:output_type -> chainguard.platform.iam.v2.AuthPolicy
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	0, // 0: chainguard.platform.iam.v2.UpdateAuthPolicyRequest.auth_policy:type_name -> chainguard.platform.iam.v2.AuthPolicy
+	3, // 1: chainguard.platform.iam.v2.UpdateAuthPolicyRequest.update_mask:type_name -> google.protobuf.FieldMask
+	1, // 2: chainguard.platform.iam.v2.AuthPoliciesService.GetAuthPolicy:input_type -> chainguard.platform.iam.v2.GetAuthPolicyRequest
+	2, // 3: chainguard.platform.iam.v2.AuthPoliciesService.UpdateAuthPolicy:input_type -> chainguard.platform.iam.v2.UpdateAuthPolicyRequest
+	0, // 4: chainguard.platform.iam.v2.AuthPoliciesService.GetAuthPolicy:output_type -> chainguard.platform.iam.v2.AuthPolicy
+	0, // 5: chainguard.platform.iam.v2.AuthPoliciesService.UpdateAuthPolicy:output_type -> chainguard.platform.iam.v2.AuthPolicy
+	4, // [4:6] is the sub-list for method output_type
+	2, // [2:4] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_iam_v2_auth_policies_proto_init() }
