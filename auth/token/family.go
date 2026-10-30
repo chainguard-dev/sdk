@@ -624,11 +624,7 @@ func (c refreshClaims) audiences() []string {
 
 // supersedes reports whether c is a later generation of the same family as
 // p: a successor keeps its parent's issuer, subject and expiry and advances
-// only its issued-at time. A successor's expiry may be later than its
-// parent's, since a rotated family's session slides while it is used; this
-// does not recognize such a successor. It runs only when adopting
-// per-audience copies, which are never written for a rotated family, and
-// Refresh replaces the family's token without comparing expiries.
+// only its issued-at time.
 func (c refreshClaims) supersedes(p refreshClaims) bool {
 	return c.Issuer == p.Issuer && c.Subject == p.Subject && c.Expiry == p.Expiry && c.IssuedAt > p.IssuedAt
 }
