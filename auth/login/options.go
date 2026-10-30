@@ -277,7 +277,9 @@ func WithScreenHint(hint string) Option {
 // a lock shared by its processes, persists the successor every refresh
 // returns, and discards a token the issuer refuses as
 // REFRESH_TOKEN_SUPERSEDED. Set it only if the caller does all three, since a
-// rotated family whose superseded token is presented again is revoked.
+// rotated family whose superseded token is presented again is revoked. A
+// successor's expiry may be later than its parent's: a rotated family's
+// session slides while it is used, up to its organizations' session length.
 //
 // An issuer that honors the declaration reports it in
 // Result.RefreshTokenRotation. One that does not ignores it, and the family is
