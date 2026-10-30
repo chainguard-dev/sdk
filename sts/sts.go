@@ -482,7 +482,9 @@ func WithTask(task string) ExchangerOption {
 // they share, persists the successor each refresh returns, and discards a
 // token the issuer refuses as superseded: token.Refresh with an ExchangeFunc
 // that maps AsSupersededRefreshToken does all three. A rotated family whose
-// superseded token is presented again is revoked, logging the user out.
+// superseded token is presented again is revoked, logging the user out. A
+// successor's expiry may be later than its parent's: a rotated family's
+// session slides while it is used, up to its organizations' session length.
 func WithRefreshTokenRotation() ExchangerOption {
 	return func(i *options) {
 		i.rotation = true
