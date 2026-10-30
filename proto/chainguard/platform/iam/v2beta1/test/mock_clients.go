@@ -27,6 +27,7 @@ type MockClients struct {
 	ScimUsersServiceClient                 MockScimUsersServiceClient
 	ScimGroupsServiceClient                MockScimGroupsServiceClient
 	TermsServiceClient                     MockTermsServiceClient
+	SessionsServiceClient                  MockSessionsServiceClient
 }
 
 // Close implements [v2beta1.Clients].
@@ -129,6 +130,11 @@ func (m *MockClients) ListScimUsersIter(ctx context.Context, req *iam.ListScimUs
 // TermsService implements [v2beta1.Clients].
 func (m *MockClients) TermsService() iam.TermsServiceClient {
 	return &m.TermsServiceClient
+}
+
+// SessionsService implements [v2beta1.Clients].
+func (m *MockClients) SessionsService() iam.SessionsServiceClient {
+	return &m.SessionsServiceClient
 }
 
 // ListAccountAssociationsAll implements [v2beta1.Clients].

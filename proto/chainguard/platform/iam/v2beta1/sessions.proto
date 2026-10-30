@@ -1,0 +1,180 @@
+// Copyright 2026 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package chainguard.platform.iam.v2beta1;
+
+import "annotations/auth.proto";
+import "annotations/events.proto";
+import "annotations/mcp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "chainguard.dev/sdk/proto/chainguard/platform/iam/v2beta1";
+option java_multiple_files = true;
+option java_outer_classname = "SessionsProto";
+option java_package = "com.chainguard.platform.iam.v2beta1";
+
+// SessionsService lists and revokes the caller's own sign-in sessions. A
+// session is one refresh-token family: it begins at an interactive login and
+// lasts while its refresh tokens do.
+//
+// Every method acts on the identity in the caller's token. There is no
+// parent and no way to name another identity, so any authenticated caller
+// may invoke them. Revoking a session stops its refresh tokens; access
+// tokens already minted from it stay valid until they expire.
+service SessionsService {
+  // ListSessions returns the caller's live sessions, newest first.
+  rpc ListSessions(ListSessionsRequest) returns (ListSessionsResponse) {
+    option (google.api.http) = {get: "/iam/v2beta1/sessions"};
+    option (chainguard.annotations.iam) = {
+      enabled: {unscoped: true}
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List the caller's own sign-in sessions."
+      read_only: true
+      idempotent: true
+      // Withheld from the MCP tool surface: sessions are a person's to
+      // manage, not an agent's.
+      hidden: true
+    };
+  }
+
+  // DeleteSession revokes one of the caller's sessions: every refresh token
+  // in it stops working. An unknown uid is NOT_FOUND.
+  rpc DeleteSession(DeleteSessionRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/iam/v2beta1/sessions/{uid=**}"};
+    option (chainguard.annotations.iam) = {
+      enabled: {unscoped: true}
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.session.deleted.v1"
+      audience: INTERNAL
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Revoke one of the caller's own sign-in sessions."
+      read_only: false
+      destructive: true
+      open_world: false
+      // Withheld from the MCP tool surface: sessions are a person's to
+      // manage, not an agent's.
+      hidden: true
+    };
+  }
+
+  // RevokeAllSessions revokes every one of the caller's sessions, the one
+  // making the call included.
+  // (-- api-linter: core::0136::http-uri-suffix=disabled
+  //     aip.dev/not-precedent: The suffix names the whole method, matching
+  //     RevokeAllSessions. --)
+  // protolint:disable:next MAX_LINE_LENGTH
+  rpc RevokeAllSessions(RevokeAllSessionsRequest) returns (RevokeAllSessionsResponse) {
+    option (google.api.http) = {
+      post: "/iam/v2beta1/sessions:revokeAllSessions"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {unscoped: true}
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.sessions.revoked.v1"
+      audience: INTERNAL
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Revoke every one of the caller's own sign-in sessions."
+      read_only: false
+      destructive: true
+      idempotent: true
+      open_world: false
+      // Withheld from the MCP tool surface: sessions are a person's to
+      // manage, not an agent's.
+      hidden: true
+    };
+  }
+}
+
+// Session is one of the caller's sign-in sessions.
+message Session {
+  option (google.api.resource) = {
+    type: "iam.chainguard.dev/Session"
+    pattern: "sessions/{session}"
+    singular: "session"
+    plural: "sessions"
+  };
+
+  // Identifier of the session: the ID (JTI) of the first refresh token
+  // issued in it. Not a credential.
+  string uid = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // When the login that began the session happened. Unset for sessions that
+  // began before this was recorded.
+  // protolint:disable:next MAX_LINE_LENGTH
+  google.protobuf.Timestamp create_time = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // When the session's current refresh token was issued, which is when the
+  // session was last refreshed, to within an hour. Unset for a session whose
+  // refresh tokens do not rotate, whose use is not recorded.
+  // protolint:disable:next MAX_LINE_LENGTH
+  google.protobuf.Timestamp last_use_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The latest time the session can be refreshed. An organization's session
+  // length can end it earlier.
+  // protolint:disable:next MAX_LINE_LENGTH
+  google.protobuf.Timestamp expire_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // UIDP of the customer-managed identity provider the login went through.
+  // Empty when the login went through none.
+  string identity_provider = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether the session holds the refresh token named by
+  // ListSessionsRequest.current_token_id.
+  bool current = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ListSessionsRequest is the request for ListSessions.
+// (-- api-linter: core::0132::request-parent-required=disabled
+//     aip.dev/not-precedent: Sessions belong to the caller's identity, taken
+//     from its token. --)
+// (-- api-linter: core::0158::request-page-size-field=disabled
+//     aip.dev/not-precedent: An identity holds at most 50 live sessions, so
+//     the list is never paged. --)
+// (-- api-linter: core::0158::request-page-token-field=disabled
+//     aip.dev/not-precedent: An identity holds at most 50 live sessions, so
+//     the list is never paged. --)
+message ListSessionsRequest {
+  // ID (JTI) of a refresh token the caller holds. The session holding it is
+  // marked current.
+  string current_token_id = 1 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListSessionsResponse is the response for ListSessions.
+// (-- api-linter: core::0158::response-next-page-token-field=disabled
+//     aip.dev/not-precedent: An identity holds at most 50 live sessions, so
+//     the list is never paged. --)
+message ListSessionsResponse {
+  // The caller's live sessions, newest create_time first.
+  repeated Session sessions = 1;
+}
+
+// DeleteSessionRequest is the request for DeleteSession.
+message DeleteSessionRequest {
+  // UID of the session to revoke.
+  string uid = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// RevokeAllSessionsRequest is the request for RevokeAllSessions.
+// protolint:disable:next INDENT
+message RevokeAllSessionsRequest {}
+
+// RevokeAllSessionsResponse is the response for RevokeAllSessions.
+message RevokeAllSessionsResponse {
+  // UID of the caller's identity.
+  string identity = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // UIDs of the sessions revoked.
+  repeated string session_uids = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

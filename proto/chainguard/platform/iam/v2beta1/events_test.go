@@ -182,6 +182,48 @@ func TestUpdateIdentityMetadataEventAnnotation(t *testing.T) {
 	}
 }
 
+func Test_Sessions_EventAnnotations(t *testing.T) {
+	sd := File_chainguard_platform_iam_v2beta1_sessions_proto.Services().ByName("SessionsService")
+	if sd == nil {
+		t.Fatal("SessionsService not found")
+	}
+	for _, tt := range []struct {
+		method   string
+		wantType string
+	}{
+		{"DeleteSession", "dev.chainguard.api.iam.session.deleted.v1"},
+		{"RevokeAllSessions", "dev.chainguard.api.iam.sessions.revoked.v1"},
+	} {
+		t.Run(tt.method, func(t *testing.T) {
+			ea := getEventAttributes(t, sd, tt.method)
+			if got := ea.GetType(); got != tt.wantType {
+				t.Errorf("type: got = %q, want = %q", got, tt.wantType)
+			}
+			if got := ea.GetAudience(); got != cgannotations.EventAttributes_INTERNAL {
+				t.Errorf("audience: got = %v, want = INTERNAL", got)
+			}
+		})
+	}
+}
+
+func Test_Sessions_EventInterfaces(t *testing.T) {
+	sessionUID := uidp.NewUID().String()
+	if got := (&DeleteSessionRequest{Uid: sessionUID}).CloudEventsSubject(); got != sessionUID {
+		t.Errorf("DeleteSessionRequest.CloudEventsSubject(): got = %q, want = %q", got, sessionUID)
+	}
+	identity := uidp.NewUID().String()
+	resp := &RevokeAllSessionsResponse{Identity: identity, SessionUids: []string{sessionUID}}
+	if got := resp.CloudEventsSubject(); got != identity {
+		t.Errorf("RevokeAllSessionsResponse.CloudEventsSubject(): got = %q, want = %q", got, identity)
+	}
+	if _, ok := (&DeleteSessionRequest{Uid: sessionUID}).CloudEventsExtension("group"); ok {
+		t.Error("DeleteSessionRequest.CloudEventsExtension(group): got ok = true, want = false")
+	}
+	if _, ok := resp.CloudEventsExtension("group"); ok {
+		t.Error("RevokeAllSessionsResponse.CloudEventsExtension(group): got ok = true, want = false")
+	}
+}
+
 func TestRoleBindingsEventAnnotations(t *testing.T) {
 	sd := File_chainguard_platform_iam_v2beta1_role_bindings_proto.Services().ByName("RoleBindingsService")
 	if sd == nil {
@@ -643,6 +685,7 @@ func TestReadOnlyMethodsHaveNoEvents(t *testing.T) {
 		{File_chainguard_platform_iam_v2beta1_external_group_role_mappings_proto, "ExternalGroupRoleMappingsService", "ListExternalGroupRoleMappings"},
 		{File_chainguard_platform_iam_v2beta1_roles_proto, "RolesService", "GetRole"},
 		{File_chainguard_platform_iam_v2beta1_roles_proto, "RolesService", "ListRoles"},
+		{File_chainguard_platform_iam_v2beta1_sessions_proto, "SessionsService", "ListSessions"},
 	}
 
 	for _, tt := range readOnlyMethods {

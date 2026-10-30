@@ -28,6 +28,7 @@ type Clients interface {
 	ScimUsersService() ScimUsersServiceClient
 	ScimGroupsService() ScimGroupsServiceClient
 	TermsService() TermsServiceClient
+	SessionsService() SessionsServiceClient
 
 	// Iterator methods for pagination - ExternalGroupRoleMappings
 	ListExternalGroupRoleMappingsIter(ctx context.Context, req *ListExternalGroupRoleMappingsRequest) iter.Seq2[*ExternalGroupRoleMapping, error]
@@ -90,6 +91,7 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 		scimUsersService:                 NewScimUsersServiceClient(conn),
 		scimGroupsService:                NewScimGroupsServiceClient(conn),
 		termsService:                     NewTermsServiceClient(conn),
+		sessionsService:                  NewSessionsServiceClient(conn),
 		// conn is not set, this client struct does not own closing it
 	}
 }
@@ -106,6 +108,7 @@ type clients struct {
 	scimUsersService                 ScimUsersServiceClient
 	scimGroupsService                ScimGroupsServiceClient
 	termsService                     TermsServiceClient
+	sessionsService                  SessionsServiceClient
 
 	conn *grpc.ClientConn
 }
@@ -154,6 +157,10 @@ func (c *clients) ScimGroupsService() ScimGroupsServiceClient {
 
 func (c *clients) TermsService() TermsServiceClient {
 	return c.termsService
+}
+
+func (c *clients) SessionsService() SessionsServiceClient {
+	return c.sessionsService
 }
 
 func (c *clients) Close() error {
