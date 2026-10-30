@@ -49,8 +49,10 @@ message GetOrganizationEntitlementsRequest {
     (google.api.field_behavior) = REQUIRED,
     (chainguard.annotations.iam_scope) = true
   ];
-  // Products to report. Empty selects all supported products: IMAGES and
-  // PLATFORM. Other products return UNIMPLEMENTED until their reads are served.
+  // Products to report. Empty selects IMAGES and PLATFORM, plus configured
+  // SANDBOX_CHECKS and SANDBOX_WORKSPACES reads. For Starter and Team plans,
+  // it also includes LIBRARIES when monthly usage and Libraries reads are
+  // configured. Products without a configured read return UNIMPLEMENTED.
   repeated Product products = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 

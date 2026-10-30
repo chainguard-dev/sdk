@@ -353,8 +353,10 @@ type GetOrganizationEntitlementsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// A root organization UIDP. Folders are not accepted.
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
-	// Products to report. Empty selects all supported products: IMAGES and
-	// PLATFORM. Other products return UNIMPLEMENTED until their reads are served.
+	// Products to report. Empty selects IMAGES and PLATFORM, plus configured
+	// SANDBOX_CHECKS and SANDBOX_WORKSPACES reads. For Starter and Team plans,
+	// it also includes LIBRARIES when monthly usage and Libraries reads are
+	// configured. Products without a configured read return UNIMPLEMENTED.
 	Products      []Product `protobuf:"varint,2,rep,packed,name=products,proto3,enum=chainguard.platform.entitlements.v2beta1.Product" json:"products,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
