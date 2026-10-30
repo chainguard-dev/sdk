@@ -182,10 +182,11 @@ message CheckoutSession {
   google.protobuf.Timestamp expire_time = 2
       [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // What the card will be charged, now and later, as the page states it.
-  // Empty for a plan whose terms the page states on its own. An organization
-  // Chainguard approved for monthly billing is told its usage is charged
-  // monthly instead of buying a balance.
+  // What the page tells the buyer above its submit button: for compute, what
+  // the card will be charged now and later; for the Team plan, a summary of
+  // the plan and its monthly price. Empty when the page states neither. An
+  // organization Chainguard approved for monthly billing is told its usage is
+  // charged monthly instead of buying a balance.
   string terms = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
