@@ -664,6 +664,33 @@ func TestRefresh(t *testing.T) {
 		}
 	})
 
+	// A sliding session's successor carries a later exp than its parent.
+	t.Run("a successor with a later expiry replaces its parent", func(t *testing.T) {
+		isolateCache(t)
+		presented := familyToken(t, session)
+		mustSaveFamily(t, presented, issuerA, audAPI, audReg)
+		slid := session.next()
+		slid.exp = session.exp.Add(29 * 24 * time.Hour)
+		successor := familyToken(t, slid)
+
+		if err := Refresh(t.Context(), audAPI, func(context.Context, string) (string, error) {
+			return successor, nil
+		}, WithIssuer(issuerA)); err != nil {
+			t.Fatalf("Refresh() = %v", err)
+		}
+		if diff := diffFamilies(t, familyView{successor: {audAPI, audReg}}); diff != "" {
+			t.Errorf("families (-want +got):\n%s", diff)
+		}
+		for _, aud := range []string{audAPI, audReg} {
+			if tok, err := loadString(t, aud, WithIssuer(issuerA)); err != nil || tok != successor {
+				t.Errorf("Load(%s) = %q, %v; want the successor", aud, tok, err)
+			}
+			if life := RemainingLife(KindRefresh, aud, 0, WithIssuer(issuerA)); life <= 20*time.Hour {
+				t.Errorf("RemainingLife(%s) = %v, want the successor's later expiry", aud, life)
+			}
+		}
+	})
+
 	// A successor written to a per-audience copy would be presented by an
 	// issuer-less reader after the family moved on, which is replay.
 	t.Run("rotation leaves no per-audience copy of either token", func(t *testing.T) {

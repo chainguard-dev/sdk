@@ -163,6 +163,9 @@ type ExchangeRequest struct {
 	// it set this; a family created without it is echoed back unchanged on
 	// every refresh. A client must not set it unless it does all three, since
 	// a rotated family whose superseded token is presented again is revoked.
+	// A successor's expiry may be later than its parent's: a rotated family's
+	// session slides while it is used, up to its organizations' session
+	// length.
 	RefreshTokenRotation bool `protobuf:"varint,11,opt,name=refresh_token_rotation,json=refreshTokenRotation,proto3" json:"refresh_token_rotation,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
