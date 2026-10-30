@@ -211,8 +211,8 @@ type Limits struct {
 // place these values change; no call site sets its own.
 func DefaultLimits() Limits {
 	return Limits{
-		MaxCompressedBytes: 5 << 30,
-		MaxDecodedBytes:    5 << 30,
+		MaxCompressedBytes: 512 << 20,
+		MaxDecodedBytes:    2 << 30,
 		MaxFileBytes:       256 << 20,
 		MaxEntries:         250_000,
 		MaxPathBytes:       4096,
