@@ -706,3 +706,23 @@ func (c *countingSource) Read(p []byte) (int, error) {
 	c.n += int64(n)
 	return n, err
 }
+
+// TestDefaultLimits pins the policy, so a change to it is deliberate: both
+// ends and the server's sizing read these values.
+func TestDefaultLimits(t *testing.T) {
+	got := bundle.DefaultLimits()
+	want := bundle.Limits{
+		MaxCompressedBytes: 5 << 30,
+		MaxDecodedBytes:    5 << 30,
+		MaxFileBytes:       256 << 20,
+		MaxEntries:         250_000,
+		MaxPathBytes:       4096,
+		MaxPathDepth:       64,
+		MaxRatio:           100,
+		RatioFloorBytes:    8 << 20,
+		MaxTrailingBytes:   32 << 10,
+	}
+	if diff := gocmp.Diff(want, got); diff != "" {
+		t.Errorf("DefaultLimits() (-want +got):\n%s", diff)
+	}
+}
