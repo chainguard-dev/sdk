@@ -516,6 +516,7 @@ type Policy struct {
 	//   - libraries.chainguard.dev/PythonPackage@v1
 	//   - libraries.chainguard.dev/GoPackage@v1
 	//   - libraries.chainguard.dev/DotNetPackage@v1
+	//   - libraries.chainguard.dev/RustPackage@v1
 	//
 	// Immutable: set at creation and cannot be changed on update. A policy's
 	// name and supported_resource_type together identify it, so changing the
