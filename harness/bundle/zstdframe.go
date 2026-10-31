@@ -17,7 +17,7 @@ import "io"
 // A bundle is one frame, so the guard says exactly that: one standard frame,
 // nothing before it and nothing after. It walks the frame's own structure
 // rather than scanning for the skippable magic, because those four bytes occur
-// in compressed data by chance often enough to matter over a 512 MiB cap.
+// in compressed data by chance often enough to matter over a 5 GiB cap.
 const (
 	zstdMagic         = 0xFD2FB528
 	zstdSkippableMask = 0xFFFFFFF0
