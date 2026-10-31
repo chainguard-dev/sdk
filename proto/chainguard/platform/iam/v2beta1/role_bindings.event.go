@@ -67,24 +67,8 @@ func (x *BatchCreateRoleBindingsResponse) CloudEventsExtension(key string) (stri
 
 // CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
 //
-// Convention: uses the parent group UIDP as the subject rather than individual
-// binding UIDs. This is the recommended approach for batch CloudEvents because:
-//
-//  1. The CloudEvents spec defines "subject" as identifying the resource the event
-//     is about. For a batch operation the logical resource is the parent group
-//     where all bindings were created, not any single binding.
-//
-//  2. Comma-separated UIDs (e.g. "uid1,uid2,uid3") break subscribers that parse
-//     subject as a single resource identifier, and the concatenated string can
-//     exceed CloudEvents attribute size limits for large batches.
-//
-//  3. Fan-out (emitting one event per binding) was rejected because it defeats
-//     the purpose of the batch endpoint being atomic -- subscribers should see
-//     one event for the entire operation. Individual binding UIDs are available
-//     in the event body (the serialized BatchCreateRoleBindingsResponse).
-//
-// Subscribers needing per-binding granularity should unmarshal the Occurrence body
-// and iterate over the RoleBindings repeated field.
+// The subject is the parent group UIDP, not a binding UID. Subscribers needing
+// per-binding granularity should read the RoleBindings field of the event body.
 func (x *BatchCreateRoleBindingsResponse) CloudEventsSubject() string {
 	if len(x.GetRoleBindings()) > 0 {
 		return uidp.Parent(x.GetRoleBindings()[0].GetUid())
