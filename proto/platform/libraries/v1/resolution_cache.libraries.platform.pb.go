@@ -25,66 +25,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Tier identifies where an artifact's bytes come from.
-type Tier int32
-
-const (
-	Tier_TIER_UNSPECIFIED Tier = 0
-	// Chainguard-built artifacts.
-	Tier_TIER_CHAINGUARD Tier = 1
-	// Upstream artifacts mirrored or proxied from the public registry.
-	Tier_TIER_UPSTREAM Tier = 2
-	// Chainguard-remediated versions of upstream releases.
-	Tier_TIER_REMEDIATED Tier = 3
-	// Artifacts of the Argos ecosystems.
-	Tier_TIER_ARGOS Tier = 4
-)
-
-// Enum value maps for Tier.
-var (
-	Tier_name = map[int32]string{
-		0: "TIER_UNSPECIFIED",
-		1: "TIER_CHAINGUARD",
-		2: "TIER_UPSTREAM",
-		3: "TIER_REMEDIATED",
-		4: "TIER_ARGOS",
-	}
-	Tier_value = map[string]int32{
-		"TIER_UNSPECIFIED": 0,
-		"TIER_CHAINGUARD":  1,
-		"TIER_UPSTREAM":    2,
-		"TIER_REMEDIATED":  3,
-		"TIER_ARGOS":       4,
-	}
-)
-
-func (x Tier) Enum() *Tier {
-	p := new(Tier)
-	*p = x
-	return p
-}
-
-func (x Tier) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (Tier) Descriptor() protoreflect.EnumDescriptor {
-	return file_resolution_cache_libraries_platform_proto_enumTypes[0].Descriptor()
-}
-
-func (Tier) Type() protoreflect.EnumType {
-	return &file_resolution_cache_libraries_platform_proto_enumTypes[0]
-}
-
-func (x Tier) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use Tier.Descriptor instead.
-func (Tier) EnumDescriptor() ([]byte, []int) {
-	return file_resolution_cache_libraries_platform_proto_rawDescGZIP(), []int{0}
-}
-
 // ZapResolutionCacheRequest selects the scope of a zap, from widest to
 // narrowest:
 //   - org-wide: no ecosystem, no package fields.
@@ -1029,14 +969,7 @@ const file_resolution_cache_libraries_platform_proto_rawDesc = "" +
 	"\vtotal_count\x18\x02 \x01(\x03R\n" +
 	"totalCount\x12\x1f\n" +
 	"\vnext_cursor\x18\x03 \x01(\tR\n" +
-	"nextCursor*i\n" +
-	"\x04Tier\x12\x14\n" +
-	"\x10TIER_UNSPECIFIED\x10\x00\x12\x13\n" +
-	"\x0fTIER_CHAINGUARD\x10\x01\x12\x11\n" +
-	"\rTIER_UPSTREAM\x10\x02\x12\x13\n" +
-	"\x0fTIER_REMEDIATED\x10\x03\x12\x0e\n" +
-	"\n" +
-	"TIER_ARGOS\x10\x042\xfb\b\n" +
+	"nextCursor2\xfb\b\n" +
 	"\x0fResolutionCache\x12\xa7\x02\n" +
 	"\x03Zap\x128.chainguard.platform.libraries.ZapResolutionCacheRequest\x1a8.chainguard.platform.libraries.ZapResolutionCacheSummary\"\xab\x01\x92A\x1a\n" +
 	"\x18LibrariesResolutionCache\x82\xd3\xe4\x93\x025:\x01*\"0/libraries/v1/resolutioncache/{parent_id=**}:zap\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
@@ -1066,48 +999,47 @@ func file_resolution_cache_libraries_platform_proto_rawDescGZIP() []byte {
 	return file_resolution_cache_libraries_platform_proto_rawDescData
 }
 
-var file_resolution_cache_libraries_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_resolution_cache_libraries_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_resolution_cache_libraries_platform_proto_goTypes = []any{
-	(Tier)(0),                            // 0: chainguard.platform.libraries.Tier
-	(*ZapResolutionCacheRequest)(nil),    // 1: chainguard.platform.libraries.ZapResolutionCacheRequest
-	(*ZapResolutionCacheSummary)(nil),    // 2: chainguard.platform.libraries.ZapResolutionCacheSummary
-	(*ZapResolutionCacheResult)(nil),     // 3: chainguard.platform.libraries.ZapResolutionCacheResult
-	(*ResolutionCacheOptOutRequest)(nil), // 4: chainguard.platform.libraries.ResolutionCacheOptOutRequest
-	(*ResolutionCacheOptOut)(nil),        // 5: chainguard.platform.libraries.ResolutionCacheOptOut
-	(*ResolutionCacheStatusFilter)(nil),  // 6: chainguard.platform.libraries.ResolutionCacheStatusFilter
-	(*ResolutionCacheStatus)(nil),        // 7: chainguard.platform.libraries.ResolutionCacheStatus
-	(*ResolutionCacheWatermark)(nil),     // 8: chainguard.platform.libraries.ResolutionCacheWatermark
-	(*ResolutionCacheEntryFilter)(nil),   // 9: chainguard.platform.libraries.ResolutionCacheEntryFilter
-	(*ResolutionCacheEntry)(nil),         // 10: chainguard.platform.libraries.ResolutionCacheEntry
-	(*ResolutionCacheEntryList)(nil),     // 11: chainguard.platform.libraries.ResolutionCacheEntryList
-	(Ecosystem)(0),                       // 12: chainguard.platform.libraries.Ecosystem
-	(*timestamppb.Timestamp)(nil),        // 13: google.protobuf.Timestamp
+	(*ZapResolutionCacheRequest)(nil),    // 0: chainguard.platform.libraries.ZapResolutionCacheRequest
+	(*ZapResolutionCacheSummary)(nil),    // 1: chainguard.platform.libraries.ZapResolutionCacheSummary
+	(*ZapResolutionCacheResult)(nil),     // 2: chainguard.platform.libraries.ZapResolutionCacheResult
+	(*ResolutionCacheOptOutRequest)(nil), // 3: chainguard.platform.libraries.ResolutionCacheOptOutRequest
+	(*ResolutionCacheOptOut)(nil),        // 4: chainguard.platform.libraries.ResolutionCacheOptOut
+	(*ResolutionCacheStatusFilter)(nil),  // 5: chainguard.platform.libraries.ResolutionCacheStatusFilter
+	(*ResolutionCacheStatus)(nil),        // 6: chainguard.platform.libraries.ResolutionCacheStatus
+	(*ResolutionCacheWatermark)(nil),     // 7: chainguard.platform.libraries.ResolutionCacheWatermark
+	(*ResolutionCacheEntryFilter)(nil),   // 8: chainguard.platform.libraries.ResolutionCacheEntryFilter
+	(*ResolutionCacheEntry)(nil),         // 9: chainguard.platform.libraries.ResolutionCacheEntry
+	(*ResolutionCacheEntryList)(nil),     // 10: chainguard.platform.libraries.ResolutionCacheEntryList
+	(Ecosystem)(0),                       // 11: chainguard.platform.libraries.Ecosystem
+	(*timestamppb.Timestamp)(nil),        // 12: google.protobuf.Timestamp
+	(Tier)(0),                            // 13: chainguard.platform.libraries.Tier
 }
 var file_resolution_cache_libraries_platform_proto_depIdxs = []int32{
-	12, // 0: chainguard.platform.libraries.ZapResolutionCacheRequest.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
-	3,  // 1: chainguard.platform.libraries.ZapResolutionCacheSummary.results:type_name -> chainguard.platform.libraries.ZapResolutionCacheResult
-	12, // 2: chainguard.platform.libraries.ZapResolutionCacheResult.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
-	13, // 3: chainguard.platform.libraries.ZapResolutionCacheResult.zapped_at:type_name -> google.protobuf.Timestamp
-	12, // 4: chainguard.platform.libraries.ResolutionCacheOptOutRequest.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
-	8,  // 5: chainguard.platform.libraries.ResolutionCacheOptOut.watermarks:type_name -> chainguard.platform.libraries.ResolutionCacheWatermark
-	8,  // 6: chainguard.platform.libraries.ResolutionCacheStatus.watermarks:type_name -> chainguard.platform.libraries.ResolutionCacheWatermark
-	12, // 7: chainguard.platform.libraries.ResolutionCacheWatermark.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
-	13, // 8: chainguard.platform.libraries.ResolutionCacheWatermark.last_zapped_at:type_name -> google.protobuf.Timestamp
-	12, // 9: chainguard.platform.libraries.ResolutionCacheEntryFilter.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
-	0,  // 10: chainguard.platform.libraries.ResolutionCacheEntryFilter.tier:type_name -> chainguard.platform.libraries.Tier
-	12, // 11: chainguard.platform.libraries.ResolutionCacheEntry.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
-	0,  // 12: chainguard.platform.libraries.ResolutionCacheEntry.tier:type_name -> chainguard.platform.libraries.Tier
-	13, // 13: chainguard.platform.libraries.ResolutionCacheEntry.observed_at:type_name -> google.protobuf.Timestamp
-	10, // 14: chainguard.platform.libraries.ResolutionCacheEntryList.items:type_name -> chainguard.platform.libraries.ResolutionCacheEntry
-	1,  // 15: chainguard.platform.libraries.ResolutionCache.Zap:input_type -> chainguard.platform.libraries.ZapResolutionCacheRequest
-	4,  // 16: chainguard.platform.libraries.ResolutionCache.SetOptOut:input_type -> chainguard.platform.libraries.ResolutionCacheOptOutRequest
-	6,  // 17: chainguard.platform.libraries.ResolutionCache.Status:input_type -> chainguard.platform.libraries.ResolutionCacheStatusFilter
-	9,  // 18: chainguard.platform.libraries.ResolutionCache.List:input_type -> chainguard.platform.libraries.ResolutionCacheEntryFilter
-	2,  // 19: chainguard.platform.libraries.ResolutionCache.Zap:output_type -> chainguard.platform.libraries.ZapResolutionCacheSummary
-	5,  // 20: chainguard.platform.libraries.ResolutionCache.SetOptOut:output_type -> chainguard.platform.libraries.ResolutionCacheOptOut
-	7,  // 21: chainguard.platform.libraries.ResolutionCache.Status:output_type -> chainguard.platform.libraries.ResolutionCacheStatus
-	11, // 22: chainguard.platform.libraries.ResolutionCache.List:output_type -> chainguard.platform.libraries.ResolutionCacheEntryList
+	11, // 0: chainguard.platform.libraries.ZapResolutionCacheRequest.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
+	2,  // 1: chainguard.platform.libraries.ZapResolutionCacheSummary.results:type_name -> chainguard.platform.libraries.ZapResolutionCacheResult
+	11, // 2: chainguard.platform.libraries.ZapResolutionCacheResult.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
+	12, // 3: chainguard.platform.libraries.ZapResolutionCacheResult.zapped_at:type_name -> google.protobuf.Timestamp
+	11, // 4: chainguard.platform.libraries.ResolutionCacheOptOutRequest.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
+	7,  // 5: chainguard.platform.libraries.ResolutionCacheOptOut.watermarks:type_name -> chainguard.platform.libraries.ResolutionCacheWatermark
+	7,  // 6: chainguard.platform.libraries.ResolutionCacheStatus.watermarks:type_name -> chainguard.platform.libraries.ResolutionCacheWatermark
+	11, // 7: chainguard.platform.libraries.ResolutionCacheWatermark.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
+	12, // 8: chainguard.platform.libraries.ResolutionCacheWatermark.last_zapped_at:type_name -> google.protobuf.Timestamp
+	11, // 9: chainguard.platform.libraries.ResolutionCacheEntryFilter.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
+	13, // 10: chainguard.platform.libraries.ResolutionCacheEntryFilter.tier:type_name -> chainguard.platform.libraries.Tier
+	11, // 11: chainguard.platform.libraries.ResolutionCacheEntry.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
+	13, // 12: chainguard.platform.libraries.ResolutionCacheEntry.tier:type_name -> chainguard.platform.libraries.Tier
+	12, // 13: chainguard.platform.libraries.ResolutionCacheEntry.observed_at:type_name -> google.protobuf.Timestamp
+	9,  // 14: chainguard.platform.libraries.ResolutionCacheEntryList.items:type_name -> chainguard.platform.libraries.ResolutionCacheEntry
+	0,  // 15: chainguard.platform.libraries.ResolutionCache.Zap:input_type -> chainguard.platform.libraries.ZapResolutionCacheRequest
+	3,  // 16: chainguard.platform.libraries.ResolutionCache.SetOptOut:input_type -> chainguard.platform.libraries.ResolutionCacheOptOutRequest
+	5,  // 17: chainguard.platform.libraries.ResolutionCache.Status:input_type -> chainguard.platform.libraries.ResolutionCacheStatusFilter
+	8,  // 18: chainguard.platform.libraries.ResolutionCache.List:input_type -> chainguard.platform.libraries.ResolutionCacheEntryFilter
+	1,  // 19: chainguard.platform.libraries.ResolutionCache.Zap:output_type -> chainguard.platform.libraries.ZapResolutionCacheSummary
+	4,  // 20: chainguard.platform.libraries.ResolutionCache.SetOptOut:output_type -> chainguard.platform.libraries.ResolutionCacheOptOut
+	6,  // 21: chainguard.platform.libraries.ResolutionCache.Status:output_type -> chainguard.platform.libraries.ResolutionCacheStatus
+	10, // 22: chainguard.platform.libraries.ResolutionCache.List:output_type -> chainguard.platform.libraries.ResolutionCacheEntryList
 	19, // [19:23] is the sub-list for method output_type
 	15, // [15:19] is the sub-list for method input_type
 	15, // [15:15] is the sub-list for extension type_name
@@ -1126,14 +1058,13 @@ func file_resolution_cache_libraries_platform_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_resolution_cache_libraries_platform_proto_rawDesc), len(file_resolution_cache_libraries_platform_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      0,
 			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_resolution_cache_libraries_platform_proto_goTypes,
 		DependencyIndexes: file_resolution_cache_libraries_platform_proto_depIdxs,
-		EnumInfos:         file_resolution_cache_libraries_platform_proto_enumTypes,
 		MessageInfos:      file_resolution_cache_libraries_platform_proto_msgTypes,
 	}.Build()
 	File_resolution_cache_libraries_platform_proto = out.File

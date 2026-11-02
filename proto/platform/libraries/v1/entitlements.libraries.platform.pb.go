@@ -182,6 +182,66 @@ func (Policy) EnumDescriptor() ([]byte, []int) {
 	return file_entitlements_libraries_platform_proto_rawDescGZIP(), []int{1}
 }
 
+// Tier identifies where an artifact's bytes come from.
+type Tier int32
+
+const (
+	Tier_TIER_UNSPECIFIED Tier = 0
+	// Chainguard-built artifacts.
+	Tier_TIER_CHAINGUARD Tier = 1
+	// Upstream artifacts mirrored or proxied from the public registry.
+	Tier_TIER_UPSTREAM Tier = 2
+	// Chainguard-remediated versions of upstream releases.
+	Tier_TIER_REMEDIATED Tier = 3
+	// Artifacts of the Argos ecosystems.
+	Tier_TIER_ARGOS Tier = 4
+)
+
+// Enum value maps for Tier.
+var (
+	Tier_name = map[int32]string{
+		0: "TIER_UNSPECIFIED",
+		1: "TIER_CHAINGUARD",
+		2: "TIER_UPSTREAM",
+		3: "TIER_REMEDIATED",
+		4: "TIER_ARGOS",
+	}
+	Tier_value = map[string]int32{
+		"TIER_UNSPECIFIED": 0,
+		"TIER_CHAINGUARD":  1,
+		"TIER_UPSTREAM":    2,
+		"TIER_REMEDIATED":  3,
+		"TIER_ARGOS":       4,
+	}
+)
+
+func (x Tier) Enum() *Tier {
+	p := new(Tier)
+	*p = x
+	return p
+}
+
+func (x Tier) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Tier) Descriptor() protoreflect.EnumDescriptor {
+	return file_entitlements_libraries_platform_proto_enumTypes[2].Descriptor()
+}
+
+func (Tier) Type() protoreflect.EnumType {
+	return &file_entitlements_libraries_platform_proto_enumTypes[2]
+}
+
+func (x Tier) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Tier.Descriptor instead.
+func (Tier) EnumDescriptor() ([]byte, []int) {
+	return file_entitlements_libraries_platform_proto_rawDescGZIP(), []int{2}
+}
+
 // Source indicates how an entitlement was created.
 type Source int32
 
@@ -228,11 +288,11 @@ func (x Source) String() string {
 }
 
 func (Source) Descriptor() protoreflect.EnumDescriptor {
-	return file_entitlements_libraries_platform_proto_enumTypes[2].Descriptor()
+	return file_entitlements_libraries_platform_proto_enumTypes[3].Descriptor()
 }
 
 func (Source) Type() protoreflect.EnumType {
-	return &file_entitlements_libraries_platform_proto_enumTypes[2]
+	return &file_entitlements_libraries_platform_proto_enumTypes[3]
 }
 
 func (x Source) Number() protoreflect.EnumNumber {
@@ -241,7 +301,7 @@ func (x Source) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Source.Descriptor instead.
 func (Source) EnumDescriptor() ([]byte, []int) {
-	return file_entitlements_libraries_platform_proto_rawDescGZIP(), []int{2}
+	return file_entitlements_libraries_platform_proto_rawDescGZIP(), []int{3}
 }
 
 // Entitlement maps an org to an library ecosystem they are entitled to pull.
@@ -254,7 +314,11 @@ type Entitlement struct {
 	// policy is the libraries policy for this entitlement.
 	Policy Policy `protobuf:"varint,3,opt,name=policy,proto3,enum=chainguard.platform.libraries.Policy" json:"policy,omitempty"`
 	// source indicates how this entitlement was provisioned.
-	Source        Source `protobuf:"varint,4,opt,name=source,proto3,enum=chainguard.platform.libraries.Source" json:"source,omitempty"`
+	Source Source `protobuf:"varint,4,opt,name=source,proto3,enum=chainguard.platform.libraries.Source" json:"source,omitempty"`
+	// tiers is the set of serving tiers this entitlement grants, sorted by
+	// value name. It decides which versions are served. policy does not tell
+	// apart sets that differ only in TIER_REMEDIATED.
+	Tiers         []Tier `protobuf:"varint,6,rep,packed,name=tiers,proto3,enum=chainguard.platform.libraries.Tier" json:"tiers,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -315,6 +379,13 @@ func (x *Entitlement) GetSource() Source {
 		return x.Source
 	}
 	return Source_SOURCE_UNKNOWN
+}
+
+func (x *Entitlement) GetTiers() []Tier {
+	if x != nil {
+		return x.Tiers
+	}
+	return nil
 }
 
 type EntitlementList struct {
@@ -536,12 +607,13 @@ var File_entitlements_libraries_platform_proto protoreflect.FileDescriptor
 
 const file_entitlements_libraries_platform_proto_rawDesc = "" +
 	"\n" +
-	"%entitlements.libraries.platform.proto\x12\x1dchainguard.platform.libraries\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x80\x02\n" +
+	"%entitlements.libraries.platform.proto\x12\x1dchainguard.platform.libraries\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\xc1\x02\n" +
 	"\vEntitlement\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12F\n" +
 	"\tecosystem\x18\x02 \x01(\x0e2(.chainguard.platform.libraries.EcosystemR\tecosystem\x12=\n" +
 	"\x06policy\x18\x03 \x01(\x0e2%.chainguard.platform.libraries.PolicyR\x06policy\x12=\n" +
-	"\x06source\x18\x04 \x01(\x0e2%.chainguard.platform.libraries.SourceR\x06sourceJ\x04\b\x05\x10\x06R\rcooldown_days\"S\n" +
+	"\x06source\x18\x04 \x01(\x0e2%.chainguard.platform.libraries.SourceR\x06source\x12?\n" +
+	"\x05tiers\x18\x06 \x03(\x0e2#.chainguard.platform.libraries.TierB\x04\xe2A\x01\x03R\x05tiersJ\x04\b\x05\x10\x06R\rcooldown_days\"S\n" +
 	"\x0fEntitlementList\x12@\n" +
 	"\x05items\x18\x01 \x03(\v2*.chainguard.platform.libraries.EntitlementR\x05items\"\x9a\x02\n" +
 	"\x18CreateEntitlementRequest\x12#\n" +
@@ -579,7 +651,14 @@ const file_entitlements_libraries_platform_proto_rawDesc = "" +
 	"\x06Policy\x12\x12\n" +
 	"\x0ePOLICY_UNKNOWN\x10\x00\x12\x15\n" +
 	"\x11POLICY_CHAINGUARD\x10\x01\x12\"\n" +
-	"\x1ePOLICY_CHAINGUARD_AND_UPSTREAM\x10\x02*\xa2\x01\n" +
+	"\x1ePOLICY_CHAINGUARD_AND_UPSTREAM\x10\x02*i\n" +
+	"\x04Tier\x12\x14\n" +
+	"\x10TIER_UNSPECIFIED\x10\x00\x12\x13\n" +
+	"\x0fTIER_CHAINGUARD\x10\x01\x12\x11\n" +
+	"\rTIER_UPSTREAM\x10\x02\x12\x13\n" +
+	"\x0fTIER_REMEDIATED\x10\x03\x12\x0e\n" +
+	"\n" +
+	"TIER_ARGOS\x10\x04*\xa2\x01\n" +
 	"\x06Source\x12\x12\n" +
 	"\x0eSOURCE_UNKNOWN\x10\x00\x12\x10\n" +
 	"\fSOURCE_TRIAL\x10\x01\x12\x0f\n" +
@@ -614,39 +693,41 @@ func file_entitlements_libraries_platform_proto_rawDescGZIP() []byte {
 	return file_entitlements_libraries_platform_proto_rawDescData
 }
 
-var file_entitlements_libraries_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_entitlements_libraries_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
 var file_entitlements_libraries_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_entitlements_libraries_platform_proto_goTypes = []any{
 	(Ecosystem)(0),                   // 0: chainguard.platform.libraries.Ecosystem
 	(Policy)(0),                      // 1: chainguard.platform.libraries.Policy
-	(Source)(0),                      // 2: chainguard.platform.libraries.Source
-	(*Entitlement)(nil),              // 3: chainguard.platform.libraries.Entitlement
-	(*EntitlementList)(nil),          // 4: chainguard.platform.libraries.EntitlementList
-	(*CreateEntitlementRequest)(nil), // 5: chainguard.platform.libraries.CreateEntitlementRequest
-	(*EntitlementFilter)(nil),        // 6: chainguard.platform.libraries.EntitlementFilter
-	(*DeleteEntitlementRequest)(nil), // 7: chainguard.platform.libraries.DeleteEntitlementRequest
-	(*emptypb.Empty)(nil),            // 8: google.protobuf.Empty
+	(Tier)(0),                        // 2: chainguard.platform.libraries.Tier
+	(Source)(0),                      // 3: chainguard.platform.libraries.Source
+	(*Entitlement)(nil),              // 4: chainguard.platform.libraries.Entitlement
+	(*EntitlementList)(nil),          // 5: chainguard.platform.libraries.EntitlementList
+	(*CreateEntitlementRequest)(nil), // 6: chainguard.platform.libraries.CreateEntitlementRequest
+	(*EntitlementFilter)(nil),        // 7: chainguard.platform.libraries.EntitlementFilter
+	(*DeleteEntitlementRequest)(nil), // 8: chainguard.platform.libraries.DeleteEntitlementRequest
+	(*emptypb.Empty)(nil),            // 9: google.protobuf.Empty
 }
 var file_entitlements_libraries_platform_proto_depIdxs = []int32{
 	0,  // 0: chainguard.platform.libraries.Entitlement.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
 	1,  // 1: chainguard.platform.libraries.Entitlement.policy:type_name -> chainguard.platform.libraries.Policy
-	2,  // 2: chainguard.platform.libraries.Entitlement.source:type_name -> chainguard.platform.libraries.Source
-	3,  // 3: chainguard.platform.libraries.EntitlementList.items:type_name -> chainguard.platform.libraries.Entitlement
-	0,  // 4: chainguard.platform.libraries.CreateEntitlementRequest.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
-	1,  // 5: chainguard.platform.libraries.CreateEntitlementRequest.policy:type_name -> chainguard.platform.libraries.Policy
-	2,  // 6: chainguard.platform.libraries.CreateEntitlementRequest.source:type_name -> chainguard.platform.libraries.Source
-	0,  // 7: chainguard.platform.libraries.EntitlementFilter.ecosystems:type_name -> chainguard.platform.libraries.Ecosystem
-	5,  // 8: chainguard.platform.libraries.Entitlements.Create:input_type -> chainguard.platform.libraries.CreateEntitlementRequest
-	6,  // 9: chainguard.platform.libraries.Entitlements.List:input_type -> chainguard.platform.libraries.EntitlementFilter
-	7,  // 10: chainguard.platform.libraries.Entitlements.Delete:input_type -> chainguard.platform.libraries.DeleteEntitlementRequest
-	3,  // 11: chainguard.platform.libraries.Entitlements.Create:output_type -> chainguard.platform.libraries.Entitlement
-	4,  // 12: chainguard.platform.libraries.Entitlements.List:output_type -> chainguard.platform.libraries.EntitlementList
-	8,  // 13: chainguard.platform.libraries.Entitlements.Delete:output_type -> google.protobuf.Empty
-	11, // [11:14] is the sub-list for method output_type
-	8,  // [8:11] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	3,  // 2: chainguard.platform.libraries.Entitlement.source:type_name -> chainguard.platform.libraries.Source
+	2,  // 3: chainguard.platform.libraries.Entitlement.tiers:type_name -> chainguard.platform.libraries.Tier
+	4,  // 4: chainguard.platform.libraries.EntitlementList.items:type_name -> chainguard.platform.libraries.Entitlement
+	0,  // 5: chainguard.platform.libraries.CreateEntitlementRequest.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
+	1,  // 6: chainguard.platform.libraries.CreateEntitlementRequest.policy:type_name -> chainguard.platform.libraries.Policy
+	3,  // 7: chainguard.platform.libraries.CreateEntitlementRequest.source:type_name -> chainguard.platform.libraries.Source
+	0,  // 8: chainguard.platform.libraries.EntitlementFilter.ecosystems:type_name -> chainguard.platform.libraries.Ecosystem
+	6,  // 9: chainguard.platform.libraries.Entitlements.Create:input_type -> chainguard.platform.libraries.CreateEntitlementRequest
+	7,  // 10: chainguard.platform.libraries.Entitlements.List:input_type -> chainguard.platform.libraries.EntitlementFilter
+	8,  // 11: chainguard.platform.libraries.Entitlements.Delete:input_type -> chainguard.platform.libraries.DeleteEntitlementRequest
+	4,  // 12: chainguard.platform.libraries.Entitlements.Create:output_type -> chainguard.platform.libraries.Entitlement
+	5,  // 13: chainguard.platform.libraries.Entitlements.List:output_type -> chainguard.platform.libraries.EntitlementList
+	9,  // 14: chainguard.platform.libraries.Entitlements.Delete:output_type -> google.protobuf.Empty
+	12, // [12:15] is the sub-list for method output_type
+	9,  // [9:12] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_entitlements_libraries_platform_proto_init() }
@@ -659,7 +740,7 @@ func file_entitlements_libraries_platform_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_entitlements_libraries_platform_proto_rawDesc), len(file_entitlements_libraries_platform_proto_rawDesc)),
-			NumEnums:      3,
+			NumEnums:      4,
 			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,

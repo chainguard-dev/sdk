@@ -4,10 +4,11 @@ option go_package = "chainguard.dev/sdk/proto/platform/libraries/v1";
 
 package chainguard.platform.libraries;
 
-import "google/api/annotations.proto";
-import "google/protobuf/empty.proto";
 import "annotations/auth.proto";
 import "annotations/events.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 service Entitlements {
@@ -85,6 +86,10 @@ message Entitlement {
   // policy bound to the (org, ecosystem) pair, never on the entitlement.
   reserved 5;
   reserved "cooldown_days";
+  // tiers is the set of serving tiers this entitlement grants, sorted by
+  // value name. It decides which versions are served. policy does not tell
+  // apart sets that differ only in TIER_REMEDIATED.
+  repeated Tier tiers = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message EntitlementList {
@@ -136,6 +141,19 @@ enum Policy {
   POLICY_UNKNOWN = 0;                 // defaults to CHAINGUARD behavior
   POLICY_CHAINGUARD = 1;              // internal packages only
   POLICY_CHAINGUARD_AND_UPSTREAM = 2; // internal + upstream (with cooldown)
+}
+
+// Tier identifies where an artifact's bytes come from.
+enum Tier {
+  TIER_UNSPECIFIED = 0;
+  // Chainguard-built artifacts.
+  TIER_CHAINGUARD = 1;
+  // Upstream artifacts mirrored or proxied from the public registry.
+  TIER_UPSTREAM = 2;
+  // Chainguard-remediated versions of upstream releases.
+  TIER_REMEDIATED = 3;
+  // Artifacts of the Argos ecosystems.
+  TIER_ARGOS = 4;
 }
 
 // Source indicates how an entitlement was created.
