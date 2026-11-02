@@ -330,6 +330,51 @@ func (t token) uncover(audience string) error {
 	return set.flush()
 }
 
+// RefreshTokenID returns the ID of the Chainguard refresh token tok, the
+// current_token_id the sessions API takes to mark the session holding it.
+func RefreshTokenID(tok []byte) (string, error) {
+	c, ok := parseRefresh(string(tok))
+	if !ok || c.KeyID == "" {
+		return "", errors.New("token: not a Chainguard refresh token")
+	}
+	return c.KeyID, nil
+}
+
+// FamilyTokenIDs returns the ID of the current token of each unexpired
+// refresh-token family of the issuer named by WithIssuer, newest
+// family first. Each names one session to the sessions API, which lists no
+// session for an expired family. Per-audience copies of the issuer's tokens
+// are adopted first, so a session held only in a copy an older writer left is
+// named too.
+func FamilyTokenIDs(opts ...Option) ([]string, error) {
+	t := newToken(opts...)
+	if err := t.familyCheck(); err != nil {
+		return nil, err
+	}
+	unlock, err := lockStore(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	defer unlock()
+	set, err := t.adoptedFamilies("")
+	if err != nil {
+		return nil, err
+	}
+	now := time.Now()
+	ids := make([]string, 0, len(set.all))
+	for _, f := range set.all {
+		if f.Issuer != t.issuer {
+			continue
+		}
+		c, ok := parseRefresh(f.Token)
+		if !ok || c.KeyID == "" || (c.Expiry != 0 && time.Unix(c.Expiry, 0).Before(now)) {
+			continue
+		}
+		ids = append(ids, c.KeyID)
+	}
+	return ids, nil
+}
+
 // DeleteFamilies removes every refresh-token family and the per-audience
 // copies of each family's token, leaving other per-audience token files and
 // the store's lock file in place. Every family holds a
@@ -589,8 +634,11 @@ func (s *familySet) flush() error {
 // refreshClaims are the claims of a Chainguard refresh token the store reads:
 // the standard-base64 JSON the issuer packs, read without verification, since
 // they only decide which stored token to present to the issuer that verifies
-// it.
+// it, or name the token to the sessions API.
 type refreshClaims struct {
+	// KeyID is the token's ID: the issuer stores the token's verification
+	// key under it, and the sessions API calls it the token's key ID (kid).
+	KeyID     string          `json:"kid"`
 	Issuer    string          `json:"iss"`
 	Subject   string          `json:"sub"`
 	Expiry    int64           `json:"exp"`
