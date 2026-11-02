@@ -171,5 +171,8 @@ func (t *entryTree) resolve(from string) error {
 		lens = lens[:len(lens)-1]
 		pending = append(strings.Split(target, "/"), pending...)
 	}
+	if isReservedKey(string(key)) {
+		return rejectf(ReasonReservedPath, from, "symlink chain resolves to the manifest %q or its directory", ManifestPath)
+	}
 	return nil
 }

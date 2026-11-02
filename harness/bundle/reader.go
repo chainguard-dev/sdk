@@ -266,8 +266,8 @@ func entryFromHeader(hdr *tar.Header, lim Limits) (Entry, error) {
 	if err := checkPath(e.Path, lim); err != nil {
 		return Entry{}, err
 	}
-	if e.Path == ManifestPath {
-		return Entry{}, rejectf(ReasonReservedPath, e.Path, "source tree contains the reserved manifest path")
+	if err := checkReserved(e.Path, e.Type); err != nil {
+		return Entry{}, err
 	}
 	switch e.Type {
 	case TypeFile:

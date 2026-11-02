@@ -23,8 +23,13 @@ const (
 	Format = "harness-source-v1alpha1"
 
 	// ManifestPath is the reserved path of the manifest, the bundle's first
-	// entry. A source tree that contains this path is rejected.
-	ManifestPath = ".chainguard-harness/manifest.json"
+	// entry. A source tree that contains this path is rejected, and so is one
+	// that could alias it or its directory; see the package doc.
+	ManifestPath = manifestDir + "/" + manifestName
+
+	// manifestDir and manifestName are ManifestPath's two components.
+	manifestDir  = ".chainguard-harness"
+	manifestName = "manifest.json"
 
 	// treeHashDomain is the first field of the tree hash input, pinning the
 	// record layout documented in the package doc. Changing the layout means
@@ -452,8 +457,8 @@ func normalizeEntry(e Entry, lim Limits) (Entry, error) {
 	if err := checkPath(e.Path, lim); err != nil {
 		return Entry{}, err
 	}
-	if e.Path == ManifestPath {
-		return Entry{}, rejectf(ReasonReservedPath, e.Path, "source tree contains the reserved manifest path")
+	if err := checkReserved(e.Path, e.Type); err != nil {
+		return Entry{}, err
 	}
 	switch e.Type {
 	case TypeFile:
@@ -490,6 +495,51 @@ func normalizeEntry(e Entry, lim Limits) (Entry, error) {
 		return Entry{}, rejectf(ReasonEntryType, e.Path, "unsupported entry type %q", e.Type)
 	}
 	return e, nil
+}
+
+// The manifest's components, keyed the way entryTree keys paths.
+var (
+	manifestDirKey  = fold(manifestDir)
+	manifestNameKey = fold(manifestName)
+)
+
+// checkReserved refuses a path that lands on the manifest, or on the directory
+// that holds it, on a host that folds case and normalization. The manifest
+// never passes through entryTree, so the tree's own collision rules cannot see
+// it. The directory may be declared, and may hold other entries, but only
+// under the writer's spelling: any other spelling merges with it on such a
+// host, so the tree that lands is not the one tree_sha256 covers.
+func checkReserved(p string, typ EntryType) error {
+	top, rest, under := strings.Cut(p, "/")
+	if fold(top) != manifestDirKey {
+		return nil
+	}
+	name, _, _ := strings.Cut(rest, "/")
+	switch {
+	case top != manifestDir:
+		return rejectf(ReasonReservedPath, p, "%q is the manifest's directory %q spelled another way", top, manifestDir)
+	case !under && typ != TypeDir:
+		return rejectf(ReasonReservedPath, p, "%q is reserved for the manifest's directory, and is a %s here", p, typ)
+	case under && fold(name) == manifestNameKey:
+		return rejectf(ReasonReservedPath, p, "path is the reserved manifest path %q, or under it, once case is folded", ManifestPath)
+	}
+	return nil
+}
+
+// isReservedKey reports whether a folded path is the manifest's directory, the
+// manifest, or a path under the manifest. A symlink resolving to any of them
+// reaches the manifest once the bundle is extracted, even though it dangles in
+// the tree it was packed from.
+func isReservedKey(k string) bool {
+	rest, ok := strings.CutPrefix(k, manifestDirKey)
+	if !ok {
+		return false
+	}
+	if rest == "" {
+		return true
+	}
+	rest, ok = strings.CutPrefix(rest, "/"+manifestNameKey)
+	return ok && (rest == "" || rest[0] == '/')
 }
 
 // treeHasher accumulates tree_sha256 over entries in tar order. The writer

@@ -15,8 +15,17 @@ SPDX-License-Identifier: Apache-2.0
 // # The tar
 //
 // The manifest is the first entry, at [ManifestPath]; that path is reserved and
-// a source tree containing it is rejected. Every later entry is sorted after it
-// by [Entry.Path] in byte order, and each path appears once. The ordering key is
+// a source tree containing it is rejected. Its directory, ".chainguard-harness",
+// is reserved with it, compared as paths are compared below. A source tree may
+// declare that directory and keep other entries in it, under that exact
+// spelling only. The tree may not name the directory as a file or a symlink,
+// spell it another way, or hold anything at or under the manifest's path in
+// any spelling. No symlink chain may resolve to the manifest, to anything
+// under it, or to its directory: such a link dangles in the source tree but
+// reaches the manifest once the bundle is extracted.
+//
+// Every entry after the manifest is sorted by [Entry.Path] in byte order, and
+// each path appears once. The ordering key is
 // the entry's path, not the name it takes in the tar: a directory is stored with
 // a trailing slash, and "cmd/" sorts after "cmd.go" where "cmd" sorts before it.
 // Sorting on the tar name would put a directory and its siblings in a different
