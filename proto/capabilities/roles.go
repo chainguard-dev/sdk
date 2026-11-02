@@ -524,12 +524,15 @@ var (
 		Capability_CAP_INTERNAL,
 	})
 
-	// LibrariesRebuilderCVERemediationsViewerCaps is the list-only counterpart to
+	// LibrariesRebuilderCVERemediationsViewerCaps is the write-free counterpart to
 	// the CVE_REMEDIATIONS_LIST capability bundled in LibrariesRebuilderAdminCaps:
-	// an automated reader that only needs to list cve-remediations (e.g. a
-	// selector service) should not also inherit admin's UPDATE capability or its
-	// request-groups escape hatches. Binding such a reader to admin would be a
-	// privilege grant, not a convenience.
+	// an automated reader (e.g. a selector service) should not also inherit admin's
+	// UPDATE capability or its request-groups escape hatches. Binding such a reader
+	// to admin would be a privilege grant, not a convenience.
+	//
+	// CVE_REMEDIATIONS_LIST reaches wider than its name. In rebuilder-api it gates
+	// the patch-run reads, the cross-tenant demand aggregate and the fork-line
+	// state read as well as the cve-remediation list — all GETs, no write path.
 	LibrariesRebuilderCVERemediationsViewerCaps = SortCaps([]Capability{
 		Capability_CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_LIST,
 		Capability_CAP_INTERNAL,
