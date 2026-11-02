@@ -316,8 +316,8 @@ type Entitlement struct {
 	// source indicates how this entitlement was provisioned.
 	Source Source `protobuf:"varint,4,opt,name=source,proto3,enum=chainguard.platform.libraries.Source" json:"source,omitempty"`
 	// tiers is the set of serving tiers this entitlement grants, sorted by
-	// value name. It decides which versions are served. policy does not tell
-	// apart sets that differ only in TIER_REMEDIATED.
+	// value name. It decides which versions are served. A grant with no stored
+	// set reports the set serving falls back to.
 	Tiers         []Tier `protobuf:"varint,6,rep,packed,name=tiers,proto3,enum=chainguard.platform.libraries.Tier" json:"tiers,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

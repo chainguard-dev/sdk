@@ -87,8 +87,8 @@ message Entitlement {
   reserved 5;
   reserved "cooldown_days";
   // tiers is the set of serving tiers this entitlement grants, sorted by
-  // value name. It decides which versions are served. policy does not tell
-  // apart sets that differ only in TIER_REMEDIATED.
+  // value name. It decides which versions are served. A grant with no stored
+  // set reports the set serving falls back to.
   repeated Tier tiers = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
