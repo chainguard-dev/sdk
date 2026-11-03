@@ -24,6 +24,7 @@ type MockArgosDocumentsClient struct {
 
 	OnCreate []ArgosDocumentsOnCreate
 	OnList   []ArgosDocumentsOnList
+	OnStats  []ArgosDocumentsOnStats
 	OnDelete []ArgosDocumentsOnDelete
 }
 
@@ -36,6 +37,12 @@ type ArgosDocumentsOnCreate struct {
 type ArgosDocumentsOnList struct {
 	Given *argos.ArgosDocumentFilter
 	List  *argos.ArgosDocumentList
+	Error error
+}
+
+type ArgosDocumentsOnStats struct {
+	Given *argos.ArgosDocumentStatsRequest
+	Stats *argos.ArgosDocumentStats
 	Error error
 }
 
@@ -57,6 +64,15 @@ func (m MockArgosDocumentsClient) List(_ context.Context, given *argos.ArgosDocu
 	for _, o := range m.OnList {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.List, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockArgosDocumentsClient) Stats(_ context.Context, given *argos.ArgosDocumentStatsRequest, _ ...grpc.CallOption) (*argos.ArgosDocumentStats, error) {
+	for _, o := range m.OnStats {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Stats, o.Error
 		}
 	}
 	return nil, fmt.Errorf("mock not found for %v", given)

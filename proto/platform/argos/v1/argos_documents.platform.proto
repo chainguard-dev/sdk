@@ -42,6 +42,21 @@ service ArgosDocuments {
     };
   }
 
+  // Stats returns organization-wide totals over the documents matching the
+  // request: submissions, per-file findings, the CGP identifiers they
+  // resolved to, and those identifiers' patch state.
+  rpc Stats(ArgosDocumentStatsRequest) returns (ArgosDocumentStats) {
+    option (google.api.http) = {
+      get: "/argos/v1/documents/stats"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_ARGOS_DOCUMENTS_LIST]
+        unscoped: true
+      }
+    };
+  }
+
   rpc Delete(DeleteArgosDocumentRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/argos/v1/documents/{id=**}"
@@ -290,4 +305,78 @@ message ArgosDocumentList {
   // Number of results that were skipped. Accumulates across paginated
   // requests.
   int32 skipped = 4;
+}
+
+message ArgosDocumentStatsRequest {
+  // uidp filters documents based on their position in the group hierarchy.
+  chainguard.platform.common.UIDPFilter uidp = 1;
+
+  // Filter to documents in a specific lifecycle state.
+  // STATUS_UNSPECIFIED (the default) counts documents in any state.
+  ArgosDocument.Status status = 2;
+
+  // created_since counts documents created at or after the given time.
+  google.protobuf.Timestamp created_since = 3;
+
+  // finding_status, when set, counts only file bindings in this state, and
+  // takes CGP identifiers from those bindings alone, dropping identifiers
+  // attached only at the document level. Unset counts every binding.
+  optional ArgosDocumentFileBinding.Status finding_status = 4;
+
+  // patch_filter restricts the cgps and patches totals; submissions and
+  // findings are unaffected.
+  PatchFilter patch_filter = 5;
+
+  enum PatchFilter {
+    // No restriction.
+    PATCH_FILTER_UNSPECIFIED = 0;
+    // Only identifiers whose record has a fixed version.
+    PATCH_FILTER_FIX_AVAILABLE = 1;
+    // Only identifiers whose record has no fixed version.
+    PATCH_FILTER_NO_FIX = 2;
+  }
+}
+
+// ArgosDocumentStats holds totals only; it lists no documents or
+// identifiers. Each CGP identifier counts once however many documents
+// resolved to it.
+message ArgosDocumentStats {
+  // submissions counts documents keyed by ArgosDocument.Status name.
+  map<string, int64> submissions = 1;
+
+  // findings counts file bindings keyed by ArgosDocumentFileBinding.Status
+  // name.
+  map<string, int64> findings = 2;
+
+  // cgps classifies the distinct CGP identifiers the documents resolved to.
+  ArgosDocumentCGPStats cgps = 3;
+
+  // patches summarizes the patch state of identifiers with a served record.
+  ArgosDocumentPatchStats patches = 4;
+}
+
+message ArgosDocumentCGPStats {
+  // novel counts identifiers whose record was published at or after the
+  // earliest referencing document's created_at.
+  int64 novel = 1;
+
+  // duplicate counts identifiers whose record was published strictly before
+  // the earliest referencing document's created_at.
+  int64 duplicate = 2;
+
+  // unresolved counts identifiers with no served record; they count in no
+  // other field of ArgosDocumentStats.
+  int64 unresolved = 3;
+}
+
+message ArgosDocumentPatchStats {
+  // fix_available counts identifiers whose record has any fixed version.
+  int64 fix_available = 1;
+
+  // no_fix counts identifiers whose record has no fixed version.
+  int64 no_fix = 2;
+
+  // by_status counts identifiers keyed by PatchStatus name (see
+  // argos_osv.platform.proto).
+  map<string, int64> by_status = 3;
 }

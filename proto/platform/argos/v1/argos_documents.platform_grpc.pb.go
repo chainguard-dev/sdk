@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	ArgosDocuments_Create_FullMethodName          = "/chainguard.platform.argos.ArgosDocuments/Create"
 	ArgosDocuments_List_FullMethodName            = "/chainguard.platform.argos.ArgosDocuments/List"
+	ArgosDocuments_Stats_FullMethodName           = "/chainguard.platform.argos.ArgosDocuments/Stats"
 	ArgosDocuments_Delete_FullMethodName          = "/chainguard.platform.argos.ArgosDocuments/Delete"
 	ArgosDocuments_GetOrgPublicKey_FullMethodName = "/chainguard.platform.argos.ArgosDocuments/GetOrgPublicKey"
 )
@@ -32,6 +33,10 @@ const (
 type ArgosDocumentsClient interface {
 	Create(ctx context.Context, in *CreateArgosDocumentRequest, opts ...grpc.CallOption) (*ArgosDocument, error)
 	List(ctx context.Context, in *ArgosDocumentFilter, opts ...grpc.CallOption) (*ArgosDocumentList, error)
+	// Stats returns organization-wide totals over the documents matching the
+	// request: submissions, per-file findings, the CGP identifiers they
+	// resolved to, and those identifiers' patch state.
+	Stats(ctx context.Context, in *ArgosDocumentStatsRequest, opts ...grpc.CallOption) (*ArgosDocumentStats, error)
 	Delete(ctx context.Context, in *DeleteArgosDocumentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// GetOrgPublicKey returns the PEM-encoded RSA-OAEP public key for the
 	// given organization. Clients fetch this once per upload destination and
@@ -68,6 +73,16 @@ func (c *argosDocumentsClient) List(ctx context.Context, in *ArgosDocumentFilter
 	return out, nil
 }
 
+func (c *argosDocumentsClient) Stats(ctx context.Context, in *ArgosDocumentStatsRequest, opts ...grpc.CallOption) (*ArgosDocumentStats, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ArgosDocumentStats)
+	err := c.cc.Invoke(ctx, ArgosDocuments_Stats_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *argosDocumentsClient) Delete(ctx context.Context, in *DeleteArgosDocumentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
@@ -94,6 +109,10 @@ func (c *argosDocumentsClient) GetOrgPublicKey(ctx context.Context, in *GetArgos
 type ArgosDocumentsServer interface {
 	Create(context.Context, *CreateArgosDocumentRequest) (*ArgosDocument, error)
 	List(context.Context, *ArgosDocumentFilter) (*ArgosDocumentList, error)
+	// Stats returns organization-wide totals over the documents matching the
+	// request: submissions, per-file findings, the CGP identifiers they
+	// resolved to, and those identifiers' patch state.
+	Stats(context.Context, *ArgosDocumentStatsRequest) (*ArgosDocumentStats, error)
 	Delete(context.Context, *DeleteArgosDocumentRequest) (*emptypb.Empty, error)
 	// GetOrgPublicKey returns the PEM-encoded RSA-OAEP public key for the
 	// given organization. Clients fetch this once per upload destination and
@@ -115,6 +134,9 @@ func (UnimplementedArgosDocumentsServer) Create(context.Context, *CreateArgosDoc
 }
 func (UnimplementedArgosDocumentsServer) List(context.Context, *ArgosDocumentFilter) (*ArgosDocumentList, error) {
 	return nil, status.Error(codes.Unimplemented, "method List not implemented")
+}
+func (UnimplementedArgosDocumentsServer) Stats(context.Context, *ArgosDocumentStatsRequest) (*ArgosDocumentStats, error) {
+	return nil, status.Error(codes.Unimplemented, "method Stats not implemented")
 }
 func (UnimplementedArgosDocumentsServer) Delete(context.Context, *DeleteArgosDocumentRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method Delete not implemented")
@@ -179,6 +201,24 @@ func _ArgosDocuments_List_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ArgosDocuments_Stats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ArgosDocumentStatsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArgosDocumentsServer).Stats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ArgosDocuments_Stats_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArgosDocumentsServer).Stats(ctx, req.(*ArgosDocumentStatsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ArgosDocuments_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteArgosDocumentRequest)
 	if err := dec(in); err != nil {
@@ -229,6 +269,10 @@ var ArgosDocuments_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "List",
 			Handler:    _ArgosDocuments_List_Handler,
+		},
+		{
+			MethodName: "Stats",
+			Handler:    _ArgosDocuments_Stats_Handler,
 		},
 		{
 			MethodName: "Delete",
