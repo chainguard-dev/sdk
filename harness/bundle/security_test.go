@@ -15,6 +15,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/klauspost/compress/zstd"
 
 	"chainguard.dev/sdk/harness/bundle"
 )
@@ -177,6 +178,7 @@ func TestWindowsDeviceAndStreamNamesRejected(t *testing.T) {
 		"notes.txt:hidden", "a/b:stream",
 		"COM¹", "com².txt", "a/LPT³", "lpt¹.log",
 		"CONIN$", "conout$.txt", "a/ConIn$",
+		"LPT1", "a/com5.txt",
 	} {
 		t.Run(p, func(t *testing.T) {
 			checkPathForms(t, p, bundle.ReasonUnsafePath, bundle.ReasonSymlinkEscape)
@@ -270,6 +272,41 @@ func TestUnicodeNormalizationAliasesRejected(t *testing.T) {
 		file(decomposed, 0o644, "one"),
 		file(composed, 0o644, "two"),
 	}, bundle.ReasonDuplicatePath)
+}
+
+// A frame header names the window the decoder must hold before any entry is
+// read, so a window over the reader's cap is refused from the header alone.
+func TestZstdWindowOverTheCapRejected(t *testing.T) {
+	var bundled bytes.Buffer
+	if _, err := (&bundle.Writer{}).Write(t.Context(), &bundled, goldenManifest(), goldenEntries()); err != nil {
+		t.Fatalf("Write: %v", err)
+	}
+	// The writer's frame is single-segment, which has no window descriptor to
+	// raise; re-encode its tar without that flag.
+	var buf bytes.Buffer
+	zw, err := zstd.NewWriter(&buf, zstd.WithSingleSegment(false))
+	if err != nil {
+		t.Fatalf("zstd writer: %v", err)
+	}
+	if _, err := zw.Write(untar(t, bundled.Bytes())); err != nil {
+		t.Fatalf("compressing: %v", err)
+	}
+	if err := zw.Close(); err != nil {
+		t.Fatalf("closing zstd: %v", err)
+	}
+	data := buf.Bytes()
+	if data[4]&0x20 != 0 {
+		t.Fatalf("frame header descriptor %#02x is single-segment", data[4])
+	}
+	if _, err := bundle.Validate(t.Context(), bytes.NewReader(data)); err != nil {
+		t.Fatalf("Validate rejected the re-encoded bundle: %v", err)
+	}
+	// The window descriptor follows the frame header descriptor. Exponent 17,
+	// in its top five bits, declares 1<<27 bytes: 128 MiB, twice the cap.
+	data[5] = 17 << 3
+	if _, err := bundle.Validate(t.Context(), bytes.NewReader(data)); !isReason(err, bundle.ReasonMalformed) {
+		t.Errorf("Validate: got = %v, want reason %q", err, bundle.ReasonMalformed)
+	}
 }
 
 // A frame header's remainder runs to 13 bytes (window descriptor, 4-byte

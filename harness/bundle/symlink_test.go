@@ -47,6 +47,13 @@ func TestSymlinkChains(t *testing.T) {
 			want: bundle.ReasonSymlinkEscape,
 		},
 		{
+			// The walk drops "." components. Kept, "./d/b" would miss the link
+			// at d/b, whose ".." takes the chain out of the tree.
+			name: "escape behind a dot segment",
+			tree: []rawEntry{link("a", tar.TypeSymlink, "./d/b/../.."), link("d/b", tar.TypeSymlink, "..")},
+			want: bundle.ReasonSymlinkEscape,
+		},
+		{
 			name: "symlink parent aliases an entry",
 			tree: []rawEntry{link("a", tar.TypeSymlink, "."), link("a/b", tar.TypeSymlink, "..")},
 			want: bundle.ReasonUnsafePath,

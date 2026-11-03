@@ -378,6 +378,10 @@ func TestNormalizeIsIntakesSeam(t *testing.T) {
 		entry: symlinkEntry("docs/entry.md", "../../etc/shadow"),
 		want:  bundle.ReasonSymlinkEscape,
 	}, {
+		name:  "a symlink to the tree's parent is dropped",
+		entry: symlinkEntry("docs/up", "../.."),
+		want:  bundle.ReasonSymlinkEscape,
+	}, {
 		name:  "a backslash in a name is dropped",
 		entry: fileEntry(`weird\name.txt`, 0o644, "x"),
 		want:  bundle.ReasonUnsafePath,
@@ -385,6 +389,10 @@ func TestNormalizeIsIntakesSeam(t *testing.T) {
 		name:  "the reserved manifest path is dropped",
 		entry: fileEntry(bundle.ManifestPath, 0o644, "{}"),
 		want:  bundle.ReasonReservedPath,
+	}, {
+		name:  "a file over the size limit is dropped",
+		entry: bundle.Entry{Path: "big.bin", Type: bundle.TypeFile, Size: bundle.DefaultLimits().MaxFileBytes + 1, Open: opener("")},
+		want:  bundle.ReasonFileTooLarge,
 	}, {
 		name:  "a type the format cannot carry is dropped",
 		entry: bundle.Entry{Path: "var/pipe", Type: bundle.EntryType("fifo")},

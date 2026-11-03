@@ -86,6 +86,10 @@ func TestValidateRejects(t *testing.T) {
 		write: entries(link("a/evil", tar.TypeSymlink, `..\..\etc\shadow`)),
 		want:  bundle.ReasonSymlinkEscape,
 	}, {
+		name:  "link target that is not UTF-8",
+		write: entries(link("a/evil", tar.TypeSymlink, "b\xff")),
+		want:  bundle.ReasonSymlinkEscape,
+	}, {
 		name:  "duplicate path",
 		write: entries(file("a.txt", 0o644, "one"), file("a.txt", 0o644, "two")),
 		want:  bundle.ReasonDuplicatePath,
@@ -138,6 +142,10 @@ func TestValidateRejects(t *testing.T) {
 		write: entries(special("src/", tar.TypeDir, 0o644)),
 		want:  bundle.ReasonMetadata,
 	}, {
+		name:  "symlink with a file's mode",
+		write: entries(special("a/evil", tar.TypeSymlink, 0o644)),
+		want:  bundle.ReasonMetadata,
+	}, {
 		name:  "non-epoch mtime",
 		write: entries(tweak(file("a.txt", 0o644, "x"), func(h *tar.Header) { h.ModTime = time.Date(2026, time.October, 5, 12, 0, 0, 0, time.UTC) })),
 		want:  bundle.ReasonMetadata,
@@ -146,9 +154,33 @@ func TestValidateRejects(t *testing.T) {
 		write: entries(tweak(file("a.txt", 0o644, "x"), func(h *tar.Header) { h.Uid, h.Gid = 501, 20 })),
 		want:  bundle.ReasonMetadata,
 	}, {
+		name:  "non-zero uid alone",
+		write: entries(tweak(file("a.txt", 0o644, "x"), func(h *tar.Header) { h.Uid = 501 })),
+		want:  bundle.ReasonMetadata,
+	}, {
+		name:  "non-zero gid alone",
+		write: entries(tweak(file("a.txt", 0o644, "x"), func(h *tar.Header) { h.Gid = 20 })),
+		want:  bundle.ReasonMetadata,
+	}, {
 		name:  "uname set",
 		write: entries(tweak(file("a.txt", 0o644, "x"), func(h *tar.Header) { h.Uname = "mallory" })),
 		want:  bundle.ReasonMetadata,
+	}, {
+		name:  "gname set",
+		write: entries(tweak(file("a.txt", 0o644, "x"), func(h *tar.Header) { h.Gname = "staff" })),
+		want:  bundle.ReasonMetadata,
+	}, {
+		name:  "device major number on a file",
+		write: entries(tweak(file("a.txt", 0o644, "x"), func(h *tar.Header) { h.Devmajor = 5 })),
+		want:  bundle.ReasonMetadata,
+	}, {
+		name:  "device minor number on a file",
+		write: entries(tweak(file("a.txt", 0o644, "x"), func(h *tar.Header) { h.Devminor = 1 })),
+		want:  bundle.ReasonMetadata,
+	}, {
+		name:  "GNU-format header",
+		write: entries(tweak(file("a.txt", 0o644, "x"), func(h *tar.Header) { h.Format = tar.FormatGNU })),
+		want:  bundle.ReasonMalformed,
 	}, {
 		name: "extra PAX record",
 		write: entries(tweak(file("a.txt", 0o644, "x"), func(h *tar.Header) {
@@ -160,9 +192,23 @@ func TestValidateRejects(t *testing.T) {
 		write: entries(tweak(link("a/evil", tar.TypeSymlink, "b"), func(h *tar.Header) { h.Size = 16 })),
 		want:  bundle.ReasonMetadata,
 	}, {
+		name:  "directory declaring content",
+		write: entries(tweak(dir("src"), func(h *tar.Header) { h.Size = 16 })),
+		want:  bundle.ReasonMetadata,
+	}, {
+		name:  "file carrying a link target",
+		write: entries(tweak(file("a.txt", 0o644, "x"), func(h *tar.Header) { h.Linkname = "b.txt" })),
+		want:  bundle.ReasonMetadata,
+	}, {
 		name:   "path too long",
 		limits: bundle.Limits{MaxPathBytes: 24},
 		write:  entries(file(strings.Repeat("a", 32)+".txt", 0o644, "x")),
+		want:   bundle.ReasonPathTooLong,
+	}, {
+		// The limit admits the manifest's own path, which is read first.
+		name:   "link target too long",
+		limits: bundle.Limits{MaxPathBytes: len(bundle.ManifestPath)},
+		write:  entries(link("a", tar.TypeSymlink, strings.Repeat("b", len(bundle.ManifestPath)+1))),
 		want:   bundle.ReasonPathTooLong,
 	}, {
 		name:   "path too deep",
@@ -232,6 +278,22 @@ func TestValidateRejects(t *testing.T) {
 	}, {
 		name: "manifest with a bad commit",
 		m:    &bundle.Manifest{Kind: bundle.KindGit, Commit: "HEAD", Client: "chainctl v0.1.2"},
+		want: bundle.ReasonInvalidManifest,
+	}, {
+		name: "manifest with a commit that is not hex",
+		m:    &bundle.Manifest{Kind: bundle.KindGit, Commit: strings.Repeat("g", 40), Client: "chainctl v0.1.2"},
+		want: bundle.ReasonInvalidManifest,
+	}, {
+		name: "manifest with a 41-digit commit",
+		m:    &bundle.Manifest{Kind: bundle.KindGit, Commit: strings.Repeat("a", 41), Client: "chainctl v0.1.2"},
+		want: bundle.ReasonInvalidManifest,
+	}, {
+		name: "manifest with another format",
+		m:    &bundle.Manifest{Format: "harness-source-v1alpha0", Kind: bundle.KindFolder, Client: "chainctl v0.1.2"},
+		want: bundle.ReasonInvalidManifest,
+	}, {
+		name: "manifest with a non-ASCII client",
+		m:    &bundle.Manifest{Kind: bundle.KindFolder, Client: "chainctl\u202ev0.1.2"},
 		want: bundle.ReasonInvalidManifest,
 	}, {
 		name:  "tree hash does not match the entries",
@@ -505,6 +567,83 @@ func TestManifestTrailingContent(t *testing.T) {
 			if tc.wantErr {
 				if !isReason(err, bundle.ReasonInvalidManifest) || got != nil {
 					t.Errorf("Validate: got = %v, %v, want = nil, reason %q", got, err, bundle.ReasonInvalidManifest)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("Validate: %v", err)
+			}
+			if diff := gocmp.Diff(&m, got); diff != "" {
+				t.Errorf("manifest (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+// The manifest never passes through entryFromHeader, so readManifest applies
+// its own header rules. Each row breaks one of them in an otherwise valid
+// bundle with no other entries, so dropping a rule leaves the row accepted.
+func TestManifestHeaderRules(t *testing.T) {
+	m := goldenManifest()
+	m.Format, m.TreeSHA256 = bundle.Format, specTreeHash()
+	doc, err := json.Marshal(m)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The reader's bound on the manifest entry.
+	const maxManifestBytes = 64 << 10
+	for _, tc := range []struct {
+		name  string
+		tweak func(*tar.Header)
+		// size, when set, pads the manifest with JSON whitespace to this many
+		// bytes, which the decoder alone accepts.
+		size int
+		want bundle.Reason
+	}{{
+		name: "valid",
+	}, {
+		name: "at the size bound",
+		size: maxManifestBytes,
+	}, {
+		name: "over the size bound",
+		size: maxManifestBytes + 1,
+		want: bundle.ReasonInvalidManifest,
+	}, {
+		name:  "under another name",
+		tweak: func(h *tar.Header) { h.Name = "manifest.json" },
+		want:  bundle.ReasonInvalidManifest,
+	}, {
+		// archive/tar hands back a contiguous file's content like a regular
+		// file's.
+		name:  "not a regular file",
+		tweak: func(h *tar.Header) { h.Typeflag = tar.TypeCont },
+		want:  bundle.ReasonInvalidManifest,
+	}, {
+		name:  "setuid mode",
+		tweak: func(h *tar.Header) { h.Mode = 0o4644 },
+		want:  bundle.ReasonMetadata,
+	}, {
+		name:  "a link target",
+		tweak: func(h *tar.Header) { h.Linkname = "a.txt" },
+		want:  bundle.ReasonMetadata,
+	}, {
+		name:  "a non-epoch mtime",
+		tweak: func(h *tar.Header) { h.ModTime = time.Date(2026, time.October, 5, 12, 0, 0, 0, time.UTC) },
+		want:  bundle.ReasonMetadata,
+	}} {
+		t.Run(tc.name, func(t *testing.T) {
+			body := string(doc)
+			if tc.size > 0 {
+				body += strings.Repeat(" ", tc.size-len(body))
+			}
+			e := raw(manifestHeader(), body)
+			if tc.tweak != nil {
+				tc.tweak(e.h)
+			}
+			got, err := bundle.Validate(t.Context(), bytes.NewReader(rawTar(t, entries(e))))
+			if tc.want != "" {
+				if !isReason(err, tc.want) || got != nil {
+					t.Errorf("Validate: got = %v, %v, want = nil, reason %q", got, err, tc.want)
 				}
 				return
 			}
