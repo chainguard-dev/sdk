@@ -67,8 +67,7 @@ func (x *IdentityProvider) CloudEventsRedact() any {
 				// secret or PKCE.
 				PkceEnabled: cfg.Oidc.PkceEnabled,
 				// correlation_rule is configuration, not a credential: the audit
-				// event must record how logins bind to SCIM-provisioned users —
-				// the rule is write-once, so the create event is its only record.
+				// event must record how logins bind to SCIM-provisioned users.
 				CorrelationRule: cfg.Oidc.CorrelationRule,
 				// token_endpoint_auth_method is configuration, not a credential:
 				// the audit event must record how the client authenticates at the

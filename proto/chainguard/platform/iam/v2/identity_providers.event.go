@@ -28,6 +28,10 @@ var (
 	_ events.Extendable     = (*RevokeScimTokenResponse)(nil)
 	_ events.Eventable      = (*SetScimEnabledResponse)(nil)
 	_ events.Extendable     = (*SetScimEnabledResponse)(nil)
+	_ events.Eventable      = (*ResetCorrelationRuleResponse)(nil)
+	_ events.Extendable     = (*ResetCorrelationRuleResponse)(nil)
+	_ events.Redactable     = (*ResetCorrelationRuleResponse)(nil)
+	_ events.AsyncEventable = (*ResetCorrelationRuleResponse)(nil)
 )
 
 // CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension
@@ -67,8 +71,7 @@ func (x *IdentityProvider) CloudEventsRedact() any {
 				// secret or PKCE.
 				PkceEnabled: cfg.Oidc.PkceEnabled,
 				// correlation_rule is configuration, not a credential: the audit
-				// event must record how logins bind to SCIM-provisioned users —
-				// the rule is write-once, so the create event is its only record.
+				// event must record how logins bind to SCIM-provisioned users.
 				CorrelationRule: cfg.Oidc.CorrelationRule,
 				// token_endpoint_auth_method is configuration, not a credential:
 				// the audit event must record how the client authenticates at the
@@ -160,4 +163,31 @@ func (x *RevokeScimTokenResponse) CloudEventsExtension(key string) (string, bool
 func (x *SetScimEnabledResponse) CloudEventsSubject() string { return x.GetIdentityProviderUid() }
 func (x *SetScimEnabledResponse) CloudEventsExtension(key string) (string, bool) {
 	return scimEventExtension(x.GetIdentityProviderUid(), key)
+}
+
+func (x *ResetCorrelationRuleResponse) CloudEventsSubject() string {
+	return x.GetIdentityProvider().GetUid()
+}
+
+// CloudEventsAsync delivers the reset's audit event detached from the request,
+// so a caller that gave up while the reset finished does not cancel it.
+func (x *ResetCorrelationRuleResponse) CloudEventsAsync() bool { return true }
+func (x *ResetCorrelationRuleResponse) CloudEventsExtension(key string) (string, bool) {
+	return scimEventExtension(x.GetIdentityProvider().GetUid(), key)
+}
+
+// CloudEventsRedact keeps the reset's outcome, which is the audit record, and
+// redacts the identity provider as its own events do.
+func (x *ResetCorrelationRuleResponse) CloudEventsRedact() any {
+	r := &ResetCorrelationRuleResponse{
+		PreviousCorrelationRule: x.PreviousCorrelationRule,
+		Changed:                 x.Changed,
+		UsersUnlinked:           x.UsersUnlinked,
+		BindingsDropped:         x.BindingsDropped,
+		UnlinkComplete:          x.UnlinkComplete,
+	}
+	if x.IdentityProvider != nil {
+		r.IdentityProvider = x.IdentityProvider.CloudEventsRedact().(*IdentityProvider)
+	}
+	return r
 }

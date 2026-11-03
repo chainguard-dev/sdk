@@ -32,6 +32,7 @@ const (
 	IdentityProvidersService_RegenerateScimToken_FullMethodName    = "/chainguard.platform.iam.v2.IdentityProvidersService/RegenerateScimToken"
 	IdentityProvidersService_RevokeScimToken_FullMethodName        = "/chainguard.platform.iam.v2.IdentityProvidersService/RevokeScimToken"
 	IdentityProvidersService_SetScimEnabled_FullMethodName         = "/chainguard.platform.iam.v2.IdentityProvidersService/SetScimEnabled"
+	IdentityProvidersService_ResetCorrelationRule_FullMethodName   = "/chainguard.platform.iam.v2.IdentityProvidersService/ResetCorrelationRule"
 )
 
 // IdentityProvidersServiceClient is the client API for IdentityProvidersService service.
@@ -90,6 +91,35 @@ type IdentityProvidersServiceClient interface {
 	// simply rejects every provisioning request until a new one is issued. Token
 	// generation, regeneration, and revocation never change this switch.
 	SetScimEnabled(ctx context.Context, in *SetScimEnabledRequest, opts ...grpc.CallOption) (*SetScimEnabledResponse, error)
+	// ResetCorrelationRule changes an identity provider's OIDC correlation
+	// rule, the only way to change it after creation. Changing the rule changes
+	// which provisioned user each sign-in matches, so every SCIM-provisioned
+	// user under the identity provider is unlinked from their Chainguard
+	// identity and the role bindings SCIM granted them are removed. Each user
+	// is linked again, and regains their SCIM-granted roles, at their next
+	// sign-in under the new rule. Deactivated users stay deactivated, and role
+	// bindings not managed by SCIM are untouched.
+	//
+	// The request must name the rule being replaced: a change is refused unless
+	// expected_correlation_rule is the identity provider's current rule. A
+	// request whose correlation_rule is already the current rule changes
+	// nothing, and also finishes an unlink an earlier reset left incomplete.
+	//
+	// Fails with FAILED_PRECONDITION while the organization enforces sign-in
+	// through its identity provider only (sso_only), and when SCIM is enabled
+	// and the organization has no owner who can sign in and whose owner role
+	// binding is assigned directly (not managed by SCIM).
+	//
+	// A rule change also retires the organization's recorded validation of the
+	// identity provider, so sso_only readiness reports IDP_VALIDATION_MISSING
+	// until the provider is validated again.
+	//
+	// The reset can take several minutes and runs to completion once it starts:
+	// a caller that stops waiting neither cancels nor rolls it back, so a
+	// client-side timeout can report an error for a reset that applied. Read
+	// the identity provider's correlation rule to confirm the outcome.
+	// protolint:disable:next MAX_LINE_LENGTH
+	ResetCorrelationRule(ctx context.Context, in *ResetCorrelationRuleRequest, opts ...grpc.CallOption) (*ResetCorrelationRuleResponse, error)
 }
 
 type identityProvidersServiceClient struct {
@@ -190,6 +220,16 @@ func (c *identityProvidersServiceClient) SetScimEnabled(ctx context.Context, in 
 	return out, nil
 }
 
+func (c *identityProvidersServiceClient) ResetCorrelationRule(ctx context.Context, in *ResetCorrelationRuleRequest, opts ...grpc.CallOption) (*ResetCorrelationRuleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ResetCorrelationRuleResponse)
+	err := c.cc.Invoke(ctx, IdentityProvidersService_ResetCorrelationRule_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // IdentityProvidersServiceServer is the server API for IdentityProvidersService service.
 // All implementations must embed UnimplementedIdentityProvidersServiceServer
 // for forward compatibility.
@@ -246,6 +286,35 @@ type IdentityProvidersServiceServer interface {
 	// simply rejects every provisioning request until a new one is issued. Token
 	// generation, regeneration, and revocation never change this switch.
 	SetScimEnabled(context.Context, *SetScimEnabledRequest) (*SetScimEnabledResponse, error)
+	// ResetCorrelationRule changes an identity provider's OIDC correlation
+	// rule, the only way to change it after creation. Changing the rule changes
+	// which provisioned user each sign-in matches, so every SCIM-provisioned
+	// user under the identity provider is unlinked from their Chainguard
+	// identity and the role bindings SCIM granted them are removed. Each user
+	// is linked again, and regains their SCIM-granted roles, at their next
+	// sign-in under the new rule. Deactivated users stay deactivated, and role
+	// bindings not managed by SCIM are untouched.
+	//
+	// The request must name the rule being replaced: a change is refused unless
+	// expected_correlation_rule is the identity provider's current rule. A
+	// request whose correlation_rule is already the current rule changes
+	// nothing, and also finishes an unlink an earlier reset left incomplete.
+	//
+	// Fails with FAILED_PRECONDITION while the organization enforces sign-in
+	// through its identity provider only (sso_only), and when SCIM is enabled
+	// and the organization has no owner who can sign in and whose owner role
+	// binding is assigned directly (not managed by SCIM).
+	//
+	// A rule change also retires the organization's recorded validation of the
+	// identity provider, so sso_only readiness reports IDP_VALIDATION_MISSING
+	// until the provider is validated again.
+	//
+	// The reset can take several minutes and runs to completion once it starts:
+	// a caller that stops waiting neither cancels nor rolls it back, so a
+	// client-side timeout can report an error for a reset that applied. Read
+	// the identity provider's correlation rule to confirm the outcome.
+	// protolint:disable:next MAX_LINE_LENGTH
+	ResetCorrelationRule(context.Context, *ResetCorrelationRuleRequest) (*ResetCorrelationRuleResponse, error)
 	mustEmbedUnimplementedIdentityProvidersServiceServer()
 }
 
@@ -282,6 +351,9 @@ func (UnimplementedIdentityProvidersServiceServer) RevokeScimToken(context.Conte
 }
 func (UnimplementedIdentityProvidersServiceServer) SetScimEnabled(context.Context, *SetScimEnabledRequest) (*SetScimEnabledResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetScimEnabled not implemented")
+}
+func (UnimplementedIdentityProvidersServiceServer) ResetCorrelationRule(context.Context, *ResetCorrelationRuleRequest) (*ResetCorrelationRuleResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ResetCorrelationRule not implemented")
 }
 func (UnimplementedIdentityProvidersServiceServer) mustEmbedUnimplementedIdentityProvidersServiceServer() {
 }
@@ -467,6 +539,24 @@ func _IdentityProvidersService_SetScimEnabled_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _IdentityProvidersService_ResetCorrelationRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResetCorrelationRuleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IdentityProvidersServiceServer).ResetCorrelationRule(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IdentityProvidersService_ResetCorrelationRule_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IdentityProvidersServiceServer).ResetCorrelationRule(ctx, req.(*ResetCorrelationRuleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // IdentityProvidersService_ServiceDesc is the grpc.ServiceDesc for IdentityProvidersService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -509,6 +599,10 @@ var IdentityProvidersService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetScimEnabled",
 			Handler:    _IdentityProvidersService_SetScimEnabled_Handler,
+		},
+		{
+			MethodName: "ResetCorrelationRule",
+			Handler:    _IdentityProvidersService_ResetCorrelationRule_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

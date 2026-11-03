@@ -264,6 +264,60 @@ service IdentityProvidersService {
     };
     option (chainguard.annotations.mcp) = {hidden: true};
   }
+
+  // ResetCorrelationRule changes an identity provider's OIDC correlation
+  // rule, the only way to change it after creation. Changing the rule changes
+  // which provisioned user each sign-in matches, so every SCIM-provisioned
+  // user under the identity provider is unlinked from their Chainguard
+  // identity and the role bindings SCIM granted them are removed. Each user
+  // is linked again, and regains their SCIM-granted roles, at their next
+  // sign-in under the new rule. Deactivated users stay deactivated, and role
+  // bindings not managed by SCIM are untouched.
+  //
+  // The request must name the rule being replaced: a change is refused unless
+  // expected_correlation_rule is the identity provider's current rule. A
+  // request whose correlation_rule is already the current rule changes
+  // nothing, and also finishes an unlink an earlier reset left incomplete.
+  //
+  // Fails with FAILED_PRECONDITION while the organization enforces sign-in
+  // through its identity provider only (sso_only), and when SCIM is enabled
+  // and the organization has no owner who can sign in and whose owner role
+  // binding is assigned directly (not managed by SCIM).
+  //
+  // A rule change also retires the organization's recorded validation of the
+  // identity provider, so sso_only readiness reports IDP_VALIDATION_MISSING
+  // until the provider is validated again.
+  //
+  // The reset can take several minutes and runs to completion once it starts:
+  // a caller that stops waiting neither cancels nor rolls it back, so a
+  // client-side timeout can report an error for a reset that applied. Read
+  // the identity provider's correlation rule to confirm the outcome.
+  // protolint:disable:next MAX_LINE_LENGTH
+  rpc ResetCorrelationRule(ResetCorrelationRuleRequest) returns (ResetCorrelationRuleResponse) {
+    option (google.api.http) = {
+      // protolint:disable:next MAX_LINE_LENGTH
+      post: "/iam/v2/identityProviders/{identity_provider_uid=**}:resetCorrelationRule"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_IAM_IDENTITY_PROVIDERS_UPDATE,
+          // The reset unlinks every SCIM-provisioned user and removes their
+          // SCIM-managed role bindings, so it also requires the SCIM
+          // management capability.
+          CAP_IAM_SCIM_MANAGE
+        ]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      // protolint:disable:next MAX_LINE_LENGTH
+      type: "dev.chainguard.api.iam.identity_providers.correlation_rule.reset.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {hidden: true};
+  }
 }
 
 // IdentityProvider represents the configuration parameters necessary for performing
@@ -388,12 +442,13 @@ message IdentityProvider {
     // selects CORRELATION_RULE_SUB_EQUALS_EXTERNAL_ID. Choose it before
     // provisioning users: an update cannot change it, because changing the
     // rule that maps token claims to identities would re-open
-    // attacker-controllable-claim attacks. To change it later, contact
-    // Chainguard support. Updates that restate the current rule (or leave it
-    // unset) are a no-op — a
-    // read-modify-write client may echo the field back safely, including over
-    // HTTP PATCH, where the update mask is derived from the request-body keys.
-    // Updates that change it are rejected.
+    // attacker-controllable-claim attacks. To change it later, use
+    // ResetCorrelationRule, which unlinks every provisioned user so each
+    // links again under the new rule. Updates that restate the current rule
+    // (or leave it unset) are a no-op — a read-modify-write client may echo
+    // the field back safely, including over HTTP PATCH, where the update mask
+    // is derived from the request-body keys. Updates that change it are
+    // rejected.
     CorrelationRule correlation_rule = 6 [
       (google.api.field_behavior) = OPTIONAL,
       (google.api.field_behavior) = IMMUTABLE
@@ -753,4 +808,53 @@ message SetScimEnabledResponse {
   // Opaque version of the SCIM configuration after this call, for optimistic
   // concurrency on subsequent lifecycle mutations.
   string etag = 3;
+}
+
+// ResetCorrelationRuleRequest changes an identity provider's correlation rule.
+message ResetCorrelationRuleRequest {
+  // UID of the identity provider whose correlation rule is being changed.
+  string identity_provider_uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The new correlation rule.
+  // protolint:disable:next MAX_LINE_LENGTH
+  IdentityProvider.OIDC.CorrelationRule correlation_rule = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The identity provider's current correlation rule, the one being replaced.
+  // A change is refused with FAILED_PRECONDITION when this is not the current
+  // rule, so a caller acting on a stale read changes nothing.
+  // An identity provider created without a rule reads back as UNSPECIFIED;
+  // name SUB_EQUALS_EXTERNAL_ID for it, the rule it has in effect.
+  // protolint:disable:next MAX_LINE_LENGTH
+  IdentityProvider.OIDC.CorrelationRule expected_correlation_rule = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ResetCorrelationRuleResponse reports what a correlation-rule reset changed.
+message ResetCorrelationRuleResponse {
+  // The identity provider after the reset.
+  IdentityProvider identity_provider = 1;
+
+  // The correlation rule in effect before this call: an unset rule reads as
+  // SUB_EQUALS_EXTERNAL_ID. When changed is false it is the rule in effect
+  // now, even where identity_provider reports the rule as UNSPECIFIED.
+  IdentityProvider.OIDC.CorrelationRule previous_correlation_rule = 2;
+
+  // Whether this call changed the rule. False when correlation_rule was
+  // already the current rule.
+  bool changed = 3;
+
+  // How many provisioned users this call unlinked from their Chainguard
+  // identity. Each is linked again at their next sign-in.
+  int64 users_unlinked = 4;
+
+  // How many SCIM-managed role bindings this call removed. Any it could not
+  // remove are removed in the background shortly after.
+  int64 bindings_dropped = 5;
+
+  // Whether every provisioned user linked under a replaced rule is now
+  // unlinked. False means the unlink stopped short; repeat the request with
+  // both rules set to the current rule to finish it.
+  bool unlink_complete = 6;
 }
