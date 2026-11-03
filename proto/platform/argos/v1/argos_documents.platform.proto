@@ -44,7 +44,9 @@ service ArgosDocuments {
 
   // Stats returns organization-wide totals over the documents matching the
   // request: submissions, per-file findings, the CGP identifiers they
-  // resolved to, and those identifiers' patch state.
+  // resolved to, and those identifiers' patch state. Returns
+  // RESOURCE_EXHAUSTED when the documents reference more than 50,000 CGP
+  // identifiers, and UNAVAILABLE when the identifiers' records can't be read.
   rpc Stats(ArgosDocumentStatsRequest) returns (ArgosDocumentStats) {
     option (google.api.http) = {
       get: "/argos/v1/documents/stats"
@@ -356,8 +358,8 @@ message ArgosDocumentStats {
 }
 
 message ArgosDocumentCGPStats {
-  // novel counts identifiers whose record was published at or after the
-  // earliest referencing document's created_at.
+  // novel counts every resolved identifier that is not a duplicate,
+  // including records with no published time.
   int64 novel = 1;
 
   // duplicate counts identifiers whose record was published strictly before
@@ -377,6 +379,7 @@ message ArgosDocumentPatchStats {
   int64 no_fix = 2;
 
   // by_status counts identifiers keyed by PatchStatus name (see
-  // argos_osv.platform.proto).
+  // argos_osv.platform.proto), PATCH_STATUS_UNSPECIFIED included, so its
+  // values sum to fix_available + no_fix.
   map<string, int64> by_status = 3;
 }

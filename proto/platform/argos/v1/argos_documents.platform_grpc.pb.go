@@ -35,7 +35,9 @@ type ArgosDocumentsClient interface {
 	List(ctx context.Context, in *ArgosDocumentFilter, opts ...grpc.CallOption) (*ArgosDocumentList, error)
 	// Stats returns organization-wide totals over the documents matching the
 	// request: submissions, per-file findings, the CGP identifiers they
-	// resolved to, and those identifiers' patch state.
+	// resolved to, and those identifiers' patch state. Returns
+	// RESOURCE_EXHAUSTED when the documents reference more than 50,000 CGP
+	// identifiers, and UNAVAILABLE when the identifiers' records can't be read.
 	Stats(ctx context.Context, in *ArgosDocumentStatsRequest, opts ...grpc.CallOption) (*ArgosDocumentStats, error)
 	Delete(ctx context.Context, in *DeleteArgosDocumentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// GetOrgPublicKey returns the PEM-encoded RSA-OAEP public key for the
@@ -111,7 +113,9 @@ type ArgosDocumentsServer interface {
 	List(context.Context, *ArgosDocumentFilter) (*ArgosDocumentList, error)
 	// Stats returns organization-wide totals over the documents matching the
 	// request: submissions, per-file findings, the CGP identifiers they
-	// resolved to, and those identifiers' patch state.
+	// resolved to, and those identifiers' patch state. Returns
+	// RESOURCE_EXHAUSTED when the documents reference more than 50,000 CGP
+	// identifiers, and UNAVAILABLE when the identifiers' records can't be read.
 	Stats(context.Context, *ArgosDocumentStatsRequest) (*ArgosDocumentStats, error)
 	Delete(context.Context, *DeleteArgosDocumentRequest) (*emptypb.Empty, error)
 	// GetOrgPublicKey returns the PEM-encoded RSA-OAEP public key for the

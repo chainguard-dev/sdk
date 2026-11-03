@@ -1089,8 +1089,8 @@ func (x *ArgosDocumentStats) GetPatches() *ArgosDocumentPatchStats {
 
 type ArgosDocumentCGPStats struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// novel counts identifiers whose record was published at or after the
-	// earliest referencing document's created_at.
+	// novel counts every resolved identifier that is not a duplicate,
+	// including records with no published time.
 	Novel int64 `protobuf:"varint,1,opt,name=novel,proto3" json:"novel,omitempty"`
 	// duplicate counts identifiers whose record was published strictly before
 	// the earliest referencing document's created_at.
@@ -1160,7 +1160,8 @@ type ArgosDocumentPatchStats struct {
 	// no_fix counts identifiers whose record has no fixed version.
 	NoFix int64 `protobuf:"varint,2,opt,name=no_fix,json=noFix,proto3" json:"no_fix,omitempty"`
 	// by_status counts identifiers keyed by PatchStatus name (see
-	// argos_osv.platform.proto).
+	// argos_osv.platform.proto), PATCH_STATUS_UNSPECIFIED included, so its
+	// values sum to fix_available + no_fix.
 	ByStatus      map[string]int64 `protobuf:"bytes,3,rep,name=by_status,json=byStatus,proto3" json:"by_status,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
