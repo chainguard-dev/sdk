@@ -69,10 +69,9 @@ message ListOrgVulnsRequest {
   // updated_since restricts results to CGP IDs bound to documents last updated
   // at or after the given time.
   google.protobuf.Timestamp updated_since = 6;
-  // has_fix keeps records with (true) or without (false) any fixed version,
-  // upstream or a Chainguard rebuild, as chainctl counts it. Field 7 was
-  // has_chainguard_fix, a narrower rule.
-  optional bool has_fix = 7;
+  // has_chainguard_fix keeps records with (true) or without (false) a
+  // Chainguard fix.
+  optional bool has_chainguard_fix = 7;
   // ecosystem keeps records with an affected package in this ecosystem,
   // compared ignoring case.
   string ecosystem = 8;
