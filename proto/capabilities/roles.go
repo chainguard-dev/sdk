@@ -522,6 +522,9 @@ var (
 		// (LibrariesRebuilderSourceResolverCaps), and admin must not be able to
 		// forge resolved rows.
 		Capability_CAP_LIBRARIES_REBUILDER_SOURCE_COORDINATES_RESOLVE,
+		// Staff operators need the same source-priority facts as automated readers
+		// without a second role binding. Admin already grants the broader CVE reads.
+		Capability_CAP_LIBRARIES_REBUILDER_SOURCE_PRIORITY_READ,
 		// This bundle grants (internal_only) capabilities, so it must also grant
 		// CAP_INTERNAL; the internal-only validation enforces that pairing, which
 		// keeps these capabilities off customer-grantable roles.
@@ -539,6 +542,13 @@ var (
 	// state read as well as the cve-remediation list — all GETs, no write path.
 	LibrariesRebuilderCVERemediationsViewerCaps = SortCaps([]Capability{
 		Capability_CAP_LIBRARIES_REBUILDER_CVE_REMEDIATIONS_LIST,
+		Capability_CAP_INTERNAL,
+	})
+
+	// LibrariesRebuilderSourcePriorityViewerCaps excludes the general CVE-list
+	// capability because it also authorizes demand, patch-run and fork-line reads.
+	LibrariesRebuilderSourcePriorityViewerCaps = SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_REBUILDER_SOURCE_PRIORITY_READ,
 		Capability_CAP_INTERNAL,
 	})
 
