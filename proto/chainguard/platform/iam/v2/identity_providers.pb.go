@@ -1573,10 +1573,10 @@ type IdentityProvider_OIDC struct {
 	GroupsClaim string `protobuf:"bytes,5,opt,name=groups_claim,json=groupsClaim,proto3" json:"groups_claim,omitempty"`
 	// Selects how OIDC logins are matched to SCIM-provisioned users. Unset
 	// selects CORRELATION_RULE_SUB_EQUALS_EXTERNAL_ID. Choose it before
-	// provisioning users: an update cannot change it, because changing the
-	// rule that maps token claims to identities would re-open
-	// attacker-controllable-claim attacks. To change it later, use
-	// ResetCorrelationRule, which unlinks every provisioned user so each
+	// provisioning users: an update cannot change it, so that a client
+	// echoing the field back can't re-key every link by accident. To change
+	// it later, use ResetCorrelationRule, which unlinks every provisioned
+	// user so each
 	// links again under the new rule. Updates that restate the current rule
 	// (or leave it unset) are a no-op — a read-modify-write client may echo
 	// the field back safely, including over HTTP PATCH, where the update mask
