@@ -125,10 +125,24 @@ message AuthPolicy {
   // protolint:disable:next MAX_LINE_LENGTH
   google.protobuf.Duration session_duration = 3 [(google.api.field_behavior) = OPTIONAL];
 
-  // Fields from 40 report the organization's readiness to enforce the
+  // Fields from 30 report the organization's readiness to enforce the
   // policy: facts about the organization that decide whether sso_only can be
   // turned on and whether, once on, it takes effect. They are never written.
   //
+  // readiness reports whether sso_only may be enabled right now
+  // and, when it may not, why. GetAuthPolicy populates it; UpdateAuthPolicy
+  // leaves it unset and ignores it on input. Enabling sso_only is refused
+  // with FAILED_PRECONDITION (reason SSO_ONLY_NOT_READY, one
+  // PreconditionFailure violation per reason) while it reports a blocker,
+  // with no way to force it; disabling is never gated. It is still reported
+  // while sso_only is on, so an organization can see when it would have to
+  // validate again before it could re-enable the policy.
+  //
+  // Field numbers 10 through 29 are held for the validation and break-glass
+  // designation surfaces that land alongside this one; readiness and later
+  // read-only state use 30 upward.
+  SsoOnlyReadiness readiness = 30 [(google.api.field_behavior) = OUTPUT_ONLY];
+
   // enforcement_entitled reports whether the organization is enabled for SSO
   // enforcement. While the feature is in early access Chainguard enables it
   // per organization: UpdateAuthPolicy refuses to turn sso_only on for an
@@ -142,6 +156,44 @@ message AuthPolicy {
     // Reported, never written: UpdateAuthPolicy ignores it.
     (google.api.field_behavior) = OUTPUT_ONLY
   ];
+}
+
+// SsoOnlyReadiness is the verdict of the checks that gate enabling
+// sso_only: the organization's identity provider has passed validation in
+// its current configuration, and a designated break-glass identity has
+// proven it can still sign in without it.
+message SsoOnlyReadiness {
+  // idp_validated_current is true when the organization's identity provider
+  // has passed validation and its configuration (issuer, client id, scopes,
+  // PKCE setting, token-endpoint auth method, client secret and the secret
+  // version it is pinned to) has not changed since.
+  bool idp_validated_current = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // break_glass_ready is true when at least one designated break-glass
+  // identity has validated its non-SSO sign-in recently enough, can still
+  // sign in, holds the owner role on the organization, and has an identity
+  // that does not expire.
+  bool break_glass_ready = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // reasons lists what blocks enabling sso_only, one per blocker. Empty
+  // when both booleans are true.
+  repeated Reason reasons = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Reason is one blocker of enabling sso_only.
+  message Reason {
+    // code is a stable UPPER_SNAKE_CASE identifier for the blocker:
+    // IDENTITY_PROVIDER_MISSING, IDP_VALIDATION_MISSING,
+    // IDP_VALIDATION_STALE, BREAK_GLASS_NOT_DESIGNATED,
+    // BREAK_GLASS_VALIDATION_MISSING, BREAK_GLASS_VALIDATION_EXPIRED,
+    // BREAK_GLASS_NOT_OWNER, BREAK_GLASS_EXPIRING, or
+    // ORGANIZATION_NOT_VERIFIED. New codes may be added; render message for
+    // any code not recognised.
+    string code = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+    // message explains the blocker in plain language, fit to show an
+    // organization owner as is.
+    string message = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  }
 }
 
 // GetAuthPolicyRequest is the request message for GetAuthPolicy.

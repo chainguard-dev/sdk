@@ -25,8 +25,12 @@ var (
 		Capability_CAP_IAM_ROLES_LIST,
 		Capability_CAP_IAM_IDENTITY_LIST,
 		Capability_CAP_IAM_IDENTITY_PROVIDERS_LIST,
-		// Reading an organization's sign-in policy reveals only whether SSO is
-		// enforced, so it follows identity_providers.list into every role.
+		// Reading an organization's sign-in policy reveals whether SSO is
+		// enforced and nothing else to a viewer: the readiness that says
+		// whether a break-glass path is designated and validated is returned
+		// only to callers holding auth_policies.update (api-impl withholds it
+		// otherwise), so the flag can follow identity_providers.list into
+		// every role without disclosing emergency-access posture.
 		Capability_CAP_IAM_AUTH_POLICIES_LIST,
 
 		Capability_CAP_REPO_LIST,
