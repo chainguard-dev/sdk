@@ -53,7 +53,8 @@ func ExampleMockPoliciesClient_CreatePolicy() {
 		OnCreatePolicy: []test.OnCreatePolicy{{
 			Given: &policies.CreatePolicyRequest{
 				Policy: &policies.Policy{
-					Name: "new-policy",
+					Name:                  "new-policy",
+					SupportedResourceType: "registry.chainguard.dev/Repo@v1",
 				},
 			},
 			Created: &policies.Policy{
@@ -65,7 +66,8 @@ func ExampleMockPoliciesClient_CreatePolicy() {
 
 	created, err := mock.CreatePolicy(ctx, &policies.CreatePolicyRequest{
 		Policy: &policies.Policy{
-			Name: "new-policy",
+			Name:                  "new-policy",
+			SupportedResourceType: "registry.chainguard.dev/Repo@v1",
 		},
 	})
 	if err != nil {

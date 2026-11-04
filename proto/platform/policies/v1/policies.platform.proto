@@ -328,6 +328,9 @@ message Policy {
   //   - libraries.chainguard.dev/DotNetPackage@v1
   //   - libraries.chainguard.dev/RustPackage@v1
   //
+  // Required on CreatePolicy: a request that sets neither this field nor the
+  // deprecated supported_resource_types is rejected with InvalidArgument.
+  //
   // Immutable: set at creation and cannot be changed on update. A policy's
   // name and supported_resource_type together identify it, so changing the
   // type would move the policy into a different identity.
