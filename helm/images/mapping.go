@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"maps"
 	"slices"
 
 	yamlpatch "github.com/palantir/pkg/yamlpatch"
@@ -346,10 +347,13 @@ func (yp *yamlPaths) collect(node *yaml.Node) {
 }
 
 // buildPatch generates yamlpatch operations for the given values.
-// Existing paths produce Replace; missing paths produce Add.
+// Existing paths produce Replace; missing paths produce Add. Keys are visited
+// in sorted order because yamlpatch appends each added key to the end of its
+// mapping, so the operation order determines the output key order.
 func (yp *yamlPaths) buildPatch(path yamlpatch.Path, m map[string]any) yamlpatch.Patch {
 	var patch yamlpatch.Patch
-	for k, v := range m {
+	for _, k := range slices.Sorted(maps.Keys(m)) {
+		v := m[k]
 		p := append(slices.Clone(path), k)
 		child := yp.children[k]
 		nested, isMap := v.(map[string]any)

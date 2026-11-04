@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	yamlpatch "github.com/palantir/pkg/yamlpatch"
 )
 
 func mustNewRef(reference string) OCIRef {
@@ -1172,6 +1173,37 @@ image:
 `,
 		},
 		{
+			name: "addMissing appends missing siblings of a partial block in sorted key order",
+			mapping: &Mapping{
+				Images: map[string]*Image{
+					"redis": {Values: map[string]any{
+						"cache": map[string]any{
+							"zeta":     map[string]any{"digest": "${digest}"},
+							"metrics":  map[string]any{"tag": "${tag}"},
+							"image":    map[string]any{"repository": "${registry_repo}"},
+							"replicas": "${tag}",
+						},
+					}},
+				},
+			},
+			refs: map[string]string{
+				"redis": "cgr.dev/org/redis:7@sha256:abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234",
+			},
+			opts: []ResolveOption{WithAddMissing(true)},
+			valuesYAML: `cache:
+  replicas: 1
+`,
+			want: `cache:
+  replicas: "7"
+  image:
+    repository: cgr.dev/org/redis
+  metrics:
+    tag: "7"
+  zeta:
+    digest: sha256:abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234
+`,
+		},
+		{
 			name: "istio-style split hub image tag with image_name and registry_repo_prefix",
 			mapping: &Mapping{
 				Images: map[string]*Image{
@@ -1255,6 +1287,92 @@ global:
 				t.Errorf("mismatch (-want +got):\n%s", diff)
 			}
 		})
+	}
+}
+
+func TestYAMLPathsBuildPatch(t *testing.T) {
+	paths, err := newYAMLPaths([]byte(`cache:
+  replicas: 1
+  image: {}
+name: app
+`))
+	if err != nil {
+		t.Fatalf("newYAMLPaths: %v", err)
+	}
+	values := map[string]any{
+		"name": "x",
+		"cache": map[string]any{
+			"zeta":     map[string]any{"digest": "d"},
+			"replicas": "2",
+			"metrics":  map[string]any{"tag": "t"},
+			"image":    map[string]any{"tag": "t", "repository": "r"},
+			"alpha":    "a",
+		},
+		"absent": map[string]any{"b": "b", "a": "a"},
+	}
+	want := yamlpatch.Patch{
+		{Type: yamlpatch.OperationAdd, Path: yamlpatch.Path{"", "absent"}, Value: map[string]any{"b": "b", "a": "a"}},
+		{Type: yamlpatch.OperationAdd, Path: yamlpatch.Path{"", "cache", "alpha"}, Value: "a"},
+		{Type: yamlpatch.OperationAdd, Path: yamlpatch.Path{"", "cache", "image", "repository"}, Value: "r"},
+		{Type: yamlpatch.OperationAdd, Path: yamlpatch.Path{"", "cache", "image", "tag"}, Value: "t"},
+		{Type: yamlpatch.OperationAdd, Path: yamlpatch.Path{"", "cache", "metrics"}, Value: map[string]any{"tag": "t"}},
+		{Type: yamlpatch.OperationReplace, Path: yamlpatch.Path{"", "cache", "replicas"}, Value: "2"},
+		{Type: yamlpatch.OperationAdd, Path: yamlpatch.Path{"", "cache", "zeta"}, Value: map[string]any{"digest": "d"}},
+		{Type: yamlpatch.OperationReplace, Path: yamlpatch.Path{"", "name"}, Value: "x"},
+	}
+	// Map iteration order varies between ranges, so repeat to catch any
+	// traversal that depends on it.
+	for i := range 50 {
+		got := paths.buildPatch(yamlpatch.Path{""}, values)
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Fatalf("buildPatch() iteration %d mismatch (-want +got):\n%s", i, diff)
+		}
+	}
+}
+
+func TestMapping_ResolveDeterministic(t *testing.T) {
+	m := &Mapping{
+		Images: map[string]*Image{
+			"redis": {Values: map[string]any{
+				"cache": map[string]any{
+					"image":   map[string]any{"repository": "${registry_repo}"},
+					"metrics": map[string]any{"tag": "${tag}"},
+					"zeta":    map[string]any{"digest": "${digest}"},
+				},
+			}},
+		},
+	}
+	refs := map[string]string{
+		"redis": "cgr.dev/org/redis:7@sha256:abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234",
+	}
+	want := `cache:
+  replicas: 1
+  image:
+    repository: cgr.dev/org/redis
+  metrics:
+    tag: "7"
+  zeta:
+    digest: sha256:abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234
+`
+	for i := range 50 {
+		got, err := m.Resolve(refs, strings.NewReader("cache:\n  replicas: 1\n"), WithAddMissing(true))
+		if err != nil {
+			t.Fatalf("Resolve() iteration %d: %v", i, err)
+		}
+		if diff := cmp.Diff(want, string(got)); diff != "" {
+			t.Fatalf("Resolve() iteration %d mismatch (-want +got):\n%s", i, diff)
+		}
+	}
+
+	// Without WithAddMissing the first missing path in key order is reported.
+	for i := range 50 {
+		_, err := m.Resolve(refs, strings.NewReader("cache:\n  replicas: 1\n"))
+		if err == nil {
+			t.Fatalf("Resolve() iteration %d: got nil error, want missing path error", i)
+		}
+		if got, want := err.Error(), "path /cache/image does not exist in values"; got != want {
+			t.Fatalf("Resolve() iteration %d error = %q, want %q", i, got, want)
+		}
 	}
 }
 
