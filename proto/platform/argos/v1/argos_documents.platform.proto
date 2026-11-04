@@ -149,8 +149,10 @@ message ArgosDocument {
 // resolved to. The total is the length of the document's cgp_ids, including
 // identifiers with no served record, which count in neither field.
 message ArgosDocumentFindingCounts {
-  // patched counts identifiers whose record has a Chainguard fix.
-  int32 patched = 1;
+  // fix_available counts identifiers whose record has any fixed version,
+  // upstream or a Chainguard rebuild, as chainctl counts it. Field 1 was
+  // patched, a narrower rule.
+  int32 fix_available = 1;
 
   // already_known counts identifiers whose record was published before the
   // document was created.

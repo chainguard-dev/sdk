@@ -115,9 +115,10 @@ type ListOrgVulnsRequest struct {
 	// updated_since restricts results to CGP IDs bound to documents last updated
 	// at or after the given time.
 	UpdatedSince *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_since,json=updatedSince,proto3" json:"updated_since,omitempty"`
-	// has_chainguard_fix keeps records with (true) or without (false) a
-	// Chainguard fix.
-	HasChainguardFix *bool `protobuf:"varint,7,opt,name=has_chainguard_fix,json=hasChainguardFix,proto3,oneof" json:"has_chainguard_fix,omitempty"`
+	// has_fix keeps records with (true) or without (false) any fixed version,
+	// upstream or a Chainguard rebuild, as chainctl counts it. Field 7 was
+	// has_chainguard_fix, a narrower rule.
+	HasFix *bool `protobuf:"varint,7,opt,name=has_fix,json=hasFix,proto3,oneof" json:"has_fix,omitempty"`
 	// ecosystem keeps records with an affected package in this ecosystem,
 	// compared ignoring case.
 	Ecosystem string `protobuf:"bytes,8,opt,name=ecosystem,proto3" json:"ecosystem,omitempty"`
@@ -200,9 +201,9 @@ func (x *ListOrgVulnsRequest) GetUpdatedSince() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *ListOrgVulnsRequest) GetHasChainguardFix() bool {
-	if x != nil && x.HasChainguardFix != nil {
-		return *x.HasChainguardFix
+func (x *ListOrgVulnsRequest) GetHasFix() bool {
+	if x != nil && x.HasFix != nil {
+		return *x.HasFix
 	}
 	return false
 }
@@ -295,7 +296,7 @@ const file_argos_vulns_platform_proto_rawDesc = "" +
 	"\acgp_ids\x18\x02 \x03(\tR\x06cgpIds\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\x03 \x01(\tR\tpageToken\x12\x1b\n" +
-	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\"\xf5\x02\n" +
+	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\"\xd5\x02\n" +
 	"\x13ListOrgVulnsRequest\x12\x1e\n" +
 	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12\x1c\n" +
 	"\apackage\x18\x02 \x01(\tB\x02\x18\x01R\apackage\x12\x18\n" +
@@ -303,11 +304,12 @@ const file_argos_vulns_platform_proto_rawDesc = "" +
 	"\n" +
 	"page_token\x18\x04 \x01(\tR\tpageToken\x12\x1b\n" +
 	"\tpage_size\x18\x05 \x01(\x05R\bpageSize\x12?\n" +
-	"\rupdated_since\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\fupdatedSince\x121\n" +
-	"\x12has_chainguard_fix\x18\a \x01(\bH\x00R\x10hasChainguardFix\x88\x01\x01\x12\x1c\n" +
+	"\rupdated_since\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\fupdatedSince\x12\x1c\n" +
+	"\ahas_fix\x18\a \x01(\bH\x00R\x06hasFix\x88\x01\x01\x12\x1c\n" +
 	"\tecosystem\x18\b \x01(\tR\tecosystem\x12!\n" +
-	"\fpackage_name\x18\t \x01(\tR\vpackageNameB\x15\n" +
-	"\x13_has_chainguard_fix\"\xa4\x01\n" +
+	"\fpackage_name\x18\t \x01(\tR\vpackageNameB\n" +
+	"\n" +
+	"\b_has_fix\"\xa4\x01\n" +
 	"\bVulnList\x12:\n" +
 	"\x05vulns\x18\x01 \x03(\v2$.chainguard.platform.argos.OSVRecordR\x05vulns\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12$\n" +
