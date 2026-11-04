@@ -321,8 +321,10 @@ func (x *ArgosDocument) GetFindingCounts() *ArgosDocumentFindingCounts {
 // identifiers with no served record, which count in neither field.
 type ArgosDocumentFindingCounts struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// patched counts identifiers whose record has a Chainguard fix.
-	Patched int32 `protobuf:"varint,1,opt,name=patched,proto3" json:"patched,omitempty"`
+	// fix_available counts identifiers whose record has any fixed version,
+	// upstream or a Chainguard rebuild, as chainctl counts it. Field 1 was
+	// patched, a narrower rule.
+	FixAvailable int32 `protobuf:"varint,1,opt,name=fix_available,json=fixAvailable,proto3" json:"fix_available,omitempty"`
 	// already_known counts identifiers whose record was published before the
 	// document was created.
 	AlreadyKnown  int32 `protobuf:"varint,2,opt,name=already_known,json=alreadyKnown,proto3" json:"already_known,omitempty"`
@@ -360,9 +362,9 @@ func (*ArgosDocumentFindingCounts) Descriptor() ([]byte, []int) {
 	return file_argos_documents_platform_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ArgosDocumentFindingCounts) GetPatched() int32 {
+func (x *ArgosDocumentFindingCounts) GetFixAvailable() int32 {
 	if x != nil {
-		return x.Patched
+		return x.FixAvailable
 	}
 	return 0
 }
@@ -1239,9 +1241,9 @@ const file_argos_documents_platform_proto_rawDesc = "" +
 	"\x0eSTATUS_PENDING\x10\x01\x12\x10\n" +
 	"\fSTATUS_READY\x10\x02\x12\x11\n" +
 	"\rSTATUS_FAILED\x10\x03\x12\x19\n" +
-	"\x15STATUS_FALSE_POSITIVE\x10\x04\"[\n" +
-	"\x1aArgosDocumentFindingCounts\x12\x18\n" +
-	"\apatched\x18\x01 \x01(\x05R\apatched\x12#\n" +
+	"\x15STATUS_FALSE_POSITIVE\x10\x04\"f\n" +
+	"\x1aArgosDocumentFindingCounts\x12#\n" +
+	"\rfix_available\x18\x01 \x01(\x05R\ffixAvailable\x12#\n" +
 	"\ralready_known\x18\x02 \x01(\x05R\falreadyKnown\"\xd1\x02\n" +
 	"\x18ArgosDocumentFileBinding\x12\x1a\n" +
 	"\bfilename\x18\x01 \x01(\tR\bfilename\x12R\n" +
