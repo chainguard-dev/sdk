@@ -68,6 +68,8 @@ var (
 		Capability_CAP_REGISTRY_DEPLOYMENTS_LIST,
 
 		Capability_CAP_REGISTRY_SETTINGS_LIST,
+		Capability_CAP_REGISTRY_LIST,
+		Capability_CAP_REGISTRY_USE,
 
 		Capability_CAP_REGISTRY_OVERLAYS_LIST,
 

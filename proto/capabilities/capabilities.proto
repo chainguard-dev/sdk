@@ -324,6 +324,11 @@ enum Capability {
   // registry.entitlements.images.add.
   CAP_REGISTRY_CHARTS_ADD = 1690 [(name) = "registry.charts.add", (bit) = 251];
 
+  // Customer-registry access also requires the operation's repository and
+  // content permissions.
+  CAP_REGISTRY_USE = 1691 [(name) = "registry.use", (bit) = 262];
+  CAP_REGISTRY_LIST = 1692 [(name) = "registry.list", (bit) = 263];
+
   // Sigstore-aas
 
   CAP_SIGSTORE_CREATE   = 1701 [(name) = "sigstore.create", (bit) = 42, deprecated = true];
@@ -703,5 +708,5 @@ enum Capability {
   CAP_ENTITLEMENTS_GET = 3203 [(name) = "entitlements.get", (bit) = 252];
 
   reserved 1;
-  // next bit: 262
+  // next bit: 264
 }

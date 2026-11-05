@@ -187,6 +187,46 @@ func TestScimCaps(t *testing.T) {
 	}
 }
 
+func TestCustomerRegistryCaps(t *testing.T) {
+	for _, tt := range []struct {
+		name      string
+		caps      []Capability
+		wantUse   bool
+		wantPull  bool
+		wantWrite bool
+	}{
+		{name: "console viewer", caps: ConsoleViewerCaps, wantUse: true},
+		{name: "viewer", caps: ViewerCaps, wantUse: true, wantPull: true},
+		{name: "editor", caps: EditorCaps, wantUse: true, wantPull: true, wantWrite: true},
+		{name: "owner", caps: OwnerCaps, wantUse: true, wantPull: true, wantWrite: true},
+		{name: "registry pull", caps: RegistryPullCaps, wantPull: true},
+		{name: "registry editor", caps: RegistryEditorCaps, wantPull: true, wantWrite: true},
+		{name: "registry repo admin", caps: RegistryRepoAdminCaps, wantPull: true, wantWrite: true},
+		{name: "registry push", caps: RegistryPushCaps, wantPull: true, wantWrite: true},
+		{name: "registry pull token creator", caps: RegistryPullTokenCreatorCaps, wantPull: true},
+		{name: "guardener user", caps: GuardenerUserCaps, wantPull: true},
+		{name: "APK pull", caps: APKPullCaps},
+		{name: "pull token creator", caps: PullTokenCreatorCaps},
+		{name: "skills publisher", caps: SkillsPublishCaps},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			for _, c := range []Capability{Capability_CAP_REGISTRY_USE, Capability_CAP_REGISTRY_LIST} {
+				if got := slices.Contains(tt.caps, c); got != tt.wantUse {
+					t.Errorf("role holds %v: got = %v, want = %v", c, got, tt.wantUse)
+				}
+			}
+			if got := slices.Contains(tt.caps, Capability_CAP_REPO_BLOBS_GET); got != tt.wantPull {
+				t.Errorf("role holds repo.blobs.get: got = %v, want = %v", got, tt.wantPull)
+			}
+			for _, c := range []Capability{Capability_CAP_REPO_CREATE, Capability_CAP_REPO_UPDATE, Capability_CAP_REPO_DELETE} {
+				if got := slices.Contains(tt.caps, c); got != tt.wantWrite {
+					t.Errorf("role holds %v: got = %v, want = %v", c, got, tt.wantWrite)
+				}
+			}
+		})
+	}
+}
+
 func TestSortCaps(t *testing.T) {
 	tests := []struct {
 		name      string
