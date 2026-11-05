@@ -476,6 +476,11 @@ message BindingFilter {
   // Can be combined with page_token to skip from cursor position.
   // Must be non-negative.
   int32 skip = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // Only return bindings of this policy (UIDP).
+  // Empty returns bindings of every policy.
+  // Note: Changing policy between pages invalidates the page token.
+  string policy = 6;
 }
 
 message CreateBindingRequest {

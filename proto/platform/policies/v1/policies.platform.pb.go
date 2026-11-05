@@ -1109,7 +1109,11 @@ type BindingFilter struct {
 	// Used for random-access pagination (jumping to arbitrary pages).
 	// Can be combined with page_token to skip from cursor position.
 	// Must be non-negative.
-	Skip          int32 `protobuf:"varint,5,opt,name=skip,proto3" json:"skip,omitempty"`
+	Skip int32 `protobuf:"varint,5,opt,name=skip,proto3" json:"skip,omitempty"`
+	// Only return bindings of this policy (UIDP).
+	// Empty returns bindings of every policy.
+	// Note: Changing policy between pages invalidates the page token.
+	Policy        string `protobuf:"bytes,6,opt,name=policy,proto3" json:"policy,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1177,6 +1181,13 @@ func (x *BindingFilter) GetSkip() int32 {
 		return x.Skip
 	}
 	return 0
+}
+
+func (x *BindingFilter) GetPolicy() string {
+	if x != nil {
+		return x.Policy
+	}
+	return ""
 }
 
 type CreateBindingRequest struct {
@@ -2285,14 +2296,15 @@ const file_policies_platform_proto_rawDesc = "" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
 	"\vtotal_count\x18\x03 \x01(\x03R\n" +
 	"totalCount\x12\x18\n" +
-	"\askipped\x18\x04 \x01(\x05R\askipped\"\xc2\x01\n" +
+	"\askipped\x18\x04 \x01(\x05R\askipped\"\xda\x01\n" +
 	"\rBindingFilter\x12:\n" +
 	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterR\x04uidp\x12\x1b\n" +
 	"\tpage_size\x18\x02 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\x03 \x01(\tR\tpageToken\x12\x1f\n" +
 	"\border_by\x18\x04 \x01(\tB\x04\xe2A\x01\x01R\aorderBy\x12\x18\n" +
-	"\x04skip\x18\x05 \x01(\x05B\x04\xe2A\x01\x01R\x04skip\"\x7f\n" +
+	"\x04skip\x18\x05 \x01(\x05B\x04\xe2A\x01\x01R\x04skip\x12\x16\n" +
+	"\x06policy\x18\x06 \x01(\tR\x06policy\"\x7f\n" +
 	"\x14CreateBindingRequest\x12#\n" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12B\n" +
 	"\abinding\x18\x02 \x01(\v2(.chainguard.platform.policies.v1.BindingR\abinding\".\n" +
