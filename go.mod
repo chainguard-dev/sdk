@@ -23,7 +23,7 @@ require (
 	github.com/palantir/pkg/yamlpatch v1.5.0
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
 	github.com/russross/blackfriday/v2 v2.1.0
-	github.com/sigstore/sigstore v1.10.9
+	github.com/sigstore/sigstore v1.10.11
 	golang.org/x/exp v0.0.0-20260727155853-b88d891fe743
 	golang.org/x/oauth2 v0.37.0
 	golang.org/x/sys v0.49.0
