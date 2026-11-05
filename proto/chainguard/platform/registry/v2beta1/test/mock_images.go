@@ -24,6 +24,7 @@ type MockImagesServiceClient struct {
 
 	OnGetArchitectures []test.On[*registry.GetArchitecturesRequest, *registry.Architectures]
 	OnGetSize          []test.On[*registry.GetSizeRequest, *registry.Size]
+	OnDeleteImage      []test.On[*registry.DeleteImageRequest, *registry.DeleteImageResponse]
 }
 
 func (m MockImagesServiceClient) GetArchitectures(_ context.Context, given *registry.GetArchitecturesRequest, _ ...grpc.CallOption) (*registry.Architectures, error) {
@@ -32,4 +33,8 @@ func (m MockImagesServiceClient) GetArchitectures(_ context.Context, given *regi
 
 func (m MockImagesServiceClient) GetSize(_ context.Context, given *registry.GetSizeRequest, _ ...grpc.CallOption) (*registry.Size, error) {
 	return test.Match(m.T, m.OnGetSize, given, "get-size", protocmp.Transform())
+}
+
+func (m MockImagesServiceClient) DeleteImage(_ context.Context, given *registry.DeleteImageRequest, _ ...grpc.CallOption) (*registry.DeleteImageResponse, error) {
+	return test.Match(m.T, m.OnDeleteImage, given, "delete-image", protocmp.Transform())
 }

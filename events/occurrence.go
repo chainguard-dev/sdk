@@ -108,6 +108,20 @@ type AsyncEventable interface {
 	CloudEventsAsync() bool
 }
 
+// Suppressible lets an Eventable skip its event for a successful call that
+// changed nothing, such as a validate-only preview.
+type Suppressible interface {
+	CloudEventsSuppress() bool
+}
+
+// ResponseBodied lets a delete request take its event body from the RPC's
+// response, for a deletion whose request does not name everything it removed.
+// The returned body supplies the subject, extensions and suppression; nil
+// sends no event.
+type ResponseBodied interface {
+	CloudEventsBody(resp any) Eventable
+}
+
 // Extendable allows us to define a generic method to return extensions based on name.
 type Extendable interface {
 	CloudEventsExtension(key string) (string, bool)

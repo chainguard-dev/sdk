@@ -26,6 +26,189 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// DeleteImageRequest selects one image in a repository by tag or digest.
+type DeleteImageRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UIDP of the repository containing the image.
+	RepoUid string `protobuf:"bytes,1,opt,name=repo_uid,json=repoUid,proto3" json:"repo_uid,omitempty"`
+	// Tag naming the image. Exactly one of tag or digest is required.
+	Tag string `protobuf:"bytes,2,opt,name=tag,proto3" json:"tag,omitempty"`
+	// Manifest digest of the image (sha256:...). Exactly one of tag or digest is
+	// required.
+	Digest string `protobuf:"bytes,3,opt,name=digest,proto3" json:"digest,omitempty"`
+	// When true, validate the request and report what would be removed without
+	// removing anything. The response is the same one the deletion would return.
+	ValidateOnly bool `protobuf:"varint,4,opt,name=validate_only,json=validateOnly,proto3" json:"validate_only,omitempty"`
+	// When selecting by tag, require the tag to still point at this digest. A
+	// tag that moved since a validate_only call previewed the deletion fails with
+	// FAILED_PRECONDITION instead of deleting a different image.
+	ExpectedDigest string `protobuf:"bytes,5,opt,name=expected_digest,json=expectedDigest,proto3" json:"expected_digest,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *DeleteImageRequest) Reset() {
+	*x = DeleteImageRequest{}
+	mi := &file_chainguard_platform_registry_v2beta1_images_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteImageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteImageRequest) ProtoMessage() {}
+
+func (x *DeleteImageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_registry_v2beta1_images_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteImageRequest.ProtoReflect.Descriptor instead.
+func (*DeleteImageRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_registry_v2beta1_images_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *DeleteImageRequest) GetRepoUid() string {
+	if x != nil {
+		return x.RepoUid
+	}
+	return ""
+}
+
+func (x *DeleteImageRequest) GetTag() string {
+	if x != nil {
+		return x.Tag
+	}
+	return ""
+}
+
+func (x *DeleteImageRequest) GetDigest() string {
+	if x != nil {
+		return x.Digest
+	}
+	return ""
+}
+
+func (x *DeleteImageRequest) GetValidateOnly() bool {
+	if x != nil {
+		return x.ValidateOnly
+	}
+	return false
+}
+
+func (x *DeleteImageRequest) GetExpectedDigest() string {
+	if x != nil {
+		return x.ExpectedDigest
+	}
+	return ""
+}
+
+// DeleteImageResponse reports what a DeleteImage call removed, or would remove
+// with validate_only set.
+type DeleteImageResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Manifest digest of the selected image.
+	Digest string `protobuf:"bytes,1,opt,name=digest,proto3" json:"digest,omitempty"`
+	// Tags that pointed at the selected image and were removed. The noun_verb
+	// names below are already plural.
+	// protolint:disable:next REPEATED_FIELD_NAMES_PLURALIZED
+	TagsRemoved []string `protobuf:"bytes,2,rep,name=tags_removed,json=tagsRemoved,proto3" json:"tags_removed,omitempty"`
+	// Manifest digests whose repository references were removed.
+	// protolint:disable:next REPEATED_FIELD_NAMES_PLURALIZED
+	ManifestsRemoved []string `protobuf:"bytes,3,rep,name=manifests_removed,json=manifestsRemoved,proto3" json:"manifests_removed,omitempty"`
+	// Number of blob references removed from the repository.
+	BlobsRemoved int32 `protobuf:"varint,4,opt,name=blobs_removed,json=blobsRemoved,proto3" json:"blobs_removed,omitempty"`
+	// Logical bytes released from the organization's image storage usage. This
+	// is the size of the removed blob references, not durable storage erased.
+	BytesReclaimed int64 `protobuf:"varint,5,opt,name=bytes_reclaimed,json=bytesReclaimed,proto3" json:"bytes_reclaimed,omitempty"`
+	// Blob references the image used that remain because another manifest in
+	// the repository still needs them.
+	BlobsRetained int32 `protobuf:"varint,6,opt,name=blobs_retained,json=blobsRetained,proto3" json:"blobs_retained,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteImageResponse) Reset() {
+	*x = DeleteImageResponse{}
+	mi := &file_chainguard_platform_registry_v2beta1_images_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteImageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteImageResponse) ProtoMessage() {}
+
+func (x *DeleteImageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_registry_v2beta1_images_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteImageResponse.ProtoReflect.Descriptor instead.
+func (*DeleteImageResponse) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_registry_v2beta1_images_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *DeleteImageResponse) GetDigest() string {
+	if x != nil {
+		return x.Digest
+	}
+	return ""
+}
+
+func (x *DeleteImageResponse) GetTagsRemoved() []string {
+	if x != nil {
+		return x.TagsRemoved
+	}
+	return nil
+}
+
+func (x *DeleteImageResponse) GetManifestsRemoved() []string {
+	if x != nil {
+		return x.ManifestsRemoved
+	}
+	return nil
+}
+
+func (x *DeleteImageResponse) GetBlobsRemoved() int32 {
+	if x != nil {
+		return x.BlobsRemoved
+	}
+	return 0
+}
+
+func (x *DeleteImageResponse) GetBytesReclaimed() int64 {
+	if x != nil {
+		return x.BytesReclaimed
+	}
+	return 0
+}
+
+func (x *DeleteImageResponse) GetBlobsRetained() int32 {
+	if x != nil {
+		return x.BlobsRetained
+	}
+	return 0
+}
+
 // GetArchitecturesRequest is the request message for GetArchitectures.
 type GetArchitecturesRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -39,7 +222,7 @@ type GetArchitecturesRequest struct {
 
 func (x *GetArchitecturesRequest) Reset() {
 	*x = GetArchitecturesRequest{}
-	mi := &file_chainguard_platform_registry_v2beta1_images_proto_msgTypes[0]
+	mi := &file_chainguard_platform_registry_v2beta1_images_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -51,7 +234,7 @@ func (x *GetArchitecturesRequest) String() string {
 func (*GetArchitecturesRequest) ProtoMessage() {}
 
 func (x *GetArchitecturesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2beta1_images_proto_msgTypes[0]
+	mi := &file_chainguard_platform_registry_v2beta1_images_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -64,7 +247,7 @@ func (x *GetArchitecturesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetArchitecturesRequest.ProtoReflect.Descriptor instead.
 func (*GetArchitecturesRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_registry_v2beta1_images_proto_rawDescGZIP(), []int{0}
+	return file_chainguard_platform_registry_v2beta1_images_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *GetArchitecturesRequest) GetRepoUid() string {
@@ -92,7 +275,7 @@ type Architectures struct {
 
 func (x *Architectures) Reset() {
 	*x = Architectures{}
-	mi := &file_chainguard_platform_registry_v2beta1_images_proto_msgTypes[1]
+	mi := &file_chainguard_platform_registry_v2beta1_images_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -104,7 +287,7 @@ func (x *Architectures) String() string {
 func (*Architectures) ProtoMessage() {}
 
 func (x *Architectures) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2beta1_images_proto_msgTypes[1]
+	mi := &file_chainguard_platform_registry_v2beta1_images_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -117,7 +300,7 @@ func (x *Architectures) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Architectures.ProtoReflect.Descriptor instead.
 func (*Architectures) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_registry_v2beta1_images_proto_rawDescGZIP(), []int{1}
+	return file_chainguard_platform_registry_v2beta1_images_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Architectures) GetArchitectures() []string {
@@ -143,7 +326,7 @@ type GetSizeRequest struct {
 
 func (x *GetSizeRequest) Reset() {
 	*x = GetSizeRequest{}
-	mi := &file_chainguard_platform_registry_v2beta1_images_proto_msgTypes[2]
+	mi := &file_chainguard_platform_registry_v2beta1_images_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -155,7 +338,7 @@ func (x *GetSizeRequest) String() string {
 func (*GetSizeRequest) ProtoMessage() {}
 
 func (x *GetSizeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2beta1_images_proto_msgTypes[2]
+	mi := &file_chainguard_platform_registry_v2beta1_images_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -168,7 +351,7 @@ func (x *GetSizeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSizeRequest.ProtoReflect.Descriptor instead.
 func (*GetSizeRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_registry_v2beta1_images_proto_rawDescGZIP(), []int{2}
+	return file_chainguard_platform_registry_v2beta1_images_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GetSizeRequest) GetRepoUid() string {
@@ -205,7 +388,7 @@ type Size struct {
 
 func (x *Size) Reset() {
 	*x = Size{}
-	mi := &file_chainguard_platform_registry_v2beta1_images_proto_msgTypes[3]
+	mi := &file_chainguard_platform_registry_v2beta1_images_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -217,7 +400,7 @@ func (x *Size) String() string {
 func (*Size) ProtoMessage() {}
 
 func (x *Size) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_registry_v2beta1_images_proto_msgTypes[3]
+	mi := &file_chainguard_platform_registry_v2beta1_images_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -230,7 +413,7 @@ func (x *Size) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Size.ProtoReflect.Descriptor instead.
 func (*Size) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_registry_v2beta1_images_proto_rawDescGZIP(), []int{3}
+	return file_chainguard_platform_registry_v2beta1_images_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Size) GetSize() int64 {
@@ -251,7 +434,21 @@ var File_chainguard_platform_registry_v2beta1_images_proto protoreflect.FileDesc
 
 const file_chainguard_platform_registry_v2beta1_images_proto_rawDesc = "" +
 	"\n" +
-	"1chainguard/platform/registry/v2beta1/images.proto\x12$chainguard.platform.registry.v2beta1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"^\n" +
+	"1chainguard/platform/registry/v2beta1/images.proto\x12$chainguard.platform.registry.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\xcb\x01\n" +
+	"\x12DeleteImageRequest\x12%\n" +
+	"\brepo_uid\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\arepoUid\x12\x16\n" +
+	"\x03tag\x18\x02 \x01(\tB\x04\xe2A\x01\x01R\x03tag\x12\x1c\n" +
+	"\x06digest\x18\x03 \x01(\tB\x04\xe2A\x01\x01R\x06digest\x12)\n" +
+	"\rvalidate_only\x18\x04 \x01(\bB\x04\xe2A\x01\x01R\fvalidateOnly\x12-\n" +
+	"\x0fexpected_digest\x18\x05 \x01(\tB\x04\xe2A\x01\x01R\x0eexpectedDigest\"\xf2\x01\n" +
+	"\x13DeleteImageResponse\x12\x16\n" +
+	"\x06digest\x18\x01 \x01(\tR\x06digest\x12!\n" +
+	"\ftags_removed\x18\x02 \x03(\tR\vtagsRemoved\x12+\n" +
+	"\x11manifests_removed\x18\x03 \x03(\tR\x10manifestsRemoved\x12#\n" +
+	"\rblobs_removed\x18\x04 \x01(\x05R\fblobsRemoved\x12'\n" +
+	"\x0fbytes_reclaimed\x18\x05 \x01(\x03R\x0ebytesReclaimed\x12%\n" +
+	"\x0eblobs_retained\x18\x06 \x01(\x05R\rblobsRetained\"^\n" +
 	"\x17GetArchitecturesRequest\x12%\n" +
 	"\brepo_uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\arepoUid\x12\x1c\n" +
@@ -265,14 +462,18 @@ const file_chainguard_platform_registry_v2beta1_images_proto_rawDesc = "" +
 	"\farchitecture\x18\x03 \x01(\tB\x04\xe2A\x01\x01R\farchitecture\">\n" +
 	"\x04Size\x12\x12\n" +
 	"\x04size\x18\x01 \x01(\x03R\x04size\x12\"\n" +
-	"\farchitecture\x18\x02 \x01(\tR\farchitecture2\xd6\x04\n" +
+	"\farchitecture\x18\x02 \x01(\tR\farchitecture2\xcf\a\n" +
 	"\rImagesService\x12\xb4\x02\n" +
 	"\x10GetArchitectures\x12=.chainguard.platform.registry.v2beta1.GetArchitecturesRequest\x1a3.chainguard.platform.registry.v2beta1.Architectures\"\xab\x01\x82\xd3\xe4\x93\x02F\x12D/registry/v2beta1/repos/{repo_uid=**}/digests/{digest}/architectures\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x04\xc5\f\xcf\f\x9a\xaf\xa8\xd2\x05K\n" +
 	"AGet the architectures present in a container image manifest list.\x18\x01 \x00(\x010\x00\x12\x8d\x02\n" +
 	"\aGetSize\x124.chainguard.platform.registry.v2beta1.GetSizeRequest\x1a*.chainguard.platform.registry.v2beta1.Size\"\x9f\x01\x82\xd3\xe4\x93\x02=\x12;/registry/v2beta1/repos/{repo_uid=**}/digests/{digest}/size\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x04\xc5\f\xcf\f\x9a\xaf\xa8\xd2\x05H\n" +
-	">Get the size of a container image for a specific architecture.\x18\x01 \x00(\x010\x00Bx\n" +
+	">Get the size of a container image for a specific architecture.\x18\x01 \x00(\x010\x00\x12\xf6\x02\n" +
+	"\vDeleteImage\x128.chainguard.platform.registry.v2beta1.DeleteImageRequest\x1a9.chainguard.platform.registry.v2beta1.DeleteImageResponse\"\xf1\x01\x82\xd3\xe4\x93\x02.*,/registry/v2beta1/repos/{repo_uid=**}/images\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xc6\f\x9a\xaf\xa8\xd2\x05e\n" +
+	"]Delete one image (by tag or digest) from a customer image repository and release its storage.\x10\x01 \x010\x00\xc2\xf0\x8e\xfc\v@\n" +
+	"5dev.chainguard.api.platform.registry.image.deleted.v1\x12\x05group\x18\x01Bx\n" +
 	"(com.chainguard.platform.registry.v2beta1B\vImagesProtoP\x01Z=chainguard.dev/sdk/proto/chainguard/platform/registry/v2beta1b\x06proto3"
 
 var (
@@ -287,20 +488,24 @@ func file_chainguard_platform_registry_v2beta1_images_proto_rawDescGZIP() []byte
 	return file_chainguard_platform_registry_v2beta1_images_proto_rawDescData
 }
 
-var file_chainguard_platform_registry_v2beta1_images_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_chainguard_platform_registry_v2beta1_images_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_chainguard_platform_registry_v2beta1_images_proto_goTypes = []any{
-	(*GetArchitecturesRequest)(nil), // 0: chainguard.platform.registry.v2beta1.GetArchitecturesRequest
-	(*Architectures)(nil),           // 1: chainguard.platform.registry.v2beta1.Architectures
-	(*GetSizeRequest)(nil),          // 2: chainguard.platform.registry.v2beta1.GetSizeRequest
-	(*Size)(nil),                    // 3: chainguard.platform.registry.v2beta1.Size
+	(*DeleteImageRequest)(nil),      // 0: chainguard.platform.registry.v2beta1.DeleteImageRequest
+	(*DeleteImageResponse)(nil),     // 1: chainguard.platform.registry.v2beta1.DeleteImageResponse
+	(*GetArchitecturesRequest)(nil), // 2: chainguard.platform.registry.v2beta1.GetArchitecturesRequest
+	(*Architectures)(nil),           // 3: chainguard.platform.registry.v2beta1.Architectures
+	(*GetSizeRequest)(nil),          // 4: chainguard.platform.registry.v2beta1.GetSizeRequest
+	(*Size)(nil),                    // 5: chainguard.platform.registry.v2beta1.Size
 }
 var file_chainguard_platform_registry_v2beta1_images_proto_depIdxs = []int32{
-	0, // 0: chainguard.platform.registry.v2beta1.ImagesService.GetArchitectures:input_type -> chainguard.platform.registry.v2beta1.GetArchitecturesRequest
-	2, // 1: chainguard.platform.registry.v2beta1.ImagesService.GetSize:input_type -> chainguard.platform.registry.v2beta1.GetSizeRequest
-	1, // 2: chainguard.platform.registry.v2beta1.ImagesService.GetArchitectures:output_type -> chainguard.platform.registry.v2beta1.Architectures
-	3, // 3: chainguard.platform.registry.v2beta1.ImagesService.GetSize:output_type -> chainguard.platform.registry.v2beta1.Size
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
+	2, // 0: chainguard.platform.registry.v2beta1.ImagesService.GetArchitectures:input_type -> chainguard.platform.registry.v2beta1.GetArchitecturesRequest
+	4, // 1: chainguard.platform.registry.v2beta1.ImagesService.GetSize:input_type -> chainguard.platform.registry.v2beta1.GetSizeRequest
+	0, // 2: chainguard.platform.registry.v2beta1.ImagesService.DeleteImage:input_type -> chainguard.platform.registry.v2beta1.DeleteImageRequest
+	3, // 3: chainguard.platform.registry.v2beta1.ImagesService.GetArchitectures:output_type -> chainguard.platform.registry.v2beta1.Architectures
+	5, // 4: chainguard.platform.registry.v2beta1.ImagesService.GetSize:output_type -> chainguard.platform.registry.v2beta1.Size
+	1, // 5: chainguard.platform.registry.v2beta1.ImagesService.DeleteImage:output_type -> chainguard.platform.registry.v2beta1.DeleteImageResponse
+	3, // [3:6] is the sub-list for method output_type
+	0, // [0:3] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -317,7 +522,7 @@ func file_chainguard_platform_registry_v2beta1_images_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_registry_v2beta1_images_proto_rawDesc), len(file_chainguard_platform_registry_v2beta1_images_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

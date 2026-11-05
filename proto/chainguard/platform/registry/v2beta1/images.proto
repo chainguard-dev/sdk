@@ -6,6 +6,7 @@ syntax = "proto3";
 package chainguard.platform.registry.v2beta1;
 
 import "annotations/auth.proto";
+import "annotations/events.proto";
 import "annotations/mcp.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
@@ -15,7 +16,7 @@ option java_multiple_files = true;
 option java_outer_classname = "ImagesProto";
 option java_package = "com.chainguard.platform.registry.v2beta1";
 
-// ImagesService provides read-only operations on container image manifests.
+// ImagesService provides operations on container image manifests.
 service ImagesService {
   // GetArchitectures returns the architectures present in an OCI index manifest.
   rpc GetArchitectures(GetArchitecturesRequest) returns (Architectures) {
@@ -56,6 +57,96 @@ service ImagesService {
       open_world: false
     };
   }
+
+  // DeleteImage removes one image from a customer repository: the manifest
+  // selected by tag or digest, every tag pointing at it, the index children
+  // and referrers only it reaches, and the blob references no remaining
+  // manifest in the repository needs. The released bytes stop counting toward
+  // the organization's image storage usage immediately. Durable storage is
+  // not erased. Only repositories under the organization's images folder
+  // support this operation.
+  // (-- api-linter: core::0135::response-message-name=disabled
+  //     aip.dev/not-precedent: The caller needs the exact reclamation result
+  //     (digest, tags and manifests removed, bytes released), which is also
+  //     the validate_only preview; Empty or the Repo cannot carry it. --)
+  rpc DeleteImage(DeleteImageRequest) returns (DeleteImageResponse) {
+    // protolint:disable:next MAX_LINE_LENGTH
+    option (google.api.http) = {delete: "/registry/v2beta1/repos/{repo_uid=**}/images"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_DELETE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.platform.registry.image.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description:
+        "Delete one image (by tag or digest) from a customer image "
+        "repository and release its storage."
+      read_only: false
+      destructive: true
+      idempotent: false
+      open_world: false
+      // Withheld from the MCP tool surface: a registry write with no
+      // server-enforced confirmation before it runs.
+      hidden: true
+    };
+  }
+}
+
+// DeleteImageRequest selects one image in a repository by tag or digest.
+message DeleteImageRequest {
+  // UIDP of the repository containing the image.
+  string repo_uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Tag naming the image. Exactly one of tag or digest is required.
+  string tag = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Manifest digest of the image (sha256:...). Exactly one of tag or digest is
+  // required.
+  string digest = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // When true, validate the request and report what would be removed without
+  // removing anything. The response is the same one the deletion would return.
+  bool validate_only = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // When selecting by tag, require the tag to still point at this digest. A
+  // tag that moved since a validate_only call previewed the deletion fails with
+  // FAILED_PRECONDITION instead of deleting a different image.
+  string expected_digest = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// DeleteImageResponse reports what a DeleteImage call removed, or would remove
+// with validate_only set.
+message DeleteImageResponse {
+  // Manifest digest of the selected image.
+  string digest = 1;
+
+  // Tags that pointed at the selected image and were removed. The noun_verb
+  // names below are already plural.
+  // protolint:disable:next REPEATED_FIELD_NAMES_PLURALIZED
+  repeated string tags_removed = 2;
+
+  // Manifest digests whose repository references were removed.
+  // protolint:disable:next REPEATED_FIELD_NAMES_PLURALIZED
+  repeated string manifests_removed = 3;
+
+  // Number of blob references removed from the repository.
+  int32 blobs_removed = 4;
+
+  // Logical bytes released from the organization's image storage usage. This
+  // is the size of the removed blob references, not durable storage erased.
+  int64 bytes_reclaimed = 5;
+
+  // Blob references the image used that remain because another manifest in
+  // the repository still needs them.
+  int32 blobs_retained = 6;
 }
 
 // GetArchitecturesRequest is the request message for GetArchitectures.

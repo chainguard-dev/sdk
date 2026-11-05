@@ -24,18 +24,31 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	ImagesService_GetArchitectures_FullMethodName = "/chainguard.platform.registry.v2beta1.ImagesService/GetArchitectures"
 	ImagesService_GetSize_FullMethodName          = "/chainguard.platform.registry.v2beta1.ImagesService/GetSize"
+	ImagesService_DeleteImage_FullMethodName      = "/chainguard.platform.registry.v2beta1.ImagesService/DeleteImage"
 )
 
 // ImagesServiceClient is the client API for ImagesService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// ImagesService provides read-only operations on container image manifests.
+// ImagesService provides operations on container image manifests.
 type ImagesServiceClient interface {
 	// GetArchitectures returns the architectures present in an OCI index manifest.
 	GetArchitectures(ctx context.Context, in *GetArchitecturesRequest, opts ...grpc.CallOption) (*Architectures, error)
 	// GetSize returns the size of a container image for a specific architecture.
 	GetSize(ctx context.Context, in *GetSizeRequest, opts ...grpc.CallOption) (*Size, error)
+	// DeleteImage removes one image from a customer repository: the manifest
+	// selected by tag or digest, every tag pointing at it, the index children
+	// and referrers only it reaches, and the blob references no remaining
+	// manifest in the repository needs. The released bytes stop counting toward
+	// the organization's image storage usage immediately. Durable storage is
+	// not erased. Only repositories under the organization's images folder
+	// support this operation.
+	// (-- api-linter: core::0135::response-message-name=disabled
+	//     aip.dev/not-precedent: The caller needs the exact reclamation result
+	//     (digest, tags and manifests removed, bytes released), which is also
+	//     the validate_only preview; Empty or the Repo cannot carry it. --)
+	DeleteImage(ctx context.Context, in *DeleteImageRequest, opts ...grpc.CallOption) (*DeleteImageResponse, error)
 }
 
 type imagesServiceClient struct {
@@ -66,16 +79,38 @@ func (c *imagesServiceClient) GetSize(ctx context.Context, in *GetSizeRequest, o
 	return out, nil
 }
 
+func (c *imagesServiceClient) DeleteImage(ctx context.Context, in *DeleteImageRequest, opts ...grpc.CallOption) (*DeleteImageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteImageResponse)
+	err := c.cc.Invoke(ctx, ImagesService_DeleteImage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ImagesServiceServer is the server API for ImagesService service.
 // All implementations must embed UnimplementedImagesServiceServer
 // for forward compatibility.
 //
-// ImagesService provides read-only operations on container image manifests.
+// ImagesService provides operations on container image manifests.
 type ImagesServiceServer interface {
 	// GetArchitectures returns the architectures present in an OCI index manifest.
 	GetArchitectures(context.Context, *GetArchitecturesRequest) (*Architectures, error)
 	// GetSize returns the size of a container image for a specific architecture.
 	GetSize(context.Context, *GetSizeRequest) (*Size, error)
+	// DeleteImage removes one image from a customer repository: the manifest
+	// selected by tag or digest, every tag pointing at it, the index children
+	// and referrers only it reaches, and the blob references no remaining
+	// manifest in the repository needs. The released bytes stop counting toward
+	// the organization's image storage usage immediately. Durable storage is
+	// not erased. Only repositories under the organization's images folder
+	// support this operation.
+	// (-- api-linter: core::0135::response-message-name=disabled
+	//     aip.dev/not-precedent: The caller needs the exact reclamation result
+	//     (digest, tags and manifests removed, bytes released), which is also
+	//     the validate_only preview; Empty or the Repo cannot carry it. --)
+	DeleteImage(context.Context, *DeleteImageRequest) (*DeleteImageResponse, error)
 	mustEmbedUnimplementedImagesServiceServer()
 }
 
@@ -91,6 +126,9 @@ func (UnimplementedImagesServiceServer) GetArchitectures(context.Context, *GetAr
 }
 func (UnimplementedImagesServiceServer) GetSize(context.Context, *GetSizeRequest) (*Size, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetSize not implemented")
+}
+func (UnimplementedImagesServiceServer) DeleteImage(context.Context, *DeleteImageRequest) (*DeleteImageResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteImage not implemented")
 }
 func (UnimplementedImagesServiceServer) mustEmbedUnimplementedImagesServiceServer() {}
 func (UnimplementedImagesServiceServer) testEmbeddedByValue()                       {}
@@ -149,6 +187,24 @@ func _ImagesService_GetSize_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ImagesService_DeleteImage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteImageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ImagesServiceServer).DeleteImage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ImagesService_DeleteImage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ImagesServiceServer).DeleteImage(ctx, req.(*DeleteImageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ImagesService_ServiceDesc is the grpc.ServiceDesc for ImagesService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -163,6 +219,10 @@ var ImagesService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSize",
 			Handler:    _ImagesService_GetSize_Handler,
+		},
+		{
+			MethodName: "DeleteImage",
+			Handler:    _ImagesService_DeleteImage_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
