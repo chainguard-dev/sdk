@@ -516,6 +516,7 @@ type Policy struct {
 	//   - libraries.chainguard.dev/PythonPackage@v1
 	//   - libraries.chainguard.dev/GoPackage@v1
 	//   - libraries.chainguard.dev/DotNetPackage@v1
+	//   - libraries.chainguard.dev/RubyPackage@v1
 	//   - libraries.chainguard.dev/RustPackage@v1
 	//
 	// Required on CreatePolicy: a request that sets neither this field nor the
