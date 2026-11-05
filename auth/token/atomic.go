@@ -9,6 +9,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -69,6 +70,38 @@ func isTempFile(name string) bool {
 // success while leaving a file of token bytes on disk.
 func stagingPrefix(name string) string {
 	return tempPrefix + name + "-"
+}
+
+// userCacheDir is os.UserCacheDir, indirected so a test can root the cache
+// confinement at a temporary directory.
+var userCacheDir = os.UserCacheDir
+
+// readFileConfined reads the cache file at path through an os.Root opened at the
+// user cache directory, traversing the chainguard/<audience>/… subtree relative
+// to it. A symlink anywhere in that subtree that resolves outside the cache is
+// refused rather than followed, so a planted symlink cannot redirect the read to
+// an attacker-chosen file. The cache directory itself is trusted: a relocated
+// ~/.cache is respected.
+func readFileConfined(path string) ([]byte, error) {
+	base, err := userCacheDir()
+	if err != nil {
+		return nil, err
+	}
+	rel, err := filepath.Rel(base, path)
+	if err != nil {
+		return nil, err
+	}
+	root, err := os.OpenRoot(base)
+	if err != nil {
+		return nil, err
+	}
+	defer root.Close()
+	f, err := root.Open(rel)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	return io.ReadAll(f)
 }
 
 // writeFileAtomic writes data to path with mode tokenFilePerm so that a reader

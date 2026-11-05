@@ -139,7 +139,7 @@ func (t token) load(kind Kind, audience string) ([]byte, error) {
 		return nil, err
 	}
 
-	bs, err := os.ReadFile(path)
+	bs, err := readFileConfined(path)
 	if err != nil {
 		return nil, fmt.Errorf("reading token file: %w", err)
 	}
@@ -321,9 +321,11 @@ func ListAudiences() ([]string, error) {
 		if d.IsDir() || d.Name() != string(KindAccess) {
 			return nil
 		}
-		raw, err := os.ReadFile(path) //nolint:gosec // G304: reading user's own token cache
+		raw, err := readFileConfined(path)
 		if err != nil {
-			return fmt.Errorf("reading %s: %w", path, err)
+			// Skip an entry that won't read — a refused symlink, say — rather
+			// than abort the whole listing on one bad file.
+			return nil //nolint:nilerr
 		}
 		auds, err := auth.ExtractAudiences(string(raw))
 		if err != nil {
@@ -421,7 +423,7 @@ func subtractOrZero(expiry time.Time, less time.Duration) time.Duration {
 }
 
 func cacheFilePath(file string) (string, error) {
-	path, err := os.UserCacheDir()
+	path, err := userCacheDir()
 	if err != nil {
 		return "", fmt.Errorf("failed to get user cache dir: %w", err)
 	}

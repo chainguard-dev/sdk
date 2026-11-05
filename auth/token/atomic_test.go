@@ -453,3 +453,122 @@ func TestWriteFileAtomic_RemovesStagingFileWhenRenameFails(t *testing.T) {
 		}
 	}
 }
+
+// useCacheDir points the cache confinement at dir for the test, so
+// readFileConfined and cacheFilePath root there instead of the real user cache
+// — without depending on os.UserCacheDir honouring XDG_CACHE_HOME.
+func useCacheDir(t *testing.T, dir string) {
+	t.Helper()
+	prev := userCacheDir
+	userCacheDir = func() (string, error) { return dir, nil }
+	t.Cleanup(func() { userCacheDir = prev })
+}
+
+// tokenCacheFile returns the cache path for audience/kind under base and ensures
+// its directory exists.
+func tokenCacheFile(t *testing.T, base, audience string, kind Kind) string {
+	t.Helper()
+	path := filepath.Join(base, parentDir, audience, string(kind))
+	if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
+		t.Fatalf("MkdirAll() = %v", err)
+	}
+	return path
+}
+
+// TestReadFileConfined_RejectsEscapingSymlink: a token file symlinked outside
+// the cache must be refused, or a reader ingests attacker-chosen bytes as a
+// cached credential.
+func TestReadFileConfined_RejectsEscapingSymlink(t *testing.T) {
+	base := t.TempDir()
+	useCacheDir(t, base)
+	outside := filepath.Join(t.TempDir(), "attacker")
+	if err := os.WriteFile(outside, []byte("attacker-controlled"), 0600); err != nil {
+		t.Fatalf("WriteFile() = %v", err)
+	}
+	link := tokenCacheFile(t, base, "aud", KindAccess)
+	if err := os.Symlink(outside, link); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+
+	if got, err := readFileConfined(link); err == nil {
+		t.Fatalf("readFileConfined followed a symlinked leaf out of the cache: got %q, want error", got)
+	}
+}
+
+// TestReadFileConfined_RejectsSymlinkedParentDir pins the parent-directory case:
+// a swapped <audience> directory must be refused too, not just a symlinked leaf.
+func TestReadFileConfined_RejectsSymlinkedParentDir(t *testing.T) {
+	base := t.TempDir()
+	useCacheDir(t, base)
+	attackerDir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(attackerDir, string(KindAccess)), []byte("attacker-controlled"), 0600); err != nil {
+		t.Fatalf("WriteFile() = %v", err)
+	}
+	cacheSubtree := filepath.Join(base, parentDir)
+	if err := os.MkdirAll(cacheSubtree, 0700); err != nil {
+		t.Fatalf("MkdirAll() = %v", err)
+	}
+	audLink := filepath.Join(cacheSubtree, "aud")
+	if err := os.Symlink(attackerDir, audLink); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+
+	tokenPath := filepath.Join(audLink, string(KindAccess))
+	if got, err := readFileConfined(tokenPath); err == nil {
+		t.Fatalf("readFileConfined followed a symlinked parent out of the cache: got %q, want error", got)
+	}
+}
+
+// TestReadFileConfined_ReadsRegularFile is the positive case: an ordinary token
+// file reads back byte-for-byte.
+func TestReadFileConfined_ReadsRegularFile(t *testing.T) {
+	base := t.TempDir()
+	useCacheDir(t, base)
+	path := tokenCacheFile(t, base, "aud", KindAccess)
+	want := []byte("real-cached-token")
+	if err := os.WriteFile(path, want, 0600); err != nil {
+		t.Fatalf("WriteFile() = %v", err)
+	}
+	got, err := readFileConfined(path)
+	if err != nil {
+		t.Fatalf("readFileConfined() = %v", err)
+	}
+	if !bytes.Equal(got, want) {
+		t.Errorf("contents = %q, want %q", got, want)
+	}
+}
+
+// TestLoad_RejectsSymlinkRedirectedToken pins the property end to end through
+// the public Load API: a token file swapped for a symlink pointing outside the
+// cache is refused.
+func TestLoad_RejectsSymlinkRedirectedToken(t *testing.T) {
+	base := t.TempDir()
+	useCacheDir(t, base)
+
+	const audience = "cgr.dev"
+	want := []byte("real-cached-token")
+	if err := Save(want, KindAccess, audience); err != nil {
+		t.Fatalf("Save() = %v", err)
+	}
+	if got, err := Load(KindAccess, audience); err != nil || !bytes.Equal(got, want) {
+		t.Fatalf("Load() = %q, %v; want %q, nil", got, err, want)
+	}
+
+	// Replace the token file with a symlink to an attacker-controlled file
+	// outside the cache, as a local user who can write the cache dir could.
+	tokenPath := filepath.Join(base, parentDir, audience, string(KindAccess))
+	outside := filepath.Join(t.TempDir(), "attacker")
+	if err := os.WriteFile(outside, []byte("attacker-controlled"), 0600); err != nil {
+		t.Fatalf("WriteFile() = %v", err)
+	}
+	if err := os.Remove(tokenPath); err != nil {
+		t.Fatalf("Remove() = %v", err)
+	}
+	if err := os.Symlink(outside, tokenPath); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+
+	if got, err := Load(KindAccess, audience); err == nil {
+		t.Fatalf("Load followed a symlink out of the cache: got %q, want error", got)
+	}
+}

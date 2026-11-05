@@ -239,7 +239,7 @@ func (t token) saveFamily(tok string, audiences []string) error {
 // heldByOtherIssuer reports whether the per-audience file at path holds an
 // unexpired Chainguard refresh token whose iss claim is not issuer.
 func heldByOtherIssuer(path, issuer string) bool {
-	b, err := os.ReadFile(path) //nolint:gosec // G304: reading the user's own token cache
+	b, err := readFileConfined(path)
 	if err != nil {
 		return false
 	}
@@ -465,11 +465,32 @@ func familiesPath() (string, error) {
 // is also removed: it is what a discard that had to truncate leaves behind.
 func loadFamilies(prune bool) (*familySet, error) {
 	set := &familySet{dirty: map[*family]struct{}{}}
+	base, err := userCacheDir()
+	if err != nil {
+		return nil, err
+	}
 	dir, err := familiesPath()
 	if err != nil {
 		return nil, err
 	}
-	root, err := os.OpenRoot(dir)
+	rel, err := filepath.Rel(base, dir)
+	if err != nil {
+		return nil, err
+	}
+	// Root at the trusted cache directory and open the families subtree through
+	// it, so a symlinked .refresh-families (or a parent) that escapes the cache
+	// is refused rather than followed into an attacker's directory of family
+	// JSON. os.OpenRoot(dir) alone would follow such a symlink while resolving
+	// dir itself.
+	baseRoot, err := os.OpenRoot(base)
+	if errors.Is(err, fs.ErrNotExist) {
+		return set, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("opening %s: %w", base, err)
+	}
+	defer baseRoot.Close()
+	root, err := baseRoot.OpenRoot(rel)
 	if errors.Is(err, fs.ErrNotExist) {
 		return set, nil
 	}
@@ -512,7 +533,7 @@ func readFamily(name string) (*family, error) {
 	if err != nil {
 		return nil, err
 	}
-	b, err := os.ReadFile(path)
+	b, err := readFileConfined(path)
 	if err != nil {
 		return nil, err
 	}
@@ -715,7 +736,7 @@ func audienceCopies() ([]audienceCopy, error) {
 			continue
 		}
 		path := filepath.Join(base, e.Name(), string(KindRefresh))
-		b, err := os.ReadFile(path) //nolint:gosec // G304: reading the user's own token cache
+		b, err := readFileConfined(path)
 		if err != nil {
 			continue
 		}

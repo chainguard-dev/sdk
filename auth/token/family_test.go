@@ -1252,3 +1252,27 @@ func TestFamilyTokenIDsLegacyCopy(t *testing.T) {
 		t.Errorf("FamilyTokenIDs() (-want, +got):\n%s", diff)
 	}
 }
+
+// TestLoadFamilies_RejectsSymlinkedDir pins the family-store read: a
+// .refresh-families directory symlinked outside the cache is refused, so
+// Load/Refresh can't be fed an attacker-chosen refresh token.
+func TestLoadFamilies_RejectsSymlinkedDir(t *testing.T) {
+	base := t.TempDir()
+	useCacheDir(t, base)
+	attacker := t.TempDir()
+	fam := `{"iss":"https://issuer.example","token":"attacker-refresh","aud":["x"],"created":"2020-01-01T00:00:00Z"}`
+	if err := os.WriteFile(filepath.Join(attacker, "famfile"), []byte(fam), 0600); err != nil {
+		t.Fatalf("WriteFile() = %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(base, parentDir), 0700); err != nil {
+		t.Fatalf("MkdirAll() = %v", err)
+	}
+	link := filepath.Join(base, parentDir, familiesDir)
+	if err := os.Symlink(attacker, link); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+
+	if set, err := loadFamilies(false); err == nil {
+		t.Fatalf("loadFamilies followed a symlinked families dir: got %d families, want error", len(set.all))
+	}
+}
