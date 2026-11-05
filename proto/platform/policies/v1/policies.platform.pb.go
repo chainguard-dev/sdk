@@ -733,9 +733,19 @@ type PolicyFilter struct {
 	// Must be non-negative.
 	Skip int32 `protobuf:"varint,5,opt,name=skip,proto3" json:"skip,omitempty"`
 	// name is the exact name of the policy to filter by.
-	Name          string `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Note: Changing name between pages invalidates the page token.
+	Name string `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`
+	// Only return policies whose supported_resource_type equals this value.
+	// The value takes the versioned form Policy.supported_resource_type takes
+	// (e.g. "registry.chainguard.dev/Repo@v1") and matches exactly. A value
+	// without an "@<version>" suffix is rejected with INVALID_ARGUMENT. A
+	// well-formed type that no policy declares returns an empty list.
+	// Empty returns policies of every type.
+	// Note: Changing supported_resource_type between pages invalidates the page
+	// token.
+	SupportedResourceType string `protobuf:"bytes,7,opt,name=supported_resource_type,json=supportedResourceType,proto3" json:"supported_resource_type,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *PolicyFilter) Reset() {
@@ -806,6 +816,13 @@ func (x *PolicyFilter) GetSkip() int32 {
 func (x *PolicyFilter) GetName() string {
 	if x != nil {
 		return x.Name
+	}
+	return ""
+}
+
+func (x *PolicyFilter) GetSupportedResourceType() string {
+	if x != nil {
+		return x.SupportedResourceType
 	}
 	return ""
 }
@@ -2263,7 +2280,7 @@ const file_policies_platform_proto_rawDesc = "" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
 	"\vtotal_count\x18\x03 \x01(\x03R\n" +
 	"totalCount\x12\x18\n" +
-	"\askipped\x18\x04 \x01(\x05R\askipped\"\xd5\x01\n" +
+	"\askipped\x18\x04 \x01(\x05R\askipped\"\x8d\x02\n" +
 	"\fPolicyFilter\x12:\n" +
 	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterR\x04uidp\x12\x1b\n" +
 	"\tpage_size\x18\x02 \x01(\x05R\bpageSize\x12\x1d\n" +
@@ -2271,7 +2288,8 @@ const file_policies_platform_proto_rawDesc = "" +
 	"page_token\x18\x03 \x01(\tR\tpageToken\x12\x1f\n" +
 	"\border_by\x18\x04 \x01(\tB\x04\xe2A\x01\x01R\aorderBy\x12\x18\n" +
 	"\x04skip\x18\x05 \x01(\x05B\x04\xe2A\x01\x01R\x04skip\x12\x12\n" +
-	"\x04name\x18\x06 \x01(\tR\x04name\"{\n" +
+	"\x04name\x18\x06 \x01(\tR\x04name\x126\n" +
+	"\x17supported_resource_type\x18\a \x01(\tR\x15supportedResourceType\"{\n" +
 	"\x13CreatePolicyRequest\x12#\n" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12?\n" +
 	"\x06policy\x18\x02 \x01(\v2'.chainguard.platform.policies.v1.PolicyR\x06policy\"-\n" +

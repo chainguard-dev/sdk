@@ -390,7 +390,18 @@ message PolicyFilter {
   int32 skip = 5 [(google.api.field_behavior) = OPTIONAL];
 
   // name is the exact name of the policy to filter by.
+  // Note: Changing name between pages invalidates the page token.
   string name = 6;
+
+  // Only return policies whose supported_resource_type equals this value.
+  // The value takes the versioned form Policy.supported_resource_type takes
+  // (e.g. "registry.chainguard.dev/Repo@v1") and matches exactly. A value
+  // without an "@<version>" suffix is rejected with INVALID_ARGUMENT. A
+  // well-formed type that no policy declares returns an empty list.
+  // Empty returns policies of every type.
+  // Note: Changing supported_resource_type between pages invalidates the page
+  // token.
+  string supported_resource_type = 7;
 }
 
 message CreatePolicyRequest {
