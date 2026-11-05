@@ -26,10 +26,14 @@ type Kind string
 const (
 	KindAccess  Kind = "oidc-token"
 	KindRefresh Kind = "refresh-token"
+	// KindDownscoped is an access token narrowed to a subset of the
+	// caller's capabilities or scopes. Callers key each narrowing with
+	// WithAlias so that one does not overwrite another.
+	KindDownscoped Kind = "downscoped-token"
 )
 
 var (
-	AllKinds = []Kind{KindAccess, KindRefresh}
+	AllKinds = []Kind{KindAccess, KindRefresh, KindDownscoped}
 
 	parentDir = "chainguard"
 )
@@ -177,6 +181,38 @@ func (t token) delete(kind Kind, audience string) error {
 	return removeStagingFiles(path)
 }
 
+// DeleteAliased removes the audience's tokens of kind saved under any alias
+// (see WithAlias), and each alias directory left empty. A token saved
+// without an alias is left alone; Delete removes that one. No error is
+// returned if there are none.
+func DeleteAliased(kind Kind, audience string) error {
+	dir, err := cacheFilePath(audienceDir(audience))
+	if err != nil {
+		return err
+	}
+	ents, err := os.ReadDir(dir)
+	if errors.Is(err, fs.ErrNotExist) {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("reading %s: %w", dir, err)
+	}
+	for _, e := range ents {
+		if !e.IsDir() {
+			continue
+		}
+		if err := newToken(WithAlias(e.Name())).delete(kind, audience); err != nil {
+			return err
+		}
+		aliasDir := filepath.Join(dir, e.Name())
+		if rest, err := os.ReadDir(aliasDir); err == nil && len(rest) == 0 {
+			if err := os.Remove(aliasDir); err != nil {
+				return fmt.Errorf("removing directory %s: %w", aliasDir, err)
+			}
+		}
+	}
+	return nil
+}
+
 // DeleteAll removes all Chainguard tokens and empty audience directories,
 // including every refresh-token family. The store's lock file holds no token
 // and is left in place.
@@ -197,7 +233,7 @@ func DeleteAll() error {
 	}
 
 	// Token directory is expected to be structured as group of audience-specific
-	// directories, with token files (oidc-token, refresh-token) or alias directories
+	// directories, with token files (oidc-token, refresh-token, downscoped-token) or alias directories
 	// nested within.
 	//
 	//  $ tree ~/Library/Caches/chainguard

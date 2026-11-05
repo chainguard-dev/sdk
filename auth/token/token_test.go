@@ -613,3 +613,40 @@ func TestPath(t *testing.T) {
 		})
 	}
 }
+
+func TestDeleteAliased(t *testing.T) {
+	base := isolateCache(t)
+	save := func(kind Kind, audience string, opts ...Option) {
+		t.Helper()
+		if err := Save([]byte("tok"), kind, audience, opts...); err != nil {
+			t.Fatalf("Save(): %v", err)
+		}
+	}
+	save(KindDownscoped, "aud", WithAlias("a"))
+	save(KindDownscoped, "aud", WithAlias("b"))
+	save(KindDownscoped, "aud", WithAlias("c"))
+	save(KindAccess, "aud", WithAlias("c"))
+	save(KindDownscoped, "aud")
+	save(KindDownscoped, "other", WithAlias("a"))
+
+	if err := DeleteAliased(KindDownscoped, "aud"); err != nil {
+		t.Fatalf("DeleteAliased(): %v", err)
+	}
+	if err := DeleteAliased(KindDownscoped, "missing"); err != nil {
+		t.Errorf("DeleteAliased() on a missing audience: %v", err)
+	}
+
+	for path, want := range map[string]bool{
+		"aud/a":                    false, // emptied alias dirs go
+		"aud/b":                    false,
+		"aud/c/downscoped-token":   false,
+		"aud/c/oidc-token":         true, // another kind in an alias dir stays
+		"aud/downscoped-token":     true, // the unaliased token is Delete's
+		"other/a/downscoped-token": true,
+	} {
+		_, err := os.Stat(filepath.Join(base, path))
+		if got := err == nil; got != want {
+			t.Errorf("%s exists: got = %v, want = %v", path, got, want)
+		}
+	}
+}
