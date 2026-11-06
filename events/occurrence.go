@@ -114,6 +114,32 @@ type Suppressible interface {
 	CloudEventsSuppress() bool
 }
 
+// AdditionalEvent is one more event an RPC publishes alongside its own.
+type AdditionalEvent struct {
+	// Type is the CloudEvents type.
+	Type string
+	// Extensions names the CloudEvents extensions to set from Body, which must
+	// then be Extendable.
+	Extensions []string
+	// Audience is AudienceCustomer or AudienceInternal.
+	Audience string
+	// Body is the event body, encoded as an RPC's own is: redacted when it is
+	// Redactable. Its AsyncEventable, if it has one, is ignored: additional
+	// events are always delivered in order, before the response returns.
+	Body Eventable
+}
+
+// AdditionalEventable lets an Eventable response publish further events with
+// its own, for a call that changes many resources and must leave an audit
+// record for each, such as a bulk removal. They go out after the response's own
+// event, with the same source and actor, and are not published when the
+// response is suppressed (Suppressible). Delivery is best-effort, as for the
+// response's own event.
+type AdditionalEventable interface {
+	// CloudEventsAdditional returns the further events to publish.
+	CloudEventsAdditional() []AdditionalEvent
+}
+
 // ResponseBodied lets a delete request take its event body from the RPC's
 // response, for a deletion whose request does not name everything it removed.
 // The returned body supplies the subject, extensions and suppression; nil
