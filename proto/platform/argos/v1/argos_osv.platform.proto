@@ -93,6 +93,12 @@ message Range {
   RangeType type = 1;
   string repo = 2;
   repeated Event events = 3;
+  RangeDatabaseSpecific database_specific = 4 [json_name = "database_specific"];
+}
+
+message RangeDatabaseSpecific {
+  // "fix_found", "no_fix_found" or "not_confirmed".
+  string fix_status = 1 [json_name = "fix_status"];
 }
 
 message Affected {
