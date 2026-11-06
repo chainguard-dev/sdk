@@ -28,6 +28,198 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// ValidationKind is what a validation session proves.
+type ValidationKind int32
+
+const (
+	// Unset; a request must name a kind.
+	ValidationKind_VALIDATION_KIND_UNSPECIFIED ValidationKind = 0
+	// The organization's identity provider authenticates a person end to end.
+	ValidationKind_VALIDATION_KIND_IDP ValidationKind = 1
+	// A designated break-glass identity can sign in without the identity
+	// provider.
+	ValidationKind_VALIDATION_KIND_BREAK_GLASS ValidationKind = 2
+)
+
+// Enum value maps for ValidationKind.
+var (
+	ValidationKind_name = map[int32]string{
+		0: "VALIDATION_KIND_UNSPECIFIED",
+		1: "VALIDATION_KIND_IDP",
+		2: "VALIDATION_KIND_BREAK_GLASS",
+	}
+	ValidationKind_value = map[string]int32{
+		"VALIDATION_KIND_UNSPECIFIED": 0,
+		"VALIDATION_KIND_IDP":         1,
+		"VALIDATION_KIND_BREAK_GLASS": 2,
+	}
+)
+
+func (x ValidationKind) Enum() *ValidationKind {
+	p := new(ValidationKind)
+	*p = x
+	return p
+}
+
+func (x ValidationKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ValidationKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_chainguard_platform_iam_v2_auth_policies_proto_enumTypes[0].Descriptor()
+}
+
+func (ValidationKind) Type() protoreflect.EnumType {
+	return &file_chainguard_platform_iam_v2_auth_policies_proto_enumTypes[0]
+}
+
+func (x ValidationKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ValidationKind.Descriptor instead.
+func (ValidationKind) EnumDescriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2_auth_policies_proto_rawDescGZIP(), []int{0}
+}
+
+// ValidationState is where a validation session is in its life.
+//
+// (-- api-linter: core::0216::nesting=disabled
+//
+//	aip.dev/not-precedent: ValidationKind, ValidationState and
+//	ValidationStep are vocabulary shared by StartValidationRequest and the
+//	Validation it returns, kept top-level like this API's other enums
+//	rather than nested in one message. --)
+type ValidationState int32
+
+const (
+	// Unset.
+	ValidationState_VALIDATION_STATE_UNSPECIFIED ValidationState = 0
+	// Created; the sign-in has not finished.
+	ValidationState_VALIDATION_STATE_PENDING ValidationState = 1
+	// The sign-in succeeded and its result is recorded.
+	ValidationState_VALIDATION_STATE_PASSED ValidationState = 2
+	// The sign-in failed; diagnostics say where.
+	ValidationState_VALIDATION_STATE_FAILED ValidationState = 3
+	// Never completed before the session's expiry.
+	ValidationState_VALIDATION_STATE_EXPIRED ValidationState = 4
+)
+
+// Enum value maps for ValidationState.
+var (
+	ValidationState_name = map[int32]string{
+		0: "VALIDATION_STATE_UNSPECIFIED",
+		1: "VALIDATION_STATE_PENDING",
+		2: "VALIDATION_STATE_PASSED",
+		3: "VALIDATION_STATE_FAILED",
+		4: "VALIDATION_STATE_EXPIRED",
+	}
+	ValidationState_value = map[string]int32{
+		"VALIDATION_STATE_UNSPECIFIED": 0,
+		"VALIDATION_STATE_PENDING":     1,
+		"VALIDATION_STATE_PASSED":      2,
+		"VALIDATION_STATE_FAILED":      3,
+		"VALIDATION_STATE_EXPIRED":     4,
+	}
+)
+
+func (x ValidationState) Enum() *ValidationState {
+	p := new(ValidationState)
+	*p = x
+	return p
+}
+
+func (x ValidationState) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ValidationState) Descriptor() protoreflect.EnumDescriptor {
+	return file_chainguard_platform_iam_v2_auth_policies_proto_enumTypes[1].Descriptor()
+}
+
+func (ValidationState) Type() protoreflect.EnumType {
+	return &file_chainguard_platform_iam_v2_auth_policies_proto_enumTypes[1]
+}
+
+func (x ValidationState) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ValidationState.Descriptor instead.
+func (ValidationState) EnumDescriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2_auth_policies_proto_rawDescGZIP(), []int{1}
+}
+
+// ValidationStep is the stage of the sign-in a failed session stopped at, so a
+// diagnostic names a step rather than a generic pass/fail.
+type ValidationStep int32
+
+const (
+	// Unset; a passed session names no step.
+	ValidationStep_VALIDATION_STEP_UNSPECIFIED ValidationStep = 0
+	// Resolving the identity provider and its OIDC discovery document.
+	ValidationStep_VALIDATION_STEP_DISCOVERY ValidationStep = 1
+	// The provider sent the person back with an error instead of a code.
+	ValidationStep_VALIDATION_STEP_REDIRECT ValidationStep = 2
+	// Redeeming the authorization code at the provider's token endpoint.
+	ValidationStep_VALIDATION_STEP_CODE_EXCHANGE ValidationStep = 3
+	// Verifying the ID token the provider returned.
+	ValidationStep_VALIDATION_STEP_ID_TOKEN ValidationStep = 4
+	// Reading the claims a sign-in needs from the verified token.
+	ValidationStep_VALIDATION_STEP_CLAIMS ValidationStep = 5
+	// Matching the authenticated person to the designated break-glass identity.
+	ValidationStep_VALIDATION_STEP_IDENTITY_MATCH ValidationStep = 6
+)
+
+// Enum value maps for ValidationStep.
+var (
+	ValidationStep_name = map[int32]string{
+		0: "VALIDATION_STEP_UNSPECIFIED",
+		1: "VALIDATION_STEP_DISCOVERY",
+		2: "VALIDATION_STEP_REDIRECT",
+		3: "VALIDATION_STEP_CODE_EXCHANGE",
+		4: "VALIDATION_STEP_ID_TOKEN",
+		5: "VALIDATION_STEP_CLAIMS",
+		6: "VALIDATION_STEP_IDENTITY_MATCH",
+	}
+	ValidationStep_value = map[string]int32{
+		"VALIDATION_STEP_UNSPECIFIED":    0,
+		"VALIDATION_STEP_DISCOVERY":      1,
+		"VALIDATION_STEP_REDIRECT":       2,
+		"VALIDATION_STEP_CODE_EXCHANGE":  3,
+		"VALIDATION_STEP_ID_TOKEN":       4,
+		"VALIDATION_STEP_CLAIMS":         5,
+		"VALIDATION_STEP_IDENTITY_MATCH": 6,
+	}
+)
+
+func (x ValidationStep) Enum() *ValidationStep {
+	p := new(ValidationStep)
+	*p = x
+	return p
+}
+
+func (x ValidationStep) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ValidationStep) Descriptor() protoreflect.EnumDescriptor {
+	return file_chainguard_platform_iam_v2_auth_policies_proto_enumTypes[2].Descriptor()
+}
+
+func (ValidationStep) Type() protoreflect.EnumType {
+	return &file_chainguard_platform_iam_v2_auth_policies_proto_enumTypes[2]
+}
+
+func (x ValidationStep) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ValidationStep.Descriptor instead.
+func (ValidationStep) EnumDescriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2_auth_policies_proto_rawDescGZIP(), []int{2}
+}
+
 // AuthPolicy is an organization's authentication policy. There is one per
 // organization; it has no identity of its own and is addressed by the
 // organization's UIDP.
@@ -76,6 +268,19 @@ type AuthPolicy struct {
 	// chainguard-dev/mono.
 	// protolint:disable:next MAX_LINE_LENGTH
 	SessionDuration *durationpb.Duration `protobuf:"bytes,3,opt,name=session_duration,json=sessionDuration,proto3" json:"session_duration,omitempty"`
+	// validations reports, computed when the policy is read, whether the
+	// organization's recorded validations are current: whether the identity
+	// provider validation still matches the provider as it is configured now,
+	// and which currently-designated break-glass identities have one of their
+	// own. Currency is a read-time comparison of the recorded fingerprint to the
+	// live provider configuration, with no invalidation hooks: a provider change
+	// makes a validation stale the moment the policy is next read. It is
+	// populated only for a caller holding auth_policies.update at this
+	// organization, the capability that acts on it; every other reader gets the
+	// policy without it. Whether sso_only may be enabled is not decided here:
+	// that is readiness, below, which applies the same predicates and adds
+	// the owner-binding check; this view breaks them out per designee.
+	Validations *ValidationStatus `protobuf:"bytes,20,opt,name=validations,proto3" json:"validations,omitempty"`
 	// Fields from 30 report the organization's readiness to enforce the
 	// policy: facts about the organization that decide whether sso_only can be
 	// turned on and whether, once on, it takes effect. They are never written.
@@ -158,6 +363,13 @@ func (x *AuthPolicy) GetSessionDuration() *durationpb.Duration {
 	return nil
 }
 
+func (x *AuthPolicy) GetValidations() *ValidationStatus {
+	if x != nil {
+		return x.Validations
+	}
+	return nil
+}
+
 func (x *AuthPolicy) GetReadiness() *SsoOnlyReadiness {
 	if x != nil {
 		return x.Readiness
@@ -170,6 +382,257 @@ func (x *AuthPolicy) GetEnforcementEntitled() bool {
 		return *x.EnforcementEntitled
 	}
 	return false
+}
+
+// ValidationStatus is the read-time currency of an organization's recorded
+// validations. Every field is derived when the policy is read; nothing here
+// is stored or writable: the whole message is output-only.
+type ValidationStatus struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// idp_validation_current is true when the organization's identity provider
+	// has a recorded validation whose fingerprint still matches the provider as
+	// it is configured now. False when there has never been one or the
+	// configuration has changed since (a stale validation).
+	IdpValidationCurrent bool `protobuf:"varint,1,opt,name=idp_validation_current,json=idpValidationCurrent,proto3" json:"idp_validation_current,omitempty"`
+	// break_glass_designees lists each currently-designated break-glass identity
+	// with whether its own non-IdP validation is current. A new designee appears
+	// here with validation_current false until it passes its own validation; a
+	// designee removed from the policy drops out of the list.
+	BreakGlassDesignees []*BreakGlassValidationStatus `protobuf:"bytes,2,rep,name=break_glass_designees,json=breakGlassDesignees,proto3" json:"break_glass_designees,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *ValidationStatus) Reset() {
+	*x = ValidationStatus{}
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ValidationStatus) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValidationStatus) ProtoMessage() {}
+
+func (x *ValidationStatus) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ValidationStatus.ProtoReflect.Descriptor instead.
+func (*ValidationStatus) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2_auth_policies_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ValidationStatus) GetIdpValidationCurrent() bool {
+	if x != nil {
+		return x.IdpValidationCurrent
+	}
+	return false
+}
+
+func (x *ValidationStatus) GetBreakGlassDesignees() []*BreakGlassValidationStatus {
+	if x != nil {
+		return x.BreakGlassDesignees
+	}
+	return nil
+}
+
+// BreakGlassValidationStatus is one designated break-glass identity's
+// validation currency, computed at read time.
+type BreakGlassValidationStatus struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// identity_uidp is the designated break-glass identity.
+	IdentityUidp string `protobuf:"bytes,1,opt,name=identity_uidp,json=identityUidp,proto3" json:"identity_uidp,omitempty"`
+	// validation_current is true when this identity has a recorded non-IdP
+	// validation no older than the maximum age Chainguard applies (90 days by
+	// default) that is still bound to the identity as it is configured now:
+	// the validation records the identity's claim_match as it was when the
+	// sign-in passed, so re-pointing the identity at another issuer, subject
+	// or audience means validating again. The same rule readiness applies.
+	// Un-designating an identity drops its validation, so a re-designated
+	// identity must pass its own again.
+	ValidationCurrent bool `protobuf:"varint,2,opt,name=validation_current,json=validationCurrent,proto3" json:"validation_current,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *BreakGlassValidationStatus) Reset() {
+	*x = BreakGlassValidationStatus{}
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BreakGlassValidationStatus) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BreakGlassValidationStatus) ProtoMessage() {}
+
+func (x *BreakGlassValidationStatus) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BreakGlassValidationStatus.ProtoReflect.Descriptor instead.
+func (*BreakGlassValidationStatus) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2_auth_policies_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *BreakGlassValidationStatus) GetIdentityUidp() string {
+	if x != nil {
+		return x.IdentityUidp
+	}
+	return ""
+}
+
+func (x *BreakGlassValidationStatus) GetValidationCurrent() bool {
+	if x != nil {
+		return x.ValidationCurrent
+	}
+	return false
+}
+
+// StartValidationRequest is the request message for StartValidation.
+type StartValidationRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UIDP of the root organization whose provider (or break-glass path) is
+	// being validated. Follows the AuthPolicy.uid rule: a sub-group UIDP is
+	// INVALID_ARGUMENT.
+	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	// kind selects what to validate: the identity provider, or a break-glass
+	// identity's non-IdP path.
+	Kind ValidationKind `protobuf:"varint,2,opt,name=kind,proto3,enum=chainguard.platform.iam.v2.ValidationKind" json:"kind,omitempty"`
+	// identity_uidp is the designated break-glass identity to validate. Required
+	// for VALIDATION_KIND_BREAK_GLASS, and must be empty for VALIDATION_KIND_IDP.
+	// It must be an identity currently designated on this organization's policy.
+	IdentityUidp  string `protobuf:"bytes,3,opt,name=identity_uidp,json=identityUidp,proto3" json:"identity_uidp,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartValidationRequest) Reset() {
+	*x = StartValidationRequest{}
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartValidationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartValidationRequest) ProtoMessage() {}
+
+func (x *StartValidationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartValidationRequest.ProtoReflect.Descriptor instead.
+func (*StartValidationRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2_auth_policies_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *StartValidationRequest) GetUid() string {
+	if x != nil {
+		return x.Uid
+	}
+	return ""
+}
+
+func (x *StartValidationRequest) GetKind() ValidationKind {
+	if x != nil {
+		return x.Kind
+	}
+	return ValidationKind_VALIDATION_KIND_UNSPECIFIED
+}
+
+func (x *StartValidationRequest) GetIdentityUidp() string {
+	if x != nil {
+		return x.IdentityUidp
+	}
+	return ""
+}
+
+// GetValidationStatusRequest is the request message for GetValidationStatus.
+type GetValidationStatusRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UIDP of the root organization the session belongs to. A session is bound
+	// to its organization; a mismatch is NOT_FOUND.
+	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	// session_id is the id StartValidation returned.
+	SessionId     string `protobuf:"bytes,2,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetValidationStatusRequest) Reset() {
+	*x = GetValidationStatusRequest{}
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetValidationStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetValidationStatusRequest) ProtoMessage() {}
+
+func (x *GetValidationStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetValidationStatusRequest.ProtoReflect.Descriptor instead.
+func (*GetValidationStatusRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2_auth_policies_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetValidationStatusRequest) GetUid() string {
+	if x != nil {
+		return x.Uid
+	}
+	return ""
+}
+
+func (x *GetValidationStatusRequest) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
 }
 
 // SsoOnlyReadiness is the verdict of the checks that gate enabling
@@ -197,7 +660,7 @@ type SsoOnlyReadiness struct {
 
 func (x *SsoOnlyReadiness) Reset() {
 	*x = SsoOnlyReadiness{}
-	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[1]
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -209,7 +672,7 @@ func (x *SsoOnlyReadiness) String() string {
 func (*SsoOnlyReadiness) ProtoMessage() {}
 
 func (x *SsoOnlyReadiness) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[1]
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -222,7 +685,7 @@ func (x *SsoOnlyReadiness) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SsoOnlyReadiness.ProtoReflect.Descriptor instead.
 func (*SsoOnlyReadiness) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_iam_v2_auth_policies_proto_rawDescGZIP(), []int{1}
+	return file_chainguard_platform_iam_v2_auth_policies_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *SsoOnlyReadiness) GetIdpValidatedCurrent() bool {
@@ -246,6 +709,115 @@ func (x *SsoOnlyReadiness) GetReasons() []*SsoOnlyReadiness_Reason {
 	return nil
 }
 
+// Validation is one validation session: its identity, its state, and — once
+// it completes — the diagnostics the sign-in produced. It carries no token,
+// code, secret or cookie. Every field is output-only.
+type Validation struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id is the session id.
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// uid is the root organization the session validates.
+	Uid string `protobuf:"bytes,2,opt,name=uid,proto3" json:"uid,omitempty"`
+	// kind is what the session validates.
+	Kind ValidationKind `protobuf:"varint,3,opt,name=kind,proto3,enum=chainguard.platform.iam.v2.ValidationKind" json:"kind,omitempty"`
+	// identity_uidp is the designated break-glass identity a BREAK_GLASS session
+	// is for; empty for an IDP session.
+	IdentityUidp string `protobuf:"bytes,4,opt,name=identity_uidp,json=identityUidp,proto3" json:"identity_uidp,omitempty"`
+	// state is where the session is in its life.
+	State ValidationState `protobuf:"varint,5,opt,name=state,proto3,enum=chainguard.platform.iam.v2.ValidationState" json:"state,omitempty"`
+	// diagnostics is what a completed session's sign-in showed; unset while
+	// pending.
+	Diagnostics *Validation_Diagnostics `protobuf:"bytes,6,opt,name=diagnostics,proto3" json:"diagnostics,omitempty"`
+	// open_url is the URL the human opens to run the sign-in. It is set only on
+	// the response to StartValidation, never on GetValidationStatus: it carries
+	// the session id, which is the only credential the sign-in needs, so it is
+	// shown once, to the administrator who started the session (and, for a
+	// break-glass session, handed to the designee). It is never recorded in the
+	// event StartValidation emits.
+	OpenUrl       string `protobuf:"bytes,7,opt,name=open_url,json=openUrl,proto3" json:"open_url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Validation) Reset() {
+	*x = Validation{}
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Validation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Validation) ProtoMessage() {}
+
+func (x *Validation) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Validation.ProtoReflect.Descriptor instead.
+func (*Validation) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2_auth_policies_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *Validation) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Validation) GetUid() string {
+	if x != nil {
+		return x.Uid
+	}
+	return ""
+}
+
+func (x *Validation) GetKind() ValidationKind {
+	if x != nil {
+		return x.Kind
+	}
+	return ValidationKind_VALIDATION_KIND_UNSPECIFIED
+}
+
+func (x *Validation) GetIdentityUidp() string {
+	if x != nil {
+		return x.IdentityUidp
+	}
+	return ""
+}
+
+func (x *Validation) GetState() ValidationState {
+	if x != nil {
+		return x.State
+	}
+	return ValidationState_VALIDATION_STATE_UNSPECIFIED
+}
+
+func (x *Validation) GetDiagnostics() *Validation_Diagnostics {
+	if x != nil {
+		return x.Diagnostics
+	}
+	return nil
+}
+
+func (x *Validation) GetOpenUrl() string {
+	if x != nil {
+		return x.OpenUrl
+	}
+	return ""
+}
+
 // GetAuthPolicyRequest is the request message for GetAuthPolicy.
 type GetAuthPolicyRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -259,7 +831,7 @@ type GetAuthPolicyRequest struct {
 
 func (x *GetAuthPolicyRequest) Reset() {
 	*x = GetAuthPolicyRequest{}
-	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[2]
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -271,7 +843,7 @@ func (x *GetAuthPolicyRequest) String() string {
 func (*GetAuthPolicyRequest) ProtoMessage() {}
 
 func (x *GetAuthPolicyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[2]
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -284,7 +856,7 @@ func (x *GetAuthPolicyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAuthPolicyRequest.ProtoReflect.Descriptor instead.
 func (*GetAuthPolicyRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_iam_v2_auth_policies_proto_rawDescGZIP(), []int{2}
+	return file_chainguard_platform_iam_v2_auth_policies_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetAuthPolicyRequest) GetUid() string {
@@ -306,9 +878,9 @@ type UpdateAuthPolicyRequest struct {
 	// that can be named. "*" is not supported: elsewhere a wildcard is a full
 	// replacement that clears whatever the body leaves unset, and on a sign-in
 	// control that is a silent clear, so it is rejected with INVALID_ARGUMENT
-	// and the caller names the fields instead. uid and the readiness fields
-	// may also be named, as a client that echoes a Get response back does;
-	// they are never written.
+	// and the caller names the fields instead. uid, validations and the
+	// readiness fields may also be named, as a client that echoes a Get
+	// response back does; they are never written.
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -316,7 +888,7 @@ type UpdateAuthPolicyRequest struct {
 
 func (x *UpdateAuthPolicyRequest) Reset() {
 	*x = UpdateAuthPolicyRequest{}
-	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[3]
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -328,7 +900,7 @@ func (x *UpdateAuthPolicyRequest) String() string {
 func (*UpdateAuthPolicyRequest) ProtoMessage() {}
 
 func (x *UpdateAuthPolicyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[3]
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -341,7 +913,7 @@ func (x *UpdateAuthPolicyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAuthPolicyRequest.ProtoReflect.Descriptor instead.
 func (*UpdateAuthPolicyRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_iam_v2_auth_policies_proto_rawDescGZIP(), []int{3}
+	return file_chainguard_platform_iam_v2_auth_policies_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *UpdateAuthPolicyRequest) GetAuthPolicy() *AuthPolicy {
@@ -378,7 +950,7 @@ type SsoOnlyReadiness_Reason struct {
 
 func (x *SsoOnlyReadiness_Reason) Reset() {
 	*x = SsoOnlyReadiness_Reason{}
-	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[4]
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -390,7 +962,7 @@ func (x *SsoOnlyReadiness_Reason) String() string {
 func (*SsoOnlyReadiness_Reason) ProtoMessage() {}
 
 func (x *SsoOnlyReadiness_Reason) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[4]
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -403,7 +975,7 @@ func (x *SsoOnlyReadiness_Reason) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SsoOnlyReadiness_Reason.ProtoReflect.Descriptor instead.
 func (*SsoOnlyReadiness_Reason) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_iam_v2_auth_policies_proto_rawDescGZIP(), []int{1, 0}
+	return file_chainguard_platform_iam_v2_auth_policies_proto_rawDescGZIP(), []int{5, 0}
 }
 
 func (x *SsoOnlyReadiness_Reason) GetCode() string {
@@ -420,30 +992,178 @@ func (x *SsoOnlyReadiness_Reason) GetMessage() string {
 	return ""
 }
 
+// Diagnostics is what a completed session's sign-in showed: not a generic
+// pass/fail, but which step failed, the provider's error code, and the
+// claims the verified token carried.
+type Validation_Diagnostics struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// step is the stage a failed sign-in stopped at; unset for a passed one.
+	Step ValidationStep `protobuf:"varint,1,opt,name=step,proto3,enum=chainguard.platform.iam.v2.ValidationStep" json:"step,omitempty"`
+	// error_code is the provider's own error code when it gave one, or the
+	// issuer's rejection reason for the ID token.
+	ErrorCode string `protobuf:"bytes,2,opt,name=error_code,json=errorCode,proto3" json:"error_code,omitempty"`
+	// message is a short, human-readable description of the outcome.
+	Message string `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	// issuer is the iss of the verified ID token, when one was verified.
+	Issuer string `protobuf:"bytes,4,opt,name=issuer,proto3" json:"issuer,omitempty"`
+	// subject is the sub of the verified ID token, when one was verified.
+	Subject string `protobuf:"bytes,5,opt,name=subject,proto3" json:"subject,omitempty"`
+	// email is the token's email claim, when present.
+	Email string `protobuf:"bytes,6,opt,name=email,proto3" json:"email,omitempty"`
+	// email_verified is the token's email_verified claim, when present.
+	EmailVerified bool `protobuf:"varint,7,opt,name=email_verified,json=emailVerified,proto3" json:"email_verified,omitempty"`
+	// claims lists the names of the claims the verified ID token carried.
+	Claims        []string `protobuf:"bytes,8,rep,name=claims,proto3" json:"claims,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Validation_Diagnostics) Reset() {
+	*x = Validation_Diagnostics{}
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Validation_Diagnostics) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Validation_Diagnostics) ProtoMessage() {}
+
+func (x *Validation_Diagnostics) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Validation_Diagnostics.ProtoReflect.Descriptor instead.
+func (*Validation_Diagnostics) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2_auth_policies_proto_rawDescGZIP(), []int{6, 0}
+}
+
+func (x *Validation_Diagnostics) GetStep() ValidationStep {
+	if x != nil {
+		return x.Step
+	}
+	return ValidationStep_VALIDATION_STEP_UNSPECIFIED
+}
+
+func (x *Validation_Diagnostics) GetErrorCode() string {
+	if x != nil {
+		return x.ErrorCode
+	}
+	return ""
+}
+
+func (x *Validation_Diagnostics) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *Validation_Diagnostics) GetIssuer() string {
+	if x != nil {
+		return x.Issuer
+	}
+	return ""
+}
+
+func (x *Validation_Diagnostics) GetSubject() string {
+	if x != nil {
+		return x.Subject
+	}
+	return ""
+}
+
+func (x *Validation_Diagnostics) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *Validation_Diagnostics) GetEmailVerified() bool {
+	if x != nil {
+		return x.EmailVerified
+	}
+	return false
+}
+
+func (x *Validation_Diagnostics) GetClaims() []string {
+	if x != nil {
+		return x.Claims
+	}
+	return nil
+}
+
 var File_chainguard_platform_iam_v2_auth_policies_proto protoreflect.FileDescriptor
 
 const file_chainguard_platform_iam_v2_auth_policies_proto_rawDesc = "" +
 	"\n" +
-	".chainguard/platform/iam/v2/auth_policies.proto\x12\x1achainguard.platform.iam.v2\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\"\xab\x03\n" +
+	".chainguard/platform/iam/v2/auth_policies.proto\x12\x1achainguard.platform.iam.v2\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\"\x81\x04\n" +
 	"\n" +
 	"AuthPolicy\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12$\n" +
 	"\bsso_only\x18\x02 \x01(\bB\x04\xe2A\x01\x01H\x00R\assoOnly\x88\x01\x01\x12J\n" +
-	"\x10session_duration\x18\x03 \x01(\v2\x19.google.protobuf.DurationB\x04\xe2A\x01\x01R\x0fsessionDuration\x12P\n" +
+	"\x10session_duration\x18\x03 \x01(\v2\x19.google.protobuf.DurationB\x04\xe2A\x01\x01R\x0fsessionDuration\x12T\n" +
+	"\vvalidations\x18\x14 \x01(\v2,.chainguard.platform.iam.v2.ValidationStatusB\x04\xe2A\x01\x03R\vvalidations\x12P\n" +
 	"\treadiness\x18\x1e \x01(\v2,.chainguard.platform.iam.v2.SsoOnlyReadinessB\x04\xe2A\x01\x03R\treadiness\x12<\n" +
 	"\x14enforcement_entitled\x18( \x01(\bB\x04\xe2A\x01\x03H\x01R\x13enforcementEntitled\x88\x01\x01:W\xeaAT\n" +
 	"\x1diam.chainguard.dev/AuthPolicy\x12\x19groups/{group}/authPolicy*\fauthPolicies2\n" +
 	"authPolicyB\v\n" +
 	"\t_sso_onlyB\x17\n" +
-	"\x15_enforcement_entitled\"\x97\x02\n" +
+	"\x15_enforcement_entitled\"\xc1\x01\n" +
+	"\x10ValidationStatus\x12:\n" +
+	"\x16idp_validation_current\x18\x01 \x01(\bB\x04\xe2A\x01\x03R\x14idpValidationCurrent\x12q\n" +
+	"\x15break_glass_designees\x18\x02 \x03(\v26.chainguard.platform.iam.v2.BreakGlassValidationStatusB\x05\xe2A\x02\x03\x06R\x13breakGlassDesignees\"|\n" +
+	"\x1aBreakGlassValidationStatus\x12)\n" +
+	"\ridentity_uidp\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\fidentityUidp\x123\n" +
+	"\x12validation_current\x18\x02 \x01(\bB\x04\xe2A\x01\x03R\x11validationCurrent\"\xa7\x01\n" +
+	"\x16StartValidationRequest\x12\x1c\n" +
+	"\x03uid\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12D\n" +
+	"\x04kind\x18\x02 \x01(\x0e2*.chainguard.platform.iam.v2.ValidationKindB\x04\xe2A\x01\x02R\x04kind\x12)\n" +
+	"\ridentity_uidp\x18\x03 \x01(\tB\x04\xe2A\x01\x01R\fidentityUidp\"_\n" +
+	"\x1aGetValidationStatusRequest\x12\x1c\n" +
+	"\x03uid\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12#\n" +
+	"\n" +
+	"session_id\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\tsessionId\"\x97\x02\n" +
 	"\x10SsoOnlyReadiness\x128\n" +
 	"\x15idp_validated_current\x18\x01 \x01(\bB\x04\xe2A\x01\x03R\x13idpValidatedCurrent\x120\n" +
 	"\x11break_glass_ready\x18\x02 \x01(\bB\x04\xe2A\x01\x03R\x0fbreakGlassReady\x12S\n" +
 	"\areasons\x18\x03 \x03(\v23.chainguard.platform.iam.v2.SsoOnlyReadiness.ReasonB\x04\xe2A\x01\x03R\areasons\x1aB\n" +
 	"\x06Reason\x12\x18\n" +
 	"\x04code\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x04code\x12\x1e\n" +
-	"\amessage\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\amessage\"4\n" +
+	"\amessage\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\amessage\"\x81\x05\n" +
+	"\n" +
+	"Validation\x12\x14\n" +
+	"\x02id\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x02id\x12\x16\n" +
+	"\x03uid\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12D\n" +
+	"\x04kind\x18\x03 \x01(\x0e2*.chainguard.platform.iam.v2.ValidationKindB\x04\xe2A\x01\x03R\x04kind\x12)\n" +
+	"\ridentity_uidp\x18\x04 \x01(\tB\x04\xe2A\x01\x03R\fidentityUidp\x12G\n" +
+	"\x05state\x18\x05 \x01(\x0e2+.chainguard.platform.iam.v2.ValidationStateB\x04\xe2A\x01\x03R\x05state\x12Z\n" +
+	"\vdiagnostics\x18\x06 \x01(\v22.chainguard.platform.iam.v2.Validation.DiagnosticsB\x04\xe2A\x01\x03R\vdiagnostics\x12\x1f\n" +
+	"\bopen_url\x18\a \x01(\tB\x04\xe2A\x01\x03R\aopenUrl\x1a\x8d\x02\n" +
+	"\vDiagnostics\x12>\n" +
+	"\x04step\x18\x01 \x01(\x0e2*.chainguard.platform.iam.v2.ValidationStepR\x04step\x12\x1d\n" +
+	"\n" +
+	"error_code\x18\x02 \x01(\tR\terrorCode\x12\x18\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\x12\x16\n" +
+	"\x06issuer\x18\x04 \x01(\tR\x06issuer\x12\x18\n" +
+	"\asubject\x18\x05 \x01(\tR\asubject\x12\x14\n" +
+	"\x05email\x18\x06 \x01(\tR\x05email\x12%\n" +
+	"\x0eemail_verified\x18\a \x01(\bR\remailVerified\x12\x16\n" +
+	"\x06claims\x18\b \x03(\tR\x06claims\"4\n" +
 	"\x14GetAuthPolicyRequest\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\"\xb1\x01\n" +
@@ -452,13 +1172,36 @@ const file_chainguard_platform_iam_v2_auth_policies_proto_rawDesc = "" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\n" +
 	"authPolicy\x12A\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x04\xe2A\x01\x01R\n" +
-	"updateMask2\xbb\x03\n" +
+	"updateMask*k\n" +
+	"\x0eValidationKind\x12\x1f\n" +
+	"\x1bVALIDATION_KIND_UNSPECIFIED\x10\x00\x12\x17\n" +
+	"\x13VALIDATION_KIND_IDP\x10\x01\x12\x1f\n" +
+	"\x1bVALIDATION_KIND_BREAK_GLASS\x10\x02*\xa9\x01\n" +
+	"\x0fValidationState\x12 \n" +
+	"\x1cVALIDATION_STATE_UNSPECIFIED\x10\x00\x12\x1c\n" +
+	"\x18VALIDATION_STATE_PENDING\x10\x01\x12\x1b\n" +
+	"\x17VALIDATION_STATE_PASSED\x10\x02\x12\x1b\n" +
+	"\x17VALIDATION_STATE_FAILED\x10\x03\x12\x1c\n" +
+	"\x18VALIDATION_STATE_EXPIRED\x10\x04*\xef\x01\n" +
+	"\x0eValidationStep\x12\x1f\n" +
+	"\x1bVALIDATION_STEP_UNSPECIFIED\x10\x00\x12\x1d\n" +
+	"\x19VALIDATION_STEP_DISCOVERY\x10\x01\x12\x1c\n" +
+	"\x18VALIDATION_STEP_REDIRECT\x10\x02\x12!\n" +
+	"\x1dVALIDATION_STEP_CODE_EXCHANGE\x10\x03\x12\x1c\n" +
+	"\x18VALIDATION_STEP_ID_TOKEN\x10\x04\x12\x1a\n" +
+	"\x16VALIDATION_STEP_CLAIMS\x10\x05\x12\"\n" +
+	"\x1eVALIDATION_STEP_IDENTITY_MATCH\x10\x062\x90\a\n" +
 	"\x13AuthPoliciesService\x12\x9c\x01\n" +
 	"\rGetAuthPolicy\x120.chainguard.platform.iam.v2.GetAuthPolicyRequest\x1a&.chainguard.platform.iam.v2.AuthPolicy\"1\x82\xd3\xe4\x93\x02\x1f\x12\x1d/iam/v2/authPolicies/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xaf\x1b\x12\x84\x02\n" +
 	"\x10UpdateAuthPolicy\x123.chainguard.platform.iam.v2.UpdateAuthPolicyRequest\x1a&.chainguard.platform.iam.v2.AuthPolicy\"\x92\x01\x82\xd3\xe4\x93\x028:\vauth_policy2)/iam/v2/authPolicies/{auth_policy.uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xae\x1b\x9a\xaf\xa8\xd2\x05\x02\x10\x01\xc2\xf0\x8e\xfc\v:\n" +
-	"/dev.chainguard.api.iam.auth_policies.updated.v1\x12\x05group\x18\x01Bj\n" +
+	"/dev.chainguard.api.iam.auth_policies.updated.v1\x12\x05group\x18\x01\x12\x87\x02\n" +
+	"\x0fStartValidation\x122.chainguard.platform.iam.v2.StartValidationRequest\x1a&.chainguard.platform.iam.v2.Validation\"\x97\x01\x82\xd3\xe4\x93\x022:\x01*\"-/iam/v2/authPolicies/{uid=**}:startValidation\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xae\x1b\x9a\xaf\xa8\xd2\x05\x02\x10\x01\xc2\xf0\x8e\xfc\vE\n" +
+	":dev.chainguard.api.iam.auth_policies.validation.started.v1\x12\x05group\x18\x01\x12\xc8\x01\n" +
+	"\x13GetValidationStatus\x126.chainguard.platform.iam.v2.GetValidationStatusRequest\x1a&.chainguard.platform.iam.v2.Validation\"Q\x82\xd3\xe4\x93\x025\x123/iam/v2/authPolicies/{uid}/validations/{session_id}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xae\x1b\x9a\xaf\xa8\xd2\x05\x04\x10\x01\x18\x01Bj\n" +
 	"\x1ecom.chainguard.platform.iam.v2B\x11AuthPoliciesProtoP\x01Z3chainguard.dev/sdk/proto/chainguard/platform/iam/v2b\x06proto3"
 
 var (
@@ -473,31 +1216,52 @@ func file_chainguard_platform_iam_v2_auth_policies_proto_rawDescGZIP() []byte {
 	return file_chainguard_platform_iam_v2_auth_policies_proto_rawDescData
 }
 
-var file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_chainguard_platform_iam_v2_auth_policies_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_chainguard_platform_iam_v2_auth_policies_proto_goTypes = []any{
-	(*AuthPolicy)(nil),              // 0: chainguard.platform.iam.v2.AuthPolicy
-	(*SsoOnlyReadiness)(nil),        // 1: chainguard.platform.iam.v2.SsoOnlyReadiness
-	(*GetAuthPolicyRequest)(nil),    // 2: chainguard.platform.iam.v2.GetAuthPolicyRequest
-	(*UpdateAuthPolicyRequest)(nil), // 3: chainguard.platform.iam.v2.UpdateAuthPolicyRequest
-	(*SsoOnlyReadiness_Reason)(nil), // 4: chainguard.platform.iam.v2.SsoOnlyReadiness.Reason
-	(*durationpb.Duration)(nil),     // 5: google.protobuf.Duration
-	(*fieldmaskpb.FieldMask)(nil),   // 6: google.protobuf.FieldMask
+	(ValidationKind)(0),                // 0: chainguard.platform.iam.v2.ValidationKind
+	(ValidationState)(0),               // 1: chainguard.platform.iam.v2.ValidationState
+	(ValidationStep)(0),                // 2: chainguard.platform.iam.v2.ValidationStep
+	(*AuthPolicy)(nil),                 // 3: chainguard.platform.iam.v2.AuthPolicy
+	(*ValidationStatus)(nil),           // 4: chainguard.platform.iam.v2.ValidationStatus
+	(*BreakGlassValidationStatus)(nil), // 5: chainguard.platform.iam.v2.BreakGlassValidationStatus
+	(*StartValidationRequest)(nil),     // 6: chainguard.platform.iam.v2.StartValidationRequest
+	(*GetValidationStatusRequest)(nil), // 7: chainguard.platform.iam.v2.GetValidationStatusRequest
+	(*SsoOnlyReadiness)(nil),           // 8: chainguard.platform.iam.v2.SsoOnlyReadiness
+	(*Validation)(nil),                 // 9: chainguard.platform.iam.v2.Validation
+	(*GetAuthPolicyRequest)(nil),       // 10: chainguard.platform.iam.v2.GetAuthPolicyRequest
+	(*UpdateAuthPolicyRequest)(nil),    // 11: chainguard.platform.iam.v2.UpdateAuthPolicyRequest
+	(*SsoOnlyReadiness_Reason)(nil),    // 12: chainguard.platform.iam.v2.SsoOnlyReadiness.Reason
+	(*Validation_Diagnostics)(nil),     // 13: chainguard.platform.iam.v2.Validation.Diagnostics
+	(*durationpb.Duration)(nil),        // 14: google.protobuf.Duration
+	(*fieldmaskpb.FieldMask)(nil),      // 15: google.protobuf.FieldMask
 }
 var file_chainguard_platform_iam_v2_auth_policies_proto_depIdxs = []int32{
-	5, // 0: chainguard.platform.iam.v2.AuthPolicy.session_duration:type_name -> google.protobuf.Duration
-	1, // 1: chainguard.platform.iam.v2.AuthPolicy.readiness:type_name -> chainguard.platform.iam.v2.SsoOnlyReadiness
-	4, // 2: chainguard.platform.iam.v2.SsoOnlyReadiness.reasons:type_name -> chainguard.platform.iam.v2.SsoOnlyReadiness.Reason
-	0, // 3: chainguard.platform.iam.v2.UpdateAuthPolicyRequest.auth_policy:type_name -> chainguard.platform.iam.v2.AuthPolicy
-	6, // 4: chainguard.platform.iam.v2.UpdateAuthPolicyRequest.update_mask:type_name -> google.protobuf.FieldMask
-	2, // 5: chainguard.platform.iam.v2.AuthPoliciesService.GetAuthPolicy:input_type -> chainguard.platform.iam.v2.GetAuthPolicyRequest
-	3, // 6: chainguard.platform.iam.v2.AuthPoliciesService.UpdateAuthPolicy:input_type -> chainguard.platform.iam.v2.UpdateAuthPolicyRequest
-	0, // 7: chainguard.platform.iam.v2.AuthPoliciesService.GetAuthPolicy:output_type -> chainguard.platform.iam.v2.AuthPolicy
-	0, // 8: chainguard.platform.iam.v2.AuthPoliciesService.UpdateAuthPolicy:output_type -> chainguard.platform.iam.v2.AuthPolicy
-	7, // [7:9] is the sub-list for method output_type
-	5, // [5:7] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	14, // 0: chainguard.platform.iam.v2.AuthPolicy.session_duration:type_name -> google.protobuf.Duration
+	4,  // 1: chainguard.platform.iam.v2.AuthPolicy.validations:type_name -> chainguard.platform.iam.v2.ValidationStatus
+	8,  // 2: chainguard.platform.iam.v2.AuthPolicy.readiness:type_name -> chainguard.platform.iam.v2.SsoOnlyReadiness
+	5,  // 3: chainguard.platform.iam.v2.ValidationStatus.break_glass_designees:type_name -> chainguard.platform.iam.v2.BreakGlassValidationStatus
+	0,  // 4: chainguard.platform.iam.v2.StartValidationRequest.kind:type_name -> chainguard.platform.iam.v2.ValidationKind
+	12, // 5: chainguard.platform.iam.v2.SsoOnlyReadiness.reasons:type_name -> chainguard.platform.iam.v2.SsoOnlyReadiness.Reason
+	0,  // 6: chainguard.platform.iam.v2.Validation.kind:type_name -> chainguard.platform.iam.v2.ValidationKind
+	1,  // 7: chainguard.platform.iam.v2.Validation.state:type_name -> chainguard.platform.iam.v2.ValidationState
+	13, // 8: chainguard.platform.iam.v2.Validation.diagnostics:type_name -> chainguard.platform.iam.v2.Validation.Diagnostics
+	3,  // 9: chainguard.platform.iam.v2.UpdateAuthPolicyRequest.auth_policy:type_name -> chainguard.platform.iam.v2.AuthPolicy
+	15, // 10: chainguard.platform.iam.v2.UpdateAuthPolicyRequest.update_mask:type_name -> google.protobuf.FieldMask
+	2,  // 11: chainguard.platform.iam.v2.Validation.Diagnostics.step:type_name -> chainguard.platform.iam.v2.ValidationStep
+	10, // 12: chainguard.platform.iam.v2.AuthPoliciesService.GetAuthPolicy:input_type -> chainguard.platform.iam.v2.GetAuthPolicyRequest
+	11, // 13: chainguard.platform.iam.v2.AuthPoliciesService.UpdateAuthPolicy:input_type -> chainguard.platform.iam.v2.UpdateAuthPolicyRequest
+	6,  // 14: chainguard.platform.iam.v2.AuthPoliciesService.StartValidation:input_type -> chainguard.platform.iam.v2.StartValidationRequest
+	7,  // 15: chainguard.platform.iam.v2.AuthPoliciesService.GetValidationStatus:input_type -> chainguard.platform.iam.v2.GetValidationStatusRequest
+	3,  // 16: chainguard.platform.iam.v2.AuthPoliciesService.GetAuthPolicy:output_type -> chainguard.platform.iam.v2.AuthPolicy
+	3,  // 17: chainguard.platform.iam.v2.AuthPoliciesService.UpdateAuthPolicy:output_type -> chainguard.platform.iam.v2.AuthPolicy
+	9,  // 18: chainguard.platform.iam.v2.AuthPoliciesService.StartValidation:output_type -> chainguard.platform.iam.v2.Validation
+	9,  // 19: chainguard.platform.iam.v2.AuthPoliciesService.GetValidationStatus:output_type -> chainguard.platform.iam.v2.Validation
+	16, // [16:20] is the sub-list for method output_type
+	12, // [12:16] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_iam_v2_auth_policies_proto_init() }
@@ -511,13 +1275,14 @@ func file_chainguard_platform_iam_v2_auth_policies_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_iam_v2_auth_policies_proto_rawDesc), len(file_chainguard_platform_iam_v2_auth_policies_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   5,
+			NumEnums:      3,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_chainguard_platform_iam_v2_auth_policies_proto_goTypes,
 		DependencyIndexes: file_chainguard_platform_iam_v2_auth_policies_proto_depIdxs,
+		EnumInfos:         file_chainguard_platform_iam_v2_auth_policies_proto_enumTypes,
 		MessageInfos:      file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes,
 	}.Build()
 	File_chainguard_platform_iam_v2_auth_policies_proto = out.File

@@ -22,8 +22,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthPoliciesService_GetAuthPolicy_FullMethodName    = "/chainguard.platform.iam.v2.AuthPoliciesService/GetAuthPolicy"
-	AuthPoliciesService_UpdateAuthPolicy_FullMethodName = "/chainguard.platform.iam.v2.AuthPoliciesService/UpdateAuthPolicy"
+	AuthPoliciesService_GetAuthPolicy_FullMethodName       = "/chainguard.platform.iam.v2.AuthPoliciesService/GetAuthPolicy"
+	AuthPoliciesService_UpdateAuthPolicy_FullMethodName    = "/chainguard.platform.iam.v2.AuthPoliciesService/UpdateAuthPolicy"
+	AuthPoliciesService_StartValidation_FullMethodName     = "/chainguard.platform.iam.v2.AuthPoliciesService/StartValidation"
+	AuthPoliciesService_GetValidationStatus_FullMethodName = "/chainguard.platform.iam.v2.AuthPoliciesService/GetValidationStatus"
 )
 
 // AuthPoliciesServiceClient is the client API for AuthPoliciesService service.
@@ -44,6 +46,57 @@ type AuthPoliciesServiceClient interface {
 	// organization's own identity provider out of it, so this is held by
 	// organization owners only and every change is published as an event.
 	UpdateAuthPolicy(ctx context.Context, in *UpdateAuthPolicyRequest, opts ...grpc.CallOption) (*AuthPolicy, error)
+	// StartValidation opens a validation session: a real sign-in, run ahead of
+	// enabling sso_only, that proves the organization's own identity provider
+	// authenticates a person (IDP) or that a designated break-glass identity
+	// can sign in without it (BREAK_GLASS). It returns the pending Validation
+	// with its id and, only on this response, the open_url a human must open to
+	// run the sign-in; it mints no Chainguard session of its own. The sign-in's
+	// outcome is recorded on the session for GetValidationStatus to return. A
+	// session that passes also records what it proves for GetAuthPolicy to
+	// report as its status: for IDP, a fingerprint of the provider
+	// configuration it went through, which replaces any earlier one; for
+	// BREAK_GLASS, the designee's own validation, which replaces that
+	// designee's earlier one. A failed session is reported by
+	// GetValidationStatus and does not change GetAuthPolicy's status, so an
+	// earlier pass stays recorded. Re-runnable: a new session may be started at
+	// any time.
+	//
+	// Held by organization owners, the same capability as UpdateAuthPolicy:
+	// starting a validation is part of configuring the policy, and the designee
+	// of a break-glass session is named by an owner, not self-selected.
+	//
+	// (-- api-linter: core::0136::response-message-name=disabled
+	//     aip.dev/not-precedent: StartValidation is bound under the policy it
+	//     validates but creates and returns a Validation, the thing it operates
+	//     on; a StartValidationResponse wrapper around it would add nothing but
+	//     a second message. --)
+	StartValidation(ctx context.Context, in *StartValidationRequest, opts ...grpc.CallOption) (*Validation, error)
+	// GetValidationStatus returns a validation session by id: its state
+	// (pending, passed, failed or expired), the diagnostics the sign-in
+	// produced (which step failed, the provider's error code, the claims it
+	// saw), and the recorded result. It never returns open_url. It is a read
+	// and emits no event, but it is held to the same capability that started
+	// the session: the diagnostics name the person who signed in (their
+	// provider subject and email), which is not for every member who may read
+	// the policy flag. The policy's uid is a root organization UIDP, a single
+	// path segment, so the binding matches it exactly; the session is addressed
+	// as a resource under the policy, so its id travels in the path rather
+	// than in the query string.
+	//
+	// (-- api-linter: core::0131::response-message-name=disabled
+	//     aip.dev/not-precedent: GetValidationStatus returns the Validation it
+	//     is asked about, not a message named ValidationStatus as the rule
+	//     reads off the method name (that name is the policy's validation
+	//     view, a different message in this file); the method is named for
+	//     what it answers, the way LookupGroup/LookupIdentity diverge from
+	//     their resources elsewhere in this API. --)
+	// (-- api-linter: core::0127::resource-name-extraction=disabled
+	//     aip.dev/not-precedent: GetValidationStatus addresses a session under
+	//     the policy by the policy's UIDP plus the session id; we extract the
+	//     ids, not a full resource name, as everywhere else in this API that
+	//     keys on UIDPs. --)
+	GetValidationStatus(ctx context.Context, in *GetValidationStatusRequest, opts ...grpc.CallOption) (*Validation, error)
 }
 
 type authPoliciesServiceClient struct {
@@ -74,6 +127,26 @@ func (c *authPoliciesServiceClient) UpdateAuthPolicy(ctx context.Context, in *Up
 	return out, nil
 }
 
+func (c *authPoliciesServiceClient) StartValidation(ctx context.Context, in *StartValidationRequest, opts ...grpc.CallOption) (*Validation, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Validation)
+	err := c.cc.Invoke(ctx, AuthPoliciesService_StartValidation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authPoliciesServiceClient) GetValidationStatus(ctx context.Context, in *GetValidationStatusRequest, opts ...grpc.CallOption) (*Validation, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Validation)
+	err := c.cc.Invoke(ctx, AuthPoliciesService_GetValidationStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthPoliciesServiceServer is the server API for AuthPoliciesService service.
 // All implementations must embed UnimplementedAuthPoliciesServiceServer
 // for forward compatibility.
@@ -92,6 +165,57 @@ type AuthPoliciesServiceServer interface {
 	// organization's own identity provider out of it, so this is held by
 	// organization owners only and every change is published as an event.
 	UpdateAuthPolicy(context.Context, *UpdateAuthPolicyRequest) (*AuthPolicy, error)
+	// StartValidation opens a validation session: a real sign-in, run ahead of
+	// enabling sso_only, that proves the organization's own identity provider
+	// authenticates a person (IDP) or that a designated break-glass identity
+	// can sign in without it (BREAK_GLASS). It returns the pending Validation
+	// with its id and, only on this response, the open_url a human must open to
+	// run the sign-in; it mints no Chainguard session of its own. The sign-in's
+	// outcome is recorded on the session for GetValidationStatus to return. A
+	// session that passes also records what it proves for GetAuthPolicy to
+	// report as its status: for IDP, a fingerprint of the provider
+	// configuration it went through, which replaces any earlier one; for
+	// BREAK_GLASS, the designee's own validation, which replaces that
+	// designee's earlier one. A failed session is reported by
+	// GetValidationStatus and does not change GetAuthPolicy's status, so an
+	// earlier pass stays recorded. Re-runnable: a new session may be started at
+	// any time.
+	//
+	// Held by organization owners, the same capability as UpdateAuthPolicy:
+	// starting a validation is part of configuring the policy, and the designee
+	// of a break-glass session is named by an owner, not self-selected.
+	//
+	// (-- api-linter: core::0136::response-message-name=disabled
+	//     aip.dev/not-precedent: StartValidation is bound under the policy it
+	//     validates but creates and returns a Validation, the thing it operates
+	//     on; a StartValidationResponse wrapper around it would add nothing but
+	//     a second message. --)
+	StartValidation(context.Context, *StartValidationRequest) (*Validation, error)
+	// GetValidationStatus returns a validation session by id: its state
+	// (pending, passed, failed or expired), the diagnostics the sign-in
+	// produced (which step failed, the provider's error code, the claims it
+	// saw), and the recorded result. It never returns open_url. It is a read
+	// and emits no event, but it is held to the same capability that started
+	// the session: the diagnostics name the person who signed in (their
+	// provider subject and email), which is not for every member who may read
+	// the policy flag. The policy's uid is a root organization UIDP, a single
+	// path segment, so the binding matches it exactly; the session is addressed
+	// as a resource under the policy, so its id travels in the path rather
+	// than in the query string.
+	//
+	// (-- api-linter: core::0131::response-message-name=disabled
+	//     aip.dev/not-precedent: GetValidationStatus returns the Validation it
+	//     is asked about, not a message named ValidationStatus as the rule
+	//     reads off the method name (that name is the policy's validation
+	//     view, a different message in this file); the method is named for
+	//     what it answers, the way LookupGroup/LookupIdentity diverge from
+	//     their resources elsewhere in this API. --)
+	// (-- api-linter: core::0127::resource-name-extraction=disabled
+	//     aip.dev/not-precedent: GetValidationStatus addresses a session under
+	//     the policy by the policy's UIDP plus the session id; we extract the
+	//     ids, not a full resource name, as everywhere else in this API that
+	//     keys on UIDPs. --)
+	GetValidationStatus(context.Context, *GetValidationStatusRequest) (*Validation, error)
 	mustEmbedUnimplementedAuthPoliciesServiceServer()
 }
 
@@ -107,6 +231,12 @@ func (UnimplementedAuthPoliciesServiceServer) GetAuthPolicy(context.Context, *Ge
 }
 func (UnimplementedAuthPoliciesServiceServer) UpdateAuthPolicy(context.Context, *UpdateAuthPolicyRequest) (*AuthPolicy, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateAuthPolicy not implemented")
+}
+func (UnimplementedAuthPoliciesServiceServer) StartValidation(context.Context, *StartValidationRequest) (*Validation, error) {
+	return nil, status.Error(codes.Unimplemented, "method StartValidation not implemented")
+}
+func (UnimplementedAuthPoliciesServiceServer) GetValidationStatus(context.Context, *GetValidationStatusRequest) (*Validation, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetValidationStatus not implemented")
 }
 func (UnimplementedAuthPoliciesServiceServer) mustEmbedUnimplementedAuthPoliciesServiceServer() {}
 func (UnimplementedAuthPoliciesServiceServer) testEmbeddedByValue()                             {}
@@ -165,6 +295,42 @@ func _AuthPoliciesService_UpdateAuthPolicy_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthPoliciesService_StartValidation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartValidationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthPoliciesServiceServer).StartValidation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthPoliciesService_StartValidation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthPoliciesServiceServer).StartValidation(ctx, req.(*StartValidationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthPoliciesService_GetValidationStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetValidationStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthPoliciesServiceServer).GetValidationStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthPoliciesService_GetValidationStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthPoliciesServiceServer).GetValidationStatus(ctx, req.(*GetValidationStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthPoliciesService_ServiceDesc is the grpc.ServiceDesc for AuthPoliciesService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -179,6 +345,14 @@ var AuthPoliciesService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateAuthPolicy",
 			Handler:    _AuthPoliciesService_UpdateAuthPolicy_Handler,
+		},
+		{
+			MethodName: "StartValidation",
+			Handler:    _AuthPoliciesService_StartValidation_Handler,
+		},
+		{
+			MethodName: "GetValidationStatus",
+			Handler:    _AuthPoliciesService_GetValidationStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
