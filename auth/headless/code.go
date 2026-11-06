@@ -10,14 +10,30 @@ import (
 	"crypto/cipher"
 	"crypto/ecdh"
 	"crypto/rand"
+	"crypto/sha256"
+	"crypto/subtle"
+	"encoding/base32"
 	"encoding/base64"
 	"fmt"
 	"io"
+	"strings"
 
 	auth "chainguard.dev/sdk/proto/platform/auth/v1"
 )
 
 var URLSafeEncoding = base64.RawURLEncoding // Headless codes must be URL-safe
+
+const (
+	// Changing this changes every confirmation code, so the issuer and clients must agree on it.
+	confirmationCodeContext = "chainguard.dev/sdk/auth/headless/confirmation-code/v1\x00"
+	// 5 bytes is 40 bits, or 8 base32 characters.
+	confirmationCodeBytes = 5
+)
+
+// Crockford base32 leaves out I, L and O, which are easy to misread, and U.
+var crockfordEncoding = base32.NewEncoding("0123456789ABCDEFGHJKMNPQRSTVWXYZ").WithPadding(base32.NoPadding)
+
+var confirmationCodeReplacer = strings.NewReplacer(" ", "", "-", "", "\t", "", "I", "1", "L", "1", "O", "0")
 
 // headless.Code is a serialized public key that we use to exchange a shared symmetric key.
 // This shared symmetric key is used to encrypt the ID token (see Code#NewSession).
@@ -40,6 +56,28 @@ func NewCode(k *ecdh.PublicKey) Code {
 
 func marshalPublic(k *ecdh.PublicKey) string {
 	return URLSafeEncoding.EncodeToString(k.Bytes())
+}
+
+// ConfirmationCode returns a short code derived from the code's public key,
+// for a person to type when approving a headless login. It is not a secret.
+func (h *Code) ConfirmationCode() (string, error) {
+	pub, err := parsePublic(string(*h))
+	if err != nil {
+		return "", fmt.Errorf("failed to parse public key: %w", err)
+	}
+	sum := sha256.Sum256(append([]byte(confirmationCodeContext), pub.Bytes()...))
+	return crockfordEncoding.EncodeToString(sum[:confirmationCodeBytes]), nil
+}
+
+// MatchesConfirmationCode checks a typed confirmation code, ignoring case,
+// spaces and dashes. It returns false if the Code is invalid.
+func (h *Code) MatchesConfirmationCode(input string) bool {
+	want, err := h.ConfirmationCode()
+	if err != nil {
+		return false
+	}
+	got := confirmationCodeReplacer.Replace(strings.ToUpper(strings.TrimSpace(input)))
+	return subtle.ConstantTimeCompare([]byte(got), []byte(want)) == 1
 }
 
 func parsePublic(encoded string) (*ecdh.PublicKey, error) {

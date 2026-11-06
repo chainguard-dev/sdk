@@ -39,3 +39,16 @@ func ExampleVerifyCode() {
 	// Output:
 	// <nil>
 }
+
+// ExampleCode_ConfirmationCode demonstrates deriving and checking a confirmation code.
+func ExampleCode_ConfirmationCode() {
+	code := headless.Code("uFK0TyUaZCMB6QBGC-HVKGJKqI4-U9q5rV9k8I_YUQ4")
+	confirmationCode, err := code.ConfirmationCode()
+	fmt.Println(confirmationCode, err)
+	fmt.Println(code.MatchesConfirmationCode("xrpm-cqyw"))
+	fmt.Println(code.MatchesConfirmationCode("XRPMCQYX"))
+	// Output:
+	// XRPMCQYW <nil>
+	// true
+	// false
+}
