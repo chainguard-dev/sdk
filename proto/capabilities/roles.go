@@ -105,7 +105,11 @@ var (
 		// the container or apk registries.
 		RegistryPullCaps, APKPullCaps,
 		// Viewers can also run guardener (DFC) sessions.
-		GuardenerUserCaps)
+		GuardenerUserCaps,
+		// Viewers can call Chainguard's MCP servers. mcp.tool.call only
+		// admits the caller to a server; each server decides what its tools
+		// may read or do for that caller.
+		MCPToolUserCaps)
 
 	// EditorCaps can modify state, but not grant roles/permissions.
 	EditorCaps = SortCaps([]Capability{
