@@ -205,6 +205,12 @@ message CheckEligibilityResponse {
   // unverified, takes a name the caller chooses, and is never found by email
   // domain.
   bool unverified_starter = 2;
+  // existing_organization reports that a verified organization already exists
+  // for the caller's email domain, so the caller should request access to it
+  // rather than create a new Starter organization. It is a bare signal: the
+  // caller has already proven a verified email on the domain, and no detail
+  // identifying the organization is returned.
+  bool existing_organization = 3;
 }
 
 // OrgStatus is the provisioning status of an organization.

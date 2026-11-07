@@ -692,8 +692,14 @@ type CheckEligibilityResponse struct {
 	// unverified, takes a name the caller chooses, and is never found by email
 	// domain.
 	UnverifiedStarter bool `protobuf:"varint,2,opt,name=unverified_starter,json=unverifiedStarter,proto3" json:"unverified_starter,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// existing_organization reports that a verified organization already exists
+	// for the caller's email domain, so the caller should request access to it
+	// rather than create a new Starter organization. It is a bare signal: the
+	// caller has already proven a verified email on the domain, and no detail
+	// identifying the organization is returned.
+	ExistingOrganization bool `protobuf:"varint,3,opt,name=existing_organization,json=existingOrganization,proto3" json:"existing_organization,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *CheckEligibilityResponse) Reset() {
@@ -740,6 +746,13 @@ func (x *CheckEligibilityResponse) GetUnverifiedStarter() bool {
 	return false
 }
 
+func (x *CheckEligibilityResponse) GetExistingOrganization() bool {
+	if x != nil {
+		return x.ExistingOrganization
+	}
+	return false
+}
+
 var File_group_platform_proto protoreflect.FileDescriptor
 
 const file_group_platform_proto_rawDesc = "" +
@@ -773,10 +786,11 @@ const file_group_platform_proto_rawDesc = "" +
 	"\x19RequestGroupAccessRequest\x12\x19\n" +
 	"\bgroup_id\x18\x01 \x01(\tR\agroupId\"\x1c\n" +
 	"\x1aRequestGroupAccessResponse\"\x19\n" +
-	"\x17CheckEligibilityRequest\"e\n" +
+	"\x17CheckEligibilityRequest\"\x9a\x01\n" +
 	"\x18CheckEligibilityResponse\x12\x1a\n" +
 	"\beligible\x18\x01 \x01(\bR\beligible\x12-\n" +
-	"\x12unverified_starter\x18\x02 \x01(\bR\x11unverifiedStarter*t\n" +
+	"\x12unverified_starter\x18\x02 \x01(\bR\x11unverifiedStarter\x123\n" +
+	"\x15existing_organization\x18\x03 \x01(\bR\x14existingOrganization*t\n" +
 	"\tOrgStatus\x12\x1a\n" +
 	"\x16ORG_STATUS_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17ORG_STATUS_INITIALIZING\x10\x01\x12\x14\n" +
