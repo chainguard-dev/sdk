@@ -1,0 +1,199 @@
+syntax = "proto3";
+
+package chainguard.platform.libraries;
+
+import "annotations/auth.proto";
+import "entitlements.libraries.platform.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "chainguard.dev/sdk/proto/platform/libraries/v1";
+
+// Repositories manages an org's named Libraries repositories. A repository is
+// an IAM folder directly under the org that the API creates, plus a record of
+// its name and state. It serves exactly the ecosystems and tiers its org is
+// entitled to; no RPC here writes an entitlement. The org root is the default
+// repository: it serves today's URLs and cannot be created or deleted. Delete
+// is the only way a repository leaves service; there is no disabled state.
+service Repositories {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    description: "Libraries Repositories API"
+    name: "LibrariesRepositories" // Override the tag name
+  };
+
+  // Create makes a named repository under the org. It refuses when the org
+  // has no Libraries entitlement at its root for an ecosystem repositories
+  // serve (JavaScript, Java, Python, Go or .NET), when the org's plan has no
+  // room for another repository, and when a folder with the name already
+  // exists under the org and backs no repository. Creating a repository that
+  // already exists returns it.
+  rpc Create(CreateRepositoryRequest) returns (Repository) {
+    option (google.api.http) = {
+      post: "/libraries/v1/repositories/{parent_id}"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "LibrariesRepositories"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPOSITORIES_CREATE]
+      }
+    };
+  }
+
+  // Get returns one repository by name. The name "default" returns the
+  // default repository.
+  rpc Get(GetRepositoryRequest) returns (Repository) {
+    option (google.api.http) = {
+      get: "/libraries/v1/repositories/{parent_id}/{name}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "LibrariesRepositories"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPOSITORIES_LIST]
+      }
+    };
+  }
+
+  // List returns the default repository first, then every named repository
+  // of the org ordered by name, in every state.
+  rpc List(RepositoryFilter) returns (RepositoryList) {
+    option (google.api.http) = {
+      get: "/libraries/v1/repositories/{parent_id}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "LibrariesRepositories"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPOSITORIES_LIST]
+      }
+    };
+  }
+
+  // Delete removes a named repository and its folder. Without force it
+  // refuses while pull tokens, role bindings or Libraries policy bindings
+  // exist at the folder, and names them; with force it removes them. It
+  // always refuses while image repositories exist under the folder. When
+  // the folder cannot be deleted, the repository stays DELETING and running
+  // Delete again finishes it. The default repository cannot be deleted.
+  rpc Delete(DeleteRepositoryRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/libraries/v1/repositories/{parent_id}/{name}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "LibrariesRepositories"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPOSITORIES_DELETE]
+      }
+    };
+  }
+}
+
+// Repository is a Libraries repository of an org.
+message Repository {
+  // id is the UIDP of the repository's folder, or of the org for the default
+  // repository. Empty while the folder does not exist yet.
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // parent_id is the UIDP of the org.
+  string parent_id = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // name is the repository name. It never changes. The default repository is
+  // named "default".
+  string name = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // state is where the repository is in its lifecycle. Only a READY
+  // repository serves.
+  RepositoryState state = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // urls are the repository's URLs, one per ecosystem the org is entitled
+  // to.
+  repeated RepositoryURL urls = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // is_default reports whether this is the org's default repository.
+  bool is_default = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // create_time is when the repository was created. Unset for the default
+  // repository.
+  google.protobuf.Timestamp create_time = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+  // update_time is when the repository last changed state. Unset for the
+  // default repository.
+  google.protobuf.Timestamp update_time = 8 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+// RepositoryState is the lifecycle state of a repository. Every state counts
+// toward the org's repository limit.
+enum RepositoryState {
+  REPOSITORY_STATE_UNSPECIFIED = 0;
+  // CREATING: the name is reserved and the folder does not exist yet.
+  REPOSITORY_STATE_CREATING = 1;
+  // PROVISIONING: the folder exists and the upstream list is being seeded.
+  REPOSITORY_STATE_PROVISIONING = 2;
+  // READY: the repository serves.
+  REPOSITORY_STATE_READY = 3;
+  // DELETING: the repository and its folder are being removed.
+  REPOSITORY_STATE_DELETING = 4;
+}
+
+// RepositoryURL is the URL a client uses to pull one ecosystem's packages
+// from a repository.
+message RepositoryURL {
+  // ecosystem is the language ecosystem served at url.
+  Ecosystem ecosystem = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // url is the base URL to configure in the ecosystem's client.
+  string url = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message RepositoryList {
+  repeated Repository items = 1;
+}
+
+message CreateRepositoryRequest {
+  // parent_id is the UIDP of the org. The org must be a root group.
+  string parent_id = 1 [
+    (chainguard.annotations.iam_scope) = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+  // name is the repository name: lowercase letters, digits and hyphens,
+  // starting with a letter, at most 63 characters. It cannot be changed
+  // later.
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetRepositoryRequest {
+  // parent_id is the UIDP of the org.
+  string parent_id = 1 [
+    (chainguard.annotations.iam_scope) = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+  // name is the repository name.
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message RepositoryFilter {
+  // parent_id is the UIDP of the org.
+  string parent_id = 1 [
+    (chainguard.annotations.iam_scope) = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message DeleteRepositoryRequest {
+  // parent_id is the UIDP of the org.
+  string parent_id = 1 [
+    (chainguard.annotations.iam_scope) = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+  // name is the repository name.
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+  // force removes the pull tokens, role bindings, Libraries policy bindings
+  // and upstream entries at the repository's folder along with it.
+  bool force = 3;
+}

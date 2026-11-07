@@ -227,6 +227,49 @@ func TestCustomerRegistryCaps(t *testing.T) {
 	}
 }
 
+func TestRepositoriesCaps(t *testing.T) {
+	for _, tt := range []struct {
+		name       string
+		caps       []Capability
+		wantList   bool
+		wantManage bool
+	}{{
+		name:     "console viewer",
+		caps:     ConsoleViewerCaps,
+		wantList: true,
+	}, {
+		name:     "viewer",
+		caps:     ViewerCaps,
+		wantList: true,
+	}, {
+		name:     "editor",
+		caps:     EditorCaps,
+		wantList: true,
+	}, {
+		name:       "owner",
+		caps:       OwnerCaps,
+		wantList:   true,
+		wantManage: true,
+	}, {
+		name: "libraries javascript pull",
+		caps: LibrariesJavascriptPullCaps,
+	}, {
+		name: "pull token creator",
+		caps: PullTokenCreatorCaps,
+	}} {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := slices.Contains(tt.caps, Capability_CAP_REPOSITORIES_LIST); got != tt.wantList {
+				t.Errorf("role holds repositories.list: got = %v, want = %v", got, tt.wantList)
+			}
+			for _, c := range []Capability{Capability_CAP_REPOSITORIES_CREATE, Capability_CAP_REPOSITORIES_UPDATE, Capability_CAP_REPOSITORIES_DELETE} {
+				if got := slices.Contains(tt.caps, c); got != tt.wantManage {
+					t.Errorf("role holds %v: got = %v, want = %v", c, got, tt.wantManage)
+				}
+			}
+		})
+	}
+}
+
 func TestSortCaps(t *testing.T) {
 	tests := []struct {
 		name      string

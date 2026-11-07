@@ -27,6 +27,7 @@ type Clients interface {
 	LibraryPolicyBlockEvents() LibraryPolicyBlockEventsClient
 	AWSMarketplaceSubscriptions() AWSMarketplaceSubscriptionsClient
 	ResolutionCache() ResolutionCacheClient
+	Repositories() RepositoriesClient
 
 	Close() error
 }
@@ -61,6 +62,7 @@ func NewClients(ctx context.Context, ecoURL string, token string) (Clients, erro
 		libraryPolicyBindings:       NewLibraryPolicyBindingsClient(conn),
 		libraryPolicyBlockEvents:    NewLibraryPolicyBlockEventsClient(conn),
 		resolutionCache:             NewResolutionCacheClient(conn),
+		repositories:                NewRepositoriesClient(conn),
 
 		conn: conn,
 	}, nil
@@ -77,6 +79,7 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 		libraryPolicyBindings:       NewLibraryPolicyBindingsClient(conn),
 		libraryPolicyBlockEvents:    NewLibraryPolicyBlockEventsClient(conn),
 		resolutionCache:             NewResolutionCacheClient(conn),
+		repositories:                NewRepositoriesClient(conn),
 
 		// conn is not set, this client struct does not own closing it.
 	}
@@ -92,6 +95,7 @@ type clients struct {
 	libraryPolicyBindings       LibraryPolicyBindingsClient
 	libraryPolicyBlockEvents    LibraryPolicyBlockEventsClient
 	resolutionCache             ResolutionCacheClient
+	repositories                RepositoriesClient
 
 	conn *grpc.ClientConn
 }
@@ -130,6 +134,10 @@ func (c *clients) AWSMarketplaceSubscriptions() AWSMarketplaceSubscriptionsClien
 
 func (c *clients) ResolutionCache() ResolutionCacheClient {
 	return c.resolutionCache
+}
+
+func (c *clients) Repositories() RepositoriesClient {
+	return c.repositories
 }
 
 func (c *clients) Close() error {

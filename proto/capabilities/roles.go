@@ -84,6 +84,8 @@ var (
 
 		Capability_CAP_LIBRARIES_REMOTE_REGISTRIES_LIST,
 
+		Capability_CAP_REPOSITORIES_LIST,
+
 		Capability_CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST,
 
 		Capability_CAP_PACKAGES_ENTITLEMENTS_LIST,
@@ -247,6 +249,12 @@ var (
 		// a remote registry changes where the org's dependencies come from.
 		Capability_CAP_LIBRARIES_REMOTE_REGISTRIES_CREATE,
 		Capability_CAP_LIBRARIES_REMOTE_REGISTRIES_DELETE,
+
+		// Owner-only: a repository is a folder under the org, and its upstream
+		// list decides where its builds pull dependencies from.
+		Capability_CAP_REPOSITORIES_CREATE,
+		Capability_CAP_REPOSITORIES_UPDATE,
+		Capability_CAP_REPOSITORIES_DELETE,
 
 		// Owner-only: org-wide storage accounting for the org's own uploads.
 		Capability_CAP_LIBRARIES_STORAGE_USAGE_GET,

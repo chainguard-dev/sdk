@@ -299,6 +299,14 @@ enum Capability {
     (internal_only) = true
   ];
 
+  // Repositories: an org's named Libraries repositories, each an IAM folder
+  // directly under the org. Bound at the org. create, update (a repository's
+  // upstream list) and delete are owner-only; list is ordinary member read.
+  CAP_REPOSITORIES_CREATE = 1887 [(name) = "repositories.create", (bit) = 264];
+  CAP_REPOSITORIES_UPDATE = 1888 [(name) = "repositories.update", (bit) = 265];
+  CAP_REPOSITORIES_DELETE = 1889 [(name) = "repositories.delete", (bit) = 266];
+  CAP_REPOSITORIES_LIST = 1890 [(name) = "repositories.list", (bit) = 267];
+
   // Registry Entitlements
   CAP_REGISTRY_ENTITLEMENTS_LIST = 1680 [(name) = "registry.entitlements.list", (bit) = 87];
   CAP_REGISTRY_ENTITLEMENTS_CREATE = 1681 [(name) = "registry.entitlements.create", (bit) = 96];
@@ -708,5 +716,5 @@ enum Capability {
   CAP_ENTITLEMENTS_GET = 3203 [(name) = "entitlements.get", (bit) = 252];
 
   reserved 1;
-  // next bit: 264
+  // next bit: 268
 }

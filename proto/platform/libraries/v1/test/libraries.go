@@ -20,6 +20,7 @@ type MockLibrariesClients struct {
 
 	AWSMarketplaceSubscriptionsClient MockAWSMarketplaceSubscriptionsClient
 	ResolutionCacheClient             MockResolutionCacheClient
+	RepositoriesClient                MockRepositoriesClient
 
 	OnClose error
 }
@@ -58,6 +59,10 @@ func (m MockLibrariesClients) AWSMarketplaceSubscriptions() libraries.AWSMarketp
 
 func (m MockLibrariesClients) ResolutionCache() libraries.ResolutionCacheClient {
 	return &m.ResolutionCacheClient
+}
+
+func (m MockLibrariesClients) Repositories() libraries.RepositoriesClient {
+	return &m.RepositoriesClient
 }
 
 func (m MockLibrariesClients) Close() error {

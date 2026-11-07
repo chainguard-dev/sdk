@@ -242,6 +242,13 @@ const (
 	// stamped, so whoever holds this decides what reaches customers unscanned;
 	// it is internal_only so only Chainguard's scan pipeline can hold it.
 	Capability_CAP_LIBRARIES_MALWARE_STATUS_UPDATE Capability = 1886
+	// Repositories: an org's named Libraries repositories, each an IAM folder
+	// directly under the org. Bound at the org. create, update (a repository's
+	// upstream list) and delete are owner-only; list is ordinary member read.
+	Capability_CAP_REPOSITORIES_CREATE Capability = 1887
+	Capability_CAP_REPOSITORIES_UPDATE Capability = 1888
+	Capability_CAP_REPOSITORIES_DELETE Capability = 1889
+	Capability_CAP_REPOSITORIES_LIST   Capability = 1890
 	// Registry Entitlements
 	Capability_CAP_REGISTRY_ENTITLEMENTS_LIST          Capability = 1680
 	Capability_CAP_REGISTRY_ENTITLEMENTS_CREATE        Capability = 1681
@@ -686,6 +693,10 @@ var (
 		1884:  "CAP_LIBRARIES_REMOTE_REGISTRIES_DELETE",
 		1885:  "CAP_LIBRARIES_STORAGE_USAGE_GET",
 		1886:  "CAP_LIBRARIES_MALWARE_STATUS_UPDATE",
+		1887:  "CAP_REPOSITORIES_CREATE",
+		1888:  "CAP_REPOSITORIES_UPDATE",
+		1889:  "CAP_REPOSITORIES_DELETE",
+		1890:  "CAP_REPOSITORIES_LIST",
 		1680:  "CAP_REGISTRY_ENTITLEMENTS_LIST",
 		1681:  "CAP_REGISTRY_ENTITLEMENTS_CREATE",
 		1682:  "CAP_REGISTRY_ENTITLEMENTS_DELETE",
@@ -947,6 +958,10 @@ var (
 		"CAP_LIBRARIES_REMOTE_REGISTRIES_DELETE":             1884,
 		"CAP_LIBRARIES_STORAGE_USAGE_GET":                    1885,
 		"CAP_LIBRARIES_MALWARE_STATUS_UPDATE":                1886,
+		"CAP_REPOSITORIES_CREATE":                            1887,
+		"CAP_REPOSITORIES_UPDATE":                            1888,
+		"CAP_REPOSITORIES_DELETE":                            1889,
+		"CAP_REPOSITORIES_LIST":                              1890,
 		"CAP_REGISTRY_ENTITLEMENTS_LIST":                     1680,
 		"CAP_REGISTRY_ENTITLEMENTS_CREATE":                   1681,
 		"CAP_REGISTRY_ENTITLEMENTS_DELETE":                   1682,
@@ -1152,7 +1167,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x85\x8e\x01\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xfd\x8f\x01\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1309,7 +1324,11 @@ const file_capabilities_proto_rawDesc = "" +
 	"$CAP_LIBRARIES_REMOTE_REGISTRIES_LIST\x10\xdb\x0e\x1a,\xa8ˑM\xdc\x01\x9a\xaf\xa8\xd2\x05 libraries.remote_registries.list\x12[\n" +
 	"&CAP_LIBRARIES_REMOTE_REGISTRIES_DELETE\x10\xdc\x0e\x1a.\xa8ˑM\xdd\x01\x9a\xaf\xa8\xd2\x05\"libraries.remote_registries.delete\x12M\n" +
 	"\x1fCAP_LIBRARIES_STORAGE_USAGE_GET\x10\xdd\x0e\x1a'\xa8ˑM\xea\x01\x9a\xaf\xa8\xd2\x05\x1blibraries.storage_usage.get\x12[\n" +
-	"#CAP_LIBRARIES_MALWARE_STATUS_UPDATE\x10\xde\x0e\x1a1\xa8ˑM\xf6\x01\x9a\xaf\xa8\xd2\x05\x1flibraries.malware_status.update\xa0\xaf\xa8\xd2\x05\x01\x12J\n" +
+	"#CAP_LIBRARIES_MALWARE_STATUS_UPDATE\x10\xde\x0e\x1a1\xa8ˑM\xf6\x01\x9a\xaf\xa8\xd2\x05\x1flibraries.malware_status.update\xa0\xaf\xa8\xd2\x05\x01\x12=\n" +
+	"\x17CAP_REPOSITORIES_CREATE\x10\xdf\x0e\x1a\x1f\xa8ˑM\x88\x02\x9a\xaf\xa8\xd2\x05\x13repositories.create\x12=\n" +
+	"\x17CAP_REPOSITORIES_UPDATE\x10\xe0\x0e\x1a\x1f\xa8ˑM\x89\x02\x9a\xaf\xa8\xd2\x05\x13repositories.update\x12=\n" +
+	"\x17CAP_REPOSITORIES_DELETE\x10\xe1\x0e\x1a\x1f\xa8ˑM\x8a\x02\x9a\xaf\xa8\xd2\x05\x13repositories.delete\x129\n" +
+	"\x15CAP_REPOSITORIES_LIST\x10\xe2\x0e\x1a\x1d\xa8ˑM\x8b\x02\x9a\xaf\xa8\xd2\x05\x11repositories.list\x12J\n" +
 	"\x1eCAP_REGISTRY_ENTITLEMENTS_LIST\x10\x90\r\x1a%\xa8ˑMW\x9a\xaf\xa8\xd2\x05\x1aregistry.entitlements.list\x12N\n" +
 	" CAP_REGISTRY_ENTITLEMENTS_CREATE\x10\x91\r\x1a'\xa8ˑM`\x9a\xaf\xa8\xd2\x05\x1cregistry.entitlements.create\x12N\n" +
 	" CAP_REGISTRY_ENTITLEMENTS_DELETE\x10\x92\r\x1a'\xa8ˑMa\x9a\xaf\xa8\xd2\x05\x1cregistry.entitlements.delete\x12W\n" +
