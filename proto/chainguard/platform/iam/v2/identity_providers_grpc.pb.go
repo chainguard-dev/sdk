@@ -33,6 +33,7 @@ const (
 	IdentityProvidersService_RevokeScimToken_FullMethodName        = "/chainguard.platform.iam.v2.IdentityProvidersService/RevokeScimToken"
 	IdentityProvidersService_SetScimEnabled_FullMethodName         = "/chainguard.platform.iam.v2.IdentityProvidersService/SetScimEnabled"
 	IdentityProvidersService_ResetCorrelationRule_FullMethodName   = "/chainguard.platform.iam.v2.IdentityProvidersService/ResetCorrelationRule"
+	IdentityProvidersService_ListManualBindings_FullMethodName     = "/chainguard.platform.iam.v2.IdentityProvidersService/ListManualBindings"
 )
 
 // IdentityProvidersServiceClient is the client API for IdentityProvidersService service.
@@ -120,6 +121,37 @@ type IdentityProvidersServiceClient interface {
 	// the identity provider's correlation rule to confirm the outcome.
 	// protolint:disable:next MAX_LINE_LENGTH
 	ResetCorrelationRule(ctx context.Context, in *ResetCorrelationRuleRequest, opts ...grpc.CallOption) (*ResetCorrelationRuleResponse, error)
+	// ListManualBindings reports, for an organization that provisions its people
+	// with SCIM, the role bindings assigned directly (not managed by SCIM) that
+	// SCIM now supersedes. It lists each SCIM-provisioned person who has signed
+	// in, with their directly assigned role bindings, and classifies each
+	// binding:
+	//
+	//   - DUPLICATE: a SCIM-managed binding already grants the same role at the
+	//     same scope. Removing the binding changes nothing.
+	//   - COVERED: SCIM-managed bindings at the same scope or a parent scope
+	//     already include every capability of the role. Removing the binding
+	//     changes nothing in practice.
+	//   - NOT_COVERED: anything else. Removing the binding takes access away.
+	//
+	// A SCIM-managed binding counts only while a current group membership and
+	// mapping grant it, for an active user, and not for a privileged role. One
+	// that nothing grants any more is waiting to be revoked, and is not counted.
+	// A legacy or dangling row the reconciler refuses for another reason (a role
+	// scoped below the group, a role or scope group that no longer exists) is
+	// not filtered out, so the list is advisory: a removal must re-check before
+	// it deletes.
+	//
+	// Bindings that are never classified, and so are never removed, are reported
+	// only when include_excluded is set or exclusions names a reason: the owner
+	// and support roles, and the
+	// bindings of people whose SCIM link was made under a correlation rule that
+	// has since been replaced. The list covers the people the identity provider
+	// provisions: an identity with no provisioned user is not listed, and its
+	// bindings are never removed. Only bindings in groups under the identity
+	// provider's organization are listed. Reads only; nothing is changed.
+	// protolint:disable:next MAX_LINE_LENGTH
+	ListManualBindings(ctx context.Context, in *ListManualBindingsRequest, opts ...grpc.CallOption) (*ListManualBindingsResponse, error)
 }
 
 type identityProvidersServiceClient struct {
@@ -230,6 +262,16 @@ func (c *identityProvidersServiceClient) ResetCorrelationRule(ctx context.Contex
 	return out, nil
 }
 
+func (c *identityProvidersServiceClient) ListManualBindings(ctx context.Context, in *ListManualBindingsRequest, opts ...grpc.CallOption) (*ListManualBindingsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListManualBindingsResponse)
+	err := c.cc.Invoke(ctx, IdentityProvidersService_ListManualBindings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // IdentityProvidersServiceServer is the server API for IdentityProvidersService service.
 // All implementations must embed UnimplementedIdentityProvidersServiceServer
 // for forward compatibility.
@@ -315,6 +357,37 @@ type IdentityProvidersServiceServer interface {
 	// the identity provider's correlation rule to confirm the outcome.
 	// protolint:disable:next MAX_LINE_LENGTH
 	ResetCorrelationRule(context.Context, *ResetCorrelationRuleRequest) (*ResetCorrelationRuleResponse, error)
+	// ListManualBindings reports, for an organization that provisions its people
+	// with SCIM, the role bindings assigned directly (not managed by SCIM) that
+	// SCIM now supersedes. It lists each SCIM-provisioned person who has signed
+	// in, with their directly assigned role bindings, and classifies each
+	// binding:
+	//
+	//   - DUPLICATE: a SCIM-managed binding already grants the same role at the
+	//     same scope. Removing the binding changes nothing.
+	//   - COVERED: SCIM-managed bindings at the same scope or a parent scope
+	//     already include every capability of the role. Removing the binding
+	//     changes nothing in practice.
+	//   - NOT_COVERED: anything else. Removing the binding takes access away.
+	//
+	// A SCIM-managed binding counts only while a current group membership and
+	// mapping grant it, for an active user, and not for a privileged role. One
+	// that nothing grants any more is waiting to be revoked, and is not counted.
+	// A legacy or dangling row the reconciler refuses for another reason (a role
+	// scoped below the group, a role or scope group that no longer exists) is
+	// not filtered out, so the list is advisory: a removal must re-check before
+	// it deletes.
+	//
+	// Bindings that are never classified, and so are never removed, are reported
+	// only when include_excluded is set or exclusions names a reason: the owner
+	// and support roles, and the
+	// bindings of people whose SCIM link was made under a correlation rule that
+	// has since been replaced. The list covers the people the identity provider
+	// provisions: an identity with no provisioned user is not listed, and its
+	// bindings are never removed. Only bindings in groups under the identity
+	// provider's organization are listed. Reads only; nothing is changed.
+	// protolint:disable:next MAX_LINE_LENGTH
+	ListManualBindings(context.Context, *ListManualBindingsRequest) (*ListManualBindingsResponse, error)
 	mustEmbedUnimplementedIdentityProvidersServiceServer()
 }
 
@@ -354,6 +427,9 @@ func (UnimplementedIdentityProvidersServiceServer) SetScimEnabled(context.Contex
 }
 func (UnimplementedIdentityProvidersServiceServer) ResetCorrelationRule(context.Context, *ResetCorrelationRuleRequest) (*ResetCorrelationRuleResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ResetCorrelationRule not implemented")
+}
+func (UnimplementedIdentityProvidersServiceServer) ListManualBindings(context.Context, *ListManualBindingsRequest) (*ListManualBindingsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListManualBindings not implemented")
 }
 func (UnimplementedIdentityProvidersServiceServer) mustEmbedUnimplementedIdentityProvidersServiceServer() {
 }
@@ -557,6 +633,24 @@ func _IdentityProvidersService_ResetCorrelationRule_Handler(srv interface{}, ctx
 	return interceptor(ctx, in, info, handler)
 }
 
+func _IdentityProvidersService_ListManualBindings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListManualBindingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IdentityProvidersServiceServer).ListManualBindings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IdentityProvidersService_ListManualBindings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IdentityProvidersServiceServer).ListManualBindings(ctx, req.(*ListManualBindingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // IdentityProvidersService_ServiceDesc is the grpc.ServiceDesc for IdentityProvidersService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -603,6 +697,10 @@ var IdentityProvidersService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ResetCorrelationRule",
 			Handler:    _IdentityProvidersService_ResetCorrelationRule_Handler,
+		},
+		{
+			MethodName: "ListManualBindings",
+			Handler:    _IdentityProvidersService_ListManualBindings_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

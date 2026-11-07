@@ -31,6 +31,127 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// ManualBindingClass says how SCIM relates to a role binding that was assigned
+// directly.
+type ManualBindingClass int32
+
+const (
+	// The class is unset. It is not a valid value in a request, which names the
+	// classes it wants or leaves them empty for every class.
+	ManualBindingClass_MANUAL_BINDING_CLASS_UNSPECIFIED ManualBindingClass = 0
+	// A SCIM-managed binding already grants the same role at the same scope.
+	// Removing the binding changes nothing.
+	ManualBindingClass_MANUAL_BINDING_CLASS_DUPLICATE ManualBindingClass = 1
+	// SCIM-managed bindings at the same scope or a parent scope already include
+	// every capability of the role. Removing the binding changes nothing in
+	// practice.
+	ManualBindingClass_MANUAL_BINDING_CLASS_COVERED ManualBindingClass = 2
+	// Neither of the above. Removing the binding takes access away.
+	ManualBindingClass_MANUAL_BINDING_CLASS_NOT_COVERED ManualBindingClass = 3
+)
+
+// Enum value maps for ManualBindingClass.
+var (
+	ManualBindingClass_name = map[int32]string{
+		0: "MANUAL_BINDING_CLASS_UNSPECIFIED",
+		1: "MANUAL_BINDING_CLASS_DUPLICATE",
+		2: "MANUAL_BINDING_CLASS_COVERED",
+		3: "MANUAL_BINDING_CLASS_NOT_COVERED",
+	}
+	ManualBindingClass_value = map[string]int32{
+		"MANUAL_BINDING_CLASS_UNSPECIFIED": 0,
+		"MANUAL_BINDING_CLASS_DUPLICATE":   1,
+		"MANUAL_BINDING_CLASS_COVERED":     2,
+		"MANUAL_BINDING_CLASS_NOT_COVERED": 3,
+	}
+)
+
+func (x ManualBindingClass) Enum() *ManualBindingClass {
+	p := new(ManualBindingClass)
+	*p = x
+	return p
+}
+
+func (x ManualBindingClass) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ManualBindingClass) Descriptor() protoreflect.EnumDescriptor {
+	return file_chainguard_platform_iam_v2_identity_providers_proto_enumTypes[0].Descriptor()
+}
+
+func (ManualBindingClass) Type() protoreflect.EnumType {
+	return &file_chainguard_platform_iam_v2_identity_providers_proto_enumTypes[0]
+}
+
+func (x ManualBindingClass) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ManualBindingClass.Descriptor instead.
+func (ManualBindingClass) EnumDescriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2_identity_providers_proto_rawDescGZIP(), []int{0}
+}
+
+// ManualBindingExclusion says why a directly assigned role binding is never
+// classified, and so is never removed.
+type ManualBindingExclusion int32
+
+const (
+	// The binding is not excluded. It is not a valid value in a request, which
+	// names the reasons it wants.
+	ManualBindingExclusion_MANUAL_BINDING_EXCLUSION_UNSPECIFIED ManualBindingExclusion = 0
+	// The role is the built-in owner or support role. A person whose link was
+	// made under a replaced correlation rule has every binding reported as
+	// NO_CURRENT_SCIM_LINK instead, owner and support included.
+	ManualBindingExclusion_MANUAL_BINDING_EXCLUSION_PRIVILEGED_ROLE ManualBindingExclusion = 1
+	// The person's SCIM link was made under a correlation rule that has since
+	// been replaced, so it grants nothing. People with no provisioned user, or
+	// who have not signed in, are not listed at all.
+	ManualBindingExclusion_MANUAL_BINDING_EXCLUSION_NO_CURRENT_SCIM_LINK ManualBindingExclusion = 2
+)
+
+// Enum value maps for ManualBindingExclusion.
+var (
+	ManualBindingExclusion_name = map[int32]string{
+		0: "MANUAL_BINDING_EXCLUSION_UNSPECIFIED",
+		1: "MANUAL_BINDING_EXCLUSION_PRIVILEGED_ROLE",
+		2: "MANUAL_BINDING_EXCLUSION_NO_CURRENT_SCIM_LINK",
+	}
+	ManualBindingExclusion_value = map[string]int32{
+		"MANUAL_BINDING_EXCLUSION_UNSPECIFIED":          0,
+		"MANUAL_BINDING_EXCLUSION_PRIVILEGED_ROLE":      1,
+		"MANUAL_BINDING_EXCLUSION_NO_CURRENT_SCIM_LINK": 2,
+	}
+)
+
+func (x ManualBindingExclusion) Enum() *ManualBindingExclusion {
+	p := new(ManualBindingExclusion)
+	*p = x
+	return p
+}
+
+func (x ManualBindingExclusion) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ManualBindingExclusion) Descriptor() protoreflect.EnumDescriptor {
+	return file_chainguard_platform_iam_v2_identity_providers_proto_enumTypes[1].Descriptor()
+}
+
+func (ManualBindingExclusion) Type() protoreflect.EnumType {
+	return &file_chainguard_platform_iam_v2_identity_providers_proto_enumTypes[1]
+}
+
+func (x ManualBindingExclusion) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ManualBindingExclusion.Descriptor instead.
+func (ManualBindingExclusion) EnumDescriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2_identity_providers_proto_rawDescGZIP(), []int{1}
+}
+
 // CorrelationRule enumerates how an OIDC login is matched to the SCIM user
 // provisioned by this identity provider (identity linking at login). A
 // closed enum: matching is never free-form, and email-based matching is
@@ -81,11 +202,11 @@ func (x IdentityProvider_OIDC_CorrelationRule) String() string {
 }
 
 func (IdentityProvider_OIDC_CorrelationRule) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_iam_v2_identity_providers_proto_enumTypes[0].Descriptor()
+	return file_chainguard_platform_iam_v2_identity_providers_proto_enumTypes[2].Descriptor()
 }
 
 func (IdentityProvider_OIDC_CorrelationRule) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_iam_v2_identity_providers_proto_enumTypes[0]
+	return &file_chainguard_platform_iam_v2_identity_providers_proto_enumTypes[2]
 }
 
 func (x IdentityProvider_OIDC_CorrelationRule) Number() protoreflect.EnumNumber {
@@ -138,11 +259,11 @@ func (x IdentityProvider_OIDC_TokenEndpointAuthMethod) String() string {
 }
 
 func (IdentityProvider_OIDC_TokenEndpointAuthMethod) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_iam_v2_identity_providers_proto_enumTypes[1].Descriptor()
+	return file_chainguard_platform_iam_v2_identity_providers_proto_enumTypes[3].Descriptor()
 }
 
 func (IdentityProvider_OIDC_TokenEndpointAuthMethod) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_iam_v2_identity_providers_proto_enumTypes[1]
+	return &file_chainguard_platform_iam_v2_identity_providers_proto_enumTypes[3]
 }
 
 func (x IdentityProvider_OIDC_TokenEndpointAuthMethod) Number() protoreflect.EnumNumber {
@@ -211,11 +332,11 @@ func (x IdentityProvider_SCIM_CredentialState) String() string {
 }
 
 func (IdentityProvider_SCIM_CredentialState) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_iam_v2_identity_providers_proto_enumTypes[2].Descriptor()
+	return file_chainguard_platform_iam_v2_identity_providers_proto_enumTypes[4].Descriptor()
 }
 
 func (IdentityProvider_SCIM_CredentialState) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_iam_v2_identity_providers_proto_enumTypes[2]
+	return &file_chainguard_platform_iam_v2_identity_providers_proto_enumTypes[4]
 }
 
 func (x IdentityProvider_SCIM_CredentialState) Number() protoreflect.EnumNumber {
@@ -1541,6 +1662,533 @@ func (x *ResetCorrelationRuleResponse) GetUnlinkComplete() bool {
 	return false
 }
 
+// ListManualBindingsRequest is the request message for ListManualBindings.
+// (-- api-linter: core::0132::request-parent-required=disabled
+//
+//	aip.dev/not-precedent: The list is a view of one identity provider's
+//	provisioned people, addressed by identity_provider_uid like the other
+//	identity provider methods, so it has no parent field. --)
+//
+// (-- api-linter: core::0132::request-required-fields=disabled
+//
+//	aip.dev/not-precedent: identity_provider_uid addresses the identity
+//	provider whose people are listed. --)
+type ListManualBindingsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UID of the identity provider whose SCIM-provisioned people are listed.
+	IdentityProviderUid string `protobuf:"bytes,1,opt,name=identity_provider_uid,json=identityProviderUid,proto3" json:"identity_provider_uid,omitempty"`
+	// Return classified bindings of these classes. Empty returns every class,
+	// unless exclusions is set: then only excluded bindings are returned, and
+	// naming classes as well returns both.
+	// protolint:disable:next MAX_LINE_LENGTH
+	Classes []ManualBindingClass `protobuf:"varint,2,rep,packed,name=classes,proto3,enum=chainguard.platform.iam.v2.ManualBindingClass" json:"classes,omitempty"`
+	// Also return every excluded binding, whatever its reason, unless exclusions
+	// narrows them. With no classes or exclusions set, the result holds every
+	// class plus every excluded binding.
+	IncludeExcluded bool `protobuf:"varint,3,opt,name=include_excluded,json=includeExcluded,proto3" json:"include_excluded,omitempty"`
+	// Return excluded bindings with these reasons. Setting it implies
+	// include_excluded, and on its own returns only excluded bindings. Set with
+	// classes, it returns both.
+	// protolint:disable:next MAX_LINE_LENGTH
+	Exclusions []ManualBindingExclusion `protobuf:"varint,4,rep,packed,name=exclusions,proto3,enum=chainguard.platform.iam.v2.ManualBindingExclusion" json:"exclusions,omitempty"`
+	// Maximum number of people to return per page.
+	// Default: 50, Maximum: 200.
+	PageSize int32 `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// Page token from a previous List response for pagination.
+	// Opaque token with 3-day expiration.
+	PageToken string `protobuf:"bytes,11,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// Order results by a provisioned user's field: uid (the provisioned user's
+	// UID, which the response does not show), user_name, created_at or
+	// updated_at. Format: "field [asc|desc]"
+	// Default: "uid asc"
+	// Note: Changing order_by between pages invalidates the page token.
+	OrderBy string `protobuf:"bytes,12,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
+	// Number of people to skip before returning, counted among the provisioned
+	// people who hold at least one directly assigned binding in the identity
+	// provider's organization, before the class and exclusion filters apply.
+	// Resumes from an offset among those people. It does not map to result pages
+	// when the filters leave people out.
+	// Cannot be combined with page_token: a request with both is rejected.
+	// Must be non-negative.
+	Skip          int32 `protobuf:"varint,13,opt,name=skip,proto3" json:"skip,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListManualBindingsRequest) Reset() {
+	*x = ListManualBindingsRequest{}
+	mi := &file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListManualBindingsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListManualBindingsRequest) ProtoMessage() {}
+
+func (x *ListManualBindingsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListManualBindingsRequest.ProtoReflect.Descriptor instead.
+func (*ListManualBindingsRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2_identity_providers_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *ListManualBindingsRequest) GetIdentityProviderUid() string {
+	if x != nil {
+		return x.IdentityProviderUid
+	}
+	return ""
+}
+
+func (x *ListManualBindingsRequest) GetClasses() []ManualBindingClass {
+	if x != nil {
+		return x.Classes
+	}
+	return nil
+}
+
+func (x *ListManualBindingsRequest) GetIncludeExcluded() bool {
+	if x != nil {
+		return x.IncludeExcluded
+	}
+	return false
+}
+
+func (x *ListManualBindingsRequest) GetExclusions() []ManualBindingExclusion {
+	if x != nil {
+		return x.Exclusions
+	}
+	return nil
+}
+
+func (x *ListManualBindingsRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *ListManualBindingsRequest) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+func (x *ListManualBindingsRequest) GetOrderBy() string {
+	if x != nil {
+		return x.OrderBy
+	}
+	return ""
+}
+
+func (x *ListManualBindingsRequest) GetSkip() int32 {
+	if x != nil {
+		return x.Skip
+	}
+	return 0
+}
+
+// ListManualBindingsResponse is the response message for ListManualBindings.
+type ListManualBindingsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// People with at least one matching directly assigned role binding.
+	People []*ManualBindingPerson `protobuf:"bytes,1,rep,name=people,proto3" json:"people,omitempty"`
+	// Token for retrieving the next page of results.
+	// Empty if no more results.
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	// Total number of people matching the filter.
+	// Optional, provided for UI pagination.
+	TotalCount *int64 `protobuf:"varint,3,opt,name=total_count,json=totalCount,proto3,oneof" json:"total_count,omitempty"`
+	// Number of provisioned people passed over before this page, including any
+	// the filters left out. Accumulates across paginated requests.
+	Skipped       int32 `protobuf:"varint,4,opt,name=skipped,proto3" json:"skipped,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListManualBindingsResponse) Reset() {
+	*x = ListManualBindingsResponse{}
+	mi := &file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListManualBindingsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListManualBindingsResponse) ProtoMessage() {}
+
+func (x *ListManualBindingsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListManualBindingsResponse.ProtoReflect.Descriptor instead.
+func (*ListManualBindingsResponse) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2_identity_providers_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ListManualBindingsResponse) GetPeople() []*ManualBindingPerson {
+	if x != nil {
+		return x.People
+	}
+	return nil
+}
+
+func (x *ListManualBindingsResponse) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
+}
+
+func (x *ListManualBindingsResponse) GetTotalCount() int64 {
+	if x != nil && x.TotalCount != nil {
+		return *x.TotalCount
+	}
+	return 0
+}
+
+func (x *ListManualBindingsResponse) GetSkipped() int32 {
+	if x != nil {
+		return x.Skipped
+	}
+	return 0
+}
+
+// ManualBindingPerson is a SCIM-provisioned person and their directly assigned
+// role bindings.
+// (-- api-linter: core::0123::resource-annotation=disabled
+//
+//	aip.dev/not-precedent: ManualBindingPerson is a view of an identity
+//	and its bindings returned by ListManualBindings, not a standalone
+//	resource. --)
+type ManualBindingPerson struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UID of the person's Chainguard identity.
+	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	// Display name of the identity, or the provisioned user's display name when
+	// the identity has none.
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// The person's directly assigned role bindings.
+	Bindings []*ManualBinding `protobuf:"bytes,3,rep,name=bindings,proto3" json:"bindings,omitempty"`
+	// The person's SCIM userName.
+	// (-- api-linter: core::0122::name-suffix=disabled
+	//     aip.dev/not-precedent: user_name is the standard SCIM attribute
+	//     name (RFC 7643). --)
+	UserName string `protobuf:"bytes,4,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`
+	// The person's primary email from their provisioned user, else the first
+	// one it lists, else empty.
+	Email         string `protobuf:"bytes,5,opt,name=email,proto3" json:"email,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ManualBindingPerson) Reset() {
+	*x = ManualBindingPerson{}
+	mi := &file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ManualBindingPerson) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ManualBindingPerson) ProtoMessage() {}
+
+func (x *ManualBindingPerson) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ManualBindingPerson.ProtoReflect.Descriptor instead.
+func (*ManualBindingPerson) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2_identity_providers_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *ManualBindingPerson) GetUid() string {
+	if x != nil {
+		return x.Uid
+	}
+	return ""
+}
+
+func (x *ManualBindingPerson) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ManualBindingPerson) GetBindings() []*ManualBinding {
+	if x != nil {
+		return x.Bindings
+	}
+	return nil
+}
+
+func (x *ManualBindingPerson) GetUserName() string {
+	if x != nil {
+		return x.UserName
+	}
+	return ""
+}
+
+func (x *ManualBindingPerson) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+// ManualBinding is one directly assigned role binding and how SCIM relates to
+// it.
+type ManualBinding struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UID of the role binding.
+	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	// UID of the role the binding grants.
+	RoleUid string `protobuf:"bytes,2,opt,name=role_uid,json=roleUid,proto3" json:"role_uid,omitempty"`
+	// Name of the role the binding grants.
+	// (-- api-linter: core::0122::name-suffix=disabled
+	//     aip.dev/not-precedent: role_name is the display name of the role
+	//     named by role_uid, as in the role bindings listing. --)
+	RoleName string `protobuf:"bytes,3,opt,name=role_name,json=roleName,proto3" json:"role_name,omitempty"`
+	// UID of the group where the binding applies.
+	GroupUid string `protobuf:"bytes,4,opt,name=group_uid,json=groupUid,proto3" json:"group_uid,omitempty"`
+	// Name of the group where the binding applies.
+	// (-- api-linter: core::0122::name-suffix=disabled
+	//     aip.dev/not-precedent: group_name is the display name of the group
+	//     named by group_uid, as in the role bindings listing. --)
+	GroupName string `protobuf:"bytes,5,opt,name=group_name,json=groupName,proto3" json:"group_name,omitempty"`
+	// The binding's class. Unspecified when the binding is excluded.
+	BindingClass ManualBindingClass `protobuf:"varint,6,opt,name=binding_class,json=bindingClass,proto3,enum=chainguard.platform.iam.v2.ManualBindingClass" json:"binding_class,omitempty"`
+	// Why the binding is never classified. Unspecified when the binding has a
+	// class.
+	Exclusion ManualBindingExclusion `protobuf:"varint,7,opt,name=exclusion,proto3,enum=chainguard.platform.iam.v2.ManualBindingExclusion" json:"exclusion,omitempty"`
+	// One entry for each SCIM group that grants a SCIM-managed binding
+	// superseding this one, so a binding granted by several groups appears once
+	// per group. Empty for NOT_COVERED and excluded bindings.
+	SupersedingSources []*ScimBindingSource `protobuf:"bytes,8,rep,name=superseding_sources,json=supersedingSources,proto3" json:"superseding_sources,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *ManualBinding) Reset() {
+	*x = ManualBinding{}
+	mi := &file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ManualBinding) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ManualBinding) ProtoMessage() {}
+
+func (x *ManualBinding) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ManualBinding.ProtoReflect.Descriptor instead.
+func (*ManualBinding) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2_identity_providers_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ManualBinding) GetUid() string {
+	if x != nil {
+		return x.Uid
+	}
+	return ""
+}
+
+func (x *ManualBinding) GetRoleUid() string {
+	if x != nil {
+		return x.RoleUid
+	}
+	return ""
+}
+
+func (x *ManualBinding) GetRoleName() string {
+	if x != nil {
+		return x.RoleName
+	}
+	return ""
+}
+
+func (x *ManualBinding) GetGroupUid() string {
+	if x != nil {
+		return x.GroupUid
+	}
+	return ""
+}
+
+func (x *ManualBinding) GetGroupName() string {
+	if x != nil {
+		return x.GroupName
+	}
+	return ""
+}
+
+func (x *ManualBinding) GetBindingClass() ManualBindingClass {
+	if x != nil {
+		return x.BindingClass
+	}
+	return ManualBindingClass_MANUAL_BINDING_CLASS_UNSPECIFIED
+}
+
+func (x *ManualBinding) GetExclusion() ManualBindingExclusion {
+	if x != nil {
+		return x.Exclusion
+	}
+	return ManualBindingExclusion_MANUAL_BINDING_EXCLUSION_UNSPECIFIED
+}
+
+func (x *ManualBinding) GetSupersedingSources() []*ScimBindingSource {
+	if x != nil {
+		return x.SupersedingSources
+	}
+	return nil
+}
+
+// ScimBindingSource is a SCIM-managed role binding, and the SCIM group that
+// grants it, that supersedes a directly assigned one. Only a binding that a
+// current membership and mapping grant supersedes anything.
+type ScimBindingSource struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UID of the SCIM-managed role binding.
+	RoleBindingUid string `protobuf:"bytes,1,opt,name=role_binding_uid,json=roleBindingUid,proto3" json:"role_binding_uid,omitempty"`
+	// UID of the role it grants.
+	RoleUid string `protobuf:"bytes,2,opt,name=role_uid,json=roleUid,proto3" json:"role_uid,omitempty"`
+	// Name of the role it grants.
+	// (-- api-linter: core::0122::name-suffix=disabled
+	//     aip.dev/not-precedent: role_name is the display name of the role
+	//     named by role_uid, as in the role bindings listing. --)
+	RoleName string `protobuf:"bytes,3,opt,name=role_name,json=roleName,proto3" json:"role_name,omitempty"`
+	// UID of the group where it applies, the same scope as the directly assigned
+	// binding or a parent of it.
+	GroupUid string `protobuf:"bytes,4,opt,name=group_uid,json=groupUid,proto3" json:"group_uid,omitempty"`
+	// UID of the SCIM group whose mapping grants it.
+	ScimGroupUid string `protobuf:"bytes,5,opt,name=scim_group_uid,json=scimGroupUid,proto3" json:"scim_group_uid,omitempty"`
+	// Display name of the SCIM group whose mapping grants it.
+	// (-- api-linter: core::0122::name-suffix=disabled
+	//     aip.dev/not-precedent: scim_group_name is the display name of the
+	//     SCIM group named by scim_group_uid. --)
+	ScimGroupName string `protobuf:"bytes,6,opt,name=scim_group_name,json=scimGroupName,proto3" json:"scim_group_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ScimBindingSource) Reset() {
+	*x = ScimBindingSource{}
+	mi := &file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ScimBindingSource) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ScimBindingSource) ProtoMessage() {}
+
+func (x *ScimBindingSource) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ScimBindingSource.ProtoReflect.Descriptor instead.
+func (*ScimBindingSource) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2_identity_providers_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *ScimBindingSource) GetRoleBindingUid() string {
+	if x != nil {
+		return x.RoleBindingUid
+	}
+	return ""
+}
+
+func (x *ScimBindingSource) GetRoleUid() string {
+	if x != nil {
+		return x.RoleUid
+	}
+	return ""
+}
+
+func (x *ScimBindingSource) GetRoleName() string {
+	if x != nil {
+		return x.RoleName
+	}
+	return ""
+}
+
+func (x *ScimBindingSource) GetGroupUid() string {
+	if x != nil {
+		return x.GroupUid
+	}
+	return ""
+}
+
+func (x *ScimBindingSource) GetScimGroupUid() string {
+	if x != nil {
+		return x.ScimGroupUid
+	}
+	return ""
+}
+
+func (x *ScimBindingSource) GetScimGroupName() string {
+	if x != nil {
+		return x.ScimGroupName
+	}
+	return ""
+}
+
 // Configuration parameters for performing an OIDC token exchange.
 type IdentityProvider_OIDC struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1601,7 +2249,7 @@ type IdentityProvider_OIDC struct {
 
 func (x *IdentityProvider_OIDC) Reset() {
 	*x = IdentityProvider_OIDC{}
-	mi := &file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes[17]
+	mi := &file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1613,7 +2261,7 @@ func (x *IdentityProvider_OIDC) String() string {
 func (*IdentityProvider_OIDC) ProtoMessage() {}
 
 func (x *IdentityProvider_OIDC) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes[17]
+	mi := &file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1716,7 +2364,7 @@ type IdentityProvider_SCIM struct {
 
 func (x *IdentityProvider_SCIM) Reset() {
 	*x = IdentityProvider_SCIM{}
-	mi := &file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes[18]
+	mi := &file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1728,7 +2376,7 @@ func (x *IdentityProvider_SCIM) String() string {
 func (*IdentityProvider_SCIM) ProtoMessage() {}
 
 func (x *IdentityProvider_SCIM) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes[18]
+	mi := &file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1926,7 +2574,60 @@ const file_chainguard_platform_iam_v2_identity_providers_proto_rawDesc = "" +
 	"\achanged\x18\x03 \x01(\bR\achanged\x12%\n" +
 	"\x0eusers_unlinked\x18\x04 \x01(\x03R\rusersUnlinked\x12)\n" +
 	"\x10bindings_dropped\x18\x05 \x01(\x03R\x0fbindingsDropped\x12'\n" +
-	"\x0funlink_complete\x18\x06 \x01(\bR\x0eunlinkComplete2\xe0\x19\n" +
+	"\x0funlink_complete\x18\x06 \x01(\bR\x0eunlinkComplete\"\xb9\x03\n" +
+	"\x19ListManualBindingsRequest\x12>\n" +
+	"\x15identity_provider_uid\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x13identityProviderUid\x12N\n" +
+	"\aclasses\x18\x02 \x03(\x0e2..chainguard.platform.iam.v2.ManualBindingClassB\x04\xe2A\x01\x01R\aclasses\x12/\n" +
+	"\x10include_excluded\x18\x03 \x01(\bB\x04\xe2A\x01\x01R\x0fincludeExcluded\x12X\n" +
+	"\n" +
+	"exclusions\x18\x04 \x03(\x0e22.chainguard.platform.iam.v2.ManualBindingExclusionB\x04\xe2A\x01\x01R\n" +
+	"exclusions\x12!\n" +
+	"\tpage_size\x18\n" +
+	" \x01(\x05B\x04\xe2A\x01\x01R\bpageSize\x12#\n" +
+	"\n" +
+	"page_token\x18\v \x01(\tB\x04\xe2A\x01\x01R\tpageToken\x12\x1f\n" +
+	"\border_by\x18\f \x01(\tB\x04\xe2A\x01\x01R\aorderBy\x12\x18\n" +
+	"\x04skip\x18\r \x01(\x05B\x04\xe2A\x01\x01R\x04skip\"\xdd\x01\n" +
+	"\x1aListManualBindingsResponse\x12G\n" +
+	"\x06people\x18\x01 \x03(\v2/.chainguard.platform.iam.v2.ManualBindingPersonR\x06people\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12$\n" +
+	"\vtotal_count\x18\x03 \x01(\x03H\x00R\n" +
+	"totalCount\x88\x01\x01\x12\x18\n" +
+	"\askipped\x18\x04 \x01(\x05R\askippedB\x0e\n" +
+	"\f_total_count\"\xb5\x01\n" +
+	"\x13ManualBindingPerson\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\tR\x03uid\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12E\n" +
+	"\bbindings\x18\x03 \x03(\v2).chainguard.platform.iam.v2.ManualBindingR\bbindings\x12\x1b\n" +
+	"\tuser_name\x18\x04 \x01(\tR\buserName\x12\x14\n" +
+	"\x05email\x18\x05 \x01(\tR\x05email\"\x9c\x03\n" +
+	"\rManualBinding\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\tR\x03uid\x12\x19\n" +
+	"\brole_uid\x18\x02 \x01(\tR\aroleUid\x12\x1b\n" +
+	"\trole_name\x18\x03 \x01(\tR\broleName\x12\x1b\n" +
+	"\tgroup_uid\x18\x04 \x01(\tR\bgroupUid\x12\x1d\n" +
+	"\n" +
+	"group_name\x18\x05 \x01(\tR\tgroupName\x12S\n" +
+	"\rbinding_class\x18\x06 \x01(\x0e2..chainguard.platform.iam.v2.ManualBindingClassR\fbindingClass\x12P\n" +
+	"\texclusion\x18\a \x01(\x0e22.chainguard.platform.iam.v2.ManualBindingExclusionR\texclusion\x12^\n" +
+	"\x13superseding_sources\x18\b \x03(\v2-.chainguard.platform.iam.v2.ScimBindingSourceR\x12supersedingSources\"\xe0\x01\n" +
+	"\x11ScimBindingSource\x12(\n" +
+	"\x10role_binding_uid\x18\x01 \x01(\tR\x0eroleBindingUid\x12\x19\n" +
+	"\brole_uid\x18\x02 \x01(\tR\aroleUid\x12\x1b\n" +
+	"\trole_name\x18\x03 \x01(\tR\broleName\x12\x1b\n" +
+	"\tgroup_uid\x18\x04 \x01(\tR\bgroupUid\x12$\n" +
+	"\x0escim_group_uid\x18\x05 \x01(\tR\fscimGroupUid\x12&\n" +
+	"\x0fscim_group_name\x18\x06 \x01(\tR\rscimGroupName*\xa6\x01\n" +
+	"\x12ManualBindingClass\x12$\n" +
+	" MANUAL_BINDING_CLASS_UNSPECIFIED\x10\x00\x12\"\n" +
+	"\x1eMANUAL_BINDING_CLASS_DUPLICATE\x10\x01\x12 \n" +
+	"\x1cMANUAL_BINDING_CLASS_COVERED\x10\x02\x12$\n" +
+	" MANUAL_BINDING_CLASS_NOT_COVERED\x10\x03*\xa3\x01\n" +
+	"\x16ManualBindingExclusion\x12(\n" +
+	"$MANUAL_BINDING_EXCLUSION_UNSPECIFIED\x10\x00\x12,\n" +
+	"(MANUAL_BINDING_EXCLUSION_PRIVILEGED_ROLE\x10\x01\x121\n" +
+	"-MANUAL_BINDING_EXCLUSION_NO_CURRENT_SCIM_LINK\x10\x022\xf3\x1c\n" +
 	"\x18IdentityProvidersService\x12\xb2\x02\n" +
 	"\x15ListIdentityProviders\x128.chainguard.platform.iam.v2.ListIdentityProvidersRequest\x1a9.chainguard.platform.iam.v2.ListIdentityProvidersResponse\"\xa3\x01\x82\xd3\xe4\x93\x02\x1b\x12\x19/iam/v2/identityProviders\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\x97\n" +
@@ -1975,7 +2676,11 @@ const file_chainguard_platform_iam_v2_identity_providers_proto_rawDesc = "" +
 	"\x04\x96\n" +
 	"\x99\n" +
 	"\x9a\xaf\xa8\xd2\x05\x02\x10\x01\xc2\xf0\x8e\xfc\vN\n" +
-	"Cdev.chainguard.api.iam.identity_providers.correlation_rule.reset.v1\x12\x05group\x18\x01Bo\n" +
+	"Cdev.chainguard.api.iam.identity_providers.correlation_rule.reset.v1\x12\x05group\x18\x01\x12\x90\x03\n" +
+	"\x12ListManualBindings\x125.chainguard.platform.iam.v2.ListManualBindingsRequest\x1a6.chainguard.platform.iam.v2.ListManualBindingsResponse\"\x8a\x02\x82\xd3\xe4\x93\x02I\x12G/iam/v2/identityProviders/{identity_provider_uid=**}:listManualBindings\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x04\x93\x03\x9a\n" +
+	"\x9a\xaf\xa8\xd2\x05\xa6\x01\n" +
+	"\x99\x01List the directly assigned role bindings that SCIM provisioning now supersedes for an identity provider, classified as duplicate, covered or not covered.\x10\x01\x18\x01 \x00(\x010\x00Bo\n" +
 	"\x1ecom.chainguard.platform.iam.v2B\x16IdentityProvidersProtoP\x01Z3chainguard.dev/sdk/proto/chainguard/platform/iam/v2b\x06proto3"
 
 var (
@@ -1990,89 +2695,105 @@ func file_chainguard_platform_iam_v2_identity_providers_proto_rawDescGZIP() []by
 	return file_chainguard_platform_iam_v2_identity_providers_proto_rawDescData
 }
 
-var file_chainguard_platform_iam_v2_identity_providers_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_chainguard_platform_iam_v2_identity_providers_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
+var file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_chainguard_platform_iam_v2_identity_providers_proto_goTypes = []any{
-	(IdentityProvider_OIDC_CorrelationRule)(0),         // 0: chainguard.platform.iam.v2.IdentityProvider.OIDC.CorrelationRule
-	(IdentityProvider_OIDC_TokenEndpointAuthMethod)(0), // 1: chainguard.platform.iam.v2.IdentityProvider.OIDC.TokenEndpointAuthMethod
-	(IdentityProvider_SCIM_CredentialState)(0),         // 2: chainguard.platform.iam.v2.IdentityProvider.SCIM.CredentialState
-	(*IdentityProvider)(nil),                           // 3: chainguard.platform.iam.v2.IdentityProvider
-	(*ListIdentityProvidersRequest)(nil),               // 4: chainguard.platform.iam.v2.ListIdentityProvidersRequest
-	(*ListIdentityProvidersResponse)(nil),              // 5: chainguard.platform.iam.v2.ListIdentityProvidersResponse
-	(*GetIdentityProviderRequest)(nil),                 // 6: chainguard.platform.iam.v2.GetIdentityProviderRequest
-	(*CreateIdentityProviderRequest)(nil),              // 7: chainguard.platform.iam.v2.CreateIdentityProviderRequest
-	(*UpdateIdentityProviderRequest)(nil),              // 8: chainguard.platform.iam.v2.UpdateIdentityProviderRequest
-	(*DeleteIdentityProviderRequest)(nil),              // 9: chainguard.platform.iam.v2.DeleteIdentityProviderRequest
-	(*GenerateScimTokenRequest)(nil),                   // 10: chainguard.platform.iam.v2.GenerateScimTokenRequest
-	(*GenerateScimTokenResponse)(nil),                  // 11: chainguard.platform.iam.v2.GenerateScimTokenResponse
-	(*RegenerateScimTokenRequest)(nil),                 // 12: chainguard.platform.iam.v2.RegenerateScimTokenRequest
-	(*RegenerateScimTokenResponse)(nil),                // 13: chainguard.platform.iam.v2.RegenerateScimTokenResponse
-	(*RevokeScimTokenRequest)(nil),                     // 14: chainguard.platform.iam.v2.RevokeScimTokenRequest
-	(*RevokeScimTokenResponse)(nil),                    // 15: chainguard.platform.iam.v2.RevokeScimTokenResponse
-	(*SetScimEnabledRequest)(nil),                      // 16: chainguard.platform.iam.v2.SetScimEnabledRequest
-	(*SetScimEnabledResponse)(nil),                     // 17: chainguard.platform.iam.v2.SetScimEnabledResponse
-	(*ResetCorrelationRuleRequest)(nil),                // 18: chainguard.platform.iam.v2.ResetCorrelationRuleRequest
-	(*ResetCorrelationRuleResponse)(nil),               // 19: chainguard.platform.iam.v2.ResetCorrelationRuleResponse
-	(*IdentityProvider_OIDC)(nil),                      // 20: chainguard.platform.iam.v2.IdentityProvider.OIDC
-	(*IdentityProvider_SCIM)(nil),                      // 21: chainguard.platform.iam.v2.IdentityProvider.SCIM
-	(*timestamppb.Timestamp)(nil),                      // 22: google.protobuf.Timestamp
-	(*v1.UIDPFilter)(nil),                              // 23: chainguard.platform.common.UIDPFilter
-	(*fieldmaskpb.FieldMask)(nil),                      // 24: google.protobuf.FieldMask
-	(*durationpb.Duration)(nil),                        // 25: google.protobuf.Duration
-	(*emptypb.Empty)(nil),                              // 26: google.protobuf.Empty
+	(ManualBindingClass)(0),                            // 0: chainguard.platform.iam.v2.ManualBindingClass
+	(ManualBindingExclusion)(0),                        // 1: chainguard.platform.iam.v2.ManualBindingExclusion
+	(IdentityProvider_OIDC_CorrelationRule)(0),         // 2: chainguard.platform.iam.v2.IdentityProvider.OIDC.CorrelationRule
+	(IdentityProvider_OIDC_TokenEndpointAuthMethod)(0), // 3: chainguard.platform.iam.v2.IdentityProvider.OIDC.TokenEndpointAuthMethod
+	(IdentityProvider_SCIM_CredentialState)(0),         // 4: chainguard.platform.iam.v2.IdentityProvider.SCIM.CredentialState
+	(*IdentityProvider)(nil),                           // 5: chainguard.platform.iam.v2.IdentityProvider
+	(*ListIdentityProvidersRequest)(nil),               // 6: chainguard.platform.iam.v2.ListIdentityProvidersRequest
+	(*ListIdentityProvidersResponse)(nil),              // 7: chainguard.platform.iam.v2.ListIdentityProvidersResponse
+	(*GetIdentityProviderRequest)(nil),                 // 8: chainguard.platform.iam.v2.GetIdentityProviderRequest
+	(*CreateIdentityProviderRequest)(nil),              // 9: chainguard.platform.iam.v2.CreateIdentityProviderRequest
+	(*UpdateIdentityProviderRequest)(nil),              // 10: chainguard.platform.iam.v2.UpdateIdentityProviderRequest
+	(*DeleteIdentityProviderRequest)(nil),              // 11: chainguard.platform.iam.v2.DeleteIdentityProviderRequest
+	(*GenerateScimTokenRequest)(nil),                   // 12: chainguard.platform.iam.v2.GenerateScimTokenRequest
+	(*GenerateScimTokenResponse)(nil),                  // 13: chainguard.platform.iam.v2.GenerateScimTokenResponse
+	(*RegenerateScimTokenRequest)(nil),                 // 14: chainguard.platform.iam.v2.RegenerateScimTokenRequest
+	(*RegenerateScimTokenResponse)(nil),                // 15: chainguard.platform.iam.v2.RegenerateScimTokenResponse
+	(*RevokeScimTokenRequest)(nil),                     // 16: chainguard.platform.iam.v2.RevokeScimTokenRequest
+	(*RevokeScimTokenResponse)(nil),                    // 17: chainguard.platform.iam.v2.RevokeScimTokenResponse
+	(*SetScimEnabledRequest)(nil),                      // 18: chainguard.platform.iam.v2.SetScimEnabledRequest
+	(*SetScimEnabledResponse)(nil),                     // 19: chainguard.platform.iam.v2.SetScimEnabledResponse
+	(*ResetCorrelationRuleRequest)(nil),                // 20: chainguard.platform.iam.v2.ResetCorrelationRuleRequest
+	(*ResetCorrelationRuleResponse)(nil),               // 21: chainguard.platform.iam.v2.ResetCorrelationRuleResponse
+	(*ListManualBindingsRequest)(nil),                  // 22: chainguard.platform.iam.v2.ListManualBindingsRequest
+	(*ListManualBindingsResponse)(nil),                 // 23: chainguard.platform.iam.v2.ListManualBindingsResponse
+	(*ManualBindingPerson)(nil),                        // 24: chainguard.platform.iam.v2.ManualBindingPerson
+	(*ManualBinding)(nil),                              // 25: chainguard.platform.iam.v2.ManualBinding
+	(*ScimBindingSource)(nil),                          // 26: chainguard.platform.iam.v2.ScimBindingSource
+	(*IdentityProvider_OIDC)(nil),                      // 27: chainguard.platform.iam.v2.IdentityProvider.OIDC
+	(*IdentityProvider_SCIM)(nil),                      // 28: chainguard.platform.iam.v2.IdentityProvider.SCIM
+	(*timestamppb.Timestamp)(nil),                      // 29: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),                              // 30: chainguard.platform.common.UIDPFilter
+	(*fieldmaskpb.FieldMask)(nil),                      // 31: google.protobuf.FieldMask
+	(*durationpb.Duration)(nil),                        // 32: google.protobuf.Duration
+	(*emptypb.Empty)(nil),                              // 33: google.protobuf.Empty
 }
 var file_chainguard_platform_iam_v2_identity_providers_proto_depIdxs = []int32{
-	22, // 0: chainguard.platform.iam.v2.IdentityProvider.create_time:type_name -> google.protobuf.Timestamp
-	22, // 1: chainguard.platform.iam.v2.IdentityProvider.update_time:type_name -> google.protobuf.Timestamp
-	20, // 2: chainguard.platform.iam.v2.IdentityProvider.oidc:type_name -> chainguard.platform.iam.v2.IdentityProvider.OIDC
-	21, // 3: chainguard.platform.iam.v2.IdentityProvider.scim:type_name -> chainguard.platform.iam.v2.IdentityProvider.SCIM
-	23, // 4: chainguard.platform.iam.v2.ListIdentityProvidersRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	3,  // 5: chainguard.platform.iam.v2.ListIdentityProvidersResponse.identity_providers:type_name -> chainguard.platform.iam.v2.IdentityProvider
-	3,  // 6: chainguard.platform.iam.v2.CreateIdentityProviderRequest.identity_provider:type_name -> chainguard.platform.iam.v2.IdentityProvider
-	3,  // 7: chainguard.platform.iam.v2.UpdateIdentityProviderRequest.identity_provider:type_name -> chainguard.platform.iam.v2.IdentityProvider
-	24, // 8: chainguard.platform.iam.v2.UpdateIdentityProviderRequest.update_mask:type_name -> google.protobuf.FieldMask
-	22, // 9: chainguard.platform.iam.v2.GenerateScimTokenRequest.expire_time:type_name -> google.protobuf.Timestamp
-	22, // 10: chainguard.platform.iam.v2.GenerateScimTokenResponse.expire_time:type_name -> google.protobuf.Timestamp
-	25, // 11: chainguard.platform.iam.v2.RegenerateScimTokenRequest.overlap:type_name -> google.protobuf.Duration
-	22, // 12: chainguard.platform.iam.v2.RegenerateScimTokenRequest.expire_time:type_name -> google.protobuf.Timestamp
-	22, // 13: chainguard.platform.iam.v2.RegenerateScimTokenResponse.expire_time:type_name -> google.protobuf.Timestamp
-	22, // 14: chainguard.platform.iam.v2.RegenerateScimTokenResponse.previous_token_expire_time:type_name -> google.protobuf.Timestamp
-	25, // 15: chainguard.platform.iam.v2.RegenerateScimTokenResponse.requested_overlap:type_name -> google.protobuf.Duration
-	22, // 16: chainguard.platform.iam.v2.RevokeScimTokenResponse.revoke_time:type_name -> google.protobuf.Timestamp
-	0,  // 17: chainguard.platform.iam.v2.ResetCorrelationRuleRequest.correlation_rule:type_name -> chainguard.platform.iam.v2.IdentityProvider.OIDC.CorrelationRule
-	0,  // 18: chainguard.platform.iam.v2.ResetCorrelationRuleRequest.expected_correlation_rule:type_name -> chainguard.platform.iam.v2.IdentityProvider.OIDC.CorrelationRule
-	3,  // 19: chainguard.platform.iam.v2.ResetCorrelationRuleResponse.identity_provider:type_name -> chainguard.platform.iam.v2.IdentityProvider
-	0,  // 20: chainguard.platform.iam.v2.ResetCorrelationRuleResponse.previous_correlation_rule:type_name -> chainguard.platform.iam.v2.IdentityProvider.OIDC.CorrelationRule
-	0,  // 21: chainguard.platform.iam.v2.IdentityProvider.OIDC.correlation_rule:type_name -> chainguard.platform.iam.v2.IdentityProvider.OIDC.CorrelationRule
-	1,  // 22: chainguard.platform.iam.v2.IdentityProvider.OIDC.token_endpoint_auth_method:type_name -> chainguard.platform.iam.v2.IdentityProvider.OIDC.TokenEndpointAuthMethod
-	22, // 23: chainguard.platform.iam.v2.IdentityProvider.SCIM.token_expire_time:type_name -> google.protobuf.Timestamp
-	22, // 24: chainguard.platform.iam.v2.IdentityProvider.SCIM.previous_token_expire_time:type_name -> google.protobuf.Timestamp
-	2,  // 25: chainguard.platform.iam.v2.IdentityProvider.SCIM.credential_state:type_name -> chainguard.platform.iam.v2.IdentityProvider.SCIM.CredentialState
-	4,  // 26: chainguard.platform.iam.v2.IdentityProvidersService.ListIdentityProviders:input_type -> chainguard.platform.iam.v2.ListIdentityProvidersRequest
-	6,  // 27: chainguard.platform.iam.v2.IdentityProvidersService.GetIdentityProvider:input_type -> chainguard.platform.iam.v2.GetIdentityProviderRequest
-	7,  // 28: chainguard.platform.iam.v2.IdentityProvidersService.CreateIdentityProvider:input_type -> chainguard.platform.iam.v2.CreateIdentityProviderRequest
-	8,  // 29: chainguard.platform.iam.v2.IdentityProvidersService.UpdateIdentityProvider:input_type -> chainguard.platform.iam.v2.UpdateIdentityProviderRequest
-	9,  // 30: chainguard.platform.iam.v2.IdentityProvidersService.DeleteIdentityProvider:input_type -> chainguard.platform.iam.v2.DeleteIdentityProviderRequest
-	10, // 31: chainguard.platform.iam.v2.IdentityProvidersService.GenerateScimToken:input_type -> chainguard.platform.iam.v2.GenerateScimTokenRequest
-	12, // 32: chainguard.platform.iam.v2.IdentityProvidersService.RegenerateScimToken:input_type -> chainguard.platform.iam.v2.RegenerateScimTokenRequest
-	14, // 33: chainguard.platform.iam.v2.IdentityProvidersService.RevokeScimToken:input_type -> chainguard.platform.iam.v2.RevokeScimTokenRequest
-	16, // 34: chainguard.platform.iam.v2.IdentityProvidersService.SetScimEnabled:input_type -> chainguard.platform.iam.v2.SetScimEnabledRequest
-	18, // 35: chainguard.platform.iam.v2.IdentityProvidersService.ResetCorrelationRule:input_type -> chainguard.platform.iam.v2.ResetCorrelationRuleRequest
-	5,  // 36: chainguard.platform.iam.v2.IdentityProvidersService.ListIdentityProviders:output_type -> chainguard.platform.iam.v2.ListIdentityProvidersResponse
-	3,  // 37: chainguard.platform.iam.v2.IdentityProvidersService.GetIdentityProvider:output_type -> chainguard.platform.iam.v2.IdentityProvider
-	3,  // 38: chainguard.platform.iam.v2.IdentityProvidersService.CreateIdentityProvider:output_type -> chainguard.platform.iam.v2.IdentityProvider
-	3,  // 39: chainguard.platform.iam.v2.IdentityProvidersService.UpdateIdentityProvider:output_type -> chainguard.platform.iam.v2.IdentityProvider
-	26, // 40: chainguard.platform.iam.v2.IdentityProvidersService.DeleteIdentityProvider:output_type -> google.protobuf.Empty
-	11, // 41: chainguard.platform.iam.v2.IdentityProvidersService.GenerateScimToken:output_type -> chainguard.platform.iam.v2.GenerateScimTokenResponse
-	13, // 42: chainguard.platform.iam.v2.IdentityProvidersService.RegenerateScimToken:output_type -> chainguard.platform.iam.v2.RegenerateScimTokenResponse
-	15, // 43: chainguard.platform.iam.v2.IdentityProvidersService.RevokeScimToken:output_type -> chainguard.platform.iam.v2.RevokeScimTokenResponse
-	17, // 44: chainguard.platform.iam.v2.IdentityProvidersService.SetScimEnabled:output_type -> chainguard.platform.iam.v2.SetScimEnabledResponse
-	19, // 45: chainguard.platform.iam.v2.IdentityProvidersService.ResetCorrelationRule:output_type -> chainguard.platform.iam.v2.ResetCorrelationRuleResponse
-	36, // [36:46] is the sub-list for method output_type
-	26, // [26:36] is the sub-list for method input_type
-	26, // [26:26] is the sub-list for extension type_name
-	26, // [26:26] is the sub-list for extension extendee
-	0,  // [0:26] is the sub-list for field type_name
+	29, // 0: chainguard.platform.iam.v2.IdentityProvider.create_time:type_name -> google.protobuf.Timestamp
+	29, // 1: chainguard.platform.iam.v2.IdentityProvider.update_time:type_name -> google.protobuf.Timestamp
+	27, // 2: chainguard.platform.iam.v2.IdentityProvider.oidc:type_name -> chainguard.platform.iam.v2.IdentityProvider.OIDC
+	28, // 3: chainguard.platform.iam.v2.IdentityProvider.scim:type_name -> chainguard.platform.iam.v2.IdentityProvider.SCIM
+	30, // 4: chainguard.platform.iam.v2.ListIdentityProvidersRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	5,  // 5: chainguard.platform.iam.v2.ListIdentityProvidersResponse.identity_providers:type_name -> chainguard.platform.iam.v2.IdentityProvider
+	5,  // 6: chainguard.platform.iam.v2.CreateIdentityProviderRequest.identity_provider:type_name -> chainguard.platform.iam.v2.IdentityProvider
+	5,  // 7: chainguard.platform.iam.v2.UpdateIdentityProviderRequest.identity_provider:type_name -> chainguard.platform.iam.v2.IdentityProvider
+	31, // 8: chainguard.platform.iam.v2.UpdateIdentityProviderRequest.update_mask:type_name -> google.protobuf.FieldMask
+	29, // 9: chainguard.platform.iam.v2.GenerateScimTokenRequest.expire_time:type_name -> google.protobuf.Timestamp
+	29, // 10: chainguard.platform.iam.v2.GenerateScimTokenResponse.expire_time:type_name -> google.protobuf.Timestamp
+	32, // 11: chainguard.platform.iam.v2.RegenerateScimTokenRequest.overlap:type_name -> google.protobuf.Duration
+	29, // 12: chainguard.platform.iam.v2.RegenerateScimTokenRequest.expire_time:type_name -> google.protobuf.Timestamp
+	29, // 13: chainguard.platform.iam.v2.RegenerateScimTokenResponse.expire_time:type_name -> google.protobuf.Timestamp
+	29, // 14: chainguard.platform.iam.v2.RegenerateScimTokenResponse.previous_token_expire_time:type_name -> google.protobuf.Timestamp
+	32, // 15: chainguard.platform.iam.v2.RegenerateScimTokenResponse.requested_overlap:type_name -> google.protobuf.Duration
+	29, // 16: chainguard.platform.iam.v2.RevokeScimTokenResponse.revoke_time:type_name -> google.protobuf.Timestamp
+	2,  // 17: chainguard.platform.iam.v2.ResetCorrelationRuleRequest.correlation_rule:type_name -> chainguard.platform.iam.v2.IdentityProvider.OIDC.CorrelationRule
+	2,  // 18: chainguard.platform.iam.v2.ResetCorrelationRuleRequest.expected_correlation_rule:type_name -> chainguard.platform.iam.v2.IdentityProvider.OIDC.CorrelationRule
+	5,  // 19: chainguard.platform.iam.v2.ResetCorrelationRuleResponse.identity_provider:type_name -> chainguard.platform.iam.v2.IdentityProvider
+	2,  // 20: chainguard.platform.iam.v2.ResetCorrelationRuleResponse.previous_correlation_rule:type_name -> chainguard.platform.iam.v2.IdentityProvider.OIDC.CorrelationRule
+	0,  // 21: chainguard.platform.iam.v2.ListManualBindingsRequest.classes:type_name -> chainguard.platform.iam.v2.ManualBindingClass
+	1,  // 22: chainguard.platform.iam.v2.ListManualBindingsRequest.exclusions:type_name -> chainguard.platform.iam.v2.ManualBindingExclusion
+	24, // 23: chainguard.platform.iam.v2.ListManualBindingsResponse.people:type_name -> chainguard.platform.iam.v2.ManualBindingPerson
+	25, // 24: chainguard.platform.iam.v2.ManualBindingPerson.bindings:type_name -> chainguard.platform.iam.v2.ManualBinding
+	0,  // 25: chainguard.platform.iam.v2.ManualBinding.binding_class:type_name -> chainguard.platform.iam.v2.ManualBindingClass
+	1,  // 26: chainguard.platform.iam.v2.ManualBinding.exclusion:type_name -> chainguard.platform.iam.v2.ManualBindingExclusion
+	26, // 27: chainguard.platform.iam.v2.ManualBinding.superseding_sources:type_name -> chainguard.platform.iam.v2.ScimBindingSource
+	2,  // 28: chainguard.platform.iam.v2.IdentityProvider.OIDC.correlation_rule:type_name -> chainguard.platform.iam.v2.IdentityProvider.OIDC.CorrelationRule
+	3,  // 29: chainguard.platform.iam.v2.IdentityProvider.OIDC.token_endpoint_auth_method:type_name -> chainguard.platform.iam.v2.IdentityProvider.OIDC.TokenEndpointAuthMethod
+	29, // 30: chainguard.platform.iam.v2.IdentityProvider.SCIM.token_expire_time:type_name -> google.protobuf.Timestamp
+	29, // 31: chainguard.platform.iam.v2.IdentityProvider.SCIM.previous_token_expire_time:type_name -> google.protobuf.Timestamp
+	4,  // 32: chainguard.platform.iam.v2.IdentityProvider.SCIM.credential_state:type_name -> chainguard.platform.iam.v2.IdentityProvider.SCIM.CredentialState
+	6,  // 33: chainguard.platform.iam.v2.IdentityProvidersService.ListIdentityProviders:input_type -> chainguard.platform.iam.v2.ListIdentityProvidersRequest
+	8,  // 34: chainguard.platform.iam.v2.IdentityProvidersService.GetIdentityProvider:input_type -> chainguard.platform.iam.v2.GetIdentityProviderRequest
+	9,  // 35: chainguard.platform.iam.v2.IdentityProvidersService.CreateIdentityProvider:input_type -> chainguard.platform.iam.v2.CreateIdentityProviderRequest
+	10, // 36: chainguard.platform.iam.v2.IdentityProvidersService.UpdateIdentityProvider:input_type -> chainguard.platform.iam.v2.UpdateIdentityProviderRequest
+	11, // 37: chainguard.platform.iam.v2.IdentityProvidersService.DeleteIdentityProvider:input_type -> chainguard.platform.iam.v2.DeleteIdentityProviderRequest
+	12, // 38: chainguard.platform.iam.v2.IdentityProvidersService.GenerateScimToken:input_type -> chainguard.platform.iam.v2.GenerateScimTokenRequest
+	14, // 39: chainguard.platform.iam.v2.IdentityProvidersService.RegenerateScimToken:input_type -> chainguard.platform.iam.v2.RegenerateScimTokenRequest
+	16, // 40: chainguard.platform.iam.v2.IdentityProvidersService.RevokeScimToken:input_type -> chainguard.platform.iam.v2.RevokeScimTokenRequest
+	18, // 41: chainguard.platform.iam.v2.IdentityProvidersService.SetScimEnabled:input_type -> chainguard.platform.iam.v2.SetScimEnabledRequest
+	20, // 42: chainguard.platform.iam.v2.IdentityProvidersService.ResetCorrelationRule:input_type -> chainguard.platform.iam.v2.ResetCorrelationRuleRequest
+	22, // 43: chainguard.platform.iam.v2.IdentityProvidersService.ListManualBindings:input_type -> chainguard.platform.iam.v2.ListManualBindingsRequest
+	7,  // 44: chainguard.platform.iam.v2.IdentityProvidersService.ListIdentityProviders:output_type -> chainguard.platform.iam.v2.ListIdentityProvidersResponse
+	5,  // 45: chainguard.platform.iam.v2.IdentityProvidersService.GetIdentityProvider:output_type -> chainguard.platform.iam.v2.IdentityProvider
+	5,  // 46: chainguard.platform.iam.v2.IdentityProvidersService.CreateIdentityProvider:output_type -> chainguard.platform.iam.v2.IdentityProvider
+	5,  // 47: chainguard.platform.iam.v2.IdentityProvidersService.UpdateIdentityProvider:output_type -> chainguard.platform.iam.v2.IdentityProvider
+	33, // 48: chainguard.platform.iam.v2.IdentityProvidersService.DeleteIdentityProvider:output_type -> google.protobuf.Empty
+	13, // 49: chainguard.platform.iam.v2.IdentityProvidersService.GenerateScimToken:output_type -> chainguard.platform.iam.v2.GenerateScimTokenResponse
+	15, // 50: chainguard.platform.iam.v2.IdentityProvidersService.RegenerateScimToken:output_type -> chainguard.platform.iam.v2.RegenerateScimTokenResponse
+	17, // 51: chainguard.platform.iam.v2.IdentityProvidersService.RevokeScimToken:output_type -> chainguard.platform.iam.v2.RevokeScimTokenResponse
+	19, // 52: chainguard.platform.iam.v2.IdentityProvidersService.SetScimEnabled:output_type -> chainguard.platform.iam.v2.SetScimEnabledResponse
+	21, // 53: chainguard.platform.iam.v2.IdentityProvidersService.ResetCorrelationRule:output_type -> chainguard.platform.iam.v2.ResetCorrelationRuleResponse
+	23, // 54: chainguard.platform.iam.v2.IdentityProvidersService.ListManualBindings:output_type -> chainguard.platform.iam.v2.ListManualBindingsResponse
+	44, // [44:55] is the sub-list for method output_type
+	33, // [33:44] is the sub-list for method input_type
+	33, // [33:33] is the sub-list for extension type_name
+	33, // [33:33] is the sub-list for extension extendee
+	0,  // [0:33] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_iam_v2_identity_providers_proto_init() }
@@ -2084,13 +2805,14 @@ func file_chainguard_platform_iam_v2_identity_providers_proto_init() {
 		(*IdentityProvider_Oidc)(nil),
 	}
 	file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes[2].OneofWrappers = []any{}
+	file_chainguard_platform_iam_v2_identity_providers_proto_msgTypes[18].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_iam_v2_identity_providers_proto_rawDesc), len(file_chainguard_platform_iam_v2_identity_providers_proto_rawDesc)),
-			NumEnums:      3,
-			NumMessages:   19,
+			NumEnums:      5,
+			NumMessages:   24,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

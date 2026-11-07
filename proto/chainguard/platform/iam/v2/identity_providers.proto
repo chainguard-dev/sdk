@@ -318,6 +318,70 @@ service IdentityProvidersService {
     };
     option (chainguard.annotations.mcp) = {hidden: true};
   }
+
+  // ListManualBindings reports, for an organization that provisions its people
+  // with SCIM, the role bindings assigned directly (not managed by SCIM) that
+  // SCIM now supersedes. It lists each SCIM-provisioned person who has signed
+  // in, with their directly assigned role bindings, and classifies each
+  // binding:
+  //
+  //   - DUPLICATE: a SCIM-managed binding already grants the same role at the
+  //     same scope. Removing the binding changes nothing.
+  //   - COVERED: SCIM-managed bindings at the same scope or a parent scope
+  //     already include every capability of the role. Removing the binding
+  //     changes nothing in practice.
+  //   - NOT_COVERED: anything else. Removing the binding takes access away.
+  //
+  // A SCIM-managed binding counts only while a current group membership and
+  // mapping grant it, for an active user, and not for a privileged role. One
+  // that nothing grants any more is waiting to be revoked, and is not counted.
+  // A legacy or dangling row the reconciler refuses for another reason (a role
+  // scoped below the group, a role or scope group that no longer exists) is
+  // not filtered out, so the list is advisory: a removal must re-check before
+  // it deletes.
+  //
+  // Bindings that are never classified, and so are never removed, are reported
+  // only when include_excluded is set or exclusions names a reason: the owner
+  // and support roles, and the
+  // bindings of people whose SCIM link was made under a correlation rule that
+  // has since been replaced. The list covers the people the identity provider
+  // provisions: an identity with no provisioned user is not listed, and its
+  // bindings are never removed. Only bindings in groups under the identity
+  // provider's organization are listed. Reads only; nothing is changed.
+  // protolint:disable:next MAX_LINE_LENGTH
+  rpc ListManualBindings(ListManualBindingsRequest) returns (ListManualBindingsResponse) {
+    option (google.api.http) = {
+      // protolint:disable:next MAX_LINE_LENGTH
+      get: "/iam/v2/identityProviders/{identity_provider_uid=**}:listManualBindings"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_IAM_ROLE_BINDINGS_LIST,
+          // The listing reveals which people SCIM provisions, so it also
+          // requires the capability to list provisioned users.
+          CAP_IAM_SCIM_USERS_LIST
+        ]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description:
+        "List the directly assigned role bindings that SCIM "
+        "provisioning now supersedes for an identity provider, classified "
+        "as duplicate, covered or not covered."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+      // Withheld from the MCP tool surface, as the SCIM user and group lists
+      // are. The response names each provisioned person, with their email,
+      // role assignments and the SCIM groups that grant them: a customer's
+      // employee directory, which is not something to place on an AI-agent
+      // surface by default. Unaffected: the gRPC and REST APIs, chainctl and
+      // the console; only MCP tool generation skips it.
+      hidden: true
+    };
+  }
 }
 
 // IdentityProvider represents the configuration parameters necessary for performing
@@ -857,4 +921,212 @@ message ResetCorrelationRuleResponse {
   // unlinked. False means the unlink stopped short; repeat the request with
   // both rules set to the current rule to finish it.
   bool unlink_complete = 6;
+}
+
+// ListManualBindingsRequest is the request message for ListManualBindings.
+// (-- api-linter: core::0132::request-parent-required=disabled
+//     aip.dev/not-precedent: The list is a view of one identity provider's
+//     provisioned people, addressed by identity_provider_uid like the other
+//     identity provider methods, so it has no parent field. --)
+// (-- api-linter: core::0132::request-required-fields=disabled
+//     aip.dev/not-precedent: identity_provider_uid addresses the identity
+//     provider whose people are listed. --)
+message ListManualBindingsRequest {
+  // UID of the identity provider whose SCIM-provisioned people are listed.
+  string identity_provider_uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // Return classified bindings of these classes. Empty returns every class,
+  // unless exclusions is set: then only excluded bindings are returned, and
+  // naming classes as well returns both.
+  // protolint:disable:next MAX_LINE_LENGTH
+  repeated ManualBindingClass classes = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Also return every excluded binding, whatever its reason, unless exclusions
+  // narrows them. With no classes or exclusions set, the result holds every
+  // class plus every excluded binding.
+  bool include_excluded = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Return excluded bindings with these reasons. Setting it implies
+  // include_excluded, and on its own returns only excluded bindings. Set with
+  // classes, it returns both.
+  // protolint:disable:next MAX_LINE_LENGTH
+  repeated ManualBindingExclusion exclusions = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Maximum number of people to return per page.
+  // Default: 50, Maximum: 200.
+  int32 page_size = 10 [(google.api.field_behavior) = OPTIONAL];
+
+  // Page token from a previous List response for pagination.
+  // Opaque token with 3-day expiration.
+  string page_token = 11 [(google.api.field_behavior) = OPTIONAL];
+
+  // Order results by a provisioned user's field: uid (the provisioned user's
+  // UID, which the response does not show), user_name, created_at or
+  // updated_at. Format: "field [asc|desc]"
+  // Default: "uid asc"
+  // Note: Changing order_by between pages invalidates the page token.
+  string order_by = 12 [(google.api.field_behavior) = OPTIONAL];
+
+  // Number of people to skip before returning, counted among the provisioned
+  // people who hold at least one directly assigned binding in the identity
+  // provider's organization, before the class and exclusion filters apply.
+  // Resumes from an offset among those people. It does not map to result pages
+  // when the filters leave people out.
+  // Cannot be combined with page_token: a request with both is rejected.
+  // Must be non-negative.
+  int32 skip = 13 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListManualBindingsResponse is the response message for ListManualBindings.
+message ListManualBindingsResponse {
+  // People with at least one matching directly assigned role binding.
+  repeated ManualBindingPerson people = 1;
+
+  // Token for retrieving the next page of results.
+  // Empty if no more results.
+  string next_page_token = 2;
+
+  // Total number of people matching the filter.
+  // Optional, provided for UI pagination.
+  optional int64 total_count = 3;
+
+  // Number of provisioned people passed over before this page, including any
+  // the filters left out. Accumulates across paginated requests.
+  int32 skipped = 4;
+}
+
+// ManualBindingPerson is a SCIM-provisioned person and their directly assigned
+// role bindings.
+// (-- api-linter: core::0123::resource-annotation=disabled
+//     aip.dev/not-precedent: ManualBindingPerson is a view of an identity
+//     and its bindings returned by ListManualBindings, not a standalone
+//     resource. --)
+message ManualBindingPerson {
+  // UID of the person's Chainguard identity.
+  string uid = 1;
+
+  // Display name of the identity, or the provisioned user's display name when
+  // the identity has none.
+  string name = 2;
+
+  // The person's directly assigned role bindings.
+  repeated ManualBinding bindings = 3;
+
+  // The person's SCIM userName.
+  // (-- api-linter: core::0122::name-suffix=disabled
+  //     aip.dev/not-precedent: user_name is the standard SCIM attribute
+  //     name (RFC 7643). --)
+  string user_name = 4;
+
+  // The person's primary email from their provisioned user, else the first
+  // one it lists, else empty.
+  string email = 5;
+}
+
+// ManualBinding is one directly assigned role binding and how SCIM relates to
+// it.
+message ManualBinding {
+  // UID of the role binding.
+  string uid = 1;
+
+  // UID of the role the binding grants.
+  string role_uid = 2;
+
+  // Name of the role the binding grants.
+  // (-- api-linter: core::0122::name-suffix=disabled
+  //     aip.dev/not-precedent: role_name is the display name of the role
+  //     named by role_uid, as in the role bindings listing. --)
+  string role_name = 3;
+
+  // UID of the group where the binding applies.
+  string group_uid = 4;
+
+  // Name of the group where the binding applies.
+  // (-- api-linter: core::0122::name-suffix=disabled
+  //     aip.dev/not-precedent: group_name is the display name of the group
+  //     named by group_uid, as in the role bindings listing. --)
+  string group_name = 5;
+
+  // The binding's class. Unspecified when the binding is excluded.
+  ManualBindingClass binding_class = 6;
+
+  // Why the binding is never classified. Unspecified when the binding has a
+  // class.
+  ManualBindingExclusion exclusion = 7;
+
+  // One entry for each SCIM group that grants a SCIM-managed binding
+  // superseding this one, so a binding granted by several groups appears once
+  // per group. Empty for NOT_COVERED and excluded bindings.
+  repeated ScimBindingSource superseding_sources = 8;
+}
+
+// ScimBindingSource is a SCIM-managed role binding, and the SCIM group that
+// grants it, that supersedes a directly assigned one. Only a binding that a
+// current membership and mapping grant supersedes anything.
+message ScimBindingSource {
+  // UID of the SCIM-managed role binding.
+  string role_binding_uid = 1;
+
+  // UID of the role it grants.
+  string role_uid = 2;
+
+  // Name of the role it grants.
+  // (-- api-linter: core::0122::name-suffix=disabled
+  //     aip.dev/not-precedent: role_name is the display name of the role
+  //     named by role_uid, as in the role bindings listing. --)
+  string role_name = 3;
+
+  // UID of the group where it applies, the same scope as the directly assigned
+  // binding or a parent of it.
+  string group_uid = 4;
+
+  // UID of the SCIM group whose mapping grants it.
+  string scim_group_uid = 5;
+
+  // Display name of the SCIM group whose mapping grants it.
+  // (-- api-linter: core::0122::name-suffix=disabled
+  //     aip.dev/not-precedent: scim_group_name is the display name of the
+  //     SCIM group named by scim_group_uid. --)
+  string scim_group_name = 6;
+}
+
+// ManualBindingClass says how SCIM relates to a role binding that was assigned
+// directly.
+enum ManualBindingClass {
+  // The class is unset. It is not a valid value in a request, which names the
+  // classes it wants or leaves them empty for every class.
+  MANUAL_BINDING_CLASS_UNSPECIFIED = 0;
+
+  // A SCIM-managed binding already grants the same role at the same scope.
+  // Removing the binding changes nothing.
+  MANUAL_BINDING_CLASS_DUPLICATE = 1;
+
+  // SCIM-managed bindings at the same scope or a parent scope already include
+  // every capability of the role. Removing the binding changes nothing in
+  // practice.
+  MANUAL_BINDING_CLASS_COVERED = 2;
+
+  // Neither of the above. Removing the binding takes access away.
+  MANUAL_BINDING_CLASS_NOT_COVERED = 3;
+}
+
+// ManualBindingExclusion says why a directly assigned role binding is never
+// classified, and so is never removed.
+enum ManualBindingExclusion {
+  // The binding is not excluded. It is not a valid value in a request, which
+  // names the reasons it wants.
+  MANUAL_BINDING_EXCLUSION_UNSPECIFIED = 0;
+
+  // The role is the built-in owner or support role. A person whose link was
+  // made under a replaced correlation rule has every binding reported as
+  // NO_CURRENT_SCIM_LINK instead, owner and support included.
+  MANUAL_BINDING_EXCLUSION_PRIVILEGED_ROLE = 1;
+
+  // The person's SCIM link was made under a correlation rule that has since
+  // been replaced, so it grants nothing. People with no provisioned user, or
+  // who have not signed in, are not listed at all.
+  MANUAL_BINDING_EXCLUSION_NO_CURRENT_SCIM_LINK = 2;
 }
