@@ -1,0 +1,147 @@
+syntax = "proto3";
+
+package chainguard.platform.libraries;
+
+import "annotations/auth.proto";
+import "entitlements.libraries.platform.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "chainguard.dev/sdk/proto/platform/libraries/v1";
+
+// RemoteRegistries manages a named repository's upstream list for one
+// ecosystem: the canonical upstream registries Chainguard seeded when the
+// repository was created, in the order they are tried. Each entry can be
+// turned on or off and the entries reordered; none can be added, removed or
+// pointed at another URL. The default repository has no list: its upstream
+// fallback follows the organization's entitlement alone.
+service RemoteRegistries {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    description: "Libraries Remote Registries API"
+    name: "LibrariesRemoteRegistries" // Override the tag name
+  };
+
+  // List returns the repository's entries for the ecosystem in the order they
+  // are tried, and the two parts of its effective upstream fallback.
+  rpc List(RemoteRegistryFilter) returns (RemoteRegistryList) {
+    option (google.api.http) = {
+      get: "/libraries/v1/remote_registries/{parent_id}/{repository}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "LibrariesRemoteRegistries"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPOSITORIES_LIST]
+      }
+    };
+  }
+
+  // Update turns one entry on or off. Turning every entry of an ecosystem off
+  // turns upstream fallback off for that repository and ecosystem.
+  rpc Update(UpdateRemoteRegistryRequest) returns (RemoteRegistry) {
+    option (google.api.http) = {
+      patch: "/libraries/v1/remote_registries/{parent_id}/{repository}/{name}"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "LibrariesRemoteRegistries"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPOSITORIES_UPDATE]
+      }
+    };
+  }
+
+  // Reorder sets the order the repository's entries for the ecosystem are
+  // tried in. It takes every entry's name exactly once.
+  rpc Reorder(ReorderRemoteRegistriesRequest) returns (RemoteRegistryList) {
+    option (google.api.http) = {
+      post: "/libraries/v1/remote_registries/{parent_id}/{repository}:reorder"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "LibrariesRemoteRegistries"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPOSITORIES_UPDATE]
+      }
+    };
+  }
+}
+
+// RemoteRegistry is one entry in a repository's upstream list.
+message RemoteRegistry {
+  // name is the canonical name of the upstream registry, for example npmjs.
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // ecosystem is the language ecosystem the entry serves.
+  Ecosystem ecosystem = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // base_url is the upstream registry's URL. It is fixed by Chainguard.
+  string base_url = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // enabled reports whether the entry is tried.
+  bool enabled = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // precedence is the entry's place in the order entries are tried; lower is
+  // tried first.
+  int32 precedence = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// RemoteRegistryList is a repository's upstream list for one ecosystem.
+// Upstream fallback is on only when both entitled_to_upstream and
+// any_enabled are true.
+message RemoteRegistryList {
+  // items are the entries in the order they are tried.
+  repeated RemoteRegistry items = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+  // entitled_to_upstream reports whether the organization's Libraries
+  // entitlement includes upstream packages for the ecosystem.
+  bool entitled_to_upstream = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // any_enabled reports whether at least one entry is enabled.
+  bool any_enabled = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message RemoteRegistryFilter {
+  // parent_id is the UIDP of the organization.
+  string parent_id = 1 [
+    (chainguard.annotations.iam_scope) = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+  // repository is the name of a named repository of the organization.
+  string repository = 2 [(google.api.field_behavior) = REQUIRED];
+  // ecosystem is the language ecosystem whose entries to list.
+  Ecosystem ecosystem = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+message UpdateRemoteRegistryRequest {
+  // parent_id is the UIDP of the organization.
+  string parent_id = 1 [
+    (chainguard.annotations.iam_scope) = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+  // repository is the name of a named repository of the organization.
+  string repository = 2 [(google.api.field_behavior) = REQUIRED];
+  // ecosystem is the language ecosystem of the entry.
+  Ecosystem ecosystem = 3 [(google.api.field_behavior) = REQUIRED];
+  // name is the canonical name of the entry.
+  string name = 4 [(google.api.field_behavior) = REQUIRED];
+  // enabled turns the entry on or off. It is the only part of an entry that
+  // can change.
+  optional bool enabled = 5 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ReorderRemoteRegistriesRequest {
+  // parent_id is the UIDP of the organization.
+  string parent_id = 1 [
+    (chainguard.annotations.iam_scope) = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+  // repository is the name of a named repository of the organization.
+  string repository = 2 [(google.api.field_behavior) = REQUIRED];
+  // ecosystem is the language ecosystem whose entries to reorder.
+  Ecosystem ecosystem = 3 [(google.api.field_behavior) = REQUIRED];
+  // names lists every entry's name once, first to last.
+  repeated string names = 4 [(google.api.field_behavior) = REQUIRED];
+}
