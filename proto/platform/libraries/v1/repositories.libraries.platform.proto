@@ -149,10 +149,6 @@ message RepositoryURL {
   Ecosystem ecosystem = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
   // url is the base URL to configure in the ecosystem's client.
   string url = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // serving is true while the ecosystem's repository routes serve in this
-  // environment, so a client can reach url. It follows the environment's
-  // repository route switches. The default repository's URLs always serve.
-  bool serving = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message RepositoryList {
