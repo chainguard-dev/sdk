@@ -209,7 +209,11 @@ type RepositoryURL struct {
 	// ecosystem is the language ecosystem served at url.
 	Ecosystem Ecosystem `protobuf:"varint,1,opt,name=ecosystem,proto3,enum=chainguard.platform.libraries.Ecosystem" json:"ecosystem,omitempty"`
 	// url is the base URL to configure in the ecosystem's client.
-	Url           string `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
+	Url string `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
+	// serving is true while the ecosystem's repository routes serve in this
+	// environment, so a client can reach url. It follows the environment's
+	// repository route switches. The default repository's URLs always serve.
+	Serving       bool `protobuf:"varint,3,opt,name=serving,proto3" json:"serving,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -256,6 +260,13 @@ func (x *RepositoryURL) GetUrl() string {
 		return x.Url
 	}
 	return ""
+}
+
+func (x *RepositoryURL) GetServing() bool {
+	if x != nil {
+		return x.Serving
+	}
+	return false
 }
 
 type RepositoryList struct {
@@ -538,10 +549,11 @@ const file_repositories_libraries_platform_proto_rawDesc = "" +
 	"\vcreate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
 	"createTime\x12A\n" +
 	"\vupdate_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
-	"updateTime\"u\n" +
+	"updateTime\"\x95\x01\n" +
 	"\rRepositoryURL\x12L\n" +
 	"\tecosystem\x18\x01 \x01(\x0e2(.chainguard.platform.libraries.EcosystemB\x04\xe2A\x01\x03R\tecosystem\x12\x16\n" +
-	"\x03url\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x03url\"Q\n" +
+	"\x03url\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x03url\x12\x1e\n" +
+	"\aserving\x18\x03 \x01(\bB\x04\xe2A\x01\x03R\aserving\"Q\n" +
 	"\x0eRepositoryList\x12?\n" +
 	"\x05items\x18\x01 \x03(\v2).chainguard.platform.libraries.RepositoryR\x05items\"\\\n" +
 	"\x17CreateRepositoryRequest\x12'\n" +
