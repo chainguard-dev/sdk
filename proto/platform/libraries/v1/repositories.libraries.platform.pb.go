@@ -40,6 +40,10 @@ const (
 	RepositoryState_REPOSITORY_STATE_READY RepositoryState = 3
 	// DELETING: the repository and its folder are being removed.
 	RepositoryState_REPOSITORY_STATE_DELETING RepositoryState = 4
+	// FOLDER_MISSING: the repository's folder was deleted outside this API. The
+	// API returns no URLs for it, it may still serve until Delete removes it,
+	// and it holds its plan slot until then.
+	RepositoryState_REPOSITORY_STATE_FOLDER_MISSING RepositoryState = 5
 )
 
 // Enum value maps for RepositoryState.
@@ -50,13 +54,15 @@ var (
 		2: "REPOSITORY_STATE_PROVISIONING",
 		3: "REPOSITORY_STATE_READY",
 		4: "REPOSITORY_STATE_DELETING",
+		5: "REPOSITORY_STATE_FOLDER_MISSING",
 	}
 	RepositoryState_value = map[string]int32{
-		"REPOSITORY_STATE_UNSPECIFIED":  0,
-		"REPOSITORY_STATE_CREATING":     1,
-		"REPOSITORY_STATE_PROVISIONING": 2,
-		"REPOSITORY_STATE_READY":        3,
-		"REPOSITORY_STATE_DELETING":     4,
+		"REPOSITORY_STATE_UNSPECIFIED":    0,
+		"REPOSITORY_STATE_CREATING":       1,
+		"REPOSITORY_STATE_PROVISIONING":   2,
+		"REPOSITORY_STATE_READY":          3,
+		"REPOSITORY_STATE_DELETING":       4,
+		"REPOSITORY_STATE_FOLDER_MISSING": 5,
 	}
 )
 
@@ -98,11 +104,12 @@ type Repository struct {
 	// name is the repository name. It never changes. The default repository is
 	// named "default".
 	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	// state is where the repository is in its lifecycle. Only a READY
-	// repository serves.
+	// state is where the repository is in its lifecycle. A READY repository
+	// serves. A FOLDER_MISSING repository may still serve until Delete removes
+	// it; the API returns no URLs for it.
 	State RepositoryState `protobuf:"varint,4,opt,name=state,proto3,enum=chainguard.platform.libraries.RepositoryState" json:"state,omitempty"`
 	// urls are the repository's URLs, one per ecosystem the org is entitled
-	// to.
+	// to. The list is empty for a FOLDER_MISSING repository.
 	Urls []*RepositoryURL `protobuf:"bytes,5,rep,name=urls,proto3" json:"urls,omitempty"`
 	// is_default reports whether this is the org's default repository.
 	IsDefault bool `protobuf:"varint,6,opt,name=is_default,json=isDefault,proto3" json:"is_default,omitempty"`
@@ -571,13 +578,14 @@ const file_repositories_libraries_platform_proto_rawDesc = "" +
 	"\tparent_id\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12\x18\n" +
 	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x04name\x12\x14\n" +
-	"\x05force\x18\x03 \x01(\bR\x05force*\xb0\x01\n" +
+	"\x05force\x18\x03 \x01(\bR\x05force*\xd5\x01\n" +
 	"\x0fRepositoryState\x12 \n" +
 	"\x1cREPOSITORY_STATE_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19REPOSITORY_STATE_CREATING\x10\x01\x12!\n" +
 	"\x1dREPOSITORY_STATE_PROVISIONING\x10\x02\x12\x1a\n" +
 	"\x16REPOSITORY_STATE_READY\x10\x03\x12\x1d\n" +
-	"\x19REPOSITORY_STATE_DELETING\x10\x042\xc9\x06\n" +
+	"\x19REPOSITORY_STATE_DELETING\x10\x04\x12#\n" +
+	"\x1fREPOSITORY_STATE_FOLDER_MISSING\x10\x052\xc9\x06\n" +
 	"\fRepositories\x12\xc4\x01\n" +
 	"\x06Create\x126.chainguard.platform.libraries.CreateRepositoryRequest\x1a).chainguard.platform.libraries.Repository\"W\x92A\x17\n" +
 	"\x15LibrariesRepositories\x82\xd3\xe4\x93\x02+:\x01*\"&/libraries/v1/repositories/{parent_id}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +

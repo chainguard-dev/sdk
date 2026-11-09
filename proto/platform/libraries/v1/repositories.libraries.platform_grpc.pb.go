@@ -42,7 +42,8 @@ type RepositoriesClient interface {
 	// serve (JavaScript, Java, Python, Go or .NET), when the org's plan has no
 	// room for another repository, and when a folder with the name already
 	// exists under the org and backs no repository. Creating a repository that
-	// already exists returns it.
+	// already exists returns it, unless its folder is missing, when Create
+	// refuses with FailedPrecondition FOLDER_MISSING.
 	Create(ctx context.Context, in *CreateRepositoryRequest, opts ...grpc.CallOption) (*Repository, error)
 	// Get returns one repository by name. The name "default" returns the
 	// default repository.
@@ -123,7 +124,8 @@ type RepositoriesServer interface {
 	// serve (JavaScript, Java, Python, Go or .NET), when the org's plan has no
 	// room for another repository, and when a folder with the name already
 	// exists under the org and backs no repository. Creating a repository that
-	// already exists returns it.
+	// already exists returns it, unless its folder is missing, when Create
+	// refuses with FailedPrecondition FOLDER_MISSING.
 	Create(context.Context, *CreateRepositoryRequest) (*Repository, error)
 	// Get returns one repository by name. The name "default" returns the
 	// default repository.

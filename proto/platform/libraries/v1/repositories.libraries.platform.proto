@@ -29,7 +29,8 @@ service Repositories {
   // serve (JavaScript, Java, Python, Go or .NET), when the org's plan has no
   // room for another repository, and when a folder with the name already
   // exists under the org and backs no repository. Creating a repository that
-  // already exists returns it.
+  // already exists returns it, unless its folder is missing, when Create
+  // refuses with FailedPrecondition FOLDER_MISSING.
   rpc Create(CreateRepositoryRequest) returns (Repository) {
     option (google.api.http) = {
       post: "/libraries/v1/repositories/{parent_id}"
@@ -108,11 +109,12 @@ message Repository {
   // name is the repository name. It never changes. The default repository is
   // named "default".
   string name = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // state is where the repository is in its lifecycle. Only a READY
-  // repository serves.
+  // state is where the repository is in its lifecycle. A READY repository
+  // serves. A FOLDER_MISSING repository may still serve until Delete removes
+  // it; the API returns no URLs for it.
   RepositoryState state = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
   // urls are the repository's URLs, one per ecosystem the org is entitled
-  // to.
+  // to. The list is empty for a FOLDER_MISSING repository.
   repeated RepositoryURL urls = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
   // is_default reports whether this is the org's default repository.
   bool is_default = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -140,6 +142,10 @@ enum RepositoryState {
   REPOSITORY_STATE_READY = 3;
   // DELETING: the repository and its folder are being removed.
   REPOSITORY_STATE_DELETING = 4;
+  // FOLDER_MISSING: the repository's folder was deleted outside this API. The
+  // API returns no URLs for it, it may still serve until Delete removes it,
+  // and it holds its plan slot until then.
+  REPOSITORY_STATE_FOLDER_MISSING = 5;
 }
 
 // RepositoryURL is the URL a client uses to pull one ecosystem's packages
