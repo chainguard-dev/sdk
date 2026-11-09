@@ -735,7 +735,11 @@ type ResolutionCacheEntry struct {
 	ObservedAt *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=observed_at,json=observedAt,proto3" json:"observed_at,omitempty"`
 	// live reports whether the entry is at the current generation (governing
 	// serving) or retired by a zap.
-	Live          bool `protobuf:"varint,9,opt,name=live,proto3" json:"live,omitempty"`
+	Live bool `protobuf:"varint,9,opt,name=live,proto3" json:"live,omitempty"`
+	// repository is the folder UIDP of the repository the entry was recorded
+	// through, and governs serving there only. Empty is the default repository,
+	// the ecosystem's legacy URL.
+	Repository    string `protobuf:"bytes,10,opt,name=repository,proto3" json:"repository,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -831,6 +835,13 @@ func (x *ResolutionCacheEntry) GetLive() bool {
 		return x.Live
 	}
 	return false
+}
+
+func (x *ResolutionCacheEntry) GetRepository() string {
+	if x != nil {
+		return x.Repository
+	}
+	return ""
 }
 
 type ResolutionCacheEntryList struct {
@@ -952,7 +963,7 @@ const file_resolution_cache_libraries_platform_proto_rawDesc = "" +
 	"\x04tier\x18\x06 \x01(\x0e2#.chainguard.platform.libraries.TierR\x04tier\x12\x1b\n" +
 	"\tlive_only\x18\a \x01(\bR\bliveOnly\x12\x1b\n" +
 	"\tpage_size\x18\b \x01(\x05R\bpageSize\x12\x16\n" +
-	"\x06cursor\x18\t \x01(\tR\x06cursor\"\xe9\x02\n" +
+	"\x06cursor\x18\t \x01(\tR\x06cursor\"\x89\x03\n" +
 	"\x14ResolutionCacheEntry\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12F\n" +
 	"\tecosystem\x18\x02 \x01(\x0e2(.chainguard.platform.libraries.EcosystemR\tecosystem\x12\x1a\n" +
@@ -963,7 +974,11 @@ const file_resolution_cache_libraries_platform_proto_rawDesc = "" +
 	"\x06digest\x18\a \x01(\tR\x06digest\x12;\n" +
 	"\vobserved_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"observedAt\x12\x12\n" +
-	"\x04live\x18\t \x01(\bR\x04live\"\xa7\x01\n" +
+	"\x04live\x18\t \x01(\bR\x04live\x12\x1e\n" +
+	"\n" +
+	"repository\x18\n" +
+	" \x01(\tR\n" +
+	"repository\"\xa7\x01\n" +
 	"\x18ResolutionCacheEntryList\x12I\n" +
 	"\x05items\x18\x01 \x03(\v23.chainguard.platform.libraries.ResolutionCacheEntryR\x05items\x12\x1f\n" +
 	"\vtotal_count\x18\x02 \x01(\x03R\n" +

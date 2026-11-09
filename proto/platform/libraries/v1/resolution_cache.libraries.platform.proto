@@ -247,6 +247,10 @@ message ResolutionCacheEntry {
   // live reports whether the entry is at the current generation (governing
   // serving) or retired by a zap.
   bool live = 9;
+  // repository is the folder UIDP of the repository the entry was recorded
+  // through, and governs serving there only. Empty is the default repository,
+  // the ecosystem's legacy URL.
+  string repository = 10;
 }
 
 message ResolutionCacheEntryList {
