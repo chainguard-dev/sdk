@@ -124,6 +124,7 @@ enum ServicePrincipal {
   MICROVM        = 12;
   SKILLS         = 13;
   SANDBOX        = 14;
+  CGRUSER        = 15;
 }
 
 message Identity {

@@ -7,6 +7,8 @@ package v1_test
 
 import (
 	"context"
+	"encoding/json"
+	"math"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -58,6 +60,60 @@ func TestEntitlementImagesIncludeDeletedHTTPBinding(t *testing.T) {
 			})
 		}
 	}
+}
+
+func TestStorageQuotaHTTPBinding(t *testing.T) {
+	t.Parallel()
+	for _, tc := range []struct {
+		name  string
+		value *int64
+		want  string
+	}{
+		{name: "absent"},
+		{name: "zero", value: new(int64(0)), want: "0"},
+		{name: "unlimited", value: new(int64(-1)), want: "-1"},
+		{name: "maximum", value: new(int64(math.MaxInt64)), want: "9223372036854775807"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			server := &storageQuotaRecorder{value: tc.value}
+			mux := runtime.NewServeMux()
+			if err := registry.RegisterEntitlementsHandlerServer(t.Context(), mux, server); err != nil {
+				t.Fatal(err)
+			}
+			response := httptest.NewRecorder()
+			mux.ServeHTTP(response, httptest.NewRequestWithContext(t.Context(), http.MethodGet,
+				"/registry/v1/entitlements/root:storageQuota", nil))
+			if response.Code != http.StatusOK {
+				t.Fatalf("HTTP status: got = %d, want = %d; body = %s", response.Code, http.StatusOK, response.Body)
+			}
+			if server.request.GetParent() != "root" {
+				t.Errorf("request parent: got = %q, want = root", server.request.GetParent())
+			}
+			var body map[string]string
+			if err := json.Unmarshal(response.Body.Bytes(), &body); err != nil {
+				t.Fatalf("decode response: %v", err)
+			}
+			want := map[string]string{}
+			if tc.value != nil {
+				want["storageBytesQuota"] = tc.want
+			}
+			if diff := cmp.Diff(want, body); diff != "" {
+				t.Errorf("response (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+type storageQuotaRecorder struct {
+	registry.UnimplementedEntitlementsServer
+	value   *int64
+	request *registry.GetStorageQuotaRequest
+}
+
+func (s *storageQuotaRecorder) GetStorageQuota(_ context.Context, request *registry.GetStorageQuotaRequest) (*registry.GetStorageQuotaResponse, error) {
+	s.request = request
+	return &registry.GetStorageQuotaResponse{StorageBytesQuota: s.value}, nil
 }
 
 // entitlementImagesRecorder observes the generated HTTP binding for both image

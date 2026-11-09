@@ -77,6 +77,24 @@ service Entitlements {
     };
   }
 
+  // GetStorageQuota is a machine-to-machine admission read that avoids
+  // API-layer catalog and usage fan-out. UIs and chainctl should use
+  // GetOrganizationEntitlements for the consolidated limits and usage surface.
+  rpc GetStorageQuota(GetStorageQuotaRequest)
+      returns (GetStorageQuotaResponse) {
+    option (google.api.http) = {
+      get: "/registry/v1/entitlements/{parent=**}:storageQuota"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "RegistryEntitlements"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REGISTRY_ENTITLEMENTS_LIST]
+      }
+    };
+  }
+
   rpc GetFeatures(GetFeaturesRequest) returns (GetFeaturesResponse) {
     option (google.api.http) = {get: "/registry/v1/entitlements/{parent=**}:features"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {tags: "RegistryEntitlements"};
@@ -375,6 +393,20 @@ message EntitledImage {
 
 message GetEffectiveEntitlementsRequest {
   string parent = 1 [(chainguard.annotations.iam_scope) = true];
+}
+
+message GetStorageQuotaRequest {
+  // A root organization UIDP. Folders are not accepted.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+}
+
+message GetStorageQuotaResponse {
+  // Effective storage cap in bytes. Omitted when no live storage grant exists;
+  // 0 forbids storage growth and -1 is unlimited. Usage is not included.
+  optional int64 storage_bytes_quota = 1;
 }
 
 message GetEffectiveEntitlementsResponse {

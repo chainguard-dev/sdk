@@ -45,6 +45,7 @@ const (
 	ServicePrincipal_MICROVM            ServicePrincipal = 12
 	ServicePrincipal_SKILLS             ServicePrincipal = 13
 	ServicePrincipal_SANDBOX            ServicePrincipal = 14
+	ServicePrincipal_CGRUSER            ServicePrincipal = 15
 )
 
 // Enum value maps for ServicePrincipal.
@@ -65,6 +66,7 @@ var (
 		12: "MICROVM",
 		13: "SKILLS",
 		14: "SANDBOX",
+		15: "CGRUSER",
 	}
 	ServicePrincipal_value = map[string]int32{
 		"UNKNOWN":            0,
@@ -82,6 +84,7 @@ var (
 		"MICROVM":            12,
 		"SKILLS":             13,
 		"SANDBOX":            14,
+		"CGRUSER":            15,
 	}
 )
 
@@ -1069,7 +1072,7 @@ const file_identity_platform_proto_rawDesc = "" +
 	"\x02id\x18\x02 \x01(\tR\x02id\"A\n" +
 	"\rLookupRequest\x12\x16\n" +
 	"\x06issuer\x18\x01 \x01(\tR\x06issuer\x12\x18\n" +
-	"\asubject\x18\x02 \x01(\tR\asubject*\x83\x02\n" +
+	"\asubject\x18\x02 \x01(\tR\asubject*\x90\x02\n" +
 	"\x10ServicePrincipal\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\f\n" +
 	"\bCOSIGNED\x10\x01\x12\f\n" +
@@ -1087,7 +1090,8 @@ const file_identity_platform_proto_rawDesc = "" +
 	"\aMICROVM\x10\f\x12\n" +
 	"\n" +
 	"\x06SKILLS\x10\r\x12\v\n" +
-	"\aSANDBOX\x10\x0e2\xec\a\n" +
+	"\aSANDBOX\x10\x0e\x12\v\n" +
+	"\aCGRUSER\x10\x0f2\xec\a\n" +
 	"\n" +
 	"Identities\x12\xea\x01\n" +
 	"\x06Create\x12..chainguard.platform.iam.CreateIdentityRequest\x1a!.chainguard.platform.iam.Identity\"\x8c\x01\x92A\x0f\n" +

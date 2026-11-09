@@ -1058,6 +1058,97 @@ func (x *GetEffectiveEntitlementsRequest) GetParent() string {
 	return ""
 }
 
+type GetStorageQuotaRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// A root organization UIDP. Folders are not accepted.
+	Parent        string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetStorageQuotaRequest) Reset() {
+	*x = GetStorageQuotaRequest{}
+	mi := &file_registry_entitlements_platform_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStorageQuotaRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStorageQuotaRequest) ProtoMessage() {}
+
+func (x *GetStorageQuotaRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_registry_entitlements_platform_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStorageQuotaRequest.ProtoReflect.Descriptor instead.
+func (*GetStorageQuotaRequest) Descriptor() ([]byte, []int) {
+	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *GetStorageQuotaRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
+type GetStorageQuotaResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Effective storage cap in bytes. Omitted when no live storage grant exists;
+	// 0 forbids storage growth and -1 is unlimited. Usage is not included.
+	StorageBytesQuota *int64 `protobuf:"varint,1,opt,name=storage_bytes_quota,json=storageBytesQuota,proto3,oneof" json:"storage_bytes_quota,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *GetStorageQuotaResponse) Reset() {
+	*x = GetStorageQuotaResponse{}
+	mi := &file_registry_entitlements_platform_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStorageQuotaResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStorageQuotaResponse) ProtoMessage() {}
+
+func (x *GetStorageQuotaResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_registry_entitlements_platform_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStorageQuotaResponse.ProtoReflect.Descriptor instead.
+func (*GetStorageQuotaResponse) Descriptor() ([]byte, []int) {
+	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *GetStorageQuotaResponse) GetStorageBytesQuota() int64 {
+	if x != nil && x.StorageBytesQuota != nil {
+		return *x.StorageBytesQuota
+	}
+	return 0
+}
+
 type GetEffectiveEntitlementsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The resolved entitlement plan for the organization.
@@ -1096,7 +1187,7 @@ type GetEffectiveEntitlementsResponse struct {
 
 func (x *GetEffectiveEntitlementsResponse) Reset() {
 	*x = GetEffectiveEntitlementsResponse{}
-	mi := &file_registry_entitlements_platform_proto_msgTypes[15]
+	mi := &file_registry_entitlements_platform_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1108,7 +1199,7 @@ func (x *GetEffectiveEntitlementsResponse) String() string {
 func (*GetEffectiveEntitlementsResponse) ProtoMessage() {}
 
 func (x *GetEffectiveEntitlementsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_registry_entitlements_platform_proto_msgTypes[15]
+	mi := &file_registry_entitlements_platform_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1121,7 +1212,7 @@ func (x *GetEffectiveEntitlementsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetEffectiveEntitlementsResponse.ProtoReflect.Descriptor instead.
 func (*GetEffectiveEntitlementsResponse) Descriptor() ([]byte, []int) {
-	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{15}
+	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetEffectiveEntitlementsResponse) GetPlan() Plan {
@@ -1199,7 +1290,7 @@ type AddEntitlementImagesRequest struct {
 
 func (x *AddEntitlementImagesRequest) Reset() {
 	*x = AddEntitlementImagesRequest{}
-	mi := &file_registry_entitlements_platform_proto_msgTypes[16]
+	mi := &file_registry_entitlements_platform_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1211,7 +1302,7 @@ func (x *AddEntitlementImagesRequest) String() string {
 func (*AddEntitlementImagesRequest) ProtoMessage() {}
 
 func (x *AddEntitlementImagesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_registry_entitlements_platform_proto_msgTypes[16]
+	mi := &file_registry_entitlements_platform_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1224,7 +1315,7 @@ func (x *AddEntitlementImagesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddEntitlementImagesRequest.ProtoReflect.Descriptor instead.
 func (*AddEntitlementImagesRequest) Descriptor() ([]byte, []int) {
-	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{16}
+	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *AddEntitlementImagesRequest) GetEntitlement() isAddEntitlementImagesRequest_Entitlement {
@@ -1294,7 +1385,7 @@ type AddEntitlementImagesResponse struct {
 
 func (x *AddEntitlementImagesResponse) Reset() {
 	*x = AddEntitlementImagesResponse{}
-	mi := &file_registry_entitlements_platform_proto_msgTypes[17]
+	mi := &file_registry_entitlements_platform_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1306,7 +1397,7 @@ func (x *AddEntitlementImagesResponse) String() string {
 func (*AddEntitlementImagesResponse) ProtoMessage() {}
 
 func (x *AddEntitlementImagesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_registry_entitlements_platform_proto_msgTypes[17]
+	mi := &file_registry_entitlements_platform_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1319,7 +1410,7 @@ func (x *AddEntitlementImagesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddEntitlementImagesResponse.ProtoReflect.Descriptor instead.
 func (*AddEntitlementImagesResponse) Descriptor() ([]byte, []int) {
-	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{17}
+	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *AddEntitlementImagesResponse) GetImages() []*EntitledImage {
@@ -1356,7 +1447,7 @@ type RemoveEntitlementImagesRequest struct {
 
 func (x *RemoveEntitlementImagesRequest) Reset() {
 	*x = RemoveEntitlementImagesRequest{}
-	mi := &file_registry_entitlements_platform_proto_msgTypes[18]
+	mi := &file_registry_entitlements_platform_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1368,7 +1459,7 @@ func (x *RemoveEntitlementImagesRequest) String() string {
 func (*RemoveEntitlementImagesRequest) ProtoMessage() {}
 
 func (x *RemoveEntitlementImagesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_registry_entitlements_platform_proto_msgTypes[18]
+	mi := &file_registry_entitlements_platform_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1381,7 +1472,7 @@ func (x *RemoveEntitlementImagesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveEntitlementImagesRequest.ProtoReflect.Descriptor instead.
 func (*RemoveEntitlementImagesRequest) Descriptor() ([]byte, []int) {
-	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{18}
+	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *RemoveEntitlementImagesRequest) GetEntitlement() isRemoveEntitlementImagesRequest_Entitlement {
@@ -1453,7 +1544,7 @@ type RemoveEntitlementImagesResponse struct {
 
 func (x *RemoveEntitlementImagesResponse) Reset() {
 	*x = RemoveEntitlementImagesResponse{}
-	mi := &file_registry_entitlements_platform_proto_msgTypes[19]
+	mi := &file_registry_entitlements_platform_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1465,7 +1556,7 @@ func (x *RemoveEntitlementImagesResponse) String() string {
 func (*RemoveEntitlementImagesResponse) ProtoMessage() {}
 
 func (x *RemoveEntitlementImagesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_registry_entitlements_platform_proto_msgTypes[19]
+	mi := &file_registry_entitlements_platform_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1478,7 +1569,7 @@ func (x *RemoveEntitlementImagesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveEntitlementImagesResponse.ProtoReflect.Descriptor instead.
 func (*RemoveEntitlementImagesResponse) Descriptor() ([]byte, []int) {
-	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{19}
+	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *RemoveEntitlementImagesResponse) GetImages() []*EntitledImage {
@@ -1519,7 +1610,7 @@ type SwapEntitlementImagesRequest struct {
 
 func (x *SwapEntitlementImagesRequest) Reset() {
 	*x = SwapEntitlementImagesRequest{}
-	mi := &file_registry_entitlements_platform_proto_msgTypes[20]
+	mi := &file_registry_entitlements_platform_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1531,7 +1622,7 @@ func (x *SwapEntitlementImagesRequest) String() string {
 func (*SwapEntitlementImagesRequest) ProtoMessage() {}
 
 func (x *SwapEntitlementImagesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_registry_entitlements_platform_proto_msgTypes[20]
+	mi := &file_registry_entitlements_platform_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1544,7 +1635,7 @@ func (x *SwapEntitlementImagesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SwapEntitlementImagesRequest.ProtoReflect.Descriptor instead.
 func (*SwapEntitlementImagesRequest) Descriptor() ([]byte, []int) {
-	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{20}
+	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *SwapEntitlementImagesRequest) GetEntitlement() isSwapEntitlementImagesRequest_Entitlement {
@@ -1621,7 +1712,7 @@ type SwapEntitlementImagesResponse struct {
 
 func (x *SwapEntitlementImagesResponse) Reset() {
 	*x = SwapEntitlementImagesResponse{}
-	mi := &file_registry_entitlements_platform_proto_msgTypes[21]
+	mi := &file_registry_entitlements_platform_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1633,7 +1724,7 @@ func (x *SwapEntitlementImagesResponse) String() string {
 func (*SwapEntitlementImagesResponse) ProtoMessage() {}
 
 func (x *SwapEntitlementImagesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_registry_entitlements_platform_proto_msgTypes[21]
+	mi := &file_registry_entitlements_platform_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1646,7 +1737,7 @@ func (x *SwapEntitlementImagesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SwapEntitlementImagesResponse.ProtoReflect.Descriptor instead.
 func (*SwapEntitlementImagesResponse) Descriptor() ([]byte, []int) {
-	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{21}
+	return file_registry_entitlements_platform_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *SwapEntitlementImagesResponse) GetRemoved() []*EntitledImage {
@@ -1752,7 +1843,13 @@ const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\x17external_image_group_id\x18\b \x01(\tB\x04\xe2A\x01\x03R\x14externalImageGroupId\x12+\n" +
 	"\x0eentitlement_id\x18\t \x01(\tB\x04\xe2A\x01\x03R\rentitlementId\"A\n" +
 	"\x1fGetEffectiveEntitlementsRequest\x12\x1e\n" +
-	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\xed\x04\n" +
+	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\"<\n" +
+	"\x16GetStorageQuotaRequest\x12\"\n" +
+	"\x06parent\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\"f\n" +
+	"\x17GetStorageQuotaResponse\x123\n" +
+	"\x13storage_bytes_quota\x18\x01 \x01(\x03H\x00R\x11storageBytesQuota\x88\x01\x01B\x16\n" +
+	"\x14_storage_bytes_quota\"\xed\x04\n" +
 	" GetEffectiveEntitlementsResponse\x126\n" +
 	"\x04plan\x18\x01 \x01(\x0e2\".chainguard.platform.registry.PlanR\x04plan\x12L\n" +
 	"\factive_tiers\x18\x02 \x03(\x0e2).chainguard.platform.registry.CatalogTierR\vactiveTiers\x12P\n" +
@@ -1800,7 +1897,7 @@ const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\x10PLAN_UNSPECIFIED\x10\x00\x12\r\n" +
 	"\tPER_IMAGE\x10\x01\x12\v\n" +
 	"\aCATALOG\x10\x02\x12\v\n" +
-	"\aSTARTER\x10\x032\xda\x15\n" +
+	"\aSTARTER\x10\x032\xbc\x17\n" +
 	"\fEntitlements\x12\xc6\x01\n" +
 	"\x10ListEntitlements\x12/.chainguard.platform.registry.EntitlementFilter\x1a-.chainguard.platform.registry.EntitlementList\"R\x92A\x16\n" +
 	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x02'\x12%/registry/v1/entitlements/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
@@ -1816,6 +1913,9 @@ const file_registry_entitlements_platform_proto_rawDesc = "" +
 	"\x02\x90\r\x12\xf7\x01\n" +
 	"\x18GetEffectiveEntitlements\x12=.chainguard.platform.registry.GetEffectiveEntitlementsRequest\x1a>.chainguard.platform.registry.GetEffectiveEntitlementsResponse\"\\\x92A\x16\n" +
 	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x021\x12//registry/v1/entitlements/{parent=**}:effective\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\x90\r\x12\xdf\x01\n" +
+	"\x0fGetStorageQuota\x124.chainguard.platform.registry.GetStorageQuotaRequest\x1a5.chainguard.platform.registry.GetStorageQuotaResponse\"_\x92A\x16\n" +
+	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x024\x122/registry/v1/entitlements/{parent=**}:storageQuota\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x90\r\x12\xcf\x01\n" +
 	"\vGetFeatures\x120.chainguard.platform.registry.GetFeaturesRequest\x1a1.chainguard.platform.registry.GetFeaturesResponse\"[\x92A\x16\n" +
 	"\x14RegistryEntitlements\x82\xd3\xe4\x93\x020\x12./registry/v1/entitlements/{parent=**}:features\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
@@ -1853,7 +1953,7 @@ func file_registry_entitlements_platform_proto_rawDescGZIP() []byte {
 }
 
 var file_registry_entitlements_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_registry_entitlements_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
+var file_registry_entitlements_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_registry_entitlements_platform_proto_goTypes = []any{
 	(Plan)(0),                                // 0: chainguard.platform.registry.Plan
 	(Entitlement_Type)(0),                    // 1: chainguard.platform.registry.Entitlement.Type
@@ -1872,42 +1972,44 @@ var file_registry_entitlements_platform_proto_goTypes = []any{
 	(*DeleteEntitlementRequest)(nil),         // 14: chainguard.platform.registry.DeleteEntitlementRequest
 	(*EntitledImage)(nil),                    // 15: chainguard.platform.registry.EntitledImage
 	(*GetEffectiveEntitlementsRequest)(nil),  // 16: chainguard.platform.registry.GetEffectiveEntitlementsRequest
-	(*GetEffectiveEntitlementsResponse)(nil), // 17: chainguard.platform.registry.GetEffectiveEntitlementsResponse
-	(*AddEntitlementImagesRequest)(nil),      // 18: chainguard.platform.registry.AddEntitlementImagesRequest
-	(*AddEntitlementImagesResponse)(nil),     // 19: chainguard.platform.registry.AddEntitlementImagesResponse
-	(*RemoveEntitlementImagesRequest)(nil),   // 20: chainguard.platform.registry.RemoveEntitlementImagesRequest
-	(*RemoveEntitlementImagesResponse)(nil),  // 21: chainguard.platform.registry.RemoveEntitlementImagesResponse
-	(*SwapEntitlementImagesRequest)(nil),     // 22: chainguard.platform.registry.SwapEntitlementImagesRequest
-	(*SwapEntitlementImagesResponse)(nil),    // 23: chainguard.platform.registry.SwapEntitlementImagesResponse
-	nil,                                      // 24: chainguard.platform.registry.Entitlement.QuotaEntry
-	nil,                                      // 25: chainguard.platform.registry.EntitlementSummaryResponse.QuotaEntry
-	nil,                                      // 26: chainguard.platform.registry.GetEffectiveEntitlementsResponse.QuotaEntry
-	(*timestamppb.Timestamp)(nil),            // 27: google.protobuf.Timestamp
-	(CatalogTier)(0),                         // 28: chainguard.platform.registry.CatalogTier
-	(*emptypb.Empty)(nil),                    // 29: google.protobuf.Empty
+	(*GetStorageQuotaRequest)(nil),           // 17: chainguard.platform.registry.GetStorageQuotaRequest
+	(*GetStorageQuotaResponse)(nil),          // 18: chainguard.platform.registry.GetStorageQuotaResponse
+	(*GetEffectiveEntitlementsResponse)(nil), // 19: chainguard.platform.registry.GetEffectiveEntitlementsResponse
+	(*AddEntitlementImagesRequest)(nil),      // 20: chainguard.platform.registry.AddEntitlementImagesRequest
+	(*AddEntitlementImagesResponse)(nil),     // 21: chainguard.platform.registry.AddEntitlementImagesResponse
+	(*RemoveEntitlementImagesRequest)(nil),   // 22: chainguard.platform.registry.RemoveEntitlementImagesRequest
+	(*RemoveEntitlementImagesResponse)(nil),  // 23: chainguard.platform.registry.RemoveEntitlementImagesResponse
+	(*SwapEntitlementImagesRequest)(nil),     // 24: chainguard.platform.registry.SwapEntitlementImagesRequest
+	(*SwapEntitlementImagesResponse)(nil),    // 25: chainguard.platform.registry.SwapEntitlementImagesResponse
+	nil,                                      // 26: chainguard.platform.registry.Entitlement.QuotaEntry
+	nil,                                      // 27: chainguard.platform.registry.EntitlementSummaryResponse.QuotaEntry
+	nil,                                      // 28: chainguard.platform.registry.GetEffectiveEntitlementsResponse.QuotaEntry
+	(*timestamppb.Timestamp)(nil),            // 29: google.protobuf.Timestamp
+	(CatalogTier)(0),                         // 30: chainguard.platform.registry.CatalogTier
+	(*emptypb.Empty)(nil),                    // 31: google.protobuf.Empty
 }
 var file_registry_entitlements_platform_proto_depIdxs = []int32{
-	27, // 0: chainguard.platform.registry.Entitlement.create_time:type_name -> google.protobuf.Timestamp
-	27, // 1: chainguard.platform.registry.Entitlement.update_time:type_name -> google.protobuf.Timestamp
-	27, // 2: chainguard.platform.registry.Entitlement.expiration_time:type_name -> google.protobuf.Timestamp
+	29, // 0: chainguard.platform.registry.Entitlement.create_time:type_name -> google.protobuf.Timestamp
+	29, // 1: chainguard.platform.registry.Entitlement.update_time:type_name -> google.protobuf.Timestamp
+	29, // 2: chainguard.platform.registry.Entitlement.expiration_time:type_name -> google.protobuf.Timestamp
 	1,  // 3: chainguard.platform.registry.Entitlement.type:type_name -> chainguard.platform.registry.Entitlement.Type
-	24, // 4: chainguard.platform.registry.Entitlement.quota:type_name -> chainguard.platform.registry.Entitlement.QuotaEntry
-	28, // 5: chainguard.platform.registry.Entitlement.tiers:type_name -> chainguard.platform.registry.CatalogTier
+	26, // 4: chainguard.platform.registry.Entitlement.quota:type_name -> chainguard.platform.registry.Entitlement.QuotaEntry
+	30, // 5: chainguard.platform.registry.Entitlement.tiers:type_name -> chainguard.platform.registry.CatalogTier
 	2,  // 6: chainguard.platform.registry.EntitlementList.items:type_name -> chainguard.platform.registry.Entitlement
-	28, // 7: chainguard.platform.registry.EntitlementImage.tier:type_name -> chainguard.platform.registry.CatalogTier
-	27, // 8: chainguard.platform.registry.EntitlementImage.delete_time:type_name -> google.protobuf.Timestamp
+	30, // 7: chainguard.platform.registry.EntitlementImage.tier:type_name -> chainguard.platform.registry.CatalogTier
+	29, // 8: chainguard.platform.registry.EntitlementImage.delete_time:type_name -> google.protobuf.Timestamp
 	6,  // 9: chainguard.platform.registry.EntitlementImagesList.images:type_name -> chainguard.platform.registry.EntitlementImage
-	25, // 10: chainguard.platform.registry.EntitlementSummaryResponse.quota:type_name -> chainguard.platform.registry.EntitlementSummaryResponse.QuotaEntry
-	27, // 11: chainguard.platform.registry.EntitlementSummaryResponse.last_updated_time:type_name -> google.protobuf.Timestamp
+	27, // 10: chainguard.platform.registry.EntitlementSummaryResponse.quota:type_name -> chainguard.platform.registry.EntitlementSummaryResponse.QuotaEntry
+	29, // 11: chainguard.platform.registry.EntitlementSummaryResponse.last_updated_time:type_name -> google.protobuf.Timestamp
 	2,  // 12: chainguard.platform.registry.CreateEntitlementRequest.entitlement:type_name -> chainguard.platform.registry.Entitlement
-	28, // 13: chainguard.platform.registry.EntitledImage.catalog_tier:type_name -> chainguard.platform.registry.CatalogTier
+	30, // 13: chainguard.platform.registry.EntitledImage.catalog_tier:type_name -> chainguard.platform.registry.CatalogTier
 	1,  // 14: chainguard.platform.registry.EntitledImage.type:type_name -> chainguard.platform.registry.Entitlement.Type
-	27, // 15: chainguard.platform.registry.EntitledImage.expiration_time:type_name -> google.protobuf.Timestamp
+	29, // 15: chainguard.platform.registry.EntitledImage.expiration_time:type_name -> google.protobuf.Timestamp
 	0,  // 16: chainguard.platform.registry.GetEffectiveEntitlementsResponse.plan:type_name -> chainguard.platform.registry.Plan
-	28, // 17: chainguard.platform.registry.GetEffectiveEntitlementsResponse.active_tiers:type_name -> chainguard.platform.registry.CatalogTier
+	30, // 17: chainguard.platform.registry.GetEffectiveEntitlementsResponse.active_tiers:type_name -> chainguard.platform.registry.CatalogTier
 	15, // 18: chainguard.platform.registry.GetEffectiveEntitlementsResponse.active_images:type_name -> chainguard.platform.registry.EntitledImage
-	26, // 19: chainguard.platform.registry.GetEffectiveEntitlementsResponse.quota:type_name -> chainguard.platform.registry.GetEffectiveEntitlementsResponse.QuotaEntry
-	27, // 20: chainguard.platform.registry.GetEffectiveEntitlementsResponse.swap_refill_time:type_name -> google.protobuf.Timestamp
+	28, // 19: chainguard.platform.registry.GetEffectiveEntitlementsResponse.quota:type_name -> chainguard.platform.registry.GetEffectiveEntitlementsResponse.QuotaEntry
+	29, // 20: chainguard.platform.registry.GetEffectiveEntitlementsResponse.swap_refill_time:type_name -> google.protobuf.Timestamp
 	15, // 21: chainguard.platform.registry.AddEntitlementImagesResponse.images:type_name -> chainguard.platform.registry.EntitledImage
 	15, // 22: chainguard.platform.registry.RemoveEntitlementImagesResponse.images:type_name -> chainguard.platform.registry.EntitledImage
 	15, // 23: chainguard.platform.registry.SwapEntitlementImagesResponse.removed:type_name -> chainguard.platform.registry.EntitledImage
@@ -1920,25 +2022,27 @@ var file_registry_entitlements_platform_proto_depIdxs = []int32{
 	7,  // 30: chainguard.platform.registry.Entitlements.ListEntitlementCatalogImages:input_type -> chainguard.platform.registry.EntitlementImagesFilter
 	9,  // 31: chainguard.platform.registry.Entitlements.Summary:input_type -> chainguard.platform.registry.EntitlementSummaryRequest
 	16, // 32: chainguard.platform.registry.Entitlements.GetEffectiveEntitlements:input_type -> chainguard.platform.registry.GetEffectiveEntitlementsRequest
-	11, // 33: chainguard.platform.registry.Entitlements.GetFeatures:input_type -> chainguard.platform.registry.GetFeaturesRequest
-	13, // 34: chainguard.platform.registry.Entitlements.CreateEntitlement:input_type -> chainguard.platform.registry.CreateEntitlementRequest
-	14, // 35: chainguard.platform.registry.Entitlements.DeleteEntitlement:input_type -> chainguard.platform.registry.DeleteEntitlementRequest
-	18, // 36: chainguard.platform.registry.Entitlements.AddEntitlementImages:input_type -> chainguard.platform.registry.AddEntitlementImagesRequest
-	20, // 37: chainguard.platform.registry.Entitlements.RemoveEntitlementImages:input_type -> chainguard.platform.registry.RemoveEntitlementImagesRequest
-	22, // 38: chainguard.platform.registry.Entitlements.SwapEntitlementImages:input_type -> chainguard.platform.registry.SwapEntitlementImagesRequest
-	5,  // 39: chainguard.platform.registry.Entitlements.ListEntitlements:output_type -> chainguard.platform.registry.EntitlementList
-	8,  // 40: chainguard.platform.registry.Entitlements.ListEntitlementImages:output_type -> chainguard.platform.registry.EntitlementImagesList
-	8,  // 41: chainguard.platform.registry.Entitlements.ListEntitlementCatalogImages:output_type -> chainguard.platform.registry.EntitlementImagesList
-	10, // 42: chainguard.platform.registry.Entitlements.Summary:output_type -> chainguard.platform.registry.EntitlementSummaryResponse
-	17, // 43: chainguard.platform.registry.Entitlements.GetEffectiveEntitlements:output_type -> chainguard.platform.registry.GetEffectiveEntitlementsResponse
-	12, // 44: chainguard.platform.registry.Entitlements.GetFeatures:output_type -> chainguard.platform.registry.GetFeaturesResponse
-	2,  // 45: chainguard.platform.registry.Entitlements.CreateEntitlement:output_type -> chainguard.platform.registry.Entitlement
-	29, // 46: chainguard.platform.registry.Entitlements.DeleteEntitlement:output_type -> google.protobuf.Empty
-	19, // 47: chainguard.platform.registry.Entitlements.AddEntitlementImages:output_type -> chainguard.platform.registry.AddEntitlementImagesResponse
-	21, // 48: chainguard.platform.registry.Entitlements.RemoveEntitlementImages:output_type -> chainguard.platform.registry.RemoveEntitlementImagesResponse
-	23, // 49: chainguard.platform.registry.Entitlements.SwapEntitlementImages:output_type -> chainguard.platform.registry.SwapEntitlementImagesResponse
-	39, // [39:50] is the sub-list for method output_type
-	28, // [28:39] is the sub-list for method input_type
+	17, // 33: chainguard.platform.registry.Entitlements.GetStorageQuota:input_type -> chainguard.platform.registry.GetStorageQuotaRequest
+	11, // 34: chainguard.platform.registry.Entitlements.GetFeatures:input_type -> chainguard.platform.registry.GetFeaturesRequest
+	13, // 35: chainguard.platform.registry.Entitlements.CreateEntitlement:input_type -> chainguard.platform.registry.CreateEntitlementRequest
+	14, // 36: chainguard.platform.registry.Entitlements.DeleteEntitlement:input_type -> chainguard.platform.registry.DeleteEntitlementRequest
+	20, // 37: chainguard.platform.registry.Entitlements.AddEntitlementImages:input_type -> chainguard.platform.registry.AddEntitlementImagesRequest
+	22, // 38: chainguard.platform.registry.Entitlements.RemoveEntitlementImages:input_type -> chainguard.platform.registry.RemoveEntitlementImagesRequest
+	24, // 39: chainguard.platform.registry.Entitlements.SwapEntitlementImages:input_type -> chainguard.platform.registry.SwapEntitlementImagesRequest
+	5,  // 40: chainguard.platform.registry.Entitlements.ListEntitlements:output_type -> chainguard.platform.registry.EntitlementList
+	8,  // 41: chainguard.platform.registry.Entitlements.ListEntitlementImages:output_type -> chainguard.platform.registry.EntitlementImagesList
+	8,  // 42: chainguard.platform.registry.Entitlements.ListEntitlementCatalogImages:output_type -> chainguard.platform.registry.EntitlementImagesList
+	10, // 43: chainguard.platform.registry.Entitlements.Summary:output_type -> chainguard.platform.registry.EntitlementSummaryResponse
+	19, // 44: chainguard.platform.registry.Entitlements.GetEffectiveEntitlements:output_type -> chainguard.platform.registry.GetEffectiveEntitlementsResponse
+	18, // 45: chainguard.platform.registry.Entitlements.GetStorageQuota:output_type -> chainguard.platform.registry.GetStorageQuotaResponse
+	12, // 46: chainguard.platform.registry.Entitlements.GetFeatures:output_type -> chainguard.platform.registry.GetFeaturesResponse
+	2,  // 47: chainguard.platform.registry.Entitlements.CreateEntitlement:output_type -> chainguard.platform.registry.Entitlement
+	31, // 48: chainguard.platform.registry.Entitlements.DeleteEntitlement:output_type -> google.protobuf.Empty
+	21, // 49: chainguard.platform.registry.Entitlements.AddEntitlementImages:output_type -> chainguard.platform.registry.AddEntitlementImagesResponse
+	23, // 50: chainguard.platform.registry.Entitlements.RemoveEntitlementImages:output_type -> chainguard.platform.registry.RemoveEntitlementImagesResponse
+	25, // 51: chainguard.platform.registry.Entitlements.SwapEntitlementImages:output_type -> chainguard.platform.registry.SwapEntitlementImagesResponse
+	40, // [40:52] is the sub-list for method output_type
+	28, // [28:40] is the sub-list for method input_type
 	28, // [28:28] is the sub-list for extension type_name
 	28, // [28:28] is the sub-list for extension extendee
 	0,  // [0:28] is the sub-list for field type_name
@@ -1950,15 +2054,16 @@ func file_registry_entitlements_platform_proto_init() {
 		return
 	}
 	file_registry_platform_proto_init()
-	file_registry_entitlements_platform_proto_msgTypes[16].OneofWrappers = []any{
+	file_registry_entitlements_platform_proto_msgTypes[16].OneofWrappers = []any{}
+	file_registry_entitlements_platform_proto_msgTypes[18].OneofWrappers = []any{
 		(*AddEntitlementImagesRequest_Parent)(nil),
 		(*AddEntitlementImagesRequest_Id)(nil),
 	}
-	file_registry_entitlements_platform_proto_msgTypes[18].OneofWrappers = []any{
+	file_registry_entitlements_platform_proto_msgTypes[20].OneofWrappers = []any{
 		(*RemoveEntitlementImagesRequest_Parent)(nil),
 		(*RemoveEntitlementImagesRequest_Id)(nil),
 	}
-	file_registry_entitlements_platform_proto_msgTypes[20].OneofWrappers = []any{
+	file_registry_entitlements_platform_proto_msgTypes[22].OneofWrappers = []any{
 		(*SwapEntitlementImagesRequest_Parent)(nil),
 		(*SwapEntitlementImagesRequest_Id)(nil),
 	}
@@ -1968,7 +2073,7 @@ func file_registry_entitlements_platform_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_registry_entitlements_platform_proto_rawDesc), len(file_registry_entitlements_platform_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   25,
+			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

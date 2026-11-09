@@ -553,4 +553,6 @@ enum ServicePrincipal {
   SERVICE_PRINCIPAL_SKILLS = 13;
   // Sandbox service principal for the ACID sandbox Runs control plane.
   SERVICE_PRINCIPAL_SANDBOX = 14;
+  // Registered registry storage allowance reads.
+  SERVICE_PRINCIPAL_CGRUSER = 15;
 }

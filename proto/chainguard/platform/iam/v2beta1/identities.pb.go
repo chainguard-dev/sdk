@@ -125,6 +125,8 @@ const (
 	ServicePrincipal_SERVICE_PRINCIPAL_SKILLS ServicePrincipal = 13
 	// Sandbox service principal for the ACID sandbox Runs control plane.
 	ServicePrincipal_SERVICE_PRINCIPAL_SANDBOX ServicePrincipal = 14
+	// Registered registry storage allowance reads.
+	ServicePrincipal_SERVICE_PRINCIPAL_CGRUSER ServicePrincipal = 15
 )
 
 // Enum value maps for ServicePrincipal.
@@ -145,6 +147,7 @@ var (
 		12: "SERVICE_PRINCIPAL_MICROVM",
 		13: "SERVICE_PRINCIPAL_SKILLS",
 		14: "SERVICE_PRINCIPAL_SANDBOX",
+		15: "SERVICE_PRINCIPAL_CGRUSER",
 	}
 	ServicePrincipal_value = map[string]int32{
 		"SERVICE_PRINCIPAL_UNSPECIFIED":        0,
@@ -162,6 +165,7 @@ var (
 		"SERVICE_PRINCIPAL_MICROVM":            12,
 		"SERVICE_PRINCIPAL_SKILLS":             13,
 		"SERVICE_PRINCIPAL_SANDBOX":            14,
+		"SERVICE_PRINCIPAL_CGRUSER":            15,
 	}
 )
 
@@ -1739,7 +1743,7 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\x1dRELATIONSHIP_TYPE_CLAIM_MATCH\x10\x01\x12\x1c\n" +
 	"\x18RELATIONSHIP_TYPE_STATIC\x10\x02\x12\"\n" +
 	"\x1eRELATIONSHIP_TYPE_AWS_IDENTITY\x10\x03\x12'\n" +
-	"#RELATIONSHIP_TYPE_SERVICE_PRINCIPAL\x10\x04*\x95\x04\n" +
+	"#RELATIONSHIP_TYPE_SERVICE_PRINCIPAL\x10\x04*\xb4\x04\n" +
 	"\x10ServicePrincipal\x12!\n" +
 	"\x1dSERVICE_PRINCIPAL_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aSERVICE_PRINCIPAL_COSIGNED\x10\x01\x12\x1e\n" +
@@ -1756,7 +1760,8 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\x1bSERVICE_PRINCIPAL_GUARDENER\x10\v\x12\x1d\n" +
 	"\x19SERVICE_PRINCIPAL_MICROVM\x10\f\x12\x1c\n" +
 	"\x18SERVICE_PRINCIPAL_SKILLS\x10\r\x12\x1d\n" +
-	"\x19SERVICE_PRINCIPAL_SANDBOX\x10\x0e2\xd1\x10\n" +
+	"\x19SERVICE_PRINCIPAL_SANDBOX\x10\x0e\x12\x1d\n" +
+	"\x19SERVICE_PRINCIPAL_CGRUSER\x10\x0f2\xd1\x10\n" +
 	"\x11IdentitiesService\x12\xe7\x02\n" +
 	"\x0eCreateIdentity\x126.chainguard.platform.iam.v2beta1.CreateIdentityRequest\x1a).chainguard.platform.iam.v2beta1.Identity\"\xf1\x01\x82\xd3\xe4\x93\x02/:\bidentity\"#/iam/v2beta1/identities/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\x85\a\x9a\xaf\xa8\xd2\x05o\n" +

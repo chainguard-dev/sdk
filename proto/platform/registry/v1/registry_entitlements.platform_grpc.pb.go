@@ -25,6 +25,7 @@ const (
 	Entitlements_ListEntitlementCatalogImages_FullMethodName = "/chainguard.platform.registry.Entitlements/ListEntitlementCatalogImages"
 	Entitlements_Summary_FullMethodName                      = "/chainguard.platform.registry.Entitlements/Summary"
 	Entitlements_GetEffectiveEntitlements_FullMethodName     = "/chainguard.platform.registry.Entitlements/GetEffectiveEntitlements"
+	Entitlements_GetStorageQuota_FullMethodName              = "/chainguard.platform.registry.Entitlements/GetStorageQuota"
 	Entitlements_GetFeatures_FullMethodName                  = "/chainguard.platform.registry.Entitlements/GetFeatures"
 	Entitlements_CreateEntitlement_FullMethodName            = "/chainguard.platform.registry.Entitlements/CreateEntitlement"
 	Entitlements_DeleteEntitlement_FullMethodName            = "/chainguard.platform.registry.Entitlements/DeleteEntitlement"
@@ -52,6 +53,10 @@ type EntitlementsClient interface {
 	// GetEffectiveEntitlements returns the summarized effective entitlement state
 	// for an organization, including plan, active tiers, entitled images, and quotas.
 	GetEffectiveEntitlements(ctx context.Context, in *GetEffectiveEntitlementsRequest, opts ...grpc.CallOption) (*GetEffectiveEntitlementsResponse, error)
+	// GetStorageQuota is a machine-to-machine admission read that avoids
+	// API-layer catalog and usage fan-out. UIs and chainctl should use
+	// GetOrganizationEntitlements for the consolidated limits and usage surface.
+	GetStorageQuota(ctx context.Context, in *GetStorageQuotaRequest, opts ...grpc.CallOption) (*GetStorageQuotaResponse, error)
 	GetFeatures(ctx context.Context, in *GetFeaturesRequest, opts ...grpc.CallOption) (*GetFeaturesResponse, error)
 	CreateEntitlement(ctx context.Context, in *CreateEntitlementRequest, opts ...grpc.CallOption) (*Entitlement, error)
 	DeleteEntitlement(ctx context.Context, in *DeleteEntitlementRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -164,6 +169,16 @@ func (c *entitlementsClient) GetEffectiveEntitlements(ctx context.Context, in *G
 	return out, nil
 }
 
+func (c *entitlementsClient) GetStorageQuota(ctx context.Context, in *GetStorageQuotaRequest, opts ...grpc.CallOption) (*GetStorageQuotaResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetStorageQuotaResponse)
+	err := c.cc.Invoke(ctx, Entitlements_GetStorageQuota_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *entitlementsClient) GetFeatures(ctx context.Context, in *GetFeaturesRequest, opts ...grpc.CallOption) (*GetFeaturesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetFeaturesResponse)
@@ -243,6 +258,10 @@ type EntitlementsServer interface {
 	// GetEffectiveEntitlements returns the summarized effective entitlement state
 	// for an organization, including plan, active tiers, entitled images, and quotas.
 	GetEffectiveEntitlements(context.Context, *GetEffectiveEntitlementsRequest) (*GetEffectiveEntitlementsResponse, error)
+	// GetStorageQuota is a machine-to-machine admission read that avoids
+	// API-layer catalog and usage fan-out. UIs and chainctl should use
+	// GetOrganizationEntitlements for the consolidated limits and usage surface.
+	GetStorageQuota(context.Context, *GetStorageQuotaRequest) (*GetStorageQuotaResponse, error)
 	GetFeatures(context.Context, *GetFeaturesRequest) (*GetFeaturesResponse, error)
 	CreateEntitlement(context.Context, *CreateEntitlementRequest) (*Entitlement, error)
 	DeleteEntitlement(context.Context, *DeleteEntitlementRequest) (*emptypb.Empty, error)
@@ -318,6 +337,9 @@ func (UnimplementedEntitlementsServer) Summary(context.Context, *EntitlementSumm
 }
 func (UnimplementedEntitlementsServer) GetEffectiveEntitlements(context.Context, *GetEffectiveEntitlementsRequest) (*GetEffectiveEntitlementsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetEffectiveEntitlements not implemented")
+}
+func (UnimplementedEntitlementsServer) GetStorageQuota(context.Context, *GetStorageQuotaRequest) (*GetStorageQuotaResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetStorageQuota not implemented")
 }
 func (UnimplementedEntitlementsServer) GetFeatures(context.Context, *GetFeaturesRequest) (*GetFeaturesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetFeatures not implemented")
@@ -444,6 +466,24 @@ func _Entitlements_GetEffectiveEntitlements_Handler(srv interface{}, ctx context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(EntitlementsServer).GetEffectiveEntitlements(ctx, req.(*GetEffectiveEntitlementsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Entitlements_GetStorageQuota_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetStorageQuotaRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EntitlementsServer).GetStorageQuota(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Entitlements_GetStorageQuota_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EntitlementsServer).GetStorageQuota(ctx, req.(*GetStorageQuotaRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -582,6 +622,10 @@ var Entitlements_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetEffectiveEntitlements",
 			Handler:    _Entitlements_GetEffectiveEntitlements_Handler,
+		},
+		{
+			MethodName: "GetStorageQuota",
+			Handler:    _Entitlements_GetStorageQuota_Handler,
 		},
 		{
 			MethodName: "GetFeatures",
