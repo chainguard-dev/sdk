@@ -7,6 +7,7 @@ package capabilities
 
 import (
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -43,6 +44,62 @@ func TestLibrariesRustPullCaps(t *testing.T) {
 	}
 	if slices.Contains(ViewerCaps, Capability_CAP_LIBRARIES_RUST_LIST) {
 		t.Error("ViewerCaps must not implicitly grant Rust pull access")
+	}
+}
+
+// Publishing pushes and pulls in the five uploadable ecosystems and grants
+// nothing else, so CI bound to it holds no IAM, registry or APK access.
+func TestRepositoryPublisherCaps(t *testing.T) {
+	want := SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
+		Capability_CAP_LIBRARIES_JAVA_CREATE,
+		Capability_CAP_LIBRARIES_JAVA_LIST,
+		Capability_CAP_LIBRARIES_JAVASCRIPT_CREATE,
+		Capability_CAP_LIBRARIES_JAVASCRIPT_LIST,
+		Capability_CAP_LIBRARIES_PYTHON_CREATE,
+		Capability_CAP_LIBRARIES_PYTHON_LIST,
+		Capability_CAP_LIBRARIES_DOTNET_CREATE,
+		Capability_CAP_LIBRARIES_DOTNET_LIST,
+		Capability_CAP_LIBRARIES_GO_CREATE,
+		Capability_CAP_LIBRARIES_GO_LIST,
+	})
+	if diff := cmp.Diff(want, RepositoryPublisherCaps); diff != "" {
+		t.Errorf("RepositoryPublisherCaps (-want, +got): %s", diff)
+	}
+	for _, c := range want {
+		if !slices.Contains(OwnerCaps, c) {
+			t.Errorf("OwnerCaps must include %s so an owner can bind the publisher role", c)
+		}
+	}
+}
+
+// Every ecosystem upload cap (libraries.<eco>.create) must be in the publisher
+// bundle, or CI bound to repository.publisher is refused in that ecosystem and
+// falls back to owner. A libraries.<x>.create that is not an upload goes in
+// notUpload.
+func TestRepositoryPublisherCoversEveryUpload(t *testing.T) {
+	notUpload := map[string]struct{}{
+		"libraries.entitlements.create":      {},
+		"libraries.remote_registries.create": {},
+		"libraries.request_groups.create":    {},
+		"libraries.policy.create":            {},
+	}
+	for i := range Capability_name {
+		c := Capability(i)
+		if c == Capability_UNKNOWN {
+			continue
+		}
+		name, err := Stringify(c)
+		if err != nil {
+			t.Fatalf("Stringify(%v): %v", c, err)
+		}
+		parts := strings.Split(name, ".")
+		if _, skip := notUpload[name]; skip || len(parts) != 3 || parts[0] != "libraries" || parts[2] != "create" {
+			continue
+		}
+		if !slices.Contains(RepositoryPublisherCaps, c) {
+			t.Errorf("RepositoryPublisherCaps is missing %s; add that ecosystem's push bundle", name)
+		}
 	}
 }
 

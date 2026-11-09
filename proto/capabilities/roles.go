@@ -448,6 +448,19 @@ var (
 		Capability_CAP_LIBRARIES_GO_CREATE,
 	}, LibrariesGoPullCaps)
 
+	// RepositoryPublisherCaps are the push capabilities of every library
+	// ecosystem an org can upload to, for CI and release automation that
+	// should not be bound to owner. Each push bundle carries its ecosystem's
+	// pull caps, because publishers read before they write (`mvn deploy`
+	// fetches maven-metadata.xml).
+	RepositoryPublisherCaps = SortCaps(
+		LibrariesJavaPushCaps,
+		LibrariesJavascriptPushCaps,
+		LibrariesPythonPushCaps,
+		LibrariesDotnetPushCaps,
+		LibrariesGoPushCaps,
+	)
+
 	LibrariesRubyPullCaps = SortCaps([]Capability{
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
 		Capability_CAP_LIBRARIES_RUBY_LIST,
