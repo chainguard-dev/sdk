@@ -51,12 +51,17 @@ type RepositoriesClient interface {
 	// List returns the default repository first, then every named repository
 	// of the org ordered by name, in every state.
 	List(ctx context.Context, in *RepositoryFilter, opts ...grpc.CallOption) (*RepositoryList, error)
-	// Delete removes a named repository and its folder. Without force it
-	// refuses while pull tokens, role bindings or Libraries policy bindings
-	// exist at the folder, and names them; with force it removes them. It
-	// always refuses while image repositories exist under the folder. When
-	// the folder cannot be deleted, the repository stays DELETING and running
-	// Delete again finishes it. The default repository cannot be deleted.
+	// Delete removes a named repository, its folder and its upstream entries.
+	// Without force it refuses while pull tokens or Libraries policy bindings
+	// exist at the folder, and names them; with force it removes them and the
+	// pull tokens' role bindings. It always refuses, naming them, while image
+	// repositories, identities that are not pull tokens or role bindings of
+	// such identities exist under the folder. Once Delete has removed the
+	// folder, the Libraries policy bindings scoped to it go with the
+	// repository; while the folder is already gone, a binding refuses without
+	// force and the repository stays DELETING. When the folder cannot be
+	// deleted, the repository stays DELETING and running Delete again finishes
+	// it. The default repository cannot be deleted.
 	Delete(ctx context.Context, in *DeleteRepositoryRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -133,12 +138,17 @@ type RepositoriesServer interface {
 	// List returns the default repository first, then every named repository
 	// of the org ordered by name, in every state.
 	List(context.Context, *RepositoryFilter) (*RepositoryList, error)
-	// Delete removes a named repository and its folder. Without force it
-	// refuses while pull tokens, role bindings or Libraries policy bindings
-	// exist at the folder, and names them; with force it removes them. It
-	// always refuses while image repositories exist under the folder. When
-	// the folder cannot be deleted, the repository stays DELETING and running
-	// Delete again finishes it. The default repository cannot be deleted.
+	// Delete removes a named repository, its folder and its upstream entries.
+	// Without force it refuses while pull tokens or Libraries policy bindings
+	// exist at the folder, and names them; with force it removes them and the
+	// pull tokens' role bindings. It always refuses, naming them, while image
+	// repositories, identities that are not pull tokens or role bindings of
+	// such identities exist under the folder. Once Delete has removed the
+	// folder, the Libraries policy bindings scoped to it go with the
+	// repository; while the folder is already gone, a binding refuses without
+	// force and the repository stays DELETING. When the folder cannot be
+	// deleted, the repository stays DELETING and running Delete again finishes
+	// it. The default repository cannot be deleted.
 	Delete(context.Context, *DeleteRepositoryRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedRepositoriesServer()
 }

@@ -82,8 +82,6 @@ var (
 		Capability_CAP_LIBRARIES_POLICY_BINDING_LIST,
 		Capability_CAP_LIBRARIES_POLICY_BLOCK_EVENT_LIST,
 
-		Capability_CAP_LIBRARIES_REMOTE_REGISTRIES_LIST,
-
 		Capability_CAP_REPOSITORIES_LIST,
 
 		Capability_CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST,
@@ -244,11 +242,6 @@ var (
 		Capability_CAP_LIBRARIES_POLICY_BINDING_CREATE,
 		Capability_CAP_LIBRARIES_POLICY_BINDING_UPDATE,
 		Capability_CAP_LIBRARIES_POLICY_BINDING_DELETE,
-
-		// Owner-only for the same reason as the library policy capabilities:
-		// a remote registry changes where the org's dependencies come from.
-		Capability_CAP_LIBRARIES_REMOTE_REGISTRIES_CREATE,
-		Capability_CAP_LIBRARIES_REMOTE_REGISTRIES_DELETE,
 
 		// Owner-only: a repository is a folder under the org, and its upstream
 		// list decides where its builds pull dependencies from.
