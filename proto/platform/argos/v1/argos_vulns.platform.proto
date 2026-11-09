@@ -7,10 +7,11 @@ option go_package = "chainguard.dev/sdk/proto/platform/argos/v1";
 
 package chainguard.platform.argos;
 
-import "google/api/annotations.proto";
-import "google/protobuf/timestamp.proto";
 import "annotations/auth.proto";
 import "argos_osv.platform.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
 
 // ArgosVulns is the Chainguard-specific (non-OSV-spec) vulnerability query
 // surface for the Console. Unlike ArgosOSV (the unscoped, OSV-spec shared
@@ -78,6 +79,29 @@ message ListOrgVulnsRequest {
   string ecosystem = 8;
   // package_name keeps records with an affected package of exactly this name.
   string package_name = 9;
+  // order_by orders the list; unspecified is CGP ID order. Under an order,
+  // total_count counts matching records as a filtered list does, and
+  // page_token must come from a page under the same order.
+  VulnOrderBy order_by = 10 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// VulnOrderBy orders ListForOrg by a record timestamp, ties broken by CGP ID
+// in the same direction. MODIFIED is the record's last change, which a
+// disclosure or withdrawal can move past its modified field. A record without
+// a published time sorts as the earliest instant. A record whose time changes
+// between pages can be skipped or returned twice. New values may appear; a
+// client should treat an unknown value as unspecified.
+enum VulnOrderBy {
+  // CGP ID order.
+  VULN_ORDER_BY_UNSPECIFIED = 0;
+  // Oldest last change first, ties by ascending CGP ID.
+  VULN_ORDER_BY_MODIFIED_ASC = 1;
+  // Newest last change first, ties by descending CGP ID.
+  VULN_ORDER_BY_MODIFIED_DESC = 2;
+  // Earliest published first, ties by ascending CGP ID.
+  VULN_ORDER_BY_PUBLISHED_ASC = 3;
+  // Latest published first, ties by descending CGP ID.
+  VULN_ORDER_BY_PUBLISHED_DESC = 4;
 }
 
 message VulnList {

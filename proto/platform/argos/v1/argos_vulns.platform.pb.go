@@ -27,6 +27,72 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// VulnOrderBy orders ListForOrg by a record timestamp, ties broken by CGP ID
+// in the same direction. MODIFIED is the record's last change, which a
+// disclosure or withdrawal can move past its modified field. A record without
+// a published time sorts as the earliest instant. A record whose time changes
+// between pages can be skipped or returned twice. New values may appear; a
+// client should treat an unknown value as unspecified.
+type VulnOrderBy int32
+
+const (
+	// CGP ID order.
+	VulnOrderBy_VULN_ORDER_BY_UNSPECIFIED VulnOrderBy = 0
+	// Oldest last change first, ties by ascending CGP ID.
+	VulnOrderBy_VULN_ORDER_BY_MODIFIED_ASC VulnOrderBy = 1
+	// Newest last change first, ties by descending CGP ID.
+	VulnOrderBy_VULN_ORDER_BY_MODIFIED_DESC VulnOrderBy = 2
+	// Earliest published first, ties by ascending CGP ID.
+	VulnOrderBy_VULN_ORDER_BY_PUBLISHED_ASC VulnOrderBy = 3
+	// Latest published first, ties by descending CGP ID.
+	VulnOrderBy_VULN_ORDER_BY_PUBLISHED_DESC VulnOrderBy = 4
+)
+
+// Enum value maps for VulnOrderBy.
+var (
+	VulnOrderBy_name = map[int32]string{
+		0: "VULN_ORDER_BY_UNSPECIFIED",
+		1: "VULN_ORDER_BY_MODIFIED_ASC",
+		2: "VULN_ORDER_BY_MODIFIED_DESC",
+		3: "VULN_ORDER_BY_PUBLISHED_ASC",
+		4: "VULN_ORDER_BY_PUBLISHED_DESC",
+	}
+	VulnOrderBy_value = map[string]int32{
+		"VULN_ORDER_BY_UNSPECIFIED":    0,
+		"VULN_ORDER_BY_MODIFIED_ASC":   1,
+		"VULN_ORDER_BY_MODIFIED_DESC":  2,
+		"VULN_ORDER_BY_PUBLISHED_ASC":  3,
+		"VULN_ORDER_BY_PUBLISHED_DESC": 4,
+	}
+)
+
+func (x VulnOrderBy) Enum() *VulnOrderBy {
+	p := new(VulnOrderBy)
+	*p = x
+	return p
+}
+
+func (x VulnOrderBy) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (VulnOrderBy) Descriptor() protoreflect.EnumDescriptor {
+	return file_argos_vulns_platform_proto_enumTypes[0].Descriptor()
+}
+
+func (VulnOrderBy) Type() protoreflect.EnumType {
+	return &file_argos_vulns_platform_proto_enumTypes[0]
+}
+
+func (x VulnOrderBy) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use VulnOrderBy.Descriptor instead.
+func (VulnOrderBy) EnumDescriptor() ([]byte, []int) {
+	return file_argos_vulns_platform_proto_rawDescGZIP(), []int{0}
+}
+
 type BatchGetVulnsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// parent is the UIDP of the organization (root group) to scope the query to.
@@ -123,7 +189,11 @@ type ListOrgVulnsRequest struct {
 	// compared ignoring case.
 	Ecosystem string `protobuf:"bytes,8,opt,name=ecosystem,proto3" json:"ecosystem,omitempty"`
 	// package_name keeps records with an affected package of exactly this name.
-	PackageName   string `protobuf:"bytes,9,opt,name=package_name,json=packageName,proto3" json:"package_name,omitempty"`
+	PackageName string `protobuf:"bytes,9,opt,name=package_name,json=packageName,proto3" json:"package_name,omitempty"`
+	// order_by orders the list; unspecified is CGP ID order. Under an order,
+	// total_count counts matching records as a filtered list does, and
+	// page_token must come from a page under the same order.
+	OrderBy       VulnOrderBy `protobuf:"varint,10,opt,name=order_by,json=orderBy,proto3,enum=chainguard.platform.argos.VulnOrderBy" json:"order_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -222,6 +292,13 @@ func (x *ListOrgVulnsRequest) GetPackageName() string {
 	return ""
 }
 
+func (x *ListOrgVulnsRequest) GetOrderBy() VulnOrderBy {
+	if x != nil {
+		return x.OrderBy
+	}
+	return VulnOrderBy_VULN_ORDER_BY_UNSPECIFIED
+}
+
 type VulnList struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// vulns is the list of OSV records returned, reusing the public OSVRecord
@@ -290,13 +367,13 @@ var File_argos_vulns_platform_proto protoreflect.FileDescriptor
 
 const file_argos_vulns_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x1aargos_vulns.platform.proto\x12\x19chainguard.platform.argos\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16annotations/auth.proto\x1a\x18argos_osv.platform.proto\"\x8b\x01\n" +
+	"\x1aargos_vulns.platform.proto\x12\x19chainguard.platform.argos\x1a\x16annotations/auth.proto\x1a\x18argos_osv.platform.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8b\x01\n" +
 	"\x14BatchGetVulnsRequest\x12\x1e\n" +
 	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12\x17\n" +
 	"\acgp_ids\x18\x02 \x03(\tR\x06cgpIds\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\x03 \x01(\tR\tpageToken\x12\x1b\n" +
-	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\"\xd5\x02\n" +
+	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\"\x9e\x03\n" +
 	"\x13ListOrgVulnsRequest\x12\x1e\n" +
 	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12\x1c\n" +
 	"\apackage\x18\x02 \x01(\tB\x02\x18\x01R\apackage\x12\x18\n" +
@@ -307,7 +384,9 @@ const file_argos_vulns_platform_proto_rawDesc = "" +
 	"\rupdated_since\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\fupdatedSince\x12\x1c\n" +
 	"\ahas_fix\x18\a \x01(\bH\x00R\x06hasFix\x88\x01\x01\x12\x1c\n" +
 	"\tecosystem\x18\b \x01(\tR\tecosystem\x12!\n" +
-	"\fpackage_name\x18\t \x01(\tR\vpackageNameB\n" +
+	"\fpackage_name\x18\t \x01(\tR\vpackageName\x12G\n" +
+	"\border_by\x18\n" +
+	" \x01(\x0e2&.chainguard.platform.argos.VulnOrderByB\x04\xe2A\x01\x01R\aorderByB\n" +
 	"\n" +
 	"\b_has_fix\"\xa4\x01\n" +
 	"\bVulnList\x12:\n" +
@@ -315,7 +394,13 @@ const file_argos_vulns_platform_proto_rawDesc = "" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12$\n" +
 	"\vtotal_count\x18\x03 \x01(\x03H\x00R\n" +
 	"totalCount\x88\x01\x01B\x0e\n" +
-	"\f_total_count2\xcb\x02\n" +
+	"\f_total_count*\xb0\x01\n" +
+	"\vVulnOrderBy\x12\x1d\n" +
+	"\x19VULN_ORDER_BY_UNSPECIFIED\x10\x00\x12\x1e\n" +
+	"\x1aVULN_ORDER_BY_MODIFIED_ASC\x10\x01\x12\x1f\n" +
+	"\x1bVULN_ORDER_BY_MODIFIED_DESC\x10\x02\x12\x1f\n" +
+	"\x1bVULN_ORDER_BY_PUBLISHED_ASC\x10\x03\x12 \n" +
+	"\x1cVULN_ORDER_BY_PUBLISHED_DESC\x10\x042\xcb\x02\n" +
 	"\n" +
 	"ArgosVulns\x12\xa2\x01\n" +
 	"\bBatchGet\x12/.chainguard.platform.argos.BatchGetVulnsRequest\x1a#.chainguard.platform.argos.VulnList\"@\x82\xd3\xe4\x93\x02.:\x01*\")/argos/v1/orgs/{parent=**}/vulns:batchGet\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
@@ -336,26 +421,29 @@ func file_argos_vulns_platform_proto_rawDescGZIP() []byte {
 	return file_argos_vulns_platform_proto_rawDescData
 }
 
+var file_argos_vulns_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_argos_vulns_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_argos_vulns_platform_proto_goTypes = []any{
-	(*BatchGetVulnsRequest)(nil),  // 0: chainguard.platform.argos.BatchGetVulnsRequest
-	(*ListOrgVulnsRequest)(nil),   // 1: chainguard.platform.argos.ListOrgVulnsRequest
-	(*VulnList)(nil),              // 2: chainguard.platform.argos.VulnList
-	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
-	(*OSVRecord)(nil),             // 4: chainguard.platform.argos.OSVRecord
+	(VulnOrderBy)(0),              // 0: chainguard.platform.argos.VulnOrderBy
+	(*BatchGetVulnsRequest)(nil),  // 1: chainguard.platform.argos.BatchGetVulnsRequest
+	(*ListOrgVulnsRequest)(nil),   // 2: chainguard.platform.argos.ListOrgVulnsRequest
+	(*VulnList)(nil),              // 3: chainguard.platform.argos.VulnList
+	(*timestamppb.Timestamp)(nil), // 4: google.protobuf.Timestamp
+	(*OSVRecord)(nil),             // 5: chainguard.platform.argos.OSVRecord
 }
 var file_argos_vulns_platform_proto_depIdxs = []int32{
-	3, // 0: chainguard.platform.argos.ListOrgVulnsRequest.updated_since:type_name -> google.protobuf.Timestamp
-	4, // 1: chainguard.platform.argos.VulnList.vulns:type_name -> chainguard.platform.argos.OSVRecord
-	0, // 2: chainguard.platform.argos.ArgosVulns.BatchGet:input_type -> chainguard.platform.argos.BatchGetVulnsRequest
-	1, // 3: chainguard.platform.argos.ArgosVulns.ListForOrg:input_type -> chainguard.platform.argos.ListOrgVulnsRequest
-	2, // 4: chainguard.platform.argos.ArgosVulns.BatchGet:output_type -> chainguard.platform.argos.VulnList
-	2, // 5: chainguard.platform.argos.ArgosVulns.ListForOrg:output_type -> chainguard.platform.argos.VulnList
-	4, // [4:6] is the sub-list for method output_type
-	2, // [2:4] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	4, // 0: chainguard.platform.argos.ListOrgVulnsRequest.updated_since:type_name -> google.protobuf.Timestamp
+	0, // 1: chainguard.platform.argos.ListOrgVulnsRequest.order_by:type_name -> chainguard.platform.argos.VulnOrderBy
+	5, // 2: chainguard.platform.argos.VulnList.vulns:type_name -> chainguard.platform.argos.OSVRecord
+	1, // 3: chainguard.platform.argos.ArgosVulns.BatchGet:input_type -> chainguard.platform.argos.BatchGetVulnsRequest
+	2, // 4: chainguard.platform.argos.ArgosVulns.ListForOrg:input_type -> chainguard.platform.argos.ListOrgVulnsRequest
+	3, // 5: chainguard.platform.argos.ArgosVulns.BatchGet:output_type -> chainguard.platform.argos.VulnList
+	3, // 6: chainguard.platform.argos.ArgosVulns.ListForOrg:output_type -> chainguard.platform.argos.VulnList
+	5, // [5:7] is the sub-list for method output_type
+	3, // [3:5] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_argos_vulns_platform_proto_init() }
@@ -371,13 +459,14 @@ func file_argos_vulns_platform_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_argos_vulns_platform_proto_rawDesc), len(file_argos_vulns_platform_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_argos_vulns_platform_proto_goTypes,
 		DependencyIndexes: file_argos_vulns_platform_proto_depIdxs,
+		EnumInfos:         file_argos_vulns_platform_proto_enumTypes,
 		MessageInfos:      file_argos_vulns_platform_proto_msgTypes,
 	}.Build()
 	File_argos_vulns_platform_proto = out.File
