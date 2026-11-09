@@ -1331,7 +1331,11 @@ type Decision struct {
 	// The artifact this decision applies to: a manifest digest
 	// ("sha256:...") for container policies or a PURL
 	// ("pkg:npm/left-pad@1.3.0") for library policies.
-	ArtifactId    string `protobuf:"bytes,10,opt,name=artifact_id,json=artifactId,proto3" json:"artifact_id,omitempty"`
+	ArtifactId string `protobuf:"bytes,10,opt,name=artifact_id,json=artifactId,proto3" json:"artifact_id,omitempty"`
+	// The versioned resource type of the evaluated artifact, the
+	// supported_resource_type of the evaluated policy, such as
+	// "libraries.chainguard.dev/PythonPackage@v1".
+	ResourceType  string `protobuf:"bytes,11,opt,name=resource_type,json=resourceType,proto3" json:"resource_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1433,6 +1437,13 @@ func (x *Decision) GetPulledOn() *date.Date {
 func (x *Decision) GetArtifactId() string {
 	if x != nil {
 		return x.ArtifactId
+	}
+	return ""
+}
+
+func (x *Decision) GetResourceType() string {
+	if x != nil {
+		return x.ResourceType
 	}
 	return ""
 }
@@ -2328,7 +2339,7 @@ const file_policies_platform_proto_rawDesc = "" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12B\n" +
 	"\abinding\x18\x02 \x01(\v2(.chainguard.platform.policies.v1.BindingR\abinding\".\n" +
 	"\x14DeleteBindingRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"\xb4\x03\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"\xdf\x03\n" +
 	"\bDecision\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x1d\n" +
 	"\arepo_id\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x06repoId\x12\x1e\n" +
@@ -2342,7 +2353,8 @@ const file_policies_platform_proto_rawDesc = "" +
 	"\tpulled_on\x18\t \x01(\v2\x11.google.type.DateB\x04\xe2A\x01\x03R\bpulledOn\x12%\n" +
 	"\vartifact_id\x18\n" +
 	" \x01(\tB\x04\xe2A\x01\x03R\n" +
-	"artifactId\"\xb2\x01\n" +
+	"artifactId\x12)\n" +
+	"\rresource_type\x18\v \x01(\tB\x04\xe2A\x01\x03R\fresourceType\"\xb2\x01\n" +
 	"\fDecisionList\x12?\n" +
 	"\x05items\x18\x01 \x03(\v2).chainguard.platform.policies.v1.DecisionR\x05items\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
