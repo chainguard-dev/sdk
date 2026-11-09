@@ -34,6 +34,7 @@ type MockIdentityProvidersServiceClient struct {
 	OnSetScimEnabled         []test.On[*iam.SetScimEnabledRequest, *iam.SetScimEnabledResponse]
 	OnResetCorrelationRule   []test.On[*iam.ResetCorrelationRuleRequest, *iam.ResetCorrelationRuleResponse]
 	OnListManualBindings     []test.On[*iam.ListManualBindingsRequest, *iam.ListManualBindingsResponse]
+	OnRemoveManualBindings   []test.On[*iam.RemoveManualBindingsRequest, *iam.RemoveManualBindingsResponse]
 }
 
 func (m MockIdentityProvidersServiceClient) GetIdentityProvider(_ context.Context, given *iam.GetIdentityProviderRequest, _ ...grpc.CallOption) (*iam.IdentityProvider, error) {
@@ -78,4 +79,8 @@ func (m MockIdentityProvidersServiceClient) ResetCorrelationRule(_ context.Conte
 
 func (m MockIdentityProvidersServiceClient) ListManualBindings(_ context.Context, given *iam.ListManualBindingsRequest, _ ...grpc.CallOption) (*iam.ListManualBindingsResponse, error) {
 	return test.Match(m.T, m.OnListManualBindings, given, "list-manual-bindings", protocmp.Transform())
+}
+
+func (m MockIdentityProvidersServiceClient) RemoveManualBindings(_ context.Context, given *iam.RemoveManualBindingsRequest, _ ...grpc.CallOption) (*iam.RemoveManualBindingsResponse, error) {
+	return test.Match(m.T, m.OnRemoveManualBindings, given, "remove-manual-bindings", protocmp.Transform())
 }

@@ -342,12 +342,13 @@ service IdentityProvidersService {
   //
   // Bindings that are never classified, and so are never removed, are reported
   // only when include_excluded is set or exclusions names a reason: the owner
-  // and support roles, and the
-  // bindings of people whose SCIM link was made under a correlation rule that
-  // has since been replaced. The list covers the people the identity provider
-  // provisions: an identity with no provisioned user is not listed, and its
-  // bindings are never removed. Only bindings in groups under the identity
-  // provider's organization are listed. Reads only; nothing is changed.
+  // and support roles, and the bindings of people whose SCIM link was made
+  // under a correlation rule that has since been replaced. The list covers the
+  // people the identity provider provisions: an identity with no provisioned
+  // user is not listed, and its bindings are never removed. Only bindings in
+  // groups under the identity provider's organization are listed. A person is
+  // not unique by uid (see ManualBindingPerson). Reads only; nothing is
+  // changed.
   // protolint:disable:next MAX_LINE_LENGTH
   rpc ListManualBindings(ListManualBindingsRequest) returns (ListManualBindingsResponse) {
     option (google.api.http) = {
@@ -379,6 +380,86 @@ service IdentityProvidersService {
       // employee directory, which is not something to place on an AI-agent
       // surface by default. Unaffected: the gRPC and REST APIs, chainctl and
       // the console; only MCP tool generation skips it.
+      hidden: true
+    };
+  }
+
+  // RemoveManualBindings removes the directly assigned role bindings that
+  // ListManualBindings classifies for the selected classes, in two steps.
+  //
+  // A dry run (dry_run true) changes nothing and returns the bindings that
+  // would be removed, with a plan_token that fingerprints exactly that set. To
+  // apply, send the plan_token with dry_run false. The call recomputes the set
+  // and removes it, and the whole call is refused with FAILED_PRECONDITION if
+  // anything the plan_token covers has changed since the dry run. A request
+  // that leaves dry_run unset applies, so without a plan_token it is refused
+  // with INVALID_ARGUMENT and nothing is removed. A plan that would need more
+  // than 40,000 provisioned people fails with RESOURCE_EXHAUSTED.
+  //
+  // The set is classified from reads that are not one snapshot, so it is
+  // advisory. Each binding is removed through the datastore's role binding
+  // delete, which checks, in the delete's own transaction, that the binding
+  // still belongs to the person and has the role the plan named, and that
+  // every SCIM-managed binding that made it redundant still exists and is
+  // still granted. A binding that fails that check is reported as REFUSED
+  // with the reason, and the others are still attempted. The check does not
+  // re-verify that role capabilities still cover, so a role edited while the
+  // call runs can defeat it; the plan_token covers the time between the dry
+  // run and the call.
+  //
+  // Only role bindings assigned directly, of the selected classes, and not
+  // excluded (see ListManualBindings) are selected, and only those whose role
+  // the caller could grant at their scope; the rest are reported as REFUSED. A
+  // call handles a bounded number of bindings, and more_remain reports whether
+  // to run a new dry run and apply it. A retry with the same plan_token is
+  // refused once a call has removed any binding or found one already gone,
+  // because the selection changed. A call that left every selected binding in
+  // place, for example because a concurrent change aborted them all, leaves
+  // the plan_token valid; run a new dry run first all the same, to see what
+  // remains.
+  //
+  // Removing NOT_COVERED bindings takes access away from the people who hold
+  // them, so they are removed only when that class is named.
+  //
+  // A dry run publishes no audit event. An applied call publishes one role
+  // binding delete event for each binding it removed, and one summary event.
+  // protolint:disable:next MAX_LINE_LENGTH
+  rpc RemoveManualBindings(RemoveManualBindingsRequest) returns (RemoveManualBindingsResponse) {
+    option (google.api.http) = {
+      // protolint:disable:next MAX_LINE_LENGTH
+      post: "/iam/v2/identityProviders/{identity_provider_uid=**}:removeManualBindings"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_IAM_ROLE_BINDINGS_DELETE,
+          // The dry run lists the bindings that would be removed, so it
+          // requires no less than listing them does.
+          CAP_IAM_ROLE_BINDINGS_LIST,
+          // The removal is driven by SCIM state, so it also requires the SCIM
+          // management capability.
+          CAP_IAM_SCIM_MANAGE
+        ]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      // protolint:disable:next MAX_LINE_LENGTH
+      type: "dev.chainguard.api.iam.identity_providers.manual_bindings.removed.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description:
+        "Remove the directly assigned role bindings that SCIM "
+        "provisioning supersedes for an identity provider. A dry run "
+        "returns the plan and a plan_token to apply it."
+      read_only: false
+      destructive: true
+      idempotent: false
+      open_world: false
+      // Withheld from the MCP tool surface, as ListManualBindings is: it
+      // removes access in bulk and is meant to follow a reviewed dry run.
       hidden: true
     };
   }
@@ -1005,7 +1086,12 @@ message ListManualBindingsResponse {
 //     and its bindings returned by ListManualBindings, not a standalone
 //     resource. --)
 message ManualBindingPerson {
-  // UID of the person's Chainguard identity.
+  // UID of the person's Chainguard identity. A person is not unique by uid:
+  // after a correlation-rule reset a row linked under the replaced rule and
+  // the current row can both be listed for the same identity, so with
+  // include_excluded the same uid can appear twice, once classified and once
+  // excluded, and total_count counts it twice. Key by the provisioned user,
+  // not by uid.
   string uid = 1;
 
   // Display name of the identity, or the provisioned user's display name when
@@ -1093,6 +1179,81 @@ message ScimBindingSource {
   string scim_group_name = 6;
 }
 
+// RemoveManualBindingsRequest is the request message for RemoveManualBindings.
+message RemoveManualBindingsRequest {
+  // UID of the identity provider whose SCIM-provisioned people are affected.
+  string identity_provider_uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The classes to remove. Empty selects DUPLICATE and COVERED. NOT_COVERED
+  // takes access away and is removed only when named here. UNSPECIFIED is not
+  // a valid value.
+  // protolint:disable:next MAX_LINE_LENGTH
+  repeated ManualBindingClass classes = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Whether to only plan the removal. True changes nothing and returns the
+  // plan and its plan_token. False, or unset, applies the removal the
+  // plan_token describes, so it needs the plan_token.
+  // (-- api-linter: core::0163::synonyms=disabled
+  //     aip.dev/not-precedent: dry_run is the name this API and chainctl's
+  //     --dry-run use for a plan-only call. --)
+  bool dry_run = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // The plan_token from a dry run of the same selection. Required when dry_run
+  // is false, else the call is refused with INVALID_ARGUMENT. The call is
+  // refused with FAILED_PRECONDITION if the bindings it covers, or what they
+  // rely on, have changed since the dry run. Ignored in a dry run.
+  string plan_token = 4 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// RemoveManualBindingsResponse reports a dry run's plan or an apply's results.
+message RemoveManualBindingsResponse {
+  // Whether this call was a dry run. When true nothing was removed.
+  // (-- api-linter: core::0163::synonyms=disabled
+  //     aip.dev/not-precedent: echoes the request's dry_run. --)
+  bool dry_run = 1;
+
+  // Dry run only: the token that applies exactly the bindings listed in
+  // removals as PLANNED.
+  string plan_token = 2;
+
+  // One entry per binding handled by this call: PLANNED in a dry run, and the
+  // outcome of each removal when applied. A binding the caller may not remove
+  // is listed as REFUSED in both.
+  repeated ManualBindingRemoval removals = 3;
+
+  // How many people lose access if the removals are applied: those with a
+  // NOT_COVERED binding among the planned or removed ones. Zero when only
+  // DUPLICATE and COVERED are selected.
+  int64 people_losing_access = 4;
+
+  // Whether selected bindings were left for a further call, because a call
+  // handles a bounded number, because an applied call stopped early, or because
+  // a binding's delete gave up on a concurrent change and the binding is still
+  // in place. Run a new dry run before applying again.
+  bool more_remain = 5;
+
+  // UID of the identity provider, echoed for attribution.
+  string identity_provider_uid = 6;
+}
+
+// ManualBindingRemoval is the outcome for one binding.
+message ManualBindingRemoval {
+  // UID of the person's Chainguard identity.
+  string identity_uid = 1;
+
+  // The binding and its class.
+  ManualBinding binding = 2;
+
+  // What happened, or in a dry run would happen, to the binding.
+  ManualBindingRemovalOutcome outcome = 3;
+
+  // Why the binding was refused. Empty unless the outcome is REFUSED.
+  string reason = 4;
+}
+
 // ManualBindingClass says how SCIM relates to a role binding that was assigned
 // directly.
 enum ManualBindingClass {
@@ -1129,4 +1290,29 @@ enum ManualBindingExclusion {
   // been replaced, so it grants nothing. People with no provisioned user, or
   // who have not signed in, are not listed at all.
   MANUAL_BINDING_EXCLUSION_NO_CURRENT_SCIM_LINK = 2;
+}
+
+// ManualBindingRemovalOutcome is what happened, or in a dry run would happen,
+// to one binding.
+enum ManualBindingRemovalOutcome {
+  // The outcome is unset.
+  MANUAL_BINDING_REMOVAL_OUTCOME_UNSPECIFIED = 0;
+
+  // Dry run: the binding would be removed.
+  MANUAL_BINDING_REMOVAL_OUTCOME_PLANNED = 1;
+
+  // The binding was removed.
+  MANUAL_BINDING_REMOVAL_OUTCOME_REMOVED = 2;
+
+  // Another writer removed the binding after this call selected it, so there
+  // was nothing to delete.
+  MANUAL_BINDING_REMOVAL_OUTCOME_ALREADY_GONE = 3;
+
+  // The binding was left in place, and reason says why: the caller could not
+  // grant its role at its scope, its role no longer exists, the binding or
+  // the SCIM bindings it relied on changed after this call recomputed the
+  // plan, a concurrent SCIM change made the delete give up, in which case a
+  // new dry run and apply is safe, or the datastore failed, in which case the
+  // bindings after it were not attempted.
+  MANUAL_BINDING_REMOVAL_OUTCOME_REFUSED = 4;
 }

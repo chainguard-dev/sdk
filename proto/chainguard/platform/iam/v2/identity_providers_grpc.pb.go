@@ -34,6 +34,7 @@ const (
 	IdentityProvidersService_SetScimEnabled_FullMethodName         = "/chainguard.platform.iam.v2.IdentityProvidersService/SetScimEnabled"
 	IdentityProvidersService_ResetCorrelationRule_FullMethodName   = "/chainguard.platform.iam.v2.IdentityProvidersService/ResetCorrelationRule"
 	IdentityProvidersService_ListManualBindings_FullMethodName     = "/chainguard.platform.iam.v2.IdentityProvidersService/ListManualBindings"
+	IdentityProvidersService_RemoveManualBindings_FullMethodName   = "/chainguard.platform.iam.v2.IdentityProvidersService/RemoveManualBindings"
 )
 
 // IdentityProvidersServiceClient is the client API for IdentityProvidersService service.
@@ -144,14 +145,56 @@ type IdentityProvidersServiceClient interface {
 	//
 	// Bindings that are never classified, and so are never removed, are reported
 	// only when include_excluded is set or exclusions names a reason: the owner
-	// and support roles, and the
-	// bindings of people whose SCIM link was made under a correlation rule that
-	// has since been replaced. The list covers the people the identity provider
-	// provisions: an identity with no provisioned user is not listed, and its
-	// bindings are never removed. Only bindings in groups under the identity
-	// provider's organization are listed. Reads only; nothing is changed.
+	// and support roles, and the bindings of people whose SCIM link was made
+	// under a correlation rule that has since been replaced. The list covers the
+	// people the identity provider provisions: an identity with no provisioned
+	// user is not listed, and its bindings are never removed. Only bindings in
+	// groups under the identity provider's organization are listed. A person is
+	// not unique by uid (see ManualBindingPerson). Reads only; nothing is
+	// changed.
 	// protolint:disable:next MAX_LINE_LENGTH
 	ListManualBindings(ctx context.Context, in *ListManualBindingsRequest, opts ...grpc.CallOption) (*ListManualBindingsResponse, error)
+	// RemoveManualBindings removes the directly assigned role bindings that
+	// ListManualBindings classifies for the selected classes, in two steps.
+	//
+	// A dry run (dry_run true) changes nothing and returns the bindings that
+	// would be removed, with a plan_token that fingerprints exactly that set. To
+	// apply, send the plan_token with dry_run false. The call recomputes the set
+	// and removes it, and the whole call is refused with FAILED_PRECONDITION if
+	// anything the plan_token covers has changed since the dry run. A request
+	// that leaves dry_run unset applies, so without a plan_token it is refused
+	// with INVALID_ARGUMENT and nothing is removed. A plan that would need more
+	// than 40,000 provisioned people fails with RESOURCE_EXHAUSTED.
+	//
+	// The set is classified from reads that are not one snapshot, so it is
+	// advisory. Each binding is removed through the datastore's role binding
+	// delete, which checks, in the delete's own transaction, that the binding
+	// still belongs to the person and has the role the plan named, and that
+	// every SCIM-managed binding that made it redundant still exists and is
+	// still granted. A binding that fails that check is reported as REFUSED
+	// with the reason, and the others are still attempted. The check does not
+	// re-verify that role capabilities still cover, so a role edited while the
+	// call runs can defeat it; the plan_token covers the time between the dry
+	// run and the call.
+	//
+	// Only role bindings assigned directly, of the selected classes, and not
+	// excluded (see ListManualBindings) are selected, and only those whose role
+	// the caller could grant at their scope; the rest are reported as REFUSED. A
+	// call handles a bounded number of bindings, and more_remain reports whether
+	// to run a new dry run and apply it. A retry with the same plan_token is
+	// refused once a call has removed any binding or found one already gone,
+	// because the selection changed. A call that left every selected binding in
+	// place, for example because a concurrent change aborted them all, leaves
+	// the plan_token valid; run a new dry run first all the same, to see what
+	// remains.
+	//
+	// Removing NOT_COVERED bindings takes access away from the people who hold
+	// them, so they are removed only when that class is named.
+	//
+	// A dry run publishes no audit event. An applied call publishes one role
+	// binding delete event for each binding it removed, and one summary event.
+	// protolint:disable:next MAX_LINE_LENGTH
+	RemoveManualBindings(ctx context.Context, in *RemoveManualBindingsRequest, opts ...grpc.CallOption) (*RemoveManualBindingsResponse, error)
 }
 
 type identityProvidersServiceClient struct {
@@ -272,6 +315,16 @@ func (c *identityProvidersServiceClient) ListManualBindings(ctx context.Context,
 	return out, nil
 }
 
+func (c *identityProvidersServiceClient) RemoveManualBindings(ctx context.Context, in *RemoveManualBindingsRequest, opts ...grpc.CallOption) (*RemoveManualBindingsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RemoveManualBindingsResponse)
+	err := c.cc.Invoke(ctx, IdentityProvidersService_RemoveManualBindings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // IdentityProvidersServiceServer is the server API for IdentityProvidersService service.
 // All implementations must embed UnimplementedIdentityProvidersServiceServer
 // for forward compatibility.
@@ -380,14 +433,56 @@ type IdentityProvidersServiceServer interface {
 	//
 	// Bindings that are never classified, and so are never removed, are reported
 	// only when include_excluded is set or exclusions names a reason: the owner
-	// and support roles, and the
-	// bindings of people whose SCIM link was made under a correlation rule that
-	// has since been replaced. The list covers the people the identity provider
-	// provisions: an identity with no provisioned user is not listed, and its
-	// bindings are never removed. Only bindings in groups under the identity
-	// provider's organization are listed. Reads only; nothing is changed.
+	// and support roles, and the bindings of people whose SCIM link was made
+	// under a correlation rule that has since been replaced. The list covers the
+	// people the identity provider provisions: an identity with no provisioned
+	// user is not listed, and its bindings are never removed. Only bindings in
+	// groups under the identity provider's organization are listed. A person is
+	// not unique by uid (see ManualBindingPerson). Reads only; nothing is
+	// changed.
 	// protolint:disable:next MAX_LINE_LENGTH
 	ListManualBindings(context.Context, *ListManualBindingsRequest) (*ListManualBindingsResponse, error)
+	// RemoveManualBindings removes the directly assigned role bindings that
+	// ListManualBindings classifies for the selected classes, in two steps.
+	//
+	// A dry run (dry_run true) changes nothing and returns the bindings that
+	// would be removed, with a plan_token that fingerprints exactly that set. To
+	// apply, send the plan_token with dry_run false. The call recomputes the set
+	// and removes it, and the whole call is refused with FAILED_PRECONDITION if
+	// anything the plan_token covers has changed since the dry run. A request
+	// that leaves dry_run unset applies, so without a plan_token it is refused
+	// with INVALID_ARGUMENT and nothing is removed. A plan that would need more
+	// than 40,000 provisioned people fails with RESOURCE_EXHAUSTED.
+	//
+	// The set is classified from reads that are not one snapshot, so it is
+	// advisory. Each binding is removed through the datastore's role binding
+	// delete, which checks, in the delete's own transaction, that the binding
+	// still belongs to the person and has the role the plan named, and that
+	// every SCIM-managed binding that made it redundant still exists and is
+	// still granted. A binding that fails that check is reported as REFUSED
+	// with the reason, and the others are still attempted. The check does not
+	// re-verify that role capabilities still cover, so a role edited while the
+	// call runs can defeat it; the plan_token covers the time between the dry
+	// run and the call.
+	//
+	// Only role bindings assigned directly, of the selected classes, and not
+	// excluded (see ListManualBindings) are selected, and only those whose role
+	// the caller could grant at their scope; the rest are reported as REFUSED. A
+	// call handles a bounded number of bindings, and more_remain reports whether
+	// to run a new dry run and apply it. A retry with the same plan_token is
+	// refused once a call has removed any binding or found one already gone,
+	// because the selection changed. A call that left every selected binding in
+	// place, for example because a concurrent change aborted them all, leaves
+	// the plan_token valid; run a new dry run first all the same, to see what
+	// remains.
+	//
+	// Removing NOT_COVERED bindings takes access away from the people who hold
+	// them, so they are removed only when that class is named.
+	//
+	// A dry run publishes no audit event. An applied call publishes one role
+	// binding delete event for each binding it removed, and one summary event.
+	// protolint:disable:next MAX_LINE_LENGTH
+	RemoveManualBindings(context.Context, *RemoveManualBindingsRequest) (*RemoveManualBindingsResponse, error)
 	mustEmbedUnimplementedIdentityProvidersServiceServer()
 }
 
@@ -430,6 +525,9 @@ func (UnimplementedIdentityProvidersServiceServer) ResetCorrelationRule(context.
 }
 func (UnimplementedIdentityProvidersServiceServer) ListManualBindings(context.Context, *ListManualBindingsRequest) (*ListManualBindingsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListManualBindings not implemented")
+}
+func (UnimplementedIdentityProvidersServiceServer) RemoveManualBindings(context.Context, *RemoveManualBindingsRequest) (*RemoveManualBindingsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RemoveManualBindings not implemented")
 }
 func (UnimplementedIdentityProvidersServiceServer) mustEmbedUnimplementedIdentityProvidersServiceServer() {
 }
@@ -651,6 +749,24 @@ func _IdentityProvidersService_ListManualBindings_Handler(srv interface{}, ctx c
 	return interceptor(ctx, in, info, handler)
 }
 
+func _IdentityProvidersService_RemoveManualBindings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveManualBindingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IdentityProvidersServiceServer).RemoveManualBindings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IdentityProvidersService_RemoveManualBindings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IdentityProvidersServiceServer).RemoveManualBindings(ctx, req.(*RemoveManualBindingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // IdentityProvidersService_ServiceDesc is the grpc.ServiceDesc for IdentityProvidersService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -701,6 +817,10 @@ var IdentityProvidersService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListManualBindings",
 			Handler:    _IdentityProvidersService_ListManualBindings_Handler,
+		},
+		{
+			MethodName: "RemoveManualBindings",
+			Handler:    _IdentityProvidersService_RemoveManualBindings_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

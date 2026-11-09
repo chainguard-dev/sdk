@@ -32,6 +32,12 @@ var (
 	_ events.Extendable     = (*ResetCorrelationRuleResponse)(nil)
 	_ events.Redactable     = (*ResetCorrelationRuleResponse)(nil)
 	_ events.AsyncEventable = (*ResetCorrelationRuleResponse)(nil)
+
+	_ events.Eventable           = (*RemoveManualBindingsResponse)(nil)
+	_ events.Extendable          = (*RemoveManualBindingsResponse)(nil)
+	_ events.Redactable          = (*RemoveManualBindingsResponse)(nil)
+	_ events.Suppressible        = (*RemoveManualBindingsResponse)(nil)
+	_ events.AdditionalEventable = (*RemoveManualBindingsResponse)(nil)
 )
 
 // CloudEventsExtension implements chainguard.dev/sdk/events/Extendable.CloudEventsExtension
@@ -188,6 +194,70 @@ func (x *ResetCorrelationRuleResponse) CloudEventsRedact() any {
 	}
 	if x.IdentityProvider != nil {
 		r.IdentityProvider = x.IdentityProvider.CloudEventsRedact().(*IdentityProvider)
+	}
+	return r
+}
+
+func (x *RemoveManualBindingsResponse) CloudEventsSubject() string {
+	return x.GetIdentityProviderUid()
+}
+
+func (x *RemoveManualBindingsResponse) CloudEventsExtension(key string) (string, bool) {
+	return scimEventExtension(x.GetIdentityProviderUid(), key)
+}
+
+// CloudEventsSuppress publishes nothing for a dry run, which removed nothing.
+func (x *RemoveManualBindingsResponse) CloudEventsSuppress() bool { return x.GetDryRun() }
+
+// roleBindingDeletedEventType is the type of the DeleteRoleBinding event.
+const roleBindingDeletedEventType = "dev.chainguard.api.iam.rolebindings.deleted.v1"
+
+// CloudEventsAdditional publishes the role binding delete event for each binding
+// this call removed, the same event deleting it one at a time publishes. A
+// binding that was already gone or was refused was not removed here and gets
+// none.
+func (x *RemoveManualBindingsResponse) CloudEventsAdditional() []events.AdditionalEvent {
+	var out []events.AdditionalEvent
+	for _, removal := range x.GetRemovals() {
+		if removal.GetOutcome() != ManualBindingRemovalOutcome_MANUAL_BINDING_REMOVAL_OUTCOME_REMOVED {
+			continue
+		}
+		out = append(out, events.AdditionalEvent{
+			Type:       roleBindingDeletedEventType,
+			Extensions: []string{"group"},
+			Audience:   events.AudienceCustomer,
+			Body:       &DeleteRoleBindingRequest{Uid: removal.GetBinding().GetUid()},
+		})
+	}
+	return out
+}
+
+// CloudEventsRedact keeps what the audit record needs: which bindings were
+// removed, refused or already gone, for whom, and in what class. It drops the
+// display names of the people, roles and groups, which the UIDs identify, and
+// the superseding sources whole, so the record does not say which SCIM
+// bindings or groups made each binding redundant.
+func (x *RemoveManualBindingsResponse) CloudEventsRedact() any {
+	r := &RemoveManualBindingsResponse{
+		DryRun:              x.DryRun,
+		PeopleLosingAccess:  x.PeopleLosingAccess,
+		MoreRemain:          x.MoreRemain,
+		IdentityProviderUid: x.IdentityProviderUid,
+	}
+	for _, removal := range x.GetRemovals() {
+		b := removal.GetBinding()
+		r.Removals = append(r.Removals, &ManualBindingRemoval{
+			IdentityUid: removal.GetIdentityUid(),
+			Binding: &ManualBinding{
+				Uid:          b.GetUid(),
+				RoleUid:      b.GetRoleUid(),
+				GroupUid:     b.GetGroupUid(),
+				BindingClass: b.GetBindingClass(),
+				Exclusion:    b.GetExclusion(),
+			},
+			Outcome: removal.GetOutcome(),
+			Reason:  removal.GetReason(),
+		})
 	}
 	return r
 }
