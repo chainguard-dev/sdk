@@ -618,6 +618,16 @@ message DecisionFilter {
 
   // Only return decisions for this artifact.
   string artifact_id = 12;
+
+  // Only return decisions whose resource_type equals this value.
+  // The value takes the versioned form Decision.resource_type takes
+  // (e.g. "libraries.chainguard.dev/PythonPackage@v1") and matches exactly.
+  // A value without an "@<version>" suffix is rejected with
+  // INVALID_ARGUMENT. A well-formed type that no decision carries returns
+  // an empty list.
+  // Empty returns decisions of every type.
+  // Note: Changing resource_type between pages invalidates the page token.
+  string resource_type = 13;
 }
 
 // Override is an admin-granted waiver of a policy decision for one specific

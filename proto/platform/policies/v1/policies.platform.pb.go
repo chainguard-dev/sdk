@@ -1556,7 +1556,16 @@ type DecisionFilter struct {
 	// Deprecated: Marked as deprecated in policies.platform.proto.
 	Digest string `protobuf:"bytes,11,opt,name=digest,proto3" json:"digest,omitempty"`
 	// Only return decisions for this artifact.
-	ArtifactId    string `protobuf:"bytes,12,opt,name=artifact_id,json=artifactId,proto3" json:"artifact_id,omitempty"`
+	ArtifactId string `protobuf:"bytes,12,opt,name=artifact_id,json=artifactId,proto3" json:"artifact_id,omitempty"`
+	// Only return decisions whose resource_type equals this value.
+	// The value takes the versioned form Decision.resource_type takes
+	// (e.g. "libraries.chainguard.dev/PythonPackage@v1") and matches exactly.
+	// A value without an "@<version>" suffix is rejected with
+	// INVALID_ARGUMENT. A well-formed type that no decision carries returns
+	// an empty list.
+	// Empty returns decisions of every type.
+	// Note: Changing resource_type between pages invalidates the page token.
+	ResourceType  string `protobuf:"bytes,13,opt,name=resource_type,json=resourceType,proto3" json:"resource_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1672,6 +1681,13 @@ func (x *DecisionFilter) GetDigest() string {
 func (x *DecisionFilter) GetArtifactId() string {
 	if x != nil {
 		return x.ArtifactId
+	}
+	return ""
+}
+
+func (x *DecisionFilter) GetResourceType() string {
+	if x != nil {
+		return x.ResourceType
 	}
 	return ""
 }
@@ -2360,7 +2376,7 @@ const file_policies_platform_proto_rawDesc = "" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
 	"\vtotal_count\x18\x03 \x01(\x03R\n" +
 	"totalCount\x12\x18\n" +
-	"\askipped\x18\x04 \x01(\x05R\askipped\"\xf1\x03\n" +
+	"\askipped\x18\x04 \x01(\x05R\askipped\"\x96\x04\n" +
 	"\x0eDecisionFilter\x12:\n" +
 	"\x04uidp\x18\x01 \x01(\v2&.chainguard.platform.common.UIDPFilterR\x04uidp\x12\x1b\n" +
 	"\tpolicy_id\x18\x02 \x01(\tR\bpolicyId\x12?\n" +
@@ -2376,7 +2392,8 @@ const file_policies_platform_proto_rawDesc = "" +
 	" \x01(\x05B\x04\xe2A\x01\x01R\x04skip\x12\x1a\n" +
 	"\x06digest\x18\v \x01(\tB\x02\x18\x01R\x06digest\x12\x1f\n" +
 	"\vartifact_id\x18\f \x01(\tR\n" +
-	"artifactId\"\xfa\x01\n" +
+	"artifactId\x12#\n" +
+	"\rresource_type\x18\r \x01(\tR\fresourceType\"\xfa\x01\n" +
 	"\bOverride\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x1b\n" +
 	"\tpolicy_id\x18\x02 \x01(\tR\bpolicyId\x12\x1a\n" +
