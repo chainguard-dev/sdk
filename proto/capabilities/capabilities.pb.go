@@ -272,8 +272,9 @@ const (
 	Capability_CAP_REGISTRY_CHARTS_ADD Capability = 1690
 	// Customer-registry access also requires the operation's repository and
 	// content permissions.
-	Capability_CAP_REGISTRY_USE  Capability = 1691
-	Capability_CAP_REGISTRY_LIST Capability = 1692
+	Capability_CAP_REGISTRY_USE    Capability = 1691
+	Capability_CAP_REGISTRY_LIST   Capability = 1692
+	Capability_CAP_REGISTRY_MANAGE Capability = 1693
 	// Deprecated: Marked as deprecated in capabilities.proto.
 	Capability_CAP_SIGSTORE_CREATE Capability = 1701
 	// Deprecated: Marked as deprecated in capabilities.proto.
@@ -710,6 +711,7 @@ var (
 		1690:  "CAP_REGISTRY_CHARTS_ADD",
 		1691:  "CAP_REGISTRY_USE",
 		1692:  "CAP_REGISTRY_LIST",
+		1693:  "CAP_REGISTRY_MANAGE",
 		1701:  "CAP_SIGSTORE_CREATE",
 		1702:  "CAP_SIGSTORE_UPDATE",
 		1703:  "CAP_SIGSTORE_LIST",
@@ -975,6 +977,7 @@ var (
 		"CAP_REGISTRY_CHARTS_ADD":                            1690,
 		"CAP_REGISTRY_USE":                                   1691,
 		"CAP_REGISTRY_LIST":                                  1692,
+		"CAP_REGISTRY_MANAGE":                                1693,
 		"CAP_SIGSTORE_CREATE":                                1701,
 		"CAP_SIGSTORE_UPDATE":                                1702,
 		"CAP_SIGSTORE_LIST":                                  1703,
@@ -1167,7 +1170,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xfd\x8f\x01\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xba\x90\x01\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1341,7 +1344,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x1aCAP_REGISTRY_OVERLAYS_EDIT\x10\x99\r\x1a\"\xa8ˑM\xd0\x01\x9a\xaf\xa8\xd2\x05\x16registry.overlays.edit\x12=\n" +
 	"\x17CAP_REGISTRY_CHARTS_ADD\x10\x9a\r\x1a\x1f\xa8ˑM\xfb\x01\x9a\xaf\xa8\xd2\x05\x13registry.charts.add\x12/\n" +
 	"\x10CAP_REGISTRY_USE\x10\x9b\r\x1a\x18\xa8ˑM\x86\x02\x9a\xaf\xa8\xd2\x05\fregistry.use\x121\n" +
-	"\x11CAP_REGISTRY_LIST\x10\x9c\r\x1a\x19\xa8ˑM\x87\x02\x9a\xaf\xa8\xd2\x05\rregistry.list\x126\n" +
+	"\x11CAP_REGISTRY_LIST\x10\x9c\r\x1a\x19\xa8ˑM\x87\x02\x9a\xaf\xa8\xd2\x05\rregistry.list\x12;\n" +
+	"\x13CAP_REGISTRY_MANAGE\x10\x9d\r\x1a!\xa8ˑM\x8c\x02\x9a\xaf\xa8\xd2\x05\x0fregistry.manage\xa0\xaf\xa8\xd2\x05\x01\x126\n" +
 	"\x13CAP_SIGSTORE_CREATE\x10\xa5\r\x1a\x1c\xa8ˑM*\x9a\xaf\xa8\xd2\x05\x0fsigstore.create\b\x01\x126\n" +
 	"\x13CAP_SIGSTORE_UPDATE\x10\xa6\r\x1a\x1c\xa8ˑM+\x9a\xaf\xa8\xd2\x05\x0fsigstore.update\b\x01\x122\n" +
 	"\x11CAP_SIGSTORE_LIST\x10\xa7\r\x1a\x1a\xa8ˑM,\x9a\xaf\xa8\xd2\x05\rsigstore.list\b\x01\x126\n" +

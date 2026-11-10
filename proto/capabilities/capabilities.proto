@@ -336,6 +336,11 @@ enum Capability {
   // content permissions.
   CAP_REGISTRY_USE = 1691 [(name) = "registry.use", (bit) = 262];
   CAP_REGISTRY_LIST = 1692 [(name) = "registry.list", (bit) = 263];
+  CAP_REGISTRY_MANAGE = 1693 [
+    (name) = "registry.manage",
+    (bit) = 268,
+    (internal_only) = true
+  ];
 
   // Sigstore-aas
 
@@ -716,5 +721,5 @@ enum Capability {
   CAP_ENTITLEMENTS_GET = 3203 [(name) = "entitlements.get", (bit) = 252];
 
   reserved 1;
-  // next bit: 268
+  // next bit: 269
 }
