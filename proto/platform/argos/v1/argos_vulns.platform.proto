@@ -79,6 +79,18 @@ message ListOrgVulnsRequest {
   string ecosystem = 8;
   // package_name keeps records with an affected package of exactly this name.
   string package_name = 9;
+  // embargo_ends_after keeps records whose public embargo end is at or after
+  // it, rounded up to the microsecond. With embargo_ends_before it forms the
+  // window [after, before); alone it is a lower bound. A record without an
+  // embargo end never matches. Send the same bounds on every page: the page
+  // token does not carry them.
+  google.protobuf.Timestamp embargo_ends_after = 12
+      [(google.api.field_behavior) = OPTIONAL];
+  // embargo_ends_before keeps records whose public embargo end is before it,
+  // rounded up to the microsecond; with embargo_ends_after it must still be
+  // after it. Alone it is an upper bound.
+  google.protobuf.Timestamp embargo_ends_before = 13
+      [(google.api.field_behavior) = OPTIONAL];
   // order_by orders the list; unspecified is CGP ID order. Under an order,
   // total_count counts matching records as a filtered list does, and
   // page_token must come from a page under the same order.

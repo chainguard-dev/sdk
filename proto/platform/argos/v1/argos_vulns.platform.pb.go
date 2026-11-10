@@ -190,6 +190,16 @@ type ListOrgVulnsRequest struct {
 	Ecosystem string `protobuf:"bytes,8,opt,name=ecosystem,proto3" json:"ecosystem,omitempty"`
 	// package_name keeps records with an affected package of exactly this name.
 	PackageName string `protobuf:"bytes,9,opt,name=package_name,json=packageName,proto3" json:"package_name,omitempty"`
+	// embargo_ends_after keeps records whose public embargo end is at or after
+	// it, rounded up to the microsecond. With embargo_ends_before it forms the
+	// window [after, before); alone it is a lower bound. A record without an
+	// embargo end never matches. Send the same bounds on every page: the page
+	// token does not carry them.
+	EmbargoEndsAfter *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=embargo_ends_after,json=embargoEndsAfter,proto3" json:"embargo_ends_after,omitempty"`
+	// embargo_ends_before keeps records whose public embargo end is before it,
+	// rounded up to the microsecond; with embargo_ends_after it must still be
+	// after it. Alone it is an upper bound.
+	EmbargoEndsBefore *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=embargo_ends_before,json=embargoEndsBefore,proto3" json:"embargo_ends_before,omitempty"`
 	// order_by orders the list; unspecified is CGP ID order. Under an order,
 	// total_count counts matching records as a filtered list does, and
 	// page_token must come from a page under the same order.
@@ -292,6 +302,20 @@ func (x *ListOrgVulnsRequest) GetPackageName() string {
 	return ""
 }
 
+func (x *ListOrgVulnsRequest) GetEmbargoEndsAfter() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EmbargoEndsAfter
+	}
+	return nil
+}
+
+func (x *ListOrgVulnsRequest) GetEmbargoEndsBefore() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EmbargoEndsBefore
+	}
+	return nil
+}
+
 func (x *ListOrgVulnsRequest) GetOrderBy() VulnOrderBy {
 	if x != nil {
 		return x.OrderBy
@@ -373,7 +397,7 @@ const file_argos_vulns_platform_proto_rawDesc = "" +
 	"\acgp_ids\x18\x02 \x03(\tR\x06cgpIds\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\x03 \x01(\tR\tpageToken\x12\x1b\n" +
-	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\"\x9e\x03\n" +
+	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\"\xc0\x04\n" +
 	"\x13ListOrgVulnsRequest\x12\x1e\n" +
 	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12\x1c\n" +
 	"\apackage\x18\x02 \x01(\tB\x02\x18\x01R\apackage\x12\x18\n" +
@@ -384,7 +408,9 @@ const file_argos_vulns_platform_proto_rawDesc = "" +
 	"\rupdated_since\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\fupdatedSince\x12\x1c\n" +
 	"\ahas_fix\x18\a \x01(\bH\x00R\x06hasFix\x88\x01\x01\x12\x1c\n" +
 	"\tecosystem\x18\b \x01(\tR\tecosystem\x12!\n" +
-	"\fpackage_name\x18\t \x01(\tR\vpackageName\x12G\n" +
+	"\fpackage_name\x18\t \x01(\tR\vpackageName\x12N\n" +
+	"\x12embargo_ends_after\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x01R\x10embargoEndsAfter\x12P\n" +
+	"\x13embargo_ends_before\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x01R\x11embargoEndsBefore\x12G\n" +
 	"\border_by\x18\n" +
 	" \x01(\x0e2&.chainguard.platform.argos.VulnOrderByB\x04\xe2A\x01\x01R\aorderByB\n" +
 	"\n" +
@@ -433,17 +459,19 @@ var file_argos_vulns_platform_proto_goTypes = []any{
 }
 var file_argos_vulns_platform_proto_depIdxs = []int32{
 	4, // 0: chainguard.platform.argos.ListOrgVulnsRequest.updated_since:type_name -> google.protobuf.Timestamp
-	0, // 1: chainguard.platform.argos.ListOrgVulnsRequest.order_by:type_name -> chainguard.platform.argos.VulnOrderBy
-	5, // 2: chainguard.platform.argos.VulnList.vulns:type_name -> chainguard.platform.argos.OSVRecord
-	1, // 3: chainguard.platform.argos.ArgosVulns.BatchGet:input_type -> chainguard.platform.argos.BatchGetVulnsRequest
-	2, // 4: chainguard.platform.argos.ArgosVulns.ListForOrg:input_type -> chainguard.platform.argos.ListOrgVulnsRequest
-	3, // 5: chainguard.platform.argos.ArgosVulns.BatchGet:output_type -> chainguard.platform.argos.VulnList
-	3, // 6: chainguard.platform.argos.ArgosVulns.ListForOrg:output_type -> chainguard.platform.argos.VulnList
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	4, // 1: chainguard.platform.argos.ListOrgVulnsRequest.embargo_ends_after:type_name -> google.protobuf.Timestamp
+	4, // 2: chainguard.platform.argos.ListOrgVulnsRequest.embargo_ends_before:type_name -> google.protobuf.Timestamp
+	0, // 3: chainguard.platform.argos.ListOrgVulnsRequest.order_by:type_name -> chainguard.platform.argos.VulnOrderBy
+	5, // 4: chainguard.platform.argos.VulnList.vulns:type_name -> chainguard.platform.argos.OSVRecord
+	1, // 5: chainguard.platform.argos.ArgosVulns.BatchGet:input_type -> chainguard.platform.argos.BatchGetVulnsRequest
+	2, // 6: chainguard.platform.argos.ArgosVulns.ListForOrg:input_type -> chainguard.platform.argos.ListOrgVulnsRequest
+	3, // 7: chainguard.platform.argos.ArgosVulns.BatchGet:output_type -> chainguard.platform.argos.VulnList
+	3, // 8: chainguard.platform.argos.ArgosVulns.ListForOrg:output_type -> chainguard.platform.argos.VulnList
+	7, // [7:9] is the sub-list for method output_type
+	5, // [5:7] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_argos_vulns_platform_proto_init() }
