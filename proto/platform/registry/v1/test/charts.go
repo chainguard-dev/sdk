@@ -20,8 +20,9 @@ var _ registry.ChartsClient = (*MockChartsClient)(nil)
 type MockChartsClient struct {
 	registry.ChartsClient
 
-	OnAddChart  []ChartOnAdd
-	OnFindChart []ChartOnFind
+	OnAddChart           []ChartOnAdd
+	OnFindChart          []ChartOnFind
+	OnGetChartSyncStatus []ChartOnGetSyncStatus
 }
 
 type ChartOnAdd struct {
@@ -36,6 +37,12 @@ type ChartOnFind struct {
 	Error    error
 }
 
+type ChartOnGetSyncStatus struct {
+	Given    *registry.GetChartSyncStatusRequest
+	Response *registry.ChartSyncStatus
+	Error    error
+}
+
 func (m *MockChartsClient) AddChart(_ context.Context, given *registry.AddChartRequest, _ ...grpc.CallOption) (*registry.AddChartResponse, error) {
 	for _, o := range m.OnAddChart {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
@@ -47,6 +54,15 @@ func (m *MockChartsClient) AddChart(_ context.Context, given *registry.AddChartR
 
 func (m *MockChartsClient) FindChart(_ context.Context, given *registry.FindChartRequest, _ ...grpc.CallOption) (*registry.FindChartResponse, error) {
 	for _, o := range m.OnFindChart {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m *MockChartsClient) GetChartSyncStatus(_ context.Context, given *registry.GetChartSyncStatusRequest, _ ...grpc.CallOption) (*registry.ChartSyncStatus, error) {
+	for _, o := range m.OnGetChartSyncStatus {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Response, o.Error
 		}

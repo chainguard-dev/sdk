@@ -11,6 +11,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -75,6 +76,74 @@ func (x ChartCatalog) Number() protoreflect.EnumNumber {
 // Deprecated: Use ChartCatalog.Descriptor instead.
 func (ChartCatalog) EnumDescriptor() ([]byte, []int) {
 	return file_charts_platform_proto_rawDescGZIP(), []int{0}
+}
+
+type ChartSyncStatus_Status int32
+
+const (
+	// Same name and number as SyncStatus.Status.
+	// protolint:disable:next ENUM_FIELD_NAMES_ZERO_VALUE_END_WITH
+	ChartSyncStatus_UNKNOWN ChartSyncStatus_Status = 0
+	// The chart repo is queued to sync. Same name and number as
+	// SyncStatus.Status.
+	ChartSyncStatus_QUEUED ChartSyncStatus_Status = 1
+	// The chart repo is syncing. Same name and number as SyncStatus.Status.
+	ChartSyncStatus_IN_PROGRESS ChartSyncStatus_Status = 2
+	// The chart repo's sync failed. Same name and number as
+	// SyncStatus.Status.
+	ChartSyncStatus_FAILED ChartSyncStatus_Status = 3
+	// A required image has no repo in the organization syncing from its
+	// catalog repo; see missing_images.
+	ChartSyncStatus_AWAITING_IMAGES ChartSyncStatus_Status = 4
+	// The chart repo is not queued and holds at least one tag.
+	ChartSyncStatus_SYNCED ChartSyncStatus_Status = 5
+)
+
+// Enum value maps for ChartSyncStatus_Status.
+var (
+	ChartSyncStatus_Status_name = map[int32]string{
+		0: "UNKNOWN",
+		1: "QUEUED",
+		2: "IN_PROGRESS",
+		3: "FAILED",
+		4: "AWAITING_IMAGES",
+		5: "SYNCED",
+	}
+	ChartSyncStatus_Status_value = map[string]int32{
+		"UNKNOWN":         0,
+		"QUEUED":          1,
+		"IN_PROGRESS":     2,
+		"FAILED":          3,
+		"AWAITING_IMAGES": 4,
+		"SYNCED":          5,
+	}
+)
+
+func (x ChartSyncStatus_Status) Enum() *ChartSyncStatus_Status {
+	p := new(ChartSyncStatus_Status)
+	*p = x
+	return p
+}
+
+func (x ChartSyncStatus_Status) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ChartSyncStatus_Status) Descriptor() protoreflect.EnumDescriptor {
+	return file_charts_platform_proto_enumTypes[1].Descriptor()
+}
+
+func (ChartSyncStatus_Status) Type() protoreflect.EnumType {
+	return &file_charts_platform_proto_enumTypes[1]
+}
+
+func (x ChartSyncStatus_Status) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ChartSyncStatus_Status.Descriptor instead.
+func (ChartSyncStatus_Status) EnumDescriptor() ([]byte, []int) {
+	return file_charts_platform_proto_rawDescGZIP(), []int{6, 0}
 }
 
 // FindChartRequest resolves a chart name within a managed catalog.
@@ -423,11 +492,209 @@ func (x *AddChartResult) GetConsumesSlot() bool {
 	return false
 }
 
+type GetChartSyncStatusRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The UIDP of the chart repo in the organization's chart folder.
+	RepoId string `protobuf:"bytes,1,opt,name=repo_id,json=repoId,proto3" json:"repo_id,omitempty"`
+	// The chart tag whose chart-lock decides which images are required.
+	// Defaults to the newest non-FIPS tag of the chart's source, or the newest
+	// FIPS tag when fips is set, as in AddChart. Mutually exclusive with fips.
+	Tag string `protobuf:"bytes,2,opt,name=tag,proto3" json:"tag,omitempty"`
+	// If true, default to the newest FIPS tag instead of the newest non-FIPS
+	// tag. Mutually exclusive with tag; setting both is rejected with
+	// INVALID_ARGUMENT.
+	Fips          bool `protobuf:"varint,3,opt,name=fips,proto3" json:"fips,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetChartSyncStatusRequest) Reset() {
+	*x = GetChartSyncStatusRequest{}
+	mi := &file_charts_platform_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetChartSyncStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetChartSyncStatusRequest) ProtoMessage() {}
+
+func (x *GetChartSyncStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_charts_platform_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetChartSyncStatusRequest.ProtoReflect.Descriptor instead.
+func (*GetChartSyncStatusRequest) Descriptor() ([]byte, []int) {
+	return file_charts_platform_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetChartSyncStatusRequest) GetRepoId() string {
+	if x != nil {
+		return x.RepoId
+	}
+	return ""
+}
+
+func (x *GetChartSyncStatusRequest) GetTag() string {
+	if x != nil {
+		return x.Tag
+	}
+	return ""
+}
+
+func (x *GetChartSyncStatusRequest) GetFips() bool {
+	if x != nil {
+		return x.Fips
+	}
+	return false
+}
+
+// ChartSyncStatus is the sync state of a chart repo. Like SyncStatus it
+// describes the repo, not a tag; only missing_images depends on the tag.
+type ChartSyncStatus struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Status ChartSyncStatus_Status `protobuf:"varint,1,opt,name=status,proto3,enum=chainguard.platform.registry.ChartSyncStatus_Status" json:"status,omitempty"`
+	// When the chart repo's key was queued, as in SyncStatus.create_time. Set
+	// when the workqueue reports a queued time for the key; today that is
+	// QUEUED and FAILED. Unset for AWAITING_IMAGES and SYNCED, which do not read
+	// the key.
+	CreateTime *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	// The tag whose chart-lock the missing-image check read.
+	Tag string `protobuf:"bytes,3,opt,name=tag,proto3" json:"tag,omitempty"`
+	// The required images the organization has no repo for. Set only for
+	// AWAITING_IMAGES.
+	MissingImages []*ChartSyncStatus_MissingImage `protobuf:"bytes,4,rep,name=missing_images,json=missingImages,proto3" json:"missing_images,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChartSyncStatus) Reset() {
+	*x = ChartSyncStatus{}
+	mi := &file_charts_platform_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChartSyncStatus) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChartSyncStatus) ProtoMessage() {}
+
+func (x *ChartSyncStatus) ProtoReflect() protoreflect.Message {
+	mi := &file_charts_platform_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChartSyncStatus.ProtoReflect.Descriptor instead.
+func (*ChartSyncStatus) Descriptor() ([]byte, []int) {
+	return file_charts_platform_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ChartSyncStatus) GetStatus() ChartSyncStatus_Status {
+	if x != nil {
+		return x.Status
+	}
+	return ChartSyncStatus_UNKNOWN
+}
+
+func (x *ChartSyncStatus) GetCreateTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreateTime
+	}
+	return nil
+}
+
+func (x *ChartSyncStatus) GetTag() string {
+	if x != nil {
+		return x.Tag
+	}
+	return ""
+}
+
+func (x *ChartSyncStatus) GetMissingImages() []*ChartSyncStatus_MissingImage {
+	if x != nil {
+		return x.MissingImages
+	}
+	return nil
+}
+
+type ChartSyncStatus_MissingImage struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The catalog repo name, e.g. "nginx".
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// The catalog repo UIDP.
+	SourceRepoId  string `protobuf:"bytes,2,opt,name=source_repo_id,json=sourceRepoId,proto3" json:"source_repo_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChartSyncStatus_MissingImage) Reset() {
+	*x = ChartSyncStatus_MissingImage{}
+	mi := &file_charts_platform_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChartSyncStatus_MissingImage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChartSyncStatus_MissingImage) ProtoMessage() {}
+
+func (x *ChartSyncStatus_MissingImage) ProtoReflect() protoreflect.Message {
+	mi := &file_charts_platform_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChartSyncStatus_MissingImage.ProtoReflect.Descriptor instead.
+func (*ChartSyncStatus_MissingImage) Descriptor() ([]byte, []int) {
+	return file_charts_platform_proto_rawDescGZIP(), []int{6, 0}
+}
+
+func (x *ChartSyncStatus_MissingImage) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ChartSyncStatus_MissingImage) GetSourceRepoId() string {
+	if x != nil {
+		return x.SourceRepoId
+	}
+	return ""
+}
+
 var File_charts_platform_proto protoreflect.FileDescriptor
 
 const file_charts_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x15charts.platform.proto\x12\x1cchainguard.platform.registry\x1a\x1cgoogle/api/annotations.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x17registry.platform.proto\"l\n" +
+	"\x15charts.platform.proto\x12\x1cchainguard.platform.registry\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17registry.platform.proto\"l\n" +
 	"\x10FindChartRequest\x12D\n" +
 	"\acatalog\x18\x01 \x01(\x0e2*.chainguard.platform.registry.ChartCatalogR\acatalog\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"M\n" +
@@ -448,16 +715,41 @@ const file_charts_platform_proto_rawDesc = "" +
 	"\acreated\x18\x02 \x01(\bR\acreated\x12\x0e\n" +
 	"\x02id\x18\x03 \x01(\tR\x02id\x12U\n" +
 	"\vrequirement\x18\x04 \x01(\x0e23.chainguard.platform.registry.ChartImageRequirementR\vrequirement\x12#\n" +
-	"\rconsumes_slot\x18\x05 \x01(\bR\fconsumesSlot*h\n" +
+	"\rconsumes_slot\x18\x05 \x01(\bR\fconsumesSlot\"b\n" +
+	"\x19GetChartSyncStatusRequest\x12\x1f\n" +
+	"\arepo_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06repoId\x12\x10\n" +
+	"\x03tag\x18\x02 \x01(\tR\x03tag\x12\x12\n" +
+	"\x04fips\x18\x03 \x01(\bR\x04fips\"\xbc\x03\n" +
+	"\x0fChartSyncStatus\x12L\n" +
+	"\x06status\x18\x01 \x01(\x0e24.chainguard.platform.registry.ChartSyncStatus.StatusR\x06status\x12;\n" +
+	"\vcreate_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"createTime\x12\x10\n" +
+	"\x03tag\x18\x03 \x01(\tR\x03tag\x12a\n" +
+	"\x0emissing_images\x18\x04 \x03(\v2:.chainguard.platform.registry.ChartSyncStatus.MissingImageR\rmissingImages\x1aH\n" +
+	"\fMissingImage\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12$\n" +
+	"\x0esource_repo_id\x18\x02 \x01(\tR\fsourceRepoId\"_\n" +
+	"\x06Status\x12\v\n" +
+	"\aUNKNOWN\x10\x00\x12\n" +
+	"\n" +
+	"\x06QUEUED\x10\x01\x12\x0f\n" +
+	"\vIN_PROGRESS\x10\x02\x12\n" +
+	"\n" +
+	"\x06FAILED\x10\x03\x12\x13\n" +
+	"\x0fAWAITING_IMAGES\x10\x04\x12\n" +
+	"\n" +
+	"\x06SYNCED\x10\x05*h\n" +
 	"\fChartCatalog\x12\x1d\n" +
 	"\x19CHART_CATALOG_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17CHART_CATALOG_COMMUNITY\x10\x01\x12\x1c\n" +
-	"\x18CHART_CATALOG_IAMGUARDED\x10\x022\x97\x03\n" +
+	"\x18CHART_CATALOG_IAMGUARDED\x10\x022\xdb\x04\n" +
 	"\x06Charts\x12\xed\x01\n" +
 	"\bAddChart\x12-.chainguard.platform.registry.AddChartRequest\x1a..chainguard.platform.registry.AddChartResponse\"\x81\x01\x82\xd3\xe4\x93\x02/:\x01*\"*/registry/v1/repos/{parent_id=**}:addChart\x8a\xaf\xa8\xd2\x05\x02\x12\x00\xc2\xf0\x8e\xfc\v>\n" +
 	"3dev.chainguard.api.platform.registry.chart.added.v1\x12\x05group\x18\x01\x12\x9c\x01\n" +
 	"\tFindChart\x12..chainguard.platform.registry.FindChartRequest\x1a/.chainguard.platform.registry.FindChartResponse\".\x82\xd3\xe4\x93\x02\x1a\x12\x18/registry/v1/charts:find\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x02\xc5\f\x10\x01B/Z-chainguard.dev/sdk/proto/platform/registry/v1b\x06proto3"
+	"\x02\xc5\f\x10\x01\x12\xc1\x01\n" +
+	"\x12GetChartSyncStatus\x127.chainguard.platform.registry.GetChartSyncStatusRequest\x1a-.chainguard.platform.registry.ChartSyncStatus\"C\x82\xd3\xe4\x93\x021\x12//registry/v1/repos/{repo_id=**}:chartSyncStatus\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xc5\fB/Z-chainguard.dev/sdk/proto/platform/registry/v1b\x06proto3"
 
 var (
 	file_charts_platform_proto_rawDescOnce sync.Once
@@ -471,30 +763,40 @@ func file_charts_platform_proto_rawDescGZIP() []byte {
 	return file_charts_platform_proto_rawDescData
 }
 
-var file_charts_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_charts_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_charts_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_charts_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_charts_platform_proto_goTypes = []any{
-	(ChartCatalog)(0),          // 0: chainguard.platform.registry.ChartCatalog
-	(*FindChartRequest)(nil),   // 1: chainguard.platform.registry.FindChartRequest
-	(*FindChartResponse)(nil),  // 2: chainguard.platform.registry.FindChartResponse
-	(*AddChartRequest)(nil),    // 3: chainguard.platform.registry.AddChartRequest
-	(*AddChartResponse)(nil),   // 4: chainguard.platform.registry.AddChartResponse
-	(*AddChartResult)(nil),     // 5: chainguard.platform.registry.AddChartResult
-	(ChartImageRequirement)(0), // 6: chainguard.platform.registry.ChartImageRequirement
+	(ChartCatalog)(0),                    // 0: chainguard.platform.registry.ChartCatalog
+	(ChartSyncStatus_Status)(0),          // 1: chainguard.platform.registry.ChartSyncStatus.Status
+	(*FindChartRequest)(nil),             // 2: chainguard.platform.registry.FindChartRequest
+	(*FindChartResponse)(nil),            // 3: chainguard.platform.registry.FindChartResponse
+	(*AddChartRequest)(nil),              // 4: chainguard.platform.registry.AddChartRequest
+	(*AddChartResponse)(nil),             // 5: chainguard.platform.registry.AddChartResponse
+	(*AddChartResult)(nil),               // 6: chainguard.platform.registry.AddChartResult
+	(*GetChartSyncStatusRequest)(nil),    // 7: chainguard.platform.registry.GetChartSyncStatusRequest
+	(*ChartSyncStatus)(nil),              // 8: chainguard.platform.registry.ChartSyncStatus
+	(*ChartSyncStatus_MissingImage)(nil), // 9: chainguard.platform.registry.ChartSyncStatus.MissingImage
+	(ChartImageRequirement)(0),           // 10: chainguard.platform.registry.ChartImageRequirement
+	(*timestamppb.Timestamp)(nil),        // 11: google.protobuf.Timestamp
 }
 var file_charts_platform_proto_depIdxs = []int32{
-	0, // 0: chainguard.platform.registry.FindChartRequest.catalog:type_name -> chainguard.platform.registry.ChartCatalog
-	5, // 1: chainguard.platform.registry.AddChartResponse.repos:type_name -> chainguard.platform.registry.AddChartResult
-	6, // 2: chainguard.platform.registry.AddChartResult.requirement:type_name -> chainguard.platform.registry.ChartImageRequirement
-	3, // 3: chainguard.platform.registry.Charts.AddChart:input_type -> chainguard.platform.registry.AddChartRequest
-	1, // 4: chainguard.platform.registry.Charts.FindChart:input_type -> chainguard.platform.registry.FindChartRequest
-	4, // 5: chainguard.platform.registry.Charts.AddChart:output_type -> chainguard.platform.registry.AddChartResponse
-	2, // 6: chainguard.platform.registry.Charts.FindChart:output_type -> chainguard.platform.registry.FindChartResponse
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	0,  // 0: chainguard.platform.registry.FindChartRequest.catalog:type_name -> chainguard.platform.registry.ChartCatalog
+	6,  // 1: chainguard.platform.registry.AddChartResponse.repos:type_name -> chainguard.platform.registry.AddChartResult
+	10, // 2: chainguard.platform.registry.AddChartResult.requirement:type_name -> chainguard.platform.registry.ChartImageRequirement
+	1,  // 3: chainguard.platform.registry.ChartSyncStatus.status:type_name -> chainguard.platform.registry.ChartSyncStatus.Status
+	11, // 4: chainguard.platform.registry.ChartSyncStatus.create_time:type_name -> google.protobuf.Timestamp
+	9,  // 5: chainguard.platform.registry.ChartSyncStatus.missing_images:type_name -> chainguard.platform.registry.ChartSyncStatus.MissingImage
+	4,  // 6: chainguard.platform.registry.Charts.AddChart:input_type -> chainguard.platform.registry.AddChartRequest
+	2,  // 7: chainguard.platform.registry.Charts.FindChart:input_type -> chainguard.platform.registry.FindChartRequest
+	7,  // 8: chainguard.platform.registry.Charts.GetChartSyncStatus:input_type -> chainguard.platform.registry.GetChartSyncStatusRequest
+	5,  // 9: chainguard.platform.registry.Charts.AddChart:output_type -> chainguard.platform.registry.AddChartResponse
+	3,  // 10: chainguard.platform.registry.Charts.FindChart:output_type -> chainguard.platform.registry.FindChartResponse
+	8,  // 11: chainguard.platform.registry.Charts.GetChartSyncStatus:output_type -> chainguard.platform.registry.ChartSyncStatus
+	9,  // [9:12] is the sub-list for method output_type
+	6,  // [6:9] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_charts_platform_proto_init() }
@@ -508,8 +810,8 @@ func file_charts_platform_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_charts_platform_proto_rawDesc), len(file_charts_platform_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   5,
+			NumEnums:      2,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

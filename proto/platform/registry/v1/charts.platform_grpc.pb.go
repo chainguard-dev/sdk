@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Charts_AddChart_FullMethodName  = "/chainguard.platform.registry.Charts/AddChart"
-	Charts_FindChart_FullMethodName = "/chainguard.platform.registry.Charts/FindChart"
+	Charts_AddChart_FullMethodName           = "/chainguard.platform.registry.Charts/AddChart"
+	Charts_FindChart_FullMethodName          = "/chainguard.platform.registry.Charts/FindChart"
+	Charts_GetChartSyncStatus_FullMethodName = "/chainguard.platform.registry.Charts/GetChartSyncStatus"
 )
 
 // ChartsClient is the client API for Charts service.
@@ -36,6 +37,10 @@ type ChartsClient interface {
 	// passed to AddChart. Mirrors the browse-then-add flow the console performs
 	// via the graphql catalog interceptor.
 	FindChart(ctx context.Context, in *FindChartRequest, opts ...grpc.CallOption) (*FindChartResponse, error)
+	// GetChartSyncStatus reports whether a chart repo the organization added is
+	// waiting on image repos, queued, syncing, failed, or synced, and which
+	// required images have no repo in the organization.
+	GetChartSyncStatus(ctx context.Context, in *GetChartSyncStatusRequest, opts ...grpc.CallOption) (*ChartSyncStatus, error)
 }
 
 type chartsClient struct {
@@ -66,6 +71,16 @@ func (c *chartsClient) FindChart(ctx context.Context, in *FindChartRequest, opts
 	return out, nil
 }
 
+func (c *chartsClient) GetChartSyncStatus(ctx context.Context, in *GetChartSyncStatusRequest, opts ...grpc.CallOption) (*ChartSyncStatus, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChartSyncStatus)
+	err := c.cc.Invoke(ctx, Charts_GetChartSyncStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ChartsServer is the server API for Charts service.
 // All implementations must embed UnimplementedChartsServer
 // for forward compatibility.
@@ -79,6 +94,10 @@ type ChartsServer interface {
 	// passed to AddChart. Mirrors the browse-then-add flow the console performs
 	// via the graphql catalog interceptor.
 	FindChart(context.Context, *FindChartRequest) (*FindChartResponse, error)
+	// GetChartSyncStatus reports whether a chart repo the organization added is
+	// waiting on image repos, queued, syncing, failed, or synced, and which
+	// required images have no repo in the organization.
+	GetChartSyncStatus(context.Context, *GetChartSyncStatusRequest) (*ChartSyncStatus, error)
 	mustEmbedUnimplementedChartsServer()
 }
 
@@ -94,6 +113,9 @@ func (UnimplementedChartsServer) AddChart(context.Context, *AddChartRequest) (*A
 }
 func (UnimplementedChartsServer) FindChart(context.Context, *FindChartRequest) (*FindChartResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method FindChart not implemented")
+}
+func (UnimplementedChartsServer) GetChartSyncStatus(context.Context, *GetChartSyncStatusRequest) (*ChartSyncStatus, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetChartSyncStatus not implemented")
 }
 func (UnimplementedChartsServer) mustEmbedUnimplementedChartsServer() {}
 func (UnimplementedChartsServer) testEmbeddedByValue()                {}
@@ -152,6 +174,24 @@ func _Charts_FindChart_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Charts_GetChartSyncStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetChartSyncStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChartsServer).GetChartSyncStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Charts_GetChartSyncStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChartsServer).GetChartSyncStatus(ctx, req.(*GetChartSyncStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Charts_ServiceDesc is the grpc.ServiceDesc for Charts service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -166,6 +206,10 @@ var Charts_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FindChart",
 			Handler:    _Charts_FindChart_Handler,
+		},
+		{
+			MethodName: "GetChartSyncStatus",
+			Handler:    _Charts_GetChartSyncStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

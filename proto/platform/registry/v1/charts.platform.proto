@@ -4,9 +4,10 @@ option go_package = "chainguard.dev/sdk/proto/platform/registry/v1";
 
 package chainguard.platform.registry;
 
-import "google/api/annotations.proto";
 import "annotations/auth.proto";
 import "annotations/events.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 import "registry.platform.proto";
 
 service Charts {
@@ -44,6 +45,23 @@ service Charts {
       enabled: {
         capabilities: [CAP_REPO_LIST]
         unscoped: true
+      }
+    };
+  }
+
+  // GetChartSyncStatus reports whether a chart repo the organization added is
+  // waiting on image repos, queued, syncing, failed, or synced, and which
+  // required images have no repo in the organization.
+  rpc GetChartSyncStatus(GetChartSyncStatusRequest) returns (ChartSyncStatus) {
+    option (google.api.http) = {
+      get: "/registry/v1/repos/{repo_id=**}:chartSyncStatus"
+    };
+    // The handler also requires CAP_REPO_LIST on the organization holding the
+    // chart's folder, because the missing-image check reads the repos at its
+    // root.
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_REPO_LIST]
       }
     };
   }
@@ -127,4 +145,62 @@ message AddChartResult {
   // an entitlement slot. Always false for the chart repo itself and for
   // organizations whose plan does not meter individual images.
   bool consumes_slot = 5;
+}
+
+message GetChartSyncStatusRequest {
+  // The UIDP of the chart repo in the organization's chart folder.
+  string repo_id = 1 [(chainguard.annotations.iam_scope) = true];
+  // The chart tag whose chart-lock decides which images are required.
+  // Defaults to the newest non-FIPS tag of the chart's source, or the newest
+  // FIPS tag when fips is set, as in AddChart. Mutually exclusive with fips.
+  string tag = 2;
+  // If true, default to the newest FIPS tag instead of the newest non-FIPS
+  // tag. Mutually exclusive with tag; setting both is rejected with
+  // INVALID_ARGUMENT.
+  bool fips = 3;
+}
+
+// ChartSyncStatus is the sync state of a chart repo. Like SyncStatus it
+// describes the repo, not a tag; only missing_images depends on the tag.
+message ChartSyncStatus {
+  enum Status {
+    // Same name and number as SyncStatus.Status.
+    // protolint:disable:next ENUM_FIELD_NAMES_ZERO_VALUE_END_WITH
+    UNKNOWN = 0;
+    // The chart repo is queued to sync. Same name and number as
+    // SyncStatus.Status.
+    QUEUED = 1;
+    // The chart repo is syncing. Same name and number as SyncStatus.Status.
+    IN_PROGRESS = 2;
+    // The chart repo's sync failed. Same name and number as
+    // SyncStatus.Status.
+    FAILED = 3;
+    // A required image has no repo in the organization syncing from its
+    // catalog repo; see missing_images.
+    AWAITING_IMAGES = 4;
+    // The chart repo is not queued and holds at least one tag.
+    SYNCED = 5;
+  }
+
+  Status status = 1;
+
+  // When the chart repo's key was queued, as in SyncStatus.create_time. Set
+  // when the workqueue reports a queued time for the key; today that is
+  // QUEUED and FAILED. Unset for AWAITING_IMAGES and SYNCED, which do not read
+  // the key.
+  google.protobuf.Timestamp create_time = 2;
+
+  // The tag whose chart-lock the missing-image check read.
+  string tag = 3;
+
+  // The required images the organization has no repo for. Set only for
+  // AWAITING_IMAGES.
+  repeated MissingImage missing_images = 4;
+
+  message MissingImage {
+    // The catalog repo name, e.g. "nginx".
+    string name = 1;
+    // The catalog repo UIDP.
+    string source_repo_id = 2;
+  }
 }
