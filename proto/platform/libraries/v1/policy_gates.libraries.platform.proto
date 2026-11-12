@@ -264,9 +264,7 @@ message LibraryPolicyBindingList {
 }
 
 message LibraryPolicyBindingFilter {
-  // The group (organization or folder) whose bindings to return. Only
-  // bindings created directly on this group are returned unless
-  // include_descendants is set.
+  // The org (parent) to scope bindings to.
   string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
   // Only return bindings for this ecosystem (UNKNOWN = all).
   Ecosystem ecosystem = 2;
@@ -274,9 +272,6 @@ message LibraryPolicyBindingFilter {
   LibraryPolicyBindingMode mode = 3;
   int32 page_size = 4;
   string page_token = 5;
-  // Also return bindings on every folder and repository under parent_id.
-  // Has no effect when parent_id is empty.
-  bool include_descendants = 6;
 }
 
 message CreateLibraryPolicyBindingRequest {

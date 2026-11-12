@@ -797,21 +797,16 @@ func (x *LibraryPolicyBindingList) GetSkipped() int32 {
 
 type LibraryPolicyBindingFilter struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The group (organization or folder) whose bindings to return. Only
-	// bindings created directly on this group are returned unless
-	// include_descendants is set.
+	// The org (parent) to scope bindings to.
 	ParentId string `protobuf:"bytes,1,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
 	// Only return bindings for this ecosystem (UNKNOWN = all).
 	Ecosystem Ecosystem `protobuf:"varint,2,opt,name=ecosystem,proto3,enum=chainguard.platform.libraries.Ecosystem" json:"ecosystem,omitempty"`
 	// Only return bindings in this mode (UNSPECIFIED = all).
-	Mode      LibraryPolicyBindingMode `protobuf:"varint,3,opt,name=mode,proto3,enum=chainguard.platform.libraries.LibraryPolicyBindingMode" json:"mode,omitempty"`
-	PageSize  int32                    `protobuf:"varint,4,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken string                   `protobuf:"bytes,5,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
-	// Also return bindings on every folder and repository under parent_id.
-	// Has no effect when parent_id is empty.
-	IncludeDescendants bool `protobuf:"varint,6,opt,name=include_descendants,json=includeDescendants,proto3" json:"include_descendants,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	Mode          LibraryPolicyBindingMode `protobuf:"varint,3,opt,name=mode,proto3,enum=chainguard.platform.libraries.LibraryPolicyBindingMode" json:"mode,omitempty"`
+	PageSize      int32                    `protobuf:"varint,4,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	PageToken     string                   `protobuf:"bytes,5,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *LibraryPolicyBindingFilter) Reset() {
@@ -877,13 +872,6 @@ func (x *LibraryPolicyBindingFilter) GetPageToken() string {
 		return x.PageToken
 	}
 	return ""
-}
-
-func (x *LibraryPolicyBindingFilter) GetIncludeDescendants() bool {
-	if x != nil {
-		return x.IncludeDescendants
-	}
-	return false
 }
 
 type CreateLibraryPolicyBindingRequest struct {
@@ -1357,15 +1345,14 @@ const file_policy_gates_libraries_platform_proto_rawDesc = "" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
 	"\vtotal_count\x18\x03 \x01(\x03R\n" +
 	"totalCount\x12\x18\n" +
-	"\askipped\x18\x04 \x01(\x05R\askipped\"\xc3\x02\n" +
+	"\askipped\x18\x04 \x01(\x05R\askipped\"\x92\x02\n" +
 	"\x1aLibraryPolicyBindingFilter\x12#\n" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12F\n" +
 	"\tecosystem\x18\x02 \x01(\x0e2(.chainguard.platform.libraries.EcosystemR\tecosystem\x12K\n" +
 	"\x04mode\x18\x03 \x01(\x0e27.chainguard.platform.libraries.LibraryPolicyBindingModeR\x04mode\x12\x1b\n" +
 	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
-	"page_token\x18\x05 \x01(\tR\tpageToken\x12/\n" +
-	"\x13include_descendants\x18\x06 \x01(\bR\x12includeDescendants\"\x97\x01\n" +
+	"page_token\x18\x05 \x01(\tR\tpageToken\"\x97\x01\n" +
 	"!CreateLibraryPolicyBindingRequest\x12#\n" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12M\n" +
 	"\abinding\x18\x02 \x01(\v23.chainguard.platform.libraries.LibraryPolicyBindingR\abinding\";\n" +
