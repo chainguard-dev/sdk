@@ -505,12 +505,19 @@ message DeleteBindingRequest {
 }
 
 // The outcome of a policy evaluation.
+// buf:lint:ignore ENUM_NO_ALLOW_ALIAS
 enum Result {
+  option allow_alias = true;
+
   RESULT_UNSPECIFIED = 0;
   // The artifact satisfied the policy.
   RESULT_ALLOWED = 1;
-  // The artifact violated the policy.
+  // Use RESULT_BLOCKED. Declared before its alias so that JSON, stored values
+  // and events keep carrying this name: the first name declared for a number
+  // is the one encoders write.
   RESULT_DENIED = 2;
+  // The artifact violated the policy.
+  RESULT_BLOCKED = 2;
   // The policy could not be evaluated.
   RESULT_ERROR = 3;
 }

@@ -250,14 +250,19 @@ func (ParameterFormat) EnumDescriptor() ([]byte, []int) {
 }
 
 // The outcome of a policy evaluation.
+// buf:lint:ignore ENUM_NO_ALLOW_ALIAS
 type Result int32
 
 const (
 	Result_RESULT_UNSPECIFIED Result = 0
 	// The artifact satisfied the policy.
 	Result_RESULT_ALLOWED Result = 1
-	// The artifact violated the policy.
+	// Use RESULT_BLOCKED. Declared before its alias so that JSON, stored values
+	// and events keep carrying this name: the first name declared for a number
+	// is the one encoders write.
 	Result_RESULT_DENIED Result = 2
+	// The artifact violated the policy.
+	Result_RESULT_BLOCKED Result = 2
 	// The policy could not be evaluated.
 	Result_RESULT_ERROR Result = 3
 )
@@ -268,12 +273,14 @@ var (
 		0: "RESULT_UNSPECIFIED",
 		1: "RESULT_ALLOWED",
 		2: "RESULT_DENIED",
+		// Duplicate value: 2: "RESULT_BLOCKED",
 		3: "RESULT_ERROR",
 	}
 	Result_value = map[string]int32{
 		"RESULT_UNSPECIFIED": 0,
 		"RESULT_ALLOWED":     1,
 		"RESULT_DENIED":      2,
+		"RESULT_BLOCKED":     2,
 		"RESULT_ERROR":       3,
 	}
 )
@@ -2455,12 +2462,13 @@ const file_policies_platform_proto_rawDesc = "" +
 	"\x16PARAMETER_TYPE_BOOLEAN\x10\x04*N\n" +
 	"\x0fParameterFormat\x12 \n" +
 	"\x1cPARAMETER_FORMAT_UNSPECIFIED\x10\x00\x12\x19\n" +
-	"\x15PARAMETER_FORMAT_PURL\x10\x01*Y\n" +
+	"\x15PARAMETER_FORMAT_PURL\x10\x01*q\n" +
 	"\x06Result\x12\x16\n" +
 	"\x12RESULT_UNSPECIFIED\x10\x00\x12\x12\n" +
 	"\x0eRESULT_ALLOWED\x10\x01\x12\x11\n" +
-	"\rRESULT_DENIED\x10\x02\x12\x10\n" +
-	"\fRESULT_ERROR\x10\x03*K\n" +
+	"\rRESULT_DENIED\x10\x02\x12\x12\n" +
+	"\x0eRESULT_BLOCKED\x10\x02\x12\x10\n" +
+	"\fRESULT_ERROR\x10\x03\x1a\x02\x10\x01*K\n" +
 	"\x0eExpressionType\x12\x1f\n" +
 	"\x1bEXPRESSION_TYPE_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14EXPRESSION_TYPE_REGO\x10\x012\xff\a\n" +
