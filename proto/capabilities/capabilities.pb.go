@@ -105,12 +105,18 @@ const (
 	// authorizes Get) sits with the other IAM read capabilities. Numbered in a
 	// fresh block, update/list in the 2/3 slots the IAM resources above use;
 	// the create/delete slots are reserved below.
-	Capability_CAP_IAM_AUTH_POLICIES_UPDATE   Capability = 3502
-	Capability_CAP_IAM_AUTH_POLICIES_LIST     Capability = 3503
-	Capability_CAP_EVENTS_SUBSCRIPTION_CREATE Capability = 1501
-	Capability_CAP_EVENTS_SUBSCRIPTION_UPDATE Capability = 1502
-	Capability_CAP_EVENTS_SUBSCRIPTION_LIST   Capability = 1503
-	Capability_CAP_EVENTS_SUBSCRIPTION_DELETE Capability = 1504
+	Capability_CAP_IAM_AUTH_POLICIES_UPDATE Capability = 3502
+	Capability_CAP_IAM_AUTH_POLICIES_LIST   Capability = 3503
+	// auth_policies.break_glass.update designates the organization's
+	// break-glass identities (AuthPoliciesService.SetBreakGlassAdmins).
+	// Separate from auth_policies.update so an organization can grant exactly
+	// this through a custom role without also granting the sso_only switch;
+	// among the built-in roles it is owner-only, like update.
+	Capability_CAP_IAM_AUTH_POLICIES_BREAK_GLASS_UPDATE Capability = 3505
+	Capability_CAP_EVENTS_SUBSCRIPTION_CREATE           Capability = 1501
+	Capability_CAP_EVENTS_SUBSCRIPTION_UPDATE           Capability = 1502
+	Capability_CAP_EVENTS_SUBSCRIPTION_LIST             Capability = 1503
+	Capability_CAP_EVENTS_SUBSCRIPTION_DELETE           Capability = 1504
 	// repo.blobs.get is a capability required to pull container images.
 	// We explicitly define this to distinguish roles that allow browsing/viewing
 	// metadata associated with images vs pulling the image itself.
@@ -612,6 +618,7 @@ var (
 		1307:  "CAP_IAM_SCIM_GROUPS_LIST",
 		3502:  "CAP_IAM_AUTH_POLICIES_UPDATE",
 		3503:  "CAP_IAM_AUTH_POLICIES_LIST",
+		3505:  "CAP_IAM_AUTH_POLICIES_BREAK_GLASS_UPDATE",
 		1501:  "CAP_EVENTS_SUBSCRIPTION_CREATE",
 		1502:  "CAP_EVENTS_SUBSCRIPTION_UPDATE",
 		1503:  "CAP_EVENTS_SUBSCRIPTION_LIST",
@@ -878,6 +885,7 @@ var (
 		"CAP_IAM_SCIM_GROUPS_LIST":                           1307,
 		"CAP_IAM_AUTH_POLICIES_UPDATE":                       3502,
 		"CAP_IAM_AUTH_POLICIES_LIST":                         3503,
+		"CAP_IAM_AUTH_POLICIES_BREAK_GLASS_UPDATE":           3505,
 		"CAP_EVENTS_SUBSCRIPTION_CREATE":                     1501,
 		"CAP_EVENTS_SUBSCRIPTION_UPDATE":                     1502,
 		"CAP_EVENTS_SUBSCRIPTION_LIST":                       1503,
@@ -1170,7 +1178,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xba\x90\x01\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x97\x91\x01\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1239,7 +1247,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x18CAP_IAM_SCIM_GROUPS_LIST\x10\x9b\n" +
 	"\x1a/\xa8ˑM\xfd\x01\x9a\xaf\xa8\xd2\x05#identity_providers.scim.groups.list\x12C\n" +
 	"\x1cCAP_IAM_AUTH_POLICIES_UPDATE\x10\xae\x1b\x1a \xa8ˑM\x81\x02\x9a\xaf\xa8\xd2\x05\x14auth_policies.update\x12?\n" +
-	"\x1aCAP_IAM_AUTH_POLICIES_LIST\x10\xaf\x1b\x1a\x1e\xa8ˑM\x82\x02\x9a\xaf\xa8\xd2\x05\x12auth_policies.list\x12D\n" +
+	"\x1aCAP_IAM_AUTH_POLICIES_LIST\x10\xaf\x1b\x1a\x1e\xa8ˑM\x82\x02\x9a\xaf\xa8\xd2\x05\x12auth_policies.list\x12[\n" +
+	"(CAP_IAM_AUTH_POLICIES_BREAK_GLASS_UPDATE\x10\xb1\x1b\x1a,\xa8ˑM\x8d\x02\x9a\xaf\xa8\xd2\x05 auth_policies.break_glass.update\x12D\n" +
 	"\x1eCAP_EVENTS_SUBSCRIPTION_CREATE\x10\xdd\v\x1a\x1f\xa8ˑM$\x9a\xaf\xa8\xd2\x05\x14subscriptions.create\x12D\n" +
 	"\x1eCAP_EVENTS_SUBSCRIPTION_UPDATE\x10\xde\v\x1a\x1f\xa8ˑM%\x9a\xaf\xa8\xd2\x05\x14subscriptions.update\x12@\n" +
 	"\x1cCAP_EVENTS_SUBSCRIPTION_LIST\x10\xdf\v\x1a\x1d\xa8ˑM&\x9a\xaf\xa8\xd2\x05\x12subscriptions.list\x12D\n" +

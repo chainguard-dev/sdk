@@ -345,3 +345,30 @@ func ExampleClients_AuthPoliciesService() {
 		fmt.Println("SSO-only sign-in off")
 	}
 }
+
+func ExampleAuthPoliciesServiceClient_SetBreakGlassAdmins() {
+	conn, err := grpc.NewClient("api.chainguard.dev:443",
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	clients := v2.NewClientsFromConnection(conn)
+	defer clients.Close()
+
+	ctx := context.Background()
+
+	// Designate the owners who keep a non-IdP way in while sso_only is on.
+	// The request carries the whole list: an owner left out of it is no
+	// longer designated. Each must be a person's login identity holding a
+	// manually assigned owner binding on the organization itself.
+	policy, err := clients.AuthPoliciesService().SetBreakGlassAdmins(ctx, &v2.SetBreakGlassAdminsRequest{
+		Uid:        "example-org-uid",
+		Identities: []string{"example-owner-identity-uid"},
+	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("break-glass identities: %v\n", policy.GetBreakGlassIdentities())
+}

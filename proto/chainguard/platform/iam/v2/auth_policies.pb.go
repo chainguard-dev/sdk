@@ -281,6 +281,26 @@ type AuthPolicy struct {
 	// that is readiness, below, which applies the same predicates and adds
 	// the owner-binding check; this view breaks them out per designee.
 	Validations *ValidationStatus `protobuf:"bytes,20,opt,name=validations,proto3" json:"validations,omitempty"`
+	// break_glass_identities lists, by UIDP, the identities designated as the
+	// organization's break-glass admins: the owners who keep signing in through
+	// a method other than the organization's identity provider while sso_only
+	// is on. Empty when none are designated. It is a set: no order is implied,
+	// and no identity appears twice. It is changed through SetBreakGlassAdmins
+	// only: UpdateAuthPolicy ignores it in an update_mask, as it ignores the
+	// readiness fields (an update_mask naming only it has nothing to update
+	// and is INVALID_ARGUMENT), and, as with any OUTPUT_ONLY field, ignores it
+	// in the body, so a policy read back and sent to UpdateAuthPolicy cannot
+	// change the set by accident.
+	//
+	// It is shown only to a caller holding auth_policies.break_glass.update on
+	// the organization; every other reader of the policy gets it empty. The
+	// same rule holds for validations.break_glass_designees, which names the
+	// same identities: a caller holding auth_policies.update but not
+	// auth_policies.break_glass.update gets the validation view with the
+	// identity provider's currency and no designees. Every member may learn
+	// whether SSO is enforced, but which accounts are the way around it is told
+	// only to those who may change that list.
+	BreakGlassIdentities []string `protobuf:"bytes,4,rep,name=break_glass_identities,json=breakGlassIdentities,proto3" json:"break_glass_identities,omitempty"`
 	// Fields from 30 report the organization's readiness to enforce the
 	// policy: facts about the organization that decide whether sso_only can be
 	// turned on and whether, once on, it takes effect. They are never written.
@@ -370,6 +390,13 @@ func (x *AuthPolicy) GetValidations() *ValidationStatus {
 	return nil
 }
 
+func (x *AuthPolicy) GetBreakGlassIdentities() []string {
+	if x != nil {
+		return x.BreakGlassIdentities
+	}
+	return nil
+}
+
 func (x *AuthPolicy) GetReadiness() *SsoOnlyReadiness {
 	if x != nil {
 		return x.Readiness
@@ -397,7 +424,9 @@ type ValidationStatus struct {
 	// break_glass_designees lists each currently-designated break-glass identity
 	// with whether its own non-IdP validation is current. A new designee appears
 	// here with validation_current false until it passes its own validation; a
-	// designee removed from the policy drops out of the list.
+	// designee removed from the policy drops out of the list. Like
+	// AuthPolicy.break_glass_identities, it is empty for a caller without
+	// auth_policies.break_glass.update on the organization.
 	BreakGlassDesignees []*BreakGlassValidationStatus `protobuf:"bytes,2,rep,name=break_glass_designees,json=breakGlassDesignees,proto3" json:"break_glass_designees,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
@@ -930,6 +959,68 @@ func (x *UpdateAuthPolicyRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+// SetBreakGlassAdminsRequest is the request message for SetBreakGlassAdmins.
+type SetBreakGlassAdminsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UIDP of the root organization whose policy to change. Follows the
+	// AuthPolicy.uid rule: a sub-group UIDP is INVALID_ARGUMENT and is never
+	// resolved to its root.
+	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	// UIDPs of the identities to designate. This is the entire set after the
+	// call: an identity absent from it is no longer designated, and an empty
+	// request clears the designation (refused while sso_only is on and the set
+	// is not already empty). Each entry must meet the rules on
+	// SetBreakGlassAdmins; a request that names an identity twice, or more than
+	// 5 identities, is INVALID_ARGUMENT.
+	Identities    []string `protobuf:"bytes,2,rep,name=identities,proto3" json:"identities,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetBreakGlassAdminsRequest) Reset() {
+	*x = SetBreakGlassAdminsRequest{}
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetBreakGlassAdminsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetBreakGlassAdminsRequest) ProtoMessage() {}
+
+func (x *SetBreakGlassAdminsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetBreakGlassAdminsRequest.ProtoReflect.Descriptor instead.
+func (*SetBreakGlassAdminsRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_iam_v2_auth_policies_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *SetBreakGlassAdminsRequest) GetUid() string {
+	if x != nil {
+		return x.Uid
+	}
+	return ""
+}
+
+func (x *SetBreakGlassAdminsRequest) GetIdentities() []string {
+	if x != nil {
+		return x.Identities
+	}
+	return nil
+}
+
 // Reason is one blocker of enabling sso_only.
 type SsoOnlyReadiness_Reason struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -950,7 +1041,7 @@ type SsoOnlyReadiness_Reason struct {
 
 func (x *SsoOnlyReadiness_Reason) Reset() {
 	*x = SsoOnlyReadiness_Reason{}
-	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[9]
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -962,7 +1053,7 @@ func (x *SsoOnlyReadiness_Reason) String() string {
 func (*SsoOnlyReadiness_Reason) ProtoMessage() {}
 
 func (x *SsoOnlyReadiness_Reason) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[9]
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1020,7 +1111,7 @@ type Validation_Diagnostics struct {
 
 func (x *Validation_Diagnostics) Reset() {
 	*x = Validation_Diagnostics{}
-	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[10]
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1032,7 +1123,7 @@ func (x *Validation_Diagnostics) String() string {
 func (*Validation_Diagnostics) ProtoMessage() {}
 
 func (x *Validation_Diagnostics) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[10]
+	mi := &file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1108,14 +1199,15 @@ var File_chainguard_platform_iam_v2_auth_policies_proto protoreflect.FileDescrip
 
 const file_chainguard_platform_iam_v2_auth_policies_proto_rawDesc = "" +
 	"\n" +
-	".chainguard/platform/iam/v2/auth_policies.proto\x12\x1achainguard.platform.iam.v2\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\"\x81\x04\n" +
+	".chainguard/platform/iam/v2/auth_policies.proto\x12\x1achainguard.platform.iam.v2\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\"\xbe\x04\n" +
 	"\n" +
 	"AuthPolicy\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12$\n" +
 	"\bsso_only\x18\x02 \x01(\bB\x04\xe2A\x01\x01H\x00R\assoOnly\x88\x01\x01\x12J\n" +
 	"\x10session_duration\x18\x03 \x01(\v2\x19.google.protobuf.DurationB\x04\xe2A\x01\x01R\x0fsessionDuration\x12T\n" +
-	"\vvalidations\x18\x14 \x01(\v2,.chainguard.platform.iam.v2.ValidationStatusB\x04\xe2A\x01\x03R\vvalidations\x12P\n" +
+	"\vvalidations\x18\x14 \x01(\v2,.chainguard.platform.iam.v2.ValidationStatusB\x04\xe2A\x01\x03R\vvalidations\x12;\n" +
+	"\x16break_glass_identities\x18\x04 \x03(\tB\x05\xe2A\x02\x03\x06R\x14breakGlassIdentities\x12P\n" +
 	"\treadiness\x18\x1e \x01(\v2,.chainguard.platform.iam.v2.SsoOnlyReadinessB\x04\xe2A\x01\x03R\treadiness\x12<\n" +
 	"\x14enforcement_entitled\x18( \x01(\bB\x04\xe2A\x01\x03H\x01R\x13enforcementEntitled\x88\x01\x01:W\xeaAT\n" +
 	"\x1diam.chainguard.dev/AuthPolicy\x12\x19groups/{group}/authPolicy*\fauthPolicies2\n" +
@@ -1172,7 +1264,13 @@ const file_chainguard_platform_iam_v2_auth_policies_proto_rawDesc = "" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\n" +
 	"authPolicy\x12A\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x04\xe2A\x01\x01R\n" +
-	"updateMask*k\n" +
+	"updateMask\"`\n" +
+	"\x1aSetBreakGlassAdminsRequest\x12\x1c\n" +
+	"\x03uid\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12$\n" +
+	"\n" +
+	"identities\x18\x02 \x03(\tB\x04\xe2A\x01\x01R\n" +
+	"identities*k\n" +
 	"\x0eValidationKind\x12\x1f\n" +
 	"\x1bVALIDATION_KIND_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13VALIDATION_KIND_IDP\x10\x01\x12\x1f\n" +
@@ -1190,7 +1288,7 @@ const file_chainguard_platform_iam_v2_auth_policies_proto_rawDesc = "" +
 	"\x1dVALIDATION_STEP_CODE_EXCHANGE\x10\x03\x12\x1c\n" +
 	"\x18VALIDATION_STEP_ID_TOKEN\x10\x04\x12\x1a\n" +
 	"\x16VALIDATION_STEP_CLAIMS\x10\x05\x12\"\n" +
-	"\x1eVALIDATION_STEP_IDENTITY_MATCH\x10\x062\x90\a\n" +
+	"\x1eVALIDATION_STEP_IDENTITY_MATCH\x10\x062\xa7\t\n" +
 	"\x13AuthPoliciesService\x12\x9c\x01\n" +
 	"\rGetAuthPolicy\x120.chainguard.platform.iam.v2.GetAuthPolicyRequest\x1a&.chainguard.platform.iam.v2.AuthPolicy\"1\x82\xd3\xe4\x93\x02\x1f\x12\x1d/iam/v2/authPolicies/{uid=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xaf\x1b\x12\x84\x02\n" +
@@ -1201,7 +1299,10 @@ const file_chainguard_platform_iam_v2_auth_policies_proto_rawDesc = "" +
 	"\x02\xae\x1b\x9a\xaf\xa8\xd2\x05\x02\x10\x01\xc2\xf0\x8e\xfc\vE\n" +
 	":dev.chainguard.api.iam.auth_policies.validation.started.v1\x12\x05group\x18\x01\x12\xc8\x01\n" +
 	"\x13GetValidationStatus\x126.chainguard.platform.iam.v2.GetValidationStatusRequest\x1a&.chainguard.platform.iam.v2.Validation\"Q\x82\xd3\xe4\x93\x025\x123/iam/v2/authPolicies/{uid}/validations/{session_id}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xae\x1b\x9a\xaf\xa8\xd2\x05\x04\x10\x01\x18\x01Bj\n" +
+	"\x02\xae\x1b\x9a\xaf\xa8\xd2\x05\x04\x10\x01\x18\x01\x12\x94\x02\n" +
+	"\x13SetBreakGlassAdmins\x126.chainguard.platform.iam.v2.SetBreakGlassAdminsRequest\x1a&.chainguard.platform.iam.v2.AuthPolicy\"\x9c\x01\x82\xd3\xe4\x93\x026:\x01*\"1/iam/v2/authPolicies/{uid=**}:setBreakGlassAdmins\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
+	"\x02\xb1\x1b\x9a\xaf\xa8\xd2\x05\x02\x10\x01\xc2\xf0\x8e\xfc\vF\n" +
+	";dev.chainguard.api.iam.auth_policies.break_glass.updated.v1\x12\x05group\x18\x01Bj\n" +
 	"\x1ecom.chainguard.platform.iam.v2B\x11AuthPoliciesProtoP\x01Z3chainguard.dev/sdk/proto/chainguard/platform/iam/v2b\x06proto3"
 
 var (
@@ -1217,7 +1318,7 @@ func file_chainguard_platform_iam_v2_auth_policies_proto_rawDescGZIP() []byte {
 }
 
 var file_chainguard_platform_iam_v2_auth_policies_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_chainguard_platform_iam_v2_auth_policies_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_chainguard_platform_iam_v2_auth_policies_proto_goTypes = []any{
 	(ValidationKind)(0),                // 0: chainguard.platform.iam.v2.ValidationKind
 	(ValidationState)(0),               // 1: chainguard.platform.iam.v2.ValidationState
@@ -1231,34 +1332,37 @@ var file_chainguard_platform_iam_v2_auth_policies_proto_goTypes = []any{
 	(*Validation)(nil),                 // 9: chainguard.platform.iam.v2.Validation
 	(*GetAuthPolicyRequest)(nil),       // 10: chainguard.platform.iam.v2.GetAuthPolicyRequest
 	(*UpdateAuthPolicyRequest)(nil),    // 11: chainguard.platform.iam.v2.UpdateAuthPolicyRequest
-	(*SsoOnlyReadiness_Reason)(nil),    // 12: chainguard.platform.iam.v2.SsoOnlyReadiness.Reason
-	(*Validation_Diagnostics)(nil),     // 13: chainguard.platform.iam.v2.Validation.Diagnostics
-	(*durationpb.Duration)(nil),        // 14: google.protobuf.Duration
-	(*fieldmaskpb.FieldMask)(nil),      // 15: google.protobuf.FieldMask
+	(*SetBreakGlassAdminsRequest)(nil), // 12: chainguard.platform.iam.v2.SetBreakGlassAdminsRequest
+	(*SsoOnlyReadiness_Reason)(nil),    // 13: chainguard.platform.iam.v2.SsoOnlyReadiness.Reason
+	(*Validation_Diagnostics)(nil),     // 14: chainguard.platform.iam.v2.Validation.Diagnostics
+	(*durationpb.Duration)(nil),        // 15: google.protobuf.Duration
+	(*fieldmaskpb.FieldMask)(nil),      // 16: google.protobuf.FieldMask
 }
 var file_chainguard_platform_iam_v2_auth_policies_proto_depIdxs = []int32{
-	14, // 0: chainguard.platform.iam.v2.AuthPolicy.session_duration:type_name -> google.protobuf.Duration
+	15, // 0: chainguard.platform.iam.v2.AuthPolicy.session_duration:type_name -> google.protobuf.Duration
 	4,  // 1: chainguard.platform.iam.v2.AuthPolicy.validations:type_name -> chainguard.platform.iam.v2.ValidationStatus
 	8,  // 2: chainguard.platform.iam.v2.AuthPolicy.readiness:type_name -> chainguard.platform.iam.v2.SsoOnlyReadiness
 	5,  // 3: chainguard.platform.iam.v2.ValidationStatus.break_glass_designees:type_name -> chainguard.platform.iam.v2.BreakGlassValidationStatus
 	0,  // 4: chainguard.platform.iam.v2.StartValidationRequest.kind:type_name -> chainguard.platform.iam.v2.ValidationKind
-	12, // 5: chainguard.platform.iam.v2.SsoOnlyReadiness.reasons:type_name -> chainguard.platform.iam.v2.SsoOnlyReadiness.Reason
+	13, // 5: chainguard.platform.iam.v2.SsoOnlyReadiness.reasons:type_name -> chainguard.platform.iam.v2.SsoOnlyReadiness.Reason
 	0,  // 6: chainguard.platform.iam.v2.Validation.kind:type_name -> chainguard.platform.iam.v2.ValidationKind
 	1,  // 7: chainguard.platform.iam.v2.Validation.state:type_name -> chainguard.platform.iam.v2.ValidationState
-	13, // 8: chainguard.platform.iam.v2.Validation.diagnostics:type_name -> chainguard.platform.iam.v2.Validation.Diagnostics
+	14, // 8: chainguard.platform.iam.v2.Validation.diagnostics:type_name -> chainguard.platform.iam.v2.Validation.Diagnostics
 	3,  // 9: chainguard.platform.iam.v2.UpdateAuthPolicyRequest.auth_policy:type_name -> chainguard.platform.iam.v2.AuthPolicy
-	15, // 10: chainguard.platform.iam.v2.UpdateAuthPolicyRequest.update_mask:type_name -> google.protobuf.FieldMask
+	16, // 10: chainguard.platform.iam.v2.UpdateAuthPolicyRequest.update_mask:type_name -> google.protobuf.FieldMask
 	2,  // 11: chainguard.platform.iam.v2.Validation.Diagnostics.step:type_name -> chainguard.platform.iam.v2.ValidationStep
 	10, // 12: chainguard.platform.iam.v2.AuthPoliciesService.GetAuthPolicy:input_type -> chainguard.platform.iam.v2.GetAuthPolicyRequest
 	11, // 13: chainguard.platform.iam.v2.AuthPoliciesService.UpdateAuthPolicy:input_type -> chainguard.platform.iam.v2.UpdateAuthPolicyRequest
 	6,  // 14: chainguard.platform.iam.v2.AuthPoliciesService.StartValidation:input_type -> chainguard.platform.iam.v2.StartValidationRequest
 	7,  // 15: chainguard.platform.iam.v2.AuthPoliciesService.GetValidationStatus:input_type -> chainguard.platform.iam.v2.GetValidationStatusRequest
-	3,  // 16: chainguard.platform.iam.v2.AuthPoliciesService.GetAuthPolicy:output_type -> chainguard.platform.iam.v2.AuthPolicy
-	3,  // 17: chainguard.platform.iam.v2.AuthPoliciesService.UpdateAuthPolicy:output_type -> chainguard.platform.iam.v2.AuthPolicy
-	9,  // 18: chainguard.platform.iam.v2.AuthPoliciesService.StartValidation:output_type -> chainguard.platform.iam.v2.Validation
-	9,  // 19: chainguard.platform.iam.v2.AuthPoliciesService.GetValidationStatus:output_type -> chainguard.platform.iam.v2.Validation
-	16, // [16:20] is the sub-list for method output_type
-	12, // [12:16] is the sub-list for method input_type
+	12, // 16: chainguard.platform.iam.v2.AuthPoliciesService.SetBreakGlassAdmins:input_type -> chainguard.platform.iam.v2.SetBreakGlassAdminsRequest
+	3,  // 17: chainguard.platform.iam.v2.AuthPoliciesService.GetAuthPolicy:output_type -> chainguard.platform.iam.v2.AuthPolicy
+	3,  // 18: chainguard.platform.iam.v2.AuthPoliciesService.UpdateAuthPolicy:output_type -> chainguard.platform.iam.v2.AuthPolicy
+	9,  // 19: chainguard.platform.iam.v2.AuthPoliciesService.StartValidation:output_type -> chainguard.platform.iam.v2.Validation
+	9,  // 20: chainguard.platform.iam.v2.AuthPoliciesService.GetValidationStatus:output_type -> chainguard.platform.iam.v2.Validation
+	3,  // 21: chainguard.platform.iam.v2.AuthPoliciesService.SetBreakGlassAdmins:output_type -> chainguard.platform.iam.v2.AuthPolicy
+	17, // [17:22] is the sub-list for method output_type
+	12, // [12:17] is the sub-list for method input_type
 	12, // [12:12] is the sub-list for extension type_name
 	12, // [12:12] is the sub-list for extension extendee
 	0,  // [0:12] is the sub-list for field type_name
@@ -1276,7 +1380,7 @@ func file_chainguard_platform_iam_v2_auth_policies_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_iam_v2_auth_policies_proto_rawDesc), len(file_chainguard_platform_iam_v2_auth_policies_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   11,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

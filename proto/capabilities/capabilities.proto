@@ -122,6 +122,15 @@ enum Capability {
   // auth_policies.{create,delete}: every organization has exactly one policy,
   // which is never created or deleted.
   reserved 3501, 3504;
+  // auth_policies.break_glass.update designates the organization's
+  // break-glass identities (AuthPoliciesService.SetBreakGlassAdmins).
+  // Separate from auth_policies.update so an organization can grant exactly
+  // this through a custom role without also granting the sso_only switch;
+  // among the built-in roles it is owner-only, like update.
+  CAP_IAM_AUTH_POLICIES_BREAK_GLASS_UPDATE = 3505 [
+    (name) = "auth_policies.break_glass.update",
+    (bit) = 269
+  ];
 
   // Events
 
@@ -721,5 +730,5 @@ enum Capability {
   CAP_ENTITLEMENTS_GET = 3203 [(name) = "entitlements.get", (bit) = 252];
 
   reserved 1;
-  // next bit: 269
+  // next bit: 270
 }

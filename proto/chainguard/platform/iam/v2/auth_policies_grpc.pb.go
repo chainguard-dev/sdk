@@ -26,6 +26,7 @@ const (
 	AuthPoliciesService_UpdateAuthPolicy_FullMethodName    = "/chainguard.platform.iam.v2.AuthPoliciesService/UpdateAuthPolicy"
 	AuthPoliciesService_StartValidation_FullMethodName     = "/chainguard.platform.iam.v2.AuthPoliciesService/StartValidation"
 	AuthPoliciesService_GetValidationStatus_FullMethodName = "/chainguard.platform.iam.v2.AuthPoliciesService/GetValidationStatus"
+	AuthPoliciesService_SetBreakGlassAdmins_FullMethodName = "/chainguard.platform.iam.v2.AuthPoliciesService/SetBreakGlassAdmins"
 )
 
 // AuthPoliciesServiceClient is the client API for AuthPoliciesService service.
@@ -64,7 +65,12 @@ type AuthPoliciesServiceClient interface {
 	//
 	// Held by organization owners, the same capability as UpdateAuthPolicy:
 	// starting a validation is part of configuring the policy, and the designee
-	// of a break-glass session is named by an owner, not self-selected.
+	// of a break-glass session is named by an owner, not self-selected. A
+	// BREAK_GLASS session also requires auth_policies.break_glass.update on the
+	// organization, the capability AuthPolicy.break_glass_identities is shown
+	// to, because whether a session opens tells the caller whether the identity
+	// is designated; without it the call is PERMISSION_DENIED for every
+	// identity. An IDP session needs auth_policies.update alone.
 	//
 	// (-- api-linter: core::0136::response-message-name=disabled
 	//     aip.dev/not-precedent: StartValidation is bound under the policy it
@@ -76,13 +82,15 @@ type AuthPoliciesServiceClient interface {
 	// (pending, passed, failed or expired), the diagnostics the sign-in
 	// produced (which step failed, the provider's error code, the claims it
 	// saw), and the recorded result. It never returns open_url. It is a read
-	// and emits no event, but it is held to the same capability that started
-	// the session: the diagnostics name the person who signed in (their
-	// provider subject and email), which is not for every member who may read
-	// the policy flag. The policy's uid is a root organization UIDP, a single
-	// path segment, so the binding matches it exactly; the session is addressed
-	// as a resource under the policy, so its id travels in the path rather
-	// than in the query string.
+	// and emits no event, but it is held to the capabilities that started the
+	// session: the diagnostics name the person who signed in (their provider
+	// subject and email), which is not for every member who may read the
+	// policy flag. A break-glass session also needs
+	// auth_policies.break_glass.update, as starting one does; to a caller
+	// without it the session is NOT_FOUND. The policy's uid is a root
+	// organization UIDP, a single path segment, so the binding matches it
+	// exactly; the session is addressed as a resource under the policy, so
+	// its id travels in the path rather than in the query string.
 	//
 	// (-- api-linter: core::0131::response-message-name=disabled
 	//     aip.dev/not-precedent: GetValidationStatus returns the Validation it
@@ -97,6 +105,38 @@ type AuthPoliciesServiceClient interface {
 	//     ids, not a full resource name, as everywhere else in this API that
 	//     keys on UIDPs. --)
 	GetValidationStatus(ctx context.Context, in *GetValidationStatusRequest, opts ...grpc.CallOption) (*Validation, error)
+	// SetBreakGlassAdmins replaces an organization's set of break-glass
+	// admins: the owners who keep a way in through a sign-in method other than
+	// the organization's identity provider while sso_only is on, for when that
+	// provider is misconfigured or unavailable. The identities in the request
+	// are the whole set afterwards; an empty request clears it.
+	//
+	// Each identity not already designated must be a person's login identity
+	// (a root identity with an exact issuer and subject, not a workload,
+	// assumable, service-principal, or static-key identity), must not expire,
+	// must sign in through an issuer other than the organization's own
+	// identity provider (one that signs in through it has no way in while that
+	// provider is down, which is when break-glass is needed), must be active,
+	// and must hold the owner role on the organization itself through a
+	// manually assigned role binding; a binding on a group beneath the
+	// organization, a role other than owner, or a SCIM-provisioned binding does
+	// not qualify. An identity already designated is kept without being checked
+	// again; remove it and designate it again to have it checked. While it is
+	// designated, its owner binding on the organization cannot be removed,
+	// downgraded, or moved to another identity: take it off the designation
+	// first. At most 5 identities may be designated. While sso_only is on, the
+	// last designee cannot be removed: designate a replacement first, or turn
+	// sso_only off.
+	//
+	// Held by organization owners through the built-in role, and by any custom
+	// role that carries auth_policies.break_glass.update, which exists so that
+	// an organization can delegate exactly this without the sso_only switch.
+	// Every change is published as an event. Its body is the resulting policy
+	// with break_glass_identities removed: events reach every subscriber an
+	// organization editor can register, and the designation is shown only to
+	// holders of auth_policies.break_glass.update. The event records that the
+	// designation changed; a holder reads the policy for the list.
+	SetBreakGlassAdmins(ctx context.Context, in *SetBreakGlassAdminsRequest, opts ...grpc.CallOption) (*AuthPolicy, error)
 }
 
 type authPoliciesServiceClient struct {
@@ -147,6 +187,16 @@ func (c *authPoliciesServiceClient) GetValidationStatus(ctx context.Context, in 
 	return out, nil
 }
 
+func (c *authPoliciesServiceClient) SetBreakGlassAdmins(ctx context.Context, in *SetBreakGlassAdminsRequest, opts ...grpc.CallOption) (*AuthPolicy, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AuthPolicy)
+	err := c.cc.Invoke(ctx, AuthPoliciesService_SetBreakGlassAdmins_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthPoliciesServiceServer is the server API for AuthPoliciesService service.
 // All implementations must embed UnimplementedAuthPoliciesServiceServer
 // for forward compatibility.
@@ -183,7 +233,12 @@ type AuthPoliciesServiceServer interface {
 	//
 	// Held by organization owners, the same capability as UpdateAuthPolicy:
 	// starting a validation is part of configuring the policy, and the designee
-	// of a break-glass session is named by an owner, not self-selected.
+	// of a break-glass session is named by an owner, not self-selected. A
+	// BREAK_GLASS session also requires auth_policies.break_glass.update on the
+	// organization, the capability AuthPolicy.break_glass_identities is shown
+	// to, because whether a session opens tells the caller whether the identity
+	// is designated; without it the call is PERMISSION_DENIED for every
+	// identity. An IDP session needs auth_policies.update alone.
 	//
 	// (-- api-linter: core::0136::response-message-name=disabled
 	//     aip.dev/not-precedent: StartValidation is bound under the policy it
@@ -195,13 +250,15 @@ type AuthPoliciesServiceServer interface {
 	// (pending, passed, failed or expired), the diagnostics the sign-in
 	// produced (which step failed, the provider's error code, the claims it
 	// saw), and the recorded result. It never returns open_url. It is a read
-	// and emits no event, but it is held to the same capability that started
-	// the session: the diagnostics name the person who signed in (their
-	// provider subject and email), which is not for every member who may read
-	// the policy flag. The policy's uid is a root organization UIDP, a single
-	// path segment, so the binding matches it exactly; the session is addressed
-	// as a resource under the policy, so its id travels in the path rather
-	// than in the query string.
+	// and emits no event, but it is held to the capabilities that started the
+	// session: the diagnostics name the person who signed in (their provider
+	// subject and email), which is not for every member who may read the
+	// policy flag. A break-glass session also needs
+	// auth_policies.break_glass.update, as starting one does; to a caller
+	// without it the session is NOT_FOUND. The policy's uid is a root
+	// organization UIDP, a single path segment, so the binding matches it
+	// exactly; the session is addressed as a resource under the policy, so
+	// its id travels in the path rather than in the query string.
 	//
 	// (-- api-linter: core::0131::response-message-name=disabled
 	//     aip.dev/not-precedent: GetValidationStatus returns the Validation it
@@ -216,6 +273,38 @@ type AuthPoliciesServiceServer interface {
 	//     ids, not a full resource name, as everywhere else in this API that
 	//     keys on UIDPs. --)
 	GetValidationStatus(context.Context, *GetValidationStatusRequest) (*Validation, error)
+	// SetBreakGlassAdmins replaces an organization's set of break-glass
+	// admins: the owners who keep a way in through a sign-in method other than
+	// the organization's identity provider while sso_only is on, for when that
+	// provider is misconfigured or unavailable. The identities in the request
+	// are the whole set afterwards; an empty request clears it.
+	//
+	// Each identity not already designated must be a person's login identity
+	// (a root identity with an exact issuer and subject, not a workload,
+	// assumable, service-principal, or static-key identity), must not expire,
+	// must sign in through an issuer other than the organization's own
+	// identity provider (one that signs in through it has no way in while that
+	// provider is down, which is when break-glass is needed), must be active,
+	// and must hold the owner role on the organization itself through a
+	// manually assigned role binding; a binding on a group beneath the
+	// organization, a role other than owner, or a SCIM-provisioned binding does
+	// not qualify. An identity already designated is kept without being checked
+	// again; remove it and designate it again to have it checked. While it is
+	// designated, its owner binding on the organization cannot be removed,
+	// downgraded, or moved to another identity: take it off the designation
+	// first. At most 5 identities may be designated. While sso_only is on, the
+	// last designee cannot be removed: designate a replacement first, or turn
+	// sso_only off.
+	//
+	// Held by organization owners through the built-in role, and by any custom
+	// role that carries auth_policies.break_glass.update, which exists so that
+	// an organization can delegate exactly this without the sso_only switch.
+	// Every change is published as an event. Its body is the resulting policy
+	// with break_glass_identities removed: events reach every subscriber an
+	// organization editor can register, and the designation is shown only to
+	// holders of auth_policies.break_glass.update. The event records that the
+	// designation changed; a holder reads the policy for the list.
+	SetBreakGlassAdmins(context.Context, *SetBreakGlassAdminsRequest) (*AuthPolicy, error)
 	mustEmbedUnimplementedAuthPoliciesServiceServer()
 }
 
@@ -237,6 +326,9 @@ func (UnimplementedAuthPoliciesServiceServer) StartValidation(context.Context, *
 }
 func (UnimplementedAuthPoliciesServiceServer) GetValidationStatus(context.Context, *GetValidationStatusRequest) (*Validation, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetValidationStatus not implemented")
+}
+func (UnimplementedAuthPoliciesServiceServer) SetBreakGlassAdmins(context.Context, *SetBreakGlassAdminsRequest) (*AuthPolicy, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetBreakGlassAdmins not implemented")
 }
 func (UnimplementedAuthPoliciesServiceServer) mustEmbedUnimplementedAuthPoliciesServiceServer() {}
 func (UnimplementedAuthPoliciesServiceServer) testEmbeddedByValue()                             {}
@@ -331,6 +423,24 @@ func _AuthPoliciesService_GetValidationStatus_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthPoliciesService_SetBreakGlassAdmins_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetBreakGlassAdminsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthPoliciesServiceServer).SetBreakGlassAdmins(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthPoliciesService_SetBreakGlassAdmins_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthPoliciesServiceServer).SetBreakGlassAdmins(ctx, req.(*SetBreakGlassAdminsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthPoliciesService_ServiceDesc is the grpc.ServiceDesc for AuthPoliciesService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -353,6 +463,10 @@ var AuthPoliciesService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetValidationStatus",
 			Handler:    _AuthPoliciesService_GetValidationStatus_Handler,
+		},
+		{
+			MethodName: "SetBreakGlassAdmins",
+			Handler:    _AuthPoliciesService_SetBreakGlassAdmins_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

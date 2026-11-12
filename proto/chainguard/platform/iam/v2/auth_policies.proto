@@ -82,7 +82,12 @@ service AuthPoliciesService {
   //
   // Held by organization owners, the same capability as UpdateAuthPolicy:
   // starting a validation is part of configuring the policy, and the designee
-  // of a break-glass session is named by an owner, not self-selected.
+  // of a break-glass session is named by an owner, not self-selected. A
+  // BREAK_GLASS session also requires auth_policies.break_glass.update on the
+  // organization, the capability AuthPolicy.break_glass_identities is shown
+  // to, because whether a session opens tells the caller whether the identity
+  // is designated; without it the call is PERMISSION_DENIED for every
+  // identity. An IDP session needs auth_policies.update alone.
   //
   // (-- api-linter: core::0136::response-message-name=disabled
   //     aip.dev/not-precedent: StartValidation is bound under the policy it
@@ -114,13 +119,15 @@ service AuthPoliciesService {
   // (pending, passed, failed or expired), the diagnostics the sign-in
   // produced (which step failed, the provider's error code, the claims it
   // saw), and the recorded result. It never returns open_url. It is a read
-  // and emits no event, but it is held to the same capability that started
-  // the session: the diagnostics name the person who signed in (their
-  // provider subject and email), which is not for every member who may read
-  // the policy flag. The policy's uid is a root organization UIDP, a single
-  // path segment, so the binding matches it exactly; the session is addressed
-  // as a resource under the policy, so its id travels in the path rather
-  // than in the query string.
+  // and emits no event, but it is held to the capabilities that started the
+  // session: the diagnostics name the person who signed in (their provider
+  // subject and email), which is not for every member who may read the
+  // policy flag. A break-glass session also needs
+  // auth_policies.break_glass.update, as starting one does; to a caller
+  // without it the session is NOT_FOUND. The policy's uid is a root
+  // organization UIDP, a single path segment, so the binding matches it
+  // exactly; the session is addressed as a resource under the policy, so
+  // its id travels in the path rather than in the query string.
   //
   // (-- api-linter: core::0131::response-message-name=disabled
   //     aip.dev/not-precedent: GetValidationStatus returns the Validation it
@@ -149,6 +156,58 @@ service AuthPoliciesService {
       hidden: true
       read_only: true
     };
+  }
+
+  // SetBreakGlassAdmins replaces an organization's set of break-glass
+  // admins: the owners who keep a way in through a sign-in method other than
+  // the organization's identity provider while sso_only is on, for when that
+  // provider is misconfigured or unavailable. The identities in the request
+  // are the whole set afterwards; an empty request clears it.
+  //
+  // Each identity not already designated must be a person's login identity
+  // (a root identity with an exact issuer and subject, not a workload,
+  // assumable, service-principal, or static-key identity), must not expire,
+  // must sign in through an issuer other than the organization's own
+  // identity provider (one that signs in through it has no way in while that
+  // provider is down, which is when break-glass is needed), must be active,
+  // and must hold the owner role on the organization itself through a
+  // manually assigned role binding; a binding on a group beneath the
+  // organization, a role other than owner, or a SCIM-provisioned binding does
+  // not qualify. An identity already designated is kept without being checked
+  // again; remove it and designate it again to have it checked. While it is
+  // designated, its owner binding on the organization cannot be removed,
+  // downgraded, or moved to another identity: take it off the designation
+  // first. At most 5 identities may be designated. While sso_only is on, the
+  // last designee cannot be removed: designate a replacement first, or turn
+  // sso_only off.
+  //
+  // Held by organization owners through the built-in role, and by any custom
+  // role that carries auth_policies.break_glass.update, which exists so that
+  // an organization can delegate exactly this without the sso_only switch.
+  // Every change is published as an event. Its body is the resulting policy
+  // with break_glass_identities removed: events reach every subscriber an
+  // organization editor can register, and the designation is shown only to
+  // holders of auth_policies.break_glass.update. The event records that the
+  // designation changed; a holder reads the policy for the list.
+  rpc SetBreakGlassAdmins(SetBreakGlassAdminsRequest) returns (AuthPolicy) {
+    option (google.api.http) = {
+      post: "/iam/v2/authPolicies/{uid=**}:setBreakGlassAdmins"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_IAM_AUTH_POLICIES_BREAK_GLASS_UPDATE]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.iam.auth_policies.break_glass.updated.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    // Never an MCP tool, for the same reason as UpdateAuthPolicy: the
+    // break-glass list decides who can still sign in during an identity
+    // provider outage.
+    option (chainguard.annotations.mcp) = {hidden: true};
   }
 }
 
@@ -226,6 +285,30 @@ message AuthPolicy {
   // the owner-binding check; this view breaks them out per designee.
   ValidationStatus validations = 20 [(google.api.field_behavior) = OUTPUT_ONLY];
 
+  // break_glass_identities lists, by UIDP, the identities designated as the
+  // organization's break-glass admins: the owners who keep signing in through
+  // a method other than the organization's identity provider while sso_only
+  // is on. Empty when none are designated. It is a set: no order is implied,
+  // and no identity appears twice. It is changed through SetBreakGlassAdmins
+  // only: UpdateAuthPolicy ignores it in an update_mask, as it ignores the
+  // readiness fields (an update_mask naming only it has nothing to update
+  // and is INVALID_ARGUMENT), and, as with any OUTPUT_ONLY field, ignores it
+  // in the body, so a policy read back and sent to UpdateAuthPolicy cannot
+  // change the set by accident.
+  //
+  // It is shown only to a caller holding auth_policies.break_glass.update on
+  // the organization; every other reader of the policy gets it empty. The
+  // same rule holds for validations.break_glass_designees, which names the
+  // same identities: a caller holding auth_policies.update but not
+  // auth_policies.break_glass.update gets the validation view with the
+  // identity provider's currency and no designees. Every member may learn
+  // whether SSO is enforced, but which accounts are the way around it is told
+  // only to those who may change that list.
+  repeated string break_glass_identities = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = UNORDERED_LIST
+  ];
+
   // Fields from 30 report the organization's readiness to enforce the
   // policy: facts about the organization that decide whether sso_only can be
   // turned on and whether, once on, it takes effect. They are never written.
@@ -272,7 +355,9 @@ message ValidationStatus {
   // break_glass_designees lists each currently-designated break-glass identity
   // with whether its own non-IdP validation is current. A new designee appears
   // here with validation_current false until it passes its own validation; a
-  // designee removed from the policy drops out of the list.
+  // designee removed from the policy drops out of the list. Like
+  // AuthPolicy.break_glass_identities, it is empty for a caller without
+  // auth_policies.break_glass.update on the organization.
   repeated BreakGlassValidationStatus break_glass_designees = 2 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (google.api.field_behavior) = UNORDERED_LIST
@@ -449,6 +534,25 @@ message UpdateAuthPolicyRequest {
     // Optional per AIP-134: omitted, the mask is implied as described above.
     (google.api.field_behavior) = OPTIONAL
   ];
+}
+
+// SetBreakGlassAdminsRequest is the request message for SetBreakGlassAdmins.
+message SetBreakGlassAdminsRequest {
+  // UIDP of the root organization whose policy to change. Follows the
+  // AuthPolicy.uid rule: a sub-group UIDP is INVALID_ARGUMENT and is never
+  // resolved to its root.
+  string uid = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // UIDPs of the identities to designate. This is the entire set after the
+  // call: an identity absent from it is no longer designated, and an empty
+  // request clears the designation (refused while sso_only is on and the set
+  // is not already empty). Each entry must meet the rules on
+  // SetBreakGlassAdmins; a request that names an identity twice, or more than
+  // 5 identities, is INVALID_ARGUMENT.
+  repeated string identities = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // ValidationKind is what a validation session proves.

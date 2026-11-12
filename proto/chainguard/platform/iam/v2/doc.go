@@ -25,7 +25,7 @@ pagination support.
   - GroupInvites: Manage group invitations with role assignment and email notification
   - IdentityProviders: Manage external OIDC identity providers for SSO authentication
   - ExternalGroupRoleMappings: Map external IdP groups to Chainguard roles for SSO federation
-  - AuthPolicies: Read and update an organization's authentication policy (SSO-only sign-in)
+  - AuthPolicies: Read and update an organization's authentication policy (SSO-only sign-in, break-glass identities)
   - Terms: Manage legal document acceptance for organizations
   - Pagination: Iterator-based and slice-based pagination helpers
 
@@ -88,6 +88,7 @@ ExternalGroupRoleMappingsService provides operations for managing external group
 AuthPoliciesService manages an organization's authentication policy:
   - GetAuthPolicy: Retrieve an organization's policy by the organization's UIDP
   - UpdateAuthPolicy: Turn SSO-only sign-in on or off for an organization
+  - SetBreakGlassAdmins: Replace the owners who keep a non-IdP way in while SSO-only is on
 
 TermsService manages legal document acceptance for organizations:
   - AcceptTerms: Record acceptance of legal documents for an organization

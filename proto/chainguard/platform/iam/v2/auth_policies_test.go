@@ -10,9 +10,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
 	"google.golang.org/genproto/googleapis/api/annotations"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	"chainguard.dev/sdk/events"
@@ -40,8 +42,10 @@ func TestAuthPolicyEventIsAsync(t *testing.T) {
 }
 
 // TestAuthPoliciesCapabilities pins the authorization split: reading a policy
-// needs only the list capability every role carries, while changing one needs
-// the owner-only update capability.
+// needs only the list capability every role carries, changing one needs the
+// owner-only update capability, and designating break-glass identities needs
+// its own capability, so a custom role can carry it without the sso_only
+// switch.
 func TestAuthPoliciesCapabilities(t *testing.T) {
 	sd := authPoliciesService(t)
 	for method, want := range map[string]capabilities.Capability{
@@ -52,6 +56,7 @@ func TestAuthPoliciesCapabilities(t *testing.T) {
 		// capability: its diagnostics name the person who signed in.
 		"StartValidation":     capabilities.Capability_CAP_IAM_AUTH_POLICIES_UPDATE,
 		"GetValidationStatus": capabilities.Capability_CAP_IAM_AUTH_POLICIES_UPDATE,
+		"SetBreakGlassAdmins": capabilities.Capability_CAP_IAM_AUTH_POLICIES_BREAK_GLASS_UPDATE,
 	} {
 		iam, ok := proto.GetExtension(methodOptions(t, sd, method), cgannotations.E_Iam).(*cgannotations.IAM)
 		if !ok || iam.GetEnabled() == nil {
@@ -61,7 +66,7 @@ func TestAuthPoliciesCapabilities(t *testing.T) {
 			t.Errorf("%s capabilities = %v, want [%v]", method, got, want)
 		}
 		if iam.GetEnabled().GetUnscoped() {
-			t.Errorf("%s is unscoped; both RPCs must be scoped to the organization in uid", method)
+			t.Errorf("%s is unscoped; every RPC must be scoped to the organization in uid", method)
 		}
 	}
 }
@@ -82,9 +87,10 @@ func TestGetValidationStatusBinding(t *testing.T) {
 	}
 }
 
-// TestAuthPoliciesRolePlacement keeps the two capabilities on exactly the
-// roles that hold the identity_providers capabilities they mirror: list in
-// every role via ConsoleViewerCaps, update in OwnerCaps alone.
+// TestAuthPoliciesRolePlacement keeps the capabilities on exactly the roles
+// that hold the identity_providers capabilities they mirror: list in every
+// role via ConsoleViewerCaps, update and break_glass.update in OwnerCaps
+// alone.
 func TestAuthPoliciesRolePlacement(t *testing.T) {
 	for _, tc := range []struct {
 		name   string
@@ -103,6 +109,9 @@ func TestAuthPoliciesRolePlacement(t *testing.T) {
 		if got := slices.Contains(tc.caps, capabilities.Capability_CAP_IAM_AUTH_POLICIES_UPDATE); got != tc.update {
 			t.Errorf("%s contains auth_policies.update = %v, want %v", tc.name, got, tc.update)
 		}
+		if got := slices.Contains(tc.caps, capabilities.Capability_CAP_IAM_AUTH_POLICIES_BREAK_GLASS_UPDATE); got != tc.update {
+			t.Errorf("%s contains auth_policies.break_glass.update = %v, want %v", tc.name, got, tc.update)
+		}
 		// The mirror itself: wherever identity_providers.{list,update} is, so is ours.
 		if got := slices.Contains(tc.caps, capabilities.Capability_CAP_IAM_IDENTITY_PROVIDERS_LIST); got != tc.list {
 			t.Errorf("%s contains identity_providers.list = %v but auth_policies.list = %v", tc.name, got, tc.list)
@@ -113,15 +122,13 @@ func TestAuthPoliciesRolePlacement(t *testing.T) {
 	}
 }
 
-// TestAuthPoliciesUpdateHiddenFromMCP keeps UpdateAuthPolicy off any MCP
+// TestAuthPoliciesMutationsHiddenFromMCP keeps the mutating RPCs off any MCP
 // surface. The backend builds its tools from v2beta1 descriptors only, so no
 // RPC here is a tool today; the hidden flag is the guard for the day v2 joins
 // that surface, because flipping sso_only can lock an organization's members
-// out.
-func TestAuthPoliciesUpdateHiddenFromMCP(t *testing.T) {
-	// Both mutations: flipping sso_only can lock members out, and a
-	// validation drives a real sign-in a person must complete.
-	for _, method := range []string{"UpdateAuthPolicy", "StartValidation"} {
+// out and the break-glass list decides who still gets in when it does.
+func TestAuthPoliciesMutationsHiddenFromMCP(t *testing.T) {
+	for _, method := range []string{"UpdateAuthPolicy", "StartValidation", "SetBreakGlassAdmins"} {
 		mcp, ok := proto.GetExtension(methodOptions(t, authPoliciesService(t), method), cgannotations.E_Mcp).(*cgannotations.MCP)
 		if !ok || mcp == nil {
 			t.Fatalf("%s missing MCP annotation", method)
@@ -136,6 +143,7 @@ func TestAuthPoliciesEventAnnotations(t *testing.T) {
 	runAnnotationTests(t, authPoliciesService(t), []annotationTest{
 		{"UpdateAuthPolicy", "dev.chainguard.api.iam.auth_policies.updated.v1", []string{"group"}},
 		{"StartValidation", "dev.chainguard.api.iam.auth_policies.validation.started.v1", []string{"group"}},
+		{"SetBreakGlassAdmins", "dev.chainguard.api.iam.auth_policies.break_glass.updated.v1", []string{"group"}},
 	})
 	// Reads emit nothing.
 	for _, method := range []string{"GetAuthPolicy", "GetValidationStatus"} {
@@ -245,6 +253,7 @@ func TestAuthPolicyEventRedaction(t *testing.T) {
 }
 
 func TestAuthPoliciesEventInterfaces(t *testing.T) {
+	// A root organization UIDP: one 40-hex segment, no parent.
 	const orgUID = "0123456789abcdef0123456789abcdef01234567"
 
 	p := &AuthPolicy{Uid: orgUID}
@@ -256,6 +265,46 @@ func TestAuthPoliciesEventInterfaces(t *testing.T) {
 	}
 	if _, ok := p.CloudEventsExtension("unknown"); ok {
 		t.Error("AuthPolicy.CloudEventsExtension(unknown) returned true")
+	}
+
+	// The event body is delivered to every subscriber an organization editor
+	// can register, so it must not carry the designation that GetAuthPolicy
+	// shows only to holders of break_glass.update. The rest of the policy
+	// survives, session_duration included: the same body is the
+	// auth_policies.updated audit event, whose table records a session
+	// length change. The original is left alone.
+	full := &AuthPolicy{
+		Uid:                  orgUID,
+		SsoOnly:              new(true),
+		SessionDuration:      durationpb.New(8 * time.Hour),
+		BreakGlassIdentities: []string{"0123456789abcdef0123456789abcdef0123cccc"},
+		Readiness:            &SsoOnlyReadiness{IdpValidatedCurrent: true},
+		EnforcementEntitled:  new(true),
+	}
+	redacted, ok := full.CloudEventsRedact().(*AuthPolicy)
+	if !ok {
+		t.Fatalf("AuthPolicy.CloudEventsRedact() = %T, want *AuthPolicy", full.CloudEventsRedact())
+	}
+	if len(redacted.GetBreakGlassIdentities()) != 0 {
+		t.Errorf("redacted AuthPolicy still carries break_glass_identities: %v", redacted.GetBreakGlassIdentities())
+	}
+	// The redaction is an allowlist that keeps only uid, sso_only and
+	// session_duration, so readiness and the entitlement are dropped as well.
+	wantRedacted := &AuthPolicy{Uid: orgUID, SsoOnly: new(true), SessionDuration: durationpb.New(8 * time.Hour)}
+	if diff := cmp.Diff(wantRedacted, redacted, protocmp.Transform()); diff != "" {
+		t.Errorf("redacted AuthPolicy (-want, +got):\n%s", diff)
+	}
+	if len(full.GetBreakGlassIdentities()) != 1 {
+		t.Error("AuthPolicy.CloudEventsRedact() edited the original")
+	}
+	*redacted.SsoOnly = false
+	if !*full.SsoOnly {
+		t.Error("AuthPolicy.CloudEventsRedact() shares sso_only storage with the original")
+	}
+	// An unset sso_only stays unset: redaction must not turn "never
+	// configured" into an explicit false.
+	if r := (&AuthPolicy{Uid: orgUID}).CloudEventsRedact().(*AuthPolicy); r.SsoOnly != nil {
+		t.Errorf("redacted unset sso_only = %v, want nil", *r.SsoOnly)
 	}
 }
 
@@ -269,5 +318,20 @@ func TestAuthPolicySsoOnlyPresence(t *testing.T) {
 	}
 	if !fd.HasPresence() {
 		t.Error("AuthPolicy.sso_only has no presence; it must stay `optional` so unset and false remain distinguishable")
+	}
+}
+
+// TestAuthPolicyBreakGlassIdentitiesOutputOnly pins break_glass_identities
+// as OUTPUT_ONLY on the policy: the list changes through
+// SetBreakGlassAdmins alone, and a policy read back and sent to
+// UpdateAuthPolicy must not be able to change it.
+func TestAuthPolicyBreakGlassIdentitiesOutputOnly(t *testing.T) {
+	fd := File_chainguard_platform_iam_v2_auth_policies_proto.Messages().ByName("AuthPolicy").Fields().ByName("break_glass_identities")
+	if fd == nil {
+		t.Fatal("AuthPolicy.break_glass_identities not found")
+	}
+	behaviors, _ := proto.GetExtension(fd.Options(), annotations.E_FieldBehavior).([]annotations.FieldBehavior)
+	if !slices.Contains(behaviors, annotations.FieldBehavior_OUTPUT_ONLY) {
+		t.Errorf("AuthPolicy.break_glass_identities field_behavior = %v, want OUTPUT_ONLY", behaviors)
 	}
 }

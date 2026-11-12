@@ -29,8 +29,10 @@ var (
 		// enforced and nothing else to a viewer: the readiness that says
 		// whether a break-glass path is designated and validated is returned
 		// only to callers holding auth_policies.update (api-impl withholds it
-		// otherwise), so the flag can follow identity_providers.list into
-		// every role without disclosing emergency-access posture.
+		// otherwise), and the break-glass designation on the same policy is
+		// shown only to holders of auth_policies.break_glass.update, so the
+		// flag can follow identity_providers.list into every role without
+		// disclosing emergency-access posture.
 		Capability_CAP_IAM_AUTH_POLICIES_LIST,
 
 		Capability_CAP_REPO_LIST,
@@ -184,6 +186,11 @@ var (
 		// It travels with identity_providers.update: both decide how members
 		// sign in, and both are owner-only.
 		Capability_CAP_IAM_AUTH_POLICIES_UPDATE,
+		// auth_policies.break_glass.update designates who keeps a way in when
+		// sso_only is on and the identity provider is down. Owner-only among
+		// the built-in roles; it is its own capability so a custom role can
+		// carry it without the sso_only switch.
+		Capability_CAP_IAM_AUTH_POLICIES_BREAK_GLASS_UPDATE,
 		Capability_CAP_IAM_SCIM_MANAGE,
 		// SCIM is admin-adjacent: listing an IdP's provisioned users is owner-only
 		// for now, alongside scim.manage. It can move to a viewer-oriented role

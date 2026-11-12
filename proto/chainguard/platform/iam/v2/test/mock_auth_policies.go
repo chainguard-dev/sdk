@@ -22,8 +22,9 @@ type MockAuthPoliciesServiceClient struct {
 	iam.AuthPoliciesServiceClient
 	T *testing.T
 
-	OnGetAuthPolicy    []test.On[*iam.GetAuthPolicyRequest, *iam.AuthPolicy]
-	OnUpdateAuthPolicy []test.On[*iam.UpdateAuthPolicyRequest, *iam.AuthPolicy]
+	OnGetAuthPolicy       []test.On[*iam.GetAuthPolicyRequest, *iam.AuthPolicy]
+	OnUpdateAuthPolicy    []test.On[*iam.UpdateAuthPolicyRequest, *iam.AuthPolicy]
+	OnSetBreakGlassAdmins []test.On[*iam.SetBreakGlassAdminsRequest, *iam.AuthPolicy]
 }
 
 func (m MockAuthPoliciesServiceClient) GetAuthPolicy(_ context.Context, given *iam.GetAuthPolicyRequest, _ ...grpc.CallOption) (*iam.AuthPolicy, error) {
@@ -32,4 +33,8 @@ func (m MockAuthPoliciesServiceClient) GetAuthPolicy(_ context.Context, given *i
 
 func (m MockAuthPoliciesServiceClient) UpdateAuthPolicy(_ context.Context, given *iam.UpdateAuthPolicyRequest, _ ...grpc.CallOption) (*iam.AuthPolicy, error) {
 	return test.Match(m.T, m.OnUpdateAuthPolicy, given, "update-auth-policy", protocmp.Transform())
+}
+
+func (m MockAuthPoliciesServiceClient) SetBreakGlassAdmins(_ context.Context, given *iam.SetBreakGlassAdminsRequest, _ ...grpc.CallOption) (*iam.AuthPolicy, error) {
+	return test.Match(m.T, m.OnSetBreakGlassAdmins, given, "set-break-glass-admins", protocmp.Transform())
 }
