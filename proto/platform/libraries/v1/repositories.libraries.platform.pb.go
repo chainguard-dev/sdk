@@ -481,8 +481,9 @@ type DeleteRepositoryRequest struct {
 	ParentId string `protobuf:"bytes,1,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
 	// name is the repository name.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// force removes the pull tokens, their role bindings and the Libraries
-	// policy bindings at the repository's folder along with it. Bindings
+	// force removes the pull tokens, their role bindings, the Libraries policy
+	// bindings and the Libraries policies at the repository's folder along
+	// with it. Bindings
 	// scoped to a folder Delete has removed go with it whatever force says.
 	Force         bool `protobuf:"varint,3,opt,name=force,proto3" json:"force,omitempty"`
 	unknownFields protoimpl.UnknownFields
