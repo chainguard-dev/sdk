@@ -489,6 +489,17 @@ enum FailureReason {
   FAILURE_REASON_CONTRACT_NOT_PRODUCED = 1;
   // The research phase produced a lab contract that failed schema validation.
   FAILURE_REASON_CONTRACT_INVALID = 2;
+  // The report phase produced no report: the report agent errored, never
+  // returned, never got its prose map past the schema, or its inputs could not
+  // be staged.
+  FAILURE_REASON_REPORT_NOT_PRODUCED = 3;
+  // The report phase's prose map failed the host's check: a finding key that
+  // is not a finding ID, a field over its length limit, or text the map
+  // refuses.
+  FAILURE_REASON_REPORT_INVALID = 4;
+  // The report phase produced a prose map that names a finding the run record
+  // does not hold.
+  FAILURE_REASON_REPORT_UNKNOWN_FINDING = 5;
 }
 
 // RejectionReason says why a submission was refused. Every value is a stable

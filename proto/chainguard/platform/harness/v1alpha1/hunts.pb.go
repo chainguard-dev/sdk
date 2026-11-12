@@ -115,6 +115,17 @@ const (
 	FailureReason_FAILURE_REASON_CONTRACT_NOT_PRODUCED FailureReason = 1
 	// The research phase produced a lab contract that failed schema validation.
 	FailureReason_FAILURE_REASON_CONTRACT_INVALID FailureReason = 2
+	// The report phase produced no report: the report agent errored, never
+	// returned, never got its prose map past the schema, or its inputs could not
+	// be staged.
+	FailureReason_FAILURE_REASON_REPORT_NOT_PRODUCED FailureReason = 3
+	// The report phase's prose map failed the host's check: a finding key that
+	// is not a finding ID, a field over its length limit, or text the map
+	// refuses.
+	FailureReason_FAILURE_REASON_REPORT_INVALID FailureReason = 4
+	// The report phase produced a prose map that names a finding the run record
+	// does not hold.
+	FailureReason_FAILURE_REASON_REPORT_UNKNOWN_FINDING FailureReason = 5
 )
 
 // Enum value maps for FailureReason.
@@ -123,11 +134,17 @@ var (
 		0: "FAILURE_REASON_UNSPECIFIED",
 		1: "FAILURE_REASON_CONTRACT_NOT_PRODUCED",
 		2: "FAILURE_REASON_CONTRACT_INVALID",
+		3: "FAILURE_REASON_REPORT_NOT_PRODUCED",
+		4: "FAILURE_REASON_REPORT_INVALID",
+		5: "FAILURE_REASON_REPORT_UNKNOWN_FINDING",
 	}
 	FailureReason_value = map[string]int32{
-		"FAILURE_REASON_UNSPECIFIED":           0,
-		"FAILURE_REASON_CONTRACT_NOT_PRODUCED": 1,
-		"FAILURE_REASON_CONTRACT_INVALID":      2,
+		"FAILURE_REASON_UNSPECIFIED":            0,
+		"FAILURE_REASON_CONTRACT_NOT_PRODUCED":  1,
+		"FAILURE_REASON_CONTRACT_INVALID":       2,
+		"FAILURE_REASON_REPORT_NOT_PRODUCED":    3,
+		"FAILURE_REASON_REPORT_INVALID":         4,
+		"FAILURE_REASON_REPORT_UNKNOWN_FINDING": 5,
 	}
 )
 
@@ -1279,11 +1296,14 @@ const file_chainguard_platform_harness_v1alpha1_hunts_proto_rawDesc = "" +
 	"\x13HUNT_STATUS_RUNNING\x10\x04\x12\x18\n" +
 	"\x14HUNT_STATUS_COMPLETE\x10\x05\x12\x16\n" +
 	"\x12HUNT_STATUS_FAILED\x10\x06\x12\x18\n" +
-	"\x14HUNT_STATUS_REJECTED\x10\a*~\n" +
+	"\x14HUNT_STATUS_REJECTED\x10\a*\xf4\x01\n" +
 	"\rFailureReason\x12\x1e\n" +
 	"\x1aFAILURE_REASON_UNSPECIFIED\x10\x00\x12(\n" +
 	"$FAILURE_REASON_CONTRACT_NOT_PRODUCED\x10\x01\x12#\n" +
-	"\x1fFAILURE_REASON_CONTRACT_INVALID\x10\x02*\x94\x03\n" +
+	"\x1fFAILURE_REASON_CONTRACT_INVALID\x10\x02\x12&\n" +
+	"\"FAILURE_REASON_REPORT_NOT_PRODUCED\x10\x03\x12!\n" +
+	"\x1dFAILURE_REASON_REPORT_INVALID\x10\x04\x12)\n" +
+	"%FAILURE_REASON_REPORT_UNKNOWN_FINDING\x10\x05*\x94\x03\n" +
 	"\x0fRejectionReason\x12 \n" +
 	"\x1cREJECTION_REASON_UNSPECIFIED\x10\x00\x12%\n" +
 	"!REJECTION_REASON_BUNDLE_TOO_LARGE\x10\x01\x12!\n" +
