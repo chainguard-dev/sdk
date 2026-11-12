@@ -203,7 +203,11 @@ type ListOrgVulnsRequest struct {
 	// order_by orders the list; unspecified is CGP ID order. Under an order,
 	// total_count counts matching records as a filtered list does, and
 	// page_token must come from a page under the same order.
-	OrderBy       VulnOrderBy `protobuf:"varint,10,opt,name=order_by,json=orderBy,proto3,enum=chainguard.platform.argos.VulnOrderBy" json:"order_by,omitempty"`
+	OrderBy VulnOrderBy `protobuf:"varint,10,opt,name=order_by,json=orderBy,proto3,enum=chainguard.platform.argos.VulnOrderBy" json:"order_by,omitempty"`
+	// cgp_id_prefix keeps records whose CGP ID starts with it, compared
+	// ignoring case. It holds at most 18 ASCII letters, digits and hyphens.
+	// Send the same prefix on every page: the page token does not carry it.
+	CgpIdPrefix   string `protobuf:"bytes,14,opt,name=cgp_id_prefix,json=cgpIdPrefix,proto3" json:"cgp_id_prefix,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -323,6 +327,13 @@ func (x *ListOrgVulnsRequest) GetOrderBy() VulnOrderBy {
 	return VulnOrderBy_VULN_ORDER_BY_UNSPECIFIED
 }
 
+func (x *ListOrgVulnsRequest) GetCgpIdPrefix() string {
+	if x != nil {
+		return x.CgpIdPrefix
+	}
+	return ""
+}
+
 type VulnList struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// vulns is the list of OSV records returned, reusing the public OSVRecord
@@ -397,7 +408,7 @@ const file_argos_vulns_platform_proto_rawDesc = "" +
 	"\acgp_ids\x18\x02 \x03(\tR\x06cgpIds\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\x03 \x01(\tR\tpageToken\x12\x1b\n" +
-	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\"\xc0\x04\n" +
+	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\"\xea\x04\n" +
 	"\x13ListOrgVulnsRequest\x12\x1e\n" +
 	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12\x1c\n" +
 	"\apackage\x18\x02 \x01(\tB\x02\x18\x01R\apackage\x12\x18\n" +
@@ -412,7 +423,8 @@ const file_argos_vulns_platform_proto_rawDesc = "" +
 	"\x12embargo_ends_after\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x01R\x10embargoEndsAfter\x12P\n" +
 	"\x13embargo_ends_before\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x01R\x11embargoEndsBefore\x12G\n" +
 	"\border_by\x18\n" +
-	" \x01(\x0e2&.chainguard.platform.argos.VulnOrderByB\x04\xe2A\x01\x01R\aorderByB\n" +
+	" \x01(\x0e2&.chainguard.platform.argos.VulnOrderByB\x04\xe2A\x01\x01R\aorderBy\x12(\n" +
+	"\rcgp_id_prefix\x18\x0e \x01(\tB\x04\xe2A\x01\x01R\vcgpIdPrefixB\n" +
 	"\n" +
 	"\b_has_fix\"\xa4\x01\n" +
 	"\bVulnList\x12:\n" +

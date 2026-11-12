@@ -95,6 +95,10 @@ message ListOrgVulnsRequest {
   // total_count counts matching records as a filtered list does, and
   // page_token must come from a page under the same order.
   VulnOrderBy order_by = 10 [(google.api.field_behavior) = OPTIONAL];
+  // cgp_id_prefix keeps records whose CGP ID starts with it, compared
+  // ignoring case. It holds at most 18 ASCII letters, digits and hyphens.
+  // Send the same prefix on every page: the page token does not carry it.
+  string cgp_id_prefix = 14 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // VulnOrderBy orders ListForOrg by a record timestamp, ties broken by CGP ID
