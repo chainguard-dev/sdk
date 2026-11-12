@@ -211,7 +211,7 @@ message DeleteRepositoryRequest {
   string name = 2 [(google.api.field_behavior) = REQUIRED];
   // force removes the pull tokens, their role bindings, the Libraries policy
   // bindings and the Libraries policies at the repository's folder along
-  // with it. Bindings scoped to a folder Delete has removed go with it
-  // whatever force says.
+  // with it. Bindings
+  // scoped to a folder Delete has removed go with it whatever force says.
   bool force = 3;
 }
