@@ -103,6 +103,44 @@ func TestRepositoryPublisherCoversEveryUpload(t *testing.T) {
 	}
 }
 
+// Owners can delete the org's own uploads in every ecosystem the publisher
+// role uploads to, and the publisher role cannot: a leaked CI token must not
+// be able to remove versions clients pin.
+func TestLibrariesDeleteCaps(t *testing.T) {
+	var uploads int
+	for _, push := range RepositoryPublisherCaps {
+		name, err := Stringify(push)
+		if err != nil {
+			t.Fatalf("Stringify(%v): %v", push, err)
+		}
+		eco, ok := strings.CutPrefix(name, "libraries.")
+		if !ok {
+			continue
+		}
+		if eco, ok = strings.CutSuffix(eco, ".create"); !ok {
+			continue
+		}
+		uploads++
+		c, err := Parse("libraries." + eco + ".delete")
+		if err != nil || c == Capability_UNKNOWN {
+			t.Errorf("%s has no libraries.%s.delete (err = %v)", name, eco, err)
+			continue
+		}
+		if !slices.Contains(OwnerCaps, c) {
+			t.Errorf("OwnerCaps must include %s", c)
+		}
+		if slices.Contains(RepositoryPublisherCaps, c) {
+			t.Errorf("RepositoryPublisherCaps must not include %s", c)
+		}
+		if InternalOnly(c) {
+			t.Errorf("%s must not be (internal_only): owners hold it", c)
+		}
+	}
+	if want := 5; uploads != want {
+		t.Errorf("upload ecosystems in RepositoryPublisherCaps: got = %d, want = %d", uploads, want)
+	}
+}
+
 // Owners hold the upload caps, and the upload bundle carries no hunt caps:
 // uploading must not let a holder start or read hunts.
 func TestHarnessUploadCaps(t *testing.T) {

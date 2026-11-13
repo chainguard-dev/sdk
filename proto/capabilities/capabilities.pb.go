@@ -179,6 +179,15 @@ const (
 	Capability_CAP_LIBRARIES_GO_CREATE         Capability = 1835
 	Capability_CAP_LIBRARIES_RUBY_LIST         Capability = 1836
 	Capability_CAP_LIBRARIES_RUST_LIST         Capability = 1837
+	// Deleting an org's own uploaded version. Held by the owner role (and so by
+	// support, which is built from OwnerCaps), not by repository.publisher: CI
+	// that publishes does not need to delete, and a leaked publisher token must
+	// not be able to remove versions clients pin.
+	Capability_CAP_LIBRARIES_JAVA_DELETE       Capability = 1891
+	Capability_CAP_LIBRARIES_JAVASCRIPT_DELETE Capability = 1892
+	Capability_CAP_LIBRARIES_PYTHON_DELETE     Capability = 1893
+	Capability_CAP_LIBRARIES_DOTNET_DELETE     Capability = 1894
+	Capability_CAP_LIBRARIES_GO_DELETE         Capability = 1895
 	// Cache invalidation capability for the libraries cache (covers all ecosystems).
 	// Granted to org owners and account admins; not to regular developer members.
 	Capability_CAP_LIBRARIES_CACHE_INVALIDATE Capability = 1860
@@ -665,6 +674,11 @@ var (
 		1835:  "CAP_LIBRARIES_GO_CREATE",
 		1836:  "CAP_LIBRARIES_RUBY_LIST",
 		1837:  "CAP_LIBRARIES_RUST_LIST",
+		1891:  "CAP_LIBRARIES_JAVA_DELETE",
+		1892:  "CAP_LIBRARIES_JAVASCRIPT_DELETE",
+		1893:  "CAP_LIBRARIES_PYTHON_DELETE",
+		1894:  "CAP_LIBRARIES_DOTNET_DELETE",
+		1895:  "CAP_LIBRARIES_GO_DELETE",
 		1860:  "CAP_LIBRARIES_CACHE_INVALIDATE",
 		1862:  "CAP_LIBRARIES_CACHE_LIST",
 		1840:  "CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE",
@@ -932,6 +946,11 @@ var (
 		"CAP_LIBRARIES_GO_CREATE":                            1835,
 		"CAP_LIBRARIES_RUBY_LIST":                            1836,
 		"CAP_LIBRARIES_RUST_LIST":                            1837,
+		"CAP_LIBRARIES_JAVA_DELETE":                          1891,
+		"CAP_LIBRARIES_JAVASCRIPT_DELETE":                    1892,
+		"CAP_LIBRARIES_PYTHON_DELETE":                        1893,
+		"CAP_LIBRARIES_DOTNET_DELETE":                        1894,
+		"CAP_LIBRARIES_GO_DELETE":                            1895,
 		"CAP_LIBRARIES_CACHE_INVALIDATE":                     1860,
 		"CAP_LIBRARIES_CACHE_LIST":                           1862,
 		"CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE":            1840,
@@ -1178,7 +1197,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x97\x91\x01\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xf6\x93\x01\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1300,7 +1319,12 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x15CAP_LIBRARIES_GO_LIST\x10\xaa\x0e\x1a\x1d\xa8ˑM\xcd\x01\x9a\xaf\xa8\xd2\x05\x11libraries.go.list\x12=\n" +
 	"\x17CAP_LIBRARIES_GO_CREATE\x10\xab\x0e\x1a\x1f\xa8ˑM\xce\x01\x9a\xaf\xa8\xd2\x05\x13libraries.go.create\x12=\n" +
 	"\x17CAP_LIBRARIES_RUBY_LIST\x10\xac\x0e\x1a\x1f\xa8ˑM\xe5\x01\x9a\xaf\xa8\xd2\x05\x13libraries.ruby.list\x12=\n" +
-	"\x17CAP_LIBRARIES_RUST_LIST\x10\xad\x0e\x1a\x1f\xa8ˑM\x83\x02\x9a\xaf\xa8\xd2\x05\x13libraries.rust.list\x12K\n" +
+	"\x17CAP_LIBRARIES_RUST_LIST\x10\xad\x0e\x1a\x1f\xa8ˑM\x83\x02\x9a\xaf\xa8\xd2\x05\x13libraries.rust.list\x12A\n" +
+	"\x19CAP_LIBRARIES_JAVA_DELETE\x10\xe3\x0e\x1a!\xa8ˑM\x8e\x02\x9a\xaf\xa8\xd2\x05\x15libraries.java.delete\x12M\n" +
+	"\x1fCAP_LIBRARIES_JAVASCRIPT_DELETE\x10\xe4\x0e\x1a'\xa8ˑM\x8f\x02\x9a\xaf\xa8\xd2\x05\x1blibraries.javascript.delete\x12E\n" +
+	"\x1bCAP_LIBRARIES_PYTHON_DELETE\x10\xe5\x0e\x1a#\xa8ˑM\x90\x02\x9a\xaf\xa8\xd2\x05\x17libraries.python.delete\x12E\n" +
+	"\x1bCAP_LIBRARIES_DOTNET_DELETE\x10\xe6\x0e\x1a#\xa8ˑM\x91\x02\x9a\xaf\xa8\xd2\x05\x17libraries.dotnet.delete\x12=\n" +
+	"\x17CAP_LIBRARIES_GO_DELETE\x10\xe7\x0e\x1a\x1f\xa8ˑM\x92\x02\x9a\xaf\xa8\xd2\x05\x13libraries.go.delete\x12K\n" +
 	"\x1eCAP_LIBRARIES_CACHE_INVALIDATE\x10\xc4\x0e\x1a&\xa8ˑM\x81\x01\x9a\xaf\xa8\xd2\x05\x1alibraries.cache.invalidate\x12?\n" +
 	"\x18CAP_LIBRARIES_CACHE_LIST\x10\xc6\x0e\x1a \xa8ˑM\xc0\x01\x9a\xaf\xa8\xd2\x05\x14libraries.cache.list\x12b\n" +
 	"'CAP_LIBRARIES_REBUILDER_REQUESTS_CREATE\x10\xb0\x0e\x1a4\xa8ˑMg\x9a\xaf\xa8\xd2\x05#libraries.rebuilder.requests.create\xa0\xaf\xa8\xd2\x05\x01\x12^\n" +

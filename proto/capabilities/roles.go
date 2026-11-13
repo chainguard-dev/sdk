@@ -259,6 +259,15 @@ var (
 		// Owner-only: org-wide storage accounting for the org's own uploads.
 		Capability_CAP_LIBRARIES_STORAGE_USAGE_GET,
 
+		// Deleting the org's own uploaded versions. Not in
+		// RepositoryPublisherCaps: CI that publishes does not need to delete, and
+		// a leaked publisher token must not be able to remove versions clients pin.
+		Capability_CAP_LIBRARIES_JAVA_DELETE,
+		Capability_CAP_LIBRARIES_JAVASCRIPT_DELETE,
+		Capability_CAP_LIBRARIES_PYTHON_DELETE,
+		Capability_CAP_LIBRARIES_DOTNET_DELETE,
+		Capability_CAP_LIBRARIES_GO_DELETE,
+
 		Capability_CAP_TERMS_ACCEPT,
 		Capability_CAP_TERMS_LIST,
 

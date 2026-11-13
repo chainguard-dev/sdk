@@ -218,6 +218,30 @@ enum Capability {
   CAP_LIBRARIES_GO_CREATE = 1835 [(name) = "libraries.go.create", (bit) = 206];
   CAP_LIBRARIES_RUBY_LIST = 1836 [(name) = "libraries.ruby.list", (bit) = 229];
   CAP_LIBRARIES_RUST_LIST = 1837 [(name) = "libraries.rust.list", (bit) = 259];
+  // Deleting an org's own uploaded version. Held by the owner role (and so by
+  // support, which is built from OwnerCaps), not by repository.publisher: CI
+  // that publishes does not need to delete, and a leaked publisher token must
+  // not be able to remove versions clients pin.
+  CAP_LIBRARIES_JAVA_DELETE = 1891 [
+    (name) = "libraries.java.delete",
+    (bit) = 270
+  ];
+  CAP_LIBRARIES_JAVASCRIPT_DELETE = 1892 [
+    (name) = "libraries.javascript.delete",
+    (bit) = 271
+  ];
+  CAP_LIBRARIES_PYTHON_DELETE = 1893 [
+    (name) = "libraries.python.delete",
+    (bit) = 272
+  ];
+  CAP_LIBRARIES_DOTNET_DELETE = 1894 [
+    (name) = "libraries.dotnet.delete",
+    (bit) = 273
+  ];
+  CAP_LIBRARIES_GO_DELETE = 1895 [
+    (name) = "libraries.go.delete",
+    (bit) = 274
+  ];
   // Cache invalidation capability for the libraries cache (covers all ecosystems).
   // Granted to org owners and account admins; not to regular developer members.
   CAP_LIBRARIES_CACHE_INVALIDATE = 1860 [(name) = "libraries.cache.invalidate", (bit) = 129];
@@ -730,5 +754,5 @@ enum Capability {
   CAP_ENTITLEMENTS_GET = 3203 [(name) = "entitlements.get", (bit) = 252];
 
   reserved 1;
-  // next bit: 270
+  // next bit: 275
 }
