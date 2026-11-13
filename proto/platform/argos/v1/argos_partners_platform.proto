@@ -6,7 +6,9 @@ syntax = "proto3";
 package chainguard.platform.argos;
 
 import "annotations/auth.proto";
+import "annotations/events.proto";
 import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
 option go_package = "chainguard.dev/sdk/proto/platform/argos/v1";
@@ -35,7 +37,8 @@ service ArgosPartners {
   // UpdateCapabilities overwrites the partner's requested capabilities and
   // interests. A requested capability keeps an approved state, moves
   // rejected back to pending, and is otherwise pending; one not requested is
-  // removed without approval (but audited). Interests are replaced outright.
+  // removed without approval. Interests are replaced outright. Each call
+  // emits an internal audit event naming the actor and the partner only.
   rpc UpdateCapabilities(UpdatePartnerCapabilitiesRequest) returns (
       UpdatePartnerCapabilitiesResponse
   ) {
@@ -51,11 +54,16 @@ service ArgosPartners {
         ]
       }
     };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.argos.partners.capabilities.updated.v1"
+      audience: INTERNAL
+    };
   }
 
   // DeleteCapabilities removes the named capabilities and interests from the
   // partner, ignoring names it does not hold, and returns what remains. No
-  // approval is required.
+  // approval is required. Each call emits an internal audit event naming the
+  // actor and the partner only.
   rpc DeleteCapabilities(DeletePartnerCapabilitiesRequest) returns (
       PartnerCapabilities
   ) {
@@ -70,6 +78,10 @@ service ArgosPartners {
           CAP_ARGOS_PARTNER_CAPABILITY_REQUEST
         ]
       }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.argos.partners.capabilities.deleted.v1"
+      audience: INTERNAL
     };
   }
 
@@ -229,6 +241,9 @@ message RequestedCapabilities {
 
 message UpdatePartnerCapabilitiesResponse {
   RequestedCapabilities capabilities = 1;
+  // partner_id is the UIDP of the partner organization, echoed from the
+  // request.
+  string partner_id = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message DeletePartnerCapabilitiesRequest {

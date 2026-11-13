@@ -247,8 +247,11 @@ func (x *RequestedCapabilities) GetUnrecognizedCapabilities() []string {
 }
 
 type UpdatePartnerCapabilitiesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Capabilities  *RequestedCapabilities `protobuf:"bytes,1,opt,name=capabilities,proto3" json:"capabilities,omitempty"`
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	Capabilities *RequestedCapabilities `protobuf:"bytes,1,opt,name=capabilities,proto3" json:"capabilities,omitempty"`
+	// partner_id is the UIDP of the partner organization, echoed from the
+	// request.
+	PartnerId     string `protobuf:"bytes,3,opt,name=partner_id,json=partnerId,proto3" json:"partner_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -288,6 +291,13 @@ func (x *UpdatePartnerCapabilitiesResponse) GetCapabilities() *RequestedCapabili
 		return x.Capabilities
 	}
 	return nil
+}
+
+func (x *UpdatePartnerCapabilitiesResponse) GetPartnerId() string {
+	if x != nil {
+		return x.PartnerId
+	}
+	return ""
 }
 
 type DeletePartnerCapabilitiesRequest struct {
@@ -1436,7 +1446,7 @@ var File_argos_partners_platform_proto protoreflect.FileDescriptor
 
 const file_argos_partners_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x1dargos_partners_platform.proto\x12\x19chainguard.platform.argos\x1a\x16annotations/auth.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"F\n" +
+	"\x1dargos_partners_platform.proto\x12\x19chainguard.platform.argos\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"F\n" +
 	"\x1dGetPartnerCapabilitiesRequest\x12%\n" +
 	"\n" +
 	"partner_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\tpartnerId\"\x8b\x01\n" +
@@ -1447,9 +1457,11 @@ const file_argos_partners_platform_proto_rawDesc = "" +
 	"\tinterests\x18\x03 \x03(\tR\tinterests\"\x87\x01\n" +
 	"\x15RequestedCapabilities\x121\n" +
 	"\x14pending_capabilities\x18\x01 \x03(\tR\x13pendingCapabilities\x12;\n" +
-	"\x19unrecognized_capabilities\x18\x02 \x03(\tR\x18unrecognizedCapabilities\"y\n" +
+	"\x19unrecognized_capabilities\x18\x02 \x03(\tR\x18unrecognizedCapabilities\"\x9e\x01\n" +
 	"!UpdatePartnerCapabilitiesResponse\x12T\n" +
-	"\fcapabilities\x18\x01 \x01(\v20.chainguard.platform.argos.RequestedCapabilitiesR\fcapabilities\"\x8b\x01\n" +
+	"\fcapabilities\x18\x01 \x01(\v20.chainguard.platform.argos.RequestedCapabilitiesR\fcapabilities\x12#\n" +
+	"\n" +
+	"partner_id\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\tpartnerId\"\x8b\x01\n" +
 	" DeletePartnerCapabilitiesRequest\x12%\n" +
 	"\n" +
 	"partner_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\tpartnerId\x12\"\n" +
@@ -1548,14 +1560,16 @@ const file_argos_partners_platform_proto_rawDesc = "" +
 	"\x1dMITIGATION_STATUS_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aMITIGATION_STATUS_DECLINED\x10\x01\x12\x1f\n" +
 	"\x1bMITIGATION_STATUS_MITIGATED\x10\x02\x12\x1c\n" +
-	"\x18MITIGATION_STATUS_FAILED\x10\x032\x96\x10\n" +
+	"\x18MITIGATION_STATUS_FAILED\x10\x032\x9a\x11\n" +
 	"\rArgosPartners\x12\xbd\x01\n" +
 	"\x0fGetCapabilities\x128.chainguard.platform.argos.GetPartnerCapabilitiesRequest\x1a..chainguard.platform.argos.PartnerCapabilities\"@\x82\xd3\xe4\x93\x02.\x12,/argos/v1/partners/{partner_id}/capabilities\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xb9\x14\x12\xd6\x01\n" +
-	"\x12UpdateCapabilities\x12;.chainguard.platform.argos.UpdatePartnerCapabilitiesRequest\x1a<.chainguard.platform.argos.UpdatePartnerCapabilitiesResponse\"E\x82\xd3\xe4\x93\x021:\x01*\x1a,/argos/v1/partners/{partner_id}/capabilities\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x04\xb9\x14\xba\x14\x12\xc8\x01\n" +
-	"\x12DeleteCapabilities\x12;.chainguard.platform.argos.DeletePartnerCapabilitiesRequest\x1a..chainguard.platform.argos.PartnerCapabilities\"E\x82\xd3\xe4\x93\x021:\x01**,/argos/v1/partners/{partner_id}/capabilities\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
-	"\x04\xb9\x14\xba\x14\x12\xbe\x01\n" +
+	"\x02\xb9\x14\x12\x98\x02\n" +
+	"\x12UpdateCapabilities\x12;.chainguard.platform.argos.UpdatePartnerCapabilitiesRequest\x1a<.chainguard.platform.argos.UpdatePartnerCapabilitiesResponse\"\x86\x01\x82\xd3\xe4\x93\x021:\x01*\x1a,/argos/v1/partners/{partner_id}/capabilities\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x04\xb9\x14\xba\x14\xc2\xf0\x8e\xfc\v;\n" +
+	"9dev.chainguard.api.argos.partners.capabilities.updated.v1\x12\x8a\x02\n" +
+	"\x12DeleteCapabilities\x12;.chainguard.platform.argos.DeletePartnerCapabilitiesRequest\x1a..chainguard.platform.argos.PartnerCapabilities\"\x86\x01\x82\xd3\xe4\x93\x021:\x01**,/argos/v1/partners/{partner_id}/capabilities\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x04\xb9\x14\xba\x14\xc2\xf0\x8e\xfc\v;\n" +
+	"9dev.chainguard.api.argos.partners.capabilities.deleted.v1\x12\xbe\x01\n" +
 	"\x15ListMitigationMethods\x127.chainguard.platform.argos.ListMitigationMethodsRequest\x1a8.chainguard.platform.argos.ListMitigationMethodsResponse\"2\x82\xd3\xe4\x93\x02\x1e\x12\x1c/argos/v1/mitigation-methods\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x02\xba\x14\x10\x01\x12\xb3\x01\n" +
 	"\x10CreateMitigation\x122.chainguard.platform.argos.CreateMitigationRequest\x1a%.chainguard.platform.argos.Mitigation\"D\x82\xd3\xe4\x93\x020:\x01*\"+/argos/v1/partners/{partner_id}/mitigations\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +

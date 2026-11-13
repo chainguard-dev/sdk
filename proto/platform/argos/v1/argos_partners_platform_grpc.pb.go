@@ -51,11 +51,13 @@ type ArgosPartnersClient interface {
 	// UpdateCapabilities overwrites the partner's requested capabilities and
 	// interests. A requested capability keeps an approved state, moves
 	// rejected back to pending, and is otherwise pending; one not requested is
-	// removed without approval (but audited). Interests are replaced outright.
+	// removed without approval. Interests are replaced outright. Each call
+	// emits an internal audit event naming the actor and the partner only.
 	UpdateCapabilities(ctx context.Context, in *UpdatePartnerCapabilitiesRequest, opts ...grpc.CallOption) (*UpdatePartnerCapabilitiesResponse, error)
 	// DeleteCapabilities removes the named capabilities and interests from the
 	// partner, ignoring names it does not hold, and returns what remains. No
-	// approval is required.
+	// approval is required. Each call emits an internal audit event naming the
+	// actor and the partner only.
 	DeleteCapabilities(ctx context.Context, in *DeletePartnerCapabilitiesRequest, opts ...grpc.CallOption) (*PartnerCapabilities, error)
 	// ListMitigationMethods returns the live mitigation-method catalogue, keyed
 	// by display name. There is no per-organisation filtering: every method a
@@ -220,11 +222,13 @@ type ArgosPartnersServer interface {
 	// UpdateCapabilities overwrites the partner's requested capabilities and
 	// interests. A requested capability keeps an approved state, moves
 	// rejected back to pending, and is otherwise pending; one not requested is
-	// removed without approval (but audited). Interests are replaced outright.
+	// removed without approval. Interests are replaced outright. Each call
+	// emits an internal audit event naming the actor and the partner only.
 	UpdateCapabilities(context.Context, *UpdatePartnerCapabilitiesRequest) (*UpdatePartnerCapabilitiesResponse, error)
 	// DeleteCapabilities removes the named capabilities and interests from the
 	// partner, ignoring names it does not hold, and returns what remains. No
-	// approval is required.
+	// approval is required. Each call emits an internal audit event naming the
+	// actor and the partner only.
 	DeleteCapabilities(context.Context, *DeletePartnerCapabilitiesRequest) (*PartnerCapabilities, error)
 	// ListMitigationMethods returns the live mitigation-method catalogue, keyed
 	// by display name. There is no per-organisation filtering: every method a
