@@ -952,7 +952,13 @@ type IdentityMetadata struct {
 	// This value is ephemeral and not persisted to datastore.
 	HubspotUtk string `protobuf:"bytes,16,opt,name=hubspot_utk,json=hubspotUtk,proto3" json:"hubspot_utk,omitempty"`
 	// Flag to indicate if the user is onboarding via a self-service flow.
-	SelfServe     bool `protobuf:"varint,17,opt,name=self_serve,json=selfServe,proto3" json:"self_serve,omitempty"`
+	SelfServe bool `protobuf:"varint,17,opt,name=self_serve,json=selfServe,proto3" json:"self_serve,omitempty"`
+	// The route a self-serve signup takes, decided by the server from the
+	// caller's email domain and the organizations already on it, and passed
+	// through to Chainguard's customer systems. Empty when the signup is not
+	// self-serve, when the caller is not on a trusted email IdP, or when the
+	// route cannot be decided.
+	SignupRoute   string `protobuf:"bytes,18,opt,name=signup_route,json=signupRoute,proto3" json:"signup_route,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1104,6 +1110,13 @@ func (x *IdentityMetadata) GetSelfServe() bool {
 		return x.SelfServe
 	}
 	return false
+}
+
+func (x *IdentityMetadata) GetSignupRoute() string {
+	if x != nil {
+		return x.SignupRoute
+	}
+	return ""
 }
 
 // UpdateIdentityMetadataRequest is the request for UpdateIdentityMetadata.
@@ -1707,7 +1720,7 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\x06issuer\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x06issuer\x12\x1e\n" +
 	"\asubject\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\asubject\"0\n" +
 	"\x16LookupIdentityResponse\x12\x16\n" +
-	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\"\xaa\x05\n" +
+	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\"\xd3\x05\n" +
 	"\x10IdentityMetadata\x12\x16\n" +
 	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12\x18\n" +
 	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\x04name\x12#\n" +
@@ -1733,7 +1746,8 @@ const file_chainguard_platform_iam_v2beta1_identities_proto_rawDesc = "" +
 	"\vhubspot_utk\x18\x10 \x01(\tB\x04\xe2A\x01\x01R\n" +
 	"hubspotUtk\x12#\n" +
 	"\n" +
-	"self_serve\x18\x11 \x01(\bB\x04\xe2A\x01\x01R\tselfServe\"\xc8\x01\n" +
+	"self_serve\x18\x11 \x01(\bB\x04\xe2A\x01\x01R\tselfServe\x12'\n" +
+	"\fsignup_route\x18\x12 \x01(\tB\x04\xe2A\x01\x03R\vsignupRoute\"\xc8\x01\n" +
 	"\x1dUpdateIdentityMetadataRequest\x12d\n" +
 	"\x11identity_metadata\x18\x01 \x01(\v21.chainguard.platform.iam.v2beta1.IdentityMetadataB\x04\xe2A\x01\x02R\x10identityMetadata\x12A\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x04\xe2A\x01\x01R\n" +

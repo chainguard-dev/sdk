@@ -122,7 +122,13 @@ type IdentityMetadata struct {
 	GivenName  string `protobuf:"bytes,4,opt,name=given_name,json=givenName,proto3" json:"given_name,omitempty"`
 	FamilyName string `protobuf:"bytes,5,opt,name=family_name,json=familyName,proto3" json:"family_name,omitempty"`
 	// Whether the user has opted to receive updates from Chainguard.
-	UpdatesOptIn  bool `protobuf:"varint,3,opt,name=updatesOptIn,proto3" json:"updatesOptIn,omitempty"`
+	UpdatesOptIn bool `protobuf:"varint,3,opt,name=updatesOptIn,proto3" json:"updatesOptIn,omitempty"`
+	// Output only. The route a self-serve signup takes, decided by the server
+	// from the caller's email domain and the organizations already on it, and
+	// passed through to Chainguard's customer systems. Empty when the signup is
+	// not self-serve, when the caller is not on a trusted email IdP, or when the
+	// route cannot be decided.
+	SignupRoute   string `protobuf:"bytes,6,opt,name=signup_route,json=signupRoute,proto3" json:"signup_route,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -190,6 +196,13 @@ func (x *IdentityMetadata) GetUpdatesOptIn() bool {
 		return x.UpdatesOptIn
 	}
 	return false
+}
+
+func (x *IdentityMetadata) GetSignupRoute() string {
+	if x != nil {
+		return x.SignupRoute
+	}
+	return ""
 }
 
 type IdentityMetadata_OnboardingQuestions struct {
@@ -349,7 +362,7 @@ const file_identities_platform_proto_rawDesc = "" +
 	"issuerKeys\x12:\n" +
 	"\n" +
 	"expiration\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"expiration\"\xe4\x05\n" +
+	"expiration\"\x87\x06\n" +
 	"\x10IdentityMetadata\x12s\n" +
 	"\x14onboarding_questions\x18\x01 \x01(\v2@.chainguard.platform.events.IdentityMetadata.OnboardingQuestionsR\x13onboardingQuestions\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
@@ -357,7 +370,8 @@ const file_identities_platform_proto_rawDesc = "" +
 	"given_name\x18\x04 \x01(\tR\tgivenName\x12\x1f\n" +
 	"\vfamily_name\x18\x05 \x01(\tR\n" +
 	"familyName\x12\"\n" +
-	"\fupdatesOptIn\x18\x03 \x01(\bR\fupdatesOptIn\x1a\xe2\x03\n" +
+	"\fupdatesOptIn\x18\x03 \x01(\bR\fupdatesOptIn\x12!\n" +
+	"\fsignup_route\x18\x06 \x01(\tR\vsignupRoute\x1a\xe2\x03\n" +
 	"\x13OnboardingQuestions\x12!\n" +
 	"\fcompany_name\x18\x01 \x01(\tR\vcompanyName\x12\x1c\n" +
 	"\tproviders\x18\x02 \x03(\tR\tproviders\x12\x18\n" +
