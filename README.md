@@ -54,15 +54,16 @@ encrypted client-side before upload; the server never holds plaintext.
 ### ArgosOSV
 
 `ArgosOSV` provides OSV-format vulnerability query access to the Private OSV
-shared corpus. All Argos members holding `CAP_ARGOS_OSV_READ` see the same
-record set — there is no per-organisation filtering. The service exposes three
-RPCs:
+shared corpus. A coalition member reads every approved record; a mitigation
+partner reads only the records that match its approved mitigation capabilities
+and, if it declared any, its package interests. The service exposes four RPCs:
 
 | RPC | HTTP | Description |
 |-----|------|-------------|
 | `Query` | `POST /argos/v1/osv/query` | Query vulnerabilities affecting a package at a version |
 | `QueryBatch` | `POST /argos/v1/osv/querybatch` | Batch form of Query |
 | `GetVuln` | `GET /argos/v1/osv/vulns/{id}` | Fetch a single OSV record by ID |
+| `Dump` | `GET /argos/v1/osv/dump` | Stream a tar.gz archive of the records the caller reads: built nightly for coalition members, on request for mitigation partners |
 
 Records are returned in [OSV schema](https://ossf.github.io/osv-schema/) format.
 

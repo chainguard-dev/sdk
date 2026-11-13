@@ -33,12 +33,34 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
 // ArgosOSV is the customer-facing OSV-spec query surface for the Private OSV
-// shared corpus. All members holding CAP_ARGOS_OSV_READ see the same record
-// set; there is no per-organisation filtering. Records are customer-blind.
+// shared corpus. What a caller reads depends on the identity type its token
+// carries: a coalition member (CAP_ARGOS_COALITION_MEMBER) reads every
+// approved record, and a mitigation partner (CAP_ARGOS_MITIGATION_PARTNER)
+// reads only the records that match its approved mitigation capabilities and,
+// if it declared any, its package interests. A caller holding both reads as a
+// mitigation partner. Every RPC refuses a caller holding neither with
+// PERMISSION_DENIED. Records are customer-blind.
 type ArgosOSVClient interface {
 	Query(ctx context.Context, in *OSVQueryRequest, opts ...grpc.CallOption) (*OSVQueryResponse, error)
 	QueryBatch(ctx context.Context, in *OSVQueryBatchRequest, opts ...grpc.CallOption) (*OSVQueryBatchResponse, error)
 	GetVuln(ctx context.Context, in *GetOSVRequest, opts ...grpc.CallOption) (*OSVRecord, error)
+	// Dump streams a tar.gz archive of the records the caller reads: one
+	// <id>.json OSV document per record, and metadata.json, whose
+	// total_skipped_records counts the records left out because they could not
+	// be read. The first message is DumpOSVMetadata; every later message is the
+	// next chunk of the archive. A coalition member receives the archive built
+	// nightly. A mitigation partner receives one built for the request, without
+	// withdrawn duplicates. Building it fails with RESOURCE_EXHAUSTED, before
+	// the first message, when the partner started a Dump too recently or when
+	// its archive would be too large or take too long to build; the error
+	// message names the bound.
+	//
+	// The server requires one of the identity types described on ArgosOSV and
+	// CAP_ARGOS_OSV_DUMP in the caller's token. A coalition member may hold
+	// CAP_ARGOS_OSV_DUMP at any group. A mitigation partner's token must hold
+	// CAP_ARGOS_MITIGATION_PARTNER in one organization only, and
+	// CAP_ARGOS_OSV_DUMP in that same organization. It refuses any other caller
+	// with PERMISSION_DENIED.
 	Dump(ctx context.Context, in *DumpOSVRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[DumpOSVResponse], error)
 }
 
@@ -104,12 +126,34 @@ type ArgosOSV_DumpClient = grpc.ServerStreamingClient[DumpOSVResponse]
 // for forward compatibility.
 //
 // ArgosOSV is the customer-facing OSV-spec query surface for the Private OSV
-// shared corpus. All members holding CAP_ARGOS_OSV_READ see the same record
-// set; there is no per-organisation filtering. Records are customer-blind.
+// shared corpus. What a caller reads depends on the identity type its token
+// carries: a coalition member (CAP_ARGOS_COALITION_MEMBER) reads every
+// approved record, and a mitigation partner (CAP_ARGOS_MITIGATION_PARTNER)
+// reads only the records that match its approved mitigation capabilities and,
+// if it declared any, its package interests. A caller holding both reads as a
+// mitigation partner. Every RPC refuses a caller holding neither with
+// PERMISSION_DENIED. Records are customer-blind.
 type ArgosOSVServer interface {
 	Query(context.Context, *OSVQueryRequest) (*OSVQueryResponse, error)
 	QueryBatch(context.Context, *OSVQueryBatchRequest) (*OSVQueryBatchResponse, error)
 	GetVuln(context.Context, *GetOSVRequest) (*OSVRecord, error)
+	// Dump streams a tar.gz archive of the records the caller reads: one
+	// <id>.json OSV document per record, and metadata.json, whose
+	// total_skipped_records counts the records left out because they could not
+	// be read. The first message is DumpOSVMetadata; every later message is the
+	// next chunk of the archive. A coalition member receives the archive built
+	// nightly. A mitigation partner receives one built for the request, without
+	// withdrawn duplicates. Building it fails with RESOURCE_EXHAUSTED, before
+	// the first message, when the partner started a Dump too recently or when
+	// its archive would be too large or take too long to build; the error
+	// message names the bound.
+	//
+	// The server requires one of the identity types described on ArgosOSV and
+	// CAP_ARGOS_OSV_DUMP in the caller's token. A coalition member may hold
+	// CAP_ARGOS_OSV_DUMP at any group. A mitigation partner's token must hold
+	// CAP_ARGOS_MITIGATION_PARTNER in one organization only, and
+	// CAP_ARGOS_OSV_DUMP in that same organization. It refuses any other caller
+	// with PERMISSION_DENIED.
 	Dump(*DumpOSVRequest, grpc.ServerStreamingServer[DumpOSVResponse]) error
 	mustEmbedUnimplementedArgosOSVServer()
 }
