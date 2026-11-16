@@ -895,6 +895,10 @@ type CheckEligibilityResponse struct {
 	// caller has already proven a verified email on the domain, and no detail
 	// identifying the organization is returned.
 	ExistingOrganization bool `protobuf:"varint,3,opt,name=existing_organization,json=existingOrganization,proto3" json:"existing_organization,omitempty"`
+	// self_serve_unavailable reports that the caller's organization cannot create
+	// a self-serve Starter organization and should contact Chainguard instead.
+	// It is only set together with eligible false, and carries no reason.
+	SelfServeUnavailable bool `protobuf:"varint,4,opt,name=self_serve_unavailable,json=selfServeUnavailable,proto3" json:"self_serve_unavailable,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -946,6 +950,13 @@ func (x *CheckEligibilityResponse) GetUnverifiedStarter() bool {
 func (x *CheckEligibilityResponse) GetExistingOrganization() bool {
 	if x != nil {
 		return x.ExistingOrganization
+	}
+	return false
+}
+
+func (x *CheckEligibilityResponse) GetSelfServeUnavailable() bool {
+	if x != nil {
+		return x.SelfServeUnavailable
 	}
 	return false
 }
@@ -1007,11 +1018,12 @@ const file_chainguard_platform_iam_v2_groups_proto_rawDesc = "" +
 	"\x19RequestGroupAccessRequest\x12!\n" +
 	"\tgroup_uid\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\bgroupUid\"\x1c\n" +
 	"\x1aRequestGroupAccessResponse\"\x19\n" +
-	"\x17CheckEligibilityRequest\"\x9a\x01\n" +
+	"\x17CheckEligibilityRequest\"\xd0\x01\n" +
 	"\x18CheckEligibilityResponse\x12\x1a\n" +
 	"\beligible\x18\x01 \x01(\bR\beligible\x12-\n" +
 	"\x12unverified_starter\x18\x02 \x01(\bR\x11unverifiedStarter\x123\n" +
-	"\x15existing_organization\x18\x03 \x01(\bR\x14existingOrganization*\xa7\x01\n" +
+	"\x15existing_organization\x18\x03 \x01(\bR\x14existingOrganization\x124\n" +
+	"\x16self_serve_unavailable\x18\x04 \x01(\bR\x14selfServeUnavailable*\xa7\x01\n" +
 	"\aOrgKind\x12\x18\n" +
 	"\x14ORG_KIND_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10ORG_KIND_STARTER\x10\x01\x12\x15\n" +

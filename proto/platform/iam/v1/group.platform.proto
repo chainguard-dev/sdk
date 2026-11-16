@@ -211,6 +211,10 @@ message CheckEligibilityResponse {
   // caller has already proven a verified email on the domain, and no detail
   // identifying the organization is returned.
   bool existing_organization = 3;
+  // self_serve_unavailable reports that the caller's organization cannot create
+  // a self-serve Starter organization and should contact Chainguard instead.
+  // It is only set together with eligible false, and carries no reason.
+  bool self_serve_unavailable = 4;
 }
 
 // OrgStatus is the provisioning status of an organization.
