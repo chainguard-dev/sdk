@@ -1028,9 +1028,9 @@ type SsoOnlyReadiness_Reason struct {
 	// IDENTITY_PROVIDER_MISSING, IDP_VALIDATION_MISSING,
 	// IDP_VALIDATION_STALE, BREAK_GLASS_NOT_DESIGNATED,
 	// BREAK_GLASS_VALIDATION_MISSING, BREAK_GLASS_VALIDATION_EXPIRED,
-	// BREAK_GLASS_NOT_OWNER, BREAK_GLASS_EXPIRING, or
-	// ORGANIZATION_NOT_VERIFIED. New codes may be added; render message for
-	// any code not recognised.
+	// BREAK_GLASS_NOT_OWNER, BREAK_GLASS_EXPIRING, BREAK_GLASS_VIA_ORG_IDP,
+	// or ORGANIZATION_NOT_VERIFIED. New codes may be added; render message
+	// for any code not recognised.
 	Code string `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
 	// message explains the blocker in plain language, fit to show an
 	// organization owner as is.

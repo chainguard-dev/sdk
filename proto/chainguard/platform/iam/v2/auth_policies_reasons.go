@@ -42,6 +42,11 @@ const (
 	// turn sso_only back off has an expiration, after which it cannot sign
 	// in; none would stay able to without an owner extending it.
 	SsoOnlyReasonBreakGlassExpiring = "BREAK_GLASS_EXPIRING"
+	// SsoOnlyReasonBreakGlassViaOrgIdp: a designated identity signs in
+	// through the organization's own identity provider, or matches issuers by
+	// pattern and so may, so it may have no way in while that provider is
+	// down, which is when break-glass is needed.
+	SsoOnlyReasonBreakGlassViaOrgIdp = "BREAK_GLASS_VIA_ORG_IDP"
 	// SsoOnlyReasonOrganizationNotVerified: the organization is not verified
 	// and so can have neither an identity provider nor a policy.
 	SsoOnlyReasonOrganizationNotVerified = "ORGANIZATION_NOT_VERIFIED"
