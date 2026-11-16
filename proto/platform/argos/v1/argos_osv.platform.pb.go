@@ -1954,6 +1954,8 @@ func (x *GetOSVRequest) GetId() string {
 	return ""
 }
 
+// DumpOSVRequest takes no fields: the caller's token decides which records
+// the archive holds.
 type DumpOSVRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -1993,10 +1995,16 @@ func (*DumpOSVRequest) Descriptor() ([]byte, []int) {
 // DumpOSVMetadata is the first message in a Dump stream, carrying archive
 // provenance. Subsequent messages carry raw tar.gz chunks via DumpOSVResponse.
 type DumpOSVMetadata struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	GeneratedAt   *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=generated_at,proto3" json:"generated_at,omitempty"`
-	SizeBytes     int64                  `protobuf:"varint,2,opt,name=size_bytes,proto3" json:"size_bytes,omitempty"`
-	Sha256        string                 `protobuf:"bytes,3,opt,name=sha256,proto3" json:"sha256,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// generated_at is when the archive was built: nightly for a coalition
+	// member, during the request for a mitigation partner.
+	GeneratedAt *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=generated_at,proto3" json:"generated_at,omitempty"`
+	// size_bytes is the archive's length in bytes. The chunks that follow add
+	// up to exactly this many; a stream that ends short of it was cut off, and
+	// what arrived is not the archive.
+	SizeBytes int64 `protobuf:"varint,2,opt,name=size_bytes,proto3" json:"size_bytes,omitempty"`
+	// sha256 is the lowercase hex SHA-256 of the archive's bytes.
+	Sha256        string `protobuf:"bytes,3,opt,name=sha256,proto3" json:"sha256,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2124,10 +2132,12 @@ type isDumpOSVResponse_Content interface {
 }
 
 type DumpOSVResponse_Metadata struct {
+	// metadata is set on the first message of the stream only.
 	Metadata *DumpOSVMetadata `protobuf:"bytes,1,opt,name=metadata,proto3,oneof"`
 }
 
 type DumpOSVResponse_Chunk struct {
+	// chunk is the next run of the archive's bytes, in order.
 	Chunk []byte `protobuf:"bytes,2,opt,name=chunk,proto3,oneof"`
 }
 

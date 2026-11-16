@@ -259,6 +259,15 @@ var (
 		// Owner-only: org-wide storage accounting for the org's own uploads.
 		Capability_CAP_LIBRARIES_STORAGE_USAGE_GET,
 
+		// Deleting the org's own uploaded versions. Not in
+		// RepositoryPublisherCaps: CI that publishes does not need to delete, and
+		// a leaked publisher token must not be able to remove versions clients pin.
+		Capability_CAP_LIBRARIES_JAVA_DELETE,
+		Capability_CAP_LIBRARIES_JAVASCRIPT_DELETE,
+		Capability_CAP_LIBRARIES_PYTHON_DELETE,
+		Capability_CAP_LIBRARIES_DOTNET_DELETE,
+		Capability_CAP_LIBRARIES_GO_DELETE,
+
 		Capability_CAP_TERMS_ACCEPT,
 		Capability_CAP_TERMS_LIST,
 
@@ -605,10 +614,11 @@ var (
 	})
 
 	// LibrariesMalwareStatusWriterCaps is for the backfiller identities that
-	// stamp per-version scan results on serve-v2's upstream rows. serve-v2
-	// requires it alongside the ecosystem push capabilities on that route. It must
-	// stay off every customer-grantable role: whoever holds it can mark an
-	// unscanned upstream version as scanned and clean.
+	// stamp per-version scan results on serve-v2's upstream rows and write the
+	// global malware block-list. serve-v2 requires it alongside the ecosystem
+	// push capabilities on those routes. It must stay off every
+	// customer-grantable role: whoever holds it can mark an unscanned upstream
+	// version as scanned and clean, or unblock a package for every tenant.
 	// CAP_INTERNAL is required because malware_status.update is (internal_only).
 	LibrariesMalwareStatusWriterCaps = SortCaps([]Capability{
 		Capability_CAP_LIBRARIES_MALWARE_STATUS_UPDATE,

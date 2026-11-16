@@ -13,8 +13,13 @@ import "google/protobuf/timestamp.proto";
 import "annotations/auth.proto";
 
 // ArgosOSV is the customer-facing OSV-spec query surface for the Private OSV
-// shared corpus. All members holding CAP_ARGOS_OSV_READ see the same record
-// set; there is no per-organisation filtering. Records are customer-blind.
+// shared corpus. What a caller reads depends on the identity type its token
+// carries: a coalition member (CAP_ARGOS_COALITION_MEMBER) reads every
+// approved record, and a mitigation partner (CAP_ARGOS_MITIGATION_PARTNER)
+// reads only the records that match its approved mitigation capabilities and,
+// if it declared any, its package interests. A caller holding both reads as a
+// mitigation partner. Every RPC refuses a caller holding neither with
+// PERMISSION_DENIED. Records are customer-blind.
 service ArgosOSV {
   rpc Query(OSVQueryRequest) returns (OSVQueryResponse) {
     option (google.api.http) = {
@@ -51,6 +56,23 @@ service ArgosOSV {
       }
     };
   }
+  // Dump streams a tar.gz archive of the records the caller reads: one
+  // <id>.json OSV document per record, and metadata.json, whose
+  // total_skipped_records counts the records left out because they could not
+  // be read. The first message is DumpOSVMetadata; every later message is the
+  // next chunk of the archive. A coalition member receives the archive built
+  // nightly. A mitigation partner receives one built for the request, without
+  // withdrawn duplicates. Building it fails with RESOURCE_EXHAUSTED, before
+  // the first message, when the partner started a Dump too recently or when
+  // its archive would be too large or take too long to build; the error
+  // message names the bound.
+  //
+  // The server requires one of the identity types described on ArgosOSV and
+  // CAP_ARGOS_OSV_DUMP in the caller's token. A coalition member may hold
+  // CAP_ARGOS_OSV_DUMP at any group. A mitigation partner's token must hold
+  // CAP_ARGOS_MITIGATION_PARTNER in one organization only, and
+  // CAP_ARGOS_OSV_DUMP in that same organization. It refuses any other caller
+  // with PERMISSION_DENIED.
   rpc Dump(DumpOSVRequest) returns (stream DumpOSVResponse) {
     option (google.api.http) = {
       get: "/argos/v1/osv/dump"
@@ -425,20 +447,30 @@ message GetOSVRequest {
   string id = 1;
 }
 
+// DumpOSVRequest takes no fields: the caller's token decides which records
+// the archive holds.
 message DumpOSVRequest {}
 
 // DumpOSVMetadata is the first message in a Dump stream, carrying archive
 // provenance. Subsequent messages carry raw tar.gz chunks via DumpOSVResponse.
 message DumpOSVMetadata {
+  // generated_at is when the archive was built: nightly for a coalition
+  // member, during the request for a mitigation partner.
   google.protobuf.Timestamp generated_at = 1 [json_name = "generated_at"];
+  // size_bytes is the archive's length in bytes. The chunks that follow add
+  // up to exactly this many; a stream that ends short of it was cut off, and
+  // what arrived is not the archive.
   int64 size_bytes = 2 [json_name = "size_bytes"];
+  // sha256 is the lowercase hex SHA-256 of the archive's bytes.
   string sha256 = 3;
 }
 
 // DumpOSVResponse is either the leading metadata frame or a raw archive chunk.
 message DumpOSVResponse {
   oneof content {
+    // metadata is set on the first message of the stream only.
     DumpOSVMetadata metadata = 1;
+    // chunk is the next run of the archive's bytes, in order.
     bytes chunk = 2;
   }
 }
