@@ -12,6 +12,8 @@ var (
 	_ events.Redactable = (*UpdatePartnerCapabilitiesResponse)(nil)
 	_ events.Eventable  = (*DeletePartnerCapabilitiesRequest)(nil)
 	_ events.Redactable = (*DeletePartnerCapabilitiesRequest)(nil)
+	_ events.Eventable  = (*PartnerCapabilities)(nil)
+	_ events.Redactable = (*PartnerCapabilities)(nil)
 )
 
 // CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
@@ -36,4 +38,16 @@ func (x *DeletePartnerCapabilitiesRequest) CloudEventsSubject() string {
 // interests removed.
 func (x *DeletePartnerCapabilitiesRequest) CloudEventsRedact() any {
 	return &DeletePartnerCapabilitiesRequest{PartnerId: x.GetPartnerId()}
+}
+
+// CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
+func (x *PartnerCapabilities) CloudEventsSubject() string {
+	return x.GetPartnerId()
+}
+
+// CloudEventsRedact implements chainguard.dev/sdk/events/Redactable.CloudEventsRedact.
+// The event records who patched which partner, never the capabilities,
+// interests or version token.
+func (x *PartnerCapabilities) CloudEventsRedact() any {
+	return &PartnerCapabilities{PartnerId: x.GetPartnerId()}
 }

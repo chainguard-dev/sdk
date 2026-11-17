@@ -9,6 +9,7 @@ import "annotations/auth.proto";
 import "annotations/events.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
+import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 
 option go_package = "chainguard.dev/sdk/proto/platform/argos/v1";
@@ -56,6 +57,42 @@ service ArgosPartners {
     };
     option (chainguard.annotations.events) = {
       type: "dev.chainguard.api.argos.partners.capabilities.updated.v1"
+      audience: INTERNAL
+    };
+  }
+
+  // PatchCapabilities replaces the partner's requested capabilities with
+  // UpdateCapabilities' transitions and leaves its interests unchanged.
+  // expected_version_token must equal the stored version_token, else
+  // ABORTED, so a save cannot overwrite a change its caller did not read.
+  // INVALID_ARGUMENT when update_mask is not exactly "capabilities",
+  // expected_version_token is missing or out of bounds, or capabilities is
+  // out of bounds; FAILED_PRECONDITION when the partner is offboarded. Each
+  // call emits an internal audit event naming the actor and the partner
+  // only.
+  //
+  // It is a separate RPC rather than a mask and token on UpdateCapabilities
+  // so that each RPC has one contract: UpdateCapabilities always replaces
+  // everything unchecked, and PatchCapabilities always checks a token. A
+  // masked Update would make an omitted mask silently mean an unchecked
+  // overwrite of capabilities and interests.
+  rpc PatchCapabilities(PatchPartnerCapabilitiesRequest) returns (
+      PartnerCapabilities
+  ) {
+    option (google.api.http) = {
+      patch: "/argos/v1/partners/{partner_id}/capabilities"
+      body: "*"
+    };
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [
+          CAP_ARGOS_MITIGATION_PARTNER,
+          CAP_ARGOS_PARTNER_CAPABILITY_REQUEST
+        ]
+      }
+    };
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.argos.partners.capabilities.patched.v1"
       audience: INTERNAL
     };
   }
@@ -224,12 +261,37 @@ message UpdatePartnerCapabilitiesRequest {
   // partner_id is the UIDP of the partner organization.
   string partner_id = 1 [(chainguard.annotations.iam_scope) = true];
   // capabilities is the full set of mitigation method display names the
-  // partner now requests. Any name that is not a live method is reported
-  // back as unrecognized.
+  // partner now requests: at most 100, each at most 256 bytes with no
+  // control characters. Any name that is not a live method is reported back
+  // as unrecognized.
   repeated string capabilities = 2;
-  // interests is the full set of PURLs the partner is interested in. Empty
+  // interests is the full set of PURLs the partner is interested in: at
+  // most 1,000, each at most 2,048 bytes with no control characters. Empty
   // or unset means the partner is interested in every PURL.
   repeated string interests = 3;
+}
+
+message PatchPartnerCapabilitiesRequest {
+  // partner_id is the UIDP of the partner organization.
+  string partner_id = 1 [
+    (chainguard.annotations.iam_scope) = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+  // capabilities is the full set of mitigation method display names the
+  // partner now requests: at most 100, each at most 256 bytes with no
+  // control characters. A name that is not a live method is dropped.
+  repeated string capabilities = 2 [(google.api.field_behavior) = OPTIONAL];
+  // update_mask must be exactly "capabilities"; an empty mask is not
+  // inferred, because an empty capabilities list unticks every method.
+  google.protobuf.FieldMask update_mask = 3 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+  // expected_version_token is the version_token the caller last read, at
+  // most 128 bytes with no control characters. A caller that read NotFound
+  // sends the token of no capabilities,
+  // "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  // (EmptyPartnerCapabilitiesVersionToken in Go).
+  string expected_version_token = 4 [(google.api.field_behavior) = REQUIRED];
 }
 
 message RequestedCapabilities {
@@ -249,9 +311,11 @@ message UpdatePartnerCapabilitiesResponse {
 message DeletePartnerCapabilitiesRequest {
   // partner_id is the UIDP of the partner organization.
   string partner_id = 1 [(chainguard.annotations.iam_scope) = true];
-  // capabilities names method display names to remove.
+  // capabilities names method display names to remove: at most 100, each
+  // at most 256 bytes with no control characters.
   repeated string capabilities = 2;
-  // interests names PURLs to remove.
+  // interests names PURLs to remove: at most 1,000, each at most 2,048
+  // bytes with no control characters.
   repeated string interests = 3;
 }
 
@@ -272,6 +336,13 @@ message PartnerCapabilities {
   // interests is the partner's current set of PURLs of interest, sorted.
   // Empty means the partner is interested in every PURL.
   repeated string interests = 2;
+  // version_token is an opaque digest of the capabilities, never of the
+  // interests, and is never empty. Echo it as expected_version_token; do not
+  // decode it.
+  string version_token = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // partner_id is the UIDP of the partner organization, echoed from the
+  // request.
+  string partner_id = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message ListMitigationMethodsRequest {

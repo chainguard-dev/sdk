@@ -24,6 +24,7 @@ type MockArgosPartnersClient struct {
 	OnGetCapabilities       []ArgosPartnersOnGetCapabilities
 	OnUpdateCapabilities    []ArgosPartnersOnUpdateCapabilities
 	OnDeleteCapabilities    []ArgosPartnersOnDeleteCapabilities
+	OnPatchCapabilities     []ArgosPartnersOnPatchCapabilities
 	OnListMitigationMethods []ArgosPartnersOnListMitigationMethods
 
 	OnCreateMitigation   []ArgosPartnersOnCreateMitigation
@@ -50,6 +51,12 @@ type ArgosPartnersOnUpdateCapabilities struct {
 
 type ArgosPartnersOnDeleteCapabilities struct {
 	Given    *argos.DeletePartnerCapabilitiesRequest
+	Response *argos.PartnerCapabilities
+	Error    error
+}
+
+type ArgosPartnersOnPatchCapabilities struct {
+	Given    *argos.PatchPartnerCapabilitiesRequest
 	Response *argos.PartnerCapabilities
 	Error    error
 }
@@ -122,6 +129,15 @@ func (m MockArgosPartnersClient) UpdateCapabilities(_ context.Context, given *ar
 
 func (m MockArgosPartnersClient) DeleteCapabilities(_ context.Context, given *argos.DeletePartnerCapabilitiesRequest, _ ...grpc.CallOption) (*argos.PartnerCapabilities, error) {
 	for _, o := range m.OnDeleteCapabilities {
+		if cmp.Equal(o.Given, given, protocmp.Transform()) {
+			return o.Response, o.Error
+		}
+	}
+	return nil, fmt.Errorf("mock not found for %v", given)
+}
+
+func (m MockArgosPartnersClient) PatchCapabilities(_ context.Context, given *argos.PatchPartnerCapabilitiesRequest, _ ...grpc.CallOption) (*argos.PartnerCapabilities, error) {
+	for _, o := range m.OnPatchCapabilities {
 		if cmp.Equal(o.Given, given, protocmp.Transform()) {
 			return o.Response, o.Error
 		}

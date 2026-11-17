@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	ArgosPartners_GetCapabilities_FullMethodName         = "/chainguard.platform.argos.ArgosPartners/GetCapabilities"
 	ArgosPartners_UpdateCapabilities_FullMethodName      = "/chainguard.platform.argos.ArgosPartners/UpdateCapabilities"
+	ArgosPartners_PatchCapabilities_FullMethodName       = "/chainguard.platform.argos.ArgosPartners/PatchCapabilities"
 	ArgosPartners_DeleteCapabilities_FullMethodName      = "/chainguard.platform.argos.ArgosPartners/DeleteCapabilities"
 	ArgosPartners_ListMitigationMethods_FullMethodName   = "/chainguard.platform.argos.ArgosPartners/ListMitigationMethods"
 	ArgosPartners_CreateMitigation_FullMethodName        = "/chainguard.platform.argos.ArgosPartners/CreateMitigation"
@@ -54,6 +55,22 @@ type ArgosPartnersClient interface {
 	// removed without approval. Interests are replaced outright. Each call
 	// emits an internal audit event naming the actor and the partner only.
 	UpdateCapabilities(ctx context.Context, in *UpdatePartnerCapabilitiesRequest, opts ...grpc.CallOption) (*UpdatePartnerCapabilitiesResponse, error)
+	// PatchCapabilities replaces the partner's requested capabilities with
+	// UpdateCapabilities' transitions and leaves its interests unchanged.
+	// expected_version_token must equal the stored version_token, else
+	// ABORTED, so a save cannot overwrite a change its caller did not read.
+	// INVALID_ARGUMENT when update_mask is not exactly "capabilities",
+	// expected_version_token is missing or out of bounds, or capabilities is
+	// out of bounds; FAILED_PRECONDITION when the partner is offboarded. Each
+	// call emits an internal audit event naming the actor and the partner
+	// only.
+	//
+	// It is a separate RPC rather than a mask and token on UpdateCapabilities
+	// so that each RPC has one contract: UpdateCapabilities always replaces
+	// everything unchecked, and PatchCapabilities always checks a token. A
+	// masked Update would make an omitted mask silently mean an unchecked
+	// overwrite of capabilities and interests.
+	PatchCapabilities(ctx context.Context, in *PatchPartnerCapabilitiesRequest, opts ...grpc.CallOption) (*PartnerCapabilities, error)
 	// DeleteCapabilities removes the named capabilities and interests from the
 	// partner, ignoring names it does not hold, and returns what remains. No
 	// approval is required. Each call emits an internal audit event naming the
@@ -110,6 +127,16 @@ func (c *argosPartnersClient) UpdateCapabilities(ctx context.Context, in *Update
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UpdatePartnerCapabilitiesResponse)
 	err := c.cc.Invoke(ctx, ArgosPartners_UpdateCapabilities_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *argosPartnersClient) PatchCapabilities(ctx context.Context, in *PatchPartnerCapabilitiesRequest, opts ...grpc.CallOption) (*PartnerCapabilities, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PartnerCapabilities)
+	err := c.cc.Invoke(ctx, ArgosPartners_PatchCapabilities_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -225,6 +252,22 @@ type ArgosPartnersServer interface {
 	// removed without approval. Interests are replaced outright. Each call
 	// emits an internal audit event naming the actor and the partner only.
 	UpdateCapabilities(context.Context, *UpdatePartnerCapabilitiesRequest) (*UpdatePartnerCapabilitiesResponse, error)
+	// PatchCapabilities replaces the partner's requested capabilities with
+	// UpdateCapabilities' transitions and leaves its interests unchanged.
+	// expected_version_token must equal the stored version_token, else
+	// ABORTED, so a save cannot overwrite a change its caller did not read.
+	// INVALID_ARGUMENT when update_mask is not exactly "capabilities",
+	// expected_version_token is missing or out of bounds, or capabilities is
+	// out of bounds; FAILED_PRECONDITION when the partner is offboarded. Each
+	// call emits an internal audit event naming the actor and the partner
+	// only.
+	//
+	// It is a separate RPC rather than a mask and token on UpdateCapabilities
+	// so that each RPC has one contract: UpdateCapabilities always replaces
+	// everything unchecked, and PatchCapabilities always checks a token. A
+	// masked Update would make an omitted mask silently mean an unchecked
+	// overwrite of capabilities and interests.
+	PatchCapabilities(context.Context, *PatchPartnerCapabilitiesRequest) (*PartnerCapabilities, error)
 	// DeleteCapabilities removes the named capabilities and interests from the
 	// partner, ignoring names it does not hold, and returns what remains. No
 	// approval is required. Each call emits an internal audit event naming the
@@ -272,6 +315,9 @@ func (UnimplementedArgosPartnersServer) GetCapabilities(context.Context, *GetPar
 }
 func (UnimplementedArgosPartnersServer) UpdateCapabilities(context.Context, *UpdatePartnerCapabilitiesRequest) (*UpdatePartnerCapabilitiesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateCapabilities not implemented")
+}
+func (UnimplementedArgosPartnersServer) PatchCapabilities(context.Context, *PatchPartnerCapabilitiesRequest) (*PartnerCapabilities, error) {
+	return nil, status.Error(codes.Unimplemented, "method PatchCapabilities not implemented")
 }
 func (UnimplementedArgosPartnersServer) DeleteCapabilities(context.Context, *DeletePartnerCapabilitiesRequest) (*PartnerCapabilities, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteCapabilities not implemented")
@@ -353,6 +399,24 @@ func _ArgosPartners_UpdateCapabilities_Handler(srv interface{}, ctx context.Cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ArgosPartnersServer).UpdateCapabilities(ctx, req.(*UpdatePartnerCapabilitiesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArgosPartners_PatchCapabilities_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PatchPartnerCapabilitiesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArgosPartnersServer).PatchCapabilities(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ArgosPartners_PatchCapabilities_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArgosPartnersServer).PatchCapabilities(ctx, req.(*PatchPartnerCapabilitiesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -533,6 +597,10 @@ var ArgosPartners_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateCapabilities",
 			Handler:    _ArgosPartners_UpdateCapabilities_Handler,
+		},
+		{
+			MethodName: "PatchCapabilities",
+			Handler:    _ArgosPartners_PatchCapabilities_Handler,
 		},
 		{
 			MethodName: "DeleteCapabilities",

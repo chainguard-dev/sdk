@@ -14,6 +14,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -131,10 +132,12 @@ type UpdatePartnerCapabilitiesRequest struct {
 	// partner_id is the UIDP of the partner organization.
 	PartnerId string `protobuf:"bytes,1,opt,name=partner_id,json=partnerId,proto3" json:"partner_id,omitempty"`
 	// capabilities is the full set of mitigation method display names the
-	// partner now requests. Any name that is not a live method is reported
-	// back as unrecognized.
+	// partner now requests: at most 100, each at most 256 bytes with no
+	// control characters. Any name that is not a live method is reported back
+	// as unrecognized.
 	Capabilities []string `protobuf:"bytes,2,rep,name=capabilities,proto3" json:"capabilities,omitempty"`
-	// interests is the full set of PURLs the partner is interested in. Empty
+	// interests is the full set of PURLs the partner is interested in: at
+	// most 1,000, each at most 2,048 bytes with no control characters. Empty
 	// or unset means the partner is interested in every PURL.
 	Interests     []string `protobuf:"bytes,3,rep,name=interests,proto3" json:"interests,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -192,6 +195,85 @@ func (x *UpdatePartnerCapabilitiesRequest) GetInterests() []string {
 	return nil
 }
 
+type PatchPartnerCapabilitiesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// partner_id is the UIDP of the partner organization.
+	PartnerId string `protobuf:"bytes,1,opt,name=partner_id,json=partnerId,proto3" json:"partner_id,omitempty"`
+	// capabilities is the full set of mitigation method display names the
+	// partner now requests: at most 100, each at most 256 bytes with no
+	// control characters. A name that is not a live method is dropped.
+	Capabilities []string `protobuf:"bytes,2,rep,name=capabilities,proto3" json:"capabilities,omitempty"`
+	// update_mask must be exactly "capabilities"; an empty mask is not
+	// inferred, because an empty capabilities list unticks every method.
+	UpdateMask *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	// expected_version_token is the version_token the caller last read, at
+	// most 128 bytes with no control characters. A caller that read NotFound
+	// sends the token of no capabilities,
+	// "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+	// (EmptyPartnerCapabilitiesVersionToken in Go).
+	ExpectedVersionToken string `protobuf:"bytes,4,opt,name=expected_version_token,json=expectedVersionToken,proto3" json:"expected_version_token,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *PatchPartnerCapabilitiesRequest) Reset() {
+	*x = PatchPartnerCapabilitiesRequest{}
+	mi := &file_argos_partners_platform_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PatchPartnerCapabilitiesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PatchPartnerCapabilitiesRequest) ProtoMessage() {}
+
+func (x *PatchPartnerCapabilitiesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_argos_partners_platform_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PatchPartnerCapabilitiesRequest.ProtoReflect.Descriptor instead.
+func (*PatchPartnerCapabilitiesRequest) Descriptor() ([]byte, []int) {
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *PatchPartnerCapabilitiesRequest) GetPartnerId() string {
+	if x != nil {
+		return x.PartnerId
+	}
+	return ""
+}
+
+func (x *PatchPartnerCapabilitiesRequest) GetCapabilities() []string {
+	if x != nil {
+		return x.Capabilities
+	}
+	return nil
+}
+
+func (x *PatchPartnerCapabilitiesRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+	if x != nil {
+		return x.UpdateMask
+	}
+	return nil
+}
+
+func (x *PatchPartnerCapabilitiesRequest) GetExpectedVersionToken() string {
+	if x != nil {
+		return x.ExpectedVersionToken
+	}
+	return ""
+}
+
 type RequestedCapabilities struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// pending is every requested capability now awaiting review, sorted.
@@ -204,7 +286,7 @@ type RequestedCapabilities struct {
 
 func (x *RequestedCapabilities) Reset() {
 	*x = RequestedCapabilities{}
-	mi := &file_argos_partners_platform_proto_msgTypes[2]
+	mi := &file_argos_partners_platform_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -216,7 +298,7 @@ func (x *RequestedCapabilities) String() string {
 func (*RequestedCapabilities) ProtoMessage() {}
 
 func (x *RequestedCapabilities) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[2]
+	mi := &file_argos_partners_platform_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -229,7 +311,7 @@ func (x *RequestedCapabilities) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestedCapabilities.ProtoReflect.Descriptor instead.
 func (*RequestedCapabilities) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{2}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *RequestedCapabilities) GetPendingCapabilities() []string {
@@ -258,7 +340,7 @@ type UpdatePartnerCapabilitiesResponse struct {
 
 func (x *UpdatePartnerCapabilitiesResponse) Reset() {
 	*x = UpdatePartnerCapabilitiesResponse{}
-	mi := &file_argos_partners_platform_proto_msgTypes[3]
+	mi := &file_argos_partners_platform_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -270,7 +352,7 @@ func (x *UpdatePartnerCapabilitiesResponse) String() string {
 func (*UpdatePartnerCapabilitiesResponse) ProtoMessage() {}
 
 func (x *UpdatePartnerCapabilitiesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[3]
+	mi := &file_argos_partners_platform_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -283,7 +365,7 @@ func (x *UpdatePartnerCapabilitiesResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use UpdatePartnerCapabilitiesResponse.ProtoReflect.Descriptor instead.
 func (*UpdatePartnerCapabilitiesResponse) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{3}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *UpdatePartnerCapabilitiesResponse) GetCapabilities() *RequestedCapabilities {
@@ -304,9 +386,11 @@ type DeletePartnerCapabilitiesRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// partner_id is the UIDP of the partner organization.
 	PartnerId string `protobuf:"bytes,1,opt,name=partner_id,json=partnerId,proto3" json:"partner_id,omitempty"`
-	// capabilities names method display names to remove.
+	// capabilities names method display names to remove: at most 100, each
+	// at most 256 bytes with no control characters.
 	Capabilities []string `protobuf:"bytes,2,rep,name=capabilities,proto3" json:"capabilities,omitempty"`
-	// interests names PURLs to remove.
+	// interests names PURLs to remove: at most 1,000, each at most 2,048
+	// bytes with no control characters.
 	Interests     []string `protobuf:"bytes,3,rep,name=interests,proto3" json:"interests,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -314,7 +398,7 @@ type DeletePartnerCapabilitiesRequest struct {
 
 func (x *DeletePartnerCapabilitiesRequest) Reset() {
 	*x = DeletePartnerCapabilitiesRequest{}
-	mi := &file_argos_partners_platform_proto_msgTypes[4]
+	mi := &file_argos_partners_platform_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -326,7 +410,7 @@ func (x *DeletePartnerCapabilitiesRequest) String() string {
 func (*DeletePartnerCapabilitiesRequest) ProtoMessage() {}
 
 func (x *DeletePartnerCapabilitiesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[4]
+	mi := &file_argos_partners_platform_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -339,7 +423,7 @@ func (x *DeletePartnerCapabilitiesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeletePartnerCapabilitiesRequest.ProtoReflect.Descriptor instead.
 func (*DeletePartnerCapabilitiesRequest) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{4}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *DeletePartnerCapabilitiesRequest) GetPartnerId() string {
@@ -380,7 +464,7 @@ type PartnerCapabilityState struct {
 
 func (x *PartnerCapabilityState) Reset() {
 	*x = PartnerCapabilityState{}
-	mi := &file_argos_partners_platform_proto_msgTypes[5]
+	mi := &file_argos_partners_platform_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -392,7 +476,7 @@ func (x *PartnerCapabilityState) String() string {
 func (*PartnerCapabilityState) ProtoMessage() {}
 
 func (x *PartnerCapabilityState) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[5]
+	mi := &file_argos_partners_platform_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -405,7 +489,7 @@ func (x *PartnerCapabilityState) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PartnerCapabilityState.ProtoReflect.Descriptor instead.
 func (*PartnerCapabilityState) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{5}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *PartnerCapabilityState) GetPendingCapabilities() []string {
@@ -441,14 +525,21 @@ type PartnerCapabilities struct {
 	Capabilities *PartnerCapabilityState `protobuf:"bytes,1,opt,name=capabilities,proto3" json:"capabilities,omitempty"`
 	// interests is the partner's current set of PURLs of interest, sorted.
 	// Empty means the partner is interested in every PURL.
-	Interests     []string `protobuf:"bytes,2,rep,name=interests,proto3" json:"interests,omitempty"`
+	Interests []string `protobuf:"bytes,2,rep,name=interests,proto3" json:"interests,omitempty"`
+	// version_token is an opaque digest of the capabilities, never of the
+	// interests, and is never empty. Echo it as expected_version_token; do not
+	// decode it.
+	VersionToken string `protobuf:"bytes,3,opt,name=version_token,json=versionToken,proto3" json:"version_token,omitempty"`
+	// partner_id is the UIDP of the partner organization, echoed from the
+	// request.
+	PartnerId     string `protobuf:"bytes,4,opt,name=partner_id,json=partnerId,proto3" json:"partner_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *PartnerCapabilities) Reset() {
 	*x = PartnerCapabilities{}
-	mi := &file_argos_partners_platform_proto_msgTypes[6]
+	mi := &file_argos_partners_platform_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -460,7 +551,7 @@ func (x *PartnerCapabilities) String() string {
 func (*PartnerCapabilities) ProtoMessage() {}
 
 func (x *PartnerCapabilities) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[6]
+	mi := &file_argos_partners_platform_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -473,7 +564,7 @@ func (x *PartnerCapabilities) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PartnerCapabilities.ProtoReflect.Descriptor instead.
 func (*PartnerCapabilities) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{6}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *PartnerCapabilities) GetCapabilities() *PartnerCapabilityState {
@@ -490,6 +581,20 @@ func (x *PartnerCapabilities) GetInterests() []string {
 	return nil
 }
 
+func (x *PartnerCapabilities) GetVersionToken() string {
+	if x != nil {
+		return x.VersionToken
+	}
+	return ""
+}
+
+func (x *PartnerCapabilities) GetPartnerId() string {
+	if x != nil {
+		return x.PartnerId
+	}
+	return ""
+}
+
 type ListMitigationMethodsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -498,7 +603,7 @@ type ListMitigationMethodsRequest struct {
 
 func (x *ListMitigationMethodsRequest) Reset() {
 	*x = ListMitigationMethodsRequest{}
-	mi := &file_argos_partners_platform_proto_msgTypes[7]
+	mi := &file_argos_partners_platform_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -510,7 +615,7 @@ func (x *ListMitigationMethodsRequest) String() string {
 func (*ListMitigationMethodsRequest) ProtoMessage() {}
 
 func (x *ListMitigationMethodsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[7]
+	mi := &file_argos_partners_platform_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -523,7 +628,7 @@ func (x *ListMitigationMethodsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMitigationMethodsRequest.ProtoReflect.Descriptor instead.
 func (*ListMitigationMethodsRequest) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{7}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{8}
 }
 
 type MitigationMethod struct {
@@ -538,7 +643,7 @@ type MitigationMethod struct {
 
 func (x *MitigationMethod) Reset() {
 	*x = MitigationMethod{}
-	mi := &file_argos_partners_platform_proto_msgTypes[8]
+	mi := &file_argos_partners_platform_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -550,7 +655,7 @@ func (x *MitigationMethod) String() string {
 func (*MitigationMethod) ProtoMessage() {}
 
 func (x *MitigationMethod) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[8]
+	mi := &file_argos_partners_platform_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -563,7 +668,7 @@ func (x *MitigationMethod) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MitigationMethod.ProtoReflect.Descriptor instead.
 func (*MitigationMethod) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{8}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *MitigationMethod) GetTitle() string {
@@ -597,7 +702,7 @@ type ListMitigationMethodsResponse struct {
 
 func (x *ListMitigationMethodsResponse) Reset() {
 	*x = ListMitigationMethodsResponse{}
-	mi := &file_argos_partners_platform_proto_msgTypes[9]
+	mi := &file_argos_partners_platform_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -609,7 +714,7 @@ func (x *ListMitigationMethodsResponse) String() string {
 func (*ListMitigationMethodsResponse) ProtoMessage() {}
 
 func (x *ListMitigationMethodsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[9]
+	mi := &file_argos_partners_platform_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -622,7 +727,7 @@ func (x *ListMitigationMethodsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMitigationMethodsResponse.ProtoReflect.Descriptor instead.
 func (*ListMitigationMethodsResponse) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{9}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ListMitigationMethodsResponse) GetMitigationMethods() map[string]*MitigationMethod {
@@ -643,7 +748,7 @@ type ListPartnerReviewsRequest struct {
 
 func (x *ListPartnerReviewsRequest) Reset() {
 	*x = ListPartnerReviewsRequest{}
-	mi := &file_argos_partners_platform_proto_msgTypes[10]
+	mi := &file_argos_partners_platform_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -655,7 +760,7 @@ func (x *ListPartnerReviewsRequest) String() string {
 func (*ListPartnerReviewsRequest) ProtoMessage() {}
 
 func (x *ListPartnerReviewsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[10]
+	mi := &file_argos_partners_platform_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -668,7 +773,7 @@ func (x *ListPartnerReviewsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPartnerReviewsRequest.ProtoReflect.Descriptor instead.
 func (*ListPartnerReviewsRequest) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{10}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ListPartnerReviewsRequest) GetPartnerId() string {
@@ -689,7 +794,7 @@ type ListPartnerReviewsResponse struct {
 
 func (x *ListPartnerReviewsResponse) Reset() {
 	*x = ListPartnerReviewsResponse{}
-	mi := &file_argos_partners_platform_proto_msgTypes[11]
+	mi := &file_argos_partners_platform_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -701,7 +806,7 @@ func (x *ListPartnerReviewsResponse) String() string {
 func (*ListPartnerReviewsResponse) ProtoMessage() {}
 
 func (x *ListPartnerReviewsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[11]
+	mi := &file_argos_partners_platform_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -714,7 +819,7 @@ func (x *ListPartnerReviewsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPartnerReviewsResponse.ProtoReflect.Descriptor instead.
 func (*ListPartnerReviewsResponse) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{11}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListPartnerReviewsResponse) GetPartners() []*PartnerReview {
@@ -742,7 +847,7 @@ type PartnerReview struct {
 
 func (x *PartnerReview) Reset() {
 	*x = PartnerReview{}
-	mi := &file_argos_partners_platform_proto_msgTypes[12]
+	mi := &file_argos_partners_platform_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -754,7 +859,7 @@ func (x *PartnerReview) String() string {
 func (*PartnerReview) ProtoMessage() {}
 
 func (x *PartnerReview) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[12]
+	mi := &file_argos_partners_platform_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -767,7 +872,7 @@ func (x *PartnerReview) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PartnerReview.ProtoReflect.Descriptor instead.
 func (*PartnerReview) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{12}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *PartnerReview) GetPartnerId() string {
@@ -803,7 +908,7 @@ type DecidePartnerCapabilityRequest struct {
 
 func (x *DecidePartnerCapabilityRequest) Reset() {
 	*x = DecidePartnerCapabilityRequest{}
-	mi := &file_argos_partners_platform_proto_msgTypes[13]
+	mi := &file_argos_partners_platform_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -815,7 +920,7 @@ func (x *DecidePartnerCapabilityRequest) String() string {
 func (*DecidePartnerCapabilityRequest) ProtoMessage() {}
 
 func (x *DecidePartnerCapabilityRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[13]
+	mi := &file_argos_partners_platform_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -828,7 +933,7 @@ func (x *DecidePartnerCapabilityRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DecidePartnerCapabilityRequest.ProtoReflect.Descriptor instead.
 func (*DecidePartnerCapabilityRequest) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{13}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *DecidePartnerCapabilityRequest) GetPartnerId() string {
@@ -874,7 +979,7 @@ type DecidePartnerCapabilityResponse struct {
 
 func (x *DecidePartnerCapabilityResponse) Reset() {
 	*x = DecidePartnerCapabilityResponse{}
-	mi := &file_argos_partners_platform_proto_msgTypes[14]
+	mi := &file_argos_partners_platform_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -886,7 +991,7 @@ func (x *DecidePartnerCapabilityResponse) String() string {
 func (*DecidePartnerCapabilityResponse) ProtoMessage() {}
 
 func (x *DecidePartnerCapabilityResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[14]
+	mi := &file_argos_partners_platform_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -899,7 +1004,7 @@ func (x *DecidePartnerCapabilityResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DecidePartnerCapabilityResponse.ProtoReflect.Descriptor instead.
 func (*DecidePartnerCapabilityResponse) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{14}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{15}
 }
 
 type Mitigation struct {
@@ -921,7 +1026,7 @@ type Mitigation struct {
 
 func (x *Mitigation) Reset() {
 	*x = Mitigation{}
-	mi := &file_argos_partners_platform_proto_msgTypes[15]
+	mi := &file_argos_partners_platform_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -933,7 +1038,7 @@ func (x *Mitigation) String() string {
 func (*Mitigation) ProtoMessage() {}
 
 func (x *Mitigation) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[15]
+	mi := &file_argos_partners_platform_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -946,7 +1051,7 @@ func (x *Mitigation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Mitigation.ProtoReflect.Descriptor instead.
 func (*Mitigation) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{15}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *Mitigation) GetId() string {
@@ -1030,7 +1135,7 @@ type CreateMitigationRequest struct {
 
 func (x *CreateMitigationRequest) Reset() {
 	*x = CreateMitigationRequest{}
-	mi := &file_argos_partners_platform_proto_msgTypes[16]
+	mi := &file_argos_partners_platform_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1042,7 +1147,7 @@ func (x *CreateMitigationRequest) String() string {
 func (*CreateMitigationRequest) ProtoMessage() {}
 
 func (x *CreateMitigationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[16]
+	mi := &file_argos_partners_platform_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1055,7 +1160,7 @@ func (x *CreateMitigationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateMitigationRequest.ProtoReflect.Descriptor instead.
 func (*CreateMitigationRequest) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{16}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *CreateMitigationRequest) GetPartnerId() string {
@@ -1111,7 +1216,7 @@ type GetMitigationRequest struct {
 
 func (x *GetMitigationRequest) Reset() {
 	*x = GetMitigationRequest{}
-	mi := &file_argos_partners_platform_proto_msgTypes[17]
+	mi := &file_argos_partners_platform_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1123,7 +1228,7 @@ func (x *GetMitigationRequest) String() string {
 func (*GetMitigationRequest) ProtoMessage() {}
 
 func (x *GetMitigationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[17]
+	mi := &file_argos_partners_platform_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1136,7 +1241,7 @@ func (x *GetMitigationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMitigationRequest.ProtoReflect.Descriptor instead.
 func (*GetMitigationRequest) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{17}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *GetMitigationRequest) GetPartnerId() string {
@@ -1167,7 +1272,7 @@ type ListMitigationsRequest struct {
 
 func (x *ListMitigationsRequest) Reset() {
 	*x = ListMitigationsRequest{}
-	mi := &file_argos_partners_platform_proto_msgTypes[18]
+	mi := &file_argos_partners_platform_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1179,7 +1284,7 @@ func (x *ListMitigationsRequest) String() string {
 func (*ListMitigationsRequest) ProtoMessage() {}
 
 func (x *ListMitigationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[18]
+	mi := &file_argos_partners_platform_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1192,7 +1297,7 @@ func (x *ListMitigationsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMitigationsRequest.ProtoReflect.Descriptor instead.
 func (*ListMitigationsRequest) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{18}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ListMitigationsRequest) GetPartnerId() string {
@@ -1234,7 +1339,7 @@ type ListMitigationsResponse struct {
 
 func (x *ListMitigationsResponse) Reset() {
 	*x = ListMitigationsResponse{}
-	mi := &file_argos_partners_platform_proto_msgTypes[19]
+	mi := &file_argos_partners_platform_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1246,7 +1351,7 @@ func (x *ListMitigationsResponse) String() string {
 func (*ListMitigationsResponse) ProtoMessage() {}
 
 func (x *ListMitigationsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[19]
+	mi := &file_argos_partners_platform_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1259,7 +1364,7 @@ func (x *ListMitigationsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMitigationsResponse.ProtoReflect.Descriptor instead.
 func (*ListMitigationsResponse) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{19}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ListMitigationsResponse) GetMitigations() []*Mitigation {
@@ -1290,7 +1395,7 @@ type UpdateMitigationRequest struct {
 
 func (x *UpdateMitigationRequest) Reset() {
 	*x = UpdateMitigationRequest{}
-	mi := &file_argos_partners_platform_proto_msgTypes[20]
+	mi := &file_argos_partners_platform_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1302,7 +1407,7 @@ func (x *UpdateMitigationRequest) String() string {
 func (*UpdateMitigationRequest) ProtoMessage() {}
 
 func (x *UpdateMitigationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[20]
+	mi := &file_argos_partners_platform_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1315,7 +1420,7 @@ func (x *UpdateMitigationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateMitigationRequest.ProtoReflect.Descriptor instead.
 func (*UpdateMitigationRequest) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{20}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *UpdateMitigationRequest) GetPartnerId() string {
@@ -1364,7 +1469,7 @@ type WithdrawMitigationRequest struct {
 
 func (x *WithdrawMitigationRequest) Reset() {
 	*x = WithdrawMitigationRequest{}
-	mi := &file_argos_partners_platform_proto_msgTypes[21]
+	mi := &file_argos_partners_platform_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1376,7 +1481,7 @@ func (x *WithdrawMitigationRequest) String() string {
 func (*WithdrawMitigationRequest) ProtoMessage() {}
 
 func (x *WithdrawMitigationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[21]
+	mi := &file_argos_partners_platform_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1389,7 +1494,7 @@ func (x *WithdrawMitigationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WithdrawMitigationRequest.ProtoReflect.Descriptor instead.
 func (*WithdrawMitigationRequest) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{21}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *WithdrawMitigationRequest) GetPartnerId() string {
@@ -1414,7 +1519,7 @@ type WithdrawMitigationResponse struct {
 
 func (x *WithdrawMitigationResponse) Reset() {
 	*x = WithdrawMitigationResponse{}
-	mi := &file_argos_partners_platform_proto_msgTypes[22]
+	mi := &file_argos_partners_platform_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1426,7 +1531,7 @@ func (x *WithdrawMitigationResponse) String() string {
 func (*WithdrawMitigationResponse) ProtoMessage() {}
 
 func (x *WithdrawMitigationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_argos_partners_platform_proto_msgTypes[22]
+	mi := &file_argos_partners_platform_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1439,14 +1544,14 @@ func (x *WithdrawMitigationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WithdrawMitigationResponse.ProtoReflect.Descriptor instead.
 func (*WithdrawMitigationResponse) Descriptor() ([]byte, []int) {
-	return file_argos_partners_platform_proto_rawDescGZIP(), []int{22}
+	return file_argos_partners_platform_proto_rawDescGZIP(), []int{23}
 }
 
 var File_argos_partners_platform_proto protoreflect.FileDescriptor
 
 const file_argos_partners_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x1dargos_partners_platform.proto\x12\x19chainguard.platform.argos\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"F\n" +
+	"\x1dargos_partners_platform.proto\x12\x19chainguard.platform.argos\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"F\n" +
 	"\x1dGetPartnerCapabilitiesRequest\x12%\n" +
 	"\n" +
 	"partner_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\tpartnerId\"\x8b\x01\n" +
@@ -1454,7 +1559,15 @@ const file_argos_partners_platform_proto_rawDesc = "" +
 	"\n" +
 	"partner_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\tpartnerId\x12\"\n" +
 	"\fcapabilities\x18\x02 \x03(\tR\fcapabilities\x12\x1c\n" +
-	"\tinterests\x18\x03 \x03(\tR\tinterests\"\x87\x01\n" +
+	"\tinterests\x18\x03 \x03(\tR\tinterests\"\xf5\x01\n" +
+	"\x1fPatchPartnerCapabilitiesRequest\x12)\n" +
+	"\n" +
+	"partner_id\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\tpartnerId\x12(\n" +
+	"\fcapabilities\x18\x02 \x03(\tB\x04\xe2A\x01\x01R\fcapabilities\x12A\n" +
+	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskB\x04\xe2A\x01\x02R\n" +
+	"updateMask\x12:\n" +
+	"\x16expected_version_token\x18\x04 \x01(\tB\x04\xe2A\x01\x02R\x14expectedVersionToken\"\x87\x01\n" +
 	"\x15RequestedCapabilities\x121\n" +
 	"\x14pending_capabilities\x18\x01 \x03(\tR\x13pendingCapabilities\x12;\n" +
 	"\x19unrecognized_capabilities\x18\x02 \x03(\tR\x18unrecognizedCapabilities\"\x9e\x01\n" +
@@ -1474,10 +1587,13 @@ const file_argos_partners_platform_proto_rawDesc = "" +
 	"\x11rejection_reasons\x18\x04 \x03(\v2G.chainguard.platform.argos.PartnerCapabilityState.RejectionReasonsEntryR\x10rejectionReasons\x1aC\n" +
 	"\x15RejectionReasonsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8a\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xda\x01\n" +
 	"\x13PartnerCapabilities\x12U\n" +
 	"\fcapabilities\x18\x01 \x01(\v21.chainguard.platform.argos.PartnerCapabilityStateR\fcapabilities\x12\x1c\n" +
-	"\tinterests\x18\x02 \x03(\tR\tinterests\"\x1e\n" +
+	"\tinterests\x18\x02 \x03(\tR\tinterests\x12)\n" +
+	"\rversion_token\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\fversionToken\x12#\n" +
+	"\n" +
+	"partner_id\x18\x04 \x01(\tB\x04\xe2A\x01\x03R\tpartnerId\"\x1e\n" +
 	"\x1cListMitigationMethodsRequest\"^\n" +
 	"\x10MitigationMethod\x12\x14\n" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x12 \n" +
@@ -1560,13 +1676,16 @@ const file_argos_partners_platform_proto_rawDesc = "" +
 	"\x1dMITIGATION_STATUS_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aMITIGATION_STATUS_DECLINED\x10\x01\x12\x1f\n" +
 	"\x1bMITIGATION_STATUS_MITIGATED\x10\x02\x12\x1c\n" +
-	"\x18MITIGATION_STATUS_FAILED\x10\x032\x9a\x11\n" +
+	"\x18MITIGATION_STATUS_FAILED\x10\x032\xa5\x13\n" +
 	"\rArgosPartners\x12\xbd\x01\n" +
 	"\x0fGetCapabilities\x128.chainguard.platform.argos.GetPartnerCapabilitiesRequest\x1a..chainguard.platform.argos.PartnerCapabilities\"@\x82\xd3\xe4\x93\x02.\x12,/argos/v1/partners/{partner_id}/capabilities\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xb9\x14\x12\x98\x02\n" +
 	"\x12UpdateCapabilities\x12;.chainguard.platform.argos.UpdatePartnerCapabilitiesRequest\x1a<.chainguard.platform.argos.UpdatePartnerCapabilitiesResponse\"\x86\x01\x82\xd3\xe4\x93\x021:\x01*\x1a,/argos/v1/partners/{partner_id}/capabilities\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x04\xb9\x14\xba\x14\xc2\xf0\x8e\xfc\v;\n" +
-	"9dev.chainguard.api.argos.partners.capabilities.updated.v1\x12\x8a\x02\n" +
+	"9dev.chainguard.api.argos.partners.capabilities.updated.v1\x12\x88\x02\n" +
+	"\x11PatchCapabilities\x12:.chainguard.platform.argos.PatchPartnerCapabilitiesRequest\x1a..chainguard.platform.argos.PartnerCapabilities\"\x86\x01\x82\xd3\xe4\x93\x021:\x01*2,/argos/v1/partners/{partner_id}/capabilities\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
+	"\x04\xb9\x14\xba\x14\xc2\xf0\x8e\xfc\v;\n" +
+	"9dev.chainguard.api.argos.partners.capabilities.patched.v1\x12\x8a\x02\n" +
 	"\x12DeleteCapabilities\x12;.chainguard.platform.argos.DeletePartnerCapabilitiesRequest\x1a..chainguard.platform.argos.PartnerCapabilities\"\x86\x01\x82\xd3\xe4\x93\x021:\x01**,/argos/v1/partners/{partner_id}/capabilities\x8a\xaf\xa8\xd2\x05\b\x12\x06\n" +
 	"\x04\xb9\x14\xba\x14\xc2\xf0\x8e\xfc\v;\n" +
 	"9dev.chainguard.api.argos.partners.capabilities.deleted.v1\x12\xbe\x01\n" +
@@ -1600,80 +1719,85 @@ func file_argos_partners_platform_proto_rawDescGZIP() []byte {
 }
 
 var file_argos_partners_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_argos_partners_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
+var file_argos_partners_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_argos_partners_platform_proto_goTypes = []any{
 	(MitigationStatus)(0),                     // 0: chainguard.platform.argos.MitigationStatus
 	(*GetPartnerCapabilitiesRequest)(nil),     // 1: chainguard.platform.argos.GetPartnerCapabilitiesRequest
 	(*UpdatePartnerCapabilitiesRequest)(nil),  // 2: chainguard.platform.argos.UpdatePartnerCapabilitiesRequest
-	(*RequestedCapabilities)(nil),             // 3: chainguard.platform.argos.RequestedCapabilities
-	(*UpdatePartnerCapabilitiesResponse)(nil), // 4: chainguard.platform.argos.UpdatePartnerCapabilitiesResponse
-	(*DeletePartnerCapabilitiesRequest)(nil),  // 5: chainguard.platform.argos.DeletePartnerCapabilitiesRequest
-	(*PartnerCapabilityState)(nil),            // 6: chainguard.platform.argos.PartnerCapabilityState
-	(*PartnerCapabilities)(nil),               // 7: chainguard.platform.argos.PartnerCapabilities
-	(*ListMitigationMethodsRequest)(nil),      // 8: chainguard.platform.argos.ListMitigationMethodsRequest
-	(*MitigationMethod)(nil),                  // 9: chainguard.platform.argos.MitigationMethod
-	(*ListMitigationMethodsResponse)(nil),     // 10: chainguard.platform.argos.ListMitigationMethodsResponse
-	(*ListPartnerReviewsRequest)(nil),         // 11: chainguard.platform.argos.ListPartnerReviewsRequest
-	(*ListPartnerReviewsResponse)(nil),        // 12: chainguard.platform.argos.ListPartnerReviewsResponse
-	(*PartnerReview)(nil),                     // 13: chainguard.platform.argos.PartnerReview
-	(*DecidePartnerCapabilityRequest)(nil),    // 14: chainguard.platform.argos.DecidePartnerCapabilityRequest
-	(*DecidePartnerCapabilityResponse)(nil),   // 15: chainguard.platform.argos.DecidePartnerCapabilityResponse
-	(*Mitigation)(nil),                        // 16: chainguard.platform.argos.Mitigation
-	(*CreateMitigationRequest)(nil),           // 17: chainguard.platform.argos.CreateMitigationRequest
-	(*GetMitigationRequest)(nil),              // 18: chainguard.platform.argos.GetMitigationRequest
-	(*ListMitigationsRequest)(nil),            // 19: chainguard.platform.argos.ListMitigationsRequest
-	(*ListMitigationsResponse)(nil),           // 20: chainguard.platform.argos.ListMitigationsResponse
-	(*UpdateMitigationRequest)(nil),           // 21: chainguard.platform.argos.UpdateMitigationRequest
-	(*WithdrawMitigationRequest)(nil),         // 22: chainguard.platform.argos.WithdrawMitigationRequest
-	(*WithdrawMitigationResponse)(nil),        // 23: chainguard.platform.argos.WithdrawMitigationResponse
-	nil,                                       // 24: chainguard.platform.argos.PartnerCapabilityState.RejectionReasonsEntry
-	nil,                                       // 25: chainguard.platform.argos.ListMitigationMethodsResponse.MitigationMethodsEntry
-	nil,                                       // 26: chainguard.platform.argos.ListPartnerReviewsResponse.MitigationMethodsEntry
-	(*timestamppb.Timestamp)(nil),             // 27: google.protobuf.Timestamp
+	(*PatchPartnerCapabilitiesRequest)(nil),   // 3: chainguard.platform.argos.PatchPartnerCapabilitiesRequest
+	(*RequestedCapabilities)(nil),             // 4: chainguard.platform.argos.RequestedCapabilities
+	(*UpdatePartnerCapabilitiesResponse)(nil), // 5: chainguard.platform.argos.UpdatePartnerCapabilitiesResponse
+	(*DeletePartnerCapabilitiesRequest)(nil),  // 6: chainguard.platform.argos.DeletePartnerCapabilitiesRequest
+	(*PartnerCapabilityState)(nil),            // 7: chainguard.platform.argos.PartnerCapabilityState
+	(*PartnerCapabilities)(nil),               // 8: chainguard.platform.argos.PartnerCapabilities
+	(*ListMitigationMethodsRequest)(nil),      // 9: chainguard.platform.argos.ListMitigationMethodsRequest
+	(*MitigationMethod)(nil),                  // 10: chainguard.platform.argos.MitigationMethod
+	(*ListMitigationMethodsResponse)(nil),     // 11: chainguard.platform.argos.ListMitigationMethodsResponse
+	(*ListPartnerReviewsRequest)(nil),         // 12: chainguard.platform.argos.ListPartnerReviewsRequest
+	(*ListPartnerReviewsResponse)(nil),        // 13: chainguard.platform.argos.ListPartnerReviewsResponse
+	(*PartnerReview)(nil),                     // 14: chainguard.platform.argos.PartnerReview
+	(*DecidePartnerCapabilityRequest)(nil),    // 15: chainguard.platform.argos.DecidePartnerCapabilityRequest
+	(*DecidePartnerCapabilityResponse)(nil),   // 16: chainguard.platform.argos.DecidePartnerCapabilityResponse
+	(*Mitigation)(nil),                        // 17: chainguard.platform.argos.Mitigation
+	(*CreateMitigationRequest)(nil),           // 18: chainguard.platform.argos.CreateMitigationRequest
+	(*GetMitigationRequest)(nil),              // 19: chainguard.platform.argos.GetMitigationRequest
+	(*ListMitigationsRequest)(nil),            // 20: chainguard.platform.argos.ListMitigationsRequest
+	(*ListMitigationsResponse)(nil),           // 21: chainguard.platform.argos.ListMitigationsResponse
+	(*UpdateMitigationRequest)(nil),           // 22: chainguard.platform.argos.UpdateMitigationRequest
+	(*WithdrawMitigationRequest)(nil),         // 23: chainguard.platform.argos.WithdrawMitigationRequest
+	(*WithdrawMitigationResponse)(nil),        // 24: chainguard.platform.argos.WithdrawMitigationResponse
+	nil,                                       // 25: chainguard.platform.argos.PartnerCapabilityState.RejectionReasonsEntry
+	nil,                                       // 26: chainguard.platform.argos.ListMitigationMethodsResponse.MitigationMethodsEntry
+	nil,                                       // 27: chainguard.platform.argos.ListPartnerReviewsResponse.MitigationMethodsEntry
+	(*fieldmaskpb.FieldMask)(nil),             // 28: google.protobuf.FieldMask
+	(*timestamppb.Timestamp)(nil),             // 29: google.protobuf.Timestamp
 }
 var file_argos_partners_platform_proto_depIdxs = []int32{
-	3,  // 0: chainguard.platform.argos.UpdatePartnerCapabilitiesResponse.capabilities:type_name -> chainguard.platform.argos.RequestedCapabilities
-	24, // 1: chainguard.platform.argos.PartnerCapabilityState.rejection_reasons:type_name -> chainguard.platform.argos.PartnerCapabilityState.RejectionReasonsEntry
-	6,  // 2: chainguard.platform.argos.PartnerCapabilities.capabilities:type_name -> chainguard.platform.argos.PartnerCapabilityState
-	25, // 3: chainguard.platform.argos.ListMitigationMethodsResponse.mitigation_methods:type_name -> chainguard.platform.argos.ListMitigationMethodsResponse.MitigationMethodsEntry
-	13, // 4: chainguard.platform.argos.ListPartnerReviewsResponse.partners:type_name -> chainguard.platform.argos.PartnerReview
-	26, // 5: chainguard.platform.argos.ListPartnerReviewsResponse.mitigation_methods:type_name -> chainguard.platform.argos.ListPartnerReviewsResponse.MitigationMethodsEntry
-	6,  // 6: chainguard.platform.argos.PartnerReview.capabilities:type_name -> chainguard.platform.argos.PartnerCapabilityState
-	0,  // 7: chainguard.platform.argos.Mitigation.status:type_name -> chainguard.platform.argos.MitigationStatus
-	27, // 8: chainguard.platform.argos.Mitigation.create_time:type_name -> google.protobuf.Timestamp
-	27, // 9: chainguard.platform.argos.Mitigation.update_time:type_name -> google.protobuf.Timestamp
-	0,  // 10: chainguard.platform.argos.CreateMitigationRequest.status:type_name -> chainguard.platform.argos.MitigationStatus
-	16, // 11: chainguard.platform.argos.ListMitigationsResponse.mitigations:type_name -> chainguard.platform.argos.Mitigation
-	0,  // 12: chainguard.platform.argos.UpdateMitigationRequest.status:type_name -> chainguard.platform.argos.MitigationStatus
-	9,  // 13: chainguard.platform.argos.ListMitigationMethodsResponse.MitigationMethodsEntry.value:type_name -> chainguard.platform.argos.MitigationMethod
-	9,  // 14: chainguard.platform.argos.ListPartnerReviewsResponse.MitigationMethodsEntry.value:type_name -> chainguard.platform.argos.MitigationMethod
-	1,  // 15: chainguard.platform.argos.ArgosPartners.GetCapabilities:input_type -> chainguard.platform.argos.GetPartnerCapabilitiesRequest
-	2,  // 16: chainguard.platform.argos.ArgosPartners.UpdateCapabilities:input_type -> chainguard.platform.argos.UpdatePartnerCapabilitiesRequest
-	5,  // 17: chainguard.platform.argos.ArgosPartners.DeleteCapabilities:input_type -> chainguard.platform.argos.DeletePartnerCapabilitiesRequest
-	8,  // 18: chainguard.platform.argos.ArgosPartners.ListMitigationMethods:input_type -> chainguard.platform.argos.ListMitigationMethodsRequest
-	17, // 19: chainguard.platform.argos.ArgosPartners.CreateMitigation:input_type -> chainguard.platform.argos.CreateMitigationRequest
-	18, // 20: chainguard.platform.argos.ArgosPartners.GetMitigation:input_type -> chainguard.platform.argos.GetMitigationRequest
-	19, // 21: chainguard.platform.argos.ArgosPartners.ListMitigations:input_type -> chainguard.platform.argos.ListMitigationsRequest
-	21, // 22: chainguard.platform.argos.ArgosPartners.UpdateMitigation:input_type -> chainguard.platform.argos.UpdateMitigationRequest
-	22, // 23: chainguard.platform.argos.ArgosPartners.WithdrawMitigation:input_type -> chainguard.platform.argos.WithdrawMitigationRequest
-	11, // 24: chainguard.platform.argos.ArgosPartners.ListPartnerReviews:input_type -> chainguard.platform.argos.ListPartnerReviewsRequest
-	14, // 25: chainguard.platform.argos.ArgosPartners.DecidePartnerCapability:input_type -> chainguard.platform.argos.DecidePartnerCapabilityRequest
-	7,  // 26: chainguard.platform.argos.ArgosPartners.GetCapabilities:output_type -> chainguard.platform.argos.PartnerCapabilities
-	4,  // 27: chainguard.platform.argos.ArgosPartners.UpdateCapabilities:output_type -> chainguard.platform.argos.UpdatePartnerCapabilitiesResponse
-	7,  // 28: chainguard.platform.argos.ArgosPartners.DeleteCapabilities:output_type -> chainguard.platform.argos.PartnerCapabilities
-	10, // 29: chainguard.platform.argos.ArgosPartners.ListMitigationMethods:output_type -> chainguard.platform.argos.ListMitigationMethodsResponse
-	16, // 30: chainguard.platform.argos.ArgosPartners.CreateMitigation:output_type -> chainguard.platform.argos.Mitigation
-	16, // 31: chainguard.platform.argos.ArgosPartners.GetMitigation:output_type -> chainguard.platform.argos.Mitigation
-	20, // 32: chainguard.platform.argos.ArgosPartners.ListMitigations:output_type -> chainguard.platform.argos.ListMitigationsResponse
-	16, // 33: chainguard.platform.argos.ArgosPartners.UpdateMitigation:output_type -> chainguard.platform.argos.Mitigation
-	23, // 34: chainguard.platform.argos.ArgosPartners.WithdrawMitigation:output_type -> chainguard.platform.argos.WithdrawMitigationResponse
-	12, // 35: chainguard.platform.argos.ArgosPartners.ListPartnerReviews:output_type -> chainguard.platform.argos.ListPartnerReviewsResponse
-	15, // 36: chainguard.platform.argos.ArgosPartners.DecidePartnerCapability:output_type -> chainguard.platform.argos.DecidePartnerCapabilityResponse
-	26, // [26:37] is the sub-list for method output_type
-	15, // [15:26] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	28, // 0: chainguard.platform.argos.PatchPartnerCapabilitiesRequest.update_mask:type_name -> google.protobuf.FieldMask
+	4,  // 1: chainguard.platform.argos.UpdatePartnerCapabilitiesResponse.capabilities:type_name -> chainguard.platform.argos.RequestedCapabilities
+	25, // 2: chainguard.platform.argos.PartnerCapabilityState.rejection_reasons:type_name -> chainguard.platform.argos.PartnerCapabilityState.RejectionReasonsEntry
+	7,  // 3: chainguard.platform.argos.PartnerCapabilities.capabilities:type_name -> chainguard.platform.argos.PartnerCapabilityState
+	26, // 4: chainguard.platform.argos.ListMitigationMethodsResponse.mitigation_methods:type_name -> chainguard.platform.argos.ListMitigationMethodsResponse.MitigationMethodsEntry
+	14, // 5: chainguard.platform.argos.ListPartnerReviewsResponse.partners:type_name -> chainguard.platform.argos.PartnerReview
+	27, // 6: chainguard.platform.argos.ListPartnerReviewsResponse.mitigation_methods:type_name -> chainguard.platform.argos.ListPartnerReviewsResponse.MitigationMethodsEntry
+	7,  // 7: chainguard.platform.argos.PartnerReview.capabilities:type_name -> chainguard.platform.argos.PartnerCapabilityState
+	0,  // 8: chainguard.platform.argos.Mitigation.status:type_name -> chainguard.platform.argos.MitigationStatus
+	29, // 9: chainguard.platform.argos.Mitigation.create_time:type_name -> google.protobuf.Timestamp
+	29, // 10: chainguard.platform.argos.Mitigation.update_time:type_name -> google.protobuf.Timestamp
+	0,  // 11: chainguard.platform.argos.CreateMitigationRequest.status:type_name -> chainguard.platform.argos.MitigationStatus
+	17, // 12: chainguard.platform.argos.ListMitigationsResponse.mitigations:type_name -> chainguard.platform.argos.Mitigation
+	0,  // 13: chainguard.platform.argos.UpdateMitigationRequest.status:type_name -> chainguard.platform.argos.MitigationStatus
+	10, // 14: chainguard.platform.argos.ListMitigationMethodsResponse.MitigationMethodsEntry.value:type_name -> chainguard.platform.argos.MitigationMethod
+	10, // 15: chainguard.platform.argos.ListPartnerReviewsResponse.MitigationMethodsEntry.value:type_name -> chainguard.platform.argos.MitigationMethod
+	1,  // 16: chainguard.platform.argos.ArgosPartners.GetCapabilities:input_type -> chainguard.platform.argos.GetPartnerCapabilitiesRequest
+	2,  // 17: chainguard.platform.argos.ArgosPartners.UpdateCapabilities:input_type -> chainguard.platform.argos.UpdatePartnerCapabilitiesRequest
+	3,  // 18: chainguard.platform.argos.ArgosPartners.PatchCapabilities:input_type -> chainguard.platform.argos.PatchPartnerCapabilitiesRequest
+	6,  // 19: chainguard.platform.argos.ArgosPartners.DeleteCapabilities:input_type -> chainguard.platform.argos.DeletePartnerCapabilitiesRequest
+	9,  // 20: chainguard.platform.argos.ArgosPartners.ListMitigationMethods:input_type -> chainguard.platform.argos.ListMitigationMethodsRequest
+	18, // 21: chainguard.platform.argos.ArgosPartners.CreateMitigation:input_type -> chainguard.platform.argos.CreateMitigationRequest
+	19, // 22: chainguard.platform.argos.ArgosPartners.GetMitigation:input_type -> chainguard.platform.argos.GetMitigationRequest
+	20, // 23: chainguard.platform.argos.ArgosPartners.ListMitigations:input_type -> chainguard.platform.argos.ListMitigationsRequest
+	22, // 24: chainguard.platform.argos.ArgosPartners.UpdateMitigation:input_type -> chainguard.platform.argos.UpdateMitigationRequest
+	23, // 25: chainguard.platform.argos.ArgosPartners.WithdrawMitigation:input_type -> chainguard.platform.argos.WithdrawMitigationRequest
+	12, // 26: chainguard.platform.argos.ArgosPartners.ListPartnerReviews:input_type -> chainguard.platform.argos.ListPartnerReviewsRequest
+	15, // 27: chainguard.platform.argos.ArgosPartners.DecidePartnerCapability:input_type -> chainguard.platform.argos.DecidePartnerCapabilityRequest
+	8,  // 28: chainguard.platform.argos.ArgosPartners.GetCapabilities:output_type -> chainguard.platform.argos.PartnerCapabilities
+	5,  // 29: chainguard.platform.argos.ArgosPartners.UpdateCapabilities:output_type -> chainguard.platform.argos.UpdatePartnerCapabilitiesResponse
+	8,  // 30: chainguard.platform.argos.ArgosPartners.PatchCapabilities:output_type -> chainguard.platform.argos.PartnerCapabilities
+	8,  // 31: chainguard.platform.argos.ArgosPartners.DeleteCapabilities:output_type -> chainguard.platform.argos.PartnerCapabilities
+	11, // 32: chainguard.platform.argos.ArgosPartners.ListMitigationMethods:output_type -> chainguard.platform.argos.ListMitigationMethodsResponse
+	17, // 33: chainguard.platform.argos.ArgosPartners.CreateMitigation:output_type -> chainguard.platform.argos.Mitigation
+	17, // 34: chainguard.platform.argos.ArgosPartners.GetMitigation:output_type -> chainguard.platform.argos.Mitigation
+	21, // 35: chainguard.platform.argos.ArgosPartners.ListMitigations:output_type -> chainguard.platform.argos.ListMitigationsResponse
+	17, // 36: chainguard.platform.argos.ArgosPartners.UpdateMitigation:output_type -> chainguard.platform.argos.Mitigation
+	24, // 37: chainguard.platform.argos.ArgosPartners.WithdrawMitigation:output_type -> chainguard.platform.argos.WithdrawMitigationResponse
+	13, // 38: chainguard.platform.argos.ArgosPartners.ListPartnerReviews:output_type -> chainguard.platform.argos.ListPartnerReviewsResponse
+	16, // 39: chainguard.platform.argos.ArgosPartners.DecidePartnerCapability:output_type -> chainguard.platform.argos.DecidePartnerCapabilityResponse
+	28, // [28:40] is the sub-list for method output_type
+	16, // [16:28] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_argos_partners_platform_proto_init() }
@@ -1687,7 +1811,7 @@ func file_argos_partners_platform_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_argos_partners_platform_proto_rawDesc), len(file_argos_partners_platform_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   26,
+			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
