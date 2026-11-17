@@ -49,7 +49,8 @@ message GetStorageUsageRequest {
   ];
 
   // Limit the report to these ecosystems. Empty means every ecosystem that
-  // reports usage.
+  // reports usage. An ecosystem that does not report usage yet fails with
+  // FAILED_PRECONDITION.
   repeated StorageUsageEcosystem ecosystems = 2
       [(google.api.field_behavior) = OPTIONAL];
 }
@@ -65,22 +66,37 @@ message EcosystemStorageUsage {
   // The ecosystem.
   StorageUsageEcosystem ecosystem = 1;
 
-  // Total size of the organization's live uploaded artifacts, in bytes. For Go
-  // this is the module ZIPs only; the server-generated .mod and .info files,
-  // deleted versions, and orphaned storage objects are not counted.
+  // Total size of the organization's live uploaded artifacts, in bytes.
+  // Deleted versions and orphaned storage objects are not counted. Go counts
+  // each version's module ZIP and may count its go.mod; every other
+  // ecosystem counts every file stored for a version. A file that arrived
+  // before its version counts from when it is stored, so this can include
+  // files of versions version_count does not count yet.
   int64 storage_bytes = 2;
 
   // Number of live uploaded versions.
   int64 version_count = 3;
 }
 
-// StorageUsageEcosystem is an ecosystem that reports usage. It is deliberately
-// not the artifacts service's Ecosystem: that enum must be handled by every
-// artifacts listing path, and usage starts with Go alone.
+// StorageUsageEcosystem is an ecosystem storage usage can be reported for. It
+// is deliberately not the artifacts service's Ecosystem: that enum must be
+// handled by every artifacts listing path, and it names neither Go nor .NET.
 enum StorageUsageEcosystem {
   // Unspecified ecosystem.
   STORAGE_USAGE_ECOSYSTEM_UNSPECIFIED = 0;
 
   // Go modules.
   STORAGE_USAGE_ECOSYSTEM_GO = 1;
+
+  // Java (Maven).
+  STORAGE_USAGE_ECOSYSTEM_JAVA = 2;
+
+  // Python (PyPI).
+  STORAGE_USAGE_ECOSYSTEM_PYTHON = 3;
+
+  // JavaScript (npm).
+  STORAGE_USAGE_ECOSYSTEM_JAVASCRIPT = 4;
+
+  // .NET (NuGet).
+  STORAGE_USAGE_ECOSYSTEM_DOTNET = 5;
 }

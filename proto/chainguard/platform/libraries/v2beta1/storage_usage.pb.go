@@ -26,9 +26,9 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// StorageUsageEcosystem is an ecosystem that reports usage. It is deliberately
-// not the artifacts service's Ecosystem: that enum must be handled by every
-// artifacts listing path, and usage starts with Go alone.
+// StorageUsageEcosystem is an ecosystem storage usage can be reported for. It
+// is deliberately not the artifacts service's Ecosystem: that enum must be
+// handled by every artifacts listing path, and it names neither Go nor .NET.
 type StorageUsageEcosystem int32
 
 const (
@@ -36,6 +36,14 @@ const (
 	StorageUsageEcosystem_STORAGE_USAGE_ECOSYSTEM_UNSPECIFIED StorageUsageEcosystem = 0
 	// Go modules.
 	StorageUsageEcosystem_STORAGE_USAGE_ECOSYSTEM_GO StorageUsageEcosystem = 1
+	// Java (Maven).
+	StorageUsageEcosystem_STORAGE_USAGE_ECOSYSTEM_JAVA StorageUsageEcosystem = 2
+	// Python (PyPI).
+	StorageUsageEcosystem_STORAGE_USAGE_ECOSYSTEM_PYTHON StorageUsageEcosystem = 3
+	// JavaScript (npm).
+	StorageUsageEcosystem_STORAGE_USAGE_ECOSYSTEM_JAVASCRIPT StorageUsageEcosystem = 4
+	// .NET (NuGet).
+	StorageUsageEcosystem_STORAGE_USAGE_ECOSYSTEM_DOTNET StorageUsageEcosystem = 5
 )
 
 // Enum value maps for StorageUsageEcosystem.
@@ -43,10 +51,18 @@ var (
 	StorageUsageEcosystem_name = map[int32]string{
 		0: "STORAGE_USAGE_ECOSYSTEM_UNSPECIFIED",
 		1: "STORAGE_USAGE_ECOSYSTEM_GO",
+		2: "STORAGE_USAGE_ECOSYSTEM_JAVA",
+		3: "STORAGE_USAGE_ECOSYSTEM_PYTHON",
+		4: "STORAGE_USAGE_ECOSYSTEM_JAVASCRIPT",
+		5: "STORAGE_USAGE_ECOSYSTEM_DOTNET",
 	}
 	StorageUsageEcosystem_value = map[string]int32{
 		"STORAGE_USAGE_ECOSYSTEM_UNSPECIFIED": 0,
 		"STORAGE_USAGE_ECOSYSTEM_GO":          1,
+		"STORAGE_USAGE_ECOSYSTEM_JAVA":        2,
+		"STORAGE_USAGE_ECOSYSTEM_PYTHON":      3,
+		"STORAGE_USAGE_ECOSYSTEM_JAVASCRIPT":  4,
+		"STORAGE_USAGE_ECOSYSTEM_DOTNET":      5,
 	}
 )
 
@@ -83,7 +99,8 @@ type GetStorageUsageRequest struct {
 	// The organization whose storage usage to report.
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
 	// Limit the report to these ecosystems. Empty means every ecosystem that
-	// reports usage.
+	// reports usage. An ecosystem that does not report usage yet fails with
+	// FAILED_PRECONDITION.
 	Ecosystems    []StorageUsageEcosystem `protobuf:"varint,2,rep,packed,name=ecosystems,proto3,enum=chainguard.platform.libraries.v2beta1.StorageUsageEcosystem" json:"ecosystems,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -184,9 +201,12 @@ type EcosystemStorageUsage struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The ecosystem.
 	Ecosystem StorageUsageEcosystem `protobuf:"varint,1,opt,name=ecosystem,proto3,enum=chainguard.platform.libraries.v2beta1.StorageUsageEcosystem" json:"ecosystem,omitempty"`
-	// Total size of the organization's live uploaded artifacts, in bytes. For Go
-	// this is the module ZIPs only; the server-generated .mod and .info files,
-	// deleted versions, and orphaned storage objects are not counted.
+	// Total size of the organization's live uploaded artifacts, in bytes.
+	// Deleted versions and orphaned storage objects are not counted. Go counts
+	// each version's module ZIP and may count its go.mod; every other
+	// ecosystem counts every file stored for a version. A file that arrived
+	// before its version counts from when it is stored, so this can include
+	// files of versions version_count does not count yet.
 	StorageBytes int64 `protobuf:"varint,2,opt,name=storage_bytes,json=storageBytes,proto3" json:"storage_bytes,omitempty"`
 	// Number of live uploaded versions.
 	VersionCount  int64 `protobuf:"varint,3,opt,name=version_count,json=versionCount,proto3" json:"version_count,omitempty"`
@@ -261,10 +281,14 @@ const file_chainguard_platform_libraries_v2beta1_storage_usage_proto_rawDesc = "
 	"\x15EcosystemStorageUsage\x12Z\n" +
 	"\tecosystem\x18\x01 \x01(\x0e2<.chainguard.platform.libraries.v2beta1.StorageUsageEcosystemR\tecosystem\x12#\n" +
 	"\rstorage_bytes\x18\x02 \x01(\x03R\fstorageBytes\x12#\n" +
-	"\rversion_count\x18\x03 \x01(\x03R\fversionCount*`\n" +
+	"\rversion_count\x18\x03 \x01(\x03R\fversionCount*\xf2\x01\n" +
 	"\x15StorageUsageEcosystem\x12'\n" +
 	"#STORAGE_USAGE_ECOSYSTEM_UNSPECIFIED\x10\x00\x12\x1e\n" +
-	"\x1aSTORAGE_USAGE_ECOSYSTEM_GO\x10\x012\xf5\x02\n" +
+	"\x1aSTORAGE_USAGE_ECOSYSTEM_GO\x10\x01\x12 \n" +
+	"\x1cSTORAGE_USAGE_ECOSYSTEM_JAVA\x10\x02\x12\"\n" +
+	"\x1eSTORAGE_USAGE_ECOSYSTEM_PYTHON\x10\x03\x12&\n" +
+	"\"STORAGE_USAGE_ECOSYSTEM_JAVASCRIPT\x10\x04\x12\"\n" +
+	"\x1eSTORAGE_USAGE_ECOSYSTEM_DOTNET\x10\x052\xf5\x02\n" +
 	"\x13StorageUsageService\x12\xdd\x02\n" +
 	"\x0fGetStorageUsage\x12=.chainguard.platform.libraries.v2beta1.GetStorageUsageRequest\x1a3.chainguard.platform.libraries.v2beta1.StorageUsage\"\xd5\x01\x82\xd3\xe4\x93\x02!\x12\x1f/libraries/v2beta1/storageUsage\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xdd\x0e\x9a\xaf\xa8\xd2\x05\x9b\x01\n" +
