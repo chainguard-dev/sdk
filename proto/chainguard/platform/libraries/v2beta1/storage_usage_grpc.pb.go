@@ -22,7 +22,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	StorageUsageService_GetStorageUsage_FullMethodName = "/chainguard.platform.libraries.v2beta1.StorageUsageService/GetStorageUsage"
+	StorageUsageService_GetStorageUsage_FullMethodName       = "/chainguard.platform.libraries.v2beta1.StorageUsageService/GetStorageUsage"
+	StorageUsageService_DeleteUploadedVersion_FullMethodName = "/chainguard.platform.libraries.v2beta1.StorageUsageService/DeleteUploadedVersion"
 )
 
 // StorageUsageServiceClient is the client API for StorageUsageService service.
@@ -30,12 +31,48 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
 // StorageUsageService reports how much storage an organization's own uploads
-// consume in Chainguard Libraries, per language ecosystem.
+// consume in Chainguard Libraries, per language ecosystem, and deletes an
+// uploaded version.
 type StorageUsageServiceClient interface {
 	// GetStorageUsage returns the organization's storage usage, one entry per
 	// ecosystem. Only the organization's own uploads count: Chainguard-built and
 	// mirrored upstream artifacts are not charged to it.
 	GetStorageUsage(ctx context.Context, in *GetStorageUsageRequest, opts ...grpc.CallOption) (*StorageUsage, error)
+	// DeleteUploadedVersion deletes one version that the organization uploaded,
+	// with all of its files. Chainguard-built and mirrored upstream artifacts
+	// cannot be deleted. The version stays reserved: a later upload of the
+	// same version is refused, so a client that pinned the deleted build
+	// never gets different bytes under that version.
+	//
+	// The caller needs CAP_LIBRARIES_<ECOSYSTEM>_DELETE for the request's
+	// ecosystem, bound at parent itself; a binding at a child organization or
+	// folder does not count.
+	//
+	// The response names the version's key as the ecosystem's clients spell
+	// it, which can differ from the request's spelling (a Python or NuGet name
+	// is normalised, a Go module path and version are unescaped), and says
+	// whether the call changed nothing. Deleting a version that is already
+	// deleted succeeds with already_deleted set, unless files that a later
+	// upload left under it remain, which the call removes. A version whose
+	// upload never completed is not reserved, so deleting it again fails with
+	// NOT_FOUND, as does a version the organization never uploaded. A version
+	// that an upload may still be writing fails with ABORTED, and a caller
+	// over the organization's limit of deletes fails with RESOURCE_EXHAUSTED;
+	// retry either later.
+	//
+	// A delete that changes something sends a customer event, best effort: if
+	// the call fails after the delete commits (the caller's deadline passes)
+	// and is sent again, the second call finds the version already deleted and
+	// sends none.
+	// (-- The capability depends on the ecosystem, and every capability an IAM
+	//     annotation lists is required, so the annotation requires only
+	//     authentication and the method checks the capability. --)
+	// (-- api-linter: core::0135::response-message-name=disabled
+	//     aip.dev/not-precedent: The caller needs the key the store deleted,
+	//     which a normalised name changes, and whether the call changed
+	//     anything; Empty cannot carry either, and an uploaded version has no
+	//     resource to return. --)
+	DeleteUploadedVersion(ctx context.Context, in *DeleteUploadedVersionRequest, opts ...grpc.CallOption) (*DeleteUploadedVersionResponse, error)
 }
 
 type storageUsageServiceClient struct {
@@ -56,17 +93,63 @@ func (c *storageUsageServiceClient) GetStorageUsage(ctx context.Context, in *Get
 	return out, nil
 }
 
+func (c *storageUsageServiceClient) DeleteUploadedVersion(ctx context.Context, in *DeleteUploadedVersionRequest, opts ...grpc.CallOption) (*DeleteUploadedVersionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteUploadedVersionResponse)
+	err := c.cc.Invoke(ctx, StorageUsageService_DeleteUploadedVersion_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // StorageUsageServiceServer is the server API for StorageUsageService service.
 // All implementations must embed UnimplementedStorageUsageServiceServer
 // for forward compatibility.
 //
 // StorageUsageService reports how much storage an organization's own uploads
-// consume in Chainguard Libraries, per language ecosystem.
+// consume in Chainguard Libraries, per language ecosystem, and deletes an
+// uploaded version.
 type StorageUsageServiceServer interface {
 	// GetStorageUsage returns the organization's storage usage, one entry per
 	// ecosystem. Only the organization's own uploads count: Chainguard-built and
 	// mirrored upstream artifacts are not charged to it.
 	GetStorageUsage(context.Context, *GetStorageUsageRequest) (*StorageUsage, error)
+	// DeleteUploadedVersion deletes one version that the organization uploaded,
+	// with all of its files. Chainguard-built and mirrored upstream artifacts
+	// cannot be deleted. The version stays reserved: a later upload of the
+	// same version is refused, so a client that pinned the deleted build
+	// never gets different bytes under that version.
+	//
+	// The caller needs CAP_LIBRARIES_<ECOSYSTEM>_DELETE for the request's
+	// ecosystem, bound at parent itself; a binding at a child organization or
+	// folder does not count.
+	//
+	// The response names the version's key as the ecosystem's clients spell
+	// it, which can differ from the request's spelling (a Python or NuGet name
+	// is normalised, a Go module path and version are unescaped), and says
+	// whether the call changed nothing. Deleting a version that is already
+	// deleted succeeds with already_deleted set, unless files that a later
+	// upload left under it remain, which the call removes. A version whose
+	// upload never completed is not reserved, so deleting it again fails with
+	// NOT_FOUND, as does a version the organization never uploaded. A version
+	// that an upload may still be writing fails with ABORTED, and a caller
+	// over the organization's limit of deletes fails with RESOURCE_EXHAUSTED;
+	// retry either later.
+	//
+	// A delete that changes something sends a customer event, best effort: if
+	// the call fails after the delete commits (the caller's deadline passes)
+	// and is sent again, the second call finds the version already deleted and
+	// sends none.
+	// (-- The capability depends on the ecosystem, and every capability an IAM
+	//     annotation lists is required, so the annotation requires only
+	//     authentication and the method checks the capability. --)
+	// (-- api-linter: core::0135::response-message-name=disabled
+	//     aip.dev/not-precedent: The caller needs the key the store deleted,
+	//     which a normalised name changes, and whether the call changed
+	//     anything; Empty cannot carry either, and an uploaded version has no
+	//     resource to return. --)
+	DeleteUploadedVersion(context.Context, *DeleteUploadedVersionRequest) (*DeleteUploadedVersionResponse, error)
 	mustEmbedUnimplementedStorageUsageServiceServer()
 }
 
@@ -79,6 +162,9 @@ type UnimplementedStorageUsageServiceServer struct{}
 
 func (UnimplementedStorageUsageServiceServer) GetStorageUsage(context.Context, *GetStorageUsageRequest) (*StorageUsage, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetStorageUsage not implemented")
+}
+func (UnimplementedStorageUsageServiceServer) DeleteUploadedVersion(context.Context, *DeleteUploadedVersionRequest) (*DeleteUploadedVersionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteUploadedVersion not implemented")
 }
 func (UnimplementedStorageUsageServiceServer) mustEmbedUnimplementedStorageUsageServiceServer() {}
 func (UnimplementedStorageUsageServiceServer) testEmbeddedByValue()                             {}
@@ -119,6 +205,24 @@ func _StorageUsageService_GetStorageUsage_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StorageUsageService_DeleteUploadedVersion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteUploadedVersionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StorageUsageServiceServer).DeleteUploadedVersion(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StorageUsageService_DeleteUploadedVersion_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StorageUsageServiceServer).DeleteUploadedVersion(ctx, req.(*DeleteUploadedVersionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // StorageUsageService_ServiceDesc is the grpc.ServiceDesc for StorageUsageService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -129,6 +233,10 @@ var StorageUsageService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetStorageUsage",
 			Handler:    _StorageUsageService_GetStorageUsage_Handler,
+		},
+		{
+			MethodName: "DeleteUploadedVersion",
+			Handler:    _StorageUsageService_DeleteUploadedVersion_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

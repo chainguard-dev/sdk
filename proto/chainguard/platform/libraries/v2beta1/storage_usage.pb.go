@@ -150,6 +150,169 @@ func (x *GetStorageUsageRequest) GetEcosystems() []StorageUsageEcosystem {
 	return nil
 }
 
+// DeleteUploadedVersionRequest is the request message for
+// DeleteUploadedVersion.
+type DeleteUploadedVersionRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The organization that uploaded the version. It must be an organization,
+	// not a folder.
+	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	// The ecosystem of the version.
+	Ecosystem StorageUsageEcosystem `protobuf:"varint,2,opt,name=ecosystem,proto3,enum=chainguard.platform.libraries.v2beta1.StorageUsageEcosystem" json:"ecosystem,omitempty"`
+	// The package name as the ecosystem spells it: "groupId:artifactId" for
+	// Java, the npm name (with its "@scope/" if any), the Python project name,
+	// the Go module path or the NuGet package ID. It is normalised as the
+	// ecosystem's registry normalises it, so a Python or NuGet name matches
+	// whatever its case. In the REST query, percent-encode it: an unencoded
+	// "+" reads as a space.
+	// (-- api-linter: core::0135::request-name-reference=disabled
+	//     aip.dev/not-precedent: name is the package name in its ecosystem, not
+	//     a resource name; an uploaded version has no resource name here. --)
+	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	// The version to delete, normalised as the ecosystem's registry
+	// normalises it. In the REST query, percent-encode it: an unencoded "+"
+	// (as in a Go "+incompatible" version) reads as a space.
+	Version       string `protobuf:"bytes,4,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteUploadedVersionRequest) Reset() {
+	*x = DeleteUploadedVersionRequest{}
+	mi := &file_chainguard_platform_libraries_v2beta1_storage_usage_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteUploadedVersionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteUploadedVersionRequest) ProtoMessage() {}
+
+func (x *DeleteUploadedVersionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_libraries_v2beta1_storage_usage_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteUploadedVersionRequest.ProtoReflect.Descriptor instead.
+func (*DeleteUploadedVersionRequest) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_libraries_v2beta1_storage_usage_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *DeleteUploadedVersionRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
+func (x *DeleteUploadedVersionRequest) GetEcosystem() StorageUsageEcosystem {
+	if x != nil {
+		return x.Ecosystem
+	}
+	return StorageUsageEcosystem_STORAGE_USAGE_ECOSYSTEM_UNSPECIFIED
+}
+
+func (x *DeleteUploadedVersionRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *DeleteUploadedVersionRequest) GetVersion() string {
+	if x != nil {
+		return x.Version
+	}
+	return ""
+}
+
+// DeleteUploadedVersionResponse is the response message for
+// DeleteUploadedVersion.
+type DeleteUploadedVersionResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The package name of the deleted version as the ecosystem's clients
+	// spell it: the request's name normalised as the ecosystem's registry
+	// normalises it (a Go module path keeps its case, unescaped).
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// The version as the ecosystem's clients spell it, normalised as the
+	// ecosystem's registry normalises it (a Go version unescaped).
+	Version string `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
+	// True when the version was already deleted and this call changed nothing.
+	AlreadyDeleted bool `protobuf:"varint,3,opt,name=already_deleted,json=alreadyDeleted,proto3" json:"already_deleted,omitempty"`
+	// The ecosystem of the version, as the request named it, so the response
+	// (and the event, whose body it is) names the version on its own.
+	Ecosystem     StorageUsageEcosystem `protobuf:"varint,4,opt,name=ecosystem,proto3,enum=chainguard.platform.libraries.v2beta1.StorageUsageEcosystem" json:"ecosystem,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteUploadedVersionResponse) Reset() {
+	*x = DeleteUploadedVersionResponse{}
+	mi := &file_chainguard_platform_libraries_v2beta1_storage_usage_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteUploadedVersionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteUploadedVersionResponse) ProtoMessage() {}
+
+func (x *DeleteUploadedVersionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chainguard_platform_libraries_v2beta1_storage_usage_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteUploadedVersionResponse.ProtoReflect.Descriptor instead.
+func (*DeleteUploadedVersionResponse) Descriptor() ([]byte, []int) {
+	return file_chainguard_platform_libraries_v2beta1_storage_usage_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *DeleteUploadedVersionResponse) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *DeleteUploadedVersionResponse) GetVersion() string {
+	if x != nil {
+		return x.Version
+	}
+	return ""
+}
+
+func (x *DeleteUploadedVersionResponse) GetAlreadyDeleted() bool {
+	if x != nil {
+		return x.AlreadyDeleted
+	}
+	return false
+}
+
+func (x *DeleteUploadedVersionResponse) GetEcosystem() StorageUsageEcosystem {
+	if x != nil {
+		return x.Ecosystem
+	}
+	return StorageUsageEcosystem_STORAGE_USAGE_ECOSYSTEM_UNSPECIFIED
+}
+
 // StorageUsage is an organization's storage usage across ecosystems.
 type StorageUsage struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -161,7 +324,7 @@ type StorageUsage struct {
 
 func (x *StorageUsage) Reset() {
 	*x = StorageUsage{}
-	mi := &file_chainguard_platform_libraries_v2beta1_storage_usage_proto_msgTypes[1]
+	mi := &file_chainguard_platform_libraries_v2beta1_storage_usage_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -173,7 +336,7 @@ func (x *StorageUsage) String() string {
 func (*StorageUsage) ProtoMessage() {}
 
 func (x *StorageUsage) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_storage_usage_proto_msgTypes[1]
+	mi := &file_chainguard_platform_libraries_v2beta1_storage_usage_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -186,7 +349,7 @@ func (x *StorageUsage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StorageUsage.ProtoReflect.Descriptor instead.
 func (*StorageUsage) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_storage_usage_proto_rawDescGZIP(), []int{1}
+	return file_chainguard_platform_libraries_v2beta1_storage_usage_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *StorageUsage) GetEcosystemUsages() []*EcosystemStorageUsage {
@@ -216,7 +379,7 @@ type EcosystemStorageUsage struct {
 
 func (x *EcosystemStorageUsage) Reset() {
 	*x = EcosystemStorageUsage{}
-	mi := &file_chainguard_platform_libraries_v2beta1_storage_usage_proto_msgTypes[2]
+	mi := &file_chainguard_platform_libraries_v2beta1_storage_usage_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -228,7 +391,7 @@ func (x *EcosystemStorageUsage) String() string {
 func (*EcosystemStorageUsage) ProtoMessage() {}
 
 func (x *EcosystemStorageUsage) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_storage_usage_proto_msgTypes[2]
+	mi := &file_chainguard_platform_libraries_v2beta1_storage_usage_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -241,7 +404,7 @@ func (x *EcosystemStorageUsage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EcosystemStorageUsage.ProtoReflect.Descriptor instead.
 func (*EcosystemStorageUsage) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_storage_usage_proto_rawDescGZIP(), []int{2}
+	return file_chainguard_platform_libraries_v2beta1_storage_usage_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *EcosystemStorageUsage) GetEcosystem() StorageUsageEcosystem {
@@ -269,13 +432,24 @@ var File_chainguard_platform_libraries_v2beta1_storage_usage_proto protoreflect.
 
 const file_chainguard_platform_libraries_v2beta1_storage_usage_proto_rawDesc = "" +
 	"\n" +
-	"9chainguard/platform/libraries/v2beta1/storage_usage.proto\x12%chainguard.platform.libraries.v2beta1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\xa0\x01\n" +
+	"9chainguard/platform/libraries/v2beta1/storage_usage.proto\x12%chainguard.platform.libraries.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\xa0\x01\n" +
 	"\x16GetStorageUsageRequest\x12\"\n" +
 	"\x06parent\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12b\n" +
 	"\n" +
 	"ecosystems\x18\x02 \x03(\x0e2<.chainguard.platform.libraries.v2beta1.StorageUsageEcosystemB\x04\xe2A\x01\x01R\n" +
-	"ecosystems\"w\n" +
+	"ecosystems\"\xde\x01\n" +
+	"\x1cDeleteUploadedVersionRequest\x12\"\n" +
+	"\x06parent\x18\x01 \x01(\tB\n" +
+	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12`\n" +
+	"\tecosystem\x18\x02 \x01(\x0e2<.chainguard.platform.libraries.v2beta1.StorageUsageEcosystemB\x04\xe2A\x01\x02R\tecosystem\x12\x18\n" +
+	"\x04name\x18\x03 \x01(\tB\x04\xe2A\x01\x02R\x04name\x12\x1e\n" +
+	"\aversion\x18\x04 \x01(\tB\x04\xe2A\x01\x02R\aversion\"\xea\x01\n" +
+	"\x1dDeleteUploadedVersionResponse\x12\x18\n" +
+	"\x04name\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x04name\x12\x1e\n" +
+	"\aversion\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\aversion\x12-\n" +
+	"\x0falready_deleted\x18\x03 \x01(\bB\x04\xe2A\x01\x03R\x0ealreadyDeleted\x12`\n" +
+	"\tecosystem\x18\x04 \x01(\x0e2<.chainguard.platform.libraries.v2beta1.StorageUsageEcosystemB\x04\xe2A\x01\x03R\tecosystem\"w\n" +
 	"\fStorageUsage\x12g\n" +
 	"\x10ecosystem_usages\x18\x01 \x03(\v2<.chainguard.platform.libraries.v2beta1.EcosystemStorageUsageR\x0fecosystemUsages\"\xbd\x01\n" +
 	"\x15EcosystemStorageUsage\x12Z\n" +
@@ -288,11 +462,14 @@ const file_chainguard_platform_libraries_v2beta1_storage_usage_proto_rawDesc = "
 	"\x1cSTORAGE_USAGE_ECOSYSTEM_JAVA\x10\x02\x12\"\n" +
 	"\x1eSTORAGE_USAGE_ECOSYSTEM_PYTHON\x10\x03\x12&\n" +
 	"\"STORAGE_USAGE_ECOSYSTEM_JAVASCRIPT\x10\x04\x12\"\n" +
-	"\x1eSTORAGE_USAGE_ECOSYSTEM_DOTNET\x10\x052\xf5\x02\n" +
+	"\x1eSTORAGE_USAGE_ECOSYSTEM_DOTNET\x10\x052\xc3\x06\n" +
 	"\x13StorageUsageService\x12\xdd\x02\n" +
 	"\x0fGetStorageUsage\x12=.chainguard.platform.libraries.v2beta1.GetStorageUsageRequest\x1a3.chainguard.platform.libraries.v2beta1.StorageUsage\"\xd5\x01\x82\xd3\xe4\x93\x02!\x12\x1f/libraries/v2beta1/storageUsage\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xdd\x0e\x9a\xaf\xa8\xd2\x05\x9b\x01\n" +
-	"\x90\x01Get an organization's Chainguard Libraries storage usage (bytes and version count) per ecosystem for artifacts the organization uploaded itself.\x18\x01 \x00(\x010\x00B\x80\x01\n" +
+	"\x90\x01Get an organization's Chainguard Libraries storage usage (bytes and version count) per ecosystem for artifacts the organization uploaded itself.\x18\x01 \x00(\x010\x00\x12\xcb\x03\n" +
+	"\x15DeleteUploadedVersion\x12C.chainguard.platform.libraries.v2beta1.DeleteUploadedVersionRequest\x1aD.chainguard.platform.libraries.v2beta1.DeleteUploadedVersionResponse\"\xa6\x02\x82\xd3\xe4\x93\x02%*#/libraries/v2beta1/uploadedVersions\x8a\xaf\xa8\xd2\x05\x02\x12\x00\x9a\xaf\xa8\xd2\x05\xa3\x01\n" +
+	"\x9a\x01Delete one version that the organization uploaded to Chainguard Libraries, with all of its files. The version stays reserved and cannot be uploaded again.\x10\x01 \x010\x00\xc2\xf0\x8e\xfc\vC\n" +
+	"8dev.chainguard.api.libraries.uploaded_version.deleted.v1\x12\x05group\x18\x01B\x80\x01\n" +
 	")com.chainguard.platform.libraries.v2beta1B\x11StorageUsageProtoP\x01Z>chainguard.dev/sdk/proto/chainguard/platform/libraries/v2beta1b\x06proto3"
 
 var (
@@ -308,24 +485,30 @@ func file_chainguard_platform_libraries_v2beta1_storage_usage_proto_rawDescGZIP(
 }
 
 var file_chainguard_platform_libraries_v2beta1_storage_usage_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chainguard_platform_libraries_v2beta1_storage_usage_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_chainguard_platform_libraries_v2beta1_storage_usage_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_chainguard_platform_libraries_v2beta1_storage_usage_proto_goTypes = []any{
-	(StorageUsageEcosystem)(0),     // 0: chainguard.platform.libraries.v2beta1.StorageUsageEcosystem
-	(*GetStorageUsageRequest)(nil), // 1: chainguard.platform.libraries.v2beta1.GetStorageUsageRequest
-	(*StorageUsage)(nil),           // 2: chainguard.platform.libraries.v2beta1.StorageUsage
-	(*EcosystemStorageUsage)(nil),  // 3: chainguard.platform.libraries.v2beta1.EcosystemStorageUsage
+	(StorageUsageEcosystem)(0),            // 0: chainguard.platform.libraries.v2beta1.StorageUsageEcosystem
+	(*GetStorageUsageRequest)(nil),        // 1: chainguard.platform.libraries.v2beta1.GetStorageUsageRequest
+	(*DeleteUploadedVersionRequest)(nil),  // 2: chainguard.platform.libraries.v2beta1.DeleteUploadedVersionRequest
+	(*DeleteUploadedVersionResponse)(nil), // 3: chainguard.platform.libraries.v2beta1.DeleteUploadedVersionResponse
+	(*StorageUsage)(nil),                  // 4: chainguard.platform.libraries.v2beta1.StorageUsage
+	(*EcosystemStorageUsage)(nil),         // 5: chainguard.platform.libraries.v2beta1.EcosystemStorageUsage
 }
 var file_chainguard_platform_libraries_v2beta1_storage_usage_proto_depIdxs = []int32{
 	0, // 0: chainguard.platform.libraries.v2beta1.GetStorageUsageRequest.ecosystems:type_name -> chainguard.platform.libraries.v2beta1.StorageUsageEcosystem
-	3, // 1: chainguard.platform.libraries.v2beta1.StorageUsage.ecosystem_usages:type_name -> chainguard.platform.libraries.v2beta1.EcosystemStorageUsage
-	0, // 2: chainguard.platform.libraries.v2beta1.EcosystemStorageUsage.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.StorageUsageEcosystem
-	1, // 3: chainguard.platform.libraries.v2beta1.StorageUsageService.GetStorageUsage:input_type -> chainguard.platform.libraries.v2beta1.GetStorageUsageRequest
-	2, // 4: chainguard.platform.libraries.v2beta1.StorageUsageService.GetStorageUsage:output_type -> chainguard.platform.libraries.v2beta1.StorageUsage
-	4, // [4:5] is the sub-list for method output_type
-	3, // [3:4] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	0, // 1: chainguard.platform.libraries.v2beta1.DeleteUploadedVersionRequest.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.StorageUsageEcosystem
+	0, // 2: chainguard.platform.libraries.v2beta1.DeleteUploadedVersionResponse.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.StorageUsageEcosystem
+	5, // 3: chainguard.platform.libraries.v2beta1.StorageUsage.ecosystem_usages:type_name -> chainguard.platform.libraries.v2beta1.EcosystemStorageUsage
+	0, // 4: chainguard.platform.libraries.v2beta1.EcosystemStorageUsage.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.StorageUsageEcosystem
+	1, // 5: chainguard.platform.libraries.v2beta1.StorageUsageService.GetStorageUsage:input_type -> chainguard.platform.libraries.v2beta1.GetStorageUsageRequest
+	2, // 6: chainguard.platform.libraries.v2beta1.StorageUsageService.DeleteUploadedVersion:input_type -> chainguard.platform.libraries.v2beta1.DeleteUploadedVersionRequest
+	4, // 7: chainguard.platform.libraries.v2beta1.StorageUsageService.GetStorageUsage:output_type -> chainguard.platform.libraries.v2beta1.StorageUsage
+	3, // 8: chainguard.platform.libraries.v2beta1.StorageUsageService.DeleteUploadedVersion:output_type -> chainguard.platform.libraries.v2beta1.DeleteUploadedVersionResponse
+	7, // [7:9] is the sub-list for method output_type
+	5, // [5:7] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_libraries_v2beta1_storage_usage_proto_init() }
@@ -339,7 +522,7 @@ func file_chainguard_platform_libraries_v2beta1_storage_usage_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_libraries_v2beta1_storage_usage_proto_rawDesc), len(file_chainguard_platform_libraries_v2beta1_storage_usage_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   3,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -6,6 +6,7 @@ syntax = "proto3";
 package chainguard.platform.libraries.v2beta1;
 
 import "annotations/auth.proto";
+import "annotations/events.proto";
 import "annotations/mcp.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
@@ -17,7 +18,8 @@ option java_outer_classname = "StorageUsageProto";
 option java_package = "com.chainguard.platform.libraries.v2beta1";
 
 // StorageUsageService reports how much storage an organization's own uploads
-// consume in Chainguard Libraries, per language ecosystem.
+// consume in Chainguard Libraries, per language ecosystem, and deletes an
+// uploaded version.
 service StorageUsageService {
   // GetStorageUsage returns the organization's storage usage, one entry per
   // ecosystem. Only the organization's own uploads count: Chainguard-built and
@@ -38,6 +40,69 @@ service StorageUsageService {
       open_world: false
     };
   }
+
+  // DeleteUploadedVersion deletes one version that the organization uploaded,
+  // with all of its files. Chainguard-built and mirrored upstream artifacts
+  // cannot be deleted. The version stays reserved: a later upload of the
+  // same version is refused, so a client that pinned the deleted build
+  // never gets different bytes under that version.
+  //
+  // The caller needs CAP_LIBRARIES_<ECOSYSTEM>_DELETE for the request's
+  // ecosystem, bound at parent itself; a binding at a child organization or
+  // folder does not count.
+  //
+  // The response names the version's key as the ecosystem's clients spell
+  // it, which can differ from the request's spelling (a Python or NuGet name
+  // is normalised, a Go module path and version are unescaped), and says
+  // whether the call changed nothing. Deleting a version that is already
+  // deleted succeeds with already_deleted set, unless files that a later
+  // upload left under it remain, which the call removes. A version whose
+  // upload never completed is not reserved, so deleting it again fails with
+  // NOT_FOUND, as does a version the organization never uploaded. A version
+  // that an upload may still be writing fails with ABORTED, and a caller
+  // over the organization's limit of deletes fails with RESOURCE_EXHAUSTED;
+  // retry either later.
+  //
+  // A delete that changes something sends a customer event, best effort: if
+  // the call fails after the delete commits (the caller's deadline passes)
+  // and is sent again, the second call finds the version already deleted and
+  // sends none.
+  // (-- The capability depends on the ecosystem, and every capability an IAM
+  //     annotation lists is required, so the annotation requires only
+  //     authentication and the method checks the capability. --)
+  // (-- api-linter: core::0135::response-message-name=disabled
+  //     aip.dev/not-precedent: The caller needs the key the store deleted,
+  //     which a normalised name changes, and whether the call changed
+  //     anything; Empty cannot carry either, and an uploaded version has no
+  //     resource to return. --)
+  rpc DeleteUploadedVersion(DeleteUploadedVersionRequest)
+      returns (DeleteUploadedVersionResponse) {
+    option (google.api.http) = {delete: "/libraries/v2beta1/uploadedVersions"};
+    option (chainguard.annotations.iam) = {enabled: {}};
+    // The body is the response. A delete of a version that was already
+    // deleted changes nothing and sends no event. The datastore emits its own
+    // internal event for what each delete removed, on every surface (D-UP14);
+    // that event, not this one, is the record of every delete.
+    option (chainguard.annotations.events) = {
+      type: "dev.chainguard.api.libraries.uploaded_version.deleted.v1"
+      extensions: ["group"]
+      audience: CUSTOMER
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "Delete one version that the organization uploaded to "
+                   "Chainguard Libraries, with all of its files. The version "
+                   "stays reserved and cannot be uploaded again."
+      read_only: false
+      destructive: true
+      // A repeated call can answer NOT_FOUND (an upload that never
+      // completed leaves no reservation).
+      idempotent: false
+      open_world: false
+      // Withheld from the MCP tool surface: a delete that clients cannot
+      // undo, with no server-enforced confirmation before it runs.
+      hidden: true
+    };
+  }
 }
 
 // GetStorageUsageRequest is the request message for GetStorageUsage.
@@ -53,6 +118,58 @@ message GetStorageUsageRequest {
   // FAILED_PRECONDITION.
   repeated StorageUsageEcosystem ecosystems = 2
       [(google.api.field_behavior) = OPTIONAL];
+}
+
+// DeleteUploadedVersionRequest is the request message for
+// DeleteUploadedVersion.
+message DeleteUploadedVersionRequest {
+  // The organization that uploaded the version. It must be an organization,
+  // not a folder.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // The ecosystem of the version.
+  StorageUsageEcosystem ecosystem = 2
+      [(google.api.field_behavior) = REQUIRED];
+
+  // The package name as the ecosystem spells it: "groupId:artifactId" for
+  // Java, the npm name (with its "@scope/" if any), the Python project name,
+  // the Go module path or the NuGet package ID. It is normalised as the
+  // ecosystem's registry normalises it, so a Python or NuGet name matches
+  // whatever its case. In the REST query, percent-encode it: an unencoded
+  // "+" reads as a space.
+  // (-- api-linter: core::0135::request-name-reference=disabled
+  //     aip.dev/not-precedent: name is the package name in its ecosystem, not
+  //     a resource name; an uploaded version has no resource name here. --)
+  string name = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // The version to delete, normalised as the ecosystem's registry
+  // normalises it. In the REST query, percent-encode it: an unencoded "+"
+  // (as in a Go "+incompatible" version) reads as a space.
+  string version = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+// DeleteUploadedVersionResponse is the response message for
+// DeleteUploadedVersion.
+message DeleteUploadedVersionResponse {
+  // The package name of the deleted version as the ecosystem's clients
+  // spell it: the request's name normalised as the ecosystem's registry
+  // normalises it (a Go module path keeps its case, unescaped).
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The version as the ecosystem's clients spell it, normalised as the
+  // ecosystem's registry normalises it (a Go version unescaped).
+  string version = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // True when the version was already deleted and this call changed nothing.
+  bool already_deleted = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The ecosystem of the version, as the request named it, so the response
+  // (and the event, whose body it is) names the version on its own.
+  StorageUsageEcosystem ecosystem = 4
+      [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // StorageUsage is an organization's storage usage across ecosystems.
