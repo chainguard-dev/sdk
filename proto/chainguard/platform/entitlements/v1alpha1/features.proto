@@ -137,15 +137,16 @@ message FeatureEntitlement {
   // parent is the UIDP of the entitled organization.
   string parent = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // feature is the feature key: "sandbox_checks", "sandbox_workspaces" or
-  // "sso_enforcement".
+  // feature is the feature key: "sandbox_checks", "sandbox_workspaces",
+  // "sso_enforcement" or "harness_hunts".
   string feature = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // source is the entitlement's system of record.
   FeatureSource source = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // config is the feature's per-organization limits. The member matches
-  // feature.
+  // feature. It is unset for "harness_hunts", which has no member and no
+  // limits.
   oneof config {
     // Limits for "sandbox_checks".
     SandboxChecksConfig sandbox_checks = 5;
@@ -268,15 +269,16 @@ message SetFeatureEntitlementRequest {
     (chainguard.annotations.iam_scope) = true
   ];
 
-  // feature is the feature key: "sandbox_checks", "sandbox_workspaces" or
-  // "sso_enforcement".
+  // feature is the feature key: "sandbox_checks", "sandbox_workspaces",
+  // "sso_enforcement" or "harness_hunts".
   string feature = 2 [(google.api.field_behavior) = REQUIRED];
 
   // source is INTERNAL (backfill, automation) or CONSOLE_ADMIN (support).
   FeatureSource source = 3 [(google.api.field_behavior) = REQUIRED];
 
   // config is the feature's full set of limits, replacing any stored ones.
-  // The member must match feature.
+  // The member must match feature. A feature with no limits may leave it
+  // unset, and "harness_hunts", which has no member, must.
   oneof config {
     // Limits for "sandbox_checks".
     SandboxChecksConfig sandbox_checks = 4;
@@ -308,8 +310,8 @@ message DeleteFeatureEntitlementRequest {
     (chainguard.annotations.iam_scope) = true
   ];
 
-  // feature is the feature key: "sandbox_checks", "sandbox_workspaces" or
-  // "sso_enforcement".
+  // feature is the feature key: "sandbox_checks", "sandbox_workspaces",
+  // "sso_enforcement" or "harness_hunts".
   string feature = 2 [(google.api.field_behavior) = REQUIRED];
 
   // source is the surface making the change, recorded with it for audit:

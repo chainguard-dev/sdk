@@ -98,13 +98,14 @@ type FeatureEntitlement struct {
 	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	// parent is the UIDP of the entitled organization.
 	Parent string `protobuf:"bytes,2,opt,name=parent,proto3" json:"parent,omitempty"`
-	// feature is the feature key: "sandbox_checks", "sandbox_workspaces" or
-	// "sso_enforcement".
+	// feature is the feature key: "sandbox_checks", "sandbox_workspaces",
+	// "sso_enforcement" or "harness_hunts".
 	Feature string `protobuf:"bytes,3,opt,name=feature,proto3" json:"feature,omitempty"`
 	// source is the entitlement's system of record.
 	Source FeatureSource `protobuf:"varint,4,opt,name=source,proto3,enum=chainguard.platform.entitlements.v1alpha1.FeatureSource" json:"source,omitempty"`
 	// config is the feature's per-organization limits. The member matches
-	// feature.
+	// feature. It is unset for "harness_hunts", which has no member and no
+	// limits.
 	//
 	// Types that are valid to be assigned to Config:
 	//
@@ -653,13 +654,14 @@ type SetFeatureEntitlementRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// parent is the UIDP of the organization.
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
-	// feature is the feature key: "sandbox_checks", "sandbox_workspaces" or
-	// "sso_enforcement".
+	// feature is the feature key: "sandbox_checks", "sandbox_workspaces",
+	// "sso_enforcement" or "harness_hunts".
 	Feature string `protobuf:"bytes,2,opt,name=feature,proto3" json:"feature,omitempty"`
 	// source is INTERNAL (backfill, automation) or CONSOLE_ADMIN (support).
 	Source FeatureSource `protobuf:"varint,3,opt,name=source,proto3,enum=chainguard.platform.entitlements.v1alpha1.FeatureSource" json:"source,omitempty"`
 	// config is the feature's full set of limits, replacing any stored ones.
-	// The member must match feature.
+	// The member must match feature. A feature with no limits may leave it
+	// unset, and "harness_hunts", which has no member, must.
 	//
 	// Types that are valid to be assigned to Config:
 	//
@@ -813,8 +815,8 @@ type DeleteFeatureEntitlementRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// parent is the UIDP of the organization.
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
-	// feature is the feature key: "sandbox_checks", "sandbox_workspaces" or
-	// "sso_enforcement".
+	// feature is the feature key: "sandbox_checks", "sandbox_workspaces",
+	// "sso_enforcement" or "harness_hunts".
 	Feature string `protobuf:"bytes,2,opt,name=feature,proto3" json:"feature,omitempty"`
 	// source is the surface making the change, recorded with it for audit:
 	// INTERNAL or CONSOLE_ADMIN. It does not select the entitlement; the live
