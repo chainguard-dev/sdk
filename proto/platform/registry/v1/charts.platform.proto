@@ -84,6 +84,15 @@ message FindChartRequest {
   ChartCatalog catalog = 1;
   // The chart name to resolve (e.g. "argo-cd").
   string name = 2;
+  // If true, also read the chart's metadata and return its image dependencies
+  // and the tag they were read from. Without it the lookup reads no chart tags.
+  bool include_images = 3;
+  // The tag of the chart to read images from when include_images is set.
+  // Defaults as AddChartRequest.tag does. Mutually exclusive with fips.
+  string tag = 4;
+  // If true, default to the newest FIPS tag when include_images is set, as
+  // AddChartRequest.fips does. Mutually exclusive with tag.
+  bool fips = 5;
 }
 
 // FindChartResponse carries the resolved source chart repo.
@@ -93,6 +102,23 @@ message FindChartResponse {
   string source_repo_id = 1;
   // The resolved chart name.
   string name = 2;
+  // The chart tag the images were read from. Set only with include_images;
+  // passing it as AddChartRequest.tag adds the chart from the same tag.
+  string tag = 3;
+  // The chart's image dependencies, one per catalog repo, in the order AddChart
+  // provisions them. Set only with include_images.
+  repeated ChartImageDependency images = 4;
+}
+
+// ChartImageDependency is one of a chart's image dependencies, deduplicated by
+// catalog repo the way AddChart provisions them.
+message ChartImageDependency {
+  // The catalog repo name (e.g. "nginx"), as accepted by
+  // AddChartRequest.images.
+  string repo_name = 1;
+  // Whether AddChart always provisions the image (REQUIRED) or only when it
+  // is selected (OPTIONAL). UNSPECIFIED is provisioned as required.
+  ChartImageRequirement requirement = 2;
 }
 
 message AddChartRequest {

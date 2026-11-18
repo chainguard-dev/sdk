@@ -143,7 +143,7 @@ func (x ChartSyncStatus_Status) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ChartSyncStatus_Status.Descriptor instead.
 func (ChartSyncStatus_Status) EnumDescriptor() ([]byte, []int) {
-	return file_charts_platform_proto_rawDescGZIP(), []int{6, 0}
+	return file_charts_platform_proto_rawDescGZIP(), []int{7, 0}
 }
 
 // FindChartRequest resolves a chart name within a managed catalog.
@@ -152,7 +152,16 @@ type FindChartRequest struct {
 	// Which managed chart catalog to search.
 	Catalog ChartCatalog `protobuf:"varint,1,opt,name=catalog,proto3,enum=chainguard.platform.registry.ChartCatalog" json:"catalog,omitempty"`
 	// The chart name to resolve (e.g. "argo-cd").
-	Name          string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// If true, also read the chart's metadata and return its image dependencies
+	// and the tag they were read from. Without it the lookup reads no chart tags.
+	IncludeImages bool `protobuf:"varint,3,opt,name=include_images,json=includeImages,proto3" json:"include_images,omitempty"`
+	// The tag of the chart to read images from when include_images is set.
+	// Defaults as AddChartRequest.tag does. Mutually exclusive with fips.
+	Tag string `protobuf:"bytes,4,opt,name=tag,proto3" json:"tag,omitempty"`
+	// If true, default to the newest FIPS tag when include_images is set, as
+	// AddChartRequest.fips does. Mutually exclusive with tag.
+	Fips          bool `protobuf:"varint,5,opt,name=fips,proto3" json:"fips,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -201,6 +210,27 @@ func (x *FindChartRequest) GetName() string {
 	return ""
 }
 
+func (x *FindChartRequest) GetIncludeImages() bool {
+	if x != nil {
+		return x.IncludeImages
+	}
+	return false
+}
+
+func (x *FindChartRequest) GetTag() string {
+	if x != nil {
+		return x.Tag
+	}
+	return ""
+}
+
+func (x *FindChartRequest) GetFips() bool {
+	if x != nil {
+		return x.Fips
+	}
+	return false
+}
+
 // FindChartResponse carries the resolved source chart repo.
 type FindChartResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -208,7 +238,13 @@ type FindChartResponse struct {
 	// AddChartRequest.source_repo_id.
 	SourceRepoId string `protobuf:"bytes,1,opt,name=source_repo_id,json=sourceRepoId,proto3" json:"source_repo_id,omitempty"`
 	// The resolved chart name.
-	Name          string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// The chart tag the images were read from. Set only with include_images;
+	// passing it as AddChartRequest.tag adds the chart from the same tag.
+	Tag string `protobuf:"bytes,3,opt,name=tag,proto3" json:"tag,omitempty"`
+	// The chart's image dependencies, one per catalog repo, in the order AddChart
+	// provisions them. Set only with include_images.
+	Images        []*ChartImageDependency `protobuf:"bytes,4,rep,name=images,proto3" json:"images,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -257,6 +293,78 @@ func (x *FindChartResponse) GetName() string {
 	return ""
 }
 
+func (x *FindChartResponse) GetTag() string {
+	if x != nil {
+		return x.Tag
+	}
+	return ""
+}
+
+func (x *FindChartResponse) GetImages() []*ChartImageDependency {
+	if x != nil {
+		return x.Images
+	}
+	return nil
+}
+
+// ChartImageDependency is one of a chart's image dependencies, deduplicated by
+// catalog repo the way AddChart provisions them.
+type ChartImageDependency struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The catalog repo name (e.g. "nginx"), as accepted by
+	// AddChartRequest.images.
+	RepoName string `protobuf:"bytes,1,opt,name=repo_name,json=repoName,proto3" json:"repo_name,omitempty"`
+	// Whether AddChart always provisions the image (REQUIRED) or only when it
+	// is selected (OPTIONAL). UNSPECIFIED is provisioned as required.
+	Requirement   ChartImageRequirement `protobuf:"varint,2,opt,name=requirement,proto3,enum=chainguard.platform.registry.ChartImageRequirement" json:"requirement,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChartImageDependency) Reset() {
+	*x = ChartImageDependency{}
+	mi := &file_charts_platform_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChartImageDependency) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChartImageDependency) ProtoMessage() {}
+
+func (x *ChartImageDependency) ProtoReflect() protoreflect.Message {
+	mi := &file_charts_platform_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChartImageDependency.ProtoReflect.Descriptor instead.
+func (*ChartImageDependency) Descriptor() ([]byte, []int) {
+	return file_charts_platform_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ChartImageDependency) GetRepoName() string {
+	if x != nil {
+		return x.RepoName
+	}
+	return ""
+}
+
+func (x *ChartImageDependency) GetRequirement() ChartImageRequirement {
+	if x != nil {
+		return x.Requirement
+	}
+	return ChartImageRequirement_REQUIREMENT_UNSPECIFIED
+}
+
 type AddChartRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The UIDP of the destination organization.
@@ -285,7 +393,7 @@ type AddChartRequest struct {
 
 func (x *AddChartRequest) Reset() {
 	*x = AddChartRequest{}
-	mi := &file_charts_platform_proto_msgTypes[2]
+	mi := &file_charts_platform_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -297,7 +405,7 @@ func (x *AddChartRequest) String() string {
 func (*AddChartRequest) ProtoMessage() {}
 
 func (x *AddChartRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_charts_platform_proto_msgTypes[2]
+	mi := &file_charts_platform_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -310,7 +418,7 @@ func (x *AddChartRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddChartRequest.ProtoReflect.Descriptor instead.
 func (*AddChartRequest) Descriptor() ([]byte, []int) {
-	return file_charts_platform_proto_rawDescGZIP(), []int{2}
+	return file_charts_platform_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *AddChartRequest) GetParentId() string {
@@ -365,7 +473,7 @@ type AddChartResponse struct {
 
 func (x *AddChartResponse) Reset() {
 	*x = AddChartResponse{}
-	mi := &file_charts_platform_proto_msgTypes[3]
+	mi := &file_charts_platform_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -377,7 +485,7 @@ func (x *AddChartResponse) String() string {
 func (*AddChartResponse) ProtoMessage() {}
 
 func (x *AddChartResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_charts_platform_proto_msgTypes[3]
+	mi := &file_charts_platform_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -390,7 +498,7 @@ func (x *AddChartResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddChartResponse.ProtoReflect.Descriptor instead.
 func (*AddChartResponse) Descriptor() ([]byte, []int) {
-	return file_charts_platform_proto_rawDescGZIP(), []int{3}
+	return file_charts_platform_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *AddChartResponse) GetRepos() []*AddChartResult {
@@ -429,7 +537,7 @@ type AddChartResult struct {
 
 func (x *AddChartResult) Reset() {
 	*x = AddChartResult{}
-	mi := &file_charts_platform_proto_msgTypes[4]
+	mi := &file_charts_platform_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -441,7 +549,7 @@ func (x *AddChartResult) String() string {
 func (*AddChartResult) ProtoMessage() {}
 
 func (x *AddChartResult) ProtoReflect() protoreflect.Message {
-	mi := &file_charts_platform_proto_msgTypes[4]
+	mi := &file_charts_platform_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -454,7 +562,7 @@ func (x *AddChartResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddChartResult.ProtoReflect.Descriptor instead.
 func (*AddChartResult) Descriptor() ([]byte, []int) {
-	return file_charts_platform_proto_rawDescGZIP(), []int{4}
+	return file_charts_platform_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *AddChartResult) GetName() string {
@@ -510,7 +618,7 @@ type GetChartSyncStatusRequest struct {
 
 func (x *GetChartSyncStatusRequest) Reset() {
 	*x = GetChartSyncStatusRequest{}
-	mi := &file_charts_platform_proto_msgTypes[5]
+	mi := &file_charts_platform_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -522,7 +630,7 @@ func (x *GetChartSyncStatusRequest) String() string {
 func (*GetChartSyncStatusRequest) ProtoMessage() {}
 
 func (x *GetChartSyncStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_charts_platform_proto_msgTypes[5]
+	mi := &file_charts_platform_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -535,7 +643,7 @@ func (x *GetChartSyncStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChartSyncStatusRequest.ProtoReflect.Descriptor instead.
 func (*GetChartSyncStatusRequest) Descriptor() ([]byte, []int) {
-	return file_charts_platform_proto_rawDescGZIP(), []int{5}
+	return file_charts_platform_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetChartSyncStatusRequest) GetRepoId() string {
@@ -580,7 +688,7 @@ type ChartSyncStatus struct {
 
 func (x *ChartSyncStatus) Reset() {
 	*x = ChartSyncStatus{}
-	mi := &file_charts_platform_proto_msgTypes[6]
+	mi := &file_charts_platform_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -592,7 +700,7 @@ func (x *ChartSyncStatus) String() string {
 func (*ChartSyncStatus) ProtoMessage() {}
 
 func (x *ChartSyncStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_charts_platform_proto_msgTypes[6]
+	mi := &file_charts_platform_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -605,7 +713,7 @@ func (x *ChartSyncStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChartSyncStatus.ProtoReflect.Descriptor instead.
 func (*ChartSyncStatus) Descriptor() ([]byte, []int) {
-	return file_charts_platform_proto_rawDescGZIP(), []int{6}
+	return file_charts_platform_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ChartSyncStatus) GetStatus() ChartSyncStatus_Status {
@@ -648,7 +756,7 @@ type ChartSyncStatus_MissingImage struct {
 
 func (x *ChartSyncStatus_MissingImage) Reset() {
 	*x = ChartSyncStatus_MissingImage{}
-	mi := &file_charts_platform_proto_msgTypes[7]
+	mi := &file_charts_platform_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -660,7 +768,7 @@ func (x *ChartSyncStatus_MissingImage) String() string {
 func (*ChartSyncStatus_MissingImage) ProtoMessage() {}
 
 func (x *ChartSyncStatus_MissingImage) ProtoReflect() protoreflect.Message {
-	mi := &file_charts_platform_proto_msgTypes[7]
+	mi := &file_charts_platform_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -673,7 +781,7 @@ func (x *ChartSyncStatus_MissingImage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChartSyncStatus_MissingImage.ProtoReflect.Descriptor instead.
 func (*ChartSyncStatus_MissingImage) Descriptor() ([]byte, []int) {
-	return file_charts_platform_proto_rawDescGZIP(), []int{6, 0}
+	return file_charts_platform_proto_rawDescGZIP(), []int{7, 0}
 }
 
 func (x *ChartSyncStatus_MissingImage) GetName() string {
@@ -694,13 +802,21 @@ var File_charts_platform_proto protoreflect.FileDescriptor
 
 const file_charts_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x15charts.platform.proto\x12\x1cchainguard.platform.registry\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17registry.platform.proto\"l\n" +
+	"\x15charts.platform.proto\x12\x1cchainguard.platform.registry\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17registry.platform.proto\"\xb9\x01\n" +
 	"\x10FindChartRequest\x12D\n" +
 	"\acatalog\x18\x01 \x01(\x0e2*.chainguard.platform.registry.ChartCatalogR\acatalog\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"M\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12%\n" +
+	"\x0einclude_images\x18\x03 \x01(\bR\rincludeImages\x12\x10\n" +
+	"\x03tag\x18\x04 \x01(\tR\x03tag\x12\x12\n" +
+	"\x04fips\x18\x05 \x01(\bR\x04fips\"\xab\x01\n" +
 	"\x11FindChartResponse\x12$\n" +
 	"\x0esource_repo_id\x18\x01 \x01(\tR\fsourceRepoId\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"\xb3\x01\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x10\n" +
+	"\x03tag\x18\x03 \x01(\tR\x03tag\x12J\n" +
+	"\x06images\x18\x04 \x03(\v22.chainguard.platform.registry.ChartImageDependencyR\x06images\"\x8a\x01\n" +
+	"\x14ChartImageDependency\x12\x1b\n" +
+	"\trepo_name\x18\x01 \x01(\tR\brepoName\x12U\n" +
+	"\vrequirement\x18\x02 \x01(\x0e23.chainguard.platform.registry.ChartImageRequirementR\vrequirement\"\xb3\x01\n" +
 	"\x0fAddChartRequest\x12#\n" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12$\n" +
 	"\x0esource_repo_id\x18\x02 \x01(\tR\fsourceRepoId\x12\x17\n" +
@@ -764,39 +880,42 @@ func file_charts_platform_proto_rawDescGZIP() []byte {
 }
 
 var file_charts_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_charts_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_charts_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_charts_platform_proto_goTypes = []any{
 	(ChartCatalog)(0),                    // 0: chainguard.platform.registry.ChartCatalog
 	(ChartSyncStatus_Status)(0),          // 1: chainguard.platform.registry.ChartSyncStatus.Status
 	(*FindChartRequest)(nil),             // 2: chainguard.platform.registry.FindChartRequest
 	(*FindChartResponse)(nil),            // 3: chainguard.platform.registry.FindChartResponse
-	(*AddChartRequest)(nil),              // 4: chainguard.platform.registry.AddChartRequest
-	(*AddChartResponse)(nil),             // 5: chainguard.platform.registry.AddChartResponse
-	(*AddChartResult)(nil),               // 6: chainguard.platform.registry.AddChartResult
-	(*GetChartSyncStatusRequest)(nil),    // 7: chainguard.platform.registry.GetChartSyncStatusRequest
-	(*ChartSyncStatus)(nil),              // 8: chainguard.platform.registry.ChartSyncStatus
-	(*ChartSyncStatus_MissingImage)(nil), // 9: chainguard.platform.registry.ChartSyncStatus.MissingImage
-	(ChartImageRequirement)(0),           // 10: chainguard.platform.registry.ChartImageRequirement
-	(*timestamppb.Timestamp)(nil),        // 11: google.protobuf.Timestamp
+	(*ChartImageDependency)(nil),         // 4: chainguard.platform.registry.ChartImageDependency
+	(*AddChartRequest)(nil),              // 5: chainguard.platform.registry.AddChartRequest
+	(*AddChartResponse)(nil),             // 6: chainguard.platform.registry.AddChartResponse
+	(*AddChartResult)(nil),               // 7: chainguard.platform.registry.AddChartResult
+	(*GetChartSyncStatusRequest)(nil),    // 8: chainguard.platform.registry.GetChartSyncStatusRequest
+	(*ChartSyncStatus)(nil),              // 9: chainguard.platform.registry.ChartSyncStatus
+	(*ChartSyncStatus_MissingImage)(nil), // 10: chainguard.platform.registry.ChartSyncStatus.MissingImage
+	(ChartImageRequirement)(0),           // 11: chainguard.platform.registry.ChartImageRequirement
+	(*timestamppb.Timestamp)(nil),        // 12: google.protobuf.Timestamp
 }
 var file_charts_platform_proto_depIdxs = []int32{
 	0,  // 0: chainguard.platform.registry.FindChartRequest.catalog:type_name -> chainguard.platform.registry.ChartCatalog
-	6,  // 1: chainguard.platform.registry.AddChartResponse.repos:type_name -> chainguard.platform.registry.AddChartResult
-	10, // 2: chainguard.platform.registry.AddChartResult.requirement:type_name -> chainguard.platform.registry.ChartImageRequirement
-	1,  // 3: chainguard.platform.registry.ChartSyncStatus.status:type_name -> chainguard.platform.registry.ChartSyncStatus.Status
-	11, // 4: chainguard.platform.registry.ChartSyncStatus.create_time:type_name -> google.protobuf.Timestamp
-	9,  // 5: chainguard.platform.registry.ChartSyncStatus.missing_images:type_name -> chainguard.platform.registry.ChartSyncStatus.MissingImage
-	4,  // 6: chainguard.platform.registry.Charts.AddChart:input_type -> chainguard.platform.registry.AddChartRequest
-	2,  // 7: chainguard.platform.registry.Charts.FindChart:input_type -> chainguard.platform.registry.FindChartRequest
-	7,  // 8: chainguard.platform.registry.Charts.GetChartSyncStatus:input_type -> chainguard.platform.registry.GetChartSyncStatusRequest
-	5,  // 9: chainguard.platform.registry.Charts.AddChart:output_type -> chainguard.platform.registry.AddChartResponse
-	3,  // 10: chainguard.platform.registry.Charts.FindChart:output_type -> chainguard.platform.registry.FindChartResponse
-	8,  // 11: chainguard.platform.registry.Charts.GetChartSyncStatus:output_type -> chainguard.platform.registry.ChartSyncStatus
-	9,  // [9:12] is the sub-list for method output_type
-	6,  // [6:9] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	4,  // 1: chainguard.platform.registry.FindChartResponse.images:type_name -> chainguard.platform.registry.ChartImageDependency
+	11, // 2: chainguard.platform.registry.ChartImageDependency.requirement:type_name -> chainguard.platform.registry.ChartImageRequirement
+	7,  // 3: chainguard.platform.registry.AddChartResponse.repos:type_name -> chainguard.platform.registry.AddChartResult
+	11, // 4: chainguard.platform.registry.AddChartResult.requirement:type_name -> chainguard.platform.registry.ChartImageRequirement
+	1,  // 5: chainguard.platform.registry.ChartSyncStatus.status:type_name -> chainguard.platform.registry.ChartSyncStatus.Status
+	12, // 6: chainguard.platform.registry.ChartSyncStatus.create_time:type_name -> google.protobuf.Timestamp
+	10, // 7: chainguard.platform.registry.ChartSyncStatus.missing_images:type_name -> chainguard.platform.registry.ChartSyncStatus.MissingImage
+	5,  // 8: chainguard.platform.registry.Charts.AddChart:input_type -> chainguard.platform.registry.AddChartRequest
+	2,  // 9: chainguard.platform.registry.Charts.FindChart:input_type -> chainguard.platform.registry.FindChartRequest
+	8,  // 10: chainguard.platform.registry.Charts.GetChartSyncStatus:input_type -> chainguard.platform.registry.GetChartSyncStatusRequest
+	6,  // 11: chainguard.platform.registry.Charts.AddChart:output_type -> chainguard.platform.registry.AddChartResponse
+	3,  // 12: chainguard.platform.registry.Charts.FindChart:output_type -> chainguard.platform.registry.FindChartResponse
+	9,  // 13: chainguard.platform.registry.Charts.GetChartSyncStatus:output_type -> chainguard.platform.registry.ChartSyncStatus
+	11, // [11:14] is the sub-list for method output_type
+	8,  // [8:11] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_charts_platform_proto_init() }
@@ -811,7 +930,7 @@ func file_charts_platform_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_charts_platform_proto_rawDesc), len(file_charts_platform_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
