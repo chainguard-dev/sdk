@@ -1562,7 +1562,10 @@ type DecisionFilter struct {
 	//
 	// Deprecated: Marked as deprecated in policies.platform.proto.
 	Digest string `protobuf:"bytes,11,opt,name=digest,proto3" json:"digest,omitempty"`
-	// Only return decisions for this artifact.
+	// Only return decisions whose artifact_id matches this value, ignoring
+	// case. A PURL with a version selects that artifact, and a PURL without one
+	// (pkg:pypi/requests) selects every version of the package. Any other value
+	// matches any part of the artifact_id, with % and _ taken literally.
 	ArtifactId string `protobuf:"bytes,12,opt,name=artifact_id,json=artifactId,proto3" json:"artifact_id,omitempty"`
 	// Only return decisions whose resource_type equals this value.
 	// The value takes the versioned form Decision.resource_type takes

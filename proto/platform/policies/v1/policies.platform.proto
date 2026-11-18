@@ -623,7 +623,10 @@ message DecisionFilter {
   // Deprecated: use artifact_id.
   string digest = 11 [deprecated = true];
 
-  // Only return decisions for this artifact.
+  // Only return decisions whose artifact_id matches this value, ignoring
+  // case. A PURL with a version selects that artifact, and a PURL without one
+  // (pkg:pypi/requests) selects every version of the package. Any other value
+  // matches any part of the artifact_id, with % and _ taken literally.
   string artifact_id = 12;
 
   // Only return decisions whose resource_type equals this value.
