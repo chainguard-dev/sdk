@@ -30,6 +30,9 @@ func TestFeatureDocuments(t *testing.T) {
 	if got := FeatureDocuments("skills"); len(got) != 2 || got[0] != "agent-skills-tos.v1" || got[1] != "sfdpa.v1" {
 		t.Errorf("skills: got %v", got)
 	}
+	if got := FeatureDocuments("harness_hunts"); len(got) != 1 || got[0] != "code-analysis-terms.v1" {
+		t.Errorf("harness_hunts: got %v", got)
+	}
 	if got := FeatureDocuments("unknown"); got != nil {
 		t.Errorf("unknown feature: got %v, want nil", got)
 	}

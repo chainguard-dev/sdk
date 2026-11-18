@@ -24,12 +24,15 @@ var featureDocuments = map[string][]string{
 	// Skills: the registry refuses skills and uploads pushes from an
 	// organization that has not accepted both.
 	"skills": {"agent-skills-tos.v1", "sfdpa.v1"},
+	// Harness hunts take a customer's source tree and run it under the Code
+	// Analysis Terms.
+	"harness_hunts": {"code-analysis-terms.v1"},
 }
 
 // FeatureDocuments returns the IDs of the documents an organization must
 // accept to use the entitlement feature with key feature ("sandbox_checks",
-// "sandbox_workspaces", "sso_enforcement", "skills"), or nil when it requires
-// none.
+// "sandbox_workspaces", "sso_enforcement", "skills", "harness_hunts"), or nil
+// when it requires none.
 func FeatureDocuments(feature string) []string {
 	return slices.Clone(featureDocuments[feature])
 }
