@@ -129,6 +129,14 @@ type Identity struct {
 	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	// last_seen is the timestamp for when the identity was last federated.
 	LastSeen *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=last_seen,json=lastSeen,proto3" json:"last_seen,omitempty"`
+	// created_by is the UIDP of the identity whose credentials created this
+	// one: the immediate caller. When the caller had assumed another identity,
+	// this names the assumed identity, not the one it started from. Set by the
+	// server when the identity is created and never changed; a value sent on
+	// create or update is ignored. Empty for an identity created without an
+	// identity caller, such as a person's own identity at signup, and for
+	// identities created before the field existed.
+	CreatedBy string `protobuf:"bytes,14,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
 	// relationship is used to describe how this identity relates to
 	// identities coming from 3rd party Identity Providers (IdPs)
 	//
@@ -213,6 +221,13 @@ func (x *Identity) GetLastSeen() *timestamppb.Timestamp {
 		return x.LastSeen
 	}
 	return nil
+}
+
+func (x *Identity) GetCreatedBy() string {
+	if x != nil {
+		return x.CreatedBy
+	}
+	return ""
 }
 
 func (x *Identity) GetRelationship() isIdentity_Relationship {
@@ -1004,7 +1019,7 @@ var File_identity_platform_proto protoreflect.FileDescriptor
 
 const file_identity_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x17identity.platform.proto\x12\x17chainguard.platform.iam\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a&platform/common/v1/uidp.platform.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x91\f\n" +
+	"\x17identity.platform.proto\x12\x17chainguard.platform.iam\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\xb6\f\n" +
 	"\bIdentity\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -1013,7 +1028,9 @@ const file_identity_platform_proto_rawDesc = "" +
 	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
 	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x127\n" +
-	"\tlast_seen\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\blastSeen\x12O\n" +
+	"\tlast_seen\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\blastSeen\x12#\n" +
+	"\n" +
+	"created_by\x18\x0e \x01(\tB\x04\xe2A\x01\x03R\tcreatedBy\x12O\n" +
 	"\vclaim_match\x18\n" +
 	" \x01(\v2,.chainguard.platform.iam.Identity.ClaimMatchH\x00R\n" +
 	"claimMatch\x12F\n" +

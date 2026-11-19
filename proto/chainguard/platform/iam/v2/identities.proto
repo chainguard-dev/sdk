@@ -219,6 +219,17 @@ message Identity {
   // every identity without it. Only valid on a claim_match identity.
   bool delegation_only = 11 [(google.api.field_behavior) = OPTIONAL];
 
+  // The uid of the identity whose credentials created this one: the
+  // immediate caller. When the caller had assumed another identity, this
+  // names the assumed identity, not the one it started from. Set by the
+  // server when the identity is created and never changed. Empty for an
+  // identity created without an identity caller, such as a person's own
+  // identity at signup, and for identities created before the field existed.
+  // (-- api-linter: core::0140::prepositions=disabled
+  //     aip.dev/not-precedent: "created_by" matches the IAM identity
+  //     references in RequestGroup and Policy and the v1 field name. --)
+  string created_by = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+
   // The relationship configuration for this identity.
   // Exactly one must be set.
   oneof relationship {

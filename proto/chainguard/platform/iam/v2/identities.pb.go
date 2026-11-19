@@ -226,6 +226,16 @@ type Identity struct {
 	// never holds standing authority. The delegated exchange is refused for
 	// every identity without it. Only valid on a claim_match identity.
 	DelegationOnly bool `protobuf:"varint,11,opt,name=delegation_only,json=delegationOnly,proto3" json:"delegation_only,omitempty"`
+	// The uid of the identity whose credentials created this one: the
+	// immediate caller. When the caller had assumed another identity, this
+	// names the assumed identity, not the one it started from. Set by the
+	// server when the identity is created and never changed. Empty for an
+	// identity created without an identity caller, such as a person's own
+	// identity at signup, and for identities created before the field existed.
+	// (-- api-linter: core::0140::prepositions=disabled
+	//     aip.dev/not-precedent: "created_by" matches the IAM identity
+	//     references in RequestGroup and Policy and the v1 field name. --)
+	CreatedBy string `protobuf:"bytes,12,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
 	// The relationship configuration for this identity.
 	// Exactly one must be set.
 	//
@@ -338,6 +348,13 @@ func (x *Identity) GetDelegationOnly() bool {
 		return x.DelegationOnly
 	}
 	return false
+}
+
+func (x *Identity) GetCreatedBy() string {
+	if x != nil {
+		return x.CreatedBy
+	}
+	return ""
 }
 
 func (x *Identity) GetRelationship() isIdentity_Relationship {
@@ -1621,7 +1638,7 @@ var File_chainguard_platform_iam_v2_identities_proto protoreflect.FileDescriptor
 
 const file_chainguard_platform_iam_v2_identities_proto_rawDesc = "" +
 	"\n" +
-	"+chainguard/platform/iam/v2/identities.proto\x12\x1achainguard.platform.iam.v2\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\x92\x0f\n" +
+	"+chainguard/platform/iam/v2/identities.proto\x12\x1achainguard.platform.iam.v2\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xb7\x0f\n" +
 	"\bIdentity\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
@@ -1636,7 +1653,9 @@ const file_chainguard_platform_iam_v2_identities_proto_rawDesc = "" +
 	"\vupdate_time\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
 	"updateTime\x12-\n" +
-	"\x0fdelegation_only\x18\v \x01(\bB\x04\xe2A\x01\x01R\x0edelegationOnly\x12R\n" +
+	"\x0fdelegation_only\x18\v \x01(\bB\x04\xe2A\x01\x01R\x0edelegationOnly\x12#\n" +
+	"\n" +
+	"created_by\x18\f \x01(\tB\x04\xe2A\x01\x03R\tcreatedBy\x12R\n" +
 	"\vclaim_match\x18\x14 \x01(\v2/.chainguard.platform.iam.v2.Identity.ClaimMatchH\x00R\n" +
 	"claimMatch\x12R\n" +
 	"\vstatic_keys\x18\x15 \x01(\v2/.chainguard.platform.iam.v2.Identity.StaticKeysH\x00R\n" +
