@@ -504,6 +504,13 @@ var (
 		Capability_CAP_INTERNAL,
 	})
 
+	// LibrariesRebuilderBuildsViewerCaps is for an automated reader that needs
+	// builds.read and none of the other reads in LibrariesRebuilderViewerCaps.
+	LibrariesRebuilderBuildsViewerCaps = SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_REBUILDER_BUILDS_READ,
+		Capability_CAP_INTERNAL,
+	})
+
 	// LibrariesRebuilderTrustedCaps is for the trusted SA (e.g. prepare phase) that
 	// can fetch build-scoped JWT tokens.
 	LibrariesRebuilderTrustedCaps = SortCaps([]Capability{
