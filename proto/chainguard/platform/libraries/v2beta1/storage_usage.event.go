@@ -53,11 +53,13 @@ func (d deletedUploadedVersion) CloudEventsExtension(key string) (string, bool) 
 
 // CloudEventsSubject implements chainguard.dev/sdk/events/Eventable.CloudEventsSubject.
 //
-// An uploaded version has no uid, so the subject is its identity: the
-// ecosystem, then name@version as the response gives them: the key as the
-// ecosystem's clients spell it, so the subject matches the version's other
-// events whatever spelling the caller sent. The ecosystem comes first because one name and version can
-// exist in more than one ecosystem.
+// An uploaded version has no uid, so the subject is ecosystem/name@version.
+// The name and version are taken from the response. The response holds the
+// key as the ecosystem's clients spell it. The subject therefore matches the
+// version's other events whatever spelling the caller sent.
+//
+// The ecosystem comes first because one name and version can exist in more
+// than one ecosystem.
 func (d deletedUploadedVersion) CloudEventsSubject() string {
 	eco := strings.ToLower(strings.TrimPrefix(d.req.GetEcosystem().String(), "STORAGE_USAGE_ECOSYSTEM_"))
 	return eco + "/" + d.GetName() + "@" + d.GetVersion()
