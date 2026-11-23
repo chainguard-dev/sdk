@@ -1728,6 +1728,9 @@ type Override struct {
 	// policies ("sha256:abc123...") or a PURL for library policies
 	// ("pkg:npm/left-pad@1.3.0"). Which form is expected follows from the
 	// policy's supported_resource_type — there is no separate discriminator.
+	// A container override is created from a bare digest or from
+	// "<repo>@<digest>", the form a Decision's artifact_id takes; either way
+	// only the digest is stored and returned.
 	// Exactly one of artifact_id or the deprecated digest may be set on create.
 	ArtifactId    string `protobuf:"bytes,7,opt,name=artifact_id,json=artifactId,proto3" json:"artifact_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
