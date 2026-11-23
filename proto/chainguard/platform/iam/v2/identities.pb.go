@@ -236,6 +236,18 @@ type Identity struct {
 	//     aip.dev/not-precedent: "created_by" matches the IAM identity
 	//     references in RequestGroup and Policy and the v1 field name. --)
 	CreatedBy string `protobuf:"bytes,12,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	// The current verified email of the created_by identity. It is looked up
+	// when the identity is read and never stored, and it is returned only by
+	// GetIdentity and ListIdentities. It is shown only while the creator holds a
+	// role binding on this identity's organization or a group beneath it.
+	// Empty when created_by is empty, or when the creator no longer exists, has
+	// left the organization, or has no verified email. Role mappings synced by
+	// SCIM count. Group-based role mapping on an identity provider without SCIM
+	// stores no role binding, so a member with access only that way, and no
+	// default role, is not shown by email either.
+	// (-- api-linter: core::0140::prepositions=disabled
+	//     aip.dev/not-precedent: pairs with "created_by" above. --)
+	CreatedByEmail string `protobuf:"bytes,13,opt,name=created_by_email,json=createdByEmail,proto3" json:"created_by_email,omitempty"`
 	// The relationship configuration for this identity.
 	// Exactly one must be set.
 	//
@@ -353,6 +365,13 @@ func (x *Identity) GetDelegationOnly() bool {
 func (x *Identity) GetCreatedBy() string {
 	if x != nil {
 		return x.CreatedBy
+	}
+	return ""
+}
+
+func (x *Identity) GetCreatedByEmail() string {
+	if x != nil {
+		return x.CreatedByEmail
 	}
 	return ""
 }
@@ -1638,7 +1657,7 @@ var File_chainguard_platform_iam_v2_identities_proto protoreflect.FileDescriptor
 
 const file_chainguard_platform_iam_v2_identities_proto_rawDesc = "" +
 	"\n" +
-	"+chainguard/platform/iam/v2/identities.proto\x12\x1achainguard.platform.iam.v2\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xb7\x0f\n" +
+	"+chainguard/platform/iam/v2/identities.proto\x12\x1achainguard.platform.iam.v2\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&platform/common/v1/uidp.platform.proto\"\xe7\x0f\n" +
 	"\bIdentity\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x03\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12\x18\n" +
@@ -1655,7 +1674,8 @@ const file_chainguard_platform_iam_v2_identities_proto_rawDesc = "" +
 	"updateTime\x12-\n" +
 	"\x0fdelegation_only\x18\v \x01(\bB\x04\xe2A\x01\x01R\x0edelegationOnly\x12#\n" +
 	"\n" +
-	"created_by\x18\f \x01(\tB\x04\xe2A\x01\x03R\tcreatedBy\x12R\n" +
+	"created_by\x18\f \x01(\tB\x04\xe2A\x01\x03R\tcreatedBy\x12.\n" +
+	"\x10created_by_email\x18\r \x01(\tB\x04\xe2A\x01\x03R\x0ecreatedByEmail\x12R\n" +
 	"\vclaim_match\x18\x14 \x01(\v2/.chainguard.platform.iam.v2.Identity.ClaimMatchH\x00R\n" +
 	"claimMatch\x12R\n" +
 	"\vstatic_keys\x18\x15 \x01(\v2/.chainguard.platform.iam.v2.Identity.StaticKeysH\x00R\n" +
