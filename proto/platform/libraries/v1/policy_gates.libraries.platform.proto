@@ -325,16 +325,6 @@ message LibraryPolicyBlockEvent {
   // the repository's folder. Empty for a block through the org's own URL,
   // which serves its default repository.
   string repository_id = 13;
-  // Blocks in this window where the client named the version or artifact
-  // and was answered with a block response, as opposed to the version being
-  // left out of an index listing. Zero means every block so far was a
-  // listing omission. Only serve binaries that stamp the block site count
-  // requests, so rows recorded before that rollout read zero.
-  int32 request_count = 14;
-  // Both set when request_count > 0. first_requested_at never moves once
-  // set; last_requested_at advances with each request-site block.
-  google.protobuf.Timestamp first_requested_at = 15;
-  google.protobuf.Timestamp last_requested_at = 16;
 }
 
 message LibraryPolicyBlockEventList {
@@ -366,8 +356,4 @@ message LibraryPolicyBlockEventFilter {
   // is only at a repository's folder lists that repository's events and no
   // others.
   string repository_id = 8;
-  // Only events with request_count > 0: rows where at least one block was
-  // answered to a client that named the version, not just hidden from a
-  // listing.
-  bool requested_only = 9;
 }

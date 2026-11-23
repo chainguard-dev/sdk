@@ -487,16 +487,6 @@ var (
 		Capability_CAP_LIBRARIES_RUST_LIST,
 	})
 
-	LibrariesPipelineTrackingSubmitterCaps = SortCaps([]Capability{
-		Capability_CAP_LIBRARIES_PIPELINE_TRACKING_SUBMIT,
-		Capability_CAP_INTERNAL,
-	})
-
-	LibrariesPipelineTrackingReaderCaps = SortCaps([]Capability{
-		Capability_CAP_LIBRARIES_PIPELINE_TRACKING_READ,
-		Capability_CAP_INTERNAL,
-	})
-
 	// The rebuilder capabilities are all (internal_only), so every rebuilder
 	// bundle must also grant CAP_INTERNAL — the internal-only validation enforces
 	// that pairing, which keeps these capabilities off customer-grantable roles.

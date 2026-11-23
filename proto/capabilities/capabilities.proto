@@ -275,18 +275,6 @@ enum Capability {
     (internal_only) = true
   ];
 
-  // Native publisher execution history is separate from build/remediation APIs.
-  CAP_LIBRARIES_PIPELINE_TRACKING_SUBMIT = 1866 [
-    (name) = "libraries.pipeline_tracking.submit",
-    (bit) = 275,
-    (internal_only) = true
-  ];
-  CAP_LIBRARIES_PIPELINE_TRACKING_READ = 1867 [
-    (name) = "libraries.pipeline_tracking.read",
-    (bit) = 276,
-    (internal_only) = true
-  ];
-
   // AWS Marketplace Subscriptions (Chainguard Libraries on AWS Security Hub Extended)
   CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE = 1870 [(name) = "libraries.aws_marketplace.subscriptions.create", (bit) = 165];
   CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE = 1871 [(name) = "libraries.aws_marketplace.subscriptions.update", (bit) = 166];
@@ -769,5 +757,5 @@ enum Capability {
   CAP_ENTITLEMENTS_GET = 3203 [(name) = "entitlements.get", (bit) = 252];
 
   reserved 1;
-  // next bit: 277
+  // next bit: 275
 }
