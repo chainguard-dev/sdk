@@ -12,6 +12,17 @@ package v2
 // and whose description is the blocker's message.
 const SsoOnlyNotReadyReason = "SSO_ONLY_NOT_READY"
 
+// IDPSessionRequiredReason is the google.rpc.ErrorInfo reason carried by the
+// PERMISSION_DENIED returned for a change to how an organization is signed in
+// to (turning sso_only on, setting the break-glass designation, starting a
+// validation, updating, deleting or resetting the correlation rule of a
+// validated identity provider, or deleting the organization that holds one)
+// made from a session
+// not signed in through that organization's own identity provider. Its
+// metadata key "org" is the organization's UIDP. Signing in through the
+// provider and retrying clears it.
+const IDPSessionRequiredReason = "IDP_SESSION_REQUIRED"
+
 // The stable codes of SsoOnlyReadiness.Reason.code and of the violations a
 // refused enable carries. New codes may be added; render a reason's message
 // for any code not recognised.

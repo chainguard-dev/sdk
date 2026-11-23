@@ -230,6 +230,19 @@ message Identity {
   //     references in RequestGroup and Policy and the v1 field name. --)
   string created_by = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
 
+  // The current verified email of the created_by identity. It is looked up
+  // when the identity is read and never stored, and it is returned only by
+  // GetIdentity and ListIdentities. It is shown only while the creator holds a
+  // role binding on this identity's organization or a group beneath it.
+  // Empty when created_by is empty, or when the creator no longer exists, has
+  // left the organization, or has no verified email. Role mappings synced by
+  // SCIM count. Group-based role mapping on an identity provider without SCIM
+  // stores no role binding, so a member with access only that way, and no
+  // default role, is not shown by email either.
+  // (-- api-linter: core::0140::prepositions=disabled
+  //     aip.dev/not-precedent: pairs with "created_by" above. --)
+  string created_by_email = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
+
   // The relationship configuration for this identity.
   // Exactly one must be set.
   oneof relationship {
