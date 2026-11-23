@@ -320,6 +320,11 @@ message LibraryPolicyBlockEvent {
   google.protobuf.Timestamp first_blocked_at = 10;
   google.protobuf.Timestamp last_blocked_at = 11;
   int32 attempt_count = 12;
+
+  // The id of the repository whose URL the block came through: the UIDP of
+  // the repository's folder. Empty for a block through the org's own URL,
+  // which serves its default repository.
+  string repository_id = 13;
 }
 
 message LibraryPolicyBlockEventList {
@@ -330,7 +335,8 @@ message LibraryPolicyBlockEventList {
 }
 
 message LibraryPolicyBlockEventFilter {
-  // The org (parent) to scope events to. Required.
+  // The org (parent) to scope events to. Required. A repository's folder
+  // lists that repository's events, as repository_id does.
   string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
   // Only events for this ecosystem (UNKNOWN = all).
   Ecosystem ecosystem = 2;
@@ -344,4 +350,10 @@ message LibraryPolicyBlockEventFilter {
   google.protobuf.Timestamp since = 5;
   int32 page_size = 6;
   string page_token = 7;
+  // Only events of this repository, by its id: the UIDP of the repository's
+  // folder, or of the org for the default repository. Requires parent_id to
+  // be the org, or to be the same repository's folder. A caller whose role
+  // is only at a repository's folder lists that repository's events and no
+  // others.
+  string repository_id = 8;
 }

@@ -1006,8 +1006,12 @@ type LibraryPolicyBlockEvent struct {
 	FirstBlockedAt *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=first_blocked_at,json=firstBlockedAt,proto3" json:"first_blocked_at,omitempty"`
 	LastBlockedAt  *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=last_blocked_at,json=lastBlockedAt,proto3" json:"last_blocked_at,omitempty"`
 	AttemptCount   int32                  `protobuf:"varint,12,opt,name=attempt_count,json=attemptCount,proto3" json:"attempt_count,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// The id of the repository whose URL the block came through: the UIDP of
+	// the repository's folder. Empty for a block through the org's own URL,
+	// which serves its default repository.
+	RepositoryId  string `protobuf:"bytes,13,opt,name=repository_id,json=repositoryId,proto3" json:"repository_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *LibraryPolicyBlockEvent) Reset() {
@@ -1124,6 +1128,13 @@ func (x *LibraryPolicyBlockEvent) GetAttemptCount() int32 {
 	return 0
 }
 
+func (x *LibraryPolicyBlockEvent) GetRepositoryId() string {
+	if x != nil {
+		return x.RepositoryId
+	}
+	return ""
+}
+
 type LibraryPolicyBlockEventList struct {
 	state         protoimpl.MessageState     `protogen:"open.v1"`
 	Items         []*LibraryPolicyBlockEvent `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
@@ -1194,7 +1205,8 @@ func (x *LibraryPolicyBlockEventList) GetSkipped() int32 {
 
 type LibraryPolicyBlockEventFilter struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The org (parent) to scope events to. Required.
+	// The org (parent) to scope events to. Required. A repository's folder
+	// lists that repository's events, as repository_id does.
 	ParentId string `protobuf:"bytes,1,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
 	// Only events for this ecosystem (UNKNOWN = all).
 	Ecosystem Ecosystem `protobuf:"varint,2,opt,name=ecosystem,proto3,enum=chainguard.platform.libraries.Ecosystem" json:"ecosystem,omitempty"`
@@ -1205,9 +1217,15 @@ type LibraryPolicyBlockEventFilter struct {
 	// Only events in this mode. Defaults to ENFORCED when unspecified.
 	Mode LibraryPolicyBindingMode `protobuf:"varint,4,opt,name=mode,proto3,enum=chainguard.platform.libraries.LibraryPolicyBindingMode" json:"mode,omitempty"`
 	// Only events first blocked at or after this time. Defaults to 30 days ago.
-	Since         *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=since,proto3" json:"since,omitempty"`
-	PageSize      int32                  `protobuf:"varint,6,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,7,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	Since     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=since,proto3" json:"since,omitempty"`
+	PageSize  int32                  `protobuf:"varint,6,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	PageToken string                 `protobuf:"bytes,7,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// Only events of this repository, by its id: the UIDP of the repository's
+	// folder, or of the org for the default repository. Requires parent_id to
+	// be the org, or to be the same repository's folder. A caller whose role
+	// is only at a repository's folder lists that repository's events and no
+	// others.
+	RepositoryId  string `protobuf:"bytes,8,opt,name=repository_id,json=repositoryId,proto3" json:"repository_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1291,6 +1309,13 @@ func (x *LibraryPolicyBlockEventFilter) GetPageToken() string {
 	return ""
 }
 
+func (x *LibraryPolicyBlockEventFilter) GetRepositoryId() string {
+	if x != nil {
+		return x.RepositoryId
+	}
+	return ""
+}
+
 var File_policy_gates_libraries_platform_proto protoreflect.FileDescriptor
 
 const file_policy_gates_libraries_platform_proto_rawDesc = "" +
@@ -1370,7 +1395,7 @@ const file_policy_gates_libraries_platform_proto_rawDesc = "" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12M\n" +
 	"\abinding\x18\x02 \x01(\v23.chainguard.platform.libraries.LibraryPolicyBindingR\abinding\";\n" +
 	"!DeleteLibraryPolicyBindingRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"\xb0\x04\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"\xd5\x04\n" +
 	"\x17LibraryPolicyBlockEvent\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x12\n" +
 	"\x04purl\x18\x02 \x01(\tR\x04purl\x12\x1c\n" +
@@ -1385,13 +1410,14 @@ const file_policy_gates_libraries_platform_proto_rawDesc = "" +
 	"\x10first_blocked_at\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\x0efirstBlockedAt\x12B\n" +
 	"\x0flast_blocked_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\rlastBlockedAt\x12#\n" +
-	"\rattempt_count\x18\f \x01(\x05R\fattemptCount\"\xce\x01\n" +
+	"\rattempt_count\x18\f \x01(\x05R\fattemptCount\x12#\n" +
+	"\rrepository_id\x18\r \x01(\tR\frepositoryId\"\xce\x01\n" +
 	"\x1bLibraryPolicyBlockEventList\x12L\n" +
 	"\x05items\x18\x01 \x03(\v26.chainguard.platform.libraries.LibraryPolicyBlockEventR\x05items\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
 	"\vtotal_count\x18\x03 \x01(\x03R\n" +
 	"totalCount\x12\x18\n" +
-	"\askipped\x18\x04 \x01(\x05R\askipped\"\xea\x02\n" +
+	"\askipped\x18\x04 \x01(\x05R\askipped\"\x8f\x03\n" +
 	"\x1dLibraryPolicyBlockEventFilter\x12#\n" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12F\n" +
 	"\tecosystem\x18\x02 \x01(\x0e2(.chainguard.platform.libraries.EcosystemR\tecosystem\x12!\n" +
@@ -1400,7 +1426,8 @@ const file_policy_gates_libraries_platform_proto_rawDesc = "" +
 	"\x05since\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x05since\x12\x1b\n" +
 	"\tpage_size\x18\x06 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
-	"page_token\x18\a \x01(\tR\tpageToken*x\n" +
+	"page_token\x18\a \x01(\tR\tpageToken\x12#\n" +
+	"\rrepository_id\x18\b \x01(\tR\frepositoryId*x\n" +
 	"\x11LibraryPolicyType\x12#\n" +
 	"\x1fLIBRARY_POLICY_TYPE_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aLIBRARY_POLICY_TYPE_SYSTEM\x10\x01\x12\x1e\n" +
