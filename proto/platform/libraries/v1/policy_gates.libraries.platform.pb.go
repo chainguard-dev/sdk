@@ -1009,9 +1009,19 @@ type LibraryPolicyBlockEvent struct {
 	// The id of the repository whose URL the block came through: the UIDP of
 	// the repository's folder. Empty for a block through the org's own URL,
 	// which serves its default repository.
-	RepositoryId  string `protobuf:"bytes,13,opt,name=repository_id,json=repositoryId,proto3" json:"repository_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	RepositoryId string `protobuf:"bytes,13,opt,name=repository_id,json=repositoryId,proto3" json:"repository_id,omitempty"`
+	// Blocks in this window where the client named the version or artifact
+	// and was answered with a block response, as opposed to the version being
+	// left out of an index listing. Zero means every block so far was a
+	// listing omission. Only serve binaries that stamp the block site count
+	// requests, so rows recorded before that rollout read zero.
+	RequestCount int32 `protobuf:"varint,14,opt,name=request_count,json=requestCount,proto3" json:"request_count,omitempty"`
+	// Both set when request_count > 0. first_requested_at never moves once
+	// set; last_requested_at advances with each request-site block.
+	FirstRequestedAt *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=first_requested_at,json=firstRequestedAt,proto3" json:"first_requested_at,omitempty"`
+	LastRequestedAt  *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=last_requested_at,json=lastRequestedAt,proto3" json:"last_requested_at,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *LibraryPolicyBlockEvent) Reset() {
@@ -1135,6 +1145,27 @@ func (x *LibraryPolicyBlockEvent) GetRepositoryId() string {
 	return ""
 }
 
+func (x *LibraryPolicyBlockEvent) GetRequestCount() int32 {
+	if x != nil {
+		return x.RequestCount
+	}
+	return 0
+}
+
+func (x *LibraryPolicyBlockEvent) GetFirstRequestedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.FirstRequestedAt
+	}
+	return nil
+}
+
+func (x *LibraryPolicyBlockEvent) GetLastRequestedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastRequestedAt
+	}
+	return nil
+}
+
 type LibraryPolicyBlockEventList struct {
 	state         protoimpl.MessageState     `protogen:"open.v1"`
 	Items         []*LibraryPolicyBlockEvent `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
@@ -1225,7 +1256,11 @@ type LibraryPolicyBlockEventFilter struct {
 	// be the org, or to be the same repository's folder. A caller whose role
 	// is only at a repository's folder lists that repository's events and no
 	// others.
-	RepositoryId  string `protobuf:"bytes,8,opt,name=repository_id,json=repositoryId,proto3" json:"repository_id,omitempty"`
+	RepositoryId string `protobuf:"bytes,8,opt,name=repository_id,json=repositoryId,proto3" json:"repository_id,omitempty"`
+	// Only events with request_count > 0: rows where at least one block was
+	// answered to a client that named the version, not just hidden from a
+	// listing.
+	RequestedOnly bool `protobuf:"varint,9,opt,name=requested_only,json=requestedOnly,proto3" json:"requested_only,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1316,6 +1351,13 @@ func (x *LibraryPolicyBlockEventFilter) GetRepositoryId() string {
 	return ""
 }
 
+func (x *LibraryPolicyBlockEventFilter) GetRequestedOnly() bool {
+	if x != nil {
+		return x.RequestedOnly
+	}
+	return false
+}
+
 var File_policy_gates_libraries_platform_proto protoreflect.FileDescriptor
 
 const file_policy_gates_libraries_platform_proto_rawDesc = "" +
@@ -1395,7 +1437,7 @@ const file_policy_gates_libraries_platform_proto_rawDesc = "" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12M\n" +
 	"\abinding\x18\x02 \x01(\v23.chainguard.platform.libraries.LibraryPolicyBindingR\abinding\";\n" +
 	"!DeleteLibraryPolicyBindingRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"\xd5\x04\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\"\x8c\x06\n" +
 	"\x17LibraryPolicyBlockEvent\x12\x16\n" +
 	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id\x12\x12\n" +
 	"\x04purl\x18\x02 \x01(\tR\x04purl\x12\x1c\n" +
@@ -1411,13 +1453,16 @@ const file_policy_gates_libraries_platform_proto_rawDesc = "" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\x0efirstBlockedAt\x12B\n" +
 	"\x0flast_blocked_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\rlastBlockedAt\x12#\n" +
 	"\rattempt_count\x18\f \x01(\x05R\fattemptCount\x12#\n" +
-	"\rrepository_id\x18\r \x01(\tR\frepositoryId\"\xce\x01\n" +
+	"\rrepository_id\x18\r \x01(\tR\frepositoryId\x12#\n" +
+	"\rrequest_count\x18\x0e \x01(\x05R\frequestCount\x12H\n" +
+	"\x12first_requested_at\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\x10firstRequestedAt\x12F\n" +
+	"\x11last_requested_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\x0flastRequestedAt\"\xce\x01\n" +
 	"\x1bLibraryPolicyBlockEventList\x12L\n" +
 	"\x05items\x18\x01 \x03(\v26.chainguard.platform.libraries.LibraryPolicyBlockEventR\x05items\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1f\n" +
 	"\vtotal_count\x18\x03 \x01(\x03R\n" +
 	"totalCount\x12\x18\n" +
-	"\askipped\x18\x04 \x01(\x05R\askipped\"\x8f\x03\n" +
+	"\askipped\x18\x04 \x01(\x05R\askipped\"\xb6\x03\n" +
 	"\x1dLibraryPolicyBlockEventFilter\x12#\n" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12F\n" +
 	"\tecosystem\x18\x02 \x01(\x0e2(.chainguard.platform.libraries.EcosystemR\tecosystem\x12!\n" +
@@ -1427,7 +1472,8 @@ const file_policy_gates_libraries_platform_proto_rawDesc = "" +
 	"\tpage_size\x18\x06 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\a \x01(\tR\tpageToken\x12#\n" +
-	"\rrepository_id\x18\b \x01(\tR\frepositoryId*x\n" +
+	"\rrepository_id\x18\b \x01(\tR\frepositoryId\x12%\n" +
+	"\x0erequested_only\x18\t \x01(\bR\rrequestedOnly*x\n" +
 	"\x11LibraryPolicyType\x12#\n" +
 	"\x1fLIBRARY_POLICY_TYPE_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aLIBRARY_POLICY_TYPE_SYSTEM\x10\x01\x12\x1e\n" +
@@ -1516,33 +1562,35 @@ var file_policy_gates_libraries_platform_proto_depIdxs = []int32{
 	17, // 18: chainguard.platform.libraries.LibraryPolicyBlockEvent.unblocks_at:type_name -> google.protobuf.Timestamp
 	17, // 19: chainguard.platform.libraries.LibraryPolicyBlockEvent.first_blocked_at:type_name -> google.protobuf.Timestamp
 	17, // 20: chainguard.platform.libraries.LibraryPolicyBlockEvent.last_blocked_at:type_name -> google.protobuf.Timestamp
-	14, // 21: chainguard.platform.libraries.LibraryPolicyBlockEventList.items:type_name -> chainguard.platform.libraries.LibraryPolicyBlockEvent
-	18, // 22: chainguard.platform.libraries.LibraryPolicyBlockEventFilter.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
-	1,  // 23: chainguard.platform.libraries.LibraryPolicyBlockEventFilter.mode:type_name -> chainguard.platform.libraries.LibraryPolicyBindingMode
-	17, // 24: chainguard.platform.libraries.LibraryPolicyBlockEventFilter.since:type_name -> google.protobuf.Timestamp
-	7,  // 25: chainguard.platform.libraries.LibraryPolicies.CreatePolicy:input_type -> chainguard.platform.libraries.CreateLibraryPolicyRequest
-	4,  // 26: chainguard.platform.libraries.LibraryPolicies.UpdatePolicy:input_type -> chainguard.platform.libraries.LibraryPolicy
-	6,  // 27: chainguard.platform.libraries.LibraryPolicies.ListPolicies:input_type -> chainguard.platform.libraries.LibraryPolicyFilter
-	8,  // 28: chainguard.platform.libraries.LibraryPolicies.DeletePolicy:input_type -> chainguard.platform.libraries.DeleteLibraryPolicyRequest
-	12, // 29: chainguard.platform.libraries.LibraryPolicyBindings.CreateBinding:input_type -> chainguard.platform.libraries.CreateLibraryPolicyBindingRequest
-	9,  // 30: chainguard.platform.libraries.LibraryPolicyBindings.UpdateBinding:input_type -> chainguard.platform.libraries.LibraryPolicyBinding
-	11, // 31: chainguard.platform.libraries.LibraryPolicyBindings.ListBindings:input_type -> chainguard.platform.libraries.LibraryPolicyBindingFilter
-	13, // 32: chainguard.platform.libraries.LibraryPolicyBindings.DeleteBinding:input_type -> chainguard.platform.libraries.DeleteLibraryPolicyBindingRequest
-	16, // 33: chainguard.platform.libraries.LibraryPolicyBlockEvents.ListBlockEvents:input_type -> chainguard.platform.libraries.LibraryPolicyBlockEventFilter
-	4,  // 34: chainguard.platform.libraries.LibraryPolicies.CreatePolicy:output_type -> chainguard.platform.libraries.LibraryPolicy
-	4,  // 35: chainguard.platform.libraries.LibraryPolicies.UpdatePolicy:output_type -> chainguard.platform.libraries.LibraryPolicy
-	5,  // 36: chainguard.platform.libraries.LibraryPolicies.ListPolicies:output_type -> chainguard.platform.libraries.LibraryPolicyList
-	19, // 37: chainguard.platform.libraries.LibraryPolicies.DeletePolicy:output_type -> google.protobuf.Empty
-	9,  // 38: chainguard.platform.libraries.LibraryPolicyBindings.CreateBinding:output_type -> chainguard.platform.libraries.LibraryPolicyBinding
-	9,  // 39: chainguard.platform.libraries.LibraryPolicyBindings.UpdateBinding:output_type -> chainguard.platform.libraries.LibraryPolicyBinding
-	10, // 40: chainguard.platform.libraries.LibraryPolicyBindings.ListBindings:output_type -> chainguard.platform.libraries.LibraryPolicyBindingList
-	19, // 41: chainguard.platform.libraries.LibraryPolicyBindings.DeleteBinding:output_type -> google.protobuf.Empty
-	15, // 42: chainguard.platform.libraries.LibraryPolicyBlockEvents.ListBlockEvents:output_type -> chainguard.platform.libraries.LibraryPolicyBlockEventList
-	34, // [34:43] is the sub-list for method output_type
-	25, // [25:34] is the sub-list for method input_type
-	25, // [25:25] is the sub-list for extension type_name
-	25, // [25:25] is the sub-list for extension extendee
-	0,  // [0:25] is the sub-list for field type_name
+	17, // 21: chainguard.platform.libraries.LibraryPolicyBlockEvent.first_requested_at:type_name -> google.protobuf.Timestamp
+	17, // 22: chainguard.platform.libraries.LibraryPolicyBlockEvent.last_requested_at:type_name -> google.protobuf.Timestamp
+	14, // 23: chainguard.platform.libraries.LibraryPolicyBlockEventList.items:type_name -> chainguard.platform.libraries.LibraryPolicyBlockEvent
+	18, // 24: chainguard.platform.libraries.LibraryPolicyBlockEventFilter.ecosystem:type_name -> chainguard.platform.libraries.Ecosystem
+	1,  // 25: chainguard.platform.libraries.LibraryPolicyBlockEventFilter.mode:type_name -> chainguard.platform.libraries.LibraryPolicyBindingMode
+	17, // 26: chainguard.platform.libraries.LibraryPolicyBlockEventFilter.since:type_name -> google.protobuf.Timestamp
+	7,  // 27: chainguard.platform.libraries.LibraryPolicies.CreatePolicy:input_type -> chainguard.platform.libraries.CreateLibraryPolicyRequest
+	4,  // 28: chainguard.platform.libraries.LibraryPolicies.UpdatePolicy:input_type -> chainguard.platform.libraries.LibraryPolicy
+	6,  // 29: chainguard.platform.libraries.LibraryPolicies.ListPolicies:input_type -> chainguard.platform.libraries.LibraryPolicyFilter
+	8,  // 30: chainguard.platform.libraries.LibraryPolicies.DeletePolicy:input_type -> chainguard.platform.libraries.DeleteLibraryPolicyRequest
+	12, // 31: chainguard.platform.libraries.LibraryPolicyBindings.CreateBinding:input_type -> chainguard.platform.libraries.CreateLibraryPolicyBindingRequest
+	9,  // 32: chainguard.platform.libraries.LibraryPolicyBindings.UpdateBinding:input_type -> chainguard.platform.libraries.LibraryPolicyBinding
+	11, // 33: chainguard.platform.libraries.LibraryPolicyBindings.ListBindings:input_type -> chainguard.platform.libraries.LibraryPolicyBindingFilter
+	13, // 34: chainguard.platform.libraries.LibraryPolicyBindings.DeleteBinding:input_type -> chainguard.platform.libraries.DeleteLibraryPolicyBindingRequest
+	16, // 35: chainguard.platform.libraries.LibraryPolicyBlockEvents.ListBlockEvents:input_type -> chainguard.platform.libraries.LibraryPolicyBlockEventFilter
+	4,  // 36: chainguard.platform.libraries.LibraryPolicies.CreatePolicy:output_type -> chainguard.platform.libraries.LibraryPolicy
+	4,  // 37: chainguard.platform.libraries.LibraryPolicies.UpdatePolicy:output_type -> chainguard.platform.libraries.LibraryPolicy
+	5,  // 38: chainguard.platform.libraries.LibraryPolicies.ListPolicies:output_type -> chainguard.platform.libraries.LibraryPolicyList
+	19, // 39: chainguard.platform.libraries.LibraryPolicies.DeletePolicy:output_type -> google.protobuf.Empty
+	9,  // 40: chainguard.platform.libraries.LibraryPolicyBindings.CreateBinding:output_type -> chainguard.platform.libraries.LibraryPolicyBinding
+	9,  // 41: chainguard.platform.libraries.LibraryPolicyBindings.UpdateBinding:output_type -> chainguard.platform.libraries.LibraryPolicyBinding
+	10, // 42: chainguard.platform.libraries.LibraryPolicyBindings.ListBindings:output_type -> chainguard.platform.libraries.LibraryPolicyBindingList
+	19, // 43: chainguard.platform.libraries.LibraryPolicyBindings.DeleteBinding:output_type -> google.protobuf.Empty
+	15, // 44: chainguard.platform.libraries.LibraryPolicyBlockEvents.ListBlockEvents:output_type -> chainguard.platform.libraries.LibraryPolicyBlockEventList
+	36, // [36:45] is the sub-list for method output_type
+	27, // [27:36] is the sub-list for method input_type
+	27, // [27:27] is the sub-list for extension type_name
+	27, // [27:27] is the sub-list for extension extendee
+	0,  // [0:27] is the sub-list for field type_name
 }
 
 func init() { file_policy_gates_libraries_platform_proto_init() }
