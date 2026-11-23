@@ -129,20 +129,23 @@ type RequestGroupsServiceClient interface {
 	// kept current by a daily sweep, so this exists for support and incident
 	// escalation rather than as a customer control.
 	RefreshCoverage(ctx context.Context, in *RefreshCoverageRequest, opts ...grpc.CallOption) (*RequestGroup, error)
-	// ListRequestedLibraries returns one row per library the organization has
-	// requested, aggregated across all its submitted groups.
+	// ListRequestedLibraries returns one row per library the organization
+	// tracks: versions it asked for, and versions it pulls through the
+	// Chainguard Repository. The source field chooses between them. Where usage
+	// tracking is not enabled, only requested versions are tracked.
 	//
-	// This is the per-library view of the same data the group RPCs return, because a
-	// customer asks "where is snakeyaml" rather than "what was in the lockfile I
-	// uploaded in March". It reports only libraries the organization has asked for,
-	// not every library it can reach.
+	// A customer asks "where is snakeyaml" rather than "what was in the lockfile
+	// I uploaded in March", so this is per library. It reports only libraries
+	// the organization tracks, not every library it can reach.
 	//
 	// The tree is paged one level at a time rather than nested: this RPC returns
 	// bounded per-library summaries, and one library's versions are fetched by
 	// ListRequestedLibraryVersions on expand. A nested response could not keep both
 	// the page size and the page token one-dimensional.
 	ListRequestedLibraries(ctx context.Context, in *ListRequestedLibrariesRequest, opts ...grpc.CallOption) (*ListRequestedLibrariesResponse, error)
-	// ListRequestedLibraryVersions returns the requested versions of one library.
+	// ListRequestedLibraryVersions returns the tracked versions of one library:
+	// the versions it asked for, and, where usage tracking is enabled, the
+	// versions it pulls. The source field chooses between them.
 	//
 	// A requested library is a computed aggregate identified by name and ecosystem
 	// rather than a stored resource with a uid, so this reads as a custom method on
@@ -403,20 +406,23 @@ type RequestGroupsServiceServer interface {
 	// kept current by a daily sweep, so this exists for support and incident
 	// escalation rather than as a customer control.
 	RefreshCoverage(context.Context, *RefreshCoverageRequest) (*RequestGroup, error)
-	// ListRequestedLibraries returns one row per library the organization has
-	// requested, aggregated across all its submitted groups.
+	// ListRequestedLibraries returns one row per library the organization
+	// tracks: versions it asked for, and versions it pulls through the
+	// Chainguard Repository. The source field chooses between them. Where usage
+	// tracking is not enabled, only requested versions are tracked.
 	//
-	// This is the per-library view of the same data the group RPCs return, because a
-	// customer asks "where is snakeyaml" rather than "what was in the lockfile I
-	// uploaded in March". It reports only libraries the organization has asked for,
-	// not every library it can reach.
+	// A customer asks "where is snakeyaml" rather than "what was in the lockfile
+	// I uploaded in March", so this is per library. It reports only libraries
+	// the organization tracks, not every library it can reach.
 	//
 	// The tree is paged one level at a time rather than nested: this RPC returns
 	// bounded per-library summaries, and one library's versions are fetched by
 	// ListRequestedLibraryVersions on expand. A nested response could not keep both
 	// the page size and the page token one-dimensional.
 	ListRequestedLibraries(context.Context, *ListRequestedLibrariesRequest) (*ListRequestedLibrariesResponse, error)
-	// ListRequestedLibraryVersions returns the requested versions of one library.
+	// ListRequestedLibraryVersions returns the tracked versions of one library:
+	// the versions it asked for, and, where usage tracking is enabled, the
+	// versions it pulls. The source field chooses between them.
 	//
 	// A requested library is a computed aggregate identified by name and ecosystem
 	// rather than a stored resource with a uid, so this reads as a custom method on
