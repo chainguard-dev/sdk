@@ -310,7 +310,8 @@ message ArgosDocumentFilter {
   google.protobuf.Timestamp created_before = 5;
 
   // Maximum number of results to return per page.
-  // Default: 50, Maximum: 200.
+  // Default: 50, Maximum: 200. An unset or negative page_size gets the
+  // default and a larger one is clamped to 200.
   int32 page_size = 6 [(google.api.field_behavior) = OPTIONAL];
 
   // Page token from a previous List response for pagination.
@@ -338,9 +339,6 @@ message ArgosDocumentFilter {
   string cgp_id = 12;
 
   // include_finding_counts sets finding_counts on each returned document.
-  // It needs an explicit page_size between 1 and 200: an unset page_size
-  // lists unpaged, so the flag is ignored and finding_counts stays unset,
-  // with no error.
   bool include_finding_counts = 13 [(google.api.field_behavior) = OPTIONAL];
 }
 

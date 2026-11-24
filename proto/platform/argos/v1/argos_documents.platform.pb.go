@@ -826,7 +826,8 @@ type ArgosDocumentFilter struct {
 	// created_before returns documents created at or before the given time.
 	CreatedBefore *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_before,json=createdBefore,proto3" json:"created_before,omitempty"`
 	// Maximum number of results to return per page.
-	// Default: 50, Maximum: 200.
+	// Default: 50, Maximum: 200. An unset or negative page_size gets the
+	// default and a larger one is clamped to 200.
 	PageSize int32 `protobuf:"varint,6,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	// Page token from a previous List response for pagination.
 	// Opaque token; treat as a black box.
@@ -847,9 +848,6 @@ type ArgosDocumentFilter struct {
 	// Empty means no filter; an unmatched value returns nothing.
 	CgpId string `protobuf:"bytes,12,opt,name=cgp_id,json=cgpId,proto3" json:"cgp_id,omitempty"`
 	// include_finding_counts sets finding_counts on each returned document.
-	// It needs an explicit page_size between 1 and 200: an unset page_size
-	// lists unpaged, so the flag is ignored and finding_counts stays unset,
-	// with no error.
 	IncludeFindingCounts bool `protobuf:"varint,13,opt,name=include_finding_counts,json=includeFindingCounts,proto3" json:"include_finding_counts,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
