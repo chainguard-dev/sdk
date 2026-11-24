@@ -61,6 +61,14 @@ type PullEvent struct {
 	// a blob or a manifest.
 	Digest string `json:"digest"`
 
+	// ArtifactID identifies the image a manifest pull fetched, as
+	// "<repository path>@<Digest>". The repository path is the stored one:
+	// "<org>/<name>", or "<org>/<subdomain>/<name>" for a request that
+	// arrived on a registry subdomain, or the repository UIDP when the
+	// request named the repository by UIDP. It leaves out the host. Empty
+	// for blob pulls and for manifest pulls with no digest.
+	ArtifactID string `json:"artifact_id,omitempty"`
+
 	// Method holds the HTTP method of the request.  For pulls, this should be
 	// one of HEAD (digest resolution or existence check), or GET to actually
 	// fetch the content.
