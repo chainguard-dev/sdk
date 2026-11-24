@@ -36,7 +36,7 @@ const (
 	ArgosDocument_STATUS_READY ArgosDocument_Status = 2
 	// Document processing failed; the document is unusable.
 	ArgosDocument_STATUS_FAILED ArgosDocument_Status = 3
-	// Processing determined the finding is not a true positive.
+	// The upload contained no recognizable packages.
 	ArgosDocument_STATUS_FALSE_POSITIVE ArgosDocument_Status = 4
 )
 

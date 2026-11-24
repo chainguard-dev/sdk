@@ -140,7 +140,7 @@ message ArgosDocument {
     STATUS_READY = 2;
     // Document processing failed; the document is unusable.
     STATUS_FAILED = 3;
-    // Processing determined the finding is not a true positive.
+    // The upload contained no recognizable packages.
     STATUS_FALSE_POSITIVE = 4;
   }
 }
