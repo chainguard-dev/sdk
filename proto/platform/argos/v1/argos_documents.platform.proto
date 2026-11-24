@@ -183,6 +183,11 @@ message ArgosDocumentFileBinding {
   // was not recorded.
   google.protobuf.Timestamp processing_started_at = 5;
 
+  // failure_reason says why analysis failed when status is STATUS_FAILED. It
+  // is FAILURE_REASON_UNSPECIFIED for every other status, and for a failure
+  // with no recorded reason.
+  FailureReason failure_reason = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
   enum Status {
     // No per-file outcome is attributable: the file was not analyzed as its
     // own unit, or the analysis predates per-file tracking.
@@ -191,8 +196,52 @@ message ArgosDocumentFileBinding {
     STATUS_PENDING = 1;
     // Analysis completed; cgp_ids carries any identifiers it resolved.
     STATUS_ANALYZED = 2;
-    // Analysis failed for this file.
+    // Analysis failed for this file; failure_reason says why.
     STATUS_FAILED = 3;
+  }
+
+  // FailureReason is the category of a failed analysis. New values may
+  // appear; a client that does not know a value treats it as
+  // FAILURE_REASON_UNSPECIFIED.
+  enum FailureReason {
+    // No reason was recorded, or the file did not fail.
+    FAILURE_REASON_UNSPECIFIED = 0;
+    // The finding is larger than the platform processes.
+    FAILURE_REASON_TOO_LARGE = 1;
+    // The package's ecosystem is not one the platform analyzes.
+    FAILURE_REASON_UNSUPPORTED_ECOSYSTEM = 2;
+    // The finding does not describe a package the platform can analyze.
+    FAILURE_REASON_NO_PACKAGE = 3;
+    // The version of the package the finding is about could not be
+    // determined.
+    FAILURE_REASON_NO_VERSION = 4;
+    // The package exists, but the version in the finding is not a published
+    // release.
+    FAILURE_REASON_VERSION_NOT_PUBLISHED = 5;
+    // No registry the platform checks publishes the package.
+    FAILURE_REASON_UNKNOWN_PACKAGE = 6;
+    // The package name or coordinate is malformed, or does not resolve to a
+    // single package.
+    FAILURE_REASON_INVALID_COORDINATE = 7;
+    // No source repository was found for the package.
+    FAILURE_REASON_NO_REPO_URL = 8;
+    // The package's source repository is not a git repository.
+    FAILURE_REASON_REPO_URL_NOT_GIT = 9;
+    // The package's source repository has no tags, so the source for the
+    // reported version could not be found.
+    FAILURE_REASON_REPO_HAS_NO_TAGS = 10;
+    // The platform could not read the package's source repository. The
+    // cause is on the platform's side, not in the finding.
+    FAILURE_REASON_SOURCE_UNAVAILABLE = 11;
+    // The platform could not link the finding to the package. The cause is
+    // on the platform's side, not in the finding.
+    FAILURE_REASON_PACKAGE_LINK_FAILED = 12;
+    // Analysis failed on every attempt for a transient reason. The cause is
+    // usually on the platform's side, not in the finding.
+    FAILURE_REASON_RETRIES_EXHAUSTED = 13;
+    // The package's source repository is larger than the platform can
+    // analyze. The cause is on the platform's side, not in the finding.
+    FAILURE_REASON_SOURCE_TOO_LARGE = 14;
   }
 }
 

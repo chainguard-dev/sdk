@@ -95,7 +95,7 @@ const (
 	ArgosDocumentFileBinding_STATUS_PENDING ArgosDocumentFileBinding_Status = 1
 	// Analysis completed; cgp_ids carries any identifiers it resolved.
 	ArgosDocumentFileBinding_STATUS_ANALYZED ArgosDocumentFileBinding_Status = 2
-	// Analysis failed for this file.
+	// Analysis failed for this file; failure_reason says why.
 	ArgosDocumentFileBinding_STATUS_FAILED ArgosDocumentFileBinding_Status = 3
 )
 
@@ -142,6 +142,117 @@ func (ArgosDocumentFileBinding_Status) EnumDescriptor() ([]byte, []int) {
 	return file_argos_documents_platform_proto_rawDescGZIP(), []int{2, 0}
 }
 
+// FailureReason is the category of a failed analysis. New values may
+// appear; a client that does not know a value treats it as
+// FAILURE_REASON_UNSPECIFIED.
+type ArgosDocumentFileBinding_FailureReason int32
+
+const (
+	// No reason was recorded, or the file did not fail.
+	ArgosDocumentFileBinding_FAILURE_REASON_UNSPECIFIED ArgosDocumentFileBinding_FailureReason = 0
+	// The finding is larger than the platform processes.
+	ArgosDocumentFileBinding_FAILURE_REASON_TOO_LARGE ArgosDocumentFileBinding_FailureReason = 1
+	// The package's ecosystem is not one the platform analyzes.
+	ArgosDocumentFileBinding_FAILURE_REASON_UNSUPPORTED_ECOSYSTEM ArgosDocumentFileBinding_FailureReason = 2
+	// The finding does not describe a package the platform can analyze.
+	ArgosDocumentFileBinding_FAILURE_REASON_NO_PACKAGE ArgosDocumentFileBinding_FailureReason = 3
+	// The version of the package the finding is about could not be
+	// determined.
+	ArgosDocumentFileBinding_FAILURE_REASON_NO_VERSION ArgosDocumentFileBinding_FailureReason = 4
+	// The package exists, but the version in the finding is not a published
+	// release.
+	ArgosDocumentFileBinding_FAILURE_REASON_VERSION_NOT_PUBLISHED ArgosDocumentFileBinding_FailureReason = 5
+	// No registry the platform checks publishes the package.
+	ArgosDocumentFileBinding_FAILURE_REASON_UNKNOWN_PACKAGE ArgosDocumentFileBinding_FailureReason = 6
+	// The package name or coordinate is malformed, or does not resolve to a
+	// single package.
+	ArgosDocumentFileBinding_FAILURE_REASON_INVALID_COORDINATE ArgosDocumentFileBinding_FailureReason = 7
+	// No source repository was found for the package.
+	ArgosDocumentFileBinding_FAILURE_REASON_NO_REPO_URL ArgosDocumentFileBinding_FailureReason = 8
+	// The package's source repository is not a git repository.
+	ArgosDocumentFileBinding_FAILURE_REASON_REPO_URL_NOT_GIT ArgosDocumentFileBinding_FailureReason = 9
+	// The package's source repository has no tags, so the source for the
+	// reported version could not be found.
+	ArgosDocumentFileBinding_FAILURE_REASON_REPO_HAS_NO_TAGS ArgosDocumentFileBinding_FailureReason = 10
+	// The platform could not read the package's source repository. The
+	// cause is on the platform's side, not in the finding.
+	ArgosDocumentFileBinding_FAILURE_REASON_SOURCE_UNAVAILABLE ArgosDocumentFileBinding_FailureReason = 11
+	// The platform could not link the finding to the package. The cause is
+	// on the platform's side, not in the finding.
+	ArgosDocumentFileBinding_FAILURE_REASON_PACKAGE_LINK_FAILED ArgosDocumentFileBinding_FailureReason = 12
+	// Analysis failed on every attempt for a transient reason. The cause is
+	// usually on the platform's side, not in the finding.
+	ArgosDocumentFileBinding_FAILURE_REASON_RETRIES_EXHAUSTED ArgosDocumentFileBinding_FailureReason = 13
+	// The package's source repository is larger than the platform can
+	// analyze. The cause is on the platform's side, not in the finding.
+	ArgosDocumentFileBinding_FAILURE_REASON_SOURCE_TOO_LARGE ArgosDocumentFileBinding_FailureReason = 14
+)
+
+// Enum value maps for ArgosDocumentFileBinding_FailureReason.
+var (
+	ArgosDocumentFileBinding_FailureReason_name = map[int32]string{
+		0:  "FAILURE_REASON_UNSPECIFIED",
+		1:  "FAILURE_REASON_TOO_LARGE",
+		2:  "FAILURE_REASON_UNSUPPORTED_ECOSYSTEM",
+		3:  "FAILURE_REASON_NO_PACKAGE",
+		4:  "FAILURE_REASON_NO_VERSION",
+		5:  "FAILURE_REASON_VERSION_NOT_PUBLISHED",
+		6:  "FAILURE_REASON_UNKNOWN_PACKAGE",
+		7:  "FAILURE_REASON_INVALID_COORDINATE",
+		8:  "FAILURE_REASON_NO_REPO_URL",
+		9:  "FAILURE_REASON_REPO_URL_NOT_GIT",
+		10: "FAILURE_REASON_REPO_HAS_NO_TAGS",
+		11: "FAILURE_REASON_SOURCE_UNAVAILABLE",
+		12: "FAILURE_REASON_PACKAGE_LINK_FAILED",
+		13: "FAILURE_REASON_RETRIES_EXHAUSTED",
+		14: "FAILURE_REASON_SOURCE_TOO_LARGE",
+	}
+	ArgosDocumentFileBinding_FailureReason_value = map[string]int32{
+		"FAILURE_REASON_UNSPECIFIED":           0,
+		"FAILURE_REASON_TOO_LARGE":             1,
+		"FAILURE_REASON_UNSUPPORTED_ECOSYSTEM": 2,
+		"FAILURE_REASON_NO_PACKAGE":            3,
+		"FAILURE_REASON_NO_VERSION":            4,
+		"FAILURE_REASON_VERSION_NOT_PUBLISHED": 5,
+		"FAILURE_REASON_UNKNOWN_PACKAGE":       6,
+		"FAILURE_REASON_INVALID_COORDINATE":    7,
+		"FAILURE_REASON_NO_REPO_URL":           8,
+		"FAILURE_REASON_REPO_URL_NOT_GIT":      9,
+		"FAILURE_REASON_REPO_HAS_NO_TAGS":      10,
+		"FAILURE_REASON_SOURCE_UNAVAILABLE":    11,
+		"FAILURE_REASON_PACKAGE_LINK_FAILED":   12,
+		"FAILURE_REASON_RETRIES_EXHAUSTED":     13,
+		"FAILURE_REASON_SOURCE_TOO_LARGE":      14,
+	}
+)
+
+func (x ArgosDocumentFileBinding_FailureReason) Enum() *ArgosDocumentFileBinding_FailureReason {
+	p := new(ArgosDocumentFileBinding_FailureReason)
+	*p = x
+	return p
+}
+
+func (x ArgosDocumentFileBinding_FailureReason) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ArgosDocumentFileBinding_FailureReason) Descriptor() protoreflect.EnumDescriptor {
+	return file_argos_documents_platform_proto_enumTypes[2].Descriptor()
+}
+
+func (ArgosDocumentFileBinding_FailureReason) Type() protoreflect.EnumType {
+	return &file_argos_documents_platform_proto_enumTypes[2]
+}
+
+func (x ArgosDocumentFileBinding_FailureReason) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ArgosDocumentFileBinding_FailureReason.Descriptor instead.
+func (ArgosDocumentFileBinding_FailureReason) EnumDescriptor() ([]byte, []int) {
+	return file_argos_documents_platform_proto_rawDescGZIP(), []int{2, 1}
+}
+
 type ArgosDocumentStatsRequest_PatchFilter int32
 
 const (
@@ -178,11 +289,11 @@ func (x ArgosDocumentStatsRequest_PatchFilter) String() string {
 }
 
 func (ArgosDocumentStatsRequest_PatchFilter) Descriptor() protoreflect.EnumDescriptor {
-	return file_argos_documents_platform_proto_enumTypes[2].Descriptor()
+	return file_argos_documents_platform_proto_enumTypes[3].Descriptor()
 }
 
 func (ArgosDocumentStatsRequest_PatchFilter) Type() protoreflect.EnumType {
-	return &file_argos_documents_platform_proto_enumTypes[2]
+	return &file_argos_documents_platform_proto_enumTypes[3]
 }
 
 func (x ArgosDocumentStatsRequest_PatchFilter) Number() protoreflect.EnumNumber {
@@ -397,8 +508,12 @@ type ArgosDocumentFileBinding struct {
 	// record predates per-file tracking, or in other cases where start time
 	// was not recorded.
 	ProcessingStartedAt *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=processing_started_at,json=processingStartedAt,proto3" json:"processing_started_at,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// failure_reason says why analysis failed when status is STATUS_FAILED. It
+	// is FAILURE_REASON_UNSPECIFIED for every other status, and for a failure
+	// with no recorded reason.
+	FailureReason ArgosDocumentFileBinding_FailureReason `protobuf:"varint,6,opt,name=failure_reason,json=failureReason,proto3,enum=chainguard.platform.argos.ArgosDocumentFileBinding_FailureReason" json:"failure_reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ArgosDocumentFileBinding) Reset() {
@@ -457,6 +572,13 @@ func (x *ArgosDocumentFileBinding) GetProcessingStartedAt() *timestamppb.Timesta
 		return x.ProcessingStartedAt
 	}
 	return nil
+}
+
+func (x *ArgosDocumentFileBinding) GetFailureReason() ArgosDocumentFileBinding_FailureReason {
+	if x != nil {
+		return x.FailureReason
+	}
+	return ArgosDocumentFileBinding_FAILURE_REASON_UNSPECIFIED
 }
 
 type CreateArgosDocumentRequest struct {
@@ -1244,17 +1366,35 @@ const file_argos_documents_platform_proto_rawDesc = "" +
 	"\x15STATUS_FALSE_POSITIVE\x10\x04\"f\n" +
 	"\x1aArgosDocumentFindingCounts\x12#\n" +
 	"\rfix_available\x18\x01 \x01(\x05R\ffixAvailable\x12#\n" +
-	"\ralready_known\x18\x02 \x01(\x05R\falreadyKnown\"\xd1\x02\n" +
+	"\ralready_known\x18\x02 \x01(\x05R\falreadyKnown\"\xf2\a\n" +
 	"\x18ArgosDocumentFileBinding\x12\x1a\n" +
 	"\bfilename\x18\x01 \x01(\tR\bfilename\x12R\n" +
 	"\x06status\x18\x03 \x01(\x0e2:.chainguard.platform.argos.ArgosDocumentFileBinding.StatusR\x06status\x12\x17\n" +
 	"\acgp_ids\x18\x04 \x03(\tR\x06cgpIds\x12N\n" +
-	"\x15processing_started_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x13processingStartedAt\"\\\n" +
+	"\x15processing_started_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x13processingStartedAt\x12n\n" +
+	"\x0efailure_reason\x18\x06 \x01(\x0e2A.chainguard.platform.argos.ArgosDocumentFileBinding.FailureReasonB\x04\xe2A\x01\x03R\rfailureReason\"\\\n" +
 	"\x06Status\x12\x16\n" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x12\n" +
 	"\x0eSTATUS_PENDING\x10\x01\x12\x13\n" +
 	"\x0fSTATUS_ANALYZED\x10\x02\x12\x11\n" +
-	"\rSTATUS_FAILED\x10\x03\"w\n" +
+	"\rSTATUS_FAILED\x10\x03\"\xae\x04\n" +
+	"\rFailureReason\x12\x1e\n" +
+	"\x1aFAILURE_REASON_UNSPECIFIED\x10\x00\x12\x1c\n" +
+	"\x18FAILURE_REASON_TOO_LARGE\x10\x01\x12(\n" +
+	"$FAILURE_REASON_UNSUPPORTED_ECOSYSTEM\x10\x02\x12\x1d\n" +
+	"\x19FAILURE_REASON_NO_PACKAGE\x10\x03\x12\x1d\n" +
+	"\x19FAILURE_REASON_NO_VERSION\x10\x04\x12(\n" +
+	"$FAILURE_REASON_VERSION_NOT_PUBLISHED\x10\x05\x12\"\n" +
+	"\x1eFAILURE_REASON_UNKNOWN_PACKAGE\x10\x06\x12%\n" +
+	"!FAILURE_REASON_INVALID_COORDINATE\x10\a\x12\x1e\n" +
+	"\x1aFAILURE_REASON_NO_REPO_URL\x10\b\x12#\n" +
+	"\x1fFAILURE_REASON_REPO_URL_NOT_GIT\x10\t\x12#\n" +
+	"\x1fFAILURE_REASON_REPO_HAS_NO_TAGS\x10\n" +
+	"\x12%\n" +
+	"!FAILURE_REASON_SOURCE_UNAVAILABLE\x10\v\x12&\n" +
+	"\"FAILURE_REASON_PACKAGE_LINK_FAILED\x10\f\x12$\n" +
+	" FAILURE_REASON_RETRIES_EXHAUSTED\x10\r\x12#\n" +
+	"\x1fFAILURE_REASON_SOURCE_TOO_LARGE\x10\x0e\"w\n" +
 	"\x1aCreateArgosDocumentRequest\x12#\n" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12\x18\n" +
 	"\apayload\x18\x02 \x01(\tR\apayload\x12\x1a\n" +
@@ -1352,71 +1492,73 @@ func file_argos_documents_platform_proto_rawDescGZIP() []byte {
 	return file_argos_documents_platform_proto_rawDescData
 }
 
-var file_argos_documents_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_argos_documents_platform_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
 var file_argos_documents_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_argos_documents_platform_proto_goTypes = []any{
-	(ArgosDocument_Status)(0),                  // 0: chainguard.platform.argos.ArgosDocument.Status
-	(ArgosDocumentFileBinding_Status)(0),       // 1: chainguard.platform.argos.ArgosDocumentFileBinding.Status
-	(ArgosDocumentStatsRequest_PatchFilter)(0), // 2: chainguard.platform.argos.ArgosDocumentStatsRequest.PatchFilter
-	(*ArgosDocument)(nil),                      // 3: chainguard.platform.argos.ArgosDocument
-	(*ArgosDocumentFindingCounts)(nil),         // 4: chainguard.platform.argos.ArgosDocumentFindingCounts
-	(*ArgosDocumentFileBinding)(nil),           // 5: chainguard.platform.argos.ArgosDocumentFileBinding
-	(*CreateArgosDocumentRequest)(nil),         // 6: chainguard.platform.argos.CreateArgosDocumentRequest
-	(*GetArgosOrgPublicKeyRequest)(nil),        // 7: chainguard.platform.argos.GetArgosOrgPublicKeyRequest
-	(*ArgosOrgPublicKey)(nil),                  // 8: chainguard.platform.argos.ArgosOrgPublicKey
-	(*DeleteArgosDocumentRequest)(nil),         // 9: chainguard.platform.argos.DeleteArgosDocumentRequest
-	(*ArgosDocumentFilter)(nil),                // 10: chainguard.platform.argos.ArgosDocumentFilter
-	(*ArgosDocumentList)(nil),                  // 11: chainguard.platform.argos.ArgosDocumentList
-	(*ArgosDocumentStatsRequest)(nil),          // 12: chainguard.platform.argos.ArgosDocumentStatsRequest
-	(*ArgosDocumentStats)(nil),                 // 13: chainguard.platform.argos.ArgosDocumentStats
-	(*ArgosDocumentCGPStats)(nil),              // 14: chainguard.platform.argos.ArgosDocumentCGPStats
-	(*ArgosDocumentPatchStats)(nil),            // 15: chainguard.platform.argos.ArgosDocumentPatchStats
-	nil,                                        // 16: chainguard.platform.argos.ArgosDocumentStats.SubmissionsEntry
-	nil,                                        // 17: chainguard.platform.argos.ArgosDocumentStats.FindingsEntry
-	nil,                                        // 18: chainguard.platform.argos.ArgosDocumentPatchStats.ByStatusEntry
-	(*timestamppb.Timestamp)(nil),              // 19: google.protobuf.Timestamp
-	(*v1.UIDPFilter)(nil),                      // 20: chainguard.platform.common.UIDPFilter
-	(*emptypb.Empty)(nil),                      // 21: google.protobuf.Empty
+	(ArgosDocument_Status)(0),                   // 0: chainguard.platform.argos.ArgosDocument.Status
+	(ArgosDocumentFileBinding_Status)(0),        // 1: chainguard.platform.argos.ArgosDocumentFileBinding.Status
+	(ArgosDocumentFileBinding_FailureReason)(0), // 2: chainguard.platform.argos.ArgosDocumentFileBinding.FailureReason
+	(ArgosDocumentStatsRequest_PatchFilter)(0),  // 3: chainguard.platform.argos.ArgosDocumentStatsRequest.PatchFilter
+	(*ArgosDocument)(nil),                       // 4: chainguard.platform.argos.ArgosDocument
+	(*ArgosDocumentFindingCounts)(nil),          // 5: chainguard.platform.argos.ArgosDocumentFindingCounts
+	(*ArgosDocumentFileBinding)(nil),            // 6: chainguard.platform.argos.ArgosDocumentFileBinding
+	(*CreateArgosDocumentRequest)(nil),          // 7: chainguard.platform.argos.CreateArgosDocumentRequest
+	(*GetArgosOrgPublicKeyRequest)(nil),         // 8: chainguard.platform.argos.GetArgosOrgPublicKeyRequest
+	(*ArgosOrgPublicKey)(nil),                   // 9: chainguard.platform.argos.ArgosOrgPublicKey
+	(*DeleteArgosDocumentRequest)(nil),          // 10: chainguard.platform.argos.DeleteArgosDocumentRequest
+	(*ArgosDocumentFilter)(nil),                 // 11: chainguard.platform.argos.ArgosDocumentFilter
+	(*ArgosDocumentList)(nil),                   // 12: chainguard.platform.argos.ArgosDocumentList
+	(*ArgosDocumentStatsRequest)(nil),           // 13: chainguard.platform.argos.ArgosDocumentStatsRequest
+	(*ArgosDocumentStats)(nil),                  // 14: chainguard.platform.argos.ArgosDocumentStats
+	(*ArgosDocumentCGPStats)(nil),               // 15: chainguard.platform.argos.ArgosDocumentCGPStats
+	(*ArgosDocumentPatchStats)(nil),             // 16: chainguard.platform.argos.ArgosDocumentPatchStats
+	nil,                                         // 17: chainguard.platform.argos.ArgosDocumentStats.SubmissionsEntry
+	nil,                                         // 18: chainguard.platform.argos.ArgosDocumentStats.FindingsEntry
+	nil,                                         // 19: chainguard.platform.argos.ArgosDocumentPatchStats.ByStatusEntry
+	(*timestamppb.Timestamp)(nil),               // 20: google.protobuf.Timestamp
+	(*v1.UIDPFilter)(nil),                       // 21: chainguard.platform.common.UIDPFilter
+	(*emptypb.Empty)(nil),                       // 22: google.protobuf.Empty
 }
 var file_argos_documents_platform_proto_depIdxs = []int32{
 	0,  // 0: chainguard.platform.argos.ArgosDocument.status:type_name -> chainguard.platform.argos.ArgosDocument.Status
-	19, // 1: chainguard.platform.argos.ArgosDocument.created_at:type_name -> google.protobuf.Timestamp
-	19, // 2: chainguard.platform.argos.ArgosDocument.updated_at:type_name -> google.protobuf.Timestamp
-	5,  // 3: chainguard.platform.argos.ArgosDocument.bindings:type_name -> chainguard.platform.argos.ArgosDocumentFileBinding
-	4,  // 4: chainguard.platform.argos.ArgosDocument.finding_counts:type_name -> chainguard.platform.argos.ArgosDocumentFindingCounts
+	20, // 1: chainguard.platform.argos.ArgosDocument.created_at:type_name -> google.protobuf.Timestamp
+	20, // 2: chainguard.platform.argos.ArgosDocument.updated_at:type_name -> google.protobuf.Timestamp
+	6,  // 3: chainguard.platform.argos.ArgosDocument.bindings:type_name -> chainguard.platform.argos.ArgosDocumentFileBinding
+	5,  // 4: chainguard.platform.argos.ArgosDocument.finding_counts:type_name -> chainguard.platform.argos.ArgosDocumentFindingCounts
 	1,  // 5: chainguard.platform.argos.ArgosDocumentFileBinding.status:type_name -> chainguard.platform.argos.ArgosDocumentFileBinding.Status
-	19, // 6: chainguard.platform.argos.ArgosDocumentFileBinding.processing_started_at:type_name -> google.protobuf.Timestamp
-	20, // 7: chainguard.platform.argos.ArgosDocumentFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	0,  // 8: chainguard.platform.argos.ArgosDocumentFilter.status:type_name -> chainguard.platform.argos.ArgosDocument.Status
-	19, // 9: chainguard.platform.argos.ArgosDocumentFilter.created_since:type_name -> google.protobuf.Timestamp
-	19, // 10: chainguard.platform.argos.ArgosDocumentFilter.created_before:type_name -> google.protobuf.Timestamp
-	19, // 11: chainguard.platform.argos.ArgosDocumentFilter.updated_since:type_name -> google.protobuf.Timestamp
-	3,  // 12: chainguard.platform.argos.ArgosDocumentList.items:type_name -> chainguard.platform.argos.ArgosDocument
-	20, // 13: chainguard.platform.argos.ArgosDocumentStatsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
-	0,  // 14: chainguard.platform.argos.ArgosDocumentStatsRequest.status:type_name -> chainguard.platform.argos.ArgosDocument.Status
-	19, // 15: chainguard.platform.argos.ArgosDocumentStatsRequest.created_since:type_name -> google.protobuf.Timestamp
-	1,  // 16: chainguard.platform.argos.ArgosDocumentStatsRequest.finding_status:type_name -> chainguard.platform.argos.ArgosDocumentFileBinding.Status
-	2,  // 17: chainguard.platform.argos.ArgosDocumentStatsRequest.patch_filter:type_name -> chainguard.platform.argos.ArgosDocumentStatsRequest.PatchFilter
-	16, // 18: chainguard.platform.argos.ArgosDocumentStats.submissions:type_name -> chainguard.platform.argos.ArgosDocumentStats.SubmissionsEntry
-	17, // 19: chainguard.platform.argos.ArgosDocumentStats.findings:type_name -> chainguard.platform.argos.ArgosDocumentStats.FindingsEntry
-	14, // 20: chainguard.platform.argos.ArgosDocumentStats.cgps:type_name -> chainguard.platform.argos.ArgosDocumentCGPStats
-	15, // 21: chainguard.platform.argos.ArgosDocumentStats.patches:type_name -> chainguard.platform.argos.ArgosDocumentPatchStats
-	18, // 22: chainguard.platform.argos.ArgosDocumentPatchStats.by_status:type_name -> chainguard.platform.argos.ArgosDocumentPatchStats.ByStatusEntry
-	6,  // 23: chainguard.platform.argos.ArgosDocuments.Create:input_type -> chainguard.platform.argos.CreateArgosDocumentRequest
-	10, // 24: chainguard.platform.argos.ArgosDocuments.List:input_type -> chainguard.platform.argos.ArgosDocumentFilter
-	12, // 25: chainguard.platform.argos.ArgosDocuments.Stats:input_type -> chainguard.platform.argos.ArgosDocumentStatsRequest
-	9,  // 26: chainguard.platform.argos.ArgosDocuments.Delete:input_type -> chainguard.platform.argos.DeleteArgosDocumentRequest
-	7,  // 27: chainguard.platform.argos.ArgosDocuments.GetOrgPublicKey:input_type -> chainguard.platform.argos.GetArgosOrgPublicKeyRequest
-	3,  // 28: chainguard.platform.argos.ArgosDocuments.Create:output_type -> chainguard.platform.argos.ArgosDocument
-	11, // 29: chainguard.platform.argos.ArgosDocuments.List:output_type -> chainguard.platform.argos.ArgosDocumentList
-	13, // 30: chainguard.platform.argos.ArgosDocuments.Stats:output_type -> chainguard.platform.argos.ArgosDocumentStats
-	21, // 31: chainguard.platform.argos.ArgosDocuments.Delete:output_type -> google.protobuf.Empty
-	8,  // 32: chainguard.platform.argos.ArgosDocuments.GetOrgPublicKey:output_type -> chainguard.platform.argos.ArgosOrgPublicKey
-	28, // [28:33] is the sub-list for method output_type
-	23, // [23:28] is the sub-list for method input_type
-	23, // [23:23] is the sub-list for extension type_name
-	23, // [23:23] is the sub-list for extension extendee
-	0,  // [0:23] is the sub-list for field type_name
+	20, // 6: chainguard.platform.argos.ArgosDocumentFileBinding.processing_started_at:type_name -> google.protobuf.Timestamp
+	2,  // 7: chainguard.platform.argos.ArgosDocumentFileBinding.failure_reason:type_name -> chainguard.platform.argos.ArgosDocumentFileBinding.FailureReason
+	21, // 8: chainguard.platform.argos.ArgosDocumentFilter.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	0,  // 9: chainguard.platform.argos.ArgosDocumentFilter.status:type_name -> chainguard.platform.argos.ArgosDocument.Status
+	20, // 10: chainguard.platform.argos.ArgosDocumentFilter.created_since:type_name -> google.protobuf.Timestamp
+	20, // 11: chainguard.platform.argos.ArgosDocumentFilter.created_before:type_name -> google.protobuf.Timestamp
+	20, // 12: chainguard.platform.argos.ArgosDocumentFilter.updated_since:type_name -> google.protobuf.Timestamp
+	4,  // 13: chainguard.platform.argos.ArgosDocumentList.items:type_name -> chainguard.platform.argos.ArgosDocument
+	21, // 14: chainguard.platform.argos.ArgosDocumentStatsRequest.uidp:type_name -> chainguard.platform.common.UIDPFilter
+	0,  // 15: chainguard.platform.argos.ArgosDocumentStatsRequest.status:type_name -> chainguard.platform.argos.ArgosDocument.Status
+	20, // 16: chainguard.platform.argos.ArgosDocumentStatsRequest.created_since:type_name -> google.protobuf.Timestamp
+	1,  // 17: chainguard.platform.argos.ArgosDocumentStatsRequest.finding_status:type_name -> chainguard.platform.argos.ArgosDocumentFileBinding.Status
+	3,  // 18: chainguard.platform.argos.ArgosDocumentStatsRequest.patch_filter:type_name -> chainguard.platform.argos.ArgosDocumentStatsRequest.PatchFilter
+	17, // 19: chainguard.platform.argos.ArgosDocumentStats.submissions:type_name -> chainguard.platform.argos.ArgosDocumentStats.SubmissionsEntry
+	18, // 20: chainguard.platform.argos.ArgosDocumentStats.findings:type_name -> chainguard.platform.argos.ArgosDocumentStats.FindingsEntry
+	15, // 21: chainguard.platform.argos.ArgosDocumentStats.cgps:type_name -> chainguard.platform.argos.ArgosDocumentCGPStats
+	16, // 22: chainguard.platform.argos.ArgosDocumentStats.patches:type_name -> chainguard.platform.argos.ArgosDocumentPatchStats
+	19, // 23: chainguard.platform.argos.ArgosDocumentPatchStats.by_status:type_name -> chainguard.platform.argos.ArgosDocumentPatchStats.ByStatusEntry
+	7,  // 24: chainguard.platform.argos.ArgosDocuments.Create:input_type -> chainguard.platform.argos.CreateArgosDocumentRequest
+	11, // 25: chainguard.platform.argos.ArgosDocuments.List:input_type -> chainguard.platform.argos.ArgosDocumentFilter
+	13, // 26: chainguard.platform.argos.ArgosDocuments.Stats:input_type -> chainguard.platform.argos.ArgosDocumentStatsRequest
+	10, // 27: chainguard.platform.argos.ArgosDocuments.Delete:input_type -> chainguard.platform.argos.DeleteArgosDocumentRequest
+	8,  // 28: chainguard.platform.argos.ArgosDocuments.GetOrgPublicKey:input_type -> chainguard.platform.argos.GetArgosOrgPublicKeyRequest
+	4,  // 29: chainguard.platform.argos.ArgosDocuments.Create:output_type -> chainguard.platform.argos.ArgosDocument
+	12, // 30: chainguard.platform.argos.ArgosDocuments.List:output_type -> chainguard.platform.argos.ArgosDocumentList
+	14, // 31: chainguard.platform.argos.ArgosDocuments.Stats:output_type -> chainguard.platform.argos.ArgosDocumentStats
+	22, // 32: chainguard.platform.argos.ArgosDocuments.Delete:output_type -> google.protobuf.Empty
+	9,  // 33: chainguard.platform.argos.ArgosDocuments.GetOrgPublicKey:output_type -> chainguard.platform.argos.ArgosOrgPublicKey
+	29, // [29:34] is the sub-list for method output_type
+	24, // [24:29] is the sub-list for method input_type
+	24, // [24:24] is the sub-list for extension type_name
+	24, // [24:24] is the sub-list for extension extendee
+	0,  // [0:24] is the sub-list for field type_name
 }
 
 func init() { file_argos_documents_platform_proto_init() }
@@ -1431,7 +1573,7 @@ func file_argos_documents_platform_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_argos_documents_platform_proto_rawDesc), len(file_argos_documents_platform_proto_rawDesc)),
-			NumEnums:      3,
+			NumEnums:      4,
 			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
