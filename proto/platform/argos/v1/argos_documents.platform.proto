@@ -242,6 +242,11 @@ message ArgosDocumentFileBinding {
     // The package's source repository is larger than the platform can
     // analyze. The cause is on the platform's side, not in the finding.
     FAILURE_REASON_SOURCE_TOO_LARGE = 14;
+    // The platform refused to publish the finding because its record read
+    // as containing customer-confidential details, and quarantined it
+    // instead. The cause is in the finding's content, not on the platform's
+    // side: resubmit it with the confidential details removed.
+    FAILURE_REASON_CONFIDENTIALITY_REFUSED = 15;
   }
 }
 

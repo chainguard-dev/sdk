@@ -186,6 +186,11 @@ const (
 	// The package's source repository is larger than the platform can
 	// analyze. The cause is on the platform's side, not in the finding.
 	ArgosDocumentFileBinding_FAILURE_REASON_SOURCE_TOO_LARGE ArgosDocumentFileBinding_FailureReason = 14
+	// The platform refused to publish the finding because its record read
+	// as containing customer-confidential details, and quarantined it
+	// instead. The cause is in the finding's content, not on the platform's
+	// side: resubmit it with the confidential details removed.
+	ArgosDocumentFileBinding_FAILURE_REASON_CONFIDENTIALITY_REFUSED ArgosDocumentFileBinding_FailureReason = 15
 )
 
 // Enum value maps for ArgosDocumentFileBinding_FailureReason.
@@ -206,23 +211,25 @@ var (
 		12: "FAILURE_REASON_PACKAGE_LINK_FAILED",
 		13: "FAILURE_REASON_RETRIES_EXHAUSTED",
 		14: "FAILURE_REASON_SOURCE_TOO_LARGE",
+		15: "FAILURE_REASON_CONFIDENTIALITY_REFUSED",
 	}
 	ArgosDocumentFileBinding_FailureReason_value = map[string]int32{
-		"FAILURE_REASON_UNSPECIFIED":           0,
-		"FAILURE_REASON_TOO_LARGE":             1,
-		"FAILURE_REASON_UNSUPPORTED_ECOSYSTEM": 2,
-		"FAILURE_REASON_NO_PACKAGE":            3,
-		"FAILURE_REASON_NO_VERSION":            4,
-		"FAILURE_REASON_VERSION_NOT_PUBLISHED": 5,
-		"FAILURE_REASON_UNKNOWN_PACKAGE":       6,
-		"FAILURE_REASON_INVALID_COORDINATE":    7,
-		"FAILURE_REASON_NO_REPO_URL":           8,
-		"FAILURE_REASON_REPO_URL_NOT_GIT":      9,
-		"FAILURE_REASON_REPO_HAS_NO_TAGS":      10,
-		"FAILURE_REASON_SOURCE_UNAVAILABLE":    11,
-		"FAILURE_REASON_PACKAGE_LINK_FAILED":   12,
-		"FAILURE_REASON_RETRIES_EXHAUSTED":     13,
-		"FAILURE_REASON_SOURCE_TOO_LARGE":      14,
+		"FAILURE_REASON_UNSPECIFIED":             0,
+		"FAILURE_REASON_TOO_LARGE":               1,
+		"FAILURE_REASON_UNSUPPORTED_ECOSYSTEM":   2,
+		"FAILURE_REASON_NO_PACKAGE":              3,
+		"FAILURE_REASON_NO_VERSION":              4,
+		"FAILURE_REASON_VERSION_NOT_PUBLISHED":   5,
+		"FAILURE_REASON_UNKNOWN_PACKAGE":         6,
+		"FAILURE_REASON_INVALID_COORDINATE":      7,
+		"FAILURE_REASON_NO_REPO_URL":             8,
+		"FAILURE_REASON_REPO_URL_NOT_GIT":        9,
+		"FAILURE_REASON_REPO_HAS_NO_TAGS":        10,
+		"FAILURE_REASON_SOURCE_UNAVAILABLE":      11,
+		"FAILURE_REASON_PACKAGE_LINK_FAILED":     12,
+		"FAILURE_REASON_RETRIES_EXHAUSTED":       13,
+		"FAILURE_REASON_SOURCE_TOO_LARGE":        14,
+		"FAILURE_REASON_CONFIDENTIALITY_REFUSED": 15,
 	}
 )
 
@@ -1364,7 +1371,7 @@ const file_argos_documents_platform_proto_rawDesc = "" +
 	"\x15STATUS_FALSE_POSITIVE\x10\x04\"f\n" +
 	"\x1aArgosDocumentFindingCounts\x12#\n" +
 	"\rfix_available\x18\x01 \x01(\x05R\ffixAvailable\x12#\n" +
-	"\ralready_known\x18\x02 \x01(\x05R\falreadyKnown\"\xf2\a\n" +
+	"\ralready_known\x18\x02 \x01(\x05R\falreadyKnown\"\x9e\b\n" +
 	"\x18ArgosDocumentFileBinding\x12\x1a\n" +
 	"\bfilename\x18\x01 \x01(\tR\bfilename\x12R\n" +
 	"\x06status\x18\x03 \x01(\x0e2:.chainguard.platform.argos.ArgosDocumentFileBinding.StatusR\x06status\x12\x17\n" +
@@ -1375,7 +1382,7 @@ const file_argos_documents_platform_proto_rawDesc = "" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x12\n" +
 	"\x0eSTATUS_PENDING\x10\x01\x12\x13\n" +
 	"\x0fSTATUS_ANALYZED\x10\x02\x12\x11\n" +
-	"\rSTATUS_FAILED\x10\x03\"\xae\x04\n" +
+	"\rSTATUS_FAILED\x10\x03\"\xda\x04\n" +
 	"\rFailureReason\x12\x1e\n" +
 	"\x1aFAILURE_REASON_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18FAILURE_REASON_TOO_LARGE\x10\x01\x12(\n" +
@@ -1392,7 +1399,8 @@ const file_argos_documents_platform_proto_rawDesc = "" +
 	"!FAILURE_REASON_SOURCE_UNAVAILABLE\x10\v\x12&\n" +
 	"\"FAILURE_REASON_PACKAGE_LINK_FAILED\x10\f\x12$\n" +
 	" FAILURE_REASON_RETRIES_EXHAUSTED\x10\r\x12#\n" +
-	"\x1fFAILURE_REASON_SOURCE_TOO_LARGE\x10\x0e\"w\n" +
+	"\x1fFAILURE_REASON_SOURCE_TOO_LARGE\x10\x0e\x12*\n" +
+	"&FAILURE_REASON_CONFIDENTIALITY_REFUSED\x10\x0f\"w\n" +
 	"\x1aCreateArgosDocumentRequest\x12#\n" +
 	"\tparent_id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\bparentId\x12\x18\n" +
 	"\apayload\x18\x02 \x01(\tR\apayload\x12\x1a\n" +
