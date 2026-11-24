@@ -193,8 +193,8 @@ type ListOrgVulnsRequest struct {
 	// embargo_ends_after keeps records whose public embargo end is at or after
 	// it, rounded up to the microsecond. With embargo_ends_before it forms the
 	// window [after, before); alone it is a lower bound. A record without an
-	// embargo end never matches. Send the same bounds on every page: the page
-	// token does not carry them.
+	// embargo end never matches. Send the same bounds on every page: a
+	// page_token is valid only for the bounds it was minted under.
 	EmbargoEndsAfter *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=embargo_ends_after,json=embargoEndsAfter,proto3" json:"embargo_ends_after,omitempty"`
 	// embargo_ends_before keeps records whose public embargo end is before it,
 	// rounded up to the microsecond; with embargo_ends_after it must still be
@@ -206,8 +206,17 @@ type ListOrgVulnsRequest struct {
 	OrderBy VulnOrderBy `protobuf:"varint,10,opt,name=order_by,json=orderBy,proto3,enum=chainguard.platform.argos.VulnOrderBy" json:"order_by,omitempty"`
 	// cgp_id_prefix keeps records whose CGP ID starts with it, compared
 	// ignoring case. It holds at most 18 ASCII letters, digits and hyphens.
-	// Send the same prefix on every page: the page token does not carry it.
-	CgpIdPrefix   string `protobuf:"bytes,14,opt,name=cgp_id_prefix,json=cgpIdPrefix,proto3" json:"cgp_id_prefix,omitempty"`
+	// Send the same prefix on every page. With another filter or an order_by, a
+	// page_token is valid only for the prefix it was minted under, compared
+	// ignoring case.
+	CgpIdPrefix string `protobuf:"bytes,14,opt,name=cgp_id_prefix,json=cgpIdPrefix,proto3" json:"cgp_id_prefix,omitempty"`
+	// disclosed keeps records whose served database_specific.disclosure status
+	// is DISCLOSED (true) or any other status (false); unset keeps both. Like
+	// has_fix it is a yes/no predicate, not the status: a new status lands on
+	// one side, and a filter on the status itself would be its own field. Send
+	// the same value on every page: a page_token is valid only for the value
+	// it was minted under.
+	Disclosed     *bool `protobuf:"varint,18,opt,name=disclosed,proto3,oneof" json:"disclosed,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -334,6 +343,13 @@ func (x *ListOrgVulnsRequest) GetCgpIdPrefix() string {
 	return ""
 }
 
+func (x *ListOrgVulnsRequest) GetDisclosed() bool {
+	if x != nil && x.Disclosed != nil {
+		return *x.Disclosed
+	}
+	return false
+}
+
 type VulnList struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// vulns is the list of OSV records returned, reusing the public OSVRecord
@@ -408,7 +424,7 @@ const file_argos_vulns_platform_proto_rawDesc = "" +
 	"\acgp_ids\x18\x02 \x03(\tR\x06cgpIds\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\x03 \x01(\tR\tpageToken\x12\x1b\n" +
-	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\"\xea\x04\n" +
+	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\"\xa1\x05\n" +
 	"\x13ListOrgVulnsRequest\x12\x1e\n" +
 	"\x06parent\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12\x1c\n" +
 	"\apackage\x18\x02 \x01(\tB\x02\x18\x01R\apackage\x12\x18\n" +
@@ -424,9 +440,12 @@ const file_argos_vulns_platform_proto_rawDesc = "" +
 	"\x13embargo_ends_before\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x01R\x11embargoEndsBefore\x12G\n" +
 	"\border_by\x18\n" +
 	" \x01(\x0e2&.chainguard.platform.argos.VulnOrderByB\x04\xe2A\x01\x01R\aorderBy\x12(\n" +
-	"\rcgp_id_prefix\x18\x0e \x01(\tB\x04\xe2A\x01\x01R\vcgpIdPrefixB\n" +
+	"\rcgp_id_prefix\x18\x0e \x01(\tB\x04\xe2A\x01\x01R\vcgpIdPrefix\x12'\n" +
+	"\tdisclosed\x18\x12 \x01(\bB\x04\xe2A\x01\x01H\x01R\tdisclosed\x88\x01\x01B\n" +
 	"\n" +
-	"\b_has_fix\"\xa4\x01\n" +
+	"\b_has_fixB\f\n" +
+	"\n" +
+	"_disclosed\"\xa4\x01\n" +
 	"\bVulnList\x12:\n" +
 	"\x05vulns\x18\x01 \x03(\v2$.chainguard.platform.argos.OSVRecordR\x05vulns\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12$\n" +
