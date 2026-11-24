@@ -7,10 +7,11 @@ option go_package = "chainguard.dev/sdk/proto/platform/argos/v1";
 
 package chainguard.platform.argos;
 
+import "annotations/auth.proto";
 import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
-import "annotations/auth.proto";
 
 // ArgosOSV is the customer-facing OSV-spec query surface for the Private OSV
 // shared corpus. What a caller reads depends on the identity type its token
@@ -405,6 +406,17 @@ message OSVRecord {
   // populates FIX-typed entries with the verified upstream fix commit; see
   // Reference.
   repeated Reference references = 13;
+
+  // OSV fixes the singular name.
+  // protolint:disable REPEATED_FIELD_NAMES_PLURALIZED
+
+  // upstream lists the ids of the records this one derives from, per OSV
+  // schema 1.7 (osv-schema §upstream-field). On a Chainguard APK advisory it
+  // names the one record for the upstream library the APK ships. Empty on
+  // every other record. A reader sees only the ids it can read itself.
+  repeated string upstream = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // protolint:enable REPEATED_FIELD_NAMES_PLURALIZED
 }
 
 message OSVQueryRequest {

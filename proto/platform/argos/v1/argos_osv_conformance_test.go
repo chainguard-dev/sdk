@@ -7,6 +7,7 @@ package v1_test
 
 import (
 	"encoding/json"
+	"slices"
 	"strings"
 	"testing"
 
@@ -49,6 +50,7 @@ func TestOSVRecordJSONConformsToOSVSpec(t *testing.T) {
 			Type: argosv1.Reference_FIX,
 			Url:  "https://github.com/django/django/commit/cf694e6852b0da7799f8b53f1fb2f7d20cf17534",
 		}},
+		Upstream: []string{"CGP-DDDD-EEEE-FFFF"},
 	}
 	b, err := protojson.Marshal(rec)
 	if err != nil {
@@ -124,6 +126,17 @@ func TestOSVRecordJSONConformsToOSVSpec(t *testing.T) {
 	}
 	if want := "https://github.com/django/django/commit/cf694e6852b0da7799f8b53f1fb2f7d20cf17534"; refs.References[0].URL != want {
 		t.Errorf("reference url: got = %q, want = %q", refs.References[0].URL, want)
+	}
+
+	// upstream renders as OSV 1.7's array of record ids.
+	var up struct {
+		Upstream []string `json:"upstream"`
+	}
+	if err := json.Unmarshal(b, &up); err != nil {
+		t.Fatalf("upstream is not an array of strings: %v in %s", err, got)
+	}
+	if want := []string{"CGP-DDDD-EEEE-FFFF"}; !slices.Equal(up.Upstream, want) {
+		t.Errorf("upstream: got = %v, want = %v: %s", up.Upstream, want, got)
 	}
 }
 

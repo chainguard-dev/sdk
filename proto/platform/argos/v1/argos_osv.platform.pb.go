@@ -1473,7 +1473,12 @@ type OSVRecord struct {
 	// references lists the record's OSV-spec typed reference URLs. Chainguard
 	// populates FIX-typed entries with the verified upstream fix commit; see
 	// Reference.
-	References    []*Reference `protobuf:"bytes,13,rep,name=references,proto3" json:"references,omitempty"`
+	References []*Reference `protobuf:"bytes,13,rep,name=references,proto3" json:"references,omitempty"`
+	// upstream lists the ids of the records this one derives from, per OSV
+	// schema 1.7 (osv-schema §upstream-field). On a Chainguard APK advisory it
+	// names the one record for the upstream library the APK ships. Empty on
+	// every other record. A reader sees only the ids it can read itself.
+	Upstream      []string `protobuf:"bytes,14,rep,name=upstream,proto3" json:"upstream,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1595,6 +1600,13 @@ func (x *OSVRecord) GetDatabaseSpecific() *TopLevelDatabaseSpecific {
 func (x *OSVRecord) GetReferences() []*Reference {
 	if x != nil {
 		return x.References
+	}
+	return nil
+}
+
+func (x *OSVRecord) GetUpstream() []string {
+	if x != nil {
+		return x.Upstream
 	}
 	return nil
 }
@@ -2214,7 +2226,7 @@ var File_argos_osv_platform_proto protoreflect.FileDescriptor
 
 const file_argos_osv_platform_proto_rawDesc = "" +
 	"\n" +
-	"\x18argos_osv.platform.proto\x12\x19chainguard.platform.argos\x1a\x1cgoogle/api/annotations.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16annotations/auth.proto\"O\n" +
+	"\x18argos_osv.platform.proto\x12\x19chainguard.platform.argos\x1a\x16annotations/auth.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"O\n" +
 	"\aPackage\x12\x1c\n" +
 	"\tecosystem\x18\x01 \x01(\tR\tecosystem\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
@@ -2324,7 +2336,7 @@ const file_argos_osv_platform_proto_rawDesc = "" +
 	"\aPACKAGE\x10\b\x12\f\n" +
 	"\bEVIDENCE\x10\t\x12\a\n" +
 	"\x03WEB\x10\n" +
-	"\"\x82\x05\n" +
+	"\"\xa4\x05\n" +
 	"\tOSVRecord\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12&\n" +
 	"\x0eschema_version\x18\x02 \x01(\tR\x0eschema_version\x12\x18\n" +
@@ -2341,7 +2353,8 @@ const file_argos_osv_platform_proto_rawDesc = "" +
 	"\x11database_specific\x18\f \x01(\v23.chainguard.platform.argos.TopLevelDatabaseSpecificR\x11database_specific\x12D\n" +
 	"\n" +
 	"references\x18\r \x03(\v2$.chainguard.platform.argos.ReferenceR\n" +
-	"references\"\x89\x01\n" +
+	"references\x12 \n" +
+	"\bupstream\x18\x0e \x03(\tB\x04\xe2A\x01\x03R\bupstream\"\x89\x01\n" +
 	"\x0fOSVQueryRequest\x12<\n" +
 	"\apackage\x18\x01 \x01(\v2\".chainguard.platform.argos.PackageR\apackage\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\tR\aversion\x12\x1e\n" +
