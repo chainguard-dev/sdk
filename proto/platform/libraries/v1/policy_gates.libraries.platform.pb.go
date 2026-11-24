@@ -1007,8 +1007,11 @@ type LibraryPolicyBlockEvent struct {
 	LastBlockedAt  *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=last_blocked_at,json=lastBlockedAt,proto3" json:"last_blocked_at,omitempty"`
 	AttemptCount   int32                  `protobuf:"varint,12,opt,name=attempt_count,json=attemptCount,proto3" json:"attempt_count,omitempty"`
 	// The id of the repository whose URL the block came through: the UIDP of
-	// the repository's folder. Empty for a block through the org's own URL,
-	// which serves its default repository.
+	// the repository's folder. Empty when no repository was recorded for the
+	// block, which does not show that the block came through no repository
+	// URL. The group the event was recorded under, the parent of its id, names
+	// the scope where it was recorded: the org, or a folder, such as a token
+	// scope that holds its own entitlement.
 	RepositoryId string `protobuf:"bytes,13,opt,name=repository_id,json=repositoryId,proto3" json:"repository_id,omitempty"`
 	// Blocks in this window where the client named the version or artifact
 	// and was answered with a block response, as opposed to the version being
@@ -1236,8 +1239,9 @@ func (x *LibraryPolicyBlockEventList) GetSkipped() int32 {
 
 type LibraryPolicyBlockEventFilter struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The org (parent) to scope events to. Required. A repository's folder
-	// lists that repository's events, as repository_id does.
+	// The org (parent) to scope events to. Required. A folder lists the events
+	// recorded under it and, for a repository's folder, the events recorded
+	// for that repository, as repository_id does.
 	ParentId string `protobuf:"bytes,1,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
 	// Only events for this ecosystem (UNKNOWN = all).
 	Ecosystem Ecosystem `protobuf:"varint,2,opt,name=ecosystem,proto3,enum=chainguard.platform.libraries.Ecosystem" json:"ecosystem,omitempty"`
@@ -1252,10 +1256,12 @@ type LibraryPolicyBlockEventFilter struct {
 	PageSize  int32                  `protobuf:"varint,6,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	PageToken string                 `protobuf:"bytes,7,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// Only events of this repository, by its id: the UIDP of the repository's
-	// folder, or of the org for the default repository. Requires parent_id to
-	// be the org, or to be the same repository's folder. A caller whose role
-	// is only at a repository's folder lists that repository's events and no
-	// others.
+	// folder, or of the org for the default repository. A folder also matches
+	// the events recorded under the folder itself; the org matches the events
+	// recorded under the org with no repository recorded, whichever URL they
+	// came through. Requires parent_id to be the org, or to be the same
+	// folder. A caller whose role is only at a repository's folder lists that
+	// repository's events and no others.
 	RepositoryId string `protobuf:"bytes,8,opt,name=repository_id,json=repositoryId,proto3" json:"repository_id,omitempty"`
 	// Only events with request_count > 0: rows where at least one block was
 	// answered to a client that named the version, not just hidden from a

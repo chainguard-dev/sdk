@@ -322,8 +322,11 @@ message LibraryPolicyBlockEvent {
   int32 attempt_count = 12;
 
   // The id of the repository whose URL the block came through: the UIDP of
-  // the repository's folder. Empty for a block through the org's own URL,
-  // which serves its default repository.
+  // the repository's folder. Empty when no repository was recorded for the
+  // block, which does not show that the block came through no repository
+  // URL. The group the event was recorded under, the parent of its id, names
+  // the scope where it was recorded: the org, or a folder, such as a token
+  // scope that holds its own entitlement.
   string repository_id = 13;
   // Blocks in this window where the client named the version or artifact
   // and was answered with a block response, as opposed to the version being
@@ -345,8 +348,9 @@ message LibraryPolicyBlockEventList {
 }
 
 message LibraryPolicyBlockEventFilter {
-  // The org (parent) to scope events to. Required. A repository's folder
-  // lists that repository's events, as repository_id does.
+  // The org (parent) to scope events to. Required. A folder lists the events
+  // recorded under it and, for a repository's folder, the events recorded
+  // for that repository, as repository_id does.
   string parent_id = 1 [(chainguard.annotations.iam_scope) = true];
   // Only events for this ecosystem (UNKNOWN = all).
   Ecosystem ecosystem = 2;
@@ -361,10 +365,12 @@ message LibraryPolicyBlockEventFilter {
   int32 page_size = 6;
   string page_token = 7;
   // Only events of this repository, by its id: the UIDP of the repository's
-  // folder, or of the org for the default repository. Requires parent_id to
-  // be the org, or to be the same repository's folder. A caller whose role
-  // is only at a repository's folder lists that repository's events and no
-  // others.
+  // folder, or of the org for the default repository. A folder also matches
+  // the events recorded under the folder itself; the org matches the events
+  // recorded under the org with no repository recorded, whichever URL they
+  // came through. Requires parent_id to be the org, or to be the same
+  // folder. A caller whose role is only at a repository's folder lists that
+  // repository's events and no others.
   string repository_id = 8;
   // Only events with request_count > 0: rows where at least one block was
   // answered to a client that named the version, not just hidden from a
