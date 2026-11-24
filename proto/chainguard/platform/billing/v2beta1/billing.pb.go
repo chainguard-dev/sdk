@@ -127,9 +127,11 @@ type CheckoutSession struct {
 	Url string `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
 	// When the page stops accepting payment details.
 	ExpireTime *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
-	// What the page tells the buyer above its submit button: for compute, what
-	// the card will be charged now and later; for the Team plan, a summary of
-	// the plan and its monthly price. Empty when the page states neither. An
+	// What the page asks the buyer to agree to, as plain text for the client to
+	// show before it sends the buyer there: for compute, what the card will be
+	// charged now and later; for the Team plan, a summary of the plan and its
+	// monthly price, then the agreement the buyer accepts, with the URL of each
+	// document it names. Empty when the page states neither. An
 	// organization Chainguard approved for monthly billing is told its usage is
 	// charged monthly instead of buying a balance.
 	Terms         string `protobuf:"bytes,3,opt,name=terms,proto3" json:"terms,omitempty"`
