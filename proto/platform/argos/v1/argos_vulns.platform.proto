@@ -82,8 +82,8 @@ message ListOrgVulnsRequest {
   // embargo_ends_after keeps records whose public embargo end is at or after
   // it, rounded up to the microsecond. With embargo_ends_before it forms the
   // window [after, before); alone it is a lower bound. A record without an
-  // embargo end never matches. Send the same bounds on every page: a
-  // page_token is valid only for the bounds it was minted under.
+  // embargo end never matches. Send the same bounds on every page: the page
+  // token does not carry them.
   google.protobuf.Timestamp embargo_ends_after = 12
       [(google.api.field_behavior) = OPTIONAL];
   // embargo_ends_before keeps records whose public embargo end is before it,
@@ -97,17 +97,8 @@ message ListOrgVulnsRequest {
   VulnOrderBy order_by = 10 [(google.api.field_behavior) = OPTIONAL];
   // cgp_id_prefix keeps records whose CGP ID starts with it, compared
   // ignoring case. It holds at most 18 ASCII letters, digits and hyphens.
-  // Send the same prefix on every page. With another filter or an order_by, a
-  // page_token is valid only for the prefix it was minted under, compared
-  // ignoring case.
+  // Send the same prefix on every page: the page token does not carry it.
   string cgp_id_prefix = 14 [(google.api.field_behavior) = OPTIONAL];
-  // disclosed keeps records whose served database_specific.disclosure status
-  // is DISCLOSED (true) or any other status (false); unset keeps both. Like
-  // has_fix it is a yes/no predicate, not the status: a new status lands on
-  // one side, and a filter on the status itself would be its own field. Send
-  // the same value on every page: a page_token is valid only for the value
-  // it was minted under.
-  optional bool disclosed = 18 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // VulnOrderBy orders ListForOrg by a record timestamp, ties broken by CGP ID
