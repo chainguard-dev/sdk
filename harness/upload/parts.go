@@ -55,9 +55,10 @@ var sleep = func(ctx context.Context, d time.Duration) error {
 type PartClient struct {
 	// Uploads is the harness v1alpha2 Uploads API.
 	Uploads harnessv1alpha2.UploadsClient
-	// Progress, when set, is called on Upload's goroutine each time the
-	// sealed bytes storage holds grows, with that count and the sealed
-	// bundle's size. Its last call has sent equal to total.
+	// Progress, when set, is called on Upload's goroutine with the sealed
+	// bytes storage holds and the sealed bundle's size: first with sent 0
+	// once the upload exists, then each time that count grows. Its last call
+	// has sent equal to total.
 	Progress func(sent, total int64)
 	// PartSize, when set, is the most one part carries, for a link too slow
 	// to send a whole max_part_size part within a request's time limit. It
@@ -138,6 +139,14 @@ func (c *PartClient) Upload(ctx context.Context, org string, b *Bundle) (*harnes
 		size:     size,
 		partSize: int(min(cmp.Or(c.PartSize, maxPartSize), advertised, maxPartSize)),
 		progress: c.Progress,
+	}
+	if c.Progress != nil {
+		// Without this, nothing is reported until the first part lands, so
+		// a one-part bundle is seen only at 100%.
+		c.Progress(0, size)
+		if err := ctx.Err(); err != nil {
+			return nil, fmt.Errorf("upload %s: %w", id, err)
+		}
 	}
 	crc, err := w.write(s)
 	if err != nil {

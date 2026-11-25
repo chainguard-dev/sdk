@@ -442,8 +442,9 @@ func TestPartUploadStopsOnARefusal(t *testing.T) {
 }
 
 // TestPartUploadReportsProgress pins Progress to what storage acknowledged:
-// each call is a committed_size, the count only grows, the last call is the
-// whole envelope, and every call's total is the envelope's size.
+// the first call is 0 before any part is sent, each later call is a
+// committed_size, the count only grows, the last call is the whole
+// envelope, and every call's total is the envelope's size.
 func TestPartUploadReportsProgress(t *testing.T) {
 	h := newPartHarness(t)
 	h.parts.maxPartSize = 2 * alignment
@@ -464,11 +465,13 @@ func TestPartUploadReportsProgress(t *testing.T) {
 	data := randomBytes(t, 5*alignment)
 	b, _ := memBundle(data, data)
 	rec := &recorder{UploadsClient: h.client}
-	var sent, totals []int64
+	// writesBefore is how many parts had been sent at each Progress call.
+	var sent, totals, writesBefore []int64
 
 	_, err := (&upload.PartClient{Uploads: rec, Progress: func(n, total int64) {
 		sent = append(sent, n)
 		totals = append(totals, total)
+		writesBefore = append(writesBefore, int64(len(rec.sent)))
 	}}).Upload(t.Context(), org(), b)
 	if err != nil {
 		t.Fatalf("Upload: %v", err)
@@ -477,14 +480,40 @@ func TestPartUploadReportsProgress(t *testing.T) {
 	if diff := cmp.Diff(slices.Repeat([]int64{envelope}, len(sent)), totals); diff != "" {
 		t.Errorf("Progress totals (-want, +got):\n%s", diff)
 	}
-	if diff := cmp.Diff(slices.Compact(slices.Clone(rec.acked)), sent); diff != "" {
+	if diff := cmp.Diff(append([]int64{0}, slices.Compact(slices.Clone(rec.acked))...), sent); diff != "" {
 		t.Errorf("Progress against the committed_size answers (-want, +got):\n%s", diff)
+	}
+	if len(writesBefore) == 0 || writesBefore[0] != 0 {
+		t.Errorf("parts sent before the first Progress call: got = %v, want none", writesBefore)
 	}
 }
 
-// TestPartUploadStopsWhenCancelled covers ctx ending between parts, after
-// the last, during a part, and during a backoff: Upload returns ctx's
-// error, reads and sends nothing more, and never completes.
+// TestPartUploadReportsOnePart pins that a bundle that fits in one part is
+// reported twice, at 0 and at the whole envelope, so a progress bar moves
+// rather than first appearing full.
+func TestPartUploadReportsOnePart(t *testing.T) {
+	h := newPartHarness(t)
+	data := randomBytes(t, alignment)
+	b, _ := memBundle(data, data)
+	type report struct{ Sent, Total int64 }
+	var got []report
+
+	_, err := (&upload.PartClient{Uploads: h.client, Progress: func(n, total int64) {
+		got = append(got, report{n, total})
+	}}).Upload(t.Context(), org(), b)
+	if err != nil {
+		t.Fatalf("Upload: %v", err)
+	}
+	envelope := h.parts.only(t).upload.GetEnvelopeSize()
+	if diff := cmp.Diff([]report{{0, envelope}, {envelope, envelope}}, got); diff != "" {
+		t.Errorf("Progress calls (-want, +got):\n%s", diff)
+	}
+}
+
+// TestPartUploadStopsWhenCancelled covers ctx ending at the first progress
+// report, between parts, after the last, during a part, and during a
+// backoff: Upload returns ctx's error, reads and sends nothing more, and
+// never completes.
 func TestPartUploadStopsWhenCancelled(t *testing.T) {
 	for _, tc := range []struct {
 		name string
@@ -495,9 +524,20 @@ func TestPartUploadStopsWhenCancelled(t *testing.T) {
 		size       int
 		wantWrites int
 	}{{
-		name: "between parts",
+		name: "at the first report",
 		setup: func(_ *testing.T, _ *partHarness, cancel context.CancelFunc) func(int64, int64) {
 			return func(int64, int64) { cancel() }
+		},
+		size:       3 * alignment,
+		wantWrites: 0,
+	}, {
+		name: "between parts",
+		setup: func(_ *testing.T, _ *partHarness, cancel context.CancelFunc) func(int64, int64) {
+			return func(sent, _ int64) {
+				if sent > 0 {
+					cancel()
+				}
+			}
 		},
 		size:       3 * alignment,
 		wantWrites: 1,
@@ -576,8 +616,9 @@ func TestPartUploadStopsWhenCancelled(t *testing.T) {
 			if len(writes) != tc.wantWrites || completed != 0 {
 				t.Errorf("WriteUpload and CompleteUpload calls: got = %d and %d, want = %d and 0", len(writes), completed, tc.wantWrites)
 			}
-			if closes := o.closes.Load(); closes != 1 {
-				t.Errorf("bundle closed %d times, want 1", closes)
+			// A cancel at the first report comes before the bundle is opened.
+			if calls, closes := o.calls.Load(), o.closes.Load(); calls > 1 || closes != calls {
+				t.Errorf("bundle opened %d and closed %d times, want each open closed once", calls, closes)
 			}
 			if extra := o.read.Load() - readAtCancel.Load(); extra != 0 {
 				t.Errorf("read %d bytes of the bundle after ctx was cancelled, want none", extra)
