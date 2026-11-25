@@ -92,7 +92,7 @@ func PatchChartImages(chart v1.Image, ci *helmv1.ChartImages, resolve ResolveFun
 		}
 	}
 
-	img, err := rewriteChart(chart, patched, isTopLevelValuesYAML)
+	img, err := rewriteChart(chart, patched, isTopLevelValuesYAML, nil)
 	if err != nil {
 		return nil, nil, err
 	}

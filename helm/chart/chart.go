@@ -9,6 +9,7 @@ import (
 	"archive/tar"
 	"bytes"
 	"compress/gzip"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
@@ -17,6 +18,7 @@ import (
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/empty"
 	"github.com/google/go-containerregistry/pkg/v1/mutate"
+	"github.com/google/go-containerregistry/pkg/v1/partial"
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
 	"github.com/google/go-containerregistry/pkg/v1/types"
 	"gopkg.in/yaml.v3"
@@ -24,6 +26,10 @@ import (
 
 // MediaType is the OCI media type for Helm chart content layers.
 const MediaType types.MediaType = "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
+
+// ConfigMediaType is the OCI media type for a Helm chart's config blob, which
+// holds Chart.yaml as JSON.
+const ConfigMediaType types.MediaType = "application/vnd.cncf.helm.config.v1+json"
 
 // maxFileSize is the maximum size of any single file in a Helm chart (10 MB).
 const maxFileSize = 10 * 1024 * 1024
@@ -124,7 +130,7 @@ func ReplaceValues(chart v1.Image, m *images.Mapping, refs map[string]string, op
 		return nil, fmt.Errorf("resolving values: %w", err)
 	}
 
-	return rewriteChart(chart, newValues, isTopLevelValuesYAML)
+	return rewriteChart(chart, newValues, isTopLevelValuesYAML, nil)
 }
 
 // ReplaceChartMeta returns a new Helm chart OCI artifact with the top-level
@@ -135,11 +141,20 @@ func ReplaceChartMeta(chart v1.Image, meta *Meta) (v1.Image, error) {
 		return nil, fmt.Errorf("marshaling Chart.yaml: %w", err)
 	}
 
-	return rewriteChart(chart, chartYAML, isTopLevelChartYAML)
+	// A Helm config blob is Chart.yaml as JSON, so it follows the new metadata.
+	config, err := json.Marshal(meta)
+	if err != nil {
+		return nil, fmt.Errorf("marshaling chart config: %w", err)
+	}
+
+	return rewriteChart(chart, chartYAML, isTopLevelChartYAML, config)
 }
 
 // rewriteChart returns a new Helm chart image replacing file matched by pathMatcher with the provided values content.
-func rewriteChart(chart v1.Image, values []byte, pathMatcher PathMatcher) (v1.Image, error) {
+//
+// A chart whose config is a Helm config blob keeps it: config replaces it when
+// non-nil, and the original is carried over otherwise.
+func rewriteChart(chart v1.Image, values []byte, pathMatcher PathMatcher, config []byte) (v1.Image, error) {
 	layer, err := getChartLayer(chart)
 	if err != nil {
 		return nil, err
@@ -222,6 +237,22 @@ func rewriteChart(chart v1.Image, values []byte, pathMatcher PathMatcher) (v1.Im
 		return nil, fmt.Errorf("getting manifest: %w", err)
 	}
 
+	if origManifest.Config.MediaType == ConfigMediaType {
+		if config == nil {
+			config, err = chart.RawConfigFile()
+			if err != nil {
+				return nil, fmt.Errorf("getting chart config: %w", err)
+			}
+		}
+		return partial.CompressedToImage(&helmChart{
+			manifest: origManifest,
+			config:   config,
+			layer:    newLayer,
+		})
+	}
+
+	// Any other config is an image config, which mutate rebuilds for the new
+	// layer.
 	base := mutate.MediaType(empty.Image, origManifest.MediaType)
 	base = mutate.ConfigMediaType(base, origManifest.Config.MediaType)
 
@@ -238,6 +269,51 @@ func rewriteChart(chart v1.Image, values []byte, pathMatcher PathMatcher) (v1.Im
 	}
 
 	return img, nil
+}
+
+// helmChart is a rewritten chart artifact that keeps a Helm config blob.
+// mutate can only write an image config, which would replace the blob with
+// an empty one, so this implements [partial.CompressedImageCore] directly.
+type helmChart struct {
+	// manifest is the original chart's manifest, the source of everything
+	// but the config and layer descriptors.
+	manifest *v1.Manifest
+	config   []byte
+	layer    v1.Layer
+}
+
+var _ partial.CompressedImageCore = (*helmChart)(nil)
+
+func (c *helmChart) RawConfigFile() ([]byte, error) { return c.config, nil }
+
+func (c *helmChart) MediaType() (types.MediaType, error) { return c.manifest.MediaType, nil }
+
+func (c *helmChart) RawManifest() ([]byte, error) {
+	cfgHash, cfgSize, err := v1.SHA256(bytes.NewReader(c.config))
+	if err != nil {
+		return nil, fmt.Errorf("hashing chart config: %w", err)
+	}
+	layer, err := partial.Descriptor(c.layer)
+	if err != nil {
+		return nil, fmt.Errorf("describing chart layer: %w", err)
+	}
+
+	m := c.manifest.DeepCopy()
+	m.Config.Digest = cfgHash
+	m.Config.Size = cfgSize
+	m.Layers = []v1.Descriptor{*layer}
+	return json.Marshal(m)
+}
+
+func (c *helmChart) LayerByDigest(h v1.Hash) (partial.CompressedLayer, error) {
+	d, err := c.layer.Digest()
+	if err != nil {
+		return nil, err
+	}
+	if h != d {
+		return nil, fmt.Errorf("layer %s not found in chart", h)
+	}
+	return c.layer, nil
 }
 
 func getChartLayer(chart v1.Image) (v1.Layer, error) {
