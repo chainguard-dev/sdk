@@ -401,7 +401,7 @@ const (
 	// submit, and cancel can be granted independently. Customer-facing: an org
 	// member holds these on the target group named by `chainctl skills harden
 	// --group`.
-	//   read   -> GetHardenOperation
+	//   read   -> GetHardenOperation, ListHardenOperations
 	//   write  -> HardenSkill (submit)
 	//   cancel -> CancelHardenOperation
 	// These let a customer kick off and track a harden; they do NOT let the caller
