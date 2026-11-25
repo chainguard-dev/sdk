@@ -69,17 +69,11 @@ func (e *RejectedError) Error() string {
 // CreateUpload names the upload, and gRPC errors stay visible to
 // status.Code.
 func (c *Client) Upload(ctx context.Context, org string, b *Bundle) (*harnesspb.Upload, error) {
-	switch {
-	case c.Uploads == nil:
+	if c.Uploads == nil {
 		return nil, errors.New("no Uploads client")
-	case b == nil:
-		return nil, errors.New("nil bundle")
-	case b.Open == nil:
-		return nil, errors.New("the bundle has no Open function")
-	case b.Size <= 0:
-		return nil, fmt.Errorf("the bundle is %d bytes; it must not be empty", b.Size)
-	case !bundleDigest.MatchString(b.SHA256):
-		return nil, fmt.Errorf(`the bundle digest %q is not "sha256:" and 64 lowercase hex digits`, b.SHA256)
+	}
+	if err := checkBundle(b); err != nil {
+		return nil, err
 	}
 
 	key, err := c.Uploads.GetOrgPublicKey(ctx, &harnesspb.GetOrgPublicKeyRequest{ParentId: org})
@@ -120,6 +114,21 @@ func (c *Client) Upload(ctx context.Context, org string, b *Bundle) (*harnesspb.
 		return nil, &RejectedError{Upload: done}
 	}
 	return done, nil
+}
+
+// checkBundle refuses a bundle Upload could not describe to CreateUpload.
+func checkBundle(b *Bundle) error {
+	switch {
+	case b == nil:
+		return errors.New("nil bundle")
+	case b.Open == nil:
+		return errors.New("the bundle has no Open function")
+	case b.Size <= 0:
+		return fmt.Errorf("the bundle is %d bytes; it must not be empty", b.Size)
+	case !bundleDigest.MatchString(b.SHA256):
+		return fmt.Errorf(`the bundle digest %q is not "sha256:" and 64 lowercase hex digits`, b.SHA256)
+	}
+	return nil
 }
 
 // complete calls CompleteUpload, retrying once on Aborted: the server aborts
