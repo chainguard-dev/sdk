@@ -76,6 +76,31 @@ service SkillsHarden {
     };
   }
 
+  // ListHardenOperations lists the harden operations of one group. It lists
+  // that exact group only: operations hardened into a descendant folder are not
+  // included. Only operations still inside the store's 30-day retention
+  // window are returned. Order is unspecified. A page can hold fewer than
+  // page_size operations, or none, while next_page_token is still set, so keep
+  // paging until it is empty.
+  rpc ListHardenOperations(ListHardenOperationsRequest)
+      returns (ListHardenOperationsResponse) {
+    option (google.api.http) = {get: "/skills/v1alpha1/hardenOperations"};
+    option (chainguard.annotations.iam) = {
+      enabled: {
+        capabilities: [CAP_SKILLS_HARDEN_READ]
+      }
+    };
+    option (chainguard.annotations.mcp) = {
+      description: "List the skill-harden long-running operations of a group, "
+                   "optionally filtered by actor, skill name, phase or "
+                   "completion."
+      read_only: true
+      destructive: false
+      idempotent: true
+      open_world: false
+    };
+  }
+
   // CancelHardenOperation requests cancellation of a running harden job and
   // returns the operation. Idempotent: cancelling an already-terminal operation
   // is a no-op that returns it unchanged.
@@ -208,6 +233,39 @@ message GetHardenOperationRequest {
 
   // name is the operation name as returned by HardenSkill (harden/{uidp}/{id}).
   string name = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ListHardenOperationsRequest {
+  // group is the group UIDP whose operations are listed; the IAM scope. Only
+  // operations of this exact group are listed, not those of its descendants.
+  string group = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (chainguard.annotations.iam_scope) = true
+  ];
+
+  // filter is an AIP-160 subset: one or more `field = value` comparisons
+  // joined by AND, each field at most once. Fields are actor and skill_name
+  // (strings, quoted when they hold spaces or symbols), phase (a HardenPhase
+  // name other than HARDEN_PHASE_UNSPECIFIED) and done (true or false). For
+  // example: skill_name = "pdf" AND phase = HARDEN_PHASE_COMPLETED. Empty
+  // matches every operation.
+  string filter = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // page_size is the maximum number of operations to return: 0 uses 50 and
+  // values above 100 are capped at 100. Negative values are rejected.
+  int32 page_size = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // page_token is the next_page_token from a previous response with the same
+  // group and filter.
+  string page_token = 4 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ListHardenOperationsResponse {
+  // operations are in the same form GetHardenOperation returns.
+  repeated google.longrunning.Operation operations = 1;
+  // next_page_token is empty once there are no more operations to list. It can
+  // be set on a short or empty page.
+  string next_page_token = 2;
 }
 
 message CancelHardenOperationRequest {
