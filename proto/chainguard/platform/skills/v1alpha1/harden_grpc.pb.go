@@ -25,7 +25,6 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	SkillsHarden_HardenSkill_FullMethodName           = "/chainguard.platform.skills.v1alpha1.SkillsHarden/HardenSkill"
 	SkillsHarden_GetHardenOperation_FullMethodName    = "/chainguard.platform.skills.v1alpha1.SkillsHarden/GetHardenOperation"
-	SkillsHarden_ListHardenOperations_FullMethodName  = "/chainguard.platform.skills.v1alpha1.SkillsHarden/ListHardenOperations"
 	SkillsHarden_CancelHardenOperation_FullMethodName = "/chainguard.platform.skills.v1alpha1.SkillsHarden/CancelHardenOperation"
 )
 
@@ -55,13 +54,6 @@ type SkillsHardenClient interface {
 	// previously returned by HardenSkill. The operation name embeds the owning
 	// group's UIDP; group must match and is the IAM scope.
 	GetHardenOperation(ctx context.Context, in *GetHardenOperationRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
-	// ListHardenOperations lists the harden operations of one group. It lists
-	// that exact group only: operations hardened into a descendant folder are not
-	// included. Only operations still inside the store's 30-day retention
-	// window are returned. Order is unspecified. A page can hold fewer than
-	// page_size operations, or none, while next_page_token is still set, so keep
-	// paging until it is empty.
-	ListHardenOperations(ctx context.Context, in *ListHardenOperationsRequest, opts ...grpc.CallOption) (*ListHardenOperationsResponse, error)
 	// CancelHardenOperation requests cancellation of a running harden job and
 	// returns the operation. Idempotent: cancelling an already-terminal operation
 	// is a no-op that returns it unchanged.
@@ -90,16 +82,6 @@ func (c *skillsHardenClient) GetHardenOperation(ctx context.Context, in *GetHard
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(longrunningpb.Operation)
 	err := c.cc.Invoke(ctx, SkillsHarden_GetHardenOperation_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *skillsHardenClient) ListHardenOperations(ctx context.Context, in *ListHardenOperationsRequest, opts ...grpc.CallOption) (*ListHardenOperationsResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListHardenOperationsResponse)
-	err := c.cc.Invoke(ctx, SkillsHarden_ListHardenOperations_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -142,13 +124,6 @@ type SkillsHardenServer interface {
 	// previously returned by HardenSkill. The operation name embeds the owning
 	// group's UIDP; group must match and is the IAM scope.
 	GetHardenOperation(context.Context, *GetHardenOperationRequest) (*longrunningpb.Operation, error)
-	// ListHardenOperations lists the harden operations of one group. It lists
-	// that exact group only: operations hardened into a descendant folder are not
-	// included. Only operations still inside the store's 30-day retention
-	// window are returned. Order is unspecified. A page can hold fewer than
-	// page_size operations, or none, while next_page_token is still set, so keep
-	// paging until it is empty.
-	ListHardenOperations(context.Context, *ListHardenOperationsRequest) (*ListHardenOperationsResponse, error)
 	// CancelHardenOperation requests cancellation of a running harden job and
 	// returns the operation. Idempotent: cancelling an already-terminal operation
 	// is a no-op that returns it unchanged.
@@ -168,9 +143,6 @@ func (UnimplementedSkillsHardenServer) HardenSkill(context.Context, *HardenSkill
 }
 func (UnimplementedSkillsHardenServer) GetHardenOperation(context.Context, *GetHardenOperationRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetHardenOperation not implemented")
-}
-func (UnimplementedSkillsHardenServer) ListHardenOperations(context.Context, *ListHardenOperationsRequest) (*ListHardenOperationsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListHardenOperations not implemented")
 }
 func (UnimplementedSkillsHardenServer) CancelHardenOperation(context.Context, *CancelHardenOperationRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method CancelHardenOperation not implemented")
@@ -232,24 +204,6 @@ func _SkillsHarden_GetHardenOperation_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SkillsHarden_ListHardenOperations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListHardenOperationsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SkillsHardenServer).ListHardenOperations(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SkillsHarden_ListHardenOperations_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SkillsHardenServer).ListHardenOperations(ctx, req.(*ListHardenOperationsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _SkillsHarden_CancelHardenOperation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CancelHardenOperationRequest)
 	if err := dec(in); err != nil {
@@ -282,10 +236,6 @@ var SkillsHarden_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetHardenOperation",
 			Handler:    _SkillsHarden_GetHardenOperation_Handler,
-		},
-		{
-			MethodName: "ListHardenOperations",
-			Handler:    _SkillsHarden_ListHardenOperations_Handler,
 		},
 		{
 			MethodName: "CancelHardenOperation",

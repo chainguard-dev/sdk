@@ -425,141 +425,6 @@ func (x *GetHardenOperationRequest) GetName() string {
 	return ""
 }
 
-type ListHardenOperationsRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// group is the group UIDP whose operations are listed; the IAM scope. Only
-	// operations of this exact group are listed, not those of its descendants.
-	Group string `protobuf:"bytes,1,opt,name=group,proto3" json:"group,omitempty"`
-	// filter is an AIP-160 subset: one or more `field = value` comparisons
-	// joined by AND, each field at most once. Fields are actor and skill_name
-	// (strings, quoted when they hold spaces or symbols), phase (a HardenPhase
-	// name other than HARDEN_PHASE_UNSPECIFIED) and done (true or false). For
-	// example: skill_name = "pdf" AND phase = HARDEN_PHASE_COMPLETED. Empty
-	// matches every operation.
-	Filter string `protobuf:"bytes,2,opt,name=filter,proto3" json:"filter,omitempty"`
-	// page_size is the maximum number of operations to return: 0 uses 50 and
-	// values above 100 are capped at 100. Negative values are rejected.
-	PageSize int32 `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	// page_token is the next_page_token from a previous response with the same
-	// group and filter.
-	PageToken     string `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListHardenOperationsRequest) Reset() {
-	*x = ListHardenOperationsRequest{}
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListHardenOperationsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListHardenOperationsRequest) ProtoMessage() {}
-
-func (x *ListHardenOperationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListHardenOperationsRequest.ProtoReflect.Descriptor instead.
-func (*ListHardenOperationsRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *ListHardenOperationsRequest) GetGroup() string {
-	if x != nil {
-		return x.Group
-	}
-	return ""
-}
-
-func (x *ListHardenOperationsRequest) GetFilter() string {
-	if x != nil {
-		return x.Filter
-	}
-	return ""
-}
-
-func (x *ListHardenOperationsRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *ListHardenOperationsRequest) GetPageToken() string {
-	if x != nil {
-		return x.PageToken
-	}
-	return ""
-}
-
-type ListHardenOperationsResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// operations are in the same form GetHardenOperation returns.
-	Operations []*longrunningpb.Operation `protobuf:"bytes,1,rep,name=operations,proto3" json:"operations,omitempty"`
-	// next_page_token is empty once there are no more operations to list. It can
-	// be set on a short or empty page.
-	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListHardenOperationsResponse) Reset() {
-	*x = ListHardenOperationsResponse{}
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListHardenOperationsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListHardenOperationsResponse) ProtoMessage() {}
-
-func (x *ListHardenOperationsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListHardenOperationsResponse.ProtoReflect.Descriptor instead.
-func (*ListHardenOperationsResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *ListHardenOperationsResponse) GetOperations() []*longrunningpb.Operation {
-	if x != nil {
-		return x.Operations
-	}
-	return nil
-}
-
-func (x *ListHardenOperationsResponse) GetNextPageToken() string {
-	if x != nil {
-		return x.NextPageToken
-	}
-	return ""
-}
-
 type CancelHardenOperationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// group is the owning group UIDP; the IAM scope. The operation cancelled is
@@ -574,7 +439,7 @@ type CancelHardenOperationRequest struct {
 
 func (x *CancelHardenOperationRequest) Reset() {
 	*x = CancelHardenOperationRequest{}
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[5]
+	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -586,7 +451,7 @@ func (x *CancelHardenOperationRequest) String() string {
 func (*CancelHardenOperationRequest) ProtoMessage() {}
 
 func (x *CancelHardenOperationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[5]
+	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -599,7 +464,7 @@ func (x *CancelHardenOperationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelHardenOperationRequest.ProtoReflect.Descriptor instead.
 func (*CancelHardenOperationRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{5}
+	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *CancelHardenOperationRequest) GetGroup() string {
@@ -664,7 +529,7 @@ type HardenOperationMetadata struct {
 
 func (x *HardenOperationMetadata) Reset() {
 	*x = HardenOperationMetadata{}
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[6]
+	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -676,7 +541,7 @@ func (x *HardenOperationMetadata) String() string {
 func (*HardenOperationMetadata) ProtoMessage() {}
 
 func (x *HardenOperationMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[6]
+	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -689,7 +554,7 @@ func (x *HardenOperationMetadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HardenOperationMetadata.ProtoReflect.Descriptor instead.
 func (*HardenOperationMetadata) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{6}
+	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *HardenOperationMetadata) GetJobId() string {
@@ -808,7 +673,7 @@ type HardenOperationResponse struct {
 
 func (x *HardenOperationResponse) Reset() {
 	*x = HardenOperationResponse{}
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[7]
+	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -820,7 +685,7 @@ func (x *HardenOperationResponse) String() string {
 func (*HardenOperationResponse) ProtoMessage() {}
 
 func (x *HardenOperationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[7]
+	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -833,7 +698,7 @@ func (x *HardenOperationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HardenOperationResponse.ProtoReflect.Descriptor instead.
 func (*HardenOperationResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{7}
+	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *HardenOperationResponse) GetHardenedRef() string {
@@ -870,7 +735,7 @@ type HardenOperationMetadata_PhaseChange struct {
 
 func (x *HardenOperationMetadata_PhaseChange) Reset() {
 	*x = HardenOperationMetadata_PhaseChange{}
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[8]
+	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -882,7 +747,7 @@ func (x *HardenOperationMetadata_PhaseChange) String() string {
 func (*HardenOperationMetadata_PhaseChange) ProtoMessage() {}
 
 func (x *HardenOperationMetadata_PhaseChange) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[8]
+	mi := &file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -895,7 +760,7 @@ func (x *HardenOperationMetadata_PhaseChange) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use HardenOperationMetadata_PhaseChange.ProtoReflect.Descriptor instead.
 func (*HardenOperationMetadata_PhaseChange) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{6, 0}
+	return file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP(), []int{4, 0}
 }
 
 func (x *HardenOperationMetadata_PhaseChange) GetPhase() HardenPhase {
@@ -930,19 +795,7 @@ const file_chainguard_platform_skills_v1alpha1_harden_proto_rawDesc = "" +
 	"\x19GetHardenOperationRequest\x12 \n" +
 	"\x05group\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x05group\x12\x18\n" +
-	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x04name\"\xa5\x01\n" +
-	"\x1bListHardenOperationsRequest\x12 \n" +
-	"\x05group\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x05group\x12\x1c\n" +
-	"\x06filter\x18\x02 \x01(\tB\x04\xe2A\x01\x01R\x06filter\x12!\n" +
-	"\tpage_size\x18\x03 \x01(\x05B\x04\xe2A\x01\x01R\bpageSize\x12#\n" +
-	"\n" +
-	"page_token\x18\x04 \x01(\tB\x04\xe2A\x01\x01R\tpageToken\"\x85\x01\n" +
-	"\x1cListHardenOperationsResponse\x12=\n" +
-	"\n" +
-	"operations\x18\x01 \x03(\v2\x1d.google.longrunning.OperationR\n" +
-	"operations\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"]\n" +
+	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x04name\"]\n" +
 	"\x1cCancelHardenOperationRequest\x12 \n" +
 	"\x05group\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x05group\x12\x1b\n" +
@@ -989,8 +842,7 @@ const file_chainguard_platform_skills_v1alpha1_harden_proto_rawDesc = "" +
 	"\x13HARDEN_STAGE_REVIEW\x10\x03\x12\x17\n" +
 	"\x13HARDEN_STAGE_HARDEN\x10\x04\x12\x1a\n" +
 	"\x16HARDEN_STAGE_POST_EVAL\x10\x05\x12\x18\n" +
-	"\x14HARDEN_STAGE_PUBLISH\x10\x062\xbe\n" +
-	"\n" +
+	"\x14HARDEN_STAGE_PUBLISH\x10\x062\xdf\a\n" +
 	"\fSkillsHarden\x12\xb9\x03\n" +
 	"\vHardenSkill\x127.chainguard.platform.skills.v1alpha1.HardenSkillRequest\x1a\x1d.google.longrunning.Operation\"\xd1\x02\xcaAz\n" +
 	";chainguard.platform.skills.v1alpha1.HardenOperationResponse\x12;chainguard.platform.skills.v1alpha1.HardenOperationMetadata\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/skills/v1alpha1/harden\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
@@ -998,10 +850,7 @@ const file_chainguard_platform_skills_v1alpha1_harden_proto_rawDesc = "" +
 	"\x96\x01Submit a skill artifact (already uploaded to uploads.cgr.dev) to be hardened into a group, returning a long-running operation to track the harden job. \x00(\x010\x00\x12\xfe\x01\n" +
 	"\x12GetHardenOperation\x12>.chainguard.platform.skills.v1alpha1.GetHardenOperationRequest\x1a\x1d.google.longrunning.Operation\"\x88\x01\x82\xd3\xe4\x93\x02#\x12!/skills/v1alpha1/{name=harden/**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xcc\x13\x9a\xaf\xa8\xd2\x05M\n" +
-	"CGet the state of a skill-harden long-running operation by its name.\x18\x01 \x00(\x010\x00\x12\xdc\x02\n" +
-	"\x14ListHardenOperations\x12@.chainguard.platform.skills.v1alpha1.ListHardenOperationsRequest\x1aA.chainguard.platform.skills.v1alpha1.ListHardenOperationsResponse\"\xbe\x01\x82\xd3\xe4\x93\x02#\x12!/skills/v1alpha1/hardenOperations\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xcc\x13\x9a\xaf\xa8\xd2\x05\x82\x01\n" +
-	"xList the skill-harden long-running operations of a group, optionally filtered by actor, skill name, phase or completion.\x18\x01 \x00(\x010\x00\x12\x91\x02\n" +
+	"CGet the state of a skill-harden long-running operation by its name.\x18\x01 \x00(\x010\x00\x12\x91\x02\n" +
 	"\x15CancelHardenOperation\x12A.chainguard.platform.skills.v1alpha1.CancelHardenOperationRequest\x1a\x1d.google.longrunning.Operation\"\x95\x01\x82\xd3\xe4\x93\x02,:\x01*\"'/skills/v1alpha1/harden/{job_id}:cancel\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xce\x13\x9a\xaf\xa8\xd2\x05Q\n" +
 	"IRequest cancellation of a running skill-harden job by its operation name. \x01(\x010\x00Bv\n" +
@@ -1020,7 +869,7 @@ func file_chainguard_platform_skills_v1alpha1_harden_proto_rawDescGZIP() []byte 
 }
 
 var file_chainguard_platform_skills_v1alpha1_harden_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_chainguard_platform_skills_v1alpha1_harden_proto_goTypes = []any{
 	(HardenPhase)(0),                            // 0: chainguard.platform.skills.v1alpha1.HardenPhase
 	(HardenTrigger)(0),                          // 1: chainguard.platform.skills.v1alpha1.HardenTrigger
@@ -1028,39 +877,34 @@ var file_chainguard_platform_skills_v1alpha1_harden_proto_goTypes = []any{
 	(*HardenFailure)(nil),                       // 3: chainguard.platform.skills.v1alpha1.HardenFailure
 	(*HardenSkillRequest)(nil),                  // 4: chainguard.platform.skills.v1alpha1.HardenSkillRequest
 	(*GetHardenOperationRequest)(nil),           // 5: chainguard.platform.skills.v1alpha1.GetHardenOperationRequest
-	(*ListHardenOperationsRequest)(nil),         // 6: chainguard.platform.skills.v1alpha1.ListHardenOperationsRequest
-	(*ListHardenOperationsResponse)(nil),        // 7: chainguard.platform.skills.v1alpha1.ListHardenOperationsResponse
-	(*CancelHardenOperationRequest)(nil),        // 8: chainguard.platform.skills.v1alpha1.CancelHardenOperationRequest
-	(*HardenOperationMetadata)(nil),             // 9: chainguard.platform.skills.v1alpha1.HardenOperationMetadata
-	(*HardenOperationResponse)(nil),             // 10: chainguard.platform.skills.v1alpha1.HardenOperationResponse
-	(*HardenOperationMetadata_PhaseChange)(nil), // 11: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.PhaseChange
-	(*longrunningpb.Operation)(nil),             // 12: google.longrunning.Operation
-	(*timestamppb.Timestamp)(nil),               // 13: google.protobuf.Timestamp
+	(*CancelHardenOperationRequest)(nil),        // 6: chainguard.platform.skills.v1alpha1.CancelHardenOperationRequest
+	(*HardenOperationMetadata)(nil),             // 7: chainguard.platform.skills.v1alpha1.HardenOperationMetadata
+	(*HardenOperationResponse)(nil),             // 8: chainguard.platform.skills.v1alpha1.HardenOperationResponse
+	(*HardenOperationMetadata_PhaseChange)(nil), // 9: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.PhaseChange
+	(*timestamppb.Timestamp)(nil),               // 10: google.protobuf.Timestamp
+	(*longrunningpb.Operation)(nil),             // 11: google.longrunning.Operation
 }
 var file_chainguard_platform_skills_v1alpha1_harden_proto_depIdxs = []int32{
-	12, // 0: chainguard.platform.skills.v1alpha1.ListHardenOperationsResponse.operations:type_name -> google.longrunning.Operation
-	1,  // 1: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.trigger:type_name -> chainguard.platform.skills.v1alpha1.HardenTrigger
-	13, // 2: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.create_time:type_name -> google.protobuf.Timestamp
-	13, // 3: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.update_time:type_name -> google.protobuf.Timestamp
-	0,  // 4: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.phase:type_name -> chainguard.platform.skills.v1alpha1.HardenPhase
-	11, // 5: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.phase_changes:type_name -> chainguard.platform.skills.v1alpha1.HardenOperationMetadata.PhaseChange
-	2,  // 6: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.stage:type_name -> chainguard.platform.skills.v1alpha1.HardenStage
-	3,  // 7: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.failure:type_name -> chainguard.platform.skills.v1alpha1.HardenFailure
-	0,  // 8: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.PhaseChange.phase:type_name -> chainguard.platform.skills.v1alpha1.HardenPhase
-	13, // 9: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.PhaseChange.time:type_name -> google.protobuf.Timestamp
-	4,  // 10: chainguard.platform.skills.v1alpha1.SkillsHarden.HardenSkill:input_type -> chainguard.platform.skills.v1alpha1.HardenSkillRequest
-	5,  // 11: chainguard.platform.skills.v1alpha1.SkillsHarden.GetHardenOperation:input_type -> chainguard.platform.skills.v1alpha1.GetHardenOperationRequest
-	6,  // 12: chainguard.platform.skills.v1alpha1.SkillsHarden.ListHardenOperations:input_type -> chainguard.platform.skills.v1alpha1.ListHardenOperationsRequest
-	8,  // 13: chainguard.platform.skills.v1alpha1.SkillsHarden.CancelHardenOperation:input_type -> chainguard.platform.skills.v1alpha1.CancelHardenOperationRequest
-	12, // 14: chainguard.platform.skills.v1alpha1.SkillsHarden.HardenSkill:output_type -> google.longrunning.Operation
-	12, // 15: chainguard.platform.skills.v1alpha1.SkillsHarden.GetHardenOperation:output_type -> google.longrunning.Operation
-	7,  // 16: chainguard.platform.skills.v1alpha1.SkillsHarden.ListHardenOperations:output_type -> chainguard.platform.skills.v1alpha1.ListHardenOperationsResponse
-	12, // 17: chainguard.platform.skills.v1alpha1.SkillsHarden.CancelHardenOperation:output_type -> google.longrunning.Operation
-	14, // [14:18] is the sub-list for method output_type
-	10, // [10:14] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	1,  // 0: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.trigger:type_name -> chainguard.platform.skills.v1alpha1.HardenTrigger
+	10, // 1: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.create_time:type_name -> google.protobuf.Timestamp
+	10, // 2: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.update_time:type_name -> google.protobuf.Timestamp
+	0,  // 3: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.phase:type_name -> chainguard.platform.skills.v1alpha1.HardenPhase
+	9,  // 4: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.phase_changes:type_name -> chainguard.platform.skills.v1alpha1.HardenOperationMetadata.PhaseChange
+	2,  // 5: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.stage:type_name -> chainguard.platform.skills.v1alpha1.HardenStage
+	3,  // 6: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.failure:type_name -> chainguard.platform.skills.v1alpha1.HardenFailure
+	0,  // 7: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.PhaseChange.phase:type_name -> chainguard.platform.skills.v1alpha1.HardenPhase
+	10, // 8: chainguard.platform.skills.v1alpha1.HardenOperationMetadata.PhaseChange.time:type_name -> google.protobuf.Timestamp
+	4,  // 9: chainguard.platform.skills.v1alpha1.SkillsHarden.HardenSkill:input_type -> chainguard.platform.skills.v1alpha1.HardenSkillRequest
+	5,  // 10: chainguard.platform.skills.v1alpha1.SkillsHarden.GetHardenOperation:input_type -> chainguard.platform.skills.v1alpha1.GetHardenOperationRequest
+	6,  // 11: chainguard.platform.skills.v1alpha1.SkillsHarden.CancelHardenOperation:input_type -> chainguard.platform.skills.v1alpha1.CancelHardenOperationRequest
+	11, // 12: chainguard.platform.skills.v1alpha1.SkillsHarden.HardenSkill:output_type -> google.longrunning.Operation
+	11, // 13: chainguard.platform.skills.v1alpha1.SkillsHarden.GetHardenOperation:output_type -> google.longrunning.Operation
+	11, // 14: chainguard.platform.skills.v1alpha1.SkillsHarden.CancelHardenOperation:output_type -> google.longrunning.Operation
+	12, // [12:15] is the sub-list for method output_type
+	9,  // [9:12] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_skills_v1alpha1_harden_proto_init() }
@@ -1068,14 +912,14 @@ func file_chainguard_platform_skills_v1alpha1_harden_proto_init() {
 	if File_chainguard_platform_skills_v1alpha1_harden_proto != nil {
 		return
 	}
-	file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[7].OneofWrappers = []any{}
+	file_chainguard_platform_skills_v1alpha1_harden_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_skills_v1alpha1_harden_proto_rawDesc), len(file_chainguard_platform_skills_v1alpha1_harden_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   9,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
