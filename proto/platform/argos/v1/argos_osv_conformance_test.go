@@ -168,7 +168,8 @@ func TestOSVPaginationJSONConformsToOSVSpec(t *testing.T) {
 }
 
 // TestAssessmentJSONUsesOpenVEXTokens pins database_specific.assessment's keys
-// to the OpenVEX field names, which a VEX consumer copies.
+// to the OpenVEX field names, which a VEX consumer copies, and superseded_by
+// to its snake_case key.
 func TestAssessmentJSONUsesOpenVEXTokens(t *testing.T) {
 	assessedAt := time.Date(2026, 11, 20, 18, 0, 0, 0, time.UTC)
 	rec := &argosv1.OSVRecord{
@@ -180,6 +181,7 @@ func TestAssessmentJSONUsesOpenVEXTokens(t *testing.T) {
 				Justification:   "vulnerable_code_cannot_be_controlled_by_adversary",
 				ImpactStatement: "reachable only from the admin console",
 				AssessedAt:      timestamppb.New(assessedAt),
+				SupersededBy:    "CGP-DDDD-EEEE-FFFF",
 			},
 		},
 	}
@@ -200,6 +202,7 @@ func TestAssessmentJSONUsesOpenVEXTokens(t *testing.T) {
 		"justification":    "vulnerable_code_cannot_be_controlled_by_adversary",
 		"impact_statement": "reachable only from the admin console",
 		"assessed_at":      "2026-11-20T18:00:00Z",
+		"superseded_by":    "CGP-DDDD-EEEE-FFFF",
 	}
 	if !maps.Equal(got.DatabaseSpecific.Assessment, want) {
 		t.Errorf("assessment: got = %v, want = %v", got.DatabaseSpecific.Assessment, want)

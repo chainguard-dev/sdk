@@ -404,6 +404,16 @@ message Assessment {
     json_name = "assessed_at",
     (google.api.field_behavior) = OUTPUT_ONLY
   ];
+
+  // superseded_by is the id of a published record that supersedes this one:
+  // a later report brought evidence this assessment did not consider, and
+  // was confirmed. Empty when none does. The record stays withdrawn and
+  // not_affected. Its summary then starts "Withdrawn, false positive
+  // determined. Superseded by <id>. ", and related names the id as well.
+  string superseded_by = 5 [
+    json_name = "superseded_by",
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
 }
 
 // Reference is one OSV-spec references[] entry: a typed, record-level URL

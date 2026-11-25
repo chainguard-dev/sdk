@@ -1430,7 +1430,13 @@ type Assessment struct {
 	// assessed_at is when the current assessment was made, in UTC. The
 	// record's modified time matches it, and its withdrawn time is when the
 	// vulnerability was first ruled out.
-	AssessedAt    *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=assessed_at,proto3" json:"assessed_at,omitempty"`
+	AssessedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=assessed_at,proto3" json:"assessed_at,omitempty"`
+	// superseded_by is the id of a published record that supersedes this one:
+	// a later report brought evidence this assessment did not consider, and
+	// was confirmed. Empty when none does. The record stays withdrawn and
+	// not_affected. Its summary then starts "Withdrawn, false positive
+	// determined. Superseded by <id>. ", and related names the id as well.
+	SupersededBy  string `protobuf:"bytes,5,opt,name=superseded_by,proto3" json:"superseded_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1491,6 +1497,13 @@ func (x *Assessment) GetAssessedAt() *timestamppb.Timestamp {
 		return x.AssessedAt
 	}
 	return nil
+}
+
+func (x *Assessment) GetSupersededBy() string {
+	if x != nil {
+		return x.SupersededBy
+	}
+	return ""
 }
 
 // Reference is one OSV-spec references[] entry: a typed, record-level URL
@@ -2421,13 +2434,14 @@ const file_argos_osv_platform_proto_rawDesc = "" +
 	"disclosure\x12K\n" +
 	"\n" +
 	"assessment\x18\x04 \x01(\v2%.chainguard.platform.argos.AssessmentB\x04\xe2A\x01\x03R\n" +
-	"assessment\"\xcf\x01\n" +
+	"assessment\"\xfb\x01\n" +
 	"\n" +
 	"Assessment\x12\x1c\n" +
 	"\x06status\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x06status\x12*\n" +
 	"\rjustification\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\rjustification\x123\n" +
 	"\x10impact_statement\x18\x03 \x01(\tB\a\xe2A\x01\x03\x80\x01\x01R\x10impact_statement\x12B\n" +
-	"\vassessed_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\vassessed_at\"\x8b\x02\n" +
+	"\vassessed_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\vassessed_at\x12*\n" +
+	"\rsuperseded_by\x18\x05 \x01(\tB\x04\xe2A\x01\x03R\rsuperseded_by\"\x8b\x02\n" +
 	"\tReference\x12F\n" +
 	"\x04type\x18\x01 \x01(\x0e22.chainguard.platform.argos.Reference.ReferenceTypeR\x04type\x12\x10\n" +
 	"\x03url\x18\x02 \x01(\tR\x03url\"\xa3\x01\n" +
