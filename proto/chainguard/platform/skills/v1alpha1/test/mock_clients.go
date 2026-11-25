@@ -12,6 +12,7 @@ var _ skills.Clients = (*MockSkillsClients)(nil)
 type MockSkillsClients struct {
 	CatalogClient          MockCatalogClient
 	HardeningReportsClient MockHardeningReportsClient
+	HardenClient           MockHardenClient
 
 	OnClose error
 }
@@ -22,6 +23,10 @@ func (m MockSkillsClients) Skills() skills.SkillsClient {
 
 func (m MockSkillsClients) HardeningReports() skills.SkillsHardeningReportsClient {
 	return &m.HardeningReportsClient
+}
+
+func (m MockSkillsClients) Harden() skills.SkillsHardenClient {
+	return &m.HardenClient
 }
 
 func (m MockSkillsClients) Close() error {

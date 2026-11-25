@@ -12,6 +12,7 @@ import (
 type Clients interface {
 	Skills() SkillsClient
 	HardeningReports() SkillsHardeningReportsClient
+	Harden() SkillsHardenClient
 
 	Close() error
 }
@@ -20,6 +21,7 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 	return &clients{
 		skills:           NewSkillsClient(conn),
 		hardeningReports: NewSkillsHardeningReportsClient(conn),
+		harden:           NewSkillsHardenClient(conn),
 		// conn is not set; this client struct does not own closing it.
 	}
 }
@@ -27,6 +29,7 @@ func NewClientsFromConnection(conn *grpc.ClientConn) Clients {
 type clients struct {
 	skills           SkillsClient
 	hardeningReports SkillsHardeningReportsClient
+	harden           SkillsHardenClient
 
 	conn *grpc.ClientConn
 }
@@ -37,6 +40,10 @@ func (c *clients) Skills() SkillsClient {
 
 func (c *clients) HardeningReports() SkillsHardeningReportsClient {
 	return c.hardeningReports
+}
+
+func (c *clients) Harden() SkillsHardenClient {
+	return c.harden
 }
 
 func (c *clients) Close() error {
