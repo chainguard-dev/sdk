@@ -351,6 +351,59 @@ message TopLevelDatabaseSpecific {
 
   // disclosure is the record's coordinated-disclosure state.
   Disclosure disclosure = 3 [json_name = "disclosure"];
+
+  // assessment is why the record is a false positive. It is present only on
+  // a withdrawn record that was reported and ruled out, and tells that record
+  // apart from one withdrawn after publication, which never carries it.
+  Assessment assessment = 4 [
+    json_name = "assessment",
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+// Assessment is the judgement that a reported vulnerability is not one, in
+// OpenVEX terms (https://github.com/openvex/spec): status, justification and
+// impact_statement carry the OpenVEX field names and values, so a VEX consumer
+// can copy them. A record carrying one is withdrawn, has no affected entry,
+// and its summary starts "Withdrawn, false positive determined. ".
+//
+// It is identical for every recipient of the record: no field here varies by
+// caller.
+message Assessment {
+  // status is the OpenVEX status token. It is always "not_affected" on a
+  // served assessment. It is a string, not an enum, so that the JSON form is
+  // the OpenVEX token itself; other OpenVEX status tokens may appear later.
+  string status = 1 [
+    json_name = "status",
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // justification is the OpenVEX justification token for the not_affected
+  // status, one of "component_not_present", "vulnerable_code_not_present",
+  // "vulnerable_code_not_in_execute_path",
+  // "vulnerable_code_cannot_be_controlled_by_adversary" or
+  // "inline_mitigations_already_exist". It is a string for the same reason as
+  // status.
+  string justification = 2 [
+    json_name = "justification",
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // impact_statement explains, at the level of the project and its code, why
+  // the reported vulnerability does not apply.
+  string impact_statement = 3 [
+    json_name = "impact_statement",
+    debug_redact = true,
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // assessed_at is when the current assessment was made, in UTC. The
+  // record's modified time matches it, and its withdrawn time is when the
+  // vulnerability was first ruled out.
+  google.protobuf.Timestamp assessed_at = 4 [
+    json_name = "assessed_at",
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
 }
 
 // Reference is one OSV-spec references[] entry: a typed, record-level URL

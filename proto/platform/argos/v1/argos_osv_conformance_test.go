@@ -7,9 +7,11 @@ package v1_test
 
 import (
 	"encoding/json"
+	"maps"
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
@@ -162,5 +164,44 @@ func TestOSVPaginationJSONConformsToOSVSpec(t *testing.T) {
 		if strings.Contains(got, tc.reject) {
 			t.Errorf("%s: lowerCamelCase key %q leaked into customer OSV JSON (missing json_name pin): %s", tc.name, tc.reject, got)
 		}
+	}
+}
+
+// TestAssessmentJSONUsesOpenVEXTokens pins database_specific.assessment's keys
+// to the OpenVEX field names, which a VEX consumer copies.
+func TestAssessmentJSONUsesOpenVEXTokens(t *testing.T) {
+	assessedAt := time.Date(2026, 11, 20, 18, 0, 0, 0, time.UTC)
+	rec := &argosv1.OSVRecord{
+		Id:        "CGP-AAAA-BBBB-CCCC",
+		Withdrawn: timestamppb.New(assessedAt),
+		DatabaseSpecific: &argosv1.TopLevelDatabaseSpecific{
+			Assessment: &argosv1.Assessment{
+				Status:          "not_affected",
+				Justification:   "vulnerable_code_cannot_be_controlled_by_adversary",
+				ImpactStatement: "reachable only from the admin console",
+				AssessedAt:      timestamppb.New(assessedAt),
+			},
+		},
+	}
+	b, err := protojson.Marshal(rec)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	var got struct {
+		DatabaseSpecific struct {
+			Assessment map[string]string `json:"assessment"`
+		} `json:"database_specific"`
+	}
+	if err := json.Unmarshal(b, &got); err != nil {
+		t.Fatalf("unmarshal %s: %v", b, err)
+	}
+	want := map[string]string{
+		"status":           "not_affected",
+		"justification":    "vulnerable_code_cannot_be_controlled_by_adversary",
+		"impact_statement": "reachable only from the admin console",
+		"assessed_at":      "2026-11-20T18:00:00Z",
+	}
+	if !maps.Equal(got.DatabaseSpecific.Assessment, want) {
+		t.Errorf("assessment: got = %v, want = %v", got.DatabaseSpecific.Assessment, want)
 	}
 }
