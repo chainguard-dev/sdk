@@ -309,6 +309,13 @@ message AuthPolicy {
     (google.api.field_behavior) = UNORDERED_LIST
   ];
 
+  // break_glass_etag is the version of break_glass_identities (AIP-154). Pass
+  // it as SetBreakGlassAdminsRequest.etag to change the set only if no one
+  // else changed it since it was read. It is shown under the same rule as
+  // break_glass_identities: every other reader gets it empty. It covers the
+  // break-glass set only, not the rest of the policy.
+  string break_glass_etag = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
   // Fields from 30 report the organization's readiness to enforce the
   // policy: facts about the organization that decide whether sso_only can be
   // turned on and whether, once on, it takes effect. They are never written.
@@ -553,6 +560,11 @@ message SetBreakGlassAdminsRequest {
   // SetBreakGlassAdmins; a request that names an identity twice, or more than
   // 5 identities, is INVALID_ARGUMENT.
   repeated string identities = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // The break_glass_etag the caller read (AIP-154). When set, the call is
+  // refused with ABORTED if the set has changed since: read the policy again
+  // and retry. Empty replaces the set whatever it was.
+  string etag = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // ValidationKind is what a validation session proves.

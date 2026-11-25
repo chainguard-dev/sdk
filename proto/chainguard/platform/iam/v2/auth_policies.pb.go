@@ -301,6 +301,12 @@ type AuthPolicy struct {
 	// whether SSO is enforced, but which accounts are the way around it is told
 	// only to those who may change that list.
 	BreakGlassIdentities []string `protobuf:"bytes,4,rep,name=break_glass_identities,json=breakGlassIdentities,proto3" json:"break_glass_identities,omitempty"`
+	// break_glass_etag is the version of break_glass_identities (AIP-154). Pass
+	// it as SetBreakGlassAdminsRequest.etag to change the set only if no one
+	// else changed it since it was read. It is shown under the same rule as
+	// break_glass_identities: every other reader gets it empty. It covers the
+	// break-glass set only, not the rest of the policy.
+	BreakGlassEtag string `protobuf:"bytes,5,opt,name=break_glass_etag,json=breakGlassEtag,proto3" json:"break_glass_etag,omitempty"`
 	// Fields from 30 report the organization's readiness to enforce the
 	// policy: facts about the organization that decide whether sso_only can be
 	// turned on and whether, once on, it takes effect. They are never written.
@@ -395,6 +401,13 @@ func (x *AuthPolicy) GetBreakGlassIdentities() []string {
 		return x.BreakGlassIdentities
 	}
 	return nil
+}
+
+func (x *AuthPolicy) GetBreakGlassEtag() string {
+	if x != nil {
+		return x.BreakGlassEtag
+	}
+	return ""
 }
 
 func (x *AuthPolicy) GetReadiness() *SsoOnlyReadiness {
@@ -972,7 +985,11 @@ type SetBreakGlassAdminsRequest struct {
 	// is not already empty). Each entry must meet the rules on
 	// SetBreakGlassAdmins; a request that names an identity twice, or more than
 	// 5 identities, is INVALID_ARGUMENT.
-	Identities    []string `protobuf:"bytes,2,rep,name=identities,proto3" json:"identities,omitempty"`
+	Identities []string `protobuf:"bytes,2,rep,name=identities,proto3" json:"identities,omitempty"`
+	// The break_glass_etag the caller read (AIP-154). When set, the call is
+	// refused with ABORTED if the set has changed since: read the policy again
+	// and retry. Empty replaces the set whatever it was.
+	Etag          string `protobuf:"bytes,3,opt,name=etag,proto3" json:"etag,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1019,6 +1036,13 @@ func (x *SetBreakGlassAdminsRequest) GetIdentities() []string {
 		return x.Identities
 	}
 	return nil
+}
+
+func (x *SetBreakGlassAdminsRequest) GetEtag() string {
+	if x != nil {
+		return x.Etag
+	}
+	return ""
 }
 
 // Reason is one blocker of enabling sso_only.
@@ -1199,7 +1223,7 @@ var File_chainguard_platform_iam_v2_auth_policies_proto protoreflect.FileDescrip
 
 const file_chainguard_platform_iam_v2_auth_policies_proto_rawDesc = "" +
 	"\n" +
-	".chainguard/platform/iam/v2/auth_policies.proto\x12\x1achainguard.platform.iam.v2\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\"\xbe\x04\n" +
+	".chainguard/platform/iam/v2/auth_policies.proto\x12\x1achainguard.platform.iam.v2\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\"\xee\x04\n" +
 	"\n" +
 	"AuthPolicy\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
@@ -1207,7 +1231,8 @@ const file_chainguard_platform_iam_v2_auth_policies_proto_rawDesc = "" +
 	"\bsso_only\x18\x02 \x01(\bB\x04\xe2A\x01\x01H\x00R\assoOnly\x88\x01\x01\x12J\n" +
 	"\x10session_duration\x18\x03 \x01(\v2\x19.google.protobuf.DurationB\x04\xe2A\x01\x01R\x0fsessionDuration\x12T\n" +
 	"\vvalidations\x18\x14 \x01(\v2,.chainguard.platform.iam.v2.ValidationStatusB\x04\xe2A\x01\x03R\vvalidations\x12;\n" +
-	"\x16break_glass_identities\x18\x04 \x03(\tB\x05\xe2A\x02\x03\x06R\x14breakGlassIdentities\x12P\n" +
+	"\x16break_glass_identities\x18\x04 \x03(\tB\x05\xe2A\x02\x03\x06R\x14breakGlassIdentities\x12.\n" +
+	"\x10break_glass_etag\x18\x05 \x01(\tB\x04\xe2A\x01\x03R\x0ebreakGlassEtag\x12P\n" +
 	"\treadiness\x18\x1e \x01(\v2,.chainguard.platform.iam.v2.SsoOnlyReadinessB\x04\xe2A\x01\x03R\treadiness\x12<\n" +
 	"\x14enforcement_entitled\x18( \x01(\bB\x04\xe2A\x01\x03H\x01R\x13enforcementEntitled\x88\x01\x01:W\xeaAT\n" +
 	"\x1diam.chainguard.dev/AuthPolicy\x12\x19groups/{group}/authPolicy*\fauthPolicies2\n" +
@@ -1264,13 +1289,14 @@ const file_chainguard_platform_iam_v2_auth_policies_proto_rawDesc = "" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\n" +
 	"authPolicy\x12A\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x04\xe2A\x01\x01R\n" +
-	"updateMask\"`\n" +
+	"updateMask\"z\n" +
 	"\x1aSetBreakGlassAdminsRequest\x12\x1c\n" +
 	"\x03uid\x18\x01 \x01(\tB\n" +
 	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x03uid\x12$\n" +
 	"\n" +
 	"identities\x18\x02 \x03(\tB\x04\xe2A\x01\x01R\n" +
-	"identities*k\n" +
+	"identities\x12\x18\n" +
+	"\x04etag\x18\x03 \x01(\tB\x04\xe2A\x01\x01R\x04etag*k\n" +
 	"\x0eValidationKind\x12\x1f\n" +
 	"\x1bVALIDATION_KIND_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13VALIDATION_KIND_IDP\x10\x01\x12\x1f\n" +
