@@ -65,6 +65,13 @@ const (
 	// enum). No Athena tier is planned for Rust; registering this value
 	// activates nothing and it is not eligible for self-serve provisioning.
 	Ecosystem_RUST_ATHENA Ecosystem = 14
+	// PHP (Composer/Packagist) ecosystem (mirrors PHP = 15 in the datastore
+	// Ecosystem enum). Registering this value does not activate serving.
+	Ecosystem_PHP Ecosystem = 15
+	// Reserved to pair PHP (mirrors PHP_SECURE = 16 in the datastore Ecosystem
+	// enum). No Athena tier is planned for PHP; registering this value
+	// activates nothing and it is not eligible for self-serve provisioning.
+	Ecosystem_PHP_ATHENA Ecosystem = 16
 )
 
 // Enum value maps for Ecosystem.
@@ -85,6 +92,8 @@ var (
 		12: "RUBY_ATHENA",
 		13: "RUST",
 		14: "RUST_ATHENA",
+		15: "PHP",
+		16: "PHP_ATHENA",
 	}
 	Ecosystem_value = map[string]int32{
 		"UNKNOWN":           0,
@@ -102,6 +111,8 @@ var (
 		"RUBY_ATHENA":       12,
 		"RUST":              13,
 		"RUST_ATHENA":       14,
+		"PHP":               15,
+		"PHP_ATHENA":        16,
 	}
 )
 
@@ -627,7 +638,7 @@ const file_entitlements_libraries_platform_proto_rawDesc = "" +
 	"ecosystems\x18\x02 \x03(\x0e2(.chainguard.platform.libraries.EcosystemR\n" +
 	"ecosystems\"2\n" +
 	"\x18DeleteEntitlementRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id*\xe5\x01\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id*\xfe\x01\n" +
 	"\tEcosystem\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\b\n" +
 	"\x04JAVA\x10\x01\x12\n" +
@@ -647,7 +658,10 @@ const file_entitlements_libraries_platform_proto_rawDesc = "" +
 	"\x04RUBY\x10\v\x12\x0f\n" +
 	"\vRUBY_ATHENA\x10\f\x12\b\n" +
 	"\x04RUST\x10\r\x12\x0f\n" +
-	"\vRUST_ATHENA\x10\x0e*W\n" +
+	"\vRUST_ATHENA\x10\x0e\x12\a\n" +
+	"\x03PHP\x10\x0f\x12\x0e\n" +
+	"\n" +
+	"PHP_ATHENA\x10\x10*W\n" +
 	"\x06Policy\x12\x12\n" +
 	"\x0ePOLICY_UNKNOWN\x10\x00\x12\x15\n" +
 	"\x11POLICY_CHAINGUARD\x10\x01\x12\"\n" +

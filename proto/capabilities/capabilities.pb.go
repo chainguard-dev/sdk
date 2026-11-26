@@ -179,6 +179,7 @@ const (
 	Capability_CAP_LIBRARIES_GO_CREATE         Capability = 1835
 	Capability_CAP_LIBRARIES_RUBY_LIST         Capability = 1836
 	Capability_CAP_LIBRARIES_RUST_LIST         Capability = 1837
+	Capability_CAP_LIBRARIES_PHP_LIST          Capability = 1838
 	// Deleting an org's own uploaded version. Held by the owner role (and so by
 	// support, which is built from OwnerCaps), not by repository.publisher: CI
 	// that publishes does not need to delete, and a leaked publisher token must
@@ -680,6 +681,7 @@ var (
 		1835:  "CAP_LIBRARIES_GO_CREATE",
 		1836:  "CAP_LIBRARIES_RUBY_LIST",
 		1837:  "CAP_LIBRARIES_RUST_LIST",
+		1838:  "CAP_LIBRARIES_PHP_LIST",
 		1891:  "CAP_LIBRARIES_JAVA_DELETE",
 		1892:  "CAP_LIBRARIES_JAVASCRIPT_DELETE",
 		1893:  "CAP_LIBRARIES_PYTHON_DELETE",
@@ -954,6 +956,7 @@ var (
 		"CAP_LIBRARIES_GO_CREATE":                            1835,
 		"CAP_LIBRARIES_RUBY_LIST":                            1836,
 		"CAP_LIBRARIES_RUST_LIST":                            1837,
+		"CAP_LIBRARIES_PHP_LIST":                             1838,
 		"CAP_LIBRARIES_JAVA_DELETE":                          1891,
 		"CAP_LIBRARIES_JAVASCRIPT_DELETE":                    1892,
 		"CAP_LIBRARIES_PYTHON_DELETE":                        1893,
@@ -1207,7 +1210,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xb8\x95\x01\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xf5\x95\x01\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1329,7 +1332,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x15CAP_LIBRARIES_GO_LIST\x10\xaa\x0e\x1a\x1d\xa8ˑM\xcd\x01\x9a\xaf\xa8\xd2\x05\x11libraries.go.list\x12=\n" +
 	"\x17CAP_LIBRARIES_GO_CREATE\x10\xab\x0e\x1a\x1f\xa8ˑM\xce\x01\x9a\xaf\xa8\xd2\x05\x13libraries.go.create\x12=\n" +
 	"\x17CAP_LIBRARIES_RUBY_LIST\x10\xac\x0e\x1a\x1f\xa8ˑM\xe5\x01\x9a\xaf\xa8\xd2\x05\x13libraries.ruby.list\x12=\n" +
-	"\x17CAP_LIBRARIES_RUST_LIST\x10\xad\x0e\x1a\x1f\xa8ˑM\x83\x02\x9a\xaf\xa8\xd2\x05\x13libraries.rust.list\x12A\n" +
+	"\x17CAP_LIBRARIES_RUST_LIST\x10\xad\x0e\x1a\x1f\xa8ˑM\x83\x02\x9a\xaf\xa8\xd2\x05\x13libraries.rust.list\x12;\n" +
+	"\x16CAP_LIBRARIES_PHP_LIST\x10\xae\x0e\x1a\x1e\xa8ˑM\x95\x02\x9a\xaf\xa8\xd2\x05\x12libraries.php.list\x12A\n" +
 	"\x19CAP_LIBRARIES_JAVA_DELETE\x10\xe3\x0e\x1a!\xa8ˑM\x8e\x02\x9a\xaf\xa8\xd2\x05\x15libraries.java.delete\x12M\n" +
 	"\x1fCAP_LIBRARIES_JAVASCRIPT_DELETE\x10\xe4\x0e\x1a'\xa8ˑM\x8f\x02\x9a\xaf\xa8\xd2\x05\x1blibraries.javascript.delete\x12E\n" +
 	"\x1bCAP_LIBRARIES_PYTHON_DELETE\x10\xe5\x0e\x1a#\xa8ˑM\x90\x02\x9a\xaf\xa8\xd2\x05\x17libraries.python.delete\x12E\n" +

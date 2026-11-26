@@ -141,6 +141,24 @@ func TestLibrariesDeleteCaps(t *testing.T) {
 	}
 }
 
+// Pulling Composer packages must not grant write access or unrelated ecosystem
+// capabilities.
+func TestLibrariesPHPPullCaps(t *testing.T) {
+	want := SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
+		Capability_CAP_LIBRARIES_PHP_LIST,
+	})
+	if diff := cmp.Diff(want, LibrariesPHPPullCaps); diff != "" {
+		t.Errorf("LibrariesPHPPullCaps (-want, +got): %s", diff)
+	}
+	if !slices.Contains(OwnerCaps, Capability_CAP_LIBRARIES_PHP_LIST) {
+		t.Error("OwnerCaps must include PHP pull access")
+	}
+	if slices.Contains(ViewerCaps, Capability_CAP_LIBRARIES_PHP_LIST) {
+		t.Error("ViewerCaps must not implicitly grant PHP pull access")
+	}
+}
+
 // Owners hold the upload caps, and the upload bundle carries no hunt caps:
 // uploading must not let a holder start or read hunts.
 func TestHarnessUploadCaps(t *testing.T) {

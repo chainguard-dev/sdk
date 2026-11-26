@@ -286,7 +286,7 @@ var (
 		RegistryPushCaps, APKPushCaps, LibrariesJavaPushCaps, LibrariesJavascriptPushCaps, LibrariesPythonPushCaps, LibrariesDotnetPushCaps, LibrariesGoPushCaps,
 		// Owners can pull artifacts from ecosystem libraries and grant this role to others in their org.
 		// NB: The org must also be entitled to the ecosystem to pull artifacts.
-		LibrariesJavaPullCaps, LibrariesPythonPullCaps, LibrariesJavascriptPullCaps, LibrariesDotnetPullCaps, LibrariesGoPullCaps, LibrariesRubyPullCaps, LibrariesRustPullCaps,
+		LibrariesJavaPullCaps, LibrariesPythonPullCaps, LibrariesJavascriptPullCaps, LibrariesDotnetPullCaps, LibrariesGoPullCaps, LibrariesRubyPullCaps, LibrariesRustPullCaps, LibrariesPHPPullCaps,
 		// Owners can publish skill artifacts to skills.cgr.dev, subject to the org
 		// having a skills entitlement. SkillsPublishCaps can also be granted
 		// independently to a service principal or non-owner via role-bindings.
@@ -485,6 +485,11 @@ var (
 	LibrariesRustPullCaps = SortCaps([]Capability{
 		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
 		Capability_CAP_LIBRARIES_RUST_LIST,
+	})
+
+	LibrariesPHPPullCaps = SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
+		Capability_CAP_LIBRARIES_PHP_LIST,
 	})
 
 	LibrariesPipelineTrackingSubmitterCaps = SortCaps([]Capability{

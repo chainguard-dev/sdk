@@ -134,6 +134,13 @@ enum Ecosystem {
   // enum). No Athena tier is planned for Rust; registering this value
   // activates nothing and it is not eligible for self-serve provisioning.
   RUST_ATHENA = 14;
+  // PHP (Composer/Packagist) ecosystem (mirrors PHP = 15 in the datastore
+  // Ecosystem enum). Registering this value does not activate serving.
+  PHP = 15;
+  // Reserved to pair PHP (mirrors PHP_SECURE = 16 in the datastore Ecosystem
+  // enum). No Athena tier is planned for PHP; registering this value
+  // activates nothing and it is not eligible for self-serve provisioning.
+  PHP_ATHENA = 16;
 }
 
 // Policy controls which package sources are available for an entitlement.
