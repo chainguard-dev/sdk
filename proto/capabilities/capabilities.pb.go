@@ -222,29 +222,15 @@ const (
 	Capability_CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE Capability = 1870
 	Capability_CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE Capability = 1871
 	Capability_CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST   Capability = 1872
-	// Library build requests: an organization asks Chainguard to build specific
-	// library versions and tracks what it already has.
+	// Library requests: the library versions an organization tracks, requested
+	// or used.
 	//
 	// Separate from the libraries.rebuilder.* capabilities above, which are
 	// internal_only and are never grantable to a customer organization.
-	Capability_CAP_LIBRARIES_REQUEST_GROUPS_CREATE Capability = 1874
-	// list covers every read on a request group: the groups themselves, their
-	// items, and the per-library view of them.
-	Capability_CAP_LIBRARIES_REQUEST_GROUPS_LIST   Capability = 1875
-	Capability_CAP_LIBRARIES_REQUEST_GROUPS_UPDATE Capability = 1876
-	// delete covers draft groups only; removing a submitted group needs
-	// delete_submitted.
-	Capability_CAP_LIBRARIES_REQUEST_GROUPS_DELETE Capability = 1877
-	// submit promotes a draft and carries the CVE-remediation opt-in for the group.
-	// It is its own capability because submitting is restricted to owners, which a
-	// field mask on update could not express.
-	Capability_CAP_LIBRARIES_REQUEST_GROUPS_SUBMIT Capability = 1878
-	// items.update covers draft item editing: remove, restore and per-item update.
-	Capability_CAP_LIBRARIES_REQUEST_GROUPS_ITEMS_UPDATE Capability = 1879
-	// Re-running a group's coverage check is expensive, and submitted groups are
-	// refreshed automatically, so it is reserved for Chainguard support.
-	Capability_CAP_LIBRARIES_REQUEST_GROUPS_REFRESH_COVERAGE Capability = 1880
-	Capability_CAP_LIBRARIES_REQUEST_GROUPS_DELETE_SUBMITTED Capability = 1881
+	//
+	// list covers the per-library reads: the tracked libraries, their versions,
+	// and the CVEs on one version.
+	Capability_CAP_LIBRARIES_REQUEST_GROUPS_LIST Capability = 1875
 	// Remote registries: an org's configured upstream registries for virtual
 	// repositories. Creating or deleting one changes where the org's builds
 	// pull dependencies from, so both are owner-only alongside the library
@@ -712,14 +698,7 @@ var (
 		1870:  "CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE",
 		1871:  "CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE",
 		1872:  "CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST",
-		1874:  "CAP_LIBRARIES_REQUEST_GROUPS_CREATE",
 		1875:  "CAP_LIBRARIES_REQUEST_GROUPS_LIST",
-		1876:  "CAP_LIBRARIES_REQUEST_GROUPS_UPDATE",
-		1877:  "CAP_LIBRARIES_REQUEST_GROUPS_DELETE",
-		1878:  "CAP_LIBRARIES_REQUEST_GROUPS_SUBMIT",
-		1879:  "CAP_LIBRARIES_REQUEST_GROUPS_ITEMS_UPDATE",
-		1880:  "CAP_LIBRARIES_REQUEST_GROUPS_REFRESH_COVERAGE",
-		1881:  "CAP_LIBRARIES_REQUEST_GROUPS_DELETE_SUBMITTED",
 		1882:  "CAP_LIBRARIES_REMOTE_REGISTRIES_CREATE",
 		1883:  "CAP_LIBRARIES_REMOTE_REGISTRIES_LIST",
 		1884:  "CAP_LIBRARIES_REMOTE_REGISTRIES_DELETE",
@@ -987,14 +966,7 @@ var (
 		"CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE": 1870,
 		"CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE": 1871,
 		"CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST":   1872,
-		"CAP_LIBRARIES_REQUEST_GROUPS_CREATE":                1874,
 		"CAP_LIBRARIES_REQUEST_GROUPS_LIST":                  1875,
-		"CAP_LIBRARIES_REQUEST_GROUPS_UPDATE":                1876,
-		"CAP_LIBRARIES_REQUEST_GROUPS_DELETE":                1877,
-		"CAP_LIBRARIES_REQUEST_GROUPS_SUBMIT":                1878,
-		"CAP_LIBRARIES_REQUEST_GROUPS_ITEMS_UPDATE":          1879,
-		"CAP_LIBRARIES_REQUEST_GROUPS_REFRESH_COVERAGE":      1880,
-		"CAP_LIBRARIES_REQUEST_GROUPS_DELETE_SUBMITTED":      1881,
 		"CAP_LIBRARIES_REMOTE_REGISTRIES_CREATE":             1882,
 		"CAP_LIBRARIES_REMOTE_REGISTRIES_LIST":               1883,
 		"CAP_LIBRARIES_REMOTE_REGISTRIES_DELETE":             1884,
@@ -1210,7 +1182,7 @@ var File_capabilities_proto protoreflect.FileDescriptor
 
 const file_capabilities_proto_rawDesc = "" +
 	"\n" +
-	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\xf5\x95\x01\n" +
+	"\x12capabilities.proto\x12\x17chainguard.capabilities\x1a google/protobuf/descriptor.proto*\x8c\x91\x01\n" +
 	"\n" +
 	"Capability\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12%\n" +
@@ -1363,15 +1335,8 @@ const file_capabilities_proto_rawDesc = "" +
 	"$CAP_LIBRARIES_PIPELINE_TRACKING_READ\x10\xcb\x0e\x1a2\xa8ˑM\x94\x02\x9a\xaf\xa8\xd2\x05 libraries.pipeline_tracking.read\xa0\xaf\xa8\xd2\x05\x01\x12s\n" +
 	"2CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_CREATE\x10\xce\x0e\x1a:\xa8ˑM\xa5\x01\x9a\xaf\xa8\xd2\x05.libraries.aws_marketplace.subscriptions.create\x12s\n" +
 	"2CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_UPDATE\x10\xcf\x0e\x1a:\xa8ˑM\xa6\x01\x9a\xaf\xa8\xd2\x05.libraries.aws_marketplace.subscriptions.update\x12o\n" +
-	"0CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST\x10\xd0\x0e\x1a8\xa8ˑM\xa7\x01\x9a\xaf\xa8\xd2\x05,libraries.aws_marketplace.subscriptions.list\x12U\n" +
-	"#CAP_LIBRARIES_REQUEST_GROUPS_CREATE\x10\xd2\x0e\x1a+\xa8ˑM\xd1\x01\x9a\xaf\xa8\xd2\x05\x1flibraries.request_groups.create\x12Q\n" +
-	"!CAP_LIBRARIES_REQUEST_GROUPS_LIST\x10\xd3\x0e\x1a)\xa8ˑM\xd2\x01\x9a\xaf\xa8\xd2\x05\x1dlibraries.request_groups.list\x12U\n" +
-	"#CAP_LIBRARIES_REQUEST_GROUPS_UPDATE\x10\xd4\x0e\x1a+\xa8ˑM\xd3\x01\x9a\xaf\xa8\xd2\x05\x1flibraries.request_groups.update\x12U\n" +
-	"#CAP_LIBRARIES_REQUEST_GROUPS_DELETE\x10\xd5\x0e\x1a+\xa8ˑM\xd4\x01\x9a\xaf\xa8\xd2\x05\x1flibraries.request_groups.delete\x12U\n" +
-	"#CAP_LIBRARIES_REQUEST_GROUPS_SUBMIT\x10\xd6\x0e\x1a+\xa8ˑM\xd5\x01\x9a\xaf\xa8\xd2\x05\x1flibraries.request_groups.submit\x12a\n" +
-	")CAP_LIBRARIES_REQUEST_GROUPS_ITEMS_UPDATE\x10\xd7\x0e\x1a1\xa8ˑM\xd6\x01\x9a\xaf\xa8\xd2\x05%libraries.request_groups.items.update\x12o\n" +
-	"-CAP_LIBRARIES_REQUEST_GROUPS_REFRESH_COVERAGE\x10\xd8\x0e\x1a;\xa8ˑM\xd7\x01\x9a\xaf\xa8\xd2\x05)libraries.request_groups.refresh_coverage\xa0\xaf\xa8\xd2\x05\x01\x12o\n" +
-	"-CAP_LIBRARIES_REQUEST_GROUPS_DELETE_SUBMITTED\x10\xd9\x0e\x1a;\xa8ˑM\xd8\x01\x9a\xaf\xa8\xd2\x05)libraries.request_groups.delete_submitted\xa0\xaf\xa8\xd2\x05\x01\x12[\n" +
+	"0CAP_LIBRARIES_AWS_MARKETPLACE_SUBSCRIPTIONS_LIST\x10\xd0\x0e\x1a8\xa8ˑM\xa7\x01\x9a\xaf\xa8\xd2\x05,libraries.aws_marketplace.subscriptions.list\x12Q\n" +
+	"!CAP_LIBRARIES_REQUEST_GROUPS_LIST\x10\xd3\x0e\x1a)\xa8ˑM\xd2\x01\x9a\xaf\xa8\xd2\x05\x1dlibraries.request_groups.list\x12[\n" +
 	"&CAP_LIBRARIES_REMOTE_REGISTRIES_CREATE\x10\xda\x0e\x1a.\xa8ˑM\xdb\x01\x9a\xaf\xa8\xd2\x05\"libraries.remote_registries.create\x12W\n" +
 	"$CAP_LIBRARIES_REMOTE_REGISTRIES_LIST\x10\xdb\x0e\x1a,\xa8ˑM\xdc\x01\x9a\xaf\xa8\xd2\x05 libraries.remote_registries.list\x12[\n" +
 	"&CAP_LIBRARIES_REMOTE_REGISTRIES_DELETE\x10\xdc\x0e\x1a.\xa8ˑM\xdd\x01\x9a\xaf\xa8\xd2\x05\"libraries.remote_registries.delete\x12M\n" +
@@ -1505,7 +1470,7 @@ const file_capabilities_proto_rawDesc = "" +
 	"\x16CAP_HARNESS_HUNTS_LIST\x10\xca\x1a\x1a\x1e\xa8ˑM\xf9\x01\x9a\xaf\xa8\xd2\x05\x12harness.hunts.list\x12C\n" +
 	"\x1aCAP_HARNESS_UPLOADS_CREATE\x10\xcb\x1a\x1a\"\xa8ˑM\xff\x01\x9a\xaf\xa8\xd2\x05\x16harness.uploads.create\x12?\n" +
 	"\x18CAP_HARNESS_UPLOADS_LIST\x10\xcc\x1a\x1a \xa8ˑM\x80\x02\x9a\xaf\xa8\xd2\x05\x14harness.uploads.list\x127\n" +
-	"\x14CAP_ENTITLEMENTS_GET\x10\x83\x19\x1a\x1c\xa8ˑM\xfc\x01\x9a\xaf\xa8\xd2\x05\x10entitlements.get\"\x06\b\xad\x1b\x10\xad\x1b\"\x06\b\xb0\x1b\x10\xb0\x1b\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x06\b\xd1\x0e\x10\xd1\x0e\"\x04\b\x01\x10\x01:8\n" +
+	"\x14CAP_ENTITLEMENTS_GET\x10\x83\x19\x1a\x1c\xa8ˑM\xfc\x01\x9a\xaf\xa8\xd2\x05\x10entitlements.get\"\x06\b\xad\x1b\x10\xad\x1b\"\x06\b\xb0\x1b\x10\xb0\x1b\"\x06\b\xc1\f\x10\xc1\f\"\x06\b\xc2\f\x10\xc2\f\"\x06\b\xd1\x0e\x10\xd1\x0e\"\x06\b\xd2\x0e\x10\xd2\x0e\"\x06\b\xd4\x0e\x10\xd4\x0e\"\x06\b\xd5\x0e\x10\xd5\x0e\"\x06\b\xd6\x0e\x10\xd6\x0e\"\x06\b\xd7\x0e\x10\xd7\x0e\"\x06\b\xd8\x0e\x10\xd8\x0e\"\x06\b\xd9\x0e\x10\xd9\x0e\"\x04\b\x01\x10\x01:8\n" +
 	"\x04name\x12!.google.protobuf.EnumValueOptions\x18\xf3\x85\xa5Z \x01(\tR\x04name:6\n" +
 	"\x03bit\x12!.google.protobuf.EnumValueOptions\x18\xb5\x99\xd2\t \x01(\rR\x03bit:I\n" +
 	"\rinternal_only\x12!.google.protobuf.EnumValueOptions\x18\xf4\x85\xa5Z \x01(\bR\finternalOnlyB'Z%chainguard.dev/sdk/proto/capabilitiesb\x06proto3"

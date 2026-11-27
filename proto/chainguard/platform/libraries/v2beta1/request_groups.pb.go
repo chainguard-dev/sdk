@@ -14,8 +14,6 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
-	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -29,144 +27,12 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// RequestGroupState selects drafts or submitted groups when listing.
-type RequestGroupState int32
-
-const (
-	// Unspecified: the server applies its default, which is submitted.
-	RequestGroupState_REQUEST_GROUP_STATE_UNSPECIFIED RequestGroupState = 0
-	// Not yet submitted. Never triggers a build.
-	RequestGroupState_REQUEST_GROUP_STATE_DRAFT RequestGroupState = 1
-	// Submitted by the customer.
-	RequestGroupState_REQUEST_GROUP_STATE_SUBMITTED RequestGroupState = 2
-	// Both drafts and submitted groups.
-	RequestGroupState_REQUEST_GROUP_STATE_ALL RequestGroupState = 3
-)
-
-// Enum value maps for RequestGroupState.
-var (
-	RequestGroupState_name = map[int32]string{
-		0: "REQUEST_GROUP_STATE_UNSPECIFIED",
-		1: "REQUEST_GROUP_STATE_DRAFT",
-		2: "REQUEST_GROUP_STATE_SUBMITTED",
-		3: "REQUEST_GROUP_STATE_ALL",
-	}
-	RequestGroupState_value = map[string]int32{
-		"REQUEST_GROUP_STATE_UNSPECIFIED": 0,
-		"REQUEST_GROUP_STATE_DRAFT":       1,
-		"REQUEST_GROUP_STATE_SUBMITTED":   2,
-		"REQUEST_GROUP_STATE_ALL":         3,
-	}
-)
-
-func (x RequestGroupState) Enum() *RequestGroupState {
-	p := new(RequestGroupState)
-	*p = x
-	return p
-}
-
-func (x RequestGroupState) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (RequestGroupState) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[0].Descriptor()
-}
-
-func (RequestGroupState) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[0]
-}
-
-func (x RequestGroupState) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use RequestGroupState.Descriptor instead.
-func (RequestGroupState) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{0}
-}
-
-// RequestGroupStatus is the group's coverage-processing status.
-type RequestGroupStatus int32
-
-const (
-	// Unspecified status.
-	RequestGroupStatus_REQUEST_GROUP_STATUS_UNSPECIFIED RequestGroupStatus = 0
-	// Input accepted; requirements still being parsed and persisted.
-	RequestGroupStatus_REQUEST_GROUP_STATUS_CREATING RequestGroupStatus = 1
-	// Queued for a coverage check.
-	RequestGroupStatus_REQUEST_GROUP_STATUS_PENDING RequestGroupStatus = 2
-	// Coverage check running.
-	RequestGroupStatus_REQUEST_GROUP_STATUS_PROCESSING RequestGroupStatus = 3
-	// Every item reached a settled availability.
-	RequestGroupStatus_REQUEST_GROUP_STATUS_COMPLETED RequestGroupStatus = 4
-	// The coverage check failed and will be retried.
-	RequestGroupStatus_REQUEST_GROUP_STATUS_FAILED RequestGroupStatus = 5
-	// Deleted by a customer or an admin.
-	RequestGroupStatus_REQUEST_GROUP_STATUS_CANCELED RequestGroupStatus = 6
-	// A draft reclaimed after sitting idle. Distinct from CANCELED, which is a
-	// deliberate act.
-	RequestGroupStatus_REQUEST_GROUP_STATUS_EXPIRED RequestGroupStatus = 7
-)
-
-// Enum value maps for RequestGroupStatus.
-var (
-	RequestGroupStatus_name = map[int32]string{
-		0: "REQUEST_GROUP_STATUS_UNSPECIFIED",
-		1: "REQUEST_GROUP_STATUS_CREATING",
-		2: "REQUEST_GROUP_STATUS_PENDING",
-		3: "REQUEST_GROUP_STATUS_PROCESSING",
-		4: "REQUEST_GROUP_STATUS_COMPLETED",
-		5: "REQUEST_GROUP_STATUS_FAILED",
-		6: "REQUEST_GROUP_STATUS_CANCELED",
-		7: "REQUEST_GROUP_STATUS_EXPIRED",
-	}
-	RequestGroupStatus_value = map[string]int32{
-		"REQUEST_GROUP_STATUS_UNSPECIFIED": 0,
-		"REQUEST_GROUP_STATUS_CREATING":    1,
-		"REQUEST_GROUP_STATUS_PENDING":     2,
-		"REQUEST_GROUP_STATUS_PROCESSING":  3,
-		"REQUEST_GROUP_STATUS_COMPLETED":   4,
-		"REQUEST_GROUP_STATUS_FAILED":      5,
-		"REQUEST_GROUP_STATUS_CANCELED":    6,
-		"REQUEST_GROUP_STATUS_EXPIRED":     7,
-	}
-)
-
-func (x RequestGroupStatus) Enum() *RequestGroupStatus {
-	p := new(RequestGroupStatus)
-	*p = x
-	return p
-}
-
-func (x RequestGroupStatus) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (RequestGroupStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[1].Descriptor()
-}
-
-func (RequestGroupStatus) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[1]
-}
-
-func (x RequestGroupStatus) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use RequestGroupStatus.Descriptor instead.
-func (RequestGroupStatus) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{1}
-}
-
 // Availability is the normalized build status of one requested version.
 //
 // It never depends on whether the organization has upstream fallback enabled.
 // "Can Chainguard build this?" is a different question from "am I pulling
 // upstream in the meantime?", so an org that turned upstream off sees identical
-// values and the identical requestable set. The toggle is reported separately on
-// RequestGroup.org_upstream_enabled, for phrasing only.
+// values and the identical requestable set.
 type Availability int32
 
 const (
@@ -243,11 +109,11 @@ func (x Availability) String() string {
 }
 
 func (Availability) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[2].Descriptor()
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[0].Descriptor()
 }
 
 func (Availability) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[2]
+	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[0]
 }
 
 func (x Availability) Number() protoreflect.EnumNumber {
@@ -256,7 +122,7 @@ func (x Availability) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Availability.Descriptor instead.
 func (Availability) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{2}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{0}
 }
 
 // CVERemediationStatus is the aggregate remediation status of one version.
@@ -342,11 +208,11 @@ func (x CVERemediationStatus) String() string {
 }
 
 func (CVERemediationStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[3].Descriptor()
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[1].Descriptor()
 }
 
 func (CVERemediationStatus) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[3]
+	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[1]
 }
 
 func (x CVERemediationStatus) Number() protoreflect.EnumNumber {
@@ -355,7 +221,7 @@ func (x CVERemediationStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use CVERemediationStatus.Descriptor instead.
 func (CVERemediationStatus) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{3}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{1}
 }
 
 // CVERemediationDecision is what a Chainguard reviewer decided about a CVE,
@@ -419,11 +285,11 @@ func (x CVERemediationDecision) String() string {
 }
 
 func (CVERemediationDecision) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[4].Descriptor()
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[2].Descriptor()
 }
 
 func (CVERemediationDecision) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[4]
+	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[2]
 }
 
 func (x CVERemediationDecision) Number() protoreflect.EnumNumber {
@@ -432,7 +298,7 @@ func (x CVERemediationDecision) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use CVERemediationDecision.Descriptor instead.
 func (CVERemediationDecision) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{4}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{2}
 }
 
 // CVEStatus is the remediation state of one CVE on one version.
@@ -527,11 +393,11 @@ func (x CVEStatus) String() string {
 }
 
 func (CVEStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[5].Descriptor()
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[3].Descriptor()
 }
 
 func (CVEStatus) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[5]
+	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[3]
 }
 
 func (x CVEStatus) Number() protoreflect.EnumNumber {
@@ -540,7 +406,7 @@ func (x CVEStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use CVEStatus.Descriptor instead.
 func (CVEStatus) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{5}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{3}
 }
 
 // CVESeverity is the severity band from the advisory data.
@@ -592,11 +458,11 @@ func (x CVESeverity) String() string {
 }
 
 func (CVESeverity) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[6].Descriptor()
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[4].Descriptor()
 }
 
 func (CVESeverity) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[6]
+	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[4]
 }
 
 func (x CVESeverity) Number() protoreflect.EnumNumber {
@@ -605,7 +471,7 @@ func (x CVESeverity) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use CVESeverity.Descriptor instead.
 func (CVESeverity) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{6}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{4}
 }
 
 // CVEProvenance is what a CVE row asserts, which differs by where it came from.
@@ -651,11 +517,11 @@ func (x CVEProvenance) String() string {
 }
 
 func (CVEProvenance) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[7].Descriptor()
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[5].Descriptor()
 }
 
 func (CVEProvenance) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[7]
+	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[5]
 }
 
 func (x CVEProvenance) Number() protoreflect.EnumNumber {
@@ -664,7 +530,7 @@ func (x CVEProvenance) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use CVEProvenance.Descriptor instead.
 func (CVEProvenance) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{7}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{5}
 }
 
 // FixTargetCheck says whether one upgrade target may be recommended, read when
@@ -722,11 +588,11 @@ func (x FixTargetCheck) String() string {
 }
 
 func (FixTargetCheck) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[8].Descriptor()
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[6].Descriptor()
 }
 
 func (FixTargetCheck) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[8]
+	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[6]
 }
 
 func (x FixTargetCheck) Number() protoreflect.EnumNumber {
@@ -735,74 +601,7 @@ func (x FixTargetCheck) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use FixTargetCheck.Descriptor instead.
 func (FixTargetCheck) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{8}
-}
-
-// InputFormat is how a submitted input is parsed.
-//
-// Every accepted format is already pinned, so parsing happens in-process. Formats
-// needing a build tool to resolve versions — pom.xml, build.gradle, unpinned
-// requirements.txt — are deliberately absent.
-type InputFormat int32
-
-const (
-	// Unspecified format.
-	InputFormat_INPUT_FORMAT_UNSPECIFIED InputFormat = 0
-	// A pinned requirements.txt.
-	InputFormat_INPUT_FORMAT_REQUIREMENTS_TXT InputFormat = 1
-	// A poetry.lock file.
-	InputFormat_INPUT_FORMAT_POETRY_LOCK InputFormat = 2
-	// A uv.lock file.
-	InputFormat_INPUT_FORMAT_UV_LOCK InputFormat = 3
-	// A newline-separated list of Java coordinates, "group:artifact:version". The
-	// extended "group:artifact[:packaging[:classifier]]:version" form is accepted.
-	// Already fully resolved, so no build tool runs.
-	InputFormat_INPUT_FORMAT_MAVEN_GAV_LIST InputFormat = 4
-)
-
-// Enum value maps for InputFormat.
-var (
-	InputFormat_name = map[int32]string{
-		0: "INPUT_FORMAT_UNSPECIFIED",
-		1: "INPUT_FORMAT_REQUIREMENTS_TXT",
-		2: "INPUT_FORMAT_POETRY_LOCK",
-		3: "INPUT_FORMAT_UV_LOCK",
-		4: "INPUT_FORMAT_MAVEN_GAV_LIST",
-	}
-	InputFormat_value = map[string]int32{
-		"INPUT_FORMAT_UNSPECIFIED":      0,
-		"INPUT_FORMAT_REQUIREMENTS_TXT": 1,
-		"INPUT_FORMAT_POETRY_LOCK":      2,
-		"INPUT_FORMAT_UV_LOCK":          3,
-		"INPUT_FORMAT_MAVEN_GAV_LIST":   4,
-	}
-)
-
-func (x InputFormat) Enum() *InputFormat {
-	p := new(InputFormat)
-	*p = x
-	return p
-}
-
-func (x InputFormat) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (InputFormat) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[9].Descriptor()
-}
-
-func (InputFormat) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[9]
-}
-
-func (x InputFormat) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use InputFormat.Descriptor instead.
-func (InputFormat) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{9}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{6}
 }
 
 // RequestSource records how a group came to exist.
@@ -854,11 +653,11 @@ func (x RequestSource) String() string {
 }
 
 func (RequestSource) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[10].Descriptor()
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[7].Descriptor()
 }
 
 func (RequestSource) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[10]
+	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[7]
 }
 
 func (x RequestSource) Number() protoreflect.EnumNumber {
@@ -867,7 +666,7 @@ func (x RequestSource) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use RequestSource.Descriptor instead.
 func (RequestSource) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{10}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{7}
 }
 
 // RequestedLibraryBuildStatus is the build ladder across a library's requested versions.
@@ -928,11 +727,11 @@ func (x RequestedLibraryBuildStatus) String() string {
 }
 
 func (RequestedLibraryBuildStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[11].Descriptor()
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[8].Descriptor()
 }
 
 func (RequestedLibraryBuildStatus) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[11]
+	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[8]
 }
 
 func (x RequestedLibraryBuildStatus) Number() protoreflect.EnumNumber {
@@ -941,7 +740,7 @@ func (x RequestedLibraryBuildStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use RequestedLibraryBuildStatus.Descriptor instead.
 func (RequestedLibraryBuildStatus) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{11}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{8}
 }
 
 // RequestedLibraryCVEStatus is the remediation ladder across a library's versions.
@@ -1032,11 +831,11 @@ func (x RequestedLibraryCVEStatus) String() string {
 }
 
 func (RequestedLibraryCVEStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[12].Descriptor()
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[9].Descriptor()
 }
 
 func (RequestedLibraryCVEStatus) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[12]
+	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[9]
 }
 
 func (x RequestedLibraryCVEStatus) Number() protoreflect.EnumNumber {
@@ -1045,7 +844,7 @@ func (x RequestedLibraryCVEStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use RequestedLibraryCVEStatus.Descriptor instead.
 func (RequestedLibraryCVEStatus) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{12}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{9}
 }
 
 // TrackingSource is why an organization tracks a version.
@@ -1090,11 +889,11 @@ func (x TrackingSource) String() string {
 }
 
 func (TrackingSource) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[13].Descriptor()
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[10].Descriptor()
 }
 
 func (TrackingSource) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[13]
+	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[10]
 }
 
 func (x TrackingSource) Number() protoreflect.EnumNumber {
@@ -1103,7 +902,7 @@ func (x TrackingSource) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use TrackingSource.Descriptor instead.
 func (TrackingSource) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{13}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{10}
 }
 
 // UpstreamUse is which artifact an organization's recent pulls of a built
@@ -1151,11 +950,11 @@ func (x UpstreamUse) String() string {
 }
 
 func (UpstreamUse) Descriptor() protoreflect.EnumDescriptor {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[14].Descriptor()
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[11].Descriptor()
 }
 
 func (UpstreamUse) Type() protoreflect.EnumType {
-	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[14]
+	return &file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes[11]
 }
 
 func (x UpstreamUse) Number() protoreflect.EnumNumber {
@@ -1164,365 +963,7 @@ func (x UpstreamUse) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use UpstreamUse.Descriptor instead.
 func (UpstreamUse) EnumDescriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{14}
-}
-
-// RequestGroup is one organization's request for a set of library versions.
-//
-// Drafts and submitted groups are the same resource; submit_time distinguishes
-// them. The two status axes — build availability and CVE remediation — are
-// summarised here and reported per item by ListRequestGroupItems.
-type RequestGroup struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The group's unique identifier.
-	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
-	// The organization the group belongs to.
-	ParentId string `protobuf:"bytes,2,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
-	// Customer-supplied name, unique among the organization's live groups.
-	//
-	// OPTIONAL rather than OUTPUT_ONLY because it is the one field on this resource
-	// the customer sets: omitted on create the server generates one, and
-	// UpdateRequestGroup can rename it.
-	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	// Processing status of the group's coverage check.
-	Status RequestGroupStatus `protobuf:"varint,4,opt,name=status,proto3,enum=chainguard.platform.libraries.v2beta1.RequestGroupStatus" json:"status,omitempty"`
-	// The ecosystem the group's requirements belong to.
-	Ecosystem Ecosystem `protobuf:"varint,5,opt,name=ecosystem,proto3,enum=chainguard.platform.libraries.v2beta1.Ecosystem" json:"ecosystem,omitempty"`
-	// How the group was created.
-	Source RequestSource `protobuf:"varint,6,opt,name=source,proto3,enum=chainguard.platform.libraries.v2beta1.RequestSource" json:"source,omitempty"`
-	// Whether the group is opted in to CVE remediation. Set at submit.
-	ForCveRemediation bool `protobuf:"varint,7,opt,name=for_cve_remediation,json=forCveRemediation,proto3" json:"for_cve_remediation,omitempty"`
-	// Unset while the group is a draft; set when the customer submitted it.
-	SubmitTime *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=submit_time,json=submitTime,proto3" json:"submit_time,omitempty"`
-	// When the group was created.
-	CreateTime *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
-	// When the group's metadata last changed.
-	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
-	// High-water mark across the group's items. A client polling a large group
-	// compares this to decide whether to re-read the items at all.
-	ItemsUpdateTime *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=items_update_time,json=itemsUpdateTime,proto3" json:"items_update_time,omitempty"`
-	// The IAM identity that created the group. Only the uid is stored; resolve it
-	// through IAM to display a name.
-	CreatedBy string `protobuf:"bytes,12,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
-	// The IAM identity that submitted the group, if it has been submitted.
-	SubmittedBy string `protobuf:"bytes,13,opt,name=submitted_by,json=submittedBy,proto3" json:"submitted_by,omitempty"`
-	// Metadata about the uploaded input. The content itself is not retained.
-	Input *InputMetadata `protobuf:"bytes,14,opt,name=input,proto3" json:"input,omitempty"`
-	// Counts of items by build availability.
-	AvailabilitySummary *AvailabilitySummary `protobuf:"bytes,15,opt,name=availability_summary,json=availabilitySummary,proto3" json:"availability_summary,omitempty"`
-	// Counts of items by CVE-remediation status. Populated only when the group is
-	// opted in.
-	CveRemediationSummary *CVERemediationSummary `protobuf:"bytes,16,opt,name=cve_remediation_summary,json=cveRemediationSummary,proto3" json:"cve_remediation_summary,omitempty"`
-	// Whether the organization pulls upstream artifacts through the Chainguard
-	// Repository.
-	//
-	// Read-only, and reported on the envelope rather than per item, because it is
-	// not part of any availability decision — see the comment on Availability. It
-	// is here so a programmatic client with no console can phrase "available via
-	// upstream fallback in the meantime" correctly, and omit it for an org that
-	// turned upstream off.
-	OrgUpstreamEnabled bool `protobuf:"varint,17,opt,name=org_upstream_enabled,json=orgUpstreamEnabled,proto3" json:"org_upstream_enabled,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
-}
-
-func (x *RequestGroup) Reset() {
-	*x = RequestGroup{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RequestGroup) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RequestGroup) ProtoMessage() {}
-
-func (x *RequestGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RequestGroup.ProtoReflect.Descriptor instead.
-func (*RequestGroup) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *RequestGroup) GetUid() string {
-	if x != nil {
-		return x.Uid
-	}
-	return ""
-}
-
-func (x *RequestGroup) GetParentId() string {
-	if x != nil {
-		return x.ParentId
-	}
-	return ""
-}
-
-func (x *RequestGroup) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *RequestGroup) GetStatus() RequestGroupStatus {
-	if x != nil {
-		return x.Status
-	}
-	return RequestGroupStatus_REQUEST_GROUP_STATUS_UNSPECIFIED
-}
-
-func (x *RequestGroup) GetEcosystem() Ecosystem {
-	if x != nil {
-		return x.Ecosystem
-	}
-	return Ecosystem_ECOSYSTEM_UNSPECIFIED
-}
-
-func (x *RequestGroup) GetSource() RequestSource {
-	if x != nil {
-		return x.Source
-	}
-	return RequestSource_REQUEST_SOURCE_UNSPECIFIED
-}
-
-func (x *RequestGroup) GetForCveRemediation() bool {
-	if x != nil {
-		return x.ForCveRemediation
-	}
-	return false
-}
-
-func (x *RequestGroup) GetSubmitTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.SubmitTime
-	}
-	return nil
-}
-
-func (x *RequestGroup) GetCreateTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.CreateTime
-	}
-	return nil
-}
-
-func (x *RequestGroup) GetUpdateTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.UpdateTime
-	}
-	return nil
-}
-
-func (x *RequestGroup) GetItemsUpdateTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.ItemsUpdateTime
-	}
-	return nil
-}
-
-func (x *RequestGroup) GetCreatedBy() string {
-	if x != nil {
-		return x.CreatedBy
-	}
-	return ""
-}
-
-func (x *RequestGroup) GetSubmittedBy() string {
-	if x != nil {
-		return x.SubmittedBy
-	}
-	return ""
-}
-
-func (x *RequestGroup) GetInput() *InputMetadata {
-	if x != nil {
-		return x.Input
-	}
-	return nil
-}
-
-func (x *RequestGroup) GetAvailabilitySummary() *AvailabilitySummary {
-	if x != nil {
-		return x.AvailabilitySummary
-	}
-	return nil
-}
-
-func (x *RequestGroup) GetCveRemediationSummary() *CVERemediationSummary {
-	if x != nil {
-		return x.CveRemediationSummary
-	}
-	return nil
-}
-
-func (x *RequestGroup) GetOrgUpstreamEnabled() bool {
-	if x != nil {
-		return x.OrgUpstreamEnabled
-	}
-	return false
-}
-
-// RequestGroupItem is one requested package version within a group.
-//
-// The two status fields are orthogonal: a version can be BUILT and still have
-// remediation in progress, or be blocked from building while its CVEs are clean.
-// Read them independently.
-type RequestGroupItem struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The item's unique identifier.
-	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
-	// The raw requirement line as supplied by the customer, retained so an
-	// unparseable line can be shown back to them for correction.
-	Requirement string `protobuf:"bytes,2,opt,name=requirement,proto3" json:"requirement,omitempty"`
-	// Canonical package name: the PEP 503 name for Python, "group:artifact" for
-	// Java. Empty when the requirement could not be parsed.
-	PackageName string `protobuf:"bytes,3,opt,name=package_name,json=packageName,proto3" json:"package_name,omitempty"`
-	// The pinned version requested. Empty when the requirement could not be parsed.
-	Version string `protobuf:"bytes,4,opt,name=version,proto3" json:"version,omitempty"`
-	// The ecosystem this item belongs to.
-	Ecosystem Ecosystem `protobuf:"varint,5,opt,name=ecosystem,proto3,enum=chainguard.platform.libraries.v2beta1.Ecosystem" json:"ecosystem,omitempty"`
-	// Build availability of this version.
-	Availability Availability `protobuf:"varint,6,opt,name=availability,proto3,enum=chainguard.platform.libraries.v2beta1.Availability" json:"availability,omitempty"`
-	// Human-readable reason accompanying availability, written by Chainguard: why
-	// an item will not be built, is held, or could not be read. It is never an
-	// internal note. Empty when there is nothing to say.
-	AvailabilityReason string `protobuf:"bytes,7,opt,name=availability_reason,json=availabilityReason,proto3" json:"availability_reason,omitempty"`
-	// A newer built version to move to, when one exists and this version is
-	// requestable.
-	Upgrade *Upgrade `protobuf:"bytes,8,opt,name=upgrade,proto3" json:"upgrade,omitempty"`
-	// CVE-remediation status of this version. Populated only when the group is
-	// opted in and the item is buildable. An item whose availability is
-	// WONT_BUILD or NOT_FOUND_UPSTREAM is never remediated, because Chainguard
-	// remediates by shipping a build, so it carries no value here even in an
-	// opted-in group. Read availability for the reason.
-	CveRemediation *CVERemediation `protobuf:"bytes,9,opt,name=cve_remediation,json=cveRemediation,proto3" json:"cve_remediation,omitempty"`
-	// Whether the customer removed this item from the draft.
-	Removed bool `protobuf:"varint,10,opt,name=removed,proto3" json:"removed,omitempty"`
-	// When this item's status last changed. Compare against a previous
-	// ListRequestGroupItems call's min_update_time cursor.
-	UpdateTime    *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RequestGroupItem) Reset() {
-	*x = RequestGroupItem{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RequestGroupItem) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RequestGroupItem) ProtoMessage() {}
-
-func (x *RequestGroupItem) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RequestGroupItem.ProtoReflect.Descriptor instead.
-func (*RequestGroupItem) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *RequestGroupItem) GetUid() string {
-	if x != nil {
-		return x.Uid
-	}
-	return ""
-}
-
-func (x *RequestGroupItem) GetRequirement() string {
-	if x != nil {
-		return x.Requirement
-	}
-	return ""
-}
-
-func (x *RequestGroupItem) GetPackageName() string {
-	if x != nil {
-		return x.PackageName
-	}
-	return ""
-}
-
-func (x *RequestGroupItem) GetVersion() string {
-	if x != nil {
-		return x.Version
-	}
-	return ""
-}
-
-func (x *RequestGroupItem) GetEcosystem() Ecosystem {
-	if x != nil {
-		return x.Ecosystem
-	}
-	return Ecosystem_ECOSYSTEM_UNSPECIFIED
-}
-
-func (x *RequestGroupItem) GetAvailability() Availability {
-	if x != nil {
-		return x.Availability
-	}
-	return Availability_AVAILABILITY_UNSPECIFIED
-}
-
-func (x *RequestGroupItem) GetAvailabilityReason() string {
-	if x != nil {
-		return x.AvailabilityReason
-	}
-	return ""
-}
-
-func (x *RequestGroupItem) GetUpgrade() *Upgrade {
-	if x != nil {
-		return x.Upgrade
-	}
-	return nil
-}
-
-func (x *RequestGroupItem) GetCveRemediation() *CVERemediation {
-	if x != nil {
-		return x.CveRemediation
-	}
-	return nil
-}
-
-func (x *RequestGroupItem) GetRemoved() bool {
-	if x != nil {
-		return x.Removed
-	}
-	return false
-}
-
-func (x *RequestGroupItem) GetUpdateTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.UpdateTime
-	}
-	return nil
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{11}
 }
 
 // Upgrade names newer built versions of the same package.
@@ -1551,7 +992,7 @@ type Upgrade struct {
 
 func (x *Upgrade) Reset() {
 	*x = Upgrade{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[2]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1563,7 +1004,7 @@ func (x *Upgrade) String() string {
 func (*Upgrade) ProtoMessage() {}
 
 func (x *Upgrade) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[2]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1576,7 +1017,7 @@ func (x *Upgrade) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Upgrade.ProtoReflect.Descriptor instead.
 func (*Upgrade) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{2}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Upgrade) GetClosestVersion() string {
@@ -1682,7 +1123,7 @@ type CVERemediation struct {
 
 func (x *CVERemediation) Reset() {
 	*x = CVERemediation{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[3]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1694,7 +1135,7 @@ func (x *CVERemediation) String() string {
 func (*CVERemediation) ProtoMessage() {}
 
 func (x *CVERemediation) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[3]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1707,7 +1148,7 @@ func (x *CVERemediation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CVERemediation.ProtoReflect.Descriptor instead.
 func (*CVERemediation) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{3}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *CVERemediation) GetStatus() CVERemediationStatus {
@@ -1748,1634 +1189,6 @@ func (x *CVERemediation) GetFixVersion() string {
 func (x *CVERemediation) GetBlockedFixVersion() string {
 	if x != nil {
 		return x.BlockedFixVersion
-	}
-	return ""
-}
-
-// InputMetadata describes the uploaded input. The content is deliberately not
-// retained; the hash exists to detect a re-upload of the same file.
-type InputMetadata struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Original filename, when the client supplied one.
-	Filename string `protobuf:"bytes,1,opt,name=filename,proto3" json:"filename,omitempty"`
-	// The format the input was parsed as.
-	Format InputFormat `protobuf:"varint,2,opt,name=format,proto3,enum=chainguard.platform.libraries.v2beta1.InputFormat" json:"format,omitempty"`
-	// Hash of the input content, used for re-upload detection.
-	ContentHash string `protobuf:"bytes,3,opt,name=content_hash,json=contentHash,proto3" json:"content_hash,omitempty"`
-	// How many requirements the input yielded.
-	ItemCount     int32 `protobuf:"varint,4,opt,name=item_count,json=itemCount,proto3" json:"item_count,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *InputMetadata) Reset() {
-	*x = InputMetadata{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *InputMetadata) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*InputMetadata) ProtoMessage() {}
-
-func (x *InputMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use InputMetadata.ProtoReflect.Descriptor instead.
-func (*InputMetadata) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *InputMetadata) GetFilename() string {
-	if x != nil {
-		return x.Filename
-	}
-	return ""
-}
-
-func (x *InputMetadata) GetFormat() InputFormat {
-	if x != nil {
-		return x.Format
-	}
-	return InputFormat_INPUT_FORMAT_UNSPECIFIED
-}
-
-func (x *InputMetadata) GetContentHash() string {
-	if x != nil {
-		return x.ContentHash
-	}
-	return ""
-}
-
-func (x *InputMetadata) GetItemCount() int32 {
-	if x != nil {
-		return x.ItemCount
-	}
-	return 0
-}
-
-// AvailabilitySummary counts a group's items by build availability, so a client
-// can render the report header without paging every item.
-type AvailabilitySummary struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Versions Chainguard has already built.
-	Built int32 `protobuf:"varint,1,opt,name=built,proto3" json:"built,omitempty"`
-	// Versions that are not built and can be requested.
-	CanBeRequested int32 `protobuf:"varint,2,opt,name=can_be_requested,json=canBeRequested,proto3" json:"can_be_requested,omitempty"`
-	// Versions on the malware block list. Still requestable, build held.
-	Blocked int32 `protobuf:"varint,3,opt,name=blocked,proto3" json:"blocked,omitempty"`
-	// Versions that do not exist on the upstream registry.
-	NotFoundUpstream int32 `protobuf:"varint,4,opt,name=not_found_upstream,json=notFoundUpstream,proto3" json:"not_found_upstream,omitempty"`
-	// Versions Chainguard will not build for policy reasons.
-	WontBuild int32 `protobuf:"varint,5,opt,name=wont_build,json=wontBuild,proto3" json:"wont_build,omitempty"`
-	// Lines that could not be parsed as a pinned package and version.
-	InvalidRequirement int32 `protobuf:"varint,6,opt,name=invalid_requirement,json=invalidRequirement,proto3" json:"invalid_requirement,omitempty"`
-	// Versions with a build running.
-	Building int32 `protobuf:"varint,7,opt,name=building,proto3" json:"building,omitempty"`
-	// Versions whose build failed and will be retried.
-	BuildFailed int32 `protobuf:"varint,8,opt,name=build_failed,json=buildFailed,proto3" json:"build_failed,omitempty"`
-	// Items the customer removed from the draft.
-	Removed int32 `protobuf:"varint,9,opt,name=removed,proto3" json:"removed,omitempty"`
-	// Items the customer must resolve before the group can be submitted: the sum
-	// of not_found_upstream, invalid_requirement and held.
-	//
-	// Two kinds of item are deliberately NOT counted. A blocked item stays
-	// requestable with the build held. A wont_build item is not requestable at
-	// all, but the group keeps it as the record of a refusal, so it is counted
-	// only under wont_build.
-	BlockingSubmit int32 `protobuf:"varint,10,opt,name=blocking_submit,json=blockingSubmit,proto3" json:"blocking_submit,omitempty"`
-	// Versions whose build was declined and is being held. Counted in
-	// blocking_submit, because a hold is somebody else's decision and asking
-	// again must not launder it, so the customer has to take the item out of the
-	// group to submit. Being unrequestable is not the reason: a wont_build item
-	// is unrequestable too and the group keeps it.
-	Held int32 `protobuf:"varint,11,opt,name=held,proto3" json:"held,omitempty"`
-	// Items with no answer yet, because their coverage check has not run or has
-	// not finished. Every other field counts an answer; this one counts their
-	// absence, so a group whose check has not started reports pending equal to
-	// total and zero everywhere else.
-	//
-	// Without it a group still being checked and a group whose check found
-	// nothing to report are the same message.
-	Pending int32 `protobuf:"varint,12,opt,name=pending,proto3" json:"pending,omitempty"`
-	// Every item in the group, including removed and pending ones.
-	//
-	// It is not the sum of the fields above, and it exists because that sum is
-	// wrong: blocking_submit deliberately re-counts not_found_upstream,
-	// invalid_requirement and held, so adding the fields together counts every
-	// blocking item twice. A field added here later would change what a summing
-	// client computed, as well.
-	//
-	// Progress is total - pending, which stays right however the buckets change.
-	Total         int32 `protobuf:"varint,13,opt,name=total,proto3" json:"total,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AvailabilitySummary) Reset() {
-	*x = AvailabilitySummary{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AvailabilitySummary) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AvailabilitySummary) ProtoMessage() {}
-
-func (x *AvailabilitySummary) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AvailabilitySummary.ProtoReflect.Descriptor instead.
-func (*AvailabilitySummary) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *AvailabilitySummary) GetBuilt() int32 {
-	if x != nil {
-		return x.Built
-	}
-	return 0
-}
-
-func (x *AvailabilitySummary) GetCanBeRequested() int32 {
-	if x != nil {
-		return x.CanBeRequested
-	}
-	return 0
-}
-
-func (x *AvailabilitySummary) GetBlocked() int32 {
-	if x != nil {
-		return x.Blocked
-	}
-	return 0
-}
-
-func (x *AvailabilitySummary) GetNotFoundUpstream() int32 {
-	if x != nil {
-		return x.NotFoundUpstream
-	}
-	return 0
-}
-
-func (x *AvailabilitySummary) GetWontBuild() int32 {
-	if x != nil {
-		return x.WontBuild
-	}
-	return 0
-}
-
-func (x *AvailabilitySummary) GetInvalidRequirement() int32 {
-	if x != nil {
-		return x.InvalidRequirement
-	}
-	return 0
-}
-
-func (x *AvailabilitySummary) GetBuilding() int32 {
-	if x != nil {
-		return x.Building
-	}
-	return 0
-}
-
-func (x *AvailabilitySummary) GetBuildFailed() int32 {
-	if x != nil {
-		return x.BuildFailed
-	}
-	return 0
-}
-
-func (x *AvailabilitySummary) GetRemoved() int32 {
-	if x != nil {
-		return x.Removed
-	}
-	return 0
-}
-
-func (x *AvailabilitySummary) GetBlockingSubmit() int32 {
-	if x != nil {
-		return x.BlockingSubmit
-	}
-	return 0
-}
-
-func (x *AvailabilitySummary) GetHeld() int32 {
-	if x != nil {
-		return x.Held
-	}
-	return 0
-}
-
-func (x *AvailabilitySummary) GetPending() int32 {
-	if x != nil {
-		return x.Pending
-	}
-	return 0
-}
-
-func (x *AvailabilitySummary) GetTotal() int32 {
-	if x != nil {
-		return x.Total
-	}
-	return 0
-}
-
-// CVERemediationSummary counts a group's items by CVE-remediation status.
-type CVERemediationSummary struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Versions queued for review, or not yet resolvable to a version we hold.
-	ScanQueued int32 `protobuf:"varint,1,opt,name=scan_queued,json=scanQueued,proto3" json:"scan_queued,omitempty"`
-	// Versions cross-referenced with no High or Critical CVEs.
-	NoHighCriticalCves int32 `protobuf:"varint,2,opt,name=no_high_critical_cves,json=noHighCriticalCves,proto3" json:"no_high_critical_cves,omitempty"`
-	// Versions with CVEs identified but remediation not started.
-	Reviewing int32 `protobuf:"varint,3,opt,name=reviewing,proto3" json:"reviewing,omitempty"`
-	// Versions with remediation underway.
-	InProgress int32 `protobuf:"varint,4,opt,name=in_progress,json=inProgress,proto3" json:"in_progress,omitempty"`
-	// Versions where remediation finished.
-	Complete int32 `protobuf:"varint,5,opt,name=complete,proto3" json:"complete,omitempty"`
-	// Versions whose CVEs were all ruled out of scope.
-	WontRemediate int32 `protobuf:"varint,6,opt,name=wont_remediate,json=wontRemediate,proto3" json:"wont_remediate,omitempty"`
-	// Total High and Critical CVEs remediated across the group. Scoped like
-	// CVERemediation.cve_count.
-	RemediatedCount int32 `protobuf:"varint,7,opt,name=remediated_count,json=remediatedCount,proto3" json:"remediated_count,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
-func (x *CVERemediationSummary) Reset() {
-	*x = CVERemediationSummary{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CVERemediationSummary) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CVERemediationSummary) ProtoMessage() {}
-
-func (x *CVERemediationSummary) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CVERemediationSummary.ProtoReflect.Descriptor instead.
-func (*CVERemediationSummary) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *CVERemediationSummary) GetScanQueued() int32 {
-	if x != nil {
-		return x.ScanQueued
-	}
-	return 0
-}
-
-func (x *CVERemediationSummary) GetNoHighCriticalCves() int32 {
-	if x != nil {
-		return x.NoHighCriticalCves
-	}
-	return 0
-}
-
-func (x *CVERemediationSummary) GetReviewing() int32 {
-	if x != nil {
-		return x.Reviewing
-	}
-	return 0
-}
-
-func (x *CVERemediationSummary) GetInProgress() int32 {
-	if x != nil {
-		return x.InProgress
-	}
-	return 0
-}
-
-func (x *CVERemediationSummary) GetComplete() int32 {
-	if x != nil {
-		return x.Complete
-	}
-	return 0
-}
-
-func (x *CVERemediationSummary) GetWontRemediate() int32 {
-	if x != nil {
-		return x.WontRemediate
-	}
-	return 0
-}
-
-func (x *CVERemediationSummary) GetRemediatedCount() int32 {
-	if x != nil {
-		return x.RemediatedCount
-	}
-	return 0
-}
-
-// CreateRequestGroupRequest creates a draft from a pinned input.
-//
-// Supply exactly one of content or items.
-type CreateRequestGroupRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The organization to create the group under.
-	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
-	// Optional customer-supplied name. A name is generated when omitted.
-	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// The raw input: a Python lockfile, or a newline-separated Java GAV list.
-	Content string `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
-	// Pre-parsed requirement lines, as an alternative to content.
-	Items []string `protobuf:"bytes,4,rep,name=items,proto3" json:"items,omitempty"`
-	// How to parse content. Required when content is set.
-	Format InputFormat `protobuf:"varint,5,opt,name=format,proto3,enum=chainguard.platform.libraries.v2beta1.InputFormat" json:"format,omitempty"`
-	// Original filename, recorded as metadata.
-	Filename string `protobuf:"bytes,6,opt,name=filename,proto3" json:"filename,omitempty"`
-	// Resolution context for ecosystems that need it, such as python_version and
-	// platform for Python. Empty for Java, where a GAV is already fully pinned.
-	//
-	// Part of the idempotency hash: the same lockfile resolved for a different
-	// Python version is a different request, not a repeat of the first.
-	EcosystemContext map[string]string `protobuf:"bytes,7,rep,name=ecosystem_context,json=ecosystemContext,proto3" json:"ecosystem_context,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	// Request CVE remediation for this group. The decision can also be made at
-	// submit, which is where it takes effect.
-	ForCveRemediation bool `protobuf:"varint,8,opt,name=for_cve_remediation,json=forCveRemediation,proto3" json:"for_cve_remediation,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
-}
-
-func (x *CreateRequestGroupRequest) Reset() {
-	*x = CreateRequestGroupRequest{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateRequestGroupRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateRequestGroupRequest) ProtoMessage() {}
-
-func (x *CreateRequestGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateRequestGroupRequest.ProtoReflect.Descriptor instead.
-func (*CreateRequestGroupRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *CreateRequestGroupRequest) GetParent() string {
-	if x != nil {
-		return x.Parent
-	}
-	return ""
-}
-
-func (x *CreateRequestGroupRequest) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *CreateRequestGroupRequest) GetContent() string {
-	if x != nil {
-		return x.Content
-	}
-	return ""
-}
-
-func (x *CreateRequestGroupRequest) GetItems() []string {
-	if x != nil {
-		return x.Items
-	}
-	return nil
-}
-
-func (x *CreateRequestGroupRequest) GetFormat() InputFormat {
-	if x != nil {
-		return x.Format
-	}
-	return InputFormat_INPUT_FORMAT_UNSPECIFIED
-}
-
-func (x *CreateRequestGroupRequest) GetFilename() string {
-	if x != nil {
-		return x.Filename
-	}
-	return ""
-}
-
-func (x *CreateRequestGroupRequest) GetEcosystemContext() map[string]string {
-	if x != nil {
-		return x.EcosystemContext
-	}
-	return nil
-}
-
-func (x *CreateRequestGroupRequest) GetForCveRemediation() bool {
-	if x != nil {
-		return x.ForCveRemediation
-	}
-	return false
-}
-
-// ListRequestGroupsRequest lists an organization's groups.
-type ListRequestGroupsRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The organization whose groups to list.
-	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
-	// Draft or submitted. Defaults to submitted, which is what the dashboard shows.
-	State RequestGroupState `protobuf:"varint,2,opt,name=state,proto3,enum=chainguard.platform.libraries.v2beta1.RequestGroupState" json:"state,omitempty"`
-	// Filter by processing status.
-	Status RequestGroupStatus `protobuf:"varint,3,opt,name=status,proto3,enum=chainguard.platform.libraries.v2beta1.RequestGroupStatus" json:"status,omitempty"`
-	// Filter by ecosystem.
-	Ecosystem Ecosystem `protobuf:"varint,4,opt,name=ecosystem,proto3,enum=chainguard.platform.libraries.v2beta1.Ecosystem" json:"ecosystem,omitempty"`
-	// Filter by how the group was created.
-	Source RequestSource `protobuf:"varint,5,opt,name=source,proto3,enum=chainguard.platform.libraries.v2beta1.RequestSource" json:"source,omitempty"`
-	// Filter by exact name.
-	Name string `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`
-	// Filter to groups opted in to CVE remediation.
-	ForCveRemediation *bool `protobuf:"varint,7,opt,name=for_cve_remediation,json=forCveRemediation,proto3,oneof" json:"for_cve_remediation,omitempty"`
-	// Maximum groups to return. Default 50, maximum 1000.
-	PageSize int32 `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	// Opaque page token from a previous response.
-	PageToken string `protobuf:"bytes,11,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
-	// Order results by field. Format: "field [asc|desc]"
-	// Note: changing order_by between pages invalidates the page_token.
-	OrderBy string `protobuf:"bytes,12,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
-	// Number of results to skip before returning, for random-access pagination.
-	// Combines with page_token to skip from the cursor position. Must be
-	// non-negative.
-	Skip          int32 `protobuf:"varint,13,opt,name=skip,proto3" json:"skip,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListRequestGroupsRequest) Reset() {
-	*x = ListRequestGroupsRequest{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListRequestGroupsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListRequestGroupsRequest) ProtoMessage() {}
-
-func (x *ListRequestGroupsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListRequestGroupsRequest.ProtoReflect.Descriptor instead.
-func (*ListRequestGroupsRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *ListRequestGroupsRequest) GetParent() string {
-	if x != nil {
-		return x.Parent
-	}
-	return ""
-}
-
-func (x *ListRequestGroupsRequest) GetState() RequestGroupState {
-	if x != nil {
-		return x.State
-	}
-	return RequestGroupState_REQUEST_GROUP_STATE_UNSPECIFIED
-}
-
-func (x *ListRequestGroupsRequest) GetStatus() RequestGroupStatus {
-	if x != nil {
-		return x.Status
-	}
-	return RequestGroupStatus_REQUEST_GROUP_STATUS_UNSPECIFIED
-}
-
-func (x *ListRequestGroupsRequest) GetEcosystem() Ecosystem {
-	if x != nil {
-		return x.Ecosystem
-	}
-	return Ecosystem_ECOSYSTEM_UNSPECIFIED
-}
-
-func (x *ListRequestGroupsRequest) GetSource() RequestSource {
-	if x != nil {
-		return x.Source
-	}
-	return RequestSource_REQUEST_SOURCE_UNSPECIFIED
-}
-
-func (x *ListRequestGroupsRequest) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *ListRequestGroupsRequest) GetForCveRemediation() bool {
-	if x != nil && x.ForCveRemediation != nil {
-		return *x.ForCveRemediation
-	}
-	return false
-}
-
-func (x *ListRequestGroupsRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *ListRequestGroupsRequest) GetPageToken() string {
-	if x != nil {
-		return x.PageToken
-	}
-	return ""
-}
-
-func (x *ListRequestGroupsRequest) GetOrderBy() string {
-	if x != nil {
-		return x.OrderBy
-	}
-	return ""
-}
-
-func (x *ListRequestGroupsRequest) GetSkip() int32 {
-	if x != nil {
-		return x.Skip
-	}
-	return 0
-}
-
-// ListRequestGroupsResponse returns a page of groups.
-type ListRequestGroupsResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The groups on this page.
-	RequestGroups []*RequestGroup `protobuf:"bytes,1,rep,name=request_groups,json=requestGroups,proto3" json:"request_groups,omitempty"`
-	// Token for the next page; empty when there are no more.
-	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	// Total number of results matching the filter, for pagination controls.
-	TotalCount *int64 `protobuf:"varint,3,opt,name=total_count,json=totalCount,proto3,oneof" json:"total_count,omitempty"`
-	// Number of results skipped, accumulated across paginated requests.
-	Skipped       int32 `protobuf:"varint,4,opt,name=skipped,proto3" json:"skipped,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListRequestGroupsResponse) Reset() {
-	*x = ListRequestGroupsResponse{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListRequestGroupsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListRequestGroupsResponse) ProtoMessage() {}
-
-func (x *ListRequestGroupsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListRequestGroupsResponse.ProtoReflect.Descriptor instead.
-func (*ListRequestGroupsResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *ListRequestGroupsResponse) GetRequestGroups() []*RequestGroup {
-	if x != nil {
-		return x.RequestGroups
-	}
-	return nil
-}
-
-func (x *ListRequestGroupsResponse) GetNextPageToken() string {
-	if x != nil {
-		return x.NextPageToken
-	}
-	return ""
-}
-
-func (x *ListRequestGroupsResponse) GetTotalCount() int64 {
-	if x != nil && x.TotalCount != nil {
-		return *x.TotalCount
-	}
-	return 0
-}
-
-func (x *ListRequestGroupsResponse) GetSkipped() int32 {
-	if x != nil {
-		return x.Skipped
-	}
-	return 0
-}
-
-// GetRequestGroupRequest fetches one group.
-type GetRequestGroupRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The group's unique identifier.
-	//
-	// A flat UUID, not a Chainguard ID: it has no parent and no hierarchy. The IAM
-	// scope therefore travels on parent below, rather than on this field as it does
-	// for resources whose uid is itself a Chainguard ID.
-	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
-	// The organization that owns the group.
-	//
-	// Carries the IAM scope for this request, matching
-	// ListRequestGroupsRequest.parent: authorization is evaluated against this
-	// organization. It must be the organization that owns uid; a uid belonging to
-	// any other organization reads as not found.
-	Parent        string `protobuf:"bytes,2,opt,name=parent,proto3" json:"parent,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetRequestGroupRequest) Reset() {
-	*x = GetRequestGroupRequest{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetRequestGroupRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetRequestGroupRequest) ProtoMessage() {}
-
-func (x *GetRequestGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetRequestGroupRequest.ProtoReflect.Descriptor instead.
-func (*GetRequestGroupRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *GetRequestGroupRequest) GetUid() string {
-	if x != nil {
-		return x.Uid
-	}
-	return ""
-}
-
-func (x *GetRequestGroupRequest) GetParent() string {
-	if x != nil {
-		return x.Parent
-	}
-	return ""
-}
-
-// ListRequestGroupItemsRequest pages a group's items.
-type ListRequestGroupItemsRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The group whose items to list.
-	//
-	// A flat UUID, not a Chainguard ID, as on GetRequestGroupRequest.uid. The IAM
-	// scope travels on parent below.
-	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
-	// Filter by build availability.
-	Availability Availability `protobuf:"varint,2,opt,name=availability,proto3,enum=chainguard.platform.libraries.v2beta1.Availability" json:"availability,omitempty"`
-	// Filter by CVE-remediation status.
-	CveRemediationStatus CVERemediationStatus `protobuf:"varint,3,opt,name=cve_remediation_status,json=cveRemediationStatus,proto3,enum=chainguard.platform.libraries.v2beta1.CVERemediationStatus" json:"cve_remediation_status,omitempty"`
-	// Return only items whose status changed at or after this time. Pair with the
-	// group's items_update_time to follow a large group cheaply.
-	MinUpdateTime *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=min_update_time,json=minUpdateTime,proto3" json:"min_update_time,omitempty"`
-	// Include items the customer removed. Excluded by default.
-	IncludeRemoved bool `protobuf:"varint,5,opt,name=include_removed,json=includeRemoved,proto3" json:"include_removed,omitempty"`
-	// The organization that owns the group.
-	//
-	// Carries the IAM scope for this request, as on GetRequestGroupRequest.parent.
-	// It must be the organization that owns uid; a uid belonging to any other
-	// organization reads as not found.
-	//
-	// Numbered 6 rather than appended after skip so it sits with the identifying and
-	// filter fields instead of inside the pagination block at 10-13.
-	Parent string `protobuf:"bytes,6,opt,name=parent,proto3" json:"parent,omitempty"`
-	// Return only items for this package. An exact match on the canonical name,
-	// as RequestGroupItem.package_name reports it, not a substring. Items whose
-	// requirement yielded no package name never match. At most 255 characters,
-	// the longest name the service stores.
-	PackageName string `protobuf:"bytes,7,opt,name=package_name,json=packageName,proto3" json:"package_name,omitempty"`
-	// Maximum items to return. Default 50, maximum 1000.
-	PageSize int32 `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	// Opaque page token from a previous response.
-	PageToken string `protobuf:"bytes,11,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
-	// Order results by field. Format: "field [asc|desc]"
-	// Note: changing order_by between pages invalidates the page_token.
-	OrderBy string `protobuf:"bytes,12,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
-	// Number of results to skip before returning, for random-access pagination.
-	// Combines with page_token to skip from the cursor position. Must be
-	// non-negative.
-	Skip          int32 `protobuf:"varint,13,opt,name=skip,proto3" json:"skip,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListRequestGroupItemsRequest) Reset() {
-	*x = ListRequestGroupItemsRequest{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListRequestGroupItemsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListRequestGroupItemsRequest) ProtoMessage() {}
-
-func (x *ListRequestGroupItemsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListRequestGroupItemsRequest.ProtoReflect.Descriptor instead.
-func (*ListRequestGroupItemsRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *ListRequestGroupItemsRequest) GetUid() string {
-	if x != nil {
-		return x.Uid
-	}
-	return ""
-}
-
-func (x *ListRequestGroupItemsRequest) GetAvailability() Availability {
-	if x != nil {
-		return x.Availability
-	}
-	return Availability_AVAILABILITY_UNSPECIFIED
-}
-
-func (x *ListRequestGroupItemsRequest) GetCveRemediationStatus() CVERemediationStatus {
-	if x != nil {
-		return x.CveRemediationStatus
-	}
-	return CVERemediationStatus_CVE_REMEDIATION_STATUS_UNSPECIFIED
-}
-
-func (x *ListRequestGroupItemsRequest) GetMinUpdateTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.MinUpdateTime
-	}
-	return nil
-}
-
-func (x *ListRequestGroupItemsRequest) GetIncludeRemoved() bool {
-	if x != nil {
-		return x.IncludeRemoved
-	}
-	return false
-}
-
-func (x *ListRequestGroupItemsRequest) GetParent() string {
-	if x != nil {
-		return x.Parent
-	}
-	return ""
-}
-
-func (x *ListRequestGroupItemsRequest) GetPackageName() string {
-	if x != nil {
-		return x.PackageName
-	}
-	return ""
-}
-
-func (x *ListRequestGroupItemsRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *ListRequestGroupItemsRequest) GetPageToken() string {
-	if x != nil {
-		return x.PageToken
-	}
-	return ""
-}
-
-func (x *ListRequestGroupItemsRequest) GetOrderBy() string {
-	if x != nil {
-		return x.OrderBy
-	}
-	return ""
-}
-
-func (x *ListRequestGroupItemsRequest) GetSkip() int32 {
-	if x != nil {
-		return x.Skip
-	}
-	return 0
-}
-
-// ListRequestGroupItemsResponse returns a page of items.
-type ListRequestGroupItemsResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The items on this page.
-	RequestGroupItems []*RequestGroupItem `protobuf:"bytes,1,rep,name=request_group_items,json=requestGroupItems,proto3" json:"request_group_items,omitempty"`
-	// Token for the next page; empty when there are no more.
-	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	// Total number of results matching the filter, for pagination controls.
-	TotalCount *int64 `protobuf:"varint,3,opt,name=total_count,json=totalCount,proto3,oneof" json:"total_count,omitempty"`
-	// Number of results skipped, accumulated across paginated requests.
-	Skipped       int32 `protobuf:"varint,4,opt,name=skipped,proto3" json:"skipped,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListRequestGroupItemsResponse) Reset() {
-	*x = ListRequestGroupItemsResponse{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListRequestGroupItemsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListRequestGroupItemsResponse) ProtoMessage() {}
-
-func (x *ListRequestGroupItemsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListRequestGroupItemsResponse.ProtoReflect.Descriptor instead.
-func (*ListRequestGroupItemsResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *ListRequestGroupItemsResponse) GetRequestGroupItems() []*RequestGroupItem {
-	if x != nil {
-		return x.RequestGroupItems
-	}
-	return nil
-}
-
-func (x *ListRequestGroupItemsResponse) GetNextPageToken() string {
-	if x != nil {
-		return x.NextPageToken
-	}
-	return ""
-}
-
-func (x *ListRequestGroupItemsResponse) GetTotalCount() int64 {
-	if x != nil && x.TotalCount != nil {
-		return *x.TotalCount
-	}
-	return 0
-}
-
-func (x *ListRequestGroupItemsResponse) GetSkipped() int32 {
-	if x != nil {
-		return x.Skipped
-	}
-	return 0
-}
-
-// SubmitRequestGroupRequest promotes a draft.
-type SubmitRequestGroupRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The draft group to submit.
-	//
-	// A flat UUID, not a Chainguard ID, as on GetRequestGroupRequest.uid. The IAM
-	// scope travels on parent below.
-	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
-	// Opt the group in to CVE remediation. This is the decision point; a value set
-	// at create is carried forward when this field is omitted.
-	ForCveRemediation *bool `protobuf:"varint,2,opt,name=for_cve_remediation,json=forCveRemediation,proto3,oneof" json:"for_cve_remediation,omitempty"`
-	// The organization that owns the group.
-	//
-	// Carries the IAM scope for this request, as on GetRequestGroupRequest.parent.
-	// It must be the organization that owns uid; a uid belonging to any other
-	// organization reads as not found.
-	Parent        string `protobuf:"bytes,3,opt,name=parent,proto3" json:"parent,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SubmitRequestGroupRequest) Reset() {
-	*x = SubmitRequestGroupRequest{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SubmitRequestGroupRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SubmitRequestGroupRequest) ProtoMessage() {}
-
-func (x *SubmitRequestGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SubmitRequestGroupRequest.ProtoReflect.Descriptor instead.
-func (*SubmitRequestGroupRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *SubmitRequestGroupRequest) GetUid() string {
-	if x != nil {
-		return x.Uid
-	}
-	return ""
-}
-
-func (x *SubmitRequestGroupRequest) GetForCveRemediation() bool {
-	if x != nil && x.ForCveRemediation != nil {
-		return *x.ForCveRemediation
-	}
-	return false
-}
-
-func (x *SubmitRequestGroupRequest) GetParent() string {
-	if x != nil {
-		return x.Parent
-	}
-	return ""
-}
-
-// UpdateRequestGroupRequest edits group metadata.
-type UpdateRequestGroupRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The group to update, carrying the new field values.
-	//
-	// Deliberately not the iam_scope field, unlike UpdateGroupRequest and
-	// UpdateAccountAssociationRequest where the resource is likewise the body.
-	// Marking it here bound the scope check to nothing: the interceptor recurses
-	// into the annotated message looking for a nested iam_scope field, RequestGroup
-	// has none, and an absent scope is reported as Internal rather than as a
-	// rejected request. Both of RequestGroup's identifying fields are also
-	// OUTPUT_ONLY, so annotating one would ask the caller to set a field the
-	// contract says it does not set.
-	RequestGroup *RequestGroup `protobuf:"bytes,1,opt,name=request_group,json=requestGroup,proto3" json:"request_group,omitempty"`
-	// The organization that owns the group.
-	//
-	// Carries the IAM scope for this request, as on GetRequestGroupRequest.parent,
-	// so a mutating call is bound to an organization the caller holds the
-	// capability in.
-	// (-- api-linter: core::0134::request-unknown-fields=disabled
-	//     api-linter: core::0134::request-required-fields=disabled
-	//     aip.dev/not-precedent: AIP-134 and this platform's authorization model
-	//     cannot both be satisfied here, and an unauthorizable Update is the worse
-	//     failure. The interceptor binds the capability check to the field marked
-	//     iam_scope and requires it to be a Chainguard ID (uidp.Valid, 40 hex).
-	//     Keeping the annotation on request_group -- the AIP-shaped choice, and what
-	//     this message did before -- made the check bind to nothing: the interceptor
-	//     recurses into the annotated message for a nested iam_scope field,
-	//     RequestGroup has none, and the miss surfaces as Internal rather than as a
-	//     rejected request. Neither of RequestGroup's identifying fields can carry
-	//     it either: uid is a flat UUID that can never satisfy uidp.Valid, and
-	//     parent_id is OUTPUT_ONLY, so annotating it would ask the caller to set a
-	//     field the contract says it does not set. Hence a scope field on the
-	//     request. --)
-	Parent string `protobuf:"bytes,3,opt,name=parent,proto3" json:"parent,omitempty"`
-	// Which fields to apply. Only name is currently mutable.
-	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateRequestGroupRequest) Reset() {
-	*x = UpdateRequestGroupRequest{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateRequestGroupRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateRequestGroupRequest) ProtoMessage() {}
-
-func (x *UpdateRequestGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateRequestGroupRequest.ProtoReflect.Descriptor instead.
-func (*UpdateRequestGroupRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *UpdateRequestGroupRequest) GetRequestGroup() *RequestGroup {
-	if x != nil {
-		return x.RequestGroup
-	}
-	return nil
-}
-
-func (x *UpdateRequestGroupRequest) GetParent() string {
-	if x != nil {
-		return x.Parent
-	}
-	return ""
-}
-
-func (x *UpdateRequestGroupRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
-	if x != nil {
-		return x.UpdateMask
-	}
-	return nil
-}
-
-// RemoveItemsRequest removes items from a draft.
-type RemoveItemsRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The draft group holding the items.
-	//
-	// A flat UUID, not a Chainguard ID, as on GetRequestGroupRequest.uid. The IAM
-	// scope travels on parent below.
-	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
-	// The items to remove. Every uid must belong to this group; a mismatch fails
-	// the whole call.
-	ItemUids []string `protobuf:"bytes,2,rep,name=item_uids,json=itemUids,proto3" json:"item_uids,omitempty"`
-	// The organization that owns the group.
-	//
-	// Carries the IAM scope for this request, as on GetRequestGroupRequest.parent.
-	// It must be the organization that owns uid; a uid belonging to any other
-	// organization reads as not found.
-	Parent        string `protobuf:"bytes,3,opt,name=parent,proto3" json:"parent,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RemoveItemsRequest) Reset() {
-	*x = RemoveItemsRequest{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[15]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RemoveItemsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RemoveItemsRequest) ProtoMessage() {}
-
-func (x *RemoveItemsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[15]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RemoveItemsRequest.ProtoReflect.Descriptor instead.
-func (*RemoveItemsRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{15}
-}
-
-func (x *RemoveItemsRequest) GetUid() string {
-	if x != nil {
-		return x.Uid
-	}
-	return ""
-}
-
-func (x *RemoveItemsRequest) GetItemUids() []string {
-	if x != nil {
-		return x.ItemUids
-	}
-	return nil
-}
-
-func (x *RemoveItemsRequest) GetParent() string {
-	if x != nil {
-		return x.Parent
-	}
-	return ""
-}
-
-// RemoveItemsResponse reports the outcome of a removal.
-type RemoveItemsResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The request group the items belong to.
-	//
-	// Present so the response identifies what it acted on, and because this RPC
-	// emits a CloudEvent: the event's subject is the group, since that is the
-	// resource the change is about rather than any individual item.
-	Uid string `protobuf:"bytes,3,opt,name=uid,proto3" json:"uid,omitempty"`
-	// The organization the group belongs to. Carries the event's "group" extension.
-	ParentId string `protobuf:"bytes,4,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
-	// How many items changed state.
-	RemovedCount int32 `protobuf:"varint,1,opt,name=removed_count,json=removedCount,proto3" json:"removed_count,omitempty"`
-	// The group's refreshed summary counts.
-	AvailabilitySummary *AvailabilitySummary `protobuf:"bytes,2,opt,name=availability_summary,json=availabilitySummary,proto3" json:"availability_summary,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
-}
-
-func (x *RemoveItemsResponse) Reset() {
-	*x = RemoveItemsResponse{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[16]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RemoveItemsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RemoveItemsResponse) ProtoMessage() {}
-
-func (x *RemoveItemsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[16]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RemoveItemsResponse.ProtoReflect.Descriptor instead.
-func (*RemoveItemsResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{16}
-}
-
-func (x *RemoveItemsResponse) GetUid() string {
-	if x != nil {
-		return x.Uid
-	}
-	return ""
-}
-
-func (x *RemoveItemsResponse) GetParentId() string {
-	if x != nil {
-		return x.ParentId
-	}
-	return ""
-}
-
-func (x *RemoveItemsResponse) GetRemovedCount() int32 {
-	if x != nil {
-		return x.RemovedCount
-	}
-	return 0
-}
-
-func (x *RemoveItemsResponse) GetAvailabilitySummary() *AvailabilitySummary {
-	if x != nil {
-		return x.AvailabilitySummary
-	}
-	return nil
-}
-
-// RestoreItemsRequest returns removed items to a draft.
-type RestoreItemsRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The draft group holding the items.
-	//
-	// A flat UUID, not a Chainguard ID, as on GetRequestGroupRequest.uid. The IAM
-	// scope travels on parent below.
-	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
-	// The items to restore. Every uid must belong to this group; a mismatch fails
-	// the whole call.
-	ItemUids []string `protobuf:"bytes,2,rep,name=item_uids,json=itemUids,proto3" json:"item_uids,omitempty"`
-	// The organization that owns the group.
-	//
-	// Carries the IAM scope for this request, as on GetRequestGroupRequest.parent.
-	// It must be the organization that owns uid; a uid belonging to any other
-	// organization reads as not found.
-	Parent        string `protobuf:"bytes,3,opt,name=parent,proto3" json:"parent,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RestoreItemsRequest) Reset() {
-	*x = RestoreItemsRequest{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[17]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RestoreItemsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RestoreItemsRequest) ProtoMessage() {}
-
-func (x *RestoreItemsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[17]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RestoreItemsRequest.ProtoReflect.Descriptor instead.
-func (*RestoreItemsRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{17}
-}
-
-func (x *RestoreItemsRequest) GetUid() string {
-	if x != nil {
-		return x.Uid
-	}
-	return ""
-}
-
-func (x *RestoreItemsRequest) GetItemUids() []string {
-	if x != nil {
-		return x.ItemUids
-	}
-	return nil
-}
-
-func (x *RestoreItemsRequest) GetParent() string {
-	if x != nil {
-		return x.Parent
-	}
-	return ""
-}
-
-// RestoreItemsResponse reports the outcome of a restore.
-type RestoreItemsResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The request group the items belong to.
-	//
-	// Present so the response identifies what it acted on, and because this RPC
-	// emits a CloudEvent: the event's subject is the group, since that is the
-	// resource the change is about rather than any individual item.
-	Uid string `protobuf:"bytes,3,opt,name=uid,proto3" json:"uid,omitempty"`
-	// The organization the group belongs to. Carries the event's "group" extension.
-	ParentId string `protobuf:"bytes,4,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
-	// How many items changed state.
-	RestoredCount int32 `protobuf:"varint,1,opt,name=restored_count,json=restoredCount,proto3" json:"restored_count,omitempty"`
-	// The group's refreshed summary counts.
-	AvailabilitySummary *AvailabilitySummary `protobuf:"bytes,2,opt,name=availability_summary,json=availabilitySummary,proto3" json:"availability_summary,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
-}
-
-func (x *RestoreItemsResponse) Reset() {
-	*x = RestoreItemsResponse{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[18]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RestoreItemsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RestoreItemsResponse) ProtoMessage() {}
-
-func (x *RestoreItemsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[18]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RestoreItemsResponse.ProtoReflect.Descriptor instead.
-func (*RestoreItemsResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{18}
-}
-
-func (x *RestoreItemsResponse) GetUid() string {
-	if x != nil {
-		return x.Uid
-	}
-	return ""
-}
-
-func (x *RestoreItemsResponse) GetParentId() string {
-	if x != nil {
-		return x.ParentId
-	}
-	return ""
-}
-
-func (x *RestoreItemsResponse) GetRestoredCount() int32 {
-	if x != nil {
-		return x.RestoredCount
-	}
-	return 0
-}
-
-func (x *RestoreItemsResponse) GetAvailabilitySummary() *AvailabilitySummary {
-	if x != nil {
-		return x.AvailabilitySummary
-	}
-	return nil
-}
-
-// DeleteRequestGroupRequest deletes a draft group.
-type DeleteRequestGroupRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The group to delete.
-	//
-	// A flat UUID, not a Chainguard ID, as on GetRequestGroupRequest.uid. The IAM
-	// scope travels on parent below.
-	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
-	// The organization that owns the group.
-	//
-	// Carries the IAM scope for this request, as on GetRequestGroupRequest.parent.
-	// It must be the organization that owns uid; a uid belonging to any other
-	// organization reads as not found.
-	Parent        string `protobuf:"bytes,2,opt,name=parent,proto3" json:"parent,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteRequestGroupRequest) Reset() {
-	*x = DeleteRequestGroupRequest{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[19]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteRequestGroupRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteRequestGroupRequest) ProtoMessage() {}
-
-func (x *DeleteRequestGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[19]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteRequestGroupRequest.ProtoReflect.Descriptor instead.
-func (*DeleteRequestGroupRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{19}
-}
-
-func (x *DeleteRequestGroupRequest) GetUid() string {
-	if x != nil {
-		return x.Uid
-	}
-	return ""
-}
-
-func (x *DeleteRequestGroupRequest) GetParent() string {
-	if x != nil {
-		return x.Parent
-	}
-	return ""
-}
-
-// DeleteSubmittedRequestGroupRequest deletes a submitted group.
-//
-// The same two fields as DeleteRequestGroupRequest rather than a shared message,
-// because the two requests are free to diverge -- an admin delete is the natural
-// place for a reason string or a confirmation token, and neither belongs on the
-// customer's. Sharing one message would couple the two surfaces at exactly the
-// point this split separated them.
-type DeleteSubmittedRequestGroupRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The group to delete.
-	//
-	// A flat UUID, not a Chainguard ID, as on GetRequestGroupRequest.uid. The IAM
-	// scope travels on parent below.
-	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
-	// The organization that owns the group.
-	//
-	// Carries the IAM scope for this request, as on RefreshCoverageRequest.parent.
-	// Required even though only Chainguard staff can call this: the capability is
-	// still checked against an organization, and a staff-facing call is not an
-	// unscoped one.
-	Parent        string `protobuf:"bytes,2,opt,name=parent,proto3" json:"parent,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteSubmittedRequestGroupRequest) Reset() {
-	*x = DeleteSubmittedRequestGroupRequest{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[20]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteSubmittedRequestGroupRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteSubmittedRequestGroupRequest) ProtoMessage() {}
-
-func (x *DeleteSubmittedRequestGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[20]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteSubmittedRequestGroupRequest.ProtoReflect.Descriptor instead.
-func (*DeleteSubmittedRequestGroupRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{20}
-}
-
-func (x *DeleteSubmittedRequestGroupRequest) GetUid() string {
-	if x != nil {
-		return x.Uid
-	}
-	return ""
-}
-
-func (x *DeleteSubmittedRequestGroupRequest) GetParent() string {
-	if x != nil {
-		return x.Parent
-	}
-	return ""
-}
-
-// RefreshCoverageRequest re-runs a group's coverage check.
-type RefreshCoverageRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The group to re-scan.
-	//
-	// A flat UUID, not a Chainguard ID, as on GetRequestGroupRequest.uid. The IAM
-	// scope travels on parent below.
-	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
-	// The organization that owns the group.
-	//
-	// Carries the IAM scope for this request, as on GetRequestGroupRequest.parent.
-	// Required even though this RPC is for support and incident escalation rather
-	// than a customer control: the capability is still checked against an
-	// organization, and a staff-facing call is not an unscoped one.
-	Parent        string `protobuf:"bytes,2,opt,name=parent,proto3" json:"parent,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RefreshCoverageRequest) Reset() {
-	*x = RefreshCoverageRequest{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[21]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RefreshCoverageRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RefreshCoverageRequest) ProtoMessage() {}
-
-func (x *RefreshCoverageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[21]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RefreshCoverageRequest.ProtoReflect.Descriptor instead.
-func (*RefreshCoverageRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{21}
-}
-
-func (x *RefreshCoverageRequest) GetUid() string {
-	if x != nil {
-		return x.Uid
-	}
-	return ""
-}
-
-func (x *RefreshCoverageRequest) GetParent() string {
-	if x != nil {
-		return x.Parent
 	}
 	return ""
 }
@@ -3460,7 +1273,7 @@ type RequestedLibrary struct {
 
 func (x *RequestedLibrary) Reset() {
 	*x = RequestedLibrary{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[22]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3472,7 +1285,7 @@ func (x *RequestedLibrary) String() string {
 func (*RequestedLibrary) ProtoMessage() {}
 
 func (x *RequestedLibrary) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[22]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3485,7 +1298,7 @@ func (x *RequestedLibrary) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestedLibrary.ProtoReflect.Descriptor instead.
 func (*RequestedLibrary) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{22}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *RequestedLibrary) GetName() string {
@@ -3592,7 +1405,7 @@ type RequestGroupRef struct {
 
 func (x *RequestGroupRef) Reset() {
 	*x = RequestGroupRef{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[23]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3604,7 +1417,7 @@ func (x *RequestGroupRef) String() string {
 func (*RequestGroupRef) ProtoMessage() {}
 
 func (x *RequestGroupRef) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[23]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3617,7 +1430,7 @@ func (x *RequestGroupRef) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestGroupRef.ProtoReflect.Descriptor instead.
 func (*RequestGroupRef) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{23}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *RequestGroupRef) GetUid() string {
@@ -3705,7 +1518,7 @@ type RequestedLibraryVersion struct {
 
 func (x *RequestedLibraryVersion) Reset() {
 	*x = RequestedLibraryVersion{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[24]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3717,7 +1530,7 @@ func (x *RequestedLibraryVersion) String() string {
 func (*RequestedLibraryVersion) ProtoMessage() {}
 
 func (x *RequestedLibraryVersion) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[24]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3730,7 +1543,7 @@ func (x *RequestedLibraryVersion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestedLibraryVersion.ProtoReflect.Descriptor instead.
 func (*RequestedLibraryVersion) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{24}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *RequestedLibraryVersion) GetVersion() string {
@@ -3870,7 +1683,7 @@ type ListRequestedLibrariesRequest struct {
 
 func (x *ListRequestedLibrariesRequest) Reset() {
 	*x = ListRequestedLibrariesRequest{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[25]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3882,7 +1695,7 @@ func (x *ListRequestedLibrariesRequest) String() string {
 func (*ListRequestedLibrariesRequest) ProtoMessage() {}
 
 func (x *ListRequestedLibrariesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[25]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3895,7 +1708,7 @@ func (x *ListRequestedLibrariesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRequestedLibrariesRequest.ProtoReflect.Descriptor instead.
 func (*ListRequestedLibrariesRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{25}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ListRequestedLibrariesRequest) GetParent() string {
@@ -3992,7 +1805,7 @@ type ListRequestedLibrariesResponse struct {
 
 func (x *ListRequestedLibrariesResponse) Reset() {
 	*x = ListRequestedLibrariesResponse{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[26]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4004,7 +1817,7 @@ func (x *ListRequestedLibrariesResponse) String() string {
 func (*ListRequestedLibrariesResponse) ProtoMessage() {}
 
 func (x *ListRequestedLibrariesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[26]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4017,7 +1830,7 @@ func (x *ListRequestedLibrariesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRequestedLibrariesResponse.ProtoReflect.Descriptor instead.
 func (*ListRequestedLibrariesResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{26}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ListRequestedLibrariesResponse) GetRequestedLibraries() []*RequestedLibrary {
@@ -4092,7 +1905,7 @@ type ListRequestedLibraryVersionsRequest struct {
 
 func (x *ListRequestedLibraryVersionsRequest) Reset() {
 	*x = ListRequestedLibraryVersionsRequest{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[27]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4104,7 +1917,7 @@ func (x *ListRequestedLibraryVersionsRequest) String() string {
 func (*ListRequestedLibraryVersionsRequest) ProtoMessage() {}
 
 func (x *ListRequestedLibraryVersionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[27]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4117,7 +1930,7 @@ func (x *ListRequestedLibraryVersionsRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use ListRequestedLibraryVersionsRequest.ProtoReflect.Descriptor instead.
 func (*ListRequestedLibraryVersionsRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{27}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListRequestedLibraryVersionsRequest) GetParent() string {
@@ -4207,7 +2020,7 @@ type ListRequestedLibraryVersionsResponse struct {
 
 func (x *ListRequestedLibraryVersionsResponse) Reset() {
 	*x = ListRequestedLibraryVersionsResponse{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[28]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4219,7 +2032,7 @@ func (x *ListRequestedLibraryVersionsResponse) String() string {
 func (*ListRequestedLibraryVersionsResponse) ProtoMessage() {}
 
 func (x *ListRequestedLibraryVersionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[28]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4232,7 +2045,7 @@ func (x *ListRequestedLibraryVersionsResponse) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use ListRequestedLibraryVersionsResponse.ProtoReflect.Descriptor instead.
 func (*ListRequestedLibraryVersionsResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{28}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListRequestedLibraryVersionsResponse) GetRequestedLibraryVersions() []*RequestedLibraryVersion {
@@ -4292,7 +2105,7 @@ type ListRequestedLibraryVersionCvesRequest struct {
 
 func (x *ListRequestedLibraryVersionCvesRequest) Reset() {
 	*x = ListRequestedLibraryVersionCvesRequest{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[29]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4304,7 +2117,7 @@ func (x *ListRequestedLibraryVersionCvesRequest) String() string {
 func (*ListRequestedLibraryVersionCvesRequest) ProtoMessage() {}
 
 func (x *ListRequestedLibraryVersionCvesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[29]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4317,7 +2130,7 @@ func (x *ListRequestedLibraryVersionCvesRequest) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use ListRequestedLibraryVersionCvesRequest.ProtoReflect.Descriptor instead.
 func (*ListRequestedLibraryVersionCvesRequest) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{29}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ListRequestedLibraryVersionCvesRequest) GetParent() string {
@@ -4393,7 +2206,7 @@ type ListRequestedLibraryVersionCvesResponse struct {
 
 func (x *ListRequestedLibraryVersionCvesResponse) Reset() {
 	*x = ListRequestedLibraryVersionCvesResponse{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[30]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4405,7 +2218,7 @@ func (x *ListRequestedLibraryVersionCvesResponse) String() string {
 func (*ListRequestedLibraryVersionCvesResponse) ProtoMessage() {}
 
 func (x *ListRequestedLibraryVersionCvesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[30]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4418,7 +2231,7 @@ func (x *ListRequestedLibraryVersionCvesResponse) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use ListRequestedLibraryVersionCvesResponse.ProtoReflect.Descriptor instead.
 func (*ListRequestedLibraryVersionCvesResponse) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{30}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ListRequestedLibraryVersionCvesResponse) GetCves() []*RequestedLibraryVersionCVE {
@@ -4572,7 +2385,7 @@ type RequestedLibraryVersionCVE struct {
 
 func (x *RequestedLibraryVersionCVE) Reset() {
 	*x = RequestedLibraryVersionCVE{}
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[31]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4584,7 +2397,7 @@ func (x *RequestedLibraryVersionCVE) String() string {
 func (*RequestedLibraryVersionCVE) ProtoMessage() {}
 
 func (x *RequestedLibraryVersionCVE) ProtoReflect() protoreflect.Message {
-	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[31]
+	mi := &file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4597,7 +2410,7 @@ func (x *RequestedLibraryVersionCVE) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestedLibraryVersionCVE.ProtoReflect.Descriptor instead.
 func (*RequestedLibraryVersionCVE) Descriptor() ([]byte, []int) {
-	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{31}
+	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *RequestedLibraryVersionCVE) GetCveId() string {
@@ -4688,46 +2501,7 @@ var File_chainguard_platform_libraries_v2beta1_request_groups_proto protoreflect
 
 const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = "" +
 	"\n" +
-	":chainguard/platform/libraries/v2beta1/request_groups.proto\x12%chainguard.platform.libraries.v2beta1\x1a\x16annotations/auth.proto\x1a\x18annotations/events.proto\x1a\x15annotations/mcp.proto\x1a5chainguard/platform/libraries/v2beta1/artifacts.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe4\t\n" +
-	"\fRequestGroup\x12\x16\n" +
-	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12!\n" +
-	"\tparent_id\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\bparentId\x12\x18\n" +
-	"\x04name\x18\x03 \x01(\tB\x04\xe2A\x01\x01R\x04name\x12W\n" +
-	"\x06status\x18\x04 \x01(\x0e29.chainguard.platform.libraries.v2beta1.RequestGroupStatusB\x04\xe2A\x01\x03R\x06status\x12T\n" +
-	"\tecosystem\x18\x05 \x01(\x0e20.chainguard.platform.libraries.v2beta1.EcosystemB\x04\xe2A\x01\x03R\tecosystem\x12R\n" +
-	"\x06source\x18\x06 \x01(\x0e24.chainguard.platform.libraries.v2beta1.RequestSourceB\x04\xe2A\x01\x03R\x06source\x124\n" +
-	"\x13for_cve_remediation\x18\a \x01(\bB\x04\xe2A\x01\x03R\x11forCveRemediation\x12A\n" +
-	"\vsubmit_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
-	"submitTime\x12A\n" +
-	"\vcreate_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
-	"createTime\x12A\n" +
-	"\vupdate_time\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
-	"updateTime\x12L\n" +
-	"\x11items_update_time\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\x0fitemsUpdateTime\x12#\n" +
-	"\n" +
-	"created_by\x18\f \x01(\tB\x04\xe2A\x01\x03R\tcreatedBy\x12'\n" +
-	"\fsubmitted_by\x18\r \x01(\tB\x04\xe2A\x01\x03R\vsubmittedBy\x12P\n" +
-	"\x05input\x18\x0e \x01(\v24.chainguard.platform.libraries.v2beta1.InputMetadataB\x04\xe2A\x01\x03R\x05input\x12s\n" +
-	"\x14availability_summary\x18\x0f \x01(\v2:.chainguard.platform.libraries.v2beta1.AvailabilitySummaryB\x04\xe2A\x01\x03R\x13availabilitySummary\x12z\n" +
-	"\x17cve_remediation_summary\x18\x10 \x01(\v2<.chainguard.platform.libraries.v2beta1.CVERemediationSummaryB\x04\xe2A\x01\x03R\x15cveRemediationSummary\x126\n" +
-	"\x14org_upstream_enabled\x18\x11 \x01(\bB\x04\xe2A\x01\x03R\x12orgUpstreamEnabled:f\xeaAc\n" +
-	"%libraries.chainguard.dev/RequestGroup\x12\x1drequestGroups/{request_group}*\rrequestGroups2\frequestGroup\"\xa1\x06\n" +
-	"\x10RequestGroupItem\x12\x16\n" +
-	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12&\n" +
-	"\vrequirement\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\vrequirement\x12'\n" +
-	"\fpackage_name\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\vpackageName\x12\x1e\n" +
-	"\aversion\x18\x04 \x01(\tB\x04\xe2A\x01\x03R\aversion\x12T\n" +
-	"\tecosystem\x18\x05 \x01(\x0e20.chainguard.platform.libraries.v2beta1.EcosystemB\x04\xe2A\x01\x03R\tecosystem\x12]\n" +
-	"\favailability\x18\x06 \x01(\x0e23.chainguard.platform.libraries.v2beta1.AvailabilityB\x04\xe2A\x01\x03R\favailability\x125\n" +
-	"\x13availability_reason\x18\a \x01(\tB\x04\xe2A\x01\x03R\x12availabilityReason\x12N\n" +
-	"\aupgrade\x18\b \x01(\v2..chainguard.platform.libraries.v2beta1.UpgradeB\x04\xe2A\x01\x03R\aupgrade\x12d\n" +
-	"\x0fcve_remediation\x18\t \x01(\v25.chainguard.platform.libraries.v2beta1.CVERemediationB\x04\xe2A\x01\x03R\x0ecveRemediation\x12\x1e\n" +
-	"\aremoved\x18\n" +
-	" \x01(\bB\x04\xe2A\x01\x03R\aremoved\x12A\n" +
-	"\vupdate_time\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x03R\n" +
-	"updateTime:\x7f\xeaA|\n" +
-	")libraries.chainguard.dev/RequestGroupItem\x12*requestGroups/{request_group}/items/{item}*\x11requestGroupItems2\x10requestGroupItem\"e\n" +
+	":chainguard/platform/libraries/v2beta1/request_groups.proto\x12%chainguard.platform.libraries.v2beta1\x1a\x16annotations/auth.proto\x1a\x15annotations/mcp.proto\x1a5chainguard/platform/libraries/v2beta1/artifacts.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"e\n" +
 	"\aUpgrade\x12-\n" +
 	"\x0fclosest_version\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x0eclosestVersion\x12+\n" +
 	"\x0elatest_version\x18\x02 \x01(\tB\x04\xe2A\x01\x03R\rlatestVersion\"\x83\x03\n" +
@@ -4738,145 +2512,7 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"\bdecision\x18\x05 \x01(\x0e2=.chainguard.platform.libraries.v2beta1.CVERemediationDecisionB\x04\xe2A\x01\x03R\bdecision\x12%\n" +
 	"\vfix_version\x18\x06 \x01(\tB\x04\xe2A\x01\x03R\n" +
 	"fixVersion\x124\n" +
-	"\x13blocked_fix_version\x18\a \x01(\tB\x04\xe2A\x01\x03R\x11blockedFixVersionJ\x04\b\x04\x10\x05\"\xd1\x01\n" +
-	"\rInputMetadata\x12 \n" +
-	"\bfilename\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\bfilename\x12P\n" +
-	"\x06format\x18\x02 \x01(\x0e22.chainguard.platform.libraries.v2beta1.InputFormatB\x04\xe2A\x01\x03R\x06format\x12'\n" +
-	"\fcontent_hash\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\vcontentHash\x12#\n" +
-	"\n" +
-	"item_count\x18\x04 \x01(\x05B\x04\xe2A\x01\x03R\titemCount\"\x81\x04\n" +
-	"\x13AvailabilitySummary\x12\x1a\n" +
-	"\x05built\x18\x01 \x01(\x05B\x04\xe2A\x01\x03R\x05built\x12.\n" +
-	"\x10can_be_requested\x18\x02 \x01(\x05B\x04\xe2A\x01\x03R\x0ecanBeRequested\x12\x1e\n" +
-	"\ablocked\x18\x03 \x01(\x05B\x04\xe2A\x01\x03R\ablocked\x122\n" +
-	"\x12not_found_upstream\x18\x04 \x01(\x05B\x04\xe2A\x01\x03R\x10notFoundUpstream\x12#\n" +
-	"\n" +
-	"wont_build\x18\x05 \x01(\x05B\x04\xe2A\x01\x03R\twontBuild\x125\n" +
-	"\x13invalid_requirement\x18\x06 \x01(\x05B\x04\xe2A\x01\x03R\x12invalidRequirement\x12 \n" +
-	"\bbuilding\x18\a \x01(\x05B\x04\xe2A\x01\x03R\bbuilding\x12'\n" +
-	"\fbuild_failed\x18\b \x01(\x05B\x04\xe2A\x01\x03R\vbuildFailed\x12\x1e\n" +
-	"\aremoved\x18\t \x01(\x05B\x04\xe2A\x01\x03R\aremoved\x12-\n" +
-	"\x0fblocking_submit\x18\n" +
-	" \x01(\x05B\x04\xe2A\x01\x03R\x0eblockingSubmit\x12\x18\n" +
-	"\x04held\x18\v \x01(\x05B\x04\xe2A\x01\x03R\x04held\x12\x1e\n" +
-	"\apending\x18\f \x01(\x05B\x04\xe2A\x01\x03R\apending\x12\x1a\n" +
-	"\x05total\x18\r \x01(\x05B\x04\xe2A\x01\x03R\x05total\"\xc2\x02\n" +
-	"\x15CVERemediationSummary\x12%\n" +
-	"\vscan_queued\x18\x01 \x01(\x05B\x04\xe2A\x01\x03R\n" +
-	"scanQueued\x127\n" +
-	"\x15no_high_critical_cves\x18\x02 \x01(\x05B\x04\xe2A\x01\x03R\x12noHighCriticalCves\x12\"\n" +
-	"\treviewing\x18\x03 \x01(\x05B\x04\xe2A\x01\x03R\treviewing\x12%\n" +
-	"\vin_progress\x18\x04 \x01(\x05B\x04\xe2A\x01\x03R\n" +
-	"inProgress\x12 \n" +
-	"\bcomplete\x18\x05 \x01(\x05B\x04\xe2A\x01\x03R\bcomplete\x12+\n" +
-	"\x0ewont_remediate\x18\x06 \x01(\x05B\x04\xe2A\x01\x03R\rwontRemediate\x12/\n" +
-	"\x10remediated_count\x18\a \x01(\x05B\x04\xe2A\x01\x03R\x0fremediatedCount\"\x90\x04\n" +
-	"\x19CreateRequestGroupRequest\x12\"\n" +
-	"\x06parent\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12\x18\n" +
-	"\x04name\x18\x02 \x01(\tB\x04\xe2A\x01\x01R\x04name\x12\x1e\n" +
-	"\acontent\x18\x03 \x01(\tB\x04\xe2A\x01\x01R\acontent\x12\x1a\n" +
-	"\x05items\x18\x04 \x03(\tB\x04\xe2A\x01\x01R\x05items\x12P\n" +
-	"\x06format\x18\x05 \x01(\x0e22.chainguard.platform.libraries.v2beta1.InputFormatB\x04\xe2A\x01\x01R\x06format\x12 \n" +
-	"\bfilename\x18\x06 \x01(\tB\x04\xe2A\x01\x01R\bfilename\x12\x89\x01\n" +
-	"\x11ecosystem_context\x18\a \x03(\v2V.chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest.EcosystemContextEntryB\x04\xe2A\x01\x01R\x10ecosystemContext\x124\n" +
-	"\x13for_cve_remediation\x18\b \x01(\bB\x04\xe2A\x01\x01R\x11forCveRemediation\x1aC\n" +
-	"\x15EcosystemContextEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x87\x05\n" +
-	"\x18ListRequestGroupsRequest\x12\"\n" +
-	"\x06parent\x18\x01 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12T\n" +
-	"\x05state\x18\x02 \x01(\x0e28.chainguard.platform.libraries.v2beta1.RequestGroupStateB\x04\xe2A\x01\x01R\x05state\x12W\n" +
-	"\x06status\x18\x03 \x01(\x0e29.chainguard.platform.libraries.v2beta1.RequestGroupStatusB\x04\xe2A\x01\x01R\x06status\x12T\n" +
-	"\tecosystem\x18\x04 \x01(\x0e20.chainguard.platform.libraries.v2beta1.EcosystemB\x04\xe2A\x01\x01R\tecosystem\x12R\n" +
-	"\x06source\x18\x05 \x01(\x0e24.chainguard.platform.libraries.v2beta1.RequestSourceB\x04\xe2A\x01\x01R\x06source\x12\x18\n" +
-	"\x04name\x18\x06 \x01(\tB\x04\xe2A\x01\x01R\x04name\x129\n" +
-	"\x13for_cve_remediation\x18\a \x01(\bB\x04\xe2A\x01\x01H\x00R\x11forCveRemediation\x88\x01\x01\x12!\n" +
-	"\tpage_size\x18\n" +
-	" \x01(\x05B\x04\xe2A\x01\x01R\bpageSize\x12#\n" +
-	"\n" +
-	"page_token\x18\v \x01(\tB\x04\xe2A\x01\x01R\tpageToken\x12\x1f\n" +
-	"\border_by\x18\f \x01(\tB\x04\xe2A\x01\x01R\aorderBy\x12\x18\n" +
-	"\x04skip\x18\r \x01(\x05B\x04\xe2A\x01\x01R\x04skipB\x16\n" +
-	"\x14_for_cve_remediation\"\xef\x01\n" +
-	"\x19ListRequestGroupsResponse\x12Z\n" +
-	"\x0erequest_groups\x18\x01 \x03(\v23.chainguard.platform.libraries.v2beta1.RequestGroupR\rrequestGroups\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12$\n" +
-	"\vtotal_count\x18\x03 \x01(\x03H\x00R\n" +
-	"totalCount\x88\x01\x01\x12\x18\n" +
-	"\askipped\x18\x04 \x01(\x05R\askippedB\x0e\n" +
-	"\f_total_count\"T\n" +
-	"\x16GetRequestGroupRequest\x12\x16\n" +
-	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x03uid\x12\"\n" +
-	"\x06parent\x18\x02 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\xd7\x04\n" +
-	"\x1cListRequestGroupItemsRequest\x12\x16\n" +
-	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x03uid\x12]\n" +
-	"\favailability\x18\x02 \x01(\x0e23.chainguard.platform.libraries.v2beta1.AvailabilityB\x04\xe2A\x01\x01R\favailability\x12w\n" +
-	"\x16cve_remediation_status\x18\x03 \x01(\x0e2;.chainguard.platform.libraries.v2beta1.CVERemediationStatusB\x04\xe2A\x01\x01R\x14cveRemediationStatus\x12H\n" +
-	"\x0fmin_update_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x04\xe2A\x01\x01R\rminUpdateTime\x12-\n" +
-	"\x0finclude_removed\x18\x05 \x01(\bB\x04\xe2A\x01\x01R\x0eincludeRemoved\x12\"\n" +
-	"\x06parent\x18\x06 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12'\n" +
-	"\fpackage_name\x18\a \x01(\tB\x04\xe2A\x01\x01R\vpackageName\x12!\n" +
-	"\tpage_size\x18\n" +
-	" \x01(\x05B\x04\xe2A\x01\x01R\bpageSize\x12#\n" +
-	"\n" +
-	"page_token\x18\v \x01(\tB\x04\xe2A\x01\x01R\tpageToken\x12\x1f\n" +
-	"\border_by\x18\f \x01(\tB\x04\xe2A\x01\x01R\aorderBy\x12\x18\n" +
-	"\x04skip\x18\r \x01(\x05B\x04\xe2A\x01\x01R\x04skip\"\x80\x02\n" +
-	"\x1dListRequestGroupItemsResponse\x12g\n" +
-	"\x13request_group_items\x18\x01 \x03(\v27.chainguard.platform.libraries.v2beta1.RequestGroupItemR\x11requestGroupItems\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12$\n" +
-	"\vtotal_count\x18\x03 \x01(\x03H\x00R\n" +
-	"totalCount\x88\x01\x01\x12\x18\n" +
-	"\askipped\x18\x04 \x01(\x05R\askippedB\x0e\n" +
-	"\f_total_count\"\xaa\x01\n" +
-	"\x19SubmitRequestGroupRequest\x12\x16\n" +
-	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x03uid\x129\n" +
-	"\x13for_cve_remediation\x18\x02 \x01(\bB\x04\xe2A\x01\x01H\x00R\x11forCveRemediation\x88\x01\x01\x12\"\n" +
-	"\x06parent\x18\x03 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parentB\x16\n" +
-	"\x14_for_cve_remediation\"\xe2\x01\n" +
-	"\x19UpdateRequestGroupRequest\x12^\n" +
-	"\rrequest_group\x18\x01 \x01(\v23.chainguard.platform.libraries.v2beta1.RequestGroupB\x04\xe2A\x01\x02R\frequestGroup\x12\"\n" +
-	"\x06parent\x18\x03 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\x12A\n" +
-	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x04\xe2A\x01\x01R\n" +
-	"updateMask\"s\n" +
-	"\x12RemoveItemsRequest\x12\x16\n" +
-	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x03uid\x12!\n" +
-	"\titem_uids\x18\x02 \x03(\tB\x04\xe2A\x01\x02R\bitemUids\x12\"\n" +
-	"\x06parent\x18\x03 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\xe4\x01\n" +
-	"\x13RemoveItemsResponse\x12\x16\n" +
-	"\x03uid\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12!\n" +
-	"\tparent_id\x18\x04 \x01(\tB\x04\xe2A\x01\x03R\bparentId\x12#\n" +
-	"\rremoved_count\x18\x01 \x01(\x05R\fremovedCount\x12m\n" +
-	"\x14availability_summary\x18\x02 \x01(\v2:.chainguard.platform.libraries.v2beta1.AvailabilitySummaryR\x13availabilitySummary\"t\n" +
-	"\x13RestoreItemsRequest\x12\x16\n" +
-	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x03uid\x12!\n" +
-	"\titem_uids\x18\x02 \x03(\tB\x04\xe2A\x01\x02R\bitemUids\x12\"\n" +
-	"\x06parent\x18\x03 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\xe7\x01\n" +
-	"\x14RestoreItemsResponse\x12\x16\n" +
-	"\x03uid\x18\x03 \x01(\tB\x04\xe2A\x01\x03R\x03uid\x12!\n" +
-	"\tparent_id\x18\x04 \x01(\tB\x04\xe2A\x01\x03R\bparentId\x12%\n" +
-	"\x0erestored_count\x18\x01 \x01(\x05R\rrestoredCount\x12m\n" +
-	"\x14availability_summary\x18\x02 \x01(\v2:.chainguard.platform.libraries.v2beta1.AvailabilitySummaryR\x13availabilitySummary\"W\n" +
-	"\x19DeleteRequestGroupRequest\x12\x16\n" +
-	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x03uid\x12\"\n" +
-	"\x06parent\x18\x02 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\"`\n" +
-	"\"DeleteSubmittedRequestGroupRequest\x12\x16\n" +
-	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x03uid\x12\"\n" +
-	"\x06parent\x18\x02 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\"T\n" +
-	"\x16RefreshCoverageRequest\x12\x16\n" +
-	"\x03uid\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x03uid\x12\"\n" +
-	"\x06parent\x18\x02 \x01(\tB\n" +
-	"\xe2A\x01\x02\x90\xaf\xa8\xd2\x05\x01R\x06parent\"\xe1\b\n" +
+	"\x13blocked_fix_version\x18\a \x01(\tB\x04\xe2A\x01\x03R\x11blockedFixVersionJ\x04\b\x04\x10\x05\"\xe1\b\n" +
 	"\x10RequestedLibrary\x12\x18\n" +
 	"\x04name\x18\x01 \x01(\tB\x04\xe2A\x01\x03R\x04name\x12T\n" +
 	"\tecosystem\x18\x02 \x01(\x0e20.chainguard.platform.libraries.v2beta1.EcosystemB\x04\xe2A\x01\x03R\tecosystem\x12k\n" +
@@ -4990,21 +2626,7 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"\x14advisory_fix_version\x18\n" +
 	" \x01(\tB\x04\xe2A\x01\x03R\x12advisoryFixVersion\x12i\n" +
 	"\x12upstream_fix_check\x18\v \x01(\x0e25.chainguard.platform.libraries.v2beta1.FixTargetCheckB\x04\xe2A\x01\x03R\x10upstreamFixCheck\x12i\n" +
-	"\x12advisory_fix_check\x18\f \x01(\x0e25.chainguard.platform.libraries.v2beta1.FixTargetCheckB\x04\xe2A\x01\x03R\x10advisoryFixCheck*\x97\x01\n" +
-	"\x11RequestGroupState\x12#\n" +
-	"\x1fREQUEST_GROUP_STATE_UNSPECIFIED\x10\x00\x12\x1d\n" +
-	"\x19REQUEST_GROUP_STATE_DRAFT\x10\x01\x12!\n" +
-	"\x1dREQUEST_GROUP_STATE_SUBMITTED\x10\x02\x12\x1b\n" +
-	"\x17REQUEST_GROUP_STATE_ALL\x10\x03*\xae\x02\n" +
-	"\x12RequestGroupStatus\x12$\n" +
-	" REQUEST_GROUP_STATUS_UNSPECIFIED\x10\x00\x12!\n" +
-	"\x1dREQUEST_GROUP_STATUS_CREATING\x10\x01\x12 \n" +
-	"\x1cREQUEST_GROUP_STATUS_PENDING\x10\x02\x12#\n" +
-	"\x1fREQUEST_GROUP_STATUS_PROCESSING\x10\x03\x12\"\n" +
-	"\x1eREQUEST_GROUP_STATUS_COMPLETED\x10\x04\x12\x1f\n" +
-	"\x1bREQUEST_GROUP_STATUS_FAILED\x10\x05\x12!\n" +
-	"\x1dREQUEST_GROUP_STATUS_CANCELED\x10\x06\x12 \n" +
-	"\x1cREQUEST_GROUP_STATUS_EXPIRED\x10\a*\xba\x02\n" +
+	"\x12advisory_fix_check\x18\f \x01(\x0e25.chainguard.platform.libraries.v2beta1.FixTargetCheckB\x04\xe2A\x01\x03R\x10advisoryFixCheck*\xba\x02\n" +
 	"\fAvailability\x12\x1c\n" +
 	"\x18AVAILABILITY_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12AVAILABILITY_BUILT\x10\x01\x12!\n" +
@@ -5053,13 +2675,7 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"\x1cFIX_TARGET_CHECK_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18FIX_TARGET_CHECK_CLEARED\x10\x01\x12\x1c\n" +
 	"\x18FIX_TARGET_CHECK_BLOCKED\x10\x02\x12\x1f\n" +
-	"\x1bFIX_TARGET_CHECK_UNVERIFIED\x10\x03*\xa7\x01\n" +
-	"\vInputFormat\x12\x1c\n" +
-	"\x18INPUT_FORMAT_UNSPECIFIED\x10\x00\x12!\n" +
-	"\x1dINPUT_FORMAT_REQUIREMENTS_TXT\x10\x01\x12\x1c\n" +
-	"\x18INPUT_FORMAT_POETRY_LOCK\x10\x02\x12\x18\n" +
-	"\x14INPUT_FORMAT_UV_LOCK\x10\x03\x12\x1f\n" +
-	"\x1bINPUT_FORMAT_MAVEN_GAV_LIST\x10\x04*\xce\x01\n" +
+	"\x1bFIX_TARGET_CHECK_UNVERIFIED\x10\x03*\xce\x01\n" +
 	"\rRequestSource\x12\x1e\n" +
 	"\x1aREQUEST_SOURCE_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cREQUEST_SOURCE_MANUAL_UPLOAD\x10\x01\x12\x16\n" +
@@ -5090,49 +2706,9 @@ const file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc = 
 	"\x18UPSTREAM_USE_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cUPSTREAM_USE_CHAINGUARD_ONLY\x10\x01\x12\x1e\n" +
 	"\x1aUPSTREAM_USE_UPSTREAM_ONLY\x10\x02\x12\x16\n" +
-	"\x12UPSTREAM_USE_MIXED\x10\x032\xf6+\n" +
-	"\x14RequestGroupsService\x12\xbd\x03\n" +
-	"\x12CreateRequestGroup\x12@.chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest\x1a3.chainguard.platform.libraries.v2beta1.RequestGroup\"\xaf\x02\x82\xd3\xe4\x93\x021:\x01*\",/libraries/v2beta1/requestGroups/{parent=**}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xd2\x0e\x9a\xaf\xa8\xd2\x05\x9f\x01\n" +
-	"\x96\x01Create a draft request for Chainguard-built library versions from a Python lockfile or a Java GAV list. Nothing is built until the draft is submitted. \x00(\x010\x00\xc2\xf0\x8e\xfc\v@\n" +
-	"5dev.chainguard.api.libraries.request_group.created.v1\x12\x05group\x18\x01\x12\xe0\x02\n" +
-	"\x11ListRequestGroups\x12?.chainguard.platform.libraries.v2beta1.ListRequestGroupsRequest\x1a@.chainguard.platform.libraries.v2beta1.ListRequestGroupsResponse\"\xc7\x01\x82\xd3\xe4\x93\x02\"\x12 /libraries/v2beta1/requestGroups\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xd3\x0e\x9a\xaf\xa8\xd2\x05\x8c\x01\n" +
-	"\x81\x01List the organization's library request groups, filterable by state, status, ecosystem, source, name, and CVE-remediation opt-in.\x18\x01 \x00(\x010\x00\x12\xb7\x02\n" +
-	"\x0fGetRequestGroup\x12=.chainguard.platform.libraries.v2beta1.GetRequestGroupRequest\x1a3.chainguard.platform.libraries.v2beta1.RequestGroup\"\xaf\x01\x82\xd3\xe4\x93\x02(\x12&/libraries/v2beta1/requestGroups/{uid}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xd3\x0e\x9a\xaf\xa8\xd2\x05o\n" +
-	"eGet a library request group's metadata, per-availability summary counts, and CVE-remediation summary.\x18\x01 \x00(\x010\x00\x12\xfc\x02\n" +
-	"\x15ListRequestGroupItems\x12C.chainguard.platform.libraries.v2beta1.ListRequestGroupItemsRequest\x1aD.chainguard.platform.libraries.v2beta1.ListRequestGroupItemsResponse\"\xd7\x01\x82\xd3\xe4\x93\x02.\x12,/libraries/v2beta1/requestGroups/{uid}/items\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xd3\x0e\x9a\xaf\xa8\xd2\x05\x90\x01\n" +
-	"\x85\x01List a request group's items with per-version build availability and CVE-remediation status. Supports delta sync via min_update_time.\x18\x01 \x00(\x010\x00\x12\xc9\x03\n" +
-	"\x12SubmitRequestGroup\x12@.chainguard.platform.libraries.v2beta1.SubmitRequestGroupRequest\x1a3.chainguard.platform.libraries.v2beta1.RequestGroup\"\xbb\x02\x82\xd3\xe4\x93\x02>:\x01*\"9/libraries/v2beta1/requestGroups/{uid}:submitRequestGroup\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xd6\x0e\x9a\xaf\xa8\xd2\x05\x9c\x01\n" +
-	"\x93\x01Submit a draft request group, committing Chainguard to build its requestable versions. Optionally opts the group in to CVE remediation. Owner-only. \x00(\x010\x00\xc2\xf0\x8e\xfc\vB\n" +
-	"7dev.chainguard.api.libraries.request_group.submitted.v1\x12\x05group\x18\x01\x12\xab\x03\n" +
-	"\x12UpdateRequestGroup\x12@.chainguard.platform.libraries.v2beta1.UpdateRequestGroupRequest\x1a3.chainguard.platform.libraries.v2beta1.RequestGroup\"\x9d\x02\x82\xd3\xe4\x93\x02E:\rrequest_group24/libraries/v2beta1/requestGroups/{request_group.uid}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xd4\x0e\x9a\xaf\xa8\xd2\x05z\n" +
-	"rUpdate a request group's name or other mutable metadata. Cannot submit the group or change which items it carries. \x00(\x010\x00\xc2\xf0\x8e\xfc\v@\n" +
-	"5dev.chainguard.api.libraries.request_group.updated.v1\x12\x05group\x18\x01\x12\xef\x02\n" +
-	"\vRemoveItems\x129.chainguard.platform.libraries.v2beta1.RemoveItemsRequest\x1a:.chainguard.platform.libraries.v2beta1.RemoveItemsResponse\"\xe8\x01\x82\xd3\xe4\x93\x027:\x01*\"2/libraries/v2beta1/requestGroups/{uid}:removeItems\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xd7\x0e\x9a\xaf\xa8\xd2\x05M\n" +
-	"ERemove items from a draft request group. Reversible via RestoreItems. \x00(\x010\x00\xc2\xf0\x8e\xfc\vF\n" +
-	";dev.chainguard.api.libraries.request_group.items_removed.v1\x12\x05group\x18\x01\x12\xeb\x02\n" +
-	"\fRestoreItems\x12:.chainguard.platform.libraries.v2beta1.RestoreItemsRequest\x1a;.chainguard.platform.libraries.v2beta1.RestoreItemsResponse\"\xe1\x01\x82\xd3\xe4\x93\x028:\x01*\"3/libraries/v2beta1/requestGroups/{uid}:restoreItems\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xd7\x0e\x9a\xaf\xa8\xd2\x05D\n" +
-	"<Restore items previously removed from a draft request group. \x00(\x010\x00\xc2\xf0\x8e\xfc\vG\n" +
-	"<dev.chainguard.api.libraries.request_group.items_restored.v1\x12\x05group\x18\x01\x12\xe2\x02\n" +
-	"\x12DeleteRequestGroup\x12@.chainguard.platform.libraries.v2beta1.DeleteRequestGroupRequest\x1a\x16.google.protobuf.Empty\"\xf1\x01\x82\xd3\xe4\x93\x02(*&/libraries/v2beta1/requestGroups/{uid}\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xd5\x0e\x9a\xaf\xa8\xd2\x05k\n" +
-	"cDelete a draft request group. Drafts only; a submitted group cannot be deleted through this method. \x01(\x010\x00\xc2\xf0\x8e\xfc\v@\n" +
-	"5dev.chainguard.api.libraries.request_group.deleted.v1\x12\x05group\x18\x01\x12\x94\x03\n" +
-	"\x1bDeleteSubmittedRequestGroup\x12I.chainguard.platform.libraries.v2beta1.DeleteSubmittedRequestGroupRequest\x1a\x16.google.protobuf.Empty\"\x91\x02\x82\xd3\xe4\x93\x02D*B/libraries/v2beta1/requestGroups/{uid}:deleteSubmittedRequestGroup\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xd9\x0e\x9a\xaf\xa8\xd2\x05o\n" +
-	"gDelete a submitted request group, cancelling builds the organization committed to. Chainguard-internal. \x01(\x010\x00\xc2\xf0\x8e\xfc\v@\n" +
-	"5dev.chainguard.api.libraries.request_group.deleted.v1\x12\x05group\x18\x01\x12\x83\x03\n" +
-	"\x0fRefreshCoverage\x12=.chainguard.platform.libraries.v2beta1.RefreshCoverageRequest\x1a3.chainguard.platform.libraries.v2beta1.RequestGroup\"\xfb\x01\x82\xd3\xe4\x93\x02;:\x01*\"6/libraries/v2beta1/requestGroups/{uid}:refreshCoverage\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
-	"\x02\xd8\x0e\x9a\xaf\xa8\xd2\x05Y\n" +
-	"QForce a full coverage re-scan of a request group. Chainguard-internal; expensive. \x00(\x010\x00\xc2\xf0\x8e\xfc\vI\n" +
-	"@dev.chainguard.api.libraries.request_group.coverage_refreshed.v1\x12\x05group\x12\x8e\x03\n" +
+	"\x12UPSTREAM_USE_MIXED\x10\x032\xbe\n" +
+	"\n" +
+	"\x14RequestGroupsService\x12\x8e\x03\n" +
 	"\x16ListRequestedLibraries\x12D.chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest\x1aE.chainguard.platform.libraries.v2beta1.ListRequestedLibrariesResponse\"\xe6\x01\x82\xd3\xe4\x93\x02'\x12%/libraries/v2beta1/requestedLibraries\x8a\xaf\xa8\xd2\x05\x06\x12\x04\n" +
 	"\x02\xd3\x0e\x9a\xaf\xa8\xd2\x05\xa6\x01\n" +
 	"\x9b\x01List the libraries an organization tracks (requested, or pulled where usage tracking is enabled), with per-library build status and CVE-remediation status.\x18\x01 \x00(\x010\x00\x12\xb9\x03\n" +
@@ -5156,165 +2732,86 @@ func file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescGZIP
 	return file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDescData
 }
 
-var file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes = make([]protoimpl.EnumInfo, 15)
-var file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
+var file_chainguard_platform_libraries_v2beta1_request_groups_proto_enumTypes = make([]protoimpl.EnumInfo, 12)
+var file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_chainguard_platform_libraries_v2beta1_request_groups_proto_goTypes = []any{
-	(RequestGroupState)(0),                          // 0: chainguard.platform.libraries.v2beta1.RequestGroupState
-	(RequestGroupStatus)(0),                         // 1: chainguard.platform.libraries.v2beta1.RequestGroupStatus
-	(Availability)(0),                               // 2: chainguard.platform.libraries.v2beta1.Availability
-	(CVERemediationStatus)(0),                       // 3: chainguard.platform.libraries.v2beta1.CVERemediationStatus
-	(CVERemediationDecision)(0),                     // 4: chainguard.platform.libraries.v2beta1.CVERemediationDecision
-	(CVEStatus)(0),                                  // 5: chainguard.platform.libraries.v2beta1.CVEStatus
-	(CVESeverity)(0),                                // 6: chainguard.platform.libraries.v2beta1.CVESeverity
-	(CVEProvenance)(0),                              // 7: chainguard.platform.libraries.v2beta1.CVEProvenance
-	(FixTargetCheck)(0),                             // 8: chainguard.platform.libraries.v2beta1.FixTargetCheck
-	(InputFormat)(0),                                // 9: chainguard.platform.libraries.v2beta1.InputFormat
-	(RequestSource)(0),                              // 10: chainguard.platform.libraries.v2beta1.RequestSource
-	(RequestedLibraryBuildStatus)(0),                // 11: chainguard.platform.libraries.v2beta1.RequestedLibraryBuildStatus
-	(RequestedLibraryCVEStatus)(0),                  // 12: chainguard.platform.libraries.v2beta1.RequestedLibraryCVEStatus
-	(TrackingSource)(0),                             // 13: chainguard.platform.libraries.v2beta1.TrackingSource
-	(UpstreamUse)(0),                                // 14: chainguard.platform.libraries.v2beta1.UpstreamUse
-	(*RequestGroup)(nil),                            // 15: chainguard.platform.libraries.v2beta1.RequestGroup
-	(*RequestGroupItem)(nil),                        // 16: chainguard.platform.libraries.v2beta1.RequestGroupItem
-	(*Upgrade)(nil),                                 // 17: chainguard.platform.libraries.v2beta1.Upgrade
-	(*CVERemediation)(nil),                          // 18: chainguard.platform.libraries.v2beta1.CVERemediation
-	(*InputMetadata)(nil),                           // 19: chainguard.platform.libraries.v2beta1.InputMetadata
-	(*AvailabilitySummary)(nil),                     // 20: chainguard.platform.libraries.v2beta1.AvailabilitySummary
-	(*CVERemediationSummary)(nil),                   // 21: chainguard.platform.libraries.v2beta1.CVERemediationSummary
-	(*CreateRequestGroupRequest)(nil),               // 22: chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest
-	(*ListRequestGroupsRequest)(nil),                // 23: chainguard.platform.libraries.v2beta1.ListRequestGroupsRequest
-	(*ListRequestGroupsResponse)(nil),               // 24: chainguard.platform.libraries.v2beta1.ListRequestGroupsResponse
-	(*GetRequestGroupRequest)(nil),                  // 25: chainguard.platform.libraries.v2beta1.GetRequestGroupRequest
-	(*ListRequestGroupItemsRequest)(nil),            // 26: chainguard.platform.libraries.v2beta1.ListRequestGroupItemsRequest
-	(*ListRequestGroupItemsResponse)(nil),           // 27: chainguard.platform.libraries.v2beta1.ListRequestGroupItemsResponse
-	(*SubmitRequestGroupRequest)(nil),               // 28: chainguard.platform.libraries.v2beta1.SubmitRequestGroupRequest
-	(*UpdateRequestGroupRequest)(nil),               // 29: chainguard.platform.libraries.v2beta1.UpdateRequestGroupRequest
-	(*RemoveItemsRequest)(nil),                      // 30: chainguard.platform.libraries.v2beta1.RemoveItemsRequest
-	(*RemoveItemsResponse)(nil),                     // 31: chainguard.platform.libraries.v2beta1.RemoveItemsResponse
-	(*RestoreItemsRequest)(nil),                     // 32: chainguard.platform.libraries.v2beta1.RestoreItemsRequest
-	(*RestoreItemsResponse)(nil),                    // 33: chainguard.platform.libraries.v2beta1.RestoreItemsResponse
-	(*DeleteRequestGroupRequest)(nil),               // 34: chainguard.platform.libraries.v2beta1.DeleteRequestGroupRequest
-	(*DeleteSubmittedRequestGroupRequest)(nil),      // 35: chainguard.platform.libraries.v2beta1.DeleteSubmittedRequestGroupRequest
-	(*RefreshCoverageRequest)(nil),                  // 36: chainguard.platform.libraries.v2beta1.RefreshCoverageRequest
-	(*RequestedLibrary)(nil),                        // 37: chainguard.platform.libraries.v2beta1.RequestedLibrary
-	(*RequestGroupRef)(nil),                         // 38: chainguard.platform.libraries.v2beta1.RequestGroupRef
-	(*RequestedLibraryVersion)(nil),                 // 39: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion
-	(*ListRequestedLibrariesRequest)(nil),           // 40: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest
-	(*ListRequestedLibrariesResponse)(nil),          // 41: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesResponse
-	(*ListRequestedLibraryVersionsRequest)(nil),     // 42: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest
-	(*ListRequestedLibraryVersionsResponse)(nil),    // 43: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsResponse
-	(*ListRequestedLibraryVersionCvesRequest)(nil),  // 44: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesRequest
-	(*ListRequestedLibraryVersionCvesResponse)(nil), // 45: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesResponse
-	(*RequestedLibraryVersionCVE)(nil),              // 46: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE
-	nil,                                             // 47: chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest.EcosystemContextEntry
-	(Ecosystem)(0),                                  // 48: chainguard.platform.libraries.v2beta1.Ecosystem
-	(*timestamppb.Timestamp)(nil),                   // 49: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),                   // 50: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),                           // 51: google.protobuf.Empty
+	(Availability)(0),                               // 0: chainguard.platform.libraries.v2beta1.Availability
+	(CVERemediationStatus)(0),                       // 1: chainguard.platform.libraries.v2beta1.CVERemediationStatus
+	(CVERemediationDecision)(0),                     // 2: chainguard.platform.libraries.v2beta1.CVERemediationDecision
+	(CVEStatus)(0),                                  // 3: chainguard.platform.libraries.v2beta1.CVEStatus
+	(CVESeverity)(0),                                // 4: chainguard.platform.libraries.v2beta1.CVESeverity
+	(CVEProvenance)(0),                              // 5: chainguard.platform.libraries.v2beta1.CVEProvenance
+	(FixTargetCheck)(0),                             // 6: chainguard.platform.libraries.v2beta1.FixTargetCheck
+	(RequestSource)(0),                              // 7: chainguard.platform.libraries.v2beta1.RequestSource
+	(RequestedLibraryBuildStatus)(0),                // 8: chainguard.platform.libraries.v2beta1.RequestedLibraryBuildStatus
+	(RequestedLibraryCVEStatus)(0),                  // 9: chainguard.platform.libraries.v2beta1.RequestedLibraryCVEStatus
+	(TrackingSource)(0),                             // 10: chainguard.platform.libraries.v2beta1.TrackingSource
+	(UpstreamUse)(0),                                // 11: chainguard.platform.libraries.v2beta1.UpstreamUse
+	(*Upgrade)(nil),                                 // 12: chainguard.platform.libraries.v2beta1.Upgrade
+	(*CVERemediation)(nil),                          // 13: chainguard.platform.libraries.v2beta1.CVERemediation
+	(*RequestedLibrary)(nil),                        // 14: chainguard.platform.libraries.v2beta1.RequestedLibrary
+	(*RequestGroupRef)(nil),                         // 15: chainguard.platform.libraries.v2beta1.RequestGroupRef
+	(*RequestedLibraryVersion)(nil),                 // 16: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion
+	(*ListRequestedLibrariesRequest)(nil),           // 17: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest
+	(*ListRequestedLibrariesResponse)(nil),          // 18: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesResponse
+	(*ListRequestedLibraryVersionsRequest)(nil),     // 19: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest
+	(*ListRequestedLibraryVersionsResponse)(nil),    // 20: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsResponse
+	(*ListRequestedLibraryVersionCvesRequest)(nil),  // 21: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesRequest
+	(*ListRequestedLibraryVersionCvesResponse)(nil), // 22: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesResponse
+	(*RequestedLibraryVersionCVE)(nil),              // 23: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE
+	(Ecosystem)(0),                                  // 24: chainguard.platform.libraries.v2beta1.Ecosystem
+	(*timestamppb.Timestamp)(nil),                   // 25: google.protobuf.Timestamp
 }
 var file_chainguard_platform_libraries_v2beta1_request_groups_proto_depIdxs = []int32{
-	1,  // 0: chainguard.platform.libraries.v2beta1.RequestGroup.status:type_name -> chainguard.platform.libraries.v2beta1.RequestGroupStatus
-	48, // 1: chainguard.platform.libraries.v2beta1.RequestGroup.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
-	10, // 2: chainguard.platform.libraries.v2beta1.RequestGroup.source:type_name -> chainguard.platform.libraries.v2beta1.RequestSource
-	49, // 3: chainguard.platform.libraries.v2beta1.RequestGroup.submit_time:type_name -> google.protobuf.Timestamp
-	49, // 4: chainguard.platform.libraries.v2beta1.RequestGroup.create_time:type_name -> google.protobuf.Timestamp
-	49, // 5: chainguard.platform.libraries.v2beta1.RequestGroup.update_time:type_name -> google.protobuf.Timestamp
-	49, // 6: chainguard.platform.libraries.v2beta1.RequestGroup.items_update_time:type_name -> google.protobuf.Timestamp
-	19, // 7: chainguard.platform.libraries.v2beta1.RequestGroup.input:type_name -> chainguard.platform.libraries.v2beta1.InputMetadata
-	20, // 8: chainguard.platform.libraries.v2beta1.RequestGroup.availability_summary:type_name -> chainguard.platform.libraries.v2beta1.AvailabilitySummary
-	21, // 9: chainguard.platform.libraries.v2beta1.RequestGroup.cve_remediation_summary:type_name -> chainguard.platform.libraries.v2beta1.CVERemediationSummary
-	48, // 10: chainguard.platform.libraries.v2beta1.RequestGroupItem.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
-	2,  // 11: chainguard.platform.libraries.v2beta1.RequestGroupItem.availability:type_name -> chainguard.platform.libraries.v2beta1.Availability
-	17, // 12: chainguard.platform.libraries.v2beta1.RequestGroupItem.upgrade:type_name -> chainguard.platform.libraries.v2beta1.Upgrade
-	18, // 13: chainguard.platform.libraries.v2beta1.RequestGroupItem.cve_remediation:type_name -> chainguard.platform.libraries.v2beta1.CVERemediation
-	49, // 14: chainguard.platform.libraries.v2beta1.RequestGroupItem.update_time:type_name -> google.protobuf.Timestamp
-	3,  // 15: chainguard.platform.libraries.v2beta1.CVERemediation.status:type_name -> chainguard.platform.libraries.v2beta1.CVERemediationStatus
-	4,  // 16: chainguard.platform.libraries.v2beta1.CVERemediation.decision:type_name -> chainguard.platform.libraries.v2beta1.CVERemediationDecision
-	9,  // 17: chainguard.platform.libraries.v2beta1.InputMetadata.format:type_name -> chainguard.platform.libraries.v2beta1.InputFormat
-	9,  // 18: chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest.format:type_name -> chainguard.platform.libraries.v2beta1.InputFormat
-	47, // 19: chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest.ecosystem_context:type_name -> chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest.EcosystemContextEntry
-	0,  // 20: chainguard.platform.libraries.v2beta1.ListRequestGroupsRequest.state:type_name -> chainguard.platform.libraries.v2beta1.RequestGroupState
-	1,  // 21: chainguard.platform.libraries.v2beta1.ListRequestGroupsRequest.status:type_name -> chainguard.platform.libraries.v2beta1.RequestGroupStatus
-	48, // 22: chainguard.platform.libraries.v2beta1.ListRequestGroupsRequest.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
-	10, // 23: chainguard.platform.libraries.v2beta1.ListRequestGroupsRequest.source:type_name -> chainguard.platform.libraries.v2beta1.RequestSource
-	15, // 24: chainguard.platform.libraries.v2beta1.ListRequestGroupsResponse.request_groups:type_name -> chainguard.platform.libraries.v2beta1.RequestGroup
-	2,  // 25: chainguard.platform.libraries.v2beta1.ListRequestGroupItemsRequest.availability:type_name -> chainguard.platform.libraries.v2beta1.Availability
-	3,  // 26: chainguard.platform.libraries.v2beta1.ListRequestGroupItemsRequest.cve_remediation_status:type_name -> chainguard.platform.libraries.v2beta1.CVERemediationStatus
-	49, // 27: chainguard.platform.libraries.v2beta1.ListRequestGroupItemsRequest.min_update_time:type_name -> google.protobuf.Timestamp
-	16, // 28: chainguard.platform.libraries.v2beta1.ListRequestGroupItemsResponse.request_group_items:type_name -> chainguard.platform.libraries.v2beta1.RequestGroupItem
-	15, // 29: chainguard.platform.libraries.v2beta1.UpdateRequestGroupRequest.request_group:type_name -> chainguard.platform.libraries.v2beta1.RequestGroup
-	50, // 30: chainguard.platform.libraries.v2beta1.UpdateRequestGroupRequest.update_mask:type_name -> google.protobuf.FieldMask
-	20, // 31: chainguard.platform.libraries.v2beta1.RemoveItemsResponse.availability_summary:type_name -> chainguard.platform.libraries.v2beta1.AvailabilitySummary
-	20, // 32: chainguard.platform.libraries.v2beta1.RestoreItemsResponse.availability_summary:type_name -> chainguard.platform.libraries.v2beta1.AvailabilitySummary
-	48, // 33: chainguard.platform.libraries.v2beta1.RequestedLibrary.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
-	11, // 34: chainguard.platform.libraries.v2beta1.RequestedLibrary.build_status:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryBuildStatus
-	12, // 35: chainguard.platform.libraries.v2beta1.RequestedLibrary.cve_status:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryCVEStatus
-	10, // 36: chainguard.platform.libraries.v2beta1.RequestedLibrary.sources:type_name -> chainguard.platform.libraries.v2beta1.RequestSource
-	38, // 37: chainguard.platform.libraries.v2beta1.RequestedLibrary.contributing_groups:type_name -> chainguard.platform.libraries.v2beta1.RequestGroupRef
-	49, // 38: chainguard.platform.libraries.v2beta1.RequestedLibrary.last_request_time:type_name -> google.protobuf.Timestamp
-	49, // 39: chainguard.platform.libraries.v2beta1.RequestedLibrary.first_use_time:type_name -> google.protobuf.Timestamp
-	49, // 40: chainguard.platform.libraries.v2beta1.RequestedLibrary.last_use_time:type_name -> google.protobuf.Timestamp
-	2,  // 41: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.availability:type_name -> chainguard.platform.libraries.v2beta1.Availability
-	17, // 42: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.upgrade:type_name -> chainguard.platform.libraries.v2beta1.Upgrade
-	18, // 43: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.cve_remediation:type_name -> chainguard.platform.libraries.v2beta1.CVERemediation
-	10, // 44: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.sources:type_name -> chainguard.platform.libraries.v2beta1.RequestSource
-	38, // 45: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.contributing_groups:type_name -> chainguard.platform.libraries.v2beta1.RequestGroupRef
-	49, // 46: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.last_request_time:type_name -> google.protobuf.Timestamp
-	49, // 47: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.availability_change_time:type_name -> google.protobuf.Timestamp
-	49, // 48: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.first_use_time:type_name -> google.protobuf.Timestamp
-	49, // 49: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.last_use_time:type_name -> google.protobuf.Timestamp
-	14, // 50: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.upstream_use:type_name -> chainguard.platform.libraries.v2beta1.UpstreamUse
-	48, // 51: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
-	11, // 52: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest.build_status:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryBuildStatus
-	12, // 53: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest.cve_status:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryCVEStatus
-	13, // 54: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest.source:type_name -> chainguard.platform.libraries.v2beta1.TrackingSource
-	37, // 55: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesResponse.requested_libraries:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibrary
-	48, // 56: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
-	2,  // 57: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest.availability:type_name -> chainguard.platform.libraries.v2beta1.Availability
-	3,  // 58: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest.cve_remediation_status:type_name -> chainguard.platform.libraries.v2beta1.CVERemediationStatus
-	13, // 59: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest.source:type_name -> chainguard.platform.libraries.v2beta1.TrackingSource
-	39, // 60: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsResponse.requested_library_versions:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryVersion
-	48, // 61: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesRequest.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
-	46, // 62: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesResponse.cves:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE
-	6,  // 63: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE.severity:type_name -> chainguard.platform.libraries.v2beta1.CVESeverity
-	5,  // 64: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE.status:type_name -> chainguard.platform.libraries.v2beta1.CVEStatus
-	4,  // 65: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE.decision:type_name -> chainguard.platform.libraries.v2beta1.CVERemediationDecision
-	7,  // 66: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE.provenance:type_name -> chainguard.platform.libraries.v2beta1.CVEProvenance
-	8,  // 67: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE.upstream_fix_check:type_name -> chainguard.platform.libraries.v2beta1.FixTargetCheck
-	8,  // 68: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE.advisory_fix_check:type_name -> chainguard.platform.libraries.v2beta1.FixTargetCheck
-	22, // 69: chainguard.platform.libraries.v2beta1.RequestGroupsService.CreateRequestGroup:input_type -> chainguard.platform.libraries.v2beta1.CreateRequestGroupRequest
-	23, // 70: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestGroups:input_type -> chainguard.platform.libraries.v2beta1.ListRequestGroupsRequest
-	25, // 71: chainguard.platform.libraries.v2beta1.RequestGroupsService.GetRequestGroup:input_type -> chainguard.platform.libraries.v2beta1.GetRequestGroupRequest
-	26, // 72: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestGroupItems:input_type -> chainguard.platform.libraries.v2beta1.ListRequestGroupItemsRequest
-	28, // 73: chainguard.platform.libraries.v2beta1.RequestGroupsService.SubmitRequestGroup:input_type -> chainguard.platform.libraries.v2beta1.SubmitRequestGroupRequest
-	29, // 74: chainguard.platform.libraries.v2beta1.RequestGroupsService.UpdateRequestGroup:input_type -> chainguard.platform.libraries.v2beta1.UpdateRequestGroupRequest
-	30, // 75: chainguard.platform.libraries.v2beta1.RequestGroupsService.RemoveItems:input_type -> chainguard.platform.libraries.v2beta1.RemoveItemsRequest
-	32, // 76: chainguard.platform.libraries.v2beta1.RequestGroupsService.RestoreItems:input_type -> chainguard.platform.libraries.v2beta1.RestoreItemsRequest
-	34, // 77: chainguard.platform.libraries.v2beta1.RequestGroupsService.DeleteRequestGroup:input_type -> chainguard.platform.libraries.v2beta1.DeleteRequestGroupRequest
-	35, // 78: chainguard.platform.libraries.v2beta1.RequestGroupsService.DeleteSubmittedRequestGroup:input_type -> chainguard.platform.libraries.v2beta1.DeleteSubmittedRequestGroupRequest
-	36, // 79: chainguard.platform.libraries.v2beta1.RequestGroupsService.RefreshCoverage:input_type -> chainguard.platform.libraries.v2beta1.RefreshCoverageRequest
-	40, // 80: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraries:input_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest
-	42, // 81: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraryVersions:input_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest
-	44, // 82: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraryVersionCves:input_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesRequest
-	15, // 83: chainguard.platform.libraries.v2beta1.RequestGroupsService.CreateRequestGroup:output_type -> chainguard.platform.libraries.v2beta1.RequestGroup
-	24, // 84: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestGroups:output_type -> chainguard.platform.libraries.v2beta1.ListRequestGroupsResponse
-	15, // 85: chainguard.platform.libraries.v2beta1.RequestGroupsService.GetRequestGroup:output_type -> chainguard.platform.libraries.v2beta1.RequestGroup
-	27, // 86: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestGroupItems:output_type -> chainguard.platform.libraries.v2beta1.ListRequestGroupItemsResponse
-	15, // 87: chainguard.platform.libraries.v2beta1.RequestGroupsService.SubmitRequestGroup:output_type -> chainguard.platform.libraries.v2beta1.RequestGroup
-	15, // 88: chainguard.platform.libraries.v2beta1.RequestGroupsService.UpdateRequestGroup:output_type -> chainguard.platform.libraries.v2beta1.RequestGroup
-	31, // 89: chainguard.platform.libraries.v2beta1.RequestGroupsService.RemoveItems:output_type -> chainguard.platform.libraries.v2beta1.RemoveItemsResponse
-	33, // 90: chainguard.platform.libraries.v2beta1.RequestGroupsService.RestoreItems:output_type -> chainguard.platform.libraries.v2beta1.RestoreItemsResponse
-	51, // 91: chainguard.platform.libraries.v2beta1.RequestGroupsService.DeleteRequestGroup:output_type -> google.protobuf.Empty
-	51, // 92: chainguard.platform.libraries.v2beta1.RequestGroupsService.DeleteSubmittedRequestGroup:output_type -> google.protobuf.Empty
-	15, // 93: chainguard.platform.libraries.v2beta1.RequestGroupsService.RefreshCoverage:output_type -> chainguard.platform.libraries.v2beta1.RequestGroup
-	41, // 94: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraries:output_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibrariesResponse
-	43, // 95: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraryVersions:output_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsResponse
-	45, // 96: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraryVersionCves:output_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesResponse
-	83, // [83:97] is the sub-list for method output_type
-	69, // [69:83] is the sub-list for method input_type
-	69, // [69:69] is the sub-list for extension type_name
-	69, // [69:69] is the sub-list for extension extendee
-	0,  // [0:69] is the sub-list for field type_name
+	1,  // 0: chainguard.platform.libraries.v2beta1.CVERemediation.status:type_name -> chainguard.platform.libraries.v2beta1.CVERemediationStatus
+	2,  // 1: chainguard.platform.libraries.v2beta1.CVERemediation.decision:type_name -> chainguard.platform.libraries.v2beta1.CVERemediationDecision
+	24, // 2: chainguard.platform.libraries.v2beta1.RequestedLibrary.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
+	8,  // 3: chainguard.platform.libraries.v2beta1.RequestedLibrary.build_status:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryBuildStatus
+	9,  // 4: chainguard.platform.libraries.v2beta1.RequestedLibrary.cve_status:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryCVEStatus
+	7,  // 5: chainguard.platform.libraries.v2beta1.RequestedLibrary.sources:type_name -> chainguard.platform.libraries.v2beta1.RequestSource
+	15, // 6: chainguard.platform.libraries.v2beta1.RequestedLibrary.contributing_groups:type_name -> chainguard.platform.libraries.v2beta1.RequestGroupRef
+	25, // 7: chainguard.platform.libraries.v2beta1.RequestedLibrary.last_request_time:type_name -> google.protobuf.Timestamp
+	25, // 8: chainguard.platform.libraries.v2beta1.RequestedLibrary.first_use_time:type_name -> google.protobuf.Timestamp
+	25, // 9: chainguard.platform.libraries.v2beta1.RequestedLibrary.last_use_time:type_name -> google.protobuf.Timestamp
+	0,  // 10: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.availability:type_name -> chainguard.platform.libraries.v2beta1.Availability
+	12, // 11: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.upgrade:type_name -> chainguard.platform.libraries.v2beta1.Upgrade
+	13, // 12: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.cve_remediation:type_name -> chainguard.platform.libraries.v2beta1.CVERemediation
+	7,  // 13: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.sources:type_name -> chainguard.platform.libraries.v2beta1.RequestSource
+	15, // 14: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.contributing_groups:type_name -> chainguard.platform.libraries.v2beta1.RequestGroupRef
+	25, // 15: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.last_request_time:type_name -> google.protobuf.Timestamp
+	25, // 16: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.availability_change_time:type_name -> google.protobuf.Timestamp
+	25, // 17: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.first_use_time:type_name -> google.protobuf.Timestamp
+	25, // 18: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.last_use_time:type_name -> google.protobuf.Timestamp
+	11, // 19: chainguard.platform.libraries.v2beta1.RequestedLibraryVersion.upstream_use:type_name -> chainguard.platform.libraries.v2beta1.UpstreamUse
+	24, // 20: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
+	8,  // 21: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest.build_status:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryBuildStatus
+	9,  // 22: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest.cve_status:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryCVEStatus
+	10, // 23: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest.source:type_name -> chainguard.platform.libraries.v2beta1.TrackingSource
+	14, // 24: chainguard.platform.libraries.v2beta1.ListRequestedLibrariesResponse.requested_libraries:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibrary
+	24, // 25: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
+	0,  // 26: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest.availability:type_name -> chainguard.platform.libraries.v2beta1.Availability
+	1,  // 27: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest.cve_remediation_status:type_name -> chainguard.platform.libraries.v2beta1.CVERemediationStatus
+	10, // 28: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest.source:type_name -> chainguard.platform.libraries.v2beta1.TrackingSource
+	16, // 29: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsResponse.requested_library_versions:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryVersion
+	24, // 30: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesRequest.ecosystem:type_name -> chainguard.platform.libraries.v2beta1.Ecosystem
+	23, // 31: chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesResponse.cves:type_name -> chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE
+	4,  // 32: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE.severity:type_name -> chainguard.platform.libraries.v2beta1.CVESeverity
+	3,  // 33: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE.status:type_name -> chainguard.platform.libraries.v2beta1.CVEStatus
+	2,  // 34: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE.decision:type_name -> chainguard.platform.libraries.v2beta1.CVERemediationDecision
+	5,  // 35: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE.provenance:type_name -> chainguard.platform.libraries.v2beta1.CVEProvenance
+	6,  // 36: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE.upstream_fix_check:type_name -> chainguard.platform.libraries.v2beta1.FixTargetCheck
+	6,  // 37: chainguard.platform.libraries.v2beta1.RequestedLibraryVersionCVE.advisory_fix_check:type_name -> chainguard.platform.libraries.v2beta1.FixTargetCheck
+	17, // 38: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraries:input_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibrariesRequest
+	19, // 39: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraryVersions:input_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsRequest
+	21, // 40: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraryVersionCves:input_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesRequest
+	18, // 41: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraries:output_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibrariesResponse
+	20, // 42: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraryVersions:output_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionsResponse
+	22, // 43: chainguard.platform.libraries.v2beta1.RequestGroupsService.ListRequestedLibraryVersionCves:output_type -> chainguard.platform.libraries.v2beta1.ListRequestedLibraryVersionCvesResponse
+	41, // [41:44] is the sub-list for method output_type
+	38, // [38:41] is the sub-list for method input_type
+	38, // [38:38] is the sub-list for extension type_name
+	38, // [38:38] is the sub-list for extension extendee
+	0,  // [0:38] is the sub-list for field type_name
 }
 
 func init() { file_chainguard_platform_libraries_v2beta1_request_groups_proto_init() }
@@ -5323,20 +2820,16 @@ func file_chainguard_platform_libraries_v2beta1_request_groups_proto_init() {
 		return
 	}
 	file_chainguard_platform_libraries_v2beta1_artifacts_proto_init()
+	file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[6].OneofWrappers = []any{}
 	file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[8].OneofWrappers = []any{}
-	file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[9].OneofWrappers = []any{}
-	file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[12].OneofWrappers = []any{}
-	file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[13].OneofWrappers = []any{}
-	file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[26].OneofWrappers = []any{}
-	file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[28].OneofWrappers = []any{}
-	file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[30].OneofWrappers = []any{}
+	file_chainguard_platform_libraries_v2beta1_request_groups_proto_msgTypes[10].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc), len(file_chainguard_platform_libraries_v2beta1_request_groups_proto_rawDesc)),
-			NumEnums:      15,
-			NumMessages:   33,
+			NumEnums:      12,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

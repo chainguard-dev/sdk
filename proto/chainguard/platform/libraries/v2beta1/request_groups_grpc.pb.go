@@ -14,7 +14,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -23,17 +22,6 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	RequestGroupsService_CreateRequestGroup_FullMethodName              = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/CreateRequestGroup"
-	RequestGroupsService_ListRequestGroups_FullMethodName               = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestGroups"
-	RequestGroupsService_GetRequestGroup_FullMethodName                 = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/GetRequestGroup"
-	RequestGroupsService_ListRequestGroupItems_FullMethodName           = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestGroupItems"
-	RequestGroupsService_SubmitRequestGroup_FullMethodName              = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/SubmitRequestGroup"
-	RequestGroupsService_UpdateRequestGroup_FullMethodName              = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/UpdateRequestGroup"
-	RequestGroupsService_RemoveItems_FullMethodName                     = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RemoveItems"
-	RequestGroupsService_RestoreItems_FullMethodName                    = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RestoreItems"
-	RequestGroupsService_DeleteRequestGroup_FullMethodName              = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/DeleteRequestGroup"
-	RequestGroupsService_DeleteSubmittedRequestGroup_FullMethodName     = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/DeleteSubmittedRequestGroup"
-	RequestGroupsService_RefreshCoverage_FullMethodName                 = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/RefreshCoverage"
 	RequestGroupsService_ListRequestedLibraries_FullMethodName          = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestedLibraries"
 	RequestGroupsService_ListRequestedLibraryVersions_FullMethodName    = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestedLibraryVersions"
 	RequestGroupsService_ListRequestedLibraryVersionCves_FullMethodName = "/chainguard.platform.libraries.v2beta1.RequestGroupsService/ListRequestedLibraryVersionCves"
@@ -43,92 +31,13 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// RequestGroupsService manages an organization's requests for Chainguard-built
-// library versions.
+// RequestGroupsService reports the library versions an organization tracks:
+// the versions it asked Chainguard for, and, where usage tracking is enabled,
+// the versions it pulls through the Chainguard Repository.
 //
-// A request group starts as a DRAFT: the customer supplies a pinned input — a
-// Python lockfile or a Java GAV list — and the service reports, per version, what
-// Chainguard already has, what can be requested, and what cannot. Nothing is
-// built from a draft. SubmitRequestGroup is the commitment point, and it is
-// separately capability-gated for that reason.
+// Customers do not upload requests through this service. Explicit requests
+// come through Chainguard staff, over the internal /v1 routes.
 type RequestGroupsServiceClient interface {
-	// CreateRequestGroup parses a pinned input and returns a DRAFT group whose
-	// coverage check runs asynchronously. Poll GetRequestGroup until its status
-	// leaves creating/processing.
-	//
-	// Idempotent on the content hash of the input within the organization, so a
-	// retried upload rejoins the existing non-terminal group instead of starting a
-	// second coverage run over the same versions.
-	CreateRequestGroup(ctx context.Context, in *CreateRequestGroupRequest, opts ...grpc.CallOption) (*RequestGroup, error)
-	// ListRequestGroups lists the organization's request groups. Defaults to
-	// submitted groups; pass state to include or isolate drafts.
-	ListRequestGroups(ctx context.Context, in *ListRequestGroupsRequest, opts ...grpc.CallOption) (*ListRequestGroupsResponse, error)
-	// GetRequestGroup returns one group's metadata and summary counts.
-	//
-	// The response carries items_update_time as a high-water mark, so a client
-	// polling a large group can tell whether anything moved without paging the
-	// items again.
-	GetRequestGroup(ctx context.Context, in *GetRequestGroupRequest, opts ...grpc.CallOption) (*RequestGroup, error)
-	// ListRequestGroupItems pages the per-item results, carrying both the build
-	// availability and the CVE-remediation status for each requested version.
-	//
-	// min_update_time supports delta sync against items_update_time, which is how a
-	// 10,000-item group is followed without repaging the whole set.
-	ListRequestGroupItems(ctx context.Context, in *ListRequestGroupItemsRequest, opts ...grpc.CallOption) (*ListRequestGroupItemsResponse, error)
-	// SubmitRequestGroup promotes a DRAFT to SUBMITTED and queues builds for its
-	// requestable items.
-	//
-	// Its own RPC rather than a field mask on UpdateRequestGroup, because it is the
-	// point where a preview becomes committed work and it carries the group-level
-	// CVE-remediation decision. That lets it hold a distinct, Owner-only
-	// capability, which a mask on update could not express.
-	//
-	// Items that block a submit must be removed first: not_found_upstream,
-	// invalid_requirement and held. A wont_build item does not block one. It
-	// stays in the group as the record of what Chainguard declined to rebuild,
-	// and nothing builds it.
-	SubmitRequestGroup(ctx context.Context, in *SubmitRequestGroupRequest, opts ...grpc.CallOption) (*RequestGroup, error)
-	// UpdateRequestGroup edits group metadata under a field mask. Renaming is the
-	// expected use; it cannot submit a group or change its items.
-	UpdateRequestGroup(ctx context.Context, in *UpdateRequestGroupRequest, opts ...grpc.CallOption) (*RequestGroup, error)
-	// RemoveItems marks items as removed. Draft-only, and reversible via
-	// RestoreItems — the rows are retained rather than deleted so a customer can
-	// undo a removal while still editing.
-	//
-	// Every uid must belong to both the path group and the caller's organization;
-	// any mismatch fails the whole call rather than partially applying.
-	RemoveItems(ctx context.Context, in *RemoveItemsRequest, opts ...grpc.CallOption) (*RemoveItemsResponse, error)
-	// RestoreItems returns previously removed items to the draft.
-	RestoreItems(ctx context.Context, in *RestoreItemsRequest, opts ...grpc.CallOption) (*RestoreItemsResponse, error)
-	// DeleteRequestGroup cancels a DRAFT group and drops its item rows, keeping the
-	// group row as a tombstone so a stale link returns a sensible message rather
-	// than a bare 404. A sweeper hard-deletes the tombstone later.
-	//
-	// Draft-only. A submitted group is refused, because the organization has
-	// committed to the builds it names and a member's ordinary delete capability
-	// must not reach them. Deleting one is DeleteSubmittedRequestGroup below, whose
-	// capability no customer role can hold.
-	DeleteRequestGroup(ctx context.Context, in *DeleteRequestGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// DeleteSubmittedRequestGroup deletes a group the organization already
-	// submitted, cancelling work it committed to.
-	//
-	// Chainguard-internal only, and a distinct method rather than a branch inside
-	// DeleteRequestGroup: which capability a caller needs would otherwise depend on
-	// the group's lifecycle state, so no annotation could describe it and the rule
-	// would have to be re-derived from a state read behind this surface. Two
-	// methods let the interceptor decide from the annotation alone, which is how
-	// every other RPC here is authorized.
-	//
-	// The deletion itself is the same two-phase operation either way -- cancel,
-	// drop the item rows, keep the tombstone -- so the two methods differ in who
-	// may ask, not in what happens.
-	DeleteSubmittedRequestGroup(ctx context.Context, in *DeleteSubmittedRequestGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// RefreshCoverage re-runs the coverage check over a whole group.
-	//
-	// Chainguard-internal only. The scan is expensive, and submitted groups are
-	// kept current by a daily sweep, so this exists for support and incident
-	// escalation rather than as a customer control.
-	RefreshCoverage(ctx context.Context, in *RefreshCoverageRequest, opts ...grpc.CallOption) (*RequestGroup, error)
 	// ListRequestedLibraries returns one row per library the organization
 	// tracks: versions it asked for, and versions it pulls through the
 	// Chainguard Repository. The source field chooses between them. Where usage
@@ -155,9 +64,9 @@ type RequestGroupsServiceClient interface {
 	// version's aggregate CVE status: the individual CVEs, what Chainguard
 	// decided about each, and which release fixes it.
 	//
-	// The aggregate on RequestedLibraryVersion and ListRequestGroupItems
-	// collapses this list to a status and two counts, which is lossy by
-	// construction. This is the authoritative answer for any single CVE.
+	// The aggregate on RequestedLibraryVersion collapses this list to a status
+	// and two counts, which is lossy by construction. This is the authoritative
+	// answer for any single CVE.
 	//
 	// The signature is over the 80-character limit and cannot be brought under
 	// it: buf format puts an rpc signature on one line, and the method name plus
@@ -174,116 +83,6 @@ type requestGroupsServiceClient struct {
 
 func NewRequestGroupsServiceClient(cc grpc.ClientConnInterface) RequestGroupsServiceClient {
 	return &requestGroupsServiceClient{cc}
-}
-
-func (c *requestGroupsServiceClient) CreateRequestGroup(ctx context.Context, in *CreateRequestGroupRequest, opts ...grpc.CallOption) (*RequestGroup, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RequestGroup)
-	err := c.cc.Invoke(ctx, RequestGroupsService_CreateRequestGroup_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *requestGroupsServiceClient) ListRequestGroups(ctx context.Context, in *ListRequestGroupsRequest, opts ...grpc.CallOption) (*ListRequestGroupsResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListRequestGroupsResponse)
-	err := c.cc.Invoke(ctx, RequestGroupsService_ListRequestGroups_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *requestGroupsServiceClient) GetRequestGroup(ctx context.Context, in *GetRequestGroupRequest, opts ...grpc.CallOption) (*RequestGroup, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RequestGroup)
-	err := c.cc.Invoke(ctx, RequestGroupsService_GetRequestGroup_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *requestGroupsServiceClient) ListRequestGroupItems(ctx context.Context, in *ListRequestGroupItemsRequest, opts ...grpc.CallOption) (*ListRequestGroupItemsResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListRequestGroupItemsResponse)
-	err := c.cc.Invoke(ctx, RequestGroupsService_ListRequestGroupItems_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *requestGroupsServiceClient) SubmitRequestGroup(ctx context.Context, in *SubmitRequestGroupRequest, opts ...grpc.CallOption) (*RequestGroup, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RequestGroup)
-	err := c.cc.Invoke(ctx, RequestGroupsService_SubmitRequestGroup_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *requestGroupsServiceClient) UpdateRequestGroup(ctx context.Context, in *UpdateRequestGroupRequest, opts ...grpc.CallOption) (*RequestGroup, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RequestGroup)
-	err := c.cc.Invoke(ctx, RequestGroupsService_UpdateRequestGroup_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *requestGroupsServiceClient) RemoveItems(ctx context.Context, in *RemoveItemsRequest, opts ...grpc.CallOption) (*RemoveItemsResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RemoveItemsResponse)
-	err := c.cc.Invoke(ctx, RequestGroupsService_RemoveItems_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *requestGroupsServiceClient) RestoreItems(ctx context.Context, in *RestoreItemsRequest, opts ...grpc.CallOption) (*RestoreItemsResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RestoreItemsResponse)
-	err := c.cc.Invoke(ctx, RequestGroupsService_RestoreItems_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *requestGroupsServiceClient) DeleteRequestGroup(ctx context.Context, in *DeleteRequestGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, RequestGroupsService_DeleteRequestGroup_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *requestGroupsServiceClient) DeleteSubmittedRequestGroup(ctx context.Context, in *DeleteSubmittedRequestGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, RequestGroupsService_DeleteSubmittedRequestGroup_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *requestGroupsServiceClient) RefreshCoverage(ctx context.Context, in *RefreshCoverageRequest, opts ...grpc.CallOption) (*RequestGroup, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RequestGroup)
-	err := c.cc.Invoke(ctx, RequestGroupsService_RefreshCoverage_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *requestGroupsServiceClient) ListRequestedLibraries(ctx context.Context, in *ListRequestedLibrariesRequest, opts ...grpc.CallOption) (*ListRequestedLibrariesResponse, error) {
@@ -320,92 +119,13 @@ func (c *requestGroupsServiceClient) ListRequestedLibraryVersionCves(ctx context
 // All implementations must embed UnimplementedRequestGroupsServiceServer
 // for forward compatibility.
 //
-// RequestGroupsService manages an organization's requests for Chainguard-built
-// library versions.
+// RequestGroupsService reports the library versions an organization tracks:
+// the versions it asked Chainguard for, and, where usage tracking is enabled,
+// the versions it pulls through the Chainguard Repository.
 //
-// A request group starts as a DRAFT: the customer supplies a pinned input — a
-// Python lockfile or a Java GAV list — and the service reports, per version, what
-// Chainguard already has, what can be requested, and what cannot. Nothing is
-// built from a draft. SubmitRequestGroup is the commitment point, and it is
-// separately capability-gated for that reason.
+// Customers do not upload requests through this service. Explicit requests
+// come through Chainguard staff, over the internal /v1 routes.
 type RequestGroupsServiceServer interface {
-	// CreateRequestGroup parses a pinned input and returns a DRAFT group whose
-	// coverage check runs asynchronously. Poll GetRequestGroup until its status
-	// leaves creating/processing.
-	//
-	// Idempotent on the content hash of the input within the organization, so a
-	// retried upload rejoins the existing non-terminal group instead of starting a
-	// second coverage run over the same versions.
-	CreateRequestGroup(context.Context, *CreateRequestGroupRequest) (*RequestGroup, error)
-	// ListRequestGroups lists the organization's request groups. Defaults to
-	// submitted groups; pass state to include or isolate drafts.
-	ListRequestGroups(context.Context, *ListRequestGroupsRequest) (*ListRequestGroupsResponse, error)
-	// GetRequestGroup returns one group's metadata and summary counts.
-	//
-	// The response carries items_update_time as a high-water mark, so a client
-	// polling a large group can tell whether anything moved without paging the
-	// items again.
-	GetRequestGroup(context.Context, *GetRequestGroupRequest) (*RequestGroup, error)
-	// ListRequestGroupItems pages the per-item results, carrying both the build
-	// availability and the CVE-remediation status for each requested version.
-	//
-	// min_update_time supports delta sync against items_update_time, which is how a
-	// 10,000-item group is followed without repaging the whole set.
-	ListRequestGroupItems(context.Context, *ListRequestGroupItemsRequest) (*ListRequestGroupItemsResponse, error)
-	// SubmitRequestGroup promotes a DRAFT to SUBMITTED and queues builds for its
-	// requestable items.
-	//
-	// Its own RPC rather than a field mask on UpdateRequestGroup, because it is the
-	// point where a preview becomes committed work and it carries the group-level
-	// CVE-remediation decision. That lets it hold a distinct, Owner-only
-	// capability, which a mask on update could not express.
-	//
-	// Items that block a submit must be removed first: not_found_upstream,
-	// invalid_requirement and held. A wont_build item does not block one. It
-	// stays in the group as the record of what Chainguard declined to rebuild,
-	// and nothing builds it.
-	SubmitRequestGroup(context.Context, *SubmitRequestGroupRequest) (*RequestGroup, error)
-	// UpdateRequestGroup edits group metadata under a field mask. Renaming is the
-	// expected use; it cannot submit a group or change its items.
-	UpdateRequestGroup(context.Context, *UpdateRequestGroupRequest) (*RequestGroup, error)
-	// RemoveItems marks items as removed. Draft-only, and reversible via
-	// RestoreItems — the rows are retained rather than deleted so a customer can
-	// undo a removal while still editing.
-	//
-	// Every uid must belong to both the path group and the caller's organization;
-	// any mismatch fails the whole call rather than partially applying.
-	RemoveItems(context.Context, *RemoveItemsRequest) (*RemoveItemsResponse, error)
-	// RestoreItems returns previously removed items to the draft.
-	RestoreItems(context.Context, *RestoreItemsRequest) (*RestoreItemsResponse, error)
-	// DeleteRequestGroup cancels a DRAFT group and drops its item rows, keeping the
-	// group row as a tombstone so a stale link returns a sensible message rather
-	// than a bare 404. A sweeper hard-deletes the tombstone later.
-	//
-	// Draft-only. A submitted group is refused, because the organization has
-	// committed to the builds it names and a member's ordinary delete capability
-	// must not reach them. Deleting one is DeleteSubmittedRequestGroup below, whose
-	// capability no customer role can hold.
-	DeleteRequestGroup(context.Context, *DeleteRequestGroupRequest) (*emptypb.Empty, error)
-	// DeleteSubmittedRequestGroup deletes a group the organization already
-	// submitted, cancelling work it committed to.
-	//
-	// Chainguard-internal only, and a distinct method rather than a branch inside
-	// DeleteRequestGroup: which capability a caller needs would otherwise depend on
-	// the group's lifecycle state, so no annotation could describe it and the rule
-	// would have to be re-derived from a state read behind this surface. Two
-	// methods let the interceptor decide from the annotation alone, which is how
-	// every other RPC here is authorized.
-	//
-	// The deletion itself is the same two-phase operation either way -- cancel,
-	// drop the item rows, keep the tombstone -- so the two methods differ in who
-	// may ask, not in what happens.
-	DeleteSubmittedRequestGroup(context.Context, *DeleteSubmittedRequestGroupRequest) (*emptypb.Empty, error)
-	// RefreshCoverage re-runs the coverage check over a whole group.
-	//
-	// Chainguard-internal only. The scan is expensive, and submitted groups are
-	// kept current by a daily sweep, so this exists for support and incident
-	// escalation rather than as a customer control.
-	RefreshCoverage(context.Context, *RefreshCoverageRequest) (*RequestGroup, error)
 	// ListRequestedLibraries returns one row per library the organization
 	// tracks: versions it asked for, and versions it pulls through the
 	// Chainguard Repository. The source field chooses between them. Where usage
@@ -432,9 +152,9 @@ type RequestGroupsServiceServer interface {
 	// version's aggregate CVE status: the individual CVEs, what Chainguard
 	// decided about each, and which release fixes it.
 	//
-	// The aggregate on RequestedLibraryVersion and ListRequestGroupItems
-	// collapses this list to a status and two counts, which is lossy by
-	// construction. This is the authoritative answer for any single CVE.
+	// The aggregate on RequestedLibraryVersion collapses this list to a status
+	// and two counts, which is lossy by construction. This is the authoritative
+	// answer for any single CVE.
 	//
 	// The signature is over the 80-character limit and cannot be brought under
 	// it: buf format puts an rpc signature on one line, and the method name plus
@@ -453,39 +173,6 @@ type RequestGroupsServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedRequestGroupsServiceServer struct{}
 
-func (UnimplementedRequestGroupsServiceServer) CreateRequestGroup(context.Context, *CreateRequestGroupRequest) (*RequestGroup, error) {
-	return nil, status.Error(codes.Unimplemented, "method CreateRequestGroup not implemented")
-}
-func (UnimplementedRequestGroupsServiceServer) ListRequestGroups(context.Context, *ListRequestGroupsRequest) (*ListRequestGroupsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListRequestGroups not implemented")
-}
-func (UnimplementedRequestGroupsServiceServer) GetRequestGroup(context.Context, *GetRequestGroupRequest) (*RequestGroup, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetRequestGroup not implemented")
-}
-func (UnimplementedRequestGroupsServiceServer) ListRequestGroupItems(context.Context, *ListRequestGroupItemsRequest) (*ListRequestGroupItemsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListRequestGroupItems not implemented")
-}
-func (UnimplementedRequestGroupsServiceServer) SubmitRequestGroup(context.Context, *SubmitRequestGroupRequest) (*RequestGroup, error) {
-	return nil, status.Error(codes.Unimplemented, "method SubmitRequestGroup not implemented")
-}
-func (UnimplementedRequestGroupsServiceServer) UpdateRequestGroup(context.Context, *UpdateRequestGroupRequest) (*RequestGroup, error) {
-	return nil, status.Error(codes.Unimplemented, "method UpdateRequestGroup not implemented")
-}
-func (UnimplementedRequestGroupsServiceServer) RemoveItems(context.Context, *RemoveItemsRequest) (*RemoveItemsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method RemoveItems not implemented")
-}
-func (UnimplementedRequestGroupsServiceServer) RestoreItems(context.Context, *RestoreItemsRequest) (*RestoreItemsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method RestoreItems not implemented")
-}
-func (UnimplementedRequestGroupsServiceServer) DeleteRequestGroup(context.Context, *DeleteRequestGroupRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method DeleteRequestGroup not implemented")
-}
-func (UnimplementedRequestGroupsServiceServer) DeleteSubmittedRequestGroup(context.Context, *DeleteSubmittedRequestGroupRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method DeleteSubmittedRequestGroup not implemented")
-}
-func (UnimplementedRequestGroupsServiceServer) RefreshCoverage(context.Context, *RefreshCoverageRequest) (*RequestGroup, error) {
-	return nil, status.Error(codes.Unimplemented, "method RefreshCoverage not implemented")
-}
 func (UnimplementedRequestGroupsServiceServer) ListRequestedLibraries(context.Context, *ListRequestedLibrariesRequest) (*ListRequestedLibrariesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListRequestedLibraries not implemented")
 }
@@ -514,204 +201,6 @@ func RegisterRequestGroupsServiceServer(s grpc.ServiceRegistrar, srv RequestGrou
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&RequestGroupsService_ServiceDesc, srv)
-}
-
-func _RequestGroupsService_CreateRequestGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateRequestGroupRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RequestGroupsServiceServer).CreateRequestGroup(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RequestGroupsService_CreateRequestGroup_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RequestGroupsServiceServer).CreateRequestGroup(ctx, req.(*CreateRequestGroupRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _RequestGroupsService_ListRequestGroups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListRequestGroupsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RequestGroupsServiceServer).ListRequestGroups(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RequestGroupsService_ListRequestGroups_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RequestGroupsServiceServer).ListRequestGroups(ctx, req.(*ListRequestGroupsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _RequestGroupsService_GetRequestGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetRequestGroupRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RequestGroupsServiceServer).GetRequestGroup(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RequestGroupsService_GetRequestGroup_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RequestGroupsServiceServer).GetRequestGroup(ctx, req.(*GetRequestGroupRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _RequestGroupsService_ListRequestGroupItems_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListRequestGroupItemsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RequestGroupsServiceServer).ListRequestGroupItems(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RequestGroupsService_ListRequestGroupItems_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RequestGroupsServiceServer).ListRequestGroupItems(ctx, req.(*ListRequestGroupItemsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _RequestGroupsService_SubmitRequestGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SubmitRequestGroupRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RequestGroupsServiceServer).SubmitRequestGroup(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RequestGroupsService_SubmitRequestGroup_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RequestGroupsServiceServer).SubmitRequestGroup(ctx, req.(*SubmitRequestGroupRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _RequestGroupsService_UpdateRequestGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateRequestGroupRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RequestGroupsServiceServer).UpdateRequestGroup(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RequestGroupsService_UpdateRequestGroup_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RequestGroupsServiceServer).UpdateRequestGroup(ctx, req.(*UpdateRequestGroupRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _RequestGroupsService_RemoveItems_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RemoveItemsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RequestGroupsServiceServer).RemoveItems(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RequestGroupsService_RemoveItems_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RequestGroupsServiceServer).RemoveItems(ctx, req.(*RemoveItemsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _RequestGroupsService_RestoreItems_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RestoreItemsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RequestGroupsServiceServer).RestoreItems(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RequestGroupsService_RestoreItems_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RequestGroupsServiceServer).RestoreItems(ctx, req.(*RestoreItemsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _RequestGroupsService_DeleteRequestGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteRequestGroupRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RequestGroupsServiceServer).DeleteRequestGroup(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RequestGroupsService_DeleteRequestGroup_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RequestGroupsServiceServer).DeleteRequestGroup(ctx, req.(*DeleteRequestGroupRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _RequestGroupsService_DeleteSubmittedRequestGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteSubmittedRequestGroupRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RequestGroupsServiceServer).DeleteSubmittedRequestGroup(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RequestGroupsService_DeleteSubmittedRequestGroup_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RequestGroupsServiceServer).DeleteSubmittedRequestGroup(ctx, req.(*DeleteSubmittedRequestGroupRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _RequestGroupsService_RefreshCoverage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RefreshCoverageRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RequestGroupsServiceServer).RefreshCoverage(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RequestGroupsService_RefreshCoverage_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RequestGroupsServiceServer).RefreshCoverage(ctx, req.(*RefreshCoverageRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _RequestGroupsService_ListRequestedLibraries_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -775,50 +264,6 @@ var RequestGroupsService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "chainguard.platform.libraries.v2beta1.RequestGroupsService",
 	HandlerType: (*RequestGroupsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "CreateRequestGroup",
-			Handler:    _RequestGroupsService_CreateRequestGroup_Handler,
-		},
-		{
-			MethodName: "ListRequestGroups",
-			Handler:    _RequestGroupsService_ListRequestGroups_Handler,
-		},
-		{
-			MethodName: "GetRequestGroup",
-			Handler:    _RequestGroupsService_GetRequestGroup_Handler,
-		},
-		{
-			MethodName: "ListRequestGroupItems",
-			Handler:    _RequestGroupsService_ListRequestGroupItems_Handler,
-		},
-		{
-			MethodName: "SubmitRequestGroup",
-			Handler:    _RequestGroupsService_SubmitRequestGroup_Handler,
-		},
-		{
-			MethodName: "UpdateRequestGroup",
-			Handler:    _RequestGroupsService_UpdateRequestGroup_Handler,
-		},
-		{
-			MethodName: "RemoveItems",
-			Handler:    _RequestGroupsService_RemoveItems_Handler,
-		},
-		{
-			MethodName: "RestoreItems",
-			Handler:    _RequestGroupsService_RestoreItems_Handler,
-		},
-		{
-			MethodName: "DeleteRequestGroup",
-			Handler:    _RequestGroupsService_DeleteRequestGroup_Handler,
-		},
-		{
-			MethodName: "DeleteSubmittedRequestGroup",
-			Handler:    _RequestGroupsService_DeleteSubmittedRequestGroup_Handler,
-		},
-		{
-			MethodName: "RefreshCoverage",
-			Handler:    _RequestGroupsService_RefreshCoverage_Handler,
-		},
 		{
 			MethodName: "ListRequestedLibraries",
 			Handler:    _RequestGroupsService_ListRequestedLibraries_Handler,

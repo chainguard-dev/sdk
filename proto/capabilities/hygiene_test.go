@@ -49,6 +49,13 @@ var neverAssignBits = map[uint32]retiredBit{
 	135: {reason: "never assigned (allocation skip); frozen for safety"},
 	136: {reason: "never assigned (allocation skip); frozen for safety"},
 	143: {reason: "never assigned (allocation skip); frozen for safety"},
+	209: {number: 1874, reason: "libraries.request_groups.create, deleted in TRK-377"},
+	211: {number: 1876, reason: "libraries.request_groups.update, deleted in TRK-377"},
+	212: {number: 1877, reason: "libraries.request_groups.delete, deleted in TRK-377"},
+	213: {number: 1878, reason: "libraries.request_groups.submit, deleted in TRK-377"},
+	214: {number: 1879, reason: "libraries.request_groups.items.update, deleted in TRK-377"},
+	215: {number: 1880, reason: "libraries.request_groups.refresh_coverage, deleted in TRK-377"},
+	216: {number: 1881, reason: "libraries.request_groups.delete_submitted, deleted in TRK-377"},
 }
 
 // capabilityBits enumerates every non-UNKNOWN enum value's (bit) option via

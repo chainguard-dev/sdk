@@ -81,7 +81,6 @@ func TestRepositoryPublisherCoversEveryUpload(t *testing.T) {
 	notUpload := map[string]struct{}{
 		"libraries.entitlements.create":      {},
 		"libraries.remote_registries.create": {},
-		"libraries.request_groups.create":    {},
 		"libraries.policy.create":            {},
 	}
 	for i := range Capability_name {
