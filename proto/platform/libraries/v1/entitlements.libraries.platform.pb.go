@@ -72,6 +72,15 @@ const (
 	// enum). No Athena tier is planned for PHP; registering this value
 	// activates nothing and it is not eligible for self-serve provisioning.
 	Ecosystem_PHP_ATHENA Ecosystem = 16
+	// Swift (Swift Package Registry) ecosystem (mirrors SWIFT = 17 in the
+	// datastore Ecosystem enum). Registering this value does not activate
+	// serving.
+	Ecosystem_SWIFT Ecosystem = 17
+	// Reserved to pair SWIFT (mirrors SWIFT_SECURE = 18 in the datastore
+	// Ecosystem enum). No Athena tier is planned for Swift; registering this
+	// value activates nothing and it is not eligible for self-serve
+	// provisioning.
+	Ecosystem_SWIFT_ATHENA Ecosystem = 18
 )
 
 // Enum value maps for Ecosystem.
@@ -94,6 +103,8 @@ var (
 		14: "RUST_ATHENA",
 		15: "PHP",
 		16: "PHP_ATHENA",
+		17: "SWIFT",
+		18: "SWIFT_ATHENA",
 	}
 	Ecosystem_value = map[string]int32{
 		"UNKNOWN":           0,
@@ -113,6 +124,8 @@ var (
 		"RUST_ATHENA":       14,
 		"PHP":               15,
 		"PHP_ATHENA":        16,
+		"SWIFT":             17,
+		"SWIFT_ATHENA":      18,
 	}
 )
 
@@ -638,7 +651,7 @@ const file_entitlements_libraries_platform_proto_rawDesc = "" +
 	"ecosystems\x18\x02 \x03(\x0e2(.chainguard.platform.libraries.EcosystemR\n" +
 	"ecosystems\"2\n" +
 	"\x18DeleteEntitlementRequest\x12\x16\n" +
-	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id*\xfe\x01\n" +
+	"\x02id\x18\x01 \x01(\tB\x06\x90\xaf\xa8\xd2\x05\x01R\x02id*\x9b\x02\n" +
 	"\tEcosystem\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\b\n" +
 	"\x04JAVA\x10\x01\x12\n" +
@@ -661,7 +674,9 @@ const file_entitlements_libraries_platform_proto_rawDesc = "" +
 	"\vRUST_ATHENA\x10\x0e\x12\a\n" +
 	"\x03PHP\x10\x0f\x12\x0e\n" +
 	"\n" +
-	"PHP_ATHENA\x10\x10*W\n" +
+	"PHP_ATHENA\x10\x10\x12\t\n" +
+	"\x05SWIFT\x10\x11\x12\x10\n" +
+	"\fSWIFT_ATHENA\x10\x12*W\n" +
 	"\x06Policy\x12\x12\n" +
 	"\x0ePOLICY_UNKNOWN\x10\x00\x12\x15\n" +
 	"\x11POLICY_CHAINGUARD\x10\x01\x12\"\n" +

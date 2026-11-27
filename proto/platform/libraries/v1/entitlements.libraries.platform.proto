@@ -141,6 +141,15 @@ enum Ecosystem {
   // enum). No Athena tier is planned for PHP; registering this value
   // activates nothing and it is not eligible for self-serve provisioning.
   PHP_ATHENA = 16;
+  // Swift (Swift Package Registry) ecosystem (mirrors SWIFT = 17 in the
+  // datastore Ecosystem enum). Registering this value does not activate
+  // serving.
+  SWIFT = 17;
+  // Reserved to pair SWIFT (mirrors SWIFT_SECURE = 18 in the datastore
+  // Ecosystem enum). No Athena tier is planned for Swift; registering this
+  // value activates nothing and it is not eligible for self-serve
+  // provisioning.
+  SWIFT_ATHENA = 18;
 }
 
 // Policy controls which package sources are available for an entitlement.

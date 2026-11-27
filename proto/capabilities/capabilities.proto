@@ -219,6 +219,10 @@ enum Capability {
   CAP_LIBRARIES_RUBY_LIST = 1836 [(name) = "libraries.ruby.list", (bit) = 229];
   CAP_LIBRARIES_RUST_LIST = 1837 [(name) = "libraries.rust.list", (bit) = 259];
   CAP_LIBRARIES_PHP_LIST = 1838 [(name) = "libraries.php.list", (bit) = 277];
+  CAP_LIBRARIES_SWIFT_LIST = 1839 [
+    (name) = "libraries.swift.list",
+    (bit) = 278
+  ];
   // Deleting an org's own uploaded version. Held by the owner role (and so by
   // support, which is built from OwnerCaps), not by repository.publisher: CI
   // that publishes does not need to delete, and a leaked publisher token must
@@ -766,5 +770,5 @@ enum Capability {
   CAP_ENTITLEMENTS_GET = 3203 [(name) = "entitlements.get", (bit) = 252];
 
   reserved 1;
-  // next bit: 278
+  // next bit: 279
 }

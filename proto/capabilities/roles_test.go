@@ -158,6 +158,24 @@ func TestLibrariesPHPPullCaps(t *testing.T) {
 	}
 }
 
+// Pulling Swift packages must not grant write access or unrelated ecosystem
+// capabilities.
+func TestLibrariesSwiftPullCaps(t *testing.T) {
+	want := SortCaps([]Capability{
+		Capability_CAP_LIBRARIES_ENTITLEMENTS_LIST,
+		Capability_CAP_LIBRARIES_SWIFT_LIST,
+	})
+	if diff := cmp.Diff(want, LibrariesSwiftPullCaps); diff != "" {
+		t.Errorf("LibrariesSwiftPullCaps (-want, +got): %s", diff)
+	}
+	if !slices.Contains(OwnerCaps, Capability_CAP_LIBRARIES_SWIFT_LIST) {
+		t.Error("OwnerCaps must include Swift pull access")
+	}
+	if slices.Contains(ViewerCaps, Capability_CAP_LIBRARIES_SWIFT_LIST) {
+		t.Error("ViewerCaps must not implicitly grant Swift pull access")
+	}
+}
+
 // Owners hold the upload caps, and the upload bundle carries no hunt caps:
 // uploading must not let a holder start or read hunts.
 func TestHarnessUploadCaps(t *testing.T) {
