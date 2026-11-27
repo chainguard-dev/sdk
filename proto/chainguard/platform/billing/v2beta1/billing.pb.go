@@ -53,10 +53,10 @@ type CreateCheckoutSessionRequest struct {
 	// balance expires a year after purchase. Ignored for an organization whose
 	// compute usage Chainguard bills monthly.
 	TopUpAmountCents int64 `protobuf:"varint,3,opt,name=top_up_amount_cents,json=topUpAmountCents,proto3" json:"top_up_amount_cents,omitempty"`
-	// For compute, stop new work when the prepaid balance is spent, instead of
-	// the default: charging the card again whenever the balance falls below
-	// 20% of the amount bought, to refill it. The checkout page states which.
-	// Refused until stopping work is available.
+	// For compute, stop new work when the prepaid balance is spent. Every
+	// balance is bought this way, and the card is not charged again to refill
+	// it, so this changes nothing for one. Refused for an organization whose
+	// compute usage Chainguard bills monthly.
 	StopWhenSpent bool `protobuf:"varint,4,opt,name=stop_when_spent,json=stopWhenSpent,proto3" json:"stop_when_spent,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

@@ -166,10 +166,10 @@ message CreateCheckoutSessionRequest {
   // compute usage Chainguard bills monthly.
   int64 top_up_amount_cents = 3 [(google.api.field_behavior) = OPTIONAL];
 
-  // For compute, stop new work when the prepaid balance is spent, instead of
-  // the default: charging the card again whenever the balance falls below
-  // 20% of the amount bought, to refill it. The checkout page states which.
-  // Refused until stopping work is available.
+  // For compute, stop new work when the prepaid balance is spent. Every
+  // balance is bought this way, and the card is not charged again to refill
+  // it, so this changes nothing for one. Refused for an organization whose
+  // compute usage Chainguard bills monthly.
   bool stop_when_spent = 4 [(google.api.field_behavior) = OPTIONAL];
 }
 
