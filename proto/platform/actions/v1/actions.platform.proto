@@ -272,16 +272,61 @@ message AuthorizationResponse {
 //   - Unverified call (no bearer): the `repository` field is REQUIRED
 //     and is taken as-is. The recorded event is marked unverified.
 //
-// There are no other caller-supplied fields — no metrics, no
-// attributes, no free-form text. The recording is internal: the
-// server keeps a usage record per repository (today via structured
-// logging), and the response is empty.
+// The remaining fields are optional and self-reported by the shim
+// that runs inside the action. The server never treats them as
+// verified, even on a verified call: they are stored beside the OIDC
+// claims, never in place of them. Shims published before these fields
+// existed send `action` and nothing else.
+//
+// A well-typed field that fails its cap is dropped and the call is
+// still recorded. A wrongly typed JSON field is different: the
+// gateway rejects the whole request, so a shim must send the IDs as
+// JSON strings and elapsed_seconds as a whole number.
 message RecordRequest {
   // repository is the owner/repo slug, e.g. "chainguard-dev/mono".
   // Required on unverified calls; ignored on verified calls. Server-
   // enforced caps: non-empty, ≤256 bytes, must contain a single "/"
   // separating non-empty owner and repo segments.
   string repository = 1;
+
+  // action is the hardened action that sent the ping, as the runner
+  // reports it in GITHUB_ACTION_REPOSITORY, e.g. "actions/setup-go".
+  // Cap: ≤256 bytes.
+  string action = 2;
+
+  // phase says when in the job the ping was sent: "start" or "end".
+  // Any other value is dropped. Shims that predate the field send
+  // none.
+  string phase = 3;
+
+  // elapsed_seconds is how long the job had been running when an end
+  // ping was sent, measured on the runner. Only read when phase is
+  // "end". Cap: 1 to 432000 (GitHub's 5-day limit for a job on a
+  // self-hosted runner).
+  int64 elapsed_seconds = 4;
+
+  // run_id and run_attempt are GITHUB_RUN_ID and GITHUB_RUN_ATTEMPT.
+  // Cap: ≤256 bytes each.
+  string run_id = 5;
+  string run_attempt = 6;
+
+  // job is GITHUB_JOB, the job's key in the workflow file. Matrix
+  // legs share it. Cap: ≤256 bytes.
+  string job = 7;
+
+  // job_instance is a random value the shim makes up once per job
+  // and shares between the hardened actions in that job. It tells
+  // apart matrix legs, which share run_id, run_attempt and job. It
+  // must not be derived from the runner's name or anything else that
+  // could identify a person or a machine. Cap: ≤256 bytes.
+  string job_instance = 8;
+
+  // runner_environment is RUNNER_ENVIRONMENT: "github-hosted" or
+  // "self-hosted". Cap: ≤256 bytes.
+  string runner_environment = 9;
+
+  // runner_os is RUNNER_OS, e.g. "Linux". Cap: ≤256 bytes.
+  string runner_os = 10;
 }
 
 // RecordResponse is empty on success. Failure is signaled by a

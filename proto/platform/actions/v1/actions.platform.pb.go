@@ -492,17 +492,54 @@ func (x *AuthorizationResponse) GetClaims() map[string]string {
 //   - Unverified call (no bearer): the `repository` field is REQUIRED
 //     and is taken as-is. The recorded event is marked unverified.
 //
-// There are no other caller-supplied fields — no metrics, no
-// attributes, no free-form text. The recording is internal: the
-// server keeps a usage record per repository (today via structured
-// logging), and the response is empty.
+// The remaining fields are optional and self-reported by the shim
+// that runs inside the action. The server never treats them as
+// verified, even on a verified call: they are stored beside the OIDC
+// claims, never in place of them. Shims published before these fields
+// existed send `action` and nothing else.
+//
+// A well-typed field that fails its cap is dropped and the call is
+// still recorded. A wrongly typed JSON field is different: the
+// gateway rejects the whole request, so a shim must send the IDs as
+// JSON strings and elapsed_seconds as a whole number.
 type RecordRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// repository is the owner/repo slug, e.g. "chainguard-dev/mono".
 	// Required on unverified calls; ignored on verified calls. Server-
 	// enforced caps: non-empty, ≤256 bytes, must contain a single "/"
 	// separating non-empty owner and repo segments.
-	Repository    string `protobuf:"bytes,1,opt,name=repository,proto3" json:"repository,omitempty"`
+	Repository string `protobuf:"bytes,1,opt,name=repository,proto3" json:"repository,omitempty"`
+	// action is the hardened action that sent the ping, as the runner
+	// reports it in GITHUB_ACTION_REPOSITORY, e.g. "actions/setup-go".
+	// Cap: ≤256 bytes.
+	Action string `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
+	// phase says when in the job the ping was sent: "start" or "end".
+	// Any other value is dropped. Shims that predate the field send
+	// none.
+	Phase string `protobuf:"bytes,3,opt,name=phase,proto3" json:"phase,omitempty"`
+	// elapsed_seconds is how long the job had been running when an end
+	// ping was sent, measured on the runner. Only read when phase is
+	// "end". Cap: 1 to 432000 (GitHub's 5-day limit for a job on a
+	// self-hosted runner).
+	ElapsedSeconds int64 `protobuf:"varint,4,opt,name=elapsed_seconds,json=elapsedSeconds,proto3" json:"elapsed_seconds,omitempty"`
+	// run_id and run_attempt are GITHUB_RUN_ID and GITHUB_RUN_ATTEMPT.
+	// Cap: ≤256 bytes each.
+	RunId      string `protobuf:"bytes,5,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
+	RunAttempt string `protobuf:"bytes,6,opt,name=run_attempt,json=runAttempt,proto3" json:"run_attempt,omitempty"`
+	// job is GITHUB_JOB, the job's key in the workflow file. Matrix
+	// legs share it. Cap: ≤256 bytes.
+	Job string `protobuf:"bytes,7,opt,name=job,proto3" json:"job,omitempty"`
+	// job_instance is a random value the shim makes up once per job
+	// and shares between the hardened actions in that job. It tells
+	// apart matrix legs, which share run_id, run_attempt and job. It
+	// must not be derived from the runner's name or anything else that
+	// could identify a person or a machine. Cap: ≤256 bytes.
+	JobInstance string `protobuf:"bytes,8,opt,name=job_instance,json=jobInstance,proto3" json:"job_instance,omitempty"`
+	// runner_environment is RUNNER_ENVIRONMENT: "github-hosted" or
+	// "self-hosted". Cap: ≤256 bytes.
+	RunnerEnvironment string `protobuf:"bytes,9,opt,name=runner_environment,json=runnerEnvironment,proto3" json:"runner_environment,omitempty"`
+	// runner_os is RUNNER_OS, e.g. "Linux". Cap: ≤256 bytes.
+	RunnerOs      string `protobuf:"bytes,10,opt,name=runner_os,json=runnerOs,proto3" json:"runner_os,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -540,6 +577,69 @@ func (*RecordRequest) Descriptor() ([]byte, []int) {
 func (x *RecordRequest) GetRepository() string {
 	if x != nil {
 		return x.Repository
+	}
+	return ""
+}
+
+func (x *RecordRequest) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
+func (x *RecordRequest) GetPhase() string {
+	if x != nil {
+		return x.Phase
+	}
+	return ""
+}
+
+func (x *RecordRequest) GetElapsedSeconds() int64 {
+	if x != nil {
+		return x.ElapsedSeconds
+	}
+	return 0
+}
+
+func (x *RecordRequest) GetRunId() string {
+	if x != nil {
+		return x.RunId
+	}
+	return ""
+}
+
+func (x *RecordRequest) GetRunAttempt() string {
+	if x != nil {
+		return x.RunAttempt
+	}
+	return ""
+}
+
+func (x *RecordRequest) GetJob() string {
+	if x != nil {
+		return x.Job
+	}
+	return ""
+}
+
+func (x *RecordRequest) GetJobInstance() string {
+	if x != nil {
+		return x.JobInstance
+	}
+	return ""
+}
+
+func (x *RecordRequest) GetRunnerEnvironment() string {
+	if x != nil {
+		return x.RunnerEnvironment
+	}
+	return ""
+}
+
+func (x *RecordRequest) GetRunnerOs() string {
+	if x != nil {
+		return x.RunnerOs
 	}
 	return ""
 }
@@ -615,11 +715,22 @@ const file_actions_platform_proto_rawDesc = "" +
 	"\x06claims\x18\x01 \x03(\v2>.chainguard.platform.actions.AuthorizationResponse.ClaimsEntryR\x06claims\x1a9\n" +
 	"\vClaimsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"/\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xbf\x02\n" +
 	"\rRecordRequest\x12\x1e\n" +
 	"\n" +
 	"repository\x18\x01 \x01(\tR\n" +
-	"repository\"\x10\n" +
+	"repository\x12\x16\n" +
+	"\x06action\x18\x02 \x01(\tR\x06action\x12\x14\n" +
+	"\x05phase\x18\x03 \x01(\tR\x05phase\x12'\n" +
+	"\x0felapsed_seconds\x18\x04 \x01(\x03R\x0eelapsedSeconds\x12\x15\n" +
+	"\x06run_id\x18\x05 \x01(\tR\x05runId\x12\x1f\n" +
+	"\vrun_attempt\x18\x06 \x01(\tR\n" +
+	"runAttempt\x12\x10\n" +
+	"\x03job\x18\a \x01(\tR\x03job\x12!\n" +
+	"\fjob_instance\x18\b \x01(\tR\vjobInstance\x12-\n" +
+	"\x12runner_environment\x18\t \x01(\tR\x11runnerEnvironment\x12\x1b\n" +
+	"\trunner_os\x18\n" +
+	" \x01(\tR\brunnerOs\"\x10\n" +
 	"\x0eRecordResponse2\xcd\x06\n" +
 	"\x14ActionsAuthorization\x12\xad\x01\n" +
 	"\x11AuthorizeWithOIDC\x125.chainguard.platform.actions.AuthorizeWithOIDCRequest\x1a2.chainguard.platform.actions.AuthorizationResponse\"-\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/actions/v1/authorize/oidc\x8a\xaf\xa8\xd2\x05\x02\n" +
