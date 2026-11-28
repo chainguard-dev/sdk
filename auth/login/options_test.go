@@ -19,6 +19,7 @@ func TestConfFromOptions(t *testing.T) {
 	id := uidp.NewUID().String()
 
 	testIssuer := httptest.NewServer(expectedBehavior("chainguard.dev"))
+	t.Cleanup(testIssuer.Close)
 
 	tests := map[string]struct {
 		Options    []Option
@@ -150,7 +151,7 @@ func TestConfFromOptions(t *testing.T) {
 			// We need to ignore unexported fields of os.File because the default value of
 			// MessageWriter is os.Stderr, and its unexported fields cause problems with
 			// cmp.Diff otherwise.
-			if diff := cmp.Diff(gotConfig, data.WantConfig, cmpopts.IgnoreUnexported(os.File{})); diff != "" {
+			if diff := cmp.Diff(data.WantConfig, gotConfig, cmpopts.IgnoreUnexported(os.File{})); diff != "" {
 				t.Errorf("diff in expected config = %s", diff)
 			}
 		})
